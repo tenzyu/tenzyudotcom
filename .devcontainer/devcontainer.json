@@ -4,5 +4,13 @@
 	"build": {
 		"dockerfile": "Dockerfile"
 	},
-  "remoteUser": "node"
+	"remoteUser": "node",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"astro-build.astro-vscode"
+			]
+		}
+	},
+	"postCreateCommand": "npm run astro telemetry disable"
 }
