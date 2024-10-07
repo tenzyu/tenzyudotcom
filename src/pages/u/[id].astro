@@ -1,0 +1,13 @@
+---
+import { MY_LINKS } from "../../consts"
+
+export const getStaticPaths = () => {
+  return MY_LINKS.map(link => ({ params: { id: link.shortenUrl }}))
+}
+const { id } = Astro.params
+
+const targetLink = MY_LINKS.find(link => link.shortenUrl === id)
+if (targetLink) {
+  return Astro.redirect(targetLink.url)
+}
+---
