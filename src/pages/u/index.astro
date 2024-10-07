@@ -130,25 +130,20 @@ import { MY_LINKS, SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
 		<script>
 			import { MY_LINKS } from "src/consts";
 
-			// Attach event listeners for each link
 			{MY_LINKS.forEach((link, index) => {
-				const dialog = document.getElementById(`js-dialog-${index}`);
+				const dialog = document.getElementById(`js-dialog-${index}`) as HTMLDialogElement
 				const dialogCloser = document.getElementById(`js-dialog-closer-${index}`);
 				const dialogOpener = document.getElementById(`js-dialog-opener-${index}`);
 				const copyButton = document.getElementById(`copy-button-${index}`);
 
-				// Open dialog on click
+				if (!(dialog && dialogOpener && dialogCloser && copyButton)) return
+
 				dialogOpener.addEventListener('click', () => {
-					console.log('it called')
 					dialog.showModal();
 				});
-
-				// Close dialog on click
 				dialogCloser.addEventListener('click', () => {
 					dialog.close();
 				});
-
-				// Copy link to clipboard on click
 				copyButton.addEventListener('click', () => {
 					const url = window.location.origin + "/u/" + link.shortenUrl;
 					navigator.clipboard.writeText(url).then(() => {
