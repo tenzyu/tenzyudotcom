@@ -6,8 +6,14 @@ export const getStaticPaths = () => {
 }
 const { id } = Astro.params
 
-const targetLink = MY_LINKS.find(link => link.shortenUrl === id)
-if (targetLink) {
-  return Astro.redirect(targetLink.url)
-}
+const targetLink = MY_LINKS.find(link => link.shortenUrl === id)!
 ---
+
+<!doctype html>
+<title>Redirecting to: {targetLink.url}</title>
+<meta http-equiv="refresh" content=`0;url=${targetLink.url}`>
+<meta name="robots" content="noindex">
+<link rel="canonical" href={targetLink.url}>
+<body>
+<a href={targetLink.url}>Redirecting from <code>/u/{targetLink.shortenUrl}/</code> to <code>{targetLink.url}</code></a>
+</body>

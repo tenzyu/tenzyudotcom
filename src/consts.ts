@@ -13,7 +13,7 @@ export type MyLink = {
 export const MY_LINKS: MyLink[]= [
     {
         title: 'osu - profile',
-        url: 'https://osu.ppy.sh/u/tenzyu',
+        url: 'https://osu.ppy.sh/users/23318599',
         shortenUrl: 'osu'
     },
     {
