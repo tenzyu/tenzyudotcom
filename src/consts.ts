@@ -43,7 +43,7 @@ export const MY_LINKS: MyLink[] = [
   },
   {
     title: "Donation",
-    url: "https://streamlabs.com/tenzyuosu/tip",
+    url: "https://streamlabs.com/tenzyudotcom/tip",
     shortenUrl: "donation",
   },
   {
