@@ -3,7 +3,6 @@
 import type { MyLink } from "@/data/links"
 import { Card, CardContent } from "@/components/ui/card"
 import { ShareDialog } from "./share-dialog"
-import { Button } from "./ui/button"
 
 interface LinkCardProps {
     link: MyLink
