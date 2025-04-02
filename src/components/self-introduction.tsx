@@ -11,9 +11,7 @@ export function SelfIntroduction() {
             <Card>
                 <CardContent className="p-6">
                     <h3 className="text-xl font-bold mb-4">自己紹介</h3>
-
                     <p className="text-lg font-medium mb-3">天珠 (テンジュ) といいます</p>
-
                     <ul className="space-y-2 list-disc pl-5 mb-4">
                         <li>2002年生まれの22歳です</li>
                         <li>osu! は 2021年の5月からプレイしています</li>
