@@ -2,22 +2,18 @@
   "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.13.6/.schema/devbox.schema.json",
 
   "packages": [
-    "nodejs@22",
-    "pnpm@9.15.0"
+    "nodejs@20.15.1",
+    "pnpm@10.7.0",
+    "ngrok@latest"
   ],
-  "env": {
-    "DEVBOX_COREPACK_ENABLED": "true"
-  },
   "shell": {
     "init_hook": [
-      "echo 'Welcome to devbox!' > /dev/null",
-      "pnpm install"
+      "echo 'Welcome to devbox!' > /dev/null"
     ],
     "scripts": {
       "test": [
         "echo \"Error: no test specified\" && exit 1"
-      ],
-      "run_test": "pnpm run start"
+      ]
     }
   }
 }

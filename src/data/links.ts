@@ -1,9 +1,3 @@
-// Place any global data in this file.
-// You can import this data from anywhere in your site by using the `import` keyword.
-
-export const SITE_TITLE = `tenzyu.com`;
-export const SITE_DESCRIPTION = "Scraps not worth posting on any platform";
-
 export type MyLink = {
   title: string;
   url: string;
@@ -15,11 +9,6 @@ export const MY_LINKS: MyLink[] = [
     title: "osu - profile",
     url: "https://osu.ppy.sh/users/23318599",
     shortenUrl: "osu",
-  },
-  {
-    title: "osu - grip & area",
-    url: "https://x.com/tenzyuosu/status/1835714279963775408",
-    shortenUrl: "osusettings",
   },
   {
     title: "osu - beatmaps for begginers",
@@ -40,11 +29,6 @@ export const MY_LINKS: MyLink[] = [
     title: "YouTube",
     url: "https://www.youtube.com/@tenzyudotcom",
     shortenUrl: "youtube",
-  },
-  {
-    title: "Donation",
-    url: "https://streamlabs.com/tenzyudotcom/tip",
-    shortenUrl: "donation",
   },
   {
     title: "Twitter",
