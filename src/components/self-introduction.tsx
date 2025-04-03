@@ -10,55 +10,11 @@ export function SelfIntroduction() {
     <div className="w-full max-w-md mx-auto space-y-4">
       <Card>
         <CardContent className="px-6 py-1">
-          <h3 className="text-xl font-bold mb-4">自己紹介</h3>
-          <p className="text-lg font-medium mb-3">天珠 (テンジュ) といいます</p>
-          <ul className="space-y-2 list-disc pl-5 mb-4">
-            <li>2002年生まれの22歳です</li>
-            <li>osu! は 2021年の5月からプレイしています</li>
-            <li>配信する前はプログラマーでした</li>
-          </ul>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardContent className="px-6 py-1">
-          <h3 className="text-xl font-bold mb-4">目標</h3>
-
-          <div className="space-y-4">
-            <div>
-              <p className="mb-2">osu! の日本一を目指しています。</p>
-              <Button
-                variant="outline"
-                className="w-full flex items-center justify-center gap-2"
-                onClick={() => window.open("https://osu.ppy.sh/users/23318599", "_blank")}
-              >
-                <Image src="/osu-logo.png" alt="osu! logo" width={24} height={24} className="rounded-full" />
-                <span>tenzyu</span>
-              </Button>
-            </div>
-
-            <div>
-              <p className="mb-2">Twitch Partner を目指しています。</p>
-              <Button
-                variant="outline"
-                className="w-full flex items-center justify-center gap-2"
-                onClick={() => window.open("https://twitch.tv/tenzyudotcom", "_blank")}
-              >
-                <Image src="/twitch-logo.png" alt="Twitch logo" width={24} height={24} />
-                <span>tenzyudotcom</span>
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardContent className="px-6 py-1">
           <h3 className="text-xl font-bold mb-4">配信する理由</h3>
           <ul className="space-y-2 list-disc pl-5">
             <li>成長記録</li>
             <li>osu のライバルを増やす</li>
-            <li>生活をする</li>
+            <li>お金を稼ぐ (生活をする)</li>
           </ul>
         </CardContent>
       </Card>
