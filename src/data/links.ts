@@ -45,4 +45,9 @@ export const MY_LINKS: MyLink[] = [
     url: "https://www.reddit.com/user/tenzyuosu/",
     shortenUrl: "reddit-old",
   },
+  {
+    title: "GitHub",
+    url: "https://github.com/tenzyu",
+    shortenUrl: "github",
+  },
 ];
