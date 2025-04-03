@@ -27,7 +27,6 @@ export function ProfileCard() {
                     className="object-cover transition-opacity duration-300"
                     style={{ opacity: isGifLoading ? 0 : 1 }}
                     onLoadingComplete={() => setIsGifLoading(false)}
-                    priority
                 />
                 <div className="absolute inset-0 bg-black/20"></div>
             </div>
