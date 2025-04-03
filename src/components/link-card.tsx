@@ -10,7 +10,7 @@ interface LinkCardProps {
 
 export function LinkCard({ link }: LinkCardProps) {
     return (
-        <Card className="w-full overflow-hidden transition-all hover:shadow-md py-0">
+        <Card className="w-full overflow-hidden transition-all hover:shadow-md py-0 border-none shadow-sm">
             <CardContent className="px-1">
                 <div className="flex items-center justify-between">
                     <button
