@@ -3,12 +3,32 @@
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { useState } from "react"
+import { Loader2 } from "lucide-react"
 
 export function ProfileCard() {
+    const [isGifLoading, setIsGifLoading] = useState(true)
+
     return (
         <Card className="w-full max-w-2xl mx-auto overflow-hidden pt-0">
-            <div className="aspect-[16/9] relative overflow-hidden">
-                <Image src="/osu-gif.gif" alt="osu gameplay" fill className="object-cover" />
+            <div className="aspect-[16/9] relative overflow-hidden bg-muted">
+                {isGifLoading && (
+                    <div className="absolute inset-0 flex items-center justify-center z-10 bg-muted">
+                        <div className="flex flex-col items-center gap-2">
+                            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                            <span className="text-sm text-muted-foreground">Loading gameplay...</span>
+                        </div>
+                    </div>
+                )}
+                <Image
+                    src="/osu-gif.gif"
+                    alt="osu gameplay"
+                    fill
+                    className="object-cover transition-opacity duration-300"
+                    style={{ opacity: isGifLoading ? 0 : 1 }}
+                    onLoadingComplete={() => setIsGifLoading(false)}
+                    priority
+                />
                 <div className="absolute inset-0 bg-black/20"></div>
             </div>
 
@@ -20,6 +40,7 @@ export function ProfileCard() {
                         width={96}
                         height={96}
                         className="rounded-full border-4 border-background shadow-md bg-white"
+                        priority
                     />
 
                     <div className="flex items-center gap-4 mt-2">
@@ -47,12 +68,8 @@ export function ProfileCard() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
                     <div className="space-y-2">
                         <p className="text-center">osu! の日本一を目指しています。</p>
-                        <Button
-                            variant="outline"
-                            className="w-full flex items-center justify-center gap-2"
-                            asChild
-                        >
-                            <a href="https://osu.ppy.sh/users/23318599" target="_blank">
+                        <Button variant="outline" className="w-full flex items-center justify-center gap-2" asChild>
+                            <a href="https://osu.ppy.sh/users/23318599" target="_blank" rel="noreferrer">
                                 <Image src="/osu-logo.png" alt="osu! logo" width={20} height={20} className="rounded-full" />
                                 <span>tenzyu</span>
                             </a>
@@ -61,12 +78,8 @@ export function ProfileCard() {
 
                     <div className="space-y-2">
                         <p className="text-center">Twitch Partner を目指しています。</p>
-                        <Button
-                            variant="outline"
-                            className="w-full flex items-center justify-center gap-2"
-                            asChild
-                        >
-                            <a href="https://tenzyu.com/u/twitch" target="_blank">
+                        <Button variant="outline" className="w-full flex items-center justify-center gap-2" asChild>
+                            <a href="https://tenzyu.com/u/twitch" target="_blank" rel="noreferrer">
                                 <Image src="/twitch-logo.png" alt="Twitch logo" width={20} height={20} />
                                 <span>tenzyudotcom</span>
                             </a>
@@ -86,3 +99,4 @@ export function ProfileCard() {
         </Card>
     )
 }
+
