@@ -4,7 +4,8 @@ import { useState } from "react"
 import Image from "next/image"
 import type { YouTube } from "@/data/youtube"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 
 interface YouTubeShortsCarouselProps {
   videos: YouTube[]
@@ -57,6 +58,9 @@ export function YouTubeShortsCarousel({ videos }: YouTubeShortsCarouselProps) {
                   </div>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-md max-h-[90vh] p-0 bg-black overflow-hidden">
+                  <VisuallyHidden>
+                    <DialogTitle></DialogTitle>
+                  </VisuallyHidden>
                   <div className="aspect-[9/16] w-full max-w-[350px] mx-auto">
                     <iframe
                       width="100%"
