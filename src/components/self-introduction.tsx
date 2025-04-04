@@ -19,8 +19,6 @@ export function SelfIntroduction() {
 
       {/* Add the osu skill chart here */}
       <OsuSkillChart accuracy={79.01} aim={68.3} speed={42.04} lastUpdated="2025年4月3日" />
-
-
     </div>
   )
 }
