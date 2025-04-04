@@ -15,26 +15,29 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 })
 
+const title = 'TENZYU | osu player!, streamer'
+const description = 'osu! の日本一を目指しています。'
 export const metadata: Metadata = {
-  title: "tenzyu.com - osu! player",
-  description: "天珠 (テンジュ) の公式サイト。osu! プレイヤー、ストリーマー、元プログラマー。",
+  title,
+  description,
   keywords: ["tenzyu", "osu", "streamer", "twitch", "gaming", "テンジュ", "天珠"],
   authors: [{ name: "tenzyu", url: "https://tenzyu.com" }],
   creator: "tenzyu",
   publisher: "tenzyu",
+  // todo: ogp 画像
   openGraph: {
     type: "website",
     locale: "ja_JP",
     url: "https://tenzyu.com",
-    title: "tenzyu.com - osu! player",
-    description: "天珠 (テンジュ) の公式サイト。osu! プレイヤー、ストリーマー、元プログラマー。",
+    title,
+    description,
     siteName: "tenzyu.com",
   },
   twitter: {
     card: "summary_large_image",
     creator: "@tenzyudotcom",
-    title: "tenzyu.com - osu! player",
-    description: "天珠 (テンジュ) の公式サイト。osu! プレイヤー、ストリーマー、元プログラマー。",
+    title,
+    description,
   },
   robots: {
     index: true,

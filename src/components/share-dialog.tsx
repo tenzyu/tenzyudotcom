@@ -44,8 +44,9 @@ export function ShareDialog({ title, shortenUrl }: ShareDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon" className="rounded-full">
-          <Share2 className="h-4 w-4" />
+        {/* あとでこの辺のサイズ直す */}
+        <Button variant="ghost" className="h-auto py-4"> 
+          <Share2 className="size-5" />
           <span className="sr-only">Share {title}</span>
         </Button>
       </DialogTrigger>
