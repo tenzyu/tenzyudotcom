@@ -136,7 +136,7 @@ export function SelfIntroduction() {
                 <div className="absolute inset-0 bg-gray-200 dark:bg-gray-600 flex items-center justify-center">
                   <div className="text-center">
                     <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">280Hz</div>
-                    <div className="text-sm text-gray-700 dark:text-gray-300">24.5"</div>
+                    <div className="text-sm text-gray-700 dark:text-gray-300">24.5&quot;</div>
                   </div>
                 </div>
                 {/* Monitor stand */}
