@@ -73,8 +73,8 @@ export function YouTubeShortsCarousel({ videos }: YouTubeShortsCarouselProps) {
             </CarouselItem>
           ))}
         </CarouselContent>
-        <CarouselPrevious className="absolute left-2 top-1/3 transform -translate-y-1/2 z-10" />
-        <CarouselNext className="absolute right-2 top-1/3 transform -translate-y-1/2 z-10" />
+        <CarouselPrevious className="absolute left-2 top-1/2 transform -translate-y-1/2 z-10 dark:bg-black dark:font-white" />
+        <CarouselNext className="absolute right-2 top-1/2 transform -translate-y-1/2 z-10 dark:bg-black20 dark:font-white" />
       </Carousel>
     </div>
   )
