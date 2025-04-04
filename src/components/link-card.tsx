@@ -1,7 +1,7 @@
 "use client"
 
 import type { MyLink } from "@/data/links"
-import { Card, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { ShareDialog } from "./share-dialog"
 
 interface LinkCardProps {
@@ -10,23 +10,14 @@ interface LinkCardProps {
 
 export function LinkCard({ link }: LinkCardProps) {
     return (
-        <Card className="w-full overflow-hidden transition-all hover:shadow-md py-0 border-none shadow-sm">
-            <CardContent className="px-1">
-                <div className="flex items-center justify-between">
-                    <button
-                        className="flex-1 p-4 text-left transition-colors"
-                    >
-                        <a href={`/u/${link.shortenUrl}`} target="_blank">
-                            <h3 className="font-medium">{link.title}</h3>
-                        </a>
-                    </button>
-                              <div className="pr-2">
-
-                    <ShareDialog title={link.title} shortenUrl={link.shortenUrl} />
-                              </div>
-                </div>
-            </CardContent>
-        </Card>
+        <div className="flex items-center justify-between border border-md rounded-md">
+            <Button variant="ghost" className="flex-1 justify-start px-4 py-4 h-auto font-medium hover:bg-muted/50" asChild>
+                <a href={`/u/${link.shortenUrl}`} target="_blank" rel="noreferrer">
+                    {link.title}
+                </a>
+            </Button>
+            <ShareDialog title={link.title} shortenUrl={link.shortenUrl} />
+        </div>
     )
 }
 
