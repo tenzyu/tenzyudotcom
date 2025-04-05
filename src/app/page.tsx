@@ -1,12 +1,14 @@
 import { LinkList } from "@/components/link-list"
 import { YouTubeCarousel } from "@/components/youtube-carousel"
-import { YouTubeShortsCarousel } from "@/components/youtube-shorts-carousel"
+// import { YouTubeShortsCarousel } from "@/components/youtube-shorts-carousel"
 import { SelfIntroduction } from "@/components/self-introduction"
-import { YOUTUBE_VIDEOS, YOUTUBE_SHORTS, YOUTUBE_PERSONAL_BEST_HISTORY } from "@/data/youtube"
+import { YOUTUBE_VIDEOS, YOUTUBE_PERSONAL_BEST_HISTORY } from "@/data/youtube"
 import { Toaster } from "@/components/ui/sonner"
 import { Header } from "@/components/header"
 import { ProfileCard } from "@/components/profile-card"
 import { OsuSettings } from "@/components/osu-settings"
+import { TwitterCarousel } from "@/components/twitter-carousel"
+import { TWEETS } from "@/data/twitter"
 
 export default function Home() {
   return (
@@ -28,9 +30,15 @@ export default function Home() {
             <YouTubeCarousel videos={YOUTUBE_VIDEOS} />
           </section>
 
-          <section className="w-full">
+          {/* <section className="w-full">
             <h2 className="text-2xl font-bold tracking-tight text-center mb-6">Featured Shorts</h2>
             <YouTubeShortsCarousel videos={YOUTUBE_SHORTS} />
+          </section> */}
+
+          <section className="w-full">
+            <h2 className="text-2xl font-bold tracking-tight text-center mb-6">Twitter Clips</h2>
+            <span className="text-center block text-xs">*ブラウザのトラッキングプロテクションで画像／動画が表示されない場合があります。</span>
+            <TwitterCarousel tweets={TWEETS} />
           </section>
 
           <section className="w-full">
