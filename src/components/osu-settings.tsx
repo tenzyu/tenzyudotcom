@@ -179,7 +179,7 @@ export function OsuSettings() {
                                 </div>
                             </div>
                             {/* Monitor stand */}
-                            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-full w-16 h-4 bg-gray-800 dark:bg-black"></div>
+                            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-full w-16 h-4 bg-gray-200 dark:bg-gray-700"></div>
                         </div>
                         {/* Response time indicator */}
                         <div className="absolute top-3 right-3 bg-purple-500 text-white px-2 py-1 rounded-full text-xs">0.5ms</div>
