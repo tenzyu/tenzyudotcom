@@ -45,20 +45,20 @@ export const YOUTUBE_VIDEOS: YouTube[] = [
   }
 ]
 
-export const YOUTUBE_SHORTS: YouTube[] = [
-  {
-    id: 'g0xCSdVmtzc',
-    title: '#shorts 4桁到達の瞬間 #osu #osugame #tenzyu #音ゲー',
-    type: 'short'
-  },
-  {
-    id: 'vGM6YwMeDCM',
-    title: '#shorts osu!lazer の設定を紹介します #osu #osugame',
-    type: 'short'
-  },
-  {
-    id: 'yZ7xsxi66Ww',
-    title: '#shorts osuのマップはこうやって見つける。スキルから見つける方法。【TENZYU/切り抜き】【2024/9/23】 #osu #osugame',
-    type: 'short'
-  },
-]
+// export const YOUTUBE_SHORTS: YouTube[] = [
+//   {
+//     id: 'g0xCSdVmtzc',
+//     title: '#shorts 4桁到達の瞬間 #osu #osugame #tenzyu #音ゲー',
+//     type: 'short'
+//   },
+//   {
+//     id: 'vGM6YwMeDCM',
+//     title: '#shorts osu!lazer の設定を紹介します #osu #osugame',
+//     type: 'short'
+//   },
+//   {
+//     id: 'yZ7xsxi66Ww',
+//     title: '#shorts osuのマップはこうやって見つける。スキルから見つける方法。【TENZYU/切り抜き】【2024/9/23】 #osu #osugame',
+//     type: 'short'
+//   },
+// ]
