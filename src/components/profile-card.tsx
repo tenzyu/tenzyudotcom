@@ -6,7 +6,15 @@ import { Card, CardContent } from "@/components/ui/card"
 import { useState } from "react"
 import { Loader2 } from "lucide-react"
 
-export function ProfileCard() {
+import type { User } from "osu-api-v2-js"
+
+type ProfileCardProps = {
+    osuProfile: User.Extended
+}
+
+export function ProfileCard({
+    osuProfile,
+}: ProfileCardProps) {
     const [isGifLoading, setIsGifLoading] = useState(true)
 
     return (
@@ -41,11 +49,10 @@ export function ProfileCard() {
                         className="rounded-full border-4 border-background shadow-md bg-white"
                         priority
                     />
-
                     <div className="flex items-center gap-4 mt-2">
                         <div className="flex flex-col items-center">
                             <div className="text-sm font-medium text-muted-foreground">世界ランキング</div>
-                            <div className="text-2xl font-bold">#6,736</div>
+                            <div className="text-2xl font-bold">#{osuProfile.statistics.global_rank}</div>
                         </div>
 
                         <div className="h-8 w-px bg-border"></div>
@@ -54,7 +61,7 @@ export function ProfileCard() {
                             <div className="flex items-center gap-1">
                                 <span className="text-sm font-medium text-muted-foreground">国別ランキング</span>
                             </div>
-                            <div className="text-2xl font-bold">#191</div>
+                            <div className="text-2xl font-bold">#{osuProfile.statistics.country_rank}</div>
                         </div>
                     </div>
                 </div>
