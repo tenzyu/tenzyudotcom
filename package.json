@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "biome lint --write ./src/**/*",
+    "format": "biome format ./src/**/* --write",
+    "check": "biome check --write ./src/**/*"
   },
   "dependencies": {
     "@radix-ui/react-aspect-ratio": "^1.1.2",
@@ -30,13 +32,12 @@
     "tw-animate-css": "^1.2.5"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "eslint": "^9",
-    "eslint-config-next": "15.2.4",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

@@ -1,53 +1,64 @@
 export type MyLink = {
-  title: string;
-  url: string;
-  shortenUrl: string;
-};
+  name: string
+  id: string
+  url: string
+  shortenUrl: string
+
+}
 
 export const MY_LINKS: MyLink[] = [
   {
-    title: "osu - profile",
-    url: "https://osu.ppy.sh/users/23318599",
-    shortenUrl: "osu",
+    name: 'osu!',
+    id: '@tenzyu',
+    url: 'https://osu.ppy.sh/users/23318599',
+    shortenUrl: 'osu',
   },
   {
-    title: "osu - beatmaps for begginers",
-    url: "https://tenzyu.notion.site/107cca384d6780e0a504f5ee28d9dd94?v=6fc3622a159f4671a7635ebd2e32e5b1",
-    shortenUrl: "osuhistorical",
+    name: 'Discord',
+    id: 'server',
+    url: 'https://discord.gg/vWEypRa86N',
+    shortenUrl: 'discord',
   },
   {
-    title: "Discord",
-    url: "https://discord.gg/vWEypRa86N",
-    shortenUrl: "discord",
+    name: 'Twitch',
+    id: '@tenzyudotcom',
+    url: 'https://www.twitch.tv/tenzyudotcom',
+    shortenUrl: 'twitch',
   },
   {
-    title: "Twitch",
-    url: "https://www.twitch.tv/tenzyudotcom",
-    shortenUrl: "twitch",
+    name: 'YouTube',
+    id: '@tenzyudotcom',
+    url: 'https://www.youtube.com/@tenzyudotcom',
+    shortenUrl: 'youtube',
   },
   {
-    title: "YouTube",
-    url: "https://www.youtube.com/@tenzyudotcom",
-    shortenUrl: "youtube",
+    name: 'Twitter',
+    id: '@tenzyudotcom',
+    url: 'https://x.com/tenzyudotcom',
+    shortenUrl: 'twitter',
   },
   {
-    title: "Twitter",
-    url: "https://x.com/tenzyudotcom",
-    shortenUrl: "twitter",
+    name: 'GitHub',
+    id: '@tenzyu',
+    url: 'https://github.com/tenzyu',
+    shortenUrl: 'github',
   },
   {
-    title: "Reddit",
-    url: "https://www.reddit.com/user/tenzyudotcom/",
-    shortenUrl: "reddit",
+    name: 'Reddit',
+    id: 'u/tenzyudotcom',
+    url: 'https://www.reddit.com/user/tenzyudotcom/',
+    shortenUrl: 'reddit',
   },
   {
-    title: "Reddit (old)",
-    url: "https://www.reddit.com/user/tenzyuosu/",
-    shortenUrl: "reddit-old",
+    name: 'Reddit (old)',
+    id: 'tenzyuosu',
+    url: 'https://www.reddit.com/user/tenzyuosu/',
+    shortenUrl: 'reddit-old',
   },
   {
-    title: "GitHub",
-    url: "https://github.com/tenzyu",
-    shortenUrl: "github",
+    name: 'Notion',
+    id: 'osu beatmaps for beginners',
+    url: 'https://tenzyu.notion.site/107cca384d6780e0a504f5ee28d9dd94?v=6fc3622a159f4671a7635ebd2e32e5b1',
+    shortenUrl: 'osuhistorical',
   },
-];
+]
