@@ -93,13 +93,19 @@ export function OsuSettings() {
 						{/* Keys */}
 						<div className="absolute bottom-[5%] left-0 right-0 flex justify-center gap-2">
 							<div className="w-29 h-29 bg-gray-300 dark:bg-[#252c38] rounded-md flex items-center justify-center">
-								<span className="text-lg font-medium dark:text-gray-300">C</span>
+								<span className="text-lg font-medium dark:text-gray-300">
+									C
+								</span>
 							</div>
 							<div className="w-29 h-29 bg-gray-300 dark:bg-[#252c38] rounded-md flex items-center justify-center">
-								<span className="text-lg font-medium dark:text-gray-300">Z</span>
+								<span className="text-lg font-medium dark:text-gray-300">
+									Z
+								</span>
 							</div>
 							<div className="w-29 h-29 bg-gray-300 dark:bg-[#252c38] rounded-md flex items-center justify-center">
-								<span className="text-lg font-medium dark:text-gray-300">X</span>
+								<span className="text-lg font-medium dark:text-gray-300">
+									X
+								</span>
 							</div>
 						</div>
 					</div>
