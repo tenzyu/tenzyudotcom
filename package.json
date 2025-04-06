@@ -6,9 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "biome lint --apply ./src/**/*",
+    "lint": "biome lint --write ./src/**/*",
     "format": "biome format ./src/**/* --write",
-    "check": "biome check --apply ./src/**/*"
+    "check": "biome check --write ./src/**/*"
   },
   "dependencies": {
     "@radix-ui/react-aspect-ratio": "^1.1.2",
