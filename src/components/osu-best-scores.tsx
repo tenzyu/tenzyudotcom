@@ -69,7 +69,7 @@ export function OsuBestScores({ scores }: OsuBestScoresProps) {
                   </div>
 
                   <div className="flex-1 min-w-0">
-                    <CardTitle className="text-sm font-bold line-clamp-1 text-white">{score.beatmapset.title}</CardTitle>
+                    <CardTitle className="text-sm font-bold line-clamp-1 dark:text-white">{score.beatmapset.title}</CardTitle>
                     <div className="text-xs text-gray-400">by {score.beatmapset.artist}</div>
                     <div className="flex items-center text-xs text-gray-500 gap-2 mt-1">
                       <div className="flex items-center gap-1">
