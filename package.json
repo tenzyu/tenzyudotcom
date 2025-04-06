@@ -6,9 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "biome lint -- apply src/**/*.{ts,tsx}",
-    "format": "biome format src/**/*.{ts,tsx} --write",
-    "check": "biome check src/**/*.{ts,tsx} --write"
+    "lint": "biome lint --apply ./src/**/*",
+    "format": "biome format ./src/**/* --write",
+    "check": "biome check --apply ./src/**/*"
   },
   "dependencies": {
     "@radix-ui/react-aspect-ratio": "^1.1.2",
@@ -38,8 +38,6 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "eslint": "^9",
-    "eslint-config-next": "15.2.4",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

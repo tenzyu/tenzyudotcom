@@ -1,40 +1,42 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.5.2/schema.json",
-  "files": {
-    "ignore": ["public"]
-  },
+  "$schema": "https://biomejs.dev/schemas/1.8.3/schema.json",
+  "extends": [],
+  "files": { "ignoreUnknown": true },
   "organizeImports": {
     "enabled": true
   },
+  "linter": {
+    "ignore": [".next", "node_modules", "public"],
+    "rules": {
+      "recommended": true
+    }
+  },
+  "formatter": {
+    "enabled": true,
+    "formatWithErrors": true,
+    "ignore": [".next", "node_modules", "public"],
+    "indentWidth": 2,
+    "indentStyle": "space",
+    "lineWidth": 80
+  },
   "javascript": {
+    "parser": {
+      "unsafeParameterDecoratorsEnabled": true
+    },
     "formatter": {
       "quoteStyle": "single",
-      "semicolons": "asNeeded"
+      "jsxQuoteStyle": "single",
+      "semicolons": "asNeeded",
+      "arrowParentheses": "asNeeded"
     }
   },
-  "linter": {
-    "enabled": true,
-    "rules": {
-        "recommended": true
+  "json": {
+    "parser": { "allowComments": true },
+    "formatter": {
+      "enabled": true,
+      "indentStyle": "space",
+      "indentWidth": 2,
+      "lineWidth": 80
     }
-  },
-  "overrides": [
-    {
-      "include": [
-        "next.config.js",
-        "layout.tsx",
-        "page.tsx",
-        "loading.tsx",
-        "error.tsx",
-        "not-found.tsx"
-      ],
-      "linter": {
-        "rules": {
-          "style": {
-            "noDefaultExport": "off"
-          }
-        }
-      }
-    }
-  ]
+  }
 }
