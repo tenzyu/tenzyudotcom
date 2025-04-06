@@ -35,6 +35,7 @@ export function ProfileCard({ osuProfile }: ProfileCardProps) {
           className='object-cover transition-opacity duration-300'
           style={{ opacity: isGifLoading ? 0 : 1 }}
           onLoad={() => setIsGifLoading(false)}
+          unoptimized
         />
         <div className='absolute inset-0 bg-black/20' />
       </div>

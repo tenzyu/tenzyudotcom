@@ -15,10 +15,10 @@ export function LinkCard({ link }: LinkCardProps) {
         asChild={true}
       >
         <a href={`/u/${link.shortenUrl}`} target='_blank' rel='noreferrer'>
-          {link.title}
+          {link.name}
         </a>
       </Button>
-      <ShareDialog title={link.title} url={link.shortenUrl} />
+      <ShareDialog title={link.name} url={link.shortenUrl} />
     </div>
   )
 }
