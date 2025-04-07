@@ -13,20 +13,26 @@ import { Toaster } from '@/components/ui/sonner'
 import { TWEETS } from '@/data/twitter'
 import { YOUTUBE_PERSONAL_BEST_HISTORY, YOUTUBE_VIDEOS } from '@/data/youtube'
 
-import { getOsuMe, getOsuMyBestScores } from '@/lib/osu-api'
+import { getUser, getUserScores } from '@/data/osu'
 
 // for osu contents
 export const revalidate = 60
 
 export default async function Home() {
-  const osuMe = getOsuMe()
-  const osuMyBestScores = getOsuMyBestScores()
+  const osuMe = await getUser('tenzyu')
+  const osuMyBestScores = getUserScores(
+    osuMe.id,
+    'best',
+    0,
+    { lazer: true },
+    { limit: 5 },
+  )
 
   return (
     <main className='flex min-h-screen flex-col items-center p-4'>
       <div className='container flex flex-col items-center gap-12 px-2 pb-16'>
         <section className='w-full pt-6'>
-          <ProfileCard osuProfile={await osuMe} />
+          <ProfileCard osuProfile={osuMe} />
         </section>
         {/* グリッドレイアウトで横並びにする */}
         <div className='w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 md:gap-x-4 md:gap-y-0 gap-y-12'>
