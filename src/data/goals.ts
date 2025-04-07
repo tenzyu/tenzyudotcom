@@ -6,7 +6,7 @@ export type YearlyGoal = {
 export const YEARLY_GOALS: YearlyGoal[] = [
   {
     month: 4,
-    title: 'シングルタップ, mrekkgrip, new technique に慣れる',
+    title: 'シングルタップと新しく採用したクリック／グリップに慣れる',
   },
   {
     month: 5,
