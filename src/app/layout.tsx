@@ -73,7 +73,8 @@ export default function RootLayout({
         >
           <div className='flex flex-col min-h-screen'>
             <Header />
-            <div className='flex-grow bg-zinc-100 dark:bg-zinc-800'>
+            {/* TODO: ヘッダー分ずらしてるけどもっといい方法がありそう */}
+            <div className='flex-grow bg-zinc-100 dark:bg-zinc-800 transform -translate-y-16 pt-16 -mb-16'>
               {children}
             </div>
             <Footer />
