@@ -7,18 +7,18 @@ import { Table, TableBody, TableCell, TableRow } from './ui/table'
 export function YearlyGoals() {
   const getMonthName = (month: number): string => {
     const monthNames = [
-      'January',
-      'February',
-      'March',
-      'April',
+      'Jan.',
+      'Feb.',
+      'Mar.',
+      'Apr.',
       'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December',
+      'Jun.',
+      'Jul.',
+      'Aug.',
+      'Sep.',
+      'Oct.',
+      'Nov.',
+      'Dec.',
     ]
     return monthNames[month - 1]
   }
@@ -45,7 +45,7 @@ export function YearlyGoals() {
           >
             <TableCell
               className={cn(
-                'block py-5 pl-4 min-w-26',
+                'block py-5 pl-4 min-w-16',
                 goal.month === currentMonth && 'text-primary',
               )}
             >
