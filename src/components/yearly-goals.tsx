@@ -1,7 +1,15 @@
 'use client'
 
-import { Card, CardContent } from '@/components/ui/card'
 import { YEARLY_GOALS } from '@/data/goals'
+import { cn } from '@/lib/utils'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from './ui/table'
 
 export function YearlyGoals() {
   const getMonthName = (month: number): string => {
@@ -26,42 +34,54 @@ export function YearlyGoals() {
   const currentMonth = new Date().getMonth() + 1 // JavaScriptの月は0から始まるため+1
 
   return (
-    <Card className='w-full max-w-md mx-auto'>
-      <CardContent className='px-6 pb-4'>
-        <div className='overflow-hidden rounded-lg border'>
-          <table className='w-full'>
-            <thead>
-              <tr className='bg-muted/50'>
-                <th className='py-2 px-4 text-left font-medium text-muted-foreground'>
-                  月
-                </th>
-                <th className='py-2 px-4 text-left font-medium text-muted-foreground'>
-                  目標
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {YEARLY_GOALS.map((goal, index) => (
-                <tr
-                  key={goal.month}
-                  className={`border-t ${goal.month === currentMonth ? 'bg-primary/5' : index % 2 === 0 ? 'bg-background' : 'bg-muted/20'}`}
-                >
-                  <td
-                    className={`py-3 px-4 ${goal.month === currentMonth ? 'text-primary font-medium' : ''}`}
-                  >
-                    {getMonthName(goal.month)}
-                  </td>
-                  <td
-                    className={`py-3 px-4 ${goal.month === currentMonth ? 'text-primary font-medium' : ''}`}
-                  >
-                    {goal.title || '-'}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </CardContent>
-    </Card>
+    // FIX: grid のほうがいいかも
+    <Table className='block rounded-lg border w-full max-w-md mx-auto wrap-normal text-md'>
+      <TableHeader className='block bg-zinc-900 rounded-t-lg'>
+        <TableRow className='block min-h-10 bg-muted/50 flex'>
+          <TableHead className='block flex items-center py-3 pl-4 min-w-24 font-medium text-muted-foreground'>
+            月
+          </TableHead>
+          <TableHead className='block flex items-center w-full py-3 font-medium text-muted-foreground'>
+            目標
+          </TableHead>
+        </TableRow>
+      </TableHeader>
+
+      <TableBody className='block'>
+        {YEARLY_GOALS.map((goal, index) => (
+          <TableRow
+            key={goal.month}
+            className={cn(
+              'block w-full flex',
+              goal.month === currentMonth
+                ? 'bg-primary/5 hover:bg-primary/5'
+                : index % 2 === 0
+                  ? 'bg-background hover:bg-background'
+                  : 'bg-muted/20 hover:bg-muted/20',
+              goal.month === 12 && 'rounded-b-lg', // FIX: なんか親に last: つけてもうまくいかない
+            )}
+          >
+            <TableCell
+              className={cn(
+                'block py-5 pl-4 min-w-26',
+                goal.month === currentMonth && 'text-primary',
+              )}
+            >
+              {getMonthName(goal.month)}
+            </TableCell>
+            <TableCell
+              className={cn(
+                'block py-5',
+                goal.month === currentMonth && 'text-primary',
+              )}
+            >
+              <div className='flex items-center text-wrap'>
+                {goal.title || '-'}
+              </div>
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
   )
 }

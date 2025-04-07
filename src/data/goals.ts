@@ -10,7 +10,7 @@ export const YEARLY_GOALS: YearlyGoal[] = [
   },
   {
     month: 5,
-    title: '6000位切る',
+    title: '',
   },
   {
     month: 6,
@@ -18,7 +18,7 @@ export const YEARLY_GOALS: YearlyGoal[] = [
   },
   {
     month: 7,
-    title: '4000位切る',
+    title: '',
   },
   {
     month: 8,
@@ -30,7 +30,7 @@ export const YEARLY_GOALS: YearlyGoal[] = [
   },
   {
     month: 10,
-    title: '2000位を切る',
+    title: '',
   },
   {
     month: 11,
