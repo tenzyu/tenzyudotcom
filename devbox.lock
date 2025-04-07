@@ -1,7 +1,7 @@
 {
   "lockfile_version": "1",
   "packages": {
-    "biome@latest": {
+    "biome@1.9.4": {
       "last_modified": "2025-03-11T17:52:14Z",
       "resolved": "github:NixOS/nixpkgs/0d534853a55b5d02a4ababa1d71921ce8f0aee4c#biome",
       "source": "devbox-search",
@@ -49,7 +49,7 @@
         }
       }
     },
-    "ngrok@latest": {
+    "ngrok@3.19.1": {
       "last_modified": "2025-03-23T05:31:05Z",
       "resolved": "github:NixOS/nixpkgs/dd613136ee91f67e5dba3f3f41ac99ae89c5406b#ngrok",
       "source": "devbox-search",
