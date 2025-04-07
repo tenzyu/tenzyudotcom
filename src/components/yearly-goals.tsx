@@ -2,30 +2,23 @@
 
 import { YEARLY_GOALS } from '@/data/goals'
 import { cn } from '@/lib/utils'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from './ui/table'
+import { Table, TableBody, TableCell, TableRow } from './ui/table'
 
 export function YearlyGoals() {
   const getMonthName = (month: number): string => {
     const monthNames = [
-      'January',
-      'February',
-      'March',
-      'April',
+      'Jan.',
+      'Feb.',
+      'Mar.',
+      'Apr.',
       'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December',
+      'Jun.',
+      'Jul.',
+      'Aug.',
+      'Sep.',
+      'Oct.',
+      'Nov.',
+      'Dec.',
     ]
     return monthNames[month - 1]
   }
@@ -36,17 +29,6 @@ export function YearlyGoals() {
   return (
     // FIX: grid のほうがいいかも
     <Table className='block rounded-lg border w-full max-w-md mx-auto wrap-normal text-md'>
-      <TableHeader className='block bg-zinc-900 rounded-t-lg'>
-        <TableRow className='block min-h-10 bg-muted/50 flex'>
-          <TableHead className='block flex items-center py-3 pl-4 min-w-24 font-medium text-muted-foreground'>
-            月
-          </TableHead>
-          <TableHead className='block flex items-center w-full py-3 font-medium text-muted-foreground'>
-            目標
-          </TableHead>
-        </TableRow>
-      </TableHeader>
-
       <TableBody className='block'>
         {YEARLY_GOALS.map((goal, index) => (
           <TableRow
@@ -63,7 +45,7 @@ export function YearlyGoals() {
           >
             <TableCell
               className={cn(
-                'block py-5 pl-4 min-w-26',
+                'block py-5 pl-4 min-w-16',
                 goal.month === currentMonth && 'text-primary',
               )}
             >
