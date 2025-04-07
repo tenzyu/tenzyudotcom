@@ -1,4 +1,3 @@
-import { Header } from '@/components/header'
 import { LinkList } from '@/components/link-list'
 
 export default function LinkTreePage() {

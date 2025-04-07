@@ -19,9 +19,9 @@ import { getUser, getUserScores } from '@/data/osu'
 export const revalidate = 60
 
 export default async function Home() {
-  const osuMe = await getUser('tenzyu')
+  const osuProfile = await getUser('tenzyu')
   const osuMyBestScores = getUserScores(
-    osuMe.id,
+    osuProfile.id,
     'best',
     0,
     { lazer: true },
@@ -32,7 +32,7 @@ export default async function Home() {
     <main className='flex min-h-screen flex-col items-center p-4'>
       <div className='container flex flex-col items-center gap-12 px-2 pb-16'>
         <section className='w-full pt-6'>
-          <ProfileCard osuProfile={osuMe} />
+          <ProfileCard osuProfile={osuProfile} />
         </section>
         {/* グリッドレイアウトで横並びにする */}
         <div className='w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 md:gap-x-4 md:gap-y-0 gap-y-12'>
