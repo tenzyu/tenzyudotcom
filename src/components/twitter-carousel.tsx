@@ -27,12 +27,14 @@ export function TwitterCarousel({ tweets }: TwitterCarouselProps) {
       >
         <CarouselContent>
           {tweets.map(tweet => (
-            <CarouselItem key={tweet.id} className='md:basis-1/2 lg:basis-1/2'>
-              {/* <div className="flex justify-center p-2">
-              <div className="w-full max-w-[550px]"> */}
-              <Tweet id={tweet.id} />
-              {/* </div>
-            </div> */}
+            <CarouselItem
+              key={tweet.id}
+              className='md:basis-1/2 lg:basis-1/2 select-none'
+            >
+              <Tweet
+                id={tweet.id}
+                fetchOptions={{ next: { revalidate: 60 } }}
+              />
             </CarouselItem>
           ))}
         </CarouselContent>

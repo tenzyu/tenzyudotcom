@@ -38,9 +38,10 @@ export function YouTubeCarousel({
 
   const isShort = type === 'short'
   const aspectRatio = isShort ? 'aspect-[9/16]' : 'aspect-video'
+  // NOTE: あとで cn 使う
   const itemClass = isShort
-    ? 'basis-1/2 md:basis-1/3 lg:basis-1/4'
-    : 'md:basis-1/2 lg:basis-1/2'
+    ? 'basis-1/2 md:basis-1/3 lg:basis-1/4 select-none'
+    : 'md:basis-1/2 lg:basis-1/2 select-none'
 
   return (
     <div className={`w-full max-w-${isShort ? '3xl' : '4xl'} mx-auto`}>

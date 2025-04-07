@@ -45,7 +45,7 @@ export function OsuBestScores({ scores }: OsuBestScoresProps) {
   }
 
   return (
-    <div className='w-full max-w-md mx-auto space-y-3'>
+    <div className='w-full max-w-md mx-auto space-y-1'>
       {scores.map((score, index) => {
         const rankStyle = getRankStyle(score.rank)
 
@@ -59,7 +59,7 @@ export function OsuBestScores({ scores }: OsuBestScoresProps) {
                 href={`https://osu.ppy.sh/beatmapsets/${score.beatmapset.id}#osu/${score.beatmap.id}`}
                 target='_blank'
                 rel='noopener noreferrer'
-                className='block'
+                className='block hover:bg-gray-100 dark:hover:bg-zinc-950 transition-colors'
               >
                 {/* ヘッダー: 画像、曲名、アーティスト */}
                 <div className='flex items-center border-b border-gray-700'>
@@ -112,13 +112,18 @@ export function OsuBestScores({ scores }: OsuBestScoresProps) {
                     {Math.round(score.pp!)}pp
                   </div>
 
-                  <div className='flex flex-col items-end justify-between'>
-                    <div className='flex gap-4 items-center'>
-                      {score.mods.length > 0 && (
-                        <div className='bg-red-900/50 text-white text-xs px-2 py-1 rounded mt-1'>
-                          {score.mods.map(mod => mod.acronym).join(', ')}
-                        </div>
-                      )}
+                  <div className='flex flex-col gap-2 items-center justify-between'>
+                    <div className='flex gap-2 items-center '>
+                      {score.mods.length > 0 &&
+                        score.mods.map(mod => (
+                          <div
+                            key={mod.acronym}
+                            className='bg-red-900/50 flex items-center justify-center text-white text-xs h-6 w-10 rounded'
+                          >
+                            {mod.acronym}
+                          </div>
+                        ))}
+
                       <div
                         className={`border-2 rounded-full w-10 h-10 flex items-center justify-center font-bold text-lg ${rankStyle}`}
                       >
