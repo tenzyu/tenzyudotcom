@@ -44,7 +44,7 @@ export function LinkCard({ link }: LinkCardProps) {
       target='_blank'
       rel='noreferrer'
     >
-      <Card className='p-0 hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors'>
+      <Card className='p-0 hover:bg-gray-100 dark:hover:bg-zinc-950 transition-colors'>
         <CardContent className='p-4 flex flex-col items-center text-center '>
           <div className='rounded-full p-2 mb-3 dark:bg-[#ddd]'>
             {getIcon(link.name)}

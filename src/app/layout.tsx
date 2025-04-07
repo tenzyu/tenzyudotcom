@@ -1,9 +1,11 @@
-import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
-import type React from 'react'
 import './globals.css'
 import { Footer } from '@/components/footer'
 import { ThemeProvider } from '@/components/theme-provider'
+
+import { Header } from '@/components/header'
+import type { Metadata } from 'next'
+import type React from 'react'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -70,7 +72,10 @@ export default function RootLayout({
           disableTransitionOnChange={true}
         >
           <div className='flex flex-col min-h-screen'>
-            <div className='flex-grow'>{children}</div>
+            <Header />
+            <div className='flex-grow bg-zinc-100 dark:bg-zinc-800'>
+              {children}
+            </div>
             <Footer />
           </div>
         </ThemeProvider>
