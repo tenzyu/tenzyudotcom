@@ -3,7 +3,6 @@ export type MyLink = {
   id: string
   url: string
   shortenUrl: string
-
 }
 
 export const MY_LINKS: MyLink[] = [

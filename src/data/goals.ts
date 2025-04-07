@@ -6,39 +6,38 @@ export type YearlyGoal = {
 export const YEARLY_GOALS: YearlyGoal[] = [
   {
     month: 4,
-    title: "地力をつける, 6000位台を維持する",
+    title: 'シングルタップ, mrekkgrip, new technique に慣れる',
   },
   {
     month: 5,
-    title: "6000位切る",
+    title: '6000位切る',
   },
   {
     month: 6,
-    title: "5000位切る",
+    title: '5000位切る',
   },
   {
     month: 7,
-    title: "4000位切る",
+    title: '4000位切る',
   },
   {
     month: 8,
-    title: "Twitch Partner になる",
+    title: 'Twitch Partner になる',
   },
   {
     month: 9,
-    title: "3000位を切る",
+    title: '3000位を切る',
   },
   {
     month: 10,
-    title: "2000位を切る",
+    title: '2000位を切る',
   },
   {
     month: 11,
-    title: "",
+    title: '',
   },
   {
     month: 12,
-    title: "1000位を切る",
+    title: '1000位を切る',
   },
 ]
-
