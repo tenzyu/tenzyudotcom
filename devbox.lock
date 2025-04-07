@@ -1,6 +1,54 @@
 {
   "lockfile_version": "1",
   "packages": {
+    "biome@latest": {
+      "last_modified": "2025-03-11T17:52:14Z",
+      "resolved": "github:NixOS/nixpkgs/0d534853a55b5d02a4ababa1d71921ce8f0aee4c#biome",
+      "source": "devbox-search",
+      "version": "1.9.4",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/shbhk6dql297mgz2mwygf7bd4jidm7q8-biome-1.9.4",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/shbhk6dql297mgz2mwygf7bd4jidm7q8-biome-1.9.4"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/fwr1c1i6psmnkaldizra5i7ygki2a2zw-biome-1.9.4",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/fwr1c1i6psmnkaldizra5i7ygki2a2zw-biome-1.9.4"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/n708ckvhrhx70x2g150pg4ljdiywchys-biome-1.9.4",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/n708ckvhrhx70x2g150pg4ljdiywchys-biome-1.9.4"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/34mx5sd96jfgpnk41havb8xr7h0zs3lv-biome-1.9.4",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/34mx5sd96jfgpnk41havb8xr7h0zs3lv-biome-1.9.4"
+        }
+      }
+    },
     "ngrok@latest": {
       "last_modified": "2025-03-23T05:31:05Z",
       "resolved": "github:NixOS/nixpkgs/dd613136ee91f67e5dba3f3f41ac99ae89c5406b#ngrok",
