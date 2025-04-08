@@ -5,10 +5,10 @@ import { type ApiInstance, createApi } from './createApi'
 import type * as osu from 'osu-api-v2-js'
 
 type GetUserScoresParams = Parameters<ApiInstance['getUserScores']>
+
 /**
  * Get user's best scores from osu! API
  */
-
 export const getUserScores = async (
   ...params: GetUserScoresParams
 ): Promise<osu.Score.WithUserBeatmapBeatmapset[]> => {
