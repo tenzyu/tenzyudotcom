@@ -1,12 +1,17 @@
 import { getRequestConfig } from 'next-intl/server'
 import { cookies } from 'next/headers'
 
-export default getRequestConfig(async () => {
-  const supportedLocales = ['en', 'ja']
-  const defaultLocale = 'en'
+const supportedLocales = ['en', 'ja'] as const
+const defaultLocale = 'ja'
 
+export type SupportedLocales = (typeof supportedLocales)[number]
+
+export default getRequestConfig(async () => {
   const cookieLocale = (await cookies()).get('locale')?.value
-  const locale = supportedLocales.includes(cookieLocale ?? '')
+  // NOTE: これは条件分岐で、実際に SupportedLocales が来るわけではないけど
+  const locale = supportedLocales.includes(
+    (cookieLocale ?? '') as SupportedLocales,
+  )
     ? cookieLocale!
     : defaultLocale
 

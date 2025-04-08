@@ -1,43 +1,73 @@
 export type YearlyGoal = {
   month: number
-  title: string
+  title: {
+    ja: string
+    en: string
+  }
 }
 
 export const YEARLY_GOALS: YearlyGoal[] = [
   {
     month: 4,
-    title: '6000位を切る',
+    title: {
+      ja: '6000位を切る',
+      en: 'Break into top 6000',
+    },
   },
   {
     month: 5,
-    title: '',
+    title: {
+      ja: '',
+      en: '',
+    },
   },
   {
     month: 6,
-    title: '5000位を切る',
+    title: {
+      ja: '5000位を切る',
+      en: 'Break into top 5000',
+    },
   },
   {
     month: 7,
-    title: '',
+    title: {
+      ja: '',
+      en: '',
+    },
   },
   {
     month: 8,
-    title: 'Twitch Partner になる',
+    title: {
+      ja: 'Twitch Partner になる',
+      en: 'Become a Twitch Partner',
+    },
   },
   {
     month: 9,
-    title: '3000位を切る',
+    title: {
+      ja: '3000位を切る',
+      en: 'Break into top 3000',
+    },
   },
   {
     month: 10,
-    title: '',
+    title: {
+      ja: '',
+      en: '',
+    },
   },
   {
     month: 11,
-    title: '',
+    title: {
+      ja: '',
+      en: '',
+    },
   },
   {
     month: 12,
-    title: '1000位を切る',
+    title: {
+      ja: '1000位を切る',
+      en: 'Break into top 1000',
+    },
   },
 ]

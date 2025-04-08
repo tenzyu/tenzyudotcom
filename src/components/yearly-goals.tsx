@@ -3,24 +3,48 @@
 import { YEARLY_GOALS } from '@/data/goals'
 import { cn } from '@/lib/utils'
 import { Table, TableBody, TableCell, TableRow } from './ui/table'
+import { useTranslations } from 'next-intl'
+import { useLocale } from 'next-intl'
+import { SupportedLocales } from '@/i18n/request'
 
 export function YearlyGoals() {
+  const t = useTranslations()
+  const locale = useLocale() as SupportedLocales
+
   const getMonthName = (month: number): string => {
-    const monthNames = [
-      'Jan.',
-      'Feb.',
-      'Mar.',
-      'Apr.',
-      'May',
-      'Jun.',
-      'Jul.',
-      'Aug.',
-      'Sep.',
-      'Oct.',
-      'Nov.',
-      'Dec.',
-    ]
-    return monthNames[month - 1]
+    if (locale === 'ja') {
+      const monthNames = [
+        '1月',
+        '2月',
+        '3月',
+        '4月',
+        '5月',
+        '6月',
+        '7月',
+        '8月',
+        '9月',
+        '10月',
+        '11月',
+        '12月',
+      ]
+      return monthNames[month - 1]
+    } else {
+      const monthNames = [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
+      ]
+      return monthNames[month - 1]
+    }
   }
 
   // 現在の月を取得
@@ -58,7 +82,7 @@ export function YearlyGoals() {
               )}
             >
               <div className='flex items-center text-wrap'>
-                {goal.title || '-'}
+                {goal.title[locale] || '-'}
               </div>
             </TableCell>
           </TableRow>
