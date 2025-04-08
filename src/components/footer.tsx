@@ -72,7 +72,7 @@ export function Footer() {
                   size='sm'
                   className='text-muted-foreground hover:text-primary'
                 >
-                  <Share2 className='h-4 w-4 mr-2' />
+                  <Share2 className='h-4 w-4 mr-1' />
                   Share
                 </Button>
               </DialogTrigger>
@@ -87,15 +87,15 @@ export function Footer() {
                     onClick={() => handleShare('copy')}
                   >
                     <Link className='h-5 w-5' />
-                    <span className='text-xs'>Copy</span>
+                    <span className='text-xs'>copy</span>
                   </Button>
                   <Button
                     variant='outline'
                     className='flex flex-col items-center gap-1 h-auto py-3'
-                    onClick={() => handleShare('twitter')}
+                    onClick={() => handleShare('share.twitter')}
                   >
                     <Twitter className='h-5 w-5 text-[#1DA1F2]' />
-                    <span className='text-xs'>Twitter</span>
+                    <span className='text-xs'>twitter</span>
                   </Button>
                   <Button
                     variant='outline'
@@ -103,7 +103,7 @@ export function Footer() {
                     onClick={() => handleShare('email')}
                   >
                     <Mail className='h-5 w-5' />
-                    <span className='text-xs'>Email</span>
+                    <span className='text-xs'>email</span>
                   </Button>
                 </div>
               </DialogContent>
