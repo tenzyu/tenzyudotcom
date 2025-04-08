@@ -1,11 +1,16 @@
 import { Geist, Geist_Mono } from 'next/font/google'
-import './globals.css'
+
+import { NextIntlClientProvider } from 'next-intl'
+import { getLocale } from 'next-intl/server'
+
 import { Footer } from '@/components/footer'
 import { ThemeProvider } from '@/components/theme-provider'
-
 import { Header } from '@/components/header'
+
 import type { Metadata } from 'next'
 import type React from 'react'
+
+import './globals.css'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -55,13 +60,15 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const locale = await getLocale()
+
   return (
-    <html lang='ja' suppressHydrationWarning={true}>
+    <html lang={locale} suppressHydrationWarning={true}>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
@@ -71,14 +78,16 @@ export default function RootLayout({
           enableSystem={true}
           disableTransitionOnChange={true}
         >
-          <div className='flex flex-col min-h-screen'>
-            <Header />
-            {/* TODO: ヘッダー分ずらしてるけどもっといい方法がありそう */}
-            <div className='flex-grow bg-zinc-100 dark:bg-zinc-800 transform -translate-y-16 pt-16 -mb-16'>
-              {children}
+          <NextIntlClientProvider>
+            <div className='flex flex-col min-h-screen'>
+              {/* TODO: ヘッダー分ずらしてるけどもっといい方法がありそう */}
+              <Header locale={locale} />
+              <div className='flex-grow bg-zinc-100 dark:bg-zinc-800 transform -translate-y-16 pt-16 -mb-16'>
+                {children}
+              </div>
+              <Footer />
             </div>
-            <Footer />
-          </div>
+          </NextIntlClientProvider>
         </ThemeProvider>
       </body>
     </html>

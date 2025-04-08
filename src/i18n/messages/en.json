@@ -1,0 +1,60 @@
+{
+  "site": {
+    "title": "TENZYU | osu! player, streamer",
+    "description": "Aiming to be the #1 osu! player in Japan."
+  },
+  "profile": {
+    "globalRanking": "Global Ranking",
+    "countryRanking": "Country Ranking",
+    "name": "TENZYU",
+    "description": "osu! player, streamer, former programmer",
+    "goal": "Aiming to be the #1 osu! player in Japan.",
+    "twitchGoal": "Aiming to become a Twitch Partner.",
+    "funFacts": "Fun Facts: ",
+    "facts": {
+      "birthdate": "Born on April 25, 2002",
+      "osuStart": "Started playing osu! in May 2021",
+      "previousJob": "Was a programmer before becoming a streamer"
+    },
+    "loading": {
+      "gameplay": "Loading gameplay..."
+    }
+  },
+  "sections": {
+    "bestScores": "Best Scores",
+    "yearlyGoals": "2025 Goals",
+    "personalBestHistory": "PERSONAL BEST HISTORY",
+    "featuredVideos": "Featured Videos",
+    "twitterClips": "Twitter Clips",
+    "twitterNote": "*Images/videos may not display if your browser has tracking protection enabled.",
+    "osuSettings": "osu! settings",
+    "myLinks": "My Links"
+  },
+  "settings": {
+    "tablet": "Tablet",
+    "keyboard": "Keyboard",
+    "monitor": "Monitor",
+    "name": "Name:",
+    "area": "Area:",
+    "width": "Width (mm):",
+    "height": "Height (mm):",
+    "position": "Position:",
+    "keyMapping": "Key Mapping:",
+    "leftKey": "Left Key:",
+    "middleKey": "Middle Key:",
+    "rightKey": "Right Key:",
+    "knobFunctions": "Knob Functions:",
+    "press": "Press:",
+    "leftRotation": "Left Rotation:",
+    "rightRotation": "Right Rotation:",
+    "actuation": "Actuation:",
+    "rtTrigger": "RT trigger:",
+    "rtRelease": "RT release:",
+    "display": "Display:",
+    "size": "Size:",
+    "resolution": "Resolution:",
+    "performance": "Performance:",
+    "refreshRate": "Refresh Rate:",
+    "responseTime": "Response Time:"
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "site": {
+    "title": "TENZYU | osu! player, streamer",
+    "description": "osu! の日本一を目指しています。"
+  },
+  "profile": {
+    "globalRanking": "世界ランキング",
+    "countryRanking": "国別ランキング",
+    "name": "天珠 (テンジュ)",
+    "description": "osu! プレイヤー、ストリーマー、元プログラマー",
+    "goal": "osu! の日本一を目指しています。",
+    "twitchGoal": "Twitch Partner を目指しています。",
+    "funFacts": "fun facts: ",
+    "facts": {
+      "birthdate": "2002年4月25日生まれです",
+      "osuStart": "osu! は2021年の5月からプレイしています",
+      "previousJob": "配信する前はプログラマーでした"
+    },
+    "loading": {
+      "gameplay": "Loading gameplay..."
+    }
+  },
+  "sections": {
+    "bestScores": "Best Scores",
+    "yearlyGoals": "2025年の目標",
+    "personalBestHistory": "PERSONAL BEST HISTORY",
+    "featuredVideos": "Featured Videos",
+    "twitterClips": "Twitter Clips",
+    "twitterNote": "*ブラウザのトラッキングプロテクションで画像／動画が表示されない場合があります。",
+    "osuSettings": "osu! settings",
+    "myLinks": "My Links"
+  },
+  "settings": {
+    "tablet": "Tablet",
+    "keyboard": "Keyboard",
+    "monitor": "Monitor",
+    "name": "Name:",
+    "area": "Area:",
+    "width": "Width (mm):",
+    "height": "Height (mm):",
+    "position": "Position:",
+    "keyMapping": "Key Mapping:",
+    "leftKey": "Left Key:",
+    "middleKey": "Middle Key:",
+    "rightKey": "Right Key:",
+    "knobFunctions": "Knob Functions:",
+    "press": "Press:",
+    "leftRotation": "Left Rotation:",
+    "rightRotation": "Right Rotation:",
+    "actuation": "Actuation:",
+    "rtTrigger": "RT trigger:",
+    "rtRelease": "RT release:",
+    "display": "Display:",
+    "size": "Size:",
+    "resolution": "Resolution:",
+    "performance": "Performance:",
+    "refreshRate": "Refresh Rate:",
+    "responseTime": "Response Time:"
+  }
+}

@@ -4,8 +4,12 @@ import { Button } from '@/components/ui/button'
 import { Moon, Sun } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import Link from 'next/link'
+import { LanguageSwitcher } from './language-switcher'
 
-export function Header() {
+type HeaderProps = {
+  locale: string
+}
+export function Header(props: HeaderProps) {
   const { theme, setTheme } = useTheme()
 
   return (
@@ -28,6 +32,7 @@ export function Header() {
           {/* <Link href="/wiki" className="text-sm font-medium hover:text-primary transition-colors">
             WIKI
           </Link> */}
+          <LanguageSwitcher currentLocale={props.locale} />
           <Button
             variant='ghost'
             size='icon'

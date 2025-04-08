@@ -14,6 +14,7 @@ import { TWEETS } from '@/data/twitter'
 import { YOUTUBE_PERSONAL_BEST_HISTORY, YOUTUBE_VIDEOS } from '@/data/youtube'
 
 import { getUser, getUserScores } from '@/data/osu'
+import { getTranslations } from 'next-intl/server'
 
 // for osu contents
 export const revalidate = 60
@@ -27,6 +28,8 @@ export default async function Home() {
     { lazer: true },
     { limit: 5 },
   )
+
+  const t = await getTranslations()
 
   return (
     <main className='flex min-h-screen flex-col items-center p-4'>
@@ -45,7 +48,7 @@ export default async function Home() {
 
           <section className='w-full'>
             <h2 className='text-2xl font-bold tracking-tight text-center mb-6'>
-              2025年の目標
+              Yearly Goals
             </h2>
             <YearlyGoals />
           </section>
@@ -70,7 +73,7 @@ export default async function Home() {
             Twitter Clips
           </h2>
           <span className='text-center block text-xs'>
-            *ブラウザのトラッキングプロテクションで画像／動画が表示されない場合があります。
+            {t('sections.twitterNote')}
           </span>
           <TwitterCarousel tweets={TWEETS} />
         </section>

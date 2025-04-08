@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Loader2 } from 'lucide-react'
 import Image from 'next/image'
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 
 import type { User } from 'osu-api-v2-js'
 
@@ -14,6 +15,7 @@ type ProfileCardProps = {
 
 export function ProfileCard({ osuProfile }: ProfileCardProps) {
   const [isGifLoading, setIsGifLoading] = useState(true)
+  const t = useTranslations()
 
   return (
     <Card className='w-full max-w-2xl mx-auto overflow-hidden pt-0'>
@@ -23,7 +25,7 @@ export function ProfileCard({ osuProfile }: ProfileCardProps) {
             <div className='flex flex-col items-center gap-2'>
               <Loader2 className='h-8 w-8 animate-spin text-primary' />
               <span className='text-sm text-muted-foreground'>
-                Loading gameplay...
+                {t('profile.loading.gameplay')}
               </span>
             </div>
           </div>
@@ -53,7 +55,7 @@ export function ProfileCard({ osuProfile }: ProfileCardProps) {
           <div className='flex items-center gap-4 mt-2'>
             <div className='flex flex-col items-center'>
               <div className='text-sm font-medium text-muted-foreground'>
-                世界ランキング
+                {t('profile.globalRanking')}
               </div>
               <div className='text-2xl font-bold'>
                 #{osuProfile.statistics.global_rank}
@@ -65,7 +67,7 @@ export function ProfileCard({ osuProfile }: ProfileCardProps) {
             <div className='flex flex-col items-center'>
               <div className='flex items-center gap-1'>
                 <span className='text-sm font-medium text-muted-foreground'>
-                  国別ランキング
+                  {t('profile.countryRanking')}
                 </span>
               </div>
               <div className='text-2xl font-bold'>
@@ -76,15 +78,13 @@ export function ProfileCard({ osuProfile }: ProfileCardProps) {
         </div>
 
         <div className='text-center mt-4'>
-          <h1 className='text-2xl font-bold'>天珠 (テンジュ)</h1>
-          <p className='text-base mt-2'>
-            osu! プレイヤー、ストリーマー、元プログラマー
-          </p>
+          <h1 className='text-2xl font-bold'>{t('profile.name')}</h1>
+          <p className='text-base mt-2'>{t('profile.description')}</p>
         </div>
 
         <div className='grid grid-cols-1 md:grid-cols-2 gap-4 mt-6'>
           <div className='space-y-2'>
-            <p className='text-center'>osu! の日本一を目指しています。</p>
+            <p className='text-center'>{t('profile.goal')}</p>
             <Button
               variant='outline'
               className='w-full flex items-center justify-center gap-2'
@@ -108,7 +108,7 @@ export function ProfileCard({ osuProfile }: ProfileCardProps) {
           </div>
 
           <div className='space-y-2'>
-            <p className='text-center'>Twitch Partner を目指しています。</p>
+            <p className='text-center'>{t('profile.twitchGoal')}</p>
             <Button
               variant='outline'
               className='w-full flex items-center justify-center gap-2'
@@ -132,11 +132,11 @@ export function ProfileCard({ osuProfile }: ProfileCardProps) {
         </div>
 
         <div className='mt-6 pt-4 border-t'>
-          <h3 className='font-medium mb-2'>fun facts: </h3>
+          <h3 className='font-medium mb-2'>{t('profile.funFacts')}</h3>
           <ul className='space-y-1 list-disc pl-5'>
-            <li>2002年4月25日生まれです</li>
-            <li>osu! は2021年の5月からプレイしています</li>
-            <li>配信する前はプログラマーでした</li>
+            <li>{t('profile.facts.birthdate')}</li>
+            <li>{t('profile.facts.osuStart')}</li>
+            <li>{t('profile.facts.previousJob')}</li>
           </ul>
         </div>
       </CardContent>
