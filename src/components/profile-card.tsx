@@ -31,7 +31,7 @@ export function ProfileCard({ osuProfile }: ProfileCardProps) {
           </div>
         )}
         <Image
-          src='/osu-gif.gif'
+          src='/images/osu-gif.gif'
           alt='osu gameplay'
           fill={true}
           className='object-cover transition-opacity duration-300'
@@ -47,7 +47,7 @@ export function ProfileCard({ osuProfile }: ProfileCardProps) {
       <CardContent className='pt-0 px-6 pb-6'>
         <div className='flex flex-col items-center -mt-16 relative z-10'>
           <Image
-            src='/my-icon.png'
+            src='/images/my-icon.png'
             alt='tenzyu profile'
             width={96}
             height={96}
@@ -100,7 +100,7 @@ export function ProfileCard({ osuProfile }: ProfileCardProps) {
                 rel='noreferrer'
               >
                 <Image
-                  src='/osu-logo.png'
+                  src='/images/osu-logo.png'
                   alt='osu! logo'
                   width={20}
                   height={20}
@@ -127,7 +127,7 @@ export function ProfileCard({ osuProfile }: ProfileCardProps) {
                 rel='noreferrer'
               >
                 <Image
-                  src='/twitch-logo.png'
+                  src='/images/twitch-logo.png'
                   alt='Twitch logo'
                   width={20}
                   height={20}
