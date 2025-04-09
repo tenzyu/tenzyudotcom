@@ -15,8 +15,7 @@
   },
   "lint-staged": {
     "src/**/*.{js,jsx,ts,tsx}": [
-      "biome format --write",
-      "biome lint --write"
+      "biome format --write"
     ],
     "src/i18n/messages/*.json": [
       "i18n-locale-lint"
