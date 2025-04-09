@@ -2,13 +2,11 @@
 
 import { YEARLY_GOALS } from '@/data/goals'
 import { cn } from '@/lib/utils'
-import { Table, TableBody, TableCell, TableRow } from './ui/table'
-import { useTranslations } from 'next-intl'
+import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table'
 import { useLocale } from 'next-intl'
-import { SupportedLocales } from '@/i18n/request'
+import type { SupportedLocales } from '@/i18n/request'
 
 export function YearlyGoals() {
-  const t = useTranslations()
   const locale = useLocale() as SupportedLocales
 
   const getMonthName = (month: number): string => {

@@ -1,4 +1,4 @@
-import { LinkList } from '@/components/link-list'
+import { LinkList } from '@/components/common/link-list'
 
 export default function LinkTreePage() {
   return (

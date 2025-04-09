@@ -2,7 +2,7 @@
 
 import type { MyLink } from '@/data/links'
 import Image from 'next/image'
-import { Card, CardContent } from './ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 
 interface LinkCardProps {
   link: MyLink
@@ -33,7 +33,15 @@ export function LinkCard({ link }: LinkCardProps) {
     })()
 
     return (
-      <Image src={`/icons/${filename}.svg`} width={44} height={44} alt={''} />
+      <Image
+        src={`/icons/${filename}.svg`}
+        width={44}
+        height={44}
+        alt={''}
+        priority={false}
+        loading='lazy'
+        quality={75}
+      />
     )
   }
 

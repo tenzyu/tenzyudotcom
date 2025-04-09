@@ -12,7 +12,7 @@ import { Link, Mail, Share2, Twitter } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
-import { shareContent } from '@/lib/share-utils'
+import { shareContent } from '@/lib/utils/share'
 
 export function Footer() {
   const [shareDialogOpen, setShareDialogOpen] = useState(false)
@@ -25,8 +25,8 @@ export function Footer() {
     if (result.copied) {
       toast.success('Link copied to clipboard', { description: siteUrl })
       setShareDialogOpen(false)
-    } else if (result.url) {
-      window.open(result.url, '_blank')
+    } else if (result.uri) {
+      window.open(result.uri, '_blank')
       setShareDialogOpen(false)
     }
   }

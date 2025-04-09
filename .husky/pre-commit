@@ -1,0 +1,1 @@
+devbox run -- pnpm run pre-commit

@@ -9,7 +9,17 @@
     "lint": "biome lint --write ./src/**/*",
     "format": "biome format ./src/**/* --write",
     "check": "biome check --write ./src/**/*",
-    "i18n-lint": "i18n-locale-lint \"./src/i18n/messages/*.json\""
+    "i18n-lint": "i18n-locale-lint \"./src/i18n/messages/*.json\"",
+    "analyze": "ANALYZE=true next build",
+    "pre-commit": "lint-staged"
+  },
+  "lint-staged": {
+    "src/**/*.{js,jsx,ts,tsx}": [
+      "biome format --write"
+    ],
+    "src/i18n/messages/*.json": [
+      "i18n-locale-lint"
+    ]
   },
   "dependencies": {
     "@radix-ui/react-aspect-ratio": "^1.1.2",
@@ -20,6 +30,7 @@
     "@radix-ui/react-slot": "^1.1.2",
     "@radix-ui/react-tabs": "^1.1.3",
     "@radix-ui/react-visually-hidden": "^1.1.2",
+    "@vercel/analytics": "^1.5.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "embla-carousel-react": "^8.5.2",
@@ -37,11 +48,14 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@next/bundle-analyzer": "^15.2.5",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "husky": "^9.1.7",
     "i18n-locale-lint": "^0.3.5",
+    "lint-staged": "^15.5.0",
     "rimraf": "^6.0.1",
     "tailwindcss": "^4",
     "typescript": "^5"

@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Moon, Sun } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import Link from 'next/link'
-import { LanguageSwitcher } from './language-switcher'
+import { LanguageSwitcher } from '@/components/common/language-switcher'
 
 type HeaderProps = {
   locale: string

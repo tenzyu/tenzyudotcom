@@ -72,6 +72,10 @@ export function OsuBestScores({ scores }: OsuBestScoresProps) {
                       alt={score.beatmapset.title}
                       fill={true}
                       className='object-cover rounded'
+                      sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
+                      priority={index < 3}
+                      loading={index < 3 ? 'eager' : 'lazy'}
+                      quality={75}
                     />
                   </div>
 
