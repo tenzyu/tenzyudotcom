@@ -2,6 +2,7 @@ import { Geist, Geist_Mono } from 'next/font/google'
 
 import { NextIntlClientProvider } from 'next-intl'
 import { getLocale } from 'next-intl/server'
+import { Analytics } from '@vercel/analytics/react'
 
 import { Footer } from '@/components/footer'
 import { ThemeProvider } from '@/components/theme-provider'
@@ -72,6 +73,7 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <Analytics />
         <ThemeProvider
           attribute='class'
           defaultTheme='system'
