@@ -2,7 +2,7 @@
 
 import { YEARLY_GOALS } from '@/data/goals'
 import { cn } from '@/lib/utils'
-import { Table, TableBody, TableCell, TableRow } from './ui/table'
+import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table'
 import { useTranslations } from 'next-intl'
 import { useLocale } from 'next-intl'
 import { SupportedLocales } from '@/i18n/request'
