@@ -38,6 +38,8 @@ export function ProfileCard({ osuProfile }: ProfileCardProps) {
           style={{ opacity: isGifLoading ? 0 : 1 }}
           onLoad={() => setIsGifLoading(false)}
           unoptimized
+          priority={true}
+          loading='eager'
         />
         <div className='absolute inset-0 bg-black/20' />
       </div>
@@ -51,6 +53,8 @@ export function ProfileCard({ osuProfile }: ProfileCardProps) {
             height={96}
             className='rounded-full border-4 border-background shadow-md bg-white'
             priority={true}
+            loading='eager'
+            quality={90}
           />
           <div className='flex items-center gap-4 mt-2'>
             <div className='flex flex-col items-center'>
@@ -101,6 +105,9 @@ export function ProfileCard({ osuProfile }: ProfileCardProps) {
                   width={20}
                   height={20}
                   className='rounded-full'
+                  priority={false}
+                  loading='lazy'
+                  quality={75}
                 />
                 <span>tenzyu</span>
               </a>
@@ -124,6 +131,9 @@ export function ProfileCard({ osuProfile }: ProfileCardProps) {
                   alt='Twitch logo'
                   width={20}
                   height={20}
+                  priority={false}
+                  loading='lazy'
+                  quality={75}
                 />
                 <span>tenzyudotcom</span>
               </a>

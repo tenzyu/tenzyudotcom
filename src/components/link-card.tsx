@@ -33,7 +33,15 @@ export function LinkCard({ link }: LinkCardProps) {
     })()
 
     return (
-      <Image src={`/icons/${filename}.svg`} width={44} height={44} alt={''} />
+      <Image
+        src={`/icons/${filename}.svg`}
+        width={44}
+        height={44}
+        alt={''}
+        priority={false}
+        loading='lazy'
+        quality={75}
+      />
     )
   }
 
