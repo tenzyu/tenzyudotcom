@@ -13,9 +13,6 @@
     "scripts": {
       "test": [
         "echo \"Error: no test specified\" && exit 1"
-      ],
-      "pre-commit": [
-        "pnpm run i18n-lint && pnpm run format"
       ]
     }
   }
