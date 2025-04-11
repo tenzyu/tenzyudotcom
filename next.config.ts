@@ -1,6 +1,11 @@
+import withBundleAnalyzer from '@next/bundle-analyzer';
+import createMDX from '@next/mdx'
 import type { NextConfig } from "next";
 import createNextIntlPlugin from 'next-intl/plugin';
-import withBundleAnalyzer from '@next/bundle-analyzer';
+import rehypeAutolinkHeadings from 'rehype-autolink-headings'
+import rehypePrettyCode from 'rehype-pretty-code'
+import rehypeSlug from 'rehype-slug'
+import remarkGfm from 'remark-gfm'
 
 const nextConfig: NextConfig = {
   images: {
@@ -26,10 +31,33 @@ const nextConfig: NextConfig = {
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
   },
+  pageExtensions: ['js', 'jsx', 'ts', 'tsx'],
 };
+
+const prettyCodeOptions = {
+  theme: 'github-dark',
+  keepBackground: true,
+}
+
+const autolinkHeadingsOptions = {
+  properties: {
+    className: 'anchor'
+  }
+}
+
+const withMDX = createMDX({
+  options: {
+    remarkPlugins: [remarkGfm],
+    rehypePlugins: [
+      rehypeSlug,
+      [rehypePrettyCode, prettyCodeOptions],
+      [rehypeAutolinkHeadings, autolinkHeadingsOptions],
+    ],
+  },
+})
 
 const withNextIntl = createNextIntlPlugin();
 
 export default withBundleAnalyzer({
   enabled: process.env.ANALYZE === 'true',
-})(withNextIntl(nextConfig));
+})(withNextIntl(withMDX(nextConfig)));

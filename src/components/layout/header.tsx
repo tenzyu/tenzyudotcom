@@ -1,10 +1,10 @@
 'use client'
 
+import { LanguageSwitcher } from '@/components/common/language-switcher'
 import { Button } from '@/components/ui/button'
 import { Moon, Sun } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import Link from 'next/link'
-import { LanguageSwitcher } from '@/components/common/language-switcher'
 
 type HeaderProps = {
   locale: string
@@ -29,9 +29,12 @@ export function Header(props: HeaderProps) {
           >
             LINKS
           </Link>
-          {/* <Link href="/wiki" className="text-sm font-medium hover:text-primary transition-colors">
-            WIKI
-          </Link> */}
+          <Link
+            href='/blog'
+            className='text-sm font-medium hover:text-primary transition-colors'
+          >
+            BLOG
+          </Link>
           <LanguageSwitcher currentLocale={props.locale} />
           <Button
             variant='ghost'
