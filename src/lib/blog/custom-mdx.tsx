@@ -6,10 +6,18 @@ import remarkGfm from 'remark-gfm'
 
 import { components } from '../../app/mdx-components'
 
+type MDXProps = {
+  components?: Record<string, React.ComponentType<Record<string, unknown>>>
+}
+
+type MDXComponent = React.ComponentType<MDXProps>
+
 type CustomMDXProps = {
   source: string
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  additionalComponents?: Record<string, React.ComponentType<any>>
+  additionalComponents?: Record<
+    string,
+    React.ComponentType<Record<string, unknown>>
+  >
 }
 
 const rehypePrettyCodeOptions = {
@@ -37,7 +45,9 @@ export async function CustomMDX({
       baseUrl: import.meta.url,
     }
 
-    const { default: MDXContent } = await evaluate(source, options)
+    const { default: MDXContent } = (await evaluate(source, options)) as {
+      default: MDXComponent
+    }
 
     const mergedComponents = {
       ...components,
