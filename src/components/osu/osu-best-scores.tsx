@@ -1,5 +1,6 @@
 import { Clock, Music } from 'lucide-react'
 import Image from 'next/image'
+import type { Score } from 'osu-api-v2-js'
 import { Suspense } from 'react'
 
 import { Card, CardContent, CardTitle } from '@/components/shadcn-ui/card'
@@ -7,7 +8,7 @@ import { Skeleton } from '@/components/shadcn-ui/skeleton'
 import { ID_OSU } from '@/data/constants'
 import { getUserScores } from '@/data/osu'
 
-function ScoreCardSkeleton() {
+const ScoreCardSkeleton = () => {
   return (
     <Card className="overflow-hidden rounded-lg border py-0">
       <CardContent className="px-0">
@@ -34,43 +35,35 @@ function ScoreCardSkeleton() {
   )
 }
 
-async function ScoreCard({ index }: { index: number }) {
-  const scores = await getUserScores(
-    ID_OSU,
-    'best',
-    0,
-    { lazer: true },
-    { limit: 5 },
-  )
-  const score = scores[index]
+type ScoreCardProps = {
+  score: Score.WithUserBeatmapBeatmapset
+  index: number
+}
 
-  if (!score) {
-    return null
+const getRankStyle = (rank: string) => {
+  switch (rank) {
+    case 'XH':
+    case 'SS':
+      return 'text-yellow-400 border-yellow-400'
+    case 'X':
+    case 'S':
+      return 'text-yellow-300 border-yellow-300'
+    case 'SH':
+      return 'text-green-400 border-green-400'
+    case 'A':
+      return 'text-green-400 border-green-400'
+    case 'B':
+      return 'text-blue-400 border-blue-400'
+    case 'C':
+      return 'text-purple-400 border-purple-400'
+    case 'D':
+      return 'text-red-400 border-red-400'
+    default:
+      return 'text-gray-400 border-gray-400'
   }
+}
 
-  const getRankStyle = (rank: string) => {
-    switch (rank) {
-      case 'XH':
-      case 'SS':
-        return 'text-yellow-400 border-yellow-400'
-      case 'X':
-      case 'S':
-        return 'text-yellow-300 border-yellow-300'
-      case 'SH':
-        return 'text-green-400 border-green-400'
-      case 'A':
-        return 'text-green-400 border-green-400'
-      case 'B':
-        return 'text-blue-400 border-blue-400'
-      case 'C':
-        return 'text-purple-400 border-purple-400'
-      case 'D':
-        return 'text-red-400 border-red-400'
-      default:
-        return 'text-gray-400 border-gray-400'
-    }
-  }
-
+const ScoreCard = ({ score, index }: ScoreCardProps) => {
   const rankStyle = getRankStyle(score.rank)
 
   return (
@@ -93,8 +86,8 @@ async function ScoreCard({ index }: { index: number }) {
                 fill
                 className="rounded object-cover"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                priority={index < 3}
-                loading={index < 3 ? 'eager' : 'lazy'}
+                priority={false}
+                loading="lazy"
                 quality={75}
               />
             </div>
@@ -162,14 +155,41 @@ async function ScoreCard({ index }: { index: number }) {
   )
 }
 
-export function OsuBestScores() {
+const BestScoresContainer = async ({ limit }: { limit: number }) => {
+  const scores = await getUserScores(
+    ID_OSU,
+    'best',
+    0,
+    { lazer: true },
+    { limit },
+  )
+
+  return (
+    <>
+      {scores.map(
+        (score, index) =>
+          score && <ScoreCard key={score.id} score={score} index={index} />,
+      )}
+    </>
+  )
+}
+
+export const OsuBestScores = () => {
+  const limit = 5
+
   return (
     <div className="mx-auto w-full max-w-md space-y-1">
-      {[...Array(5)].map((_, index) => (
-        <Suspense key={index.toString()} fallback={<ScoreCardSkeleton />}>
-          <ScoreCard index={index} />
-        </Suspense>
-      ))}
+      <Suspense
+        fallback={
+          <>
+            {[...Array(limit)].map((_, index) => (
+              <ScoreCardSkeleton key={index} />
+            ))}
+          </>
+        }
+      >
+        <BestScoresContainer limit={limit} />
+      </Suspense>
     </div>
   )
 }
