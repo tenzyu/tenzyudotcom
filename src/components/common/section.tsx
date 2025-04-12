@@ -1,8 +1,8 @@
 import { cn } from '@/lib/utils'
 
-interface SectionProps extends React.HTMLAttributes<HTMLElement> {
+type SectionProps = {
   children: React.ReactNode
-}
+} & React.HTMLAttributes<HTMLElement>
 
 export function Section({ children, className, ...props }: SectionProps) {
   return (

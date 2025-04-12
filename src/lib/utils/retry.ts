@@ -1,4 +1,4 @@
-interface RetryOptions {
+type RetryOptions = {
   maxAttempts?: number
   initialDelay?: number
   maxDelay?: number
@@ -42,7 +42,7 @@ export async function retry<T>(
       delay = Math.min(delay * opts.backoffFactor, opts.maxDelay)
 
       // Wait before next attempt
-      await new Promise(resolve => setTimeout(resolve, delay))
+      await new Promise((resolve) => setTimeout(resolve, delay))
     }
   }
 

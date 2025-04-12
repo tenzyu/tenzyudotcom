@@ -4,10 +4,11 @@ import { baseUrl } from '@/app/sitemap'
 import { ProfileCard } from '@/components/common/profile-card'
 import { CustomMDX, formatDate, getBlogPosts } from '@/lib/blog'
 
+export const dynamicParams = false
 export async function generateStaticParams() {
   const posts = await getBlogPosts()
 
-  return posts.map(post => ({
+  return posts.map((post) => ({
     slug: post.slug,
   }))
 }
@@ -19,7 +20,7 @@ type Params = Promise<{
 export async function generateMetadata({ params }: { params: Params }) {
   const awaited_posts = await getBlogPosts()
   const awaited_params = await params
-  const post = awaited_posts.find(post => post.slug === awaited_params.slug)
+  const post = awaited_posts.find((post) => post.slug === awaited_params.slug)
   if (!post) return
 
   const {
@@ -57,18 +58,18 @@ export async function generateMetadata({ params }: { params: Params }) {
 export default async function Blog({ params }: { params: Params }) {
   const awaited_posts = await getBlogPosts()
   const awaited_params = await params
-  const post = awaited_posts.find(post => post.slug === awaited_params.slug)
+  const post = awaited_posts.find((post) => post.slug === awaited_params.slug)
 
   if (!post) {
     notFound()
   }
 
   return (
-    <main className='flex flex-col items-center p-4'>
-      <div className='container flex flex-col items-center gap-8 px-4 pt-8'>
-        <section className='max-w-3xl'>
+    <main className="flex flex-col items-center p-4">
+      <div className="container flex flex-col items-center gap-8 px-4 pt-8">
+        <section className="max-w-3xl">
           <script
-            type='application/ld+json'
+            type="application/ld+json"
             suppressHydrationWarning
             // biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
             dangerouslySetInnerHTML={{
@@ -86,15 +87,15 @@ export default async function Blog({ params }: { params: Params }) {
               }),
             }}
           />
-          <h1 className='title font-semibold text-2xl tracking-tighter'>
+          <h1 className="title text-2xl font-semibold tracking-tighter">
             {post.metadata.title}
           </h1>
-          <div className='flex justify-between items-center mt-2 mb-8 text-sm'>
-            <p className='text-sm text-neutral-600 dark:text-neutral-400'>
+          <div className="mt-2 mb-8 flex items-center justify-between text-sm">
+            <p className="text-sm text-neutral-600 dark:text-neutral-400">
               {formatDate(post.metadata.publishedAt)}
             </p>
           </div>
-          <article className='prose prose-zinc dark:prose-invert !max-w-3xl'>
+          <article className="prose prose-zinc dark:prose-invert !max-w-3xl">
             <CustomMDX source={post.rawContent} />
           </article>
         </section>

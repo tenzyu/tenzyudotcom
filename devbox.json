@@ -3,8 +3,7 @@
   "packages": [
     "nodejs@20.15.1",
     "pnpm@10.7.0",
-    "ngrok@3.19.1",
-    "biome@1.9.4"
+    "ngrok@3.19.1"
   ],
   "shell": {
     "init_hook": [

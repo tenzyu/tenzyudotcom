@@ -4,8 +4,8 @@ import { retry } from '@/lib/utils/retry'
 export class OsuAPIError extends Error implements APIError {
   constructor(
     message: string,
-    public readonly statusCode: number = 500,
-    public readonly code: string = 'OSU_API_ERROR',
+    public readonly statusCode = 500,
+    public readonly code = 'OSU_API_ERROR',
   ) {
     super(message)
     this.name = 'OsuApiError'

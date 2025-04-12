@@ -1,16 +1,14 @@
+import { type EvaluateOptions, evaluate } from '@mdx-js/mdx'
 import type * as React from 'react'
 import * as runtime from 'react/jsx-runtime'
-
-import { type EvaluateOptions, evaluate } from '@mdx-js/mdx'
-
 import rehypePrettyCode from 'rehype-pretty-code'
 import remarkGfm from 'remark-gfm'
 
 import { components } from '../../app/mdx-components'
 
-interface CustomMDXProps {
+type CustomMDXProps = {
   source: string
-  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   additionalComponents?: Record<string, React.ComponentType<any>>
 }
 
@@ -43,14 +41,14 @@ export async function CustomMDX({
 
     const mergedComponents = {
       ...components,
-      ...(additionalComponents || {}),
+      ...(additionalComponents ?? {}),
     }
 
     return <MDXContent components={mergedComponents} />
   } catch (error) {
     console.error('Error rendering MDX:', error)
     return (
-      <div className='rounded-md border border-destructive/50 bg-destructive/10 p-4 text-destructive'>
+      <div className="border-destructive/50 bg-destructive/10 text-destructive rounded-md border p-4">
         {/* TODO: i18n */}
         An error occurred while rendering the content.
       </div>

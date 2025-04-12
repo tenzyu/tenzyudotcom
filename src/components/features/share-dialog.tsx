@@ -1,5 +1,9 @@
 'use client'
 
+import { Link, Mail, Share2, Twitter } from 'lucide-react'
+import { useState } from 'react'
+import { toast } from 'sonner'
+
 import { Button } from '@/components/shadcn-ui/button'
 import {
   Dialog,
@@ -8,13 +12,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/shadcn-ui/dialog'
-import { Link, Mail, Share2, Twitter } from 'lucide-react'
-import { useState } from 'react'
-import { toast } from 'sonner'
-
 import { shareContent } from '@/lib/utils'
 
-interface ShareDialogProps {
+type ShareDialogProps = {
   title: string
   url: string
 }
@@ -38,43 +38,49 @@ export function ShareDialog({ title, url }: ShareDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild={true}>
+      <DialogTrigger asChild>
         {/* あとでこの辺のサイズ直す */}
-        <Button variant='ghost' className='h-auto py-4'>
-          <Share2 className='size-5' />
-          <span className='sr-only'>Share {title}</span>
+        <Button variant="ghost" className="h-auto py-4">
+          <Share2 className="size-5" />
+          <span className="sr-only">Share {title}</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className='sm:max-w-md'>
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Share {title}</DialogTitle>
         </DialogHeader>
-        <div className='grid grid-cols-4 gap-4 py-4'>
+        <div className="grid grid-cols-4 gap-4 py-4">
           <Button
-            variant='outline'
-            className='flex flex-col items-center gap-1 h-auto py-3'
-            onClick={() => handleShare('copy')}
+            variant="outline"
+            className="flex h-auto flex-col items-center gap-1 py-3"
+            onClick={() => {
+              handleShare('copy')
+            }}
           >
-            <Link className='h-5 w-5' />
-            <span className='text-xs'>Copy</span>
+            <Link className="h-5 w-5" />
+            <span className="text-xs">Copy</span>
           </Button>
 
           <Button
-            variant='outline'
-            className='flex flex-col items-center gap-1 h-auto py-3'
-            onClick={() => handleShare('twitter')}
+            variant="outline"
+            className="flex h-auto flex-col items-center gap-1 py-3"
+            onClick={() => {
+              handleShare('twitter')
+            }}
           >
-            <Twitter className='h-5 w-5 text-[#1DA1F2]' />
-            <span className='text-xs'>Twitter</span>
+            <Twitter className="h-5 w-5 text-[#1DA1F2]" />
+            <span className="text-xs">Twitter</span>
           </Button>
 
           <Button
-            variant='outline'
-            className='flex flex-col items-center gap-1 h-auto py-3'
-            onClick={() => handleShare('email')}
+            variant="outline"
+            className="flex h-auto flex-col items-center gap-1 py-3"
+            onClick={() => {
+              handleShare('email')
+            }}
           >
-            <Mail className='h-5 w-5' />
-            <span className='text-xs'>Email</span>
+            <Mail className="h-5 w-5" />
+            <span className="text-xs">Email</span>
           </Button>
         </div>
       </DialogContent>
