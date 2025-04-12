@@ -29,7 +29,8 @@ export function BlogCard({
   className,
 }: BlogCardProps) {
   return (
-    <Link href={`/blog/${slug}`}>
+    // NOTE: SSGしてるけど dynamic routes なので prefetch = true
+    <Link href={`/blog/${slug}`} prefetch>
       <Card
         className={cn(
           'group hover:border-primary transition-colors',
