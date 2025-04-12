@@ -129,7 +129,7 @@ async function RankingsSkeleton() {
         <div className='text-sm font-medium text-muted-foreground'>
           {t('profile.globalRanking')}
         </div>
-        <Skeleton className='h-6 w-16' />
+        <Skeleton className='h-8 w-16' />
       </div>
 
       <div className='h-8 w-px bg-border' aria-hidden='true' />
@@ -138,7 +138,7 @@ async function RankingsSkeleton() {
         <div className='text-sm font-medium text-muted-foreground'>
           {t('profile.countryRanking')}
         </div>
-        <Skeleton className='h-6 w-16' />
+        <Skeleton className='h-8 w-16' />
       </div>
     </div>
   )
@@ -154,7 +154,7 @@ async function Rankings() {
         <div className='text-sm font-medium text-muted-foreground'>
           {t('profile.globalRanking')}
         </div>
-        <div className='text-2xl font-bold'>
+        <div className='h-8 text-2xl font-bold'>
           #{osuProfile.statistics.global_rank}
         </div>
       </div>
@@ -165,7 +165,7 @@ async function Rankings() {
         <div className='text-sm font-medium text-muted-foreground'>
           {t('profile.countryRanking')}
         </div>
-        <div className='text-2xl font-bold'>
+        <div className='h-8 text-2xl font-bold'>
           #{osuProfile.statistics.country_rank}
         </div>
       </div>
