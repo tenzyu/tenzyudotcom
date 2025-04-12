@@ -10,7 +10,7 @@ export class AppError extends Error {
 }
 
 export class APIError extends AppError {
-  constructor(message: string, code: string, statusCode: number = 500) {
+  constructor(message: string, code: string, statusCode = 500) {
     super(message, code, statusCode)
     this.name = 'APIError'
   }
