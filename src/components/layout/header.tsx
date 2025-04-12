@@ -13,6 +13,7 @@ export function Header(props: HeaderProps) {
         <Link
           href="/"
           className="hover:text-primary text-xl font-bold transition-colors"
+          prefetch
         >
           tenzyu.com
         </Link>

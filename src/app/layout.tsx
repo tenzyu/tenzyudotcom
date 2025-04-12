@@ -1,4 +1,5 @@
 import { Analytics } from '@vercel/analytics/react'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { NextIntlClientProvider } from 'next-intl'
@@ -72,7 +73,6 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Analytics />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -84,6 +84,8 @@ export default async function RootLayout({
               <Header locale={locale} />
               <main className="-mb-16 flex-grow -translate-y-16 transform bg-zinc-100 pt-16 dark:bg-zinc-800">
                 <Container>{children}</Container>
+                <Analytics />
+                <SpeedInsights />
               </main>
               <Footer />
             </div>
