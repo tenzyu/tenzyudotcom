@@ -1,18 +1,17 @@
 'use client'
 
-import Image, { ImageProps } from 'next/image'
+import Image from 'next/image'
 import { useState } from 'react'
 
-type ImageWithLoadingProps = Omit<ImageProps, 'onLoad'> & {
-  loadingComponent?: React.ReactNode
-  onLoad?: (e: React.SyntheticEvent<HTMLImageElement>) => void
-}
+import { cn } from '@/lib/utils'
+
+type ImageWithLoadingProps = {
+  loadingComponent: React.ReactNode
+} & React.ComponentProps<typeof Image>
 
 export const ImageWithLoading = ({
   loadingComponent,
   className,
-  style,
-  onLoad: onLoadProp,
   ...props
 }: ImageWithLoadingProps) => {
   const [isLoading, setIsLoading] = useState(true)
@@ -22,14 +21,14 @@ export const ImageWithLoading = ({
       {isLoading && loadingComponent}
       <Image
         {...props}
-        className={className}
-        style={{
-          ...style,
-          opacity: isLoading ? 0 : 1,
-        }}
+        className={cn(
+          className,
+          'transition-opacity duration-200',
+          isLoading ? 'opacity-0' : 'opacity-100',
+        )}
         onLoad={(e) => {
           setIsLoading(false)
-          onLoadProp?.(e)
+          props.onLoad?.(e)
         }}
       />
     </>
