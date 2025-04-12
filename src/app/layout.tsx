@@ -4,8 +4,8 @@ import { Analytics } from '@vercel/analytics/react'
 import { NextIntlClientProvider } from 'next-intl'
 import { getLocale } from 'next-intl/server'
 
+import { Container } from '@/components/common/container'
 import { ThemeProvider } from '@/components/features/theme-provider'
-import { Container } from '@/components/layout/common/container'
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
 

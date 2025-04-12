@@ -1,7 +1,7 @@
 import { LinkList } from '@/components/common/link-list'
 import { ProfileCard } from '@/components/common/profile-card'
+import { Section } from '@/components/common/section'
 import { YearlyGoals } from '@/components/common/yearly-goals'
-import { Section } from '@/components/layout/common/section'
 import { OsuBestScores } from '@/components/osu/osu-best-scores'
 import { KeyboardSettings } from '@/components/settings/keyboard-settings'
 import { MonitorSettings } from '@/components/settings/monitor-settings'
