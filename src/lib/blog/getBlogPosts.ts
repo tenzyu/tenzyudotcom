@@ -3,21 +3,24 @@ import path from 'node:path'
 
 import matter from 'gray-matter'
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type Frontmatter<T = Record<string, any>> = {
+export type FrontmatterBase = {
   title: string
   summary: string
   image?: string
   publishedAt: Date
   updatedAt?: Date
-} & T
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type MDXData<T = Record<string, any>> = {
-  metadata: Frontmatter<T>
-  slug: string
-  rawContent: string
 }
+
+export type Frontmatter<
+  T extends Record<string, unknown> = Record<string, never>,
+> = FrontmatterBase & T
+
+export type MDXData<T extends Record<string, unknown> = Record<string, never>> =
+  {
+    metadata: Frontmatter<T>
+    slug: string
+    rawContent: string
+  }
 
 async function getMDXFiles(dir: string): Promise<string[]> {
   return (await fs.promises.readdir(dir)).filter(
@@ -25,7 +28,9 @@ async function getMDXFiles(dir: string): Promise<string[]> {
   )
 }
 
-async function readMDXFile<T>(filePath: string): Promise<MDXData<T>> {
+async function readMDXFile<T extends Record<string, unknown>>(
+  filePath: string,
+): Promise<MDXData<T>> {
   const rawContent = await fs.promises.readFile(filePath, 'utf-8')
   const { data, content } = matter(rawContent)
   return {
@@ -35,7 +40,9 @@ async function readMDXFile<T>(filePath: string): Promise<MDXData<T>> {
   }
 }
 
-async function getMDXData<T>(dir: string): Promise<MDXData<T>[]> {
+async function getMDXData<T extends Record<string, unknown>>(
+  dir: string,
+): Promise<MDXData<T>[]> {
   const files = await getMDXFiles(dir)
 
   return Promise.all(files.map((file) => readMDXFile<T>(path.join(dir, file))))
