@@ -4,6 +4,10 @@ export type TWEET = {
 
 export const TWEETS: TWEET[] = [
   {
+    // Age of Tyranny + DT 1.20x
+    id: '1910285119899988184',
+  },
+  {
     // Tsukinami+DT
     id: '1908446073070419972',
   },
