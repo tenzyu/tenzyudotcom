@@ -32,7 +32,7 @@ export const shareContent = (platform: string, url: string, title: string) => {
       uri = getEmailShareUri(title, url)
       break
     case 'copy':
-      copyToClipboard(encodeURIComponent(url))
+      copyToClipboard(url)
       copied = true
       break
   }

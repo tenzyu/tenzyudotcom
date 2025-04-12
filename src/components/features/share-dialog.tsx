@@ -12,19 +12,43 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/shadcn-ui/dialog'
-import { shareContent } from '@/lib/utils'
+import { cn } from '@/lib/utils'
+import { shareContent } from '@/lib/utils/share'
+
+type ShareButtonProps = {
+  icon: React.ReactNode
+  label: string
+  onClick: () => void
+}
+
+function ShareButton({ icon, label, onClick }: ShareButtonProps) {
+  return (
+    <Button
+      variant="outline"
+      className="flex h-auto flex-col items-center gap-1 py-3"
+      onClick={onClick}
+    >
+      {icon}
+      <span className="text-xs">{label}</span>
+    </Button>
+  )
+}
 
 type ShareDialogProps = {
   title: string
   url: string
+  triggerClassName?: string
 }
 
-export function ShareDialog({ title, url }: ShareDialogProps) {
+export function ShareDialog({
+  title,
+  url,
+  triggerClassName,
+}: ShareDialogProps) {
   const [open, setOpen] = useState(false)
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
   const shareUrl = `${baseUrl}/u/${url}`
 
-  // handleShare関数を更新
   const handleShare = (platform: string) => {
     const result = shareContent(platform, shareUrl, title)
     if (result.copied) {
@@ -39,8 +63,7 @@ export function ShareDialog({ title, url }: ShareDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        {/* あとでこの辺のサイズ直す */}
-        <Button variant="ghost" className="h-auto py-4">
+        <Button variant="ghost" className={cn('h-auto py-4', triggerClassName)}>
           <Share2 className="size-5" />
           <span className="sr-only">Share {title}</span>
         </Button>
@@ -49,39 +72,22 @@ export function ShareDialog({ title, url }: ShareDialogProps) {
         <DialogHeader>
           <DialogTitle>Share {title}</DialogTitle>
         </DialogHeader>
-        <div className="grid grid-cols-4 gap-4 py-4">
-          <Button
-            variant="outline"
-            className="flex h-auto flex-col items-center gap-1 py-3"
-            onClick={() => {
-              handleShare('copy')
-            }}
-          >
-            <Link className="h-5 w-5" />
-            <span className="text-xs">Copy</span>
-          </Button>
-
-          <Button
-            variant="outline"
-            className="flex h-auto flex-col items-center gap-1 py-3"
-            onClick={() => {
-              handleShare('twitter')
-            }}
-          >
-            <Twitter className="h-5 w-5 text-[#1DA1F2]" />
-            <span className="text-xs">Twitter</span>
-          </Button>
-
-          <Button
-            variant="outline"
-            className="flex h-auto flex-col items-center gap-1 py-3"
-            onClick={() => {
-              handleShare('email')
-            }}
-          >
-            <Mail className="h-5 w-5" />
-            <span className="text-xs">Email</span>
-          </Button>
+        <div className="grid grid-cols-3 gap-4 py-4">
+          <ShareButton
+            icon={<Link className="h-5 w-5" />}
+            label="Copy"
+            onClick={() => { handleShare('copy'); }}
+          />
+          <ShareButton
+            icon={<Twitter className="h-5 w-5 text-[#1DA1F2]" />}
+            label="Twitter"
+            onClick={() => { handleShare('twitter'); }}
+          />
+          <ShareButton
+            icon={<Mail className="h-5 w-5" />}
+            label="Email"
+            onClick={() => { handleShare('email'); }}
+          />
         </div>
       </DialogContent>
     </Dialog>

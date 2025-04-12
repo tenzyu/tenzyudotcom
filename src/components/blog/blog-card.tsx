@@ -20,6 +20,33 @@ type BlogCardProps = {
   className?: string
 }
 
+type BlogMetadataProps = {
+  publishedAt: Date
+}
+
+const BlogMetadata = ({ publishedAt }: BlogMetadataProps) => (
+  <div className="text-muted-foreground flex items-center gap-2 text-sm">
+    <CalendarIcon className="h-4 w-4" />
+    <time dateTime={publishedAt.toLocaleDateString('ja-JP')}>
+      {new Date(publishedAt).toLocaleDateString('ja-JP')}
+    </time>
+  </div>
+)
+
+type BlogTagsProps = {
+  tags: string[]
+}
+
+const BlogTags = ({ tags }: BlogTagsProps) => (
+  <div className="mt-4 flex flex-wrap gap-2">
+    {tags.map((tag) => (
+      <Badge key={tag} variant="secondary">
+        {tag}
+      </Badge>
+    ))}
+  </div>
+)
+
 export function BlogCard({
   title,
   summary,
@@ -42,25 +69,12 @@ export function BlogCard({
             <CardTitle className="group-hover:text-primary line-clamp-2 text-2xl transition-colors">
               {title}
             </CardTitle>
-            <div className="text-muted-foreground flex items-center gap-2 text-sm">
-              <CalendarIcon className="h-4 w-4" />
-              <time dateTime={publishedAt.toLocaleDateString('ja-JP')}>
-                {new Date(publishedAt).toLocaleDateString('ja-JP')}
-              </time>
-            </div>
+            <BlogMetadata publishedAt={publishedAt} />
           </div>
         </CardHeader>
         <CardContent>
           <CardDescription className="line-clamp-3">{summary}</CardDescription>
-          {tags && tags.length > 0 && (
-            <div className="mt-4 flex flex-wrap gap-2">
-              {tags.map((tag) => (
-                <Badge key={tag} variant="secondary">
-                  {tag}
-                </Badge>
-              ))}
-            </div>
-          )}
+          {tags && tags.length > 0 && <BlogTags tags={tags} />}
         </CardContent>
       </Card>
     </Link>

@@ -1,15 +1,33 @@
 import { Clock, Music } from 'lucide-react'
 import Image from 'next/image'
+import type { Score } from 'osu-api-v2-js'
 import { Suspense } from 'react'
 
 import { Card, CardContent, CardTitle } from '@/components/shadcn-ui/card'
 import { Skeleton } from '@/components/shadcn-ui/skeleton'
-import { ID_OSU } from '@/data/constants'
+import { ID_OSU, DEFAULT_SCORE_LIMIT } from '@/data/constants'
 import { getUserScores } from '@/data/osu'
+import { cn } from '@/lib/utils'
 
-function ScoreCardSkeleton() {
+const RANK_STYLES = {
+  XH: 'text-yellow-400 border-yellow-400',
+  SS: 'text-yellow-400 border-yellow-400',
+  X: 'text-yellow-300 border-yellow-300',
+  S: 'text-yellow-300 border-yellow-300',
+  SH: 'text-green-400 border-green-400',
+  A: 'text-green-400 border-green-400',
+  B: 'text-blue-400 border-blue-400',
+  C: 'text-purple-400 border-purple-400',
+  D: 'text-red-400 border-red-400',
+} as const
+
+type ScoreCardSkeletonProps = {
+  className?: string
+}
+
+const ScoreCardSkeleton = ({ className }: ScoreCardSkeletonProps) => {
   return (
-    <Card className="overflow-hidden rounded-lg border py-0">
+    <Card className={cn('overflow-hidden rounded-lg border py-0', className)}>
       <CardContent className="px-0">
         <div className="flex items-center border-b border-gray-700">
           <Skeleton className="mr-3 size-24" />
@@ -34,47 +52,49 @@ function ScoreCardSkeleton() {
   )
 }
 
-async function ScoreCard({ index }: { index: number }) {
-  const scores = await getUserScores(
-    ID_OSU,
-    'best',
-    0,
-    { lazer: true },
-    { limit: 5 },
-  )
-  const score = scores[index]
+type ScoreCardProps = {
+  score: Score.WithUserBeatmapBeatmapset
+  index: number
+  className?: string
+}
 
-  if (!score) {
-    return null
-  }
+type BeatmapMetadataProps = {
+  bpm: number
+  totalLength: number
+}
 
-  const getRankStyle = (rank: string) => {
-    switch (rank) {
-      case 'XH':
-      case 'SS':
-        return 'text-yellow-400 border-yellow-400'
-      case 'X':
-      case 'S':
-        return 'text-yellow-300 border-yellow-300'
-      case 'SH':
-        return 'text-green-400 border-green-400'
-      case 'A':
-        return 'text-green-400 border-green-400'
-      case 'B':
-        return 'text-blue-400 border-blue-400'
-      case 'C':
-        return 'text-purple-400 border-purple-400'
-      case 'D':
-        return 'text-red-400 border-red-400'
-      default:
-        return 'text-gray-400 border-gray-400'
-    }
-  }
+const BeatmapMetadata = ({ bpm, totalLength }: BeatmapMetadataProps) => (
+  <div className="mt-1 flex items-center gap-2 text-xs text-gray-500">
+    <div className="flex items-center gap-1">
+      <Music className="h-3 w-3" />
+      <span>{bpm.toFixed(0)}bpm</span>
+    </div>
+    <div className="flex items-center gap-1">
+      <Clock className="h-3 w-3" />
+      <span>
+        {Math.floor(totalLength / 60)}m {totalLength % 60}s
+      </span>
+    </div>
+  </div>
+)
 
-  const rankStyle = getRankStyle(score.rank)
+type ModBadgeProps = {
+  acronym: string
+}
+
+const ModBadge = ({ acronym }: ModBadgeProps) => (
+  <div className="flex h-6 w-10 items-center justify-center rounded bg-red-900/50 text-xs text-white">
+    {acronym}
+  </div>
+)
+
+const ScoreCard = ({ score, index, className }: ScoreCardProps) => {
+  const rankStyle =
+    RANK_STYLES[score.rank as keyof typeof RANK_STYLES] ||
+    'text-gray-400 border-gray-400'
 
   return (
-    <Card className="overflow-hidden rounded-lg border py-0">
+    <Card className={cn('overflow-hidden rounded-lg border py-0', className)}>
       <CardContent className="px-0">
         <a
           href={`https://osu.ppy.sh/beatmapsets/${score.beatmapset.id}#osu/${score.beatmap.id}`}
@@ -93,8 +113,7 @@ async function ScoreCard({ index }: { index: number }) {
                 fill
                 className="rounded object-cover"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                priority={index < 3}
-                loading={index < 3 ? 'eager' : 'lazy'}
+                loading="lazy"
                 quality={75}
               />
             </div>
@@ -106,19 +125,10 @@ async function ScoreCard({ index }: { index: number }) {
               <div className="text-xs text-gray-400">
                 by {score.beatmapset.artist}
               </div>
-              <div className="mt-1 flex items-center gap-2 text-xs text-gray-500">
-                <div className="flex items-center gap-1">
-                  <Music className="h-3 w-3" />
-                  <span>{score.beatmap.bpm.toFixed(0)}bpm</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Clock className="h-3 w-3" />
-                  <span>
-                    {Math.floor(score.beatmap.total_length / 60)}m{' '}
-                    {score.beatmap.total_length % 60}s
-                  </span>
-                </div>
-              </div>
+              <BeatmapMetadata
+                bpm={score.beatmap.bpm}
+                totalLength={score.beatmap.total_length}
+              />
             </div>
 
             <div className="flex -translate-y-4 transform flex-col pr-2">
@@ -132,24 +142,21 @@ async function ScoreCard({ index }: { index: number }) {
 
           <div className="flex justify-between px-2 py-1">
             <div className="translate-y-1 transform text-xl font-bold text-pink-500">
-              {/* eslint-disable-next-line @typescript-eslint/no-non-null-assertion */}
-              {Math.round(score.pp!)}pp
+              {score.pp ? Math.round(score.pp) : 'N/A'}pp
             </div>
 
             <div className="flex flex-col items-center justify-between gap-2">
               <div className="flex items-center gap-2">
                 {score.mods.length > 0 &&
                   score.mods.map((mod) => (
-                    <div
-                      key={mod.acronym}
-                      className="flex h-6 w-10 items-center justify-center rounded bg-red-900/50 text-xs text-white"
-                    >
-                      {mod.acronym}
-                    </div>
+                    <ModBadge key={mod.acronym} acronym={mod.acronym} />
                   ))}
 
                 <div
-                  className={`flex h-10 w-10 items-center justify-center rounded-full border-2 text-lg font-bold ${rankStyle}`}
+                  className={cn(
+                    'flex h-10 w-10 items-center justify-center rounded-full border-2 text-lg font-bold',
+                    rankStyle,
+                  )}
                 >
                   {score.rank}
                 </div>
@@ -162,14 +169,41 @@ async function ScoreCard({ index }: { index: number }) {
   )
 }
 
-export function OsuBestScores() {
+const BestScoresContainer = async ({ limit }: { limit: number }) => {
+  const scores = await getUserScores(
+    ID_OSU,
+    'best',
+    0,
+    { lazer: true },
+    { limit },
+  )
+
+  return (
+    <>
+      {scores.map(
+        (score, index) =>
+          score && <ScoreCard key={score.id} score={score} index={index} />,
+      )}
+    </>
+  )
+}
+
+export const OsuBestScores = () => {
+  const limit = DEFAULT_SCORE_LIMIT
+
   return (
     <div className="mx-auto w-full max-w-md space-y-1">
-      {[...Array(5)].map((_, index) => (
-        <Suspense key={index.toString()} fallback={<ScoreCardSkeleton />}>
-          <ScoreCard index={index} />
-        </Suspense>
-      ))}
+      <Suspense
+        fallback={
+          <>
+            {[...Array(limit)].map((_, index) => (
+              <ScoreCardSkeleton key={index} />
+            ))}
+          </>
+        }
+      >
+        <BestScoresContainer limit={limit} />
+      </Suspense>
     </div>
   )
 }

@@ -1,6 +1,7 @@
 'use client'
 
 import Image from 'next/image'
+import Link from 'next/link'
 import { memo } from 'react'
 
 import { Card, CardContent } from '@/components/shadcn-ui/card'
@@ -42,7 +43,7 @@ const LinkIcon = memo(function LinkIcon({ name }: { name: string }) {
 
 export const LinkCard = memo(function LinkCard({ link }: LinkCardProps) {
   return (
-    <a
+    <Link
       href={`/u/${link.shortenUrl}`}
       className="focus:ring-primary block focus:ring-2 focus:outline-none"
       target="_blank"
@@ -63,6 +64,6 @@ export const LinkCard = memo(function LinkCard({ link }: LinkCardProps) {
           <p className="text-sm text-gray-400">{link.id}</p>
         </CardContent>
       </Card>
-    </a>
+    </Link>
   )
 })
