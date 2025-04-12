@@ -5,7 +5,7 @@ import { Suspense } from 'react'
 
 import { Card, CardContent, CardTitle } from '@/components/shadcn-ui/card'
 import { Skeleton } from '@/components/shadcn-ui/skeleton'
-import { ID_OSU } from '@/data/constants'
+import { ID_OSU, DEFAULT_SCORE_LIMIT } from '@/data/constants'
 import { getUserScores } from '@/data/osu'
 
 const ScoreCardSkeleton = () => {
@@ -125,8 +125,7 @@ const ScoreCard = ({ score, index }: ScoreCardProps) => {
 
           <div className="flex justify-between px-2 py-1">
             <div className="translate-y-1 transform text-xl font-bold text-pink-500">
-              {/* eslint-disable-next-line @typescript-eslint/no-non-null-assertion */}
-              {Math.round(score.pp!)}pp
+              {score.pp ? Math.round(score.pp) : 'N/A'}pp
             </div>
 
             <div className="flex flex-col items-center justify-between gap-2">
@@ -175,7 +174,7 @@ const BestScoresContainer = async ({ limit }: { limit: number }) => {
 }
 
 export const OsuBestScores = () => {
-  const limit = 5
+  const limit = DEFAULT_SCORE_LIMIT
 
   return (
     <div className="mx-auto w-full max-w-md space-y-1">
