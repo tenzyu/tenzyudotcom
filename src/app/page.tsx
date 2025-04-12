@@ -2,10 +2,13 @@ import { LinkList } from '@/components/common/link-list'
 import { ProfileCard } from '@/components/common/profile-card'
 import { Section } from '@/components/common/section'
 import { YearlyGoals } from '@/components/common/yearly-goals'
-import { OsuBestScores } from '@/components/osu/osu-best-scores'
-import { KeyboardSettings } from '@/components/settings/keyboard-settings'
-import { MonitorSettings } from '@/components/settings/monitor-settings'
-import { TabletSettings } from '@/components/settings/tablet-settings'
+import {
+  KeyboardSettings,
+  MonitorSettings,
+  OsuBestScores,
+  TabletSettings,
+} from '@/components/osu'
+
 import { TwitterCarousel } from '@/components/social/twitter-carousel'
 import { YouTubeCarousel } from '@/components/social/youtube-carousel'
 
