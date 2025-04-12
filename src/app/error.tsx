@@ -1,5 +1,5 @@
 'use client'
 
-import ErrorBoundary from '@/components/error/error-boundary'
+import ErrorBoundary from '@/components/features/error-boundary'
 
 export default ErrorBoundary
