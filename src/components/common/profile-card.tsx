@@ -121,23 +121,24 @@ export const ProfileCard = memo(async function ProfileCard() {
   )
 })
 
-function RankingsSkeleton() {
+async function RankingsSkeleton() {
+  const t = await getTranslations()
   return (
     <div className='flex items-center gap-4'>
       <div className='flex flex-col items-center'>
         <div className='text-sm font-medium text-muted-foreground'>
-          Global Ranking
+          {t('profile.globalRanking')}
         </div>
-        <Skeleton className='h-8 w-16' />
+        <Skeleton className='h-6 w-16' />
       </div>
 
       <div className='h-8 w-px bg-border' aria-hidden='true' />
 
       <div className='flex flex-col items-center'>
         <div className='text-sm font-medium text-muted-foreground'>
-          Country Ranking
+          {t('profile.countryRanking')}
         </div>
-        <Skeleton className='h-8 w-16' />
+        <Skeleton className='h-6 w-16' />
       </div>
     </div>
   )
