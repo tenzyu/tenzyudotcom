@@ -1,6 +1,6 @@
 'use client'
 
-import { Card, CardContent } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/shadcn-ui/card'
 import type { MyLink } from '@/data/links'
 import Image from 'next/image'
 import { memo } from 'react'

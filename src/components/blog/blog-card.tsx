@@ -1,11 +1,11 @@
-import { Badge } from '@/components/ui/badge'
+import { Badge } from '@/components/shadcn-ui/badge'
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
+} from '@/components/shadcn-ui/card'
 import { cn } from '@/lib/utils'
 import { CalendarIcon } from 'lucide-react'
 import Link from 'next/link'

@@ -1,7 +1,7 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/shadcn-ui/button'
+import { Card, CardContent } from '@/components/shadcn-ui/card'
 import { Loader2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import Image from 'next/image'

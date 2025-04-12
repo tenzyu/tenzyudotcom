@@ -1,4 +1,4 @@
-import { Card, CardContent, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardTitle } from '@/components/shadcn-ui/card'
 import { ArrowLeft, ArrowRight } from 'lucide-react'
 
 export function KeyboardSettings() {

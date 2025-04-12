@@ -9,7 +9,7 @@ import { TabletSettings } from '@/components/settings/tablet-settings'
 import { TwitterCarousel } from '@/components/social/twitter-carousel'
 import { YouTubeCarousel } from '@/components/social/youtube-carousel'
 
-import { Toaster } from '@/components/ui/sonner'
+import { Toaster } from '@/components/shadcn-ui/sonner'
 
 import { TWEETS } from '@/data/twitter'
 import { YOUTUBE_PERSONAL_BEST_HISTORY, YOUTUBE_VIDEOS } from '@/data/youtube'

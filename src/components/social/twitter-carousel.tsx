@@ -6,7 +6,7 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-} from '@/components/ui/carousel'
+} from '@/components/shadcn-ui/carousel'
 import { Tweet } from 'react-tweet'
 
 import type { TWEET } from '@/data/twitter'

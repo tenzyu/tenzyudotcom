@@ -1,13 +1,13 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/shadcn-ui/button'
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
+} from '@/components/shadcn-ui/dialog'
 import { Link, Mail, Share2, Twitter } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'

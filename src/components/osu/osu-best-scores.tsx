@@ -1,4 +1,4 @@
-import { Card, CardContent, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardTitle } from '@/components/shadcn-ui/card'
 import { Clock, Music } from 'lucide-react'
 import Image from 'next/image'
 import type { Score } from 'osu-api-v2-js'
