@@ -19,7 +19,7 @@ const ProfileImage = memo(function ProfileImage() {
       width={96}
       height={96}
       className='rounded-full border-4 border-background shadow-md bg-white'
-      priority={true}
+      priority={false}
       loading='eager'
       quality={90}
     />

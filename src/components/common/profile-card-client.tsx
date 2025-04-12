@@ -35,7 +35,7 @@ export const ProfileHeader = () => {
         style={{ opacity: isGifLoading ? 0 : 1 }}
         onLoad={() => setIsGifLoading(false)}
         unoptimized
-        priority={true}
+        priority={false}
         loading='eager'
       />
       <div className='absolute inset-0 bg-black/20' aria-hidden='true' />
