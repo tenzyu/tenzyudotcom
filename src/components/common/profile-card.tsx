@@ -1,18 +1,15 @@
-'use client'
-
 import { Button } from '@/components/shadcn-ui/button'
 import { Card, CardContent } from '@/components/shadcn-ui/card'
-import { Loader2 } from 'lucide-react'
-import { useTranslations } from 'next-intl'
+import { Skeleton } from '@/components/shadcn-ui/skeleton'
+
+import { getTranslations } from 'next-intl/server'
+
 import Image from 'next/image'
-import { memo } from 'react'
-import { useState } from 'react'
+import { Suspense, memo } from 'react'
 
-import type { User } from 'osu-api-v2-js'
-
-type ProfileCardProps = {
-  osuProfile: User.Extended
-}
+import { ID_OSU } from '@/data/constants'
+import { getUser } from '@/data/osu'
+import { ProfileHeader } from './profile-card-client'
 
 const ProfileImage = memo(function ProfileImage() {
   return (
@@ -67,71 +64,19 @@ const SocialButton = memo(function SocialButton({
   )
 })
 
-export const ProfileCard = memo(function ProfileCard({
-  osuProfile,
-}: ProfileCardProps) {
-  const [isGifLoading, setIsGifLoading] = useState(true)
-  const t = useTranslations()
+export const ProfileCard = memo(async function ProfileCard() {
+  const t = await getTranslations()
 
   return (
     <Card className='w-full max-w-2xl mx-auto overflow-hidden pt-0'>
-      <div
-        className='aspect-[16/9] relative overflow-hidden bg-muted'
-        aria-label={t('profile.loading.gameplay')}
-      >
-        {isGifLoading && (
-          <div className='absolute inset-0 flex items-center justify-center z-10 bg-muted'>
-            <div className='flex flex-col items-center gap-2'>
-              <Loader2
-                className='h-8 w-8 animate-spin text-primary'
-                aria-hidden='true'
-              />
-              <span className='text-sm text-muted-foreground'>
-                {t('profile.loading.gameplay')}
-              </span>
-            </div>
-          </div>
-        )}
-        <Image
-          src='/images/osu-gif.gif'
-          alt='osu gameplay'
-          fill={true}
-          className='object-cover transition-opacity duration-300'
-          style={{ opacity: isGifLoading ? 0 : 1 }}
-          onLoad={() => setIsGifLoading(false)}
-          unoptimized
-          priority={true}
-          loading='eager'
-        />
-        <div className='absolute inset-0 bg-black/20' aria-hidden='true' />
-      </div>
+      <ProfileHeader />
 
       <CardContent className='pt-0 px-6 pb-6'>
         <div className='flex flex-col items-center -mt-16 relative z-10'>
           <ProfileImage />
-          <div className='flex items-center gap-4 mt-2'>
-            <div className='flex flex-col items-center'>
-              <div className='text-sm font-medium text-muted-foreground'>
-                {t('profile.globalRanking')}
-              </div>
-              <div className='text-2xl font-bold'>
-                #{osuProfile.statistics.global_rank}
-              </div>
-            </div>
-
-            <div className='h-8 w-px bg-border' aria-hidden='true' />
-
-            <div className='flex flex-col items-center'>
-              <div className='flex items-center gap-1'>
-                <span className='text-sm font-medium text-muted-foreground'>
-                  {t('profile.countryRanking')}
-                </span>
-              </div>
-              <div className='text-2xl font-bold'>
-                #{osuProfile.statistics.country_rank}
-              </div>
-            </div>
-          </div>
+          <Suspense fallback={<RankingsSkeleton />}>
+            <Rankings />
+          </Suspense>
         </div>
 
         <div className='text-center mt-4'>
@@ -175,3 +120,54 @@ export const ProfileCard = memo(function ProfileCard({
     </Card>
   )
 })
+
+function RankingsSkeleton() {
+  return (
+    <div className='flex items-center gap-4'>
+      <div className='flex flex-col items-center'>
+        <div className='text-sm font-medium text-muted-foreground'>
+          Global Ranking
+        </div>
+        <Skeleton className='h-8 w-16' />
+      </div>
+
+      <div className='h-8 w-px bg-border' aria-hidden='true' />
+
+      <div className='flex flex-col items-center'>
+        <div className='text-sm font-medium text-muted-foreground'>
+          Country Ranking
+        </div>
+        <Skeleton className='h-8 w-16' />
+      </div>
+    </div>
+  )
+}
+
+async function Rankings() {
+  const osuProfile = await getUser(ID_OSU)
+  const t = await getTranslations()
+
+  return (
+    <div className='flex items-center gap-4'>
+      <div className='flex flex-col items-center'>
+        <div className='text-sm font-medium text-muted-foreground'>
+          {t('profile.globalRanking')}
+        </div>
+        <div className='text-2xl font-bold'>
+          #{osuProfile.statistics.global_rank}
+        </div>
+      </div>
+
+      <div className='h-8 w-px bg-border' aria-hidden='true' />
+
+      <div className='flex flex-col items-center'>
+        <div className='text-sm font-medium text-muted-foreground'>
+          {t('profile.countryRanking')}
+        </div>
+        <div className='text-2xl font-bold'>
+          #{osuProfile.statistics.country_rank}
+        </div>
+      </div>
+    </div>
+  )
+}

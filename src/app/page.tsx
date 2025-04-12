@@ -17,28 +17,18 @@ import { Toaster } from '@/components/shadcn-ui/sonner'
 import { TWEETS } from '@/data/twitter'
 import { YOUTUBE_PERSONAL_BEST_HISTORY, YOUTUBE_VIDEOS } from '@/data/youtube'
 
-import { getUser, getUserScores } from '@/data/osu'
 import { getTranslations } from 'next-intl/server'
 
 // for osu contents
 export const revalidate = 60
 
 export default async function Home() {
-  const osuProfile = await getUser('tenzyu')
-  const osuMyBestScores = getUserScores(
-    osuProfile.id,
-    'best',
-    0,
-    { lazer: true },
-    { limit: 5 },
-  )
-
   const t = await getTranslations()
 
   return (
     <div className='flex flex-col items-center'>
       <Section className='w-full'>
-        <ProfileCard osuProfile={osuProfile} />
+        <ProfileCard />
       </Section>
 
       <div className='w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 md:gap-x-4 md:gap-y-0 gap-y-12'>
@@ -46,7 +36,7 @@ export default async function Home() {
           <h2 className='text-2xl font-bold tracking-tight text-center mb-6'>
             Best Scores
           </h2>
-          <OsuBestScores scores={await osuMyBestScores} />
+          <OsuBestScores />
         </Section>
 
         <Section>
