@@ -1,10 +1,15 @@
 'use client'
 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableRow,
+} from '@/components/shadcn-ui/table'
 import { YEARLY_GOALS } from '@/data/goals'
-import { cn } from '@/lib/utils'
-import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table'
-import { useLocale } from 'next-intl'
 import type { SupportedLocales } from '@/i18n/request'
+import { cn } from '@/lib/utils'
+import { useLocale } from 'next-intl'
 
 export function YearlyGoals() {
   const locale = useLocale() as SupportedLocales
@@ -26,23 +31,22 @@ export function YearlyGoals() {
         '12月',
       ]
       return monthNames[month - 1]
-    } else {
-      const monthNames = [
-        'Jan',
-        'Feb',
-        'Mar',
-        'Apr',
-        'May',
-        'Jun',
-        'Jul',
-        'Aug',
-        'Sep',
-        'Oct',
-        'Nov',
-        'Dec',
-      ]
-      return monthNames[month - 1]
     }
+    const monthNames = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ]
+    return monthNames[month - 1]
   }
 
   // 現在の月を取得

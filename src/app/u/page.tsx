@@ -1,5 +1,7 @@
 import { LinkList } from '@/components/common/link-list'
 
+export const dynamic = 'force-static'
+
 export default function LinkTreePage() {
   return (
     <main className='flex flex-col items-center p-4'>

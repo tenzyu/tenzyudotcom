@@ -2,7 +2,6 @@ import { notFound } from 'next/navigation'
 
 import { baseUrl } from '@/app/sitemap'
 import { ProfileCard } from '@/components/common/profile-card'
-import { getUser } from '@/data/osu'
 import { CustomMDX, formatDate, getBlogPosts } from '@/lib/blog'
 
 export async function generateStaticParams() {
@@ -58,7 +57,6 @@ export async function generateMetadata({ params }: { params: Params }) {
 export default async function Blog({ params }: { params: Params }) {
   const awaited_posts = await getBlogPosts()
   const awaited_params = await params
-  const osuProfile = await getUser('tenzyu')
   const post = awaited_posts.find(post => post.slug === awaited_params.slug)
 
   if (!post) {
@@ -100,7 +98,7 @@ export default async function Blog({ params }: { params: Params }) {
             <CustomMDX source={post.rawContent} />
           </article>
         </section>
-        <ProfileCard osuProfile={osuProfile} />
+        <ProfileCard />
       </div>
     </main>
   )

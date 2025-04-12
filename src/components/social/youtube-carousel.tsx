@@ -6,13 +6,13 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-} from '@/components/ui/carousel'
+} from '@/components/shadcn-ui/carousel'
 import {
   Dialog,
   DialogContent,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
+} from '@/components/shadcn-ui/dialog'
 import type { YouTube } from '@/data/youtube'
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
 import Image from 'next/image'
