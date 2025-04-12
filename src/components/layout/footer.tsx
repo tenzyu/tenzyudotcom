@@ -14,11 +14,44 @@ import {
 } from '@/components/shadcn-ui/dialog'
 import { shareContent } from '@/lib/utils/share'
 
+const socialLinks = [
+  {
+    href: 'https://twitch.tv/tenzyudotcom',
+    label: 'Twitch',
+  },
+  {
+    href: 'https://www.youtube.com/@tenzyudotcom',
+    label: 'YouTube',
+  },
+  {
+    href: 'https://x.com/tenzyudotcom',
+    label: 'Twitter',
+  },
+]
+
+type ShareButtonProps = {
+  icon: React.ReactNode
+  label: string
+  onClick: () => void
+}
+
+function ShareButton({ icon, label, onClick }: ShareButtonProps) {
+  return (
+    <Button
+      variant="outline"
+      className="flex h-auto flex-col items-center gap-1 py-3"
+      onClick={onClick}
+    >
+      {icon}
+      <span className="text-xs">{label}</span>
+    </Button>
+  )
+}
+
 export function Footer() {
   const [shareDialogOpen, setShareDialogOpen] = useState(false)
   const siteUrl = typeof window !== 'undefined' ? window.location.origin : ''
 
-  // handleShare関数を更新
   const handleShare = (platform: string) => {
     const encodedTitle = 'tenzyu.com - osu! player'
     const result = shareContent(platform, siteUrl, encodedTitle)
@@ -40,30 +73,17 @@ export function Footer() {
           </div>
 
           <div className="flex items-center gap-4">
-            <a
-              href="https://twitch.tv/tenzyudotcom"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-muted-foreground hover:text-primary transition-colors"
-            >
-              Twitch
-            </a>
-            <a
-              href="https://www.youtube.com/@tenzyudotcom"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-muted-foreground hover:text-primary transition-colors"
-            >
-              YouTube
-            </a>
-            <a
-              href="https://x.com/tenzyudotcom"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-muted-foreground hover:text-primary transition-colors"
-            >
-              Twitter
-            </a>
+            {socialLinks.map((link) => (
+              <a
+                key={link.label}
+                href={link.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-muted-foreground hover:text-primary transition-colors"
+              >
+                {link.label}
+              </a>
+            ))}
 
             <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
               <DialogTrigger asChild>
@@ -81,36 +101,21 @@ export function Footer() {
                   <DialogTitle>Share tenzyu.com</DialogTitle>
                 </DialogHeader>
                 <div className="grid grid-cols-3 gap-4 py-4">
-                  <Button
-                    variant="outline"
-                    className="flex h-auto flex-col items-center gap-1 py-3"
-                    onClick={() => {
-                      handleShare('copy')
-                    }}
-                  >
-                    <Link className="h-5 w-5" />
-                    <span className="text-xs">copy</span>
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="flex h-auto flex-col items-center gap-1 py-3"
-                    onClick={() => {
-                      handleShare('share.twitter')
-                    }}
-                  >
-                    <Twitter className="h-5 w-5 text-[#1DA1F2]" />
-                    <span className="text-xs">twitter</span>
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="flex h-auto flex-col items-center gap-1 py-3"
-                    onClick={() => {
-                      handleShare('email')
-                    }}
-                  >
-                    <Mail className="h-5 w-5" />
-                    <span className="text-xs">email</span>
-                  </Button>
+                  <ShareButton
+                    icon={<Link className="h-5 w-5" />}
+                    label="copy"
+                    onClick={() => { handleShare('copy'); }}
+                  />
+                  <ShareButton
+                    icon={<Twitter className="h-5 w-5 text-[#1DA1F2]" />}
+                    label="twitter"
+                    onClick={() => { handleShare('share.twitter'); }}
+                  />
+                  <ShareButton
+                    icon={<Mail className="h-5 w-5" />}
+                    label="email"
+                    onClick={() => { handleShare('email'); }}
+                  />
                 </div>
               </DialogContent>
             </Dialog>
