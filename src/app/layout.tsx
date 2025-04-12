@@ -4,6 +4,7 @@ import { Analytics } from '@vercel/analytics/react'
 import { NextIntlClientProvider } from 'next-intl'
 import { getLocale } from 'next-intl/server'
 
+import { Container } from '@/components/layout/common/container'
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
 import { ThemeProvider } from '@/components/providers/theme-provider'
@@ -82,11 +83,10 @@ export default async function RootLayout({
         >
           <NextIntlClientProvider>
             <div className='flex flex-col min-h-screen'>
-              {/* TODO: ヘッダー分ずらしてるけどもっといい方法がありそう */}
               <Header locale={locale} />
-              <div className='flex-grow bg-zinc-100 dark:bg-zinc-800 transform -translate-y-16 pt-16 -mb-16'>
-                {children}
-              </div>
+              <main className='flex-grow bg-zinc-100 dark:bg-zinc-800 transform -translate-y-16 pt-16 -mb-16'>
+                <Container>{children}</Container>
+              </main>
               <Footer />
             </div>
           </NextIntlClientProvider>
