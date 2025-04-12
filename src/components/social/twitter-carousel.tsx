@@ -1,9 +1,3 @@
-'use client'
-
-import Image from 'next/image'
-import { Suspense } from 'react'
-import { Tweet, type TwitterComponents } from 'react-tweet'
-
 import {
   Carousel,
   CarouselContent,
@@ -12,30 +6,18 @@ import {
   CarouselPrevious,
 } from '@/components/shadcn-ui/carousel'
 import type { TWEET } from '@/data/twitter'
+import { cn } from '@/lib/utils'
+
+import { TweetItem } from './twitter-carousel-client'
 
 type TwitterCarouselProps = {
   tweets: TWEET[]
+  className?: string
 }
 
-const twitterComponents: TwitterComponents = {
-  AvatarImg: (props) => (
-    <Image {...props} priority={false} loading="lazy" quality={75} />
-  ),
-  MediaImg: (props) => (
-    <Image
-      {...props}
-      fill
-      unoptimized
-      priority={false}
-      loading="lazy"
-      quality={75}
-    />
-  ),
-}
-
-export function TwitterCarousel({ tweets }: TwitterCarouselProps) {
+export function TwitterCarousel({ tweets, className }: TwitterCarouselProps) {
   return (
-    <div className="mx-auto w-full max-w-4xl">
+    <div className={cn('mx-auto w-full max-w-4xl', className)}>
       <Carousel
         opts={{
           align: 'start',
@@ -49,22 +31,12 @@ export function TwitterCarousel({ tweets }: TwitterCarouselProps) {
               key={tweet.id}
               className="select-none md:basis-1/2 lg:basis-1/2"
             >
-              <Suspense
-                fallback={
-                  <div className="h-[300px] w-full animate-pulse rounded-lg bg-gray-200 dark:bg-gray-800" />
-                }
-              >
-                <Tweet
-                  id={tweet.id}
-                  fetchOptions={{ next: { revalidate: 60 } }}
-                  components={twitterComponents}
-                />
-              </Suspense>
+              <TweetItem tweet={tweet} />
             </CarouselItem>
           ))}
         </CarouselContent>
-        <CarouselPrevious className="dark:font-white absolute top-1/2 left-4 z-10 -translate-y-1/2 transform dark:bg-black" />
-        <CarouselNext className="dark:font-white absolute top-1/2 right-4 z-10 -translate-y-1/2 transform dark:bg-black" />
+        <CarouselPrevious className="absolute left-4 top-1/2 z-10 -translate-y-1/2 transform dark:bg-black dark:font-white" />
+        <CarouselNext className="absolute right-4 top-1/2 z-10 -translate-y-1/2 transform dark:bg-black dark:font-white" />
       </Carousel>
     </div>
   )
