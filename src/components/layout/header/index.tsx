@@ -1,17 +1,11 @@
-'use client'
-
 import { LanguageSwitcher } from '@/components/features/language-switcher'
-import { Button } from '@/components/shadcn-ui/button'
-import { Moon, Sun } from 'lucide-react'
-import { useTheme } from 'next-themes'
+import { ThemeSwitcher } from '@/components/features/theme-switcher'
 import Link from 'next/link'
 
 type HeaderProps = {
   locale: string
 }
 export function Header(props: HeaderProps) {
-  const { theme, setTheme } = useTheme()
-
   return (
     <header className='sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60'>
       <div className='container flex h-14 items-center justify-between mx-auto px-2'>
@@ -36,15 +30,7 @@ export function Header(props: HeaderProps) {
             BLOG
           </Link>
           <LanguageSwitcher currentLocale={props.locale} />
-          <Button
-            variant='ghost'
-            size='icon'
-            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-            aria-label='Toggle theme'
-          >
-            <Sun className='h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0' />
-            <Moon className='absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100' />
-          </Button>
+          <ThemeSwitcher />
         </nav>
       </div>
     </header>
