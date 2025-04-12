@@ -8,6 +8,7 @@ import {
   SettingsGridItem,
   SettingsVisualization,
 } from '@/components/osu/settings-card'
+import type { TabletSettings as TabletSettingsType } from '@/types/osu/settings'
 
 type TabletAreaProps = {
   width: number
@@ -49,29 +50,53 @@ const TabletArea = memo(function TabletArea({
 })
 
 export const TabletSettings = memo(function TabletSettings() {
+  const settings: TabletSettingsType = {
+    name: 'Wacom CTL-472',
+    area: {
+      width: 58.0,
+      height: 45.24,
+    },
+    position: {
+      x: 83.06,
+      y: 26.43,
+      rotation: 180,
+    },
+  }
+
   return (
     <SettingsCard title="Tablet">
       <SettingsVisualization>
-        <TabletArea width={58.0} height={45.24} x={83.06} y={26.43} />
+        <TabletArea
+          width={settings.area.width}
+          height={settings.area.height}
+          x={settings.position.x}
+          y={settings.position.y}
+        />
       </SettingsVisualization>
 
       <SettingsData>
         <SettingsDataItem label="Name">
-          <div className="text-lg">Wacom CTL-472</div>
+          <div className="text-lg">{settings.name}</div>
         </SettingsDataItem>
 
         <SettingsDataItem label="Area">
           <SettingsGrid>
-            <SettingsGridItem label="Width (mm)" value={58} />
-            <SettingsGridItem label="Height (mm)" value={45.24} />
+            <SettingsGridItem label="Width (mm)" value={settings.area.width} />
+            <SettingsGridItem
+              label="Height (mm)"
+              value={settings.area.height}
+            />
           </SettingsGrid>
         </SettingsDataItem>
 
         <SettingsDataItem label="Position">
           <SettingsGrid columns={3}>
-            <SettingsGridItem label="X (mm)" value={83.06} />
-            <SettingsGridItem label="Y (mm)" value={26.43} />
-            <SettingsGridItem label="R (deg)" value={180} />
+            <SettingsGridItem label="X (mm)" value={settings.position.x} />
+            <SettingsGridItem label="Y (mm)" value={settings.position.y} />
+            <SettingsGridItem
+              label="R (deg)"
+              value={settings.position.rotation}
+            />
           </SettingsGrid>
         </SettingsDataItem>
       </SettingsData>
