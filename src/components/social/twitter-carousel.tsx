@@ -1,5 +1,9 @@
 'use client'
 
+import Image from 'next/image'
+import { Suspense } from 'react'
+import { Tweet, type TwitterComponents } from 'react-tweet'
+
 import {
   Carousel,
   CarouselContent,
@@ -7,14 +11,26 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from '@/components/shadcn-ui/carousel'
-import { Suspense } from 'react'
-import { Tweet } from 'react-tweet'
-
 import type { TWEET } from '@/data/twitter'
-import { components } from './tweet-components'
 
 interface TwitterCarouselProps {
   tweets: TWEET[]
+}
+
+const twitterComponents: TwitterComponents = {
+  AvatarImg: props => (
+    <Image {...props} priority={false} loading='lazy' quality={75} />
+  ),
+  MediaImg: props => (
+    <Image
+      {...props}
+      fill={true}
+      unoptimized={true}
+      priority={false}
+      loading='lazy'
+      quality={75}
+    />
+  ),
 }
 
 export function TwitterCarousel({ tweets }: TwitterCarouselProps) {
@@ -41,7 +57,7 @@ export function TwitterCarousel({ tweets }: TwitterCarouselProps) {
                 <Tweet
                   id={tweet.id}
                   fetchOptions={{ next: { revalidate: 60 } }}
-                  components={components}
+                  components={twitterComponents}
                 />
               </Suspense>
             </CarouselItem>
