@@ -1,5 +1,7 @@
 'use client'
 
+import { useLocale } from 'next-intl'
+
 import {
   Table,
   TableBody,
@@ -9,7 +11,6 @@ import {
 import { YEARLY_GOALS } from '@/data/goals'
 import type { SupportedLocales } from '@/i18n/request'
 import { cn } from '@/lib/utils'
-import { useLocale } from 'next-intl'
 
 export function YearlyGoals() {
   const locale = useLocale() as SupportedLocales
@@ -54,13 +55,13 @@ export function YearlyGoals() {
 
   return (
     // FIX: grid のほうがいいかも
-    <Table className='block rounded-lg border w-full max-w-md mx-auto wrap-normal text-md'>
-      <TableBody className='block'>
+    <Table className="text-md mx-auto block w-full max-w-md rounded-lg border wrap-normal">
+      <TableBody className="block">
         {YEARLY_GOALS.map((goal, index) => (
           <TableRow
             key={goal.month}
             className={cn(
-              'block w-full flex',
+              'flex w-full',
               goal.month === currentMonth
                 ? 'bg-primary/5 hover:bg-primary/5'
                 : index % 2 === 0
@@ -71,7 +72,7 @@ export function YearlyGoals() {
           >
             <TableCell
               className={cn(
-                'block py-5 pl-4 min-w-16',
+                'block min-w-16 py-5 pl-4',
                 goal.month === currentMonth && 'text-primary',
               )}
             >
@@ -83,7 +84,7 @@ export function YearlyGoals() {
                 goal.month === currentMonth && 'text-primary',
               )}
             >
-              <div className='flex items-center text-wrap'>
+              <div className="flex items-center text-wrap">
                 {goal.title[locale] || '-'}
               </div>
             </TableCell>

@@ -1,31 +1,32 @@
+import Link from 'next/link'
+
 import { LanguageSwitcher } from '@/components/features/language-switcher'
 import { ThemeSwitcher } from '@/components/features/theme-switcher'
-import Link from 'next/link'
 
 type HeaderProps = {
   locale: string
 }
 export function Header(props: HeaderProps) {
   return (
-    <header className='sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60'>
-      <div className='container flex h-14 items-center justify-between mx-auto px-2'>
+    <header className="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur">
+      <div className="container mx-auto flex h-14 items-center justify-between px-2">
         <Link
-          href='/'
-          className='font-bold text-xl hover:text-primary transition-colors'
+          href="/"
+          className="hover:text-primary text-xl font-bold transition-colors"
         >
           tenzyu.com
         </Link>
 
-        <nav className='flex items-center gap-6'>
+        <nav className="flex items-center gap-6">
           <Link
-            href='/u'
-            className='text-sm font-medium hover:text-primary transition-colors'
+            href="/u"
+            className="hover:text-primary text-sm font-medium transition-colors"
           >
             LINKS
           </Link>
           <Link
-            href='/blog'
-            className='text-sm font-medium hover:text-primary transition-colors'
+            href="/blog"
+            className="hover:text-primary text-sm font-medium transition-colors"
           >
             BLOG
           </Link>

@@ -1,11 +1,12 @@
 'use client'
 
-import { Card, CardContent } from '@/components/shadcn-ui/card'
-import type { MyLink } from '@/data/links'
 import Image from 'next/image'
 import { memo } from 'react'
 
-interface LinkCardProps {
+import { Card, CardContent } from '@/components/shadcn-ui/card'
+import type { MyLink } from '@/data/links'
+
+type LinkCardProps = {
   link: MyLink
 }
 
@@ -33,7 +34,7 @@ const LinkIcon = memo(function LinkIcon({ name }: { name: string }) {
       height={44}
       alt={`${name} icon`}
       priority={false}
-      loading='lazy'
+      loading="lazy"
       quality={75}
     />
   )
@@ -43,23 +44,23 @@ export const LinkCard = memo(function LinkCard({ link }: LinkCardProps) {
   return (
     <a
       href={`/u/${link.shortenUrl}`}
-      className='block focus:outline-none focus:ring-2 focus:ring-primary'
-      target='_blank'
-      rel='noreferrer'
+      className="focus:ring-primary block focus:ring-2 focus:outline-none"
+      target="_blank"
+      rel="noreferrer"
       aria-label={`Visit ${link.name} profile - ${link.id}`}
     >
-      <Card className='p-0 hover:bg-gray-100 dark:hover:bg-zinc-950 transition-colors'>
-        <CardContent className='p-4 flex flex-col items-center text-center'>
+      <Card className="p-0 transition-colors hover:bg-gray-100 dark:hover:bg-zinc-950">
+        <CardContent className="flex flex-col items-center p-4 text-center">
           <div
-            className='rounded-full p-2 mb-3 dark:bg-[#ddd]'
-            aria-hidden='true'
+            className="mb-3 rounded-full p-2 dark:bg-[#ddd]"
+            aria-hidden="true"
           >
             <LinkIcon name={link.name} />
           </div>
-          <h3 className='text-lg font-medium dark:text-white mb-1'>
+          <h3 className="mb-1 text-lg font-medium dark:text-white">
             {link.name}
           </h3>
-          <p className='text-gray-400 text-sm'>{link.id}</p>
+          <p className="text-sm text-gray-400">{link.id}</p>
         </CardContent>
       </Card>
     </a>

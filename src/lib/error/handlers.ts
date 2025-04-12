@@ -1,4 +1,5 @@
 import { toast } from 'sonner'
+
 import { AppError } from './types'
 
 export const handleError = (error: unknown) => {
@@ -21,7 +22,8 @@ export const handleAPIError = async (response: Response) => {
   if (!response.ok) {
     const error = await response.json()
     throw new AppError(
-      error.message || 'APIエラーが発生しました',
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      (error.message as string) || 'APIエラーが発生しました',
       'API_ERROR',
       response.status,
     )

@@ -1,5 +1,9 @@
 'use client'
 
+import { Link, Mail, Share2, Twitter } from 'lucide-react'
+import { useState } from 'react'
+import { toast } from 'sonner'
+
 import { Button } from '@/components/shadcn-ui/button'
 import {
   Dialog,
@@ -8,10 +12,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/shadcn-ui/dialog'
-import { Link, Mail, Share2, Twitter } from 'lucide-react'
-import { useState } from 'react'
-import { toast } from 'sonner'
-
 import { shareContent } from '@/lib/utils/share'
 
 export function Footer() {
@@ -32,78 +32,84 @@ export function Footer() {
   }
 
   return (
-    <footer className='w-full py-6 border-t bg-background/80 backdrop-blur-sm'>
-      <div className='container mx-auto px-4'>
-        <div className='flex flex-col md:flex-row justify-between items-center gap-4'>
-          <div className='text-sm text-muted-foreground'>
+    <footer className="bg-background/80 w-full border-t py-6 backdrop-blur-sm">
+      <div className="container mx-auto px-4">
+        <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
+          <div className="text-muted-foreground text-sm">
             © {new Date().getFullYear()} tenzyu
           </div>
 
-          <div className='flex items-center gap-4'>
+          <div className="flex items-center gap-4">
             <a
-              href='https://twitch.tv/tenzyudotcom'
-              target='_blank'
-              rel='noopener noreferrer'
-              className='text-muted-foreground hover:text-primary transition-colors'
+              href="https://twitch.tv/tenzyudotcom"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-muted-foreground hover:text-primary transition-colors"
             >
               Twitch
             </a>
             <a
-              href='https://www.youtube.com/@tenzyudotcom'
-              target='_blank'
-              rel='noopener noreferrer'
-              className='text-muted-foreground hover:text-primary transition-colors'
+              href="https://www.youtube.com/@tenzyudotcom"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-muted-foreground hover:text-primary transition-colors"
             >
               YouTube
             </a>
             <a
-              href='https://x.com/tenzyudotcom'
-              target='_blank'
-              rel='noopener noreferrer'
-              className='text-muted-foreground hover:text-primary transition-colors'
+              href="https://x.com/tenzyudotcom"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-muted-foreground hover:text-primary transition-colors"
             >
               Twitter
             </a>
 
             <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
-              <DialogTrigger asChild={true}>
+              <DialogTrigger asChild>
                 <Button
-                  variant='ghost'
-                  size='sm'
-                  className='text-muted-foreground hover:text-primary'
+                  variant="ghost"
+                  size="sm"
+                  className="text-muted-foreground hover:text-primary"
                 >
-                  <Share2 className='h-4 w-4 mr-1' />
+                  <Share2 className="mr-1 h-4 w-4" />
                   Share
                 </Button>
               </DialogTrigger>
-              <DialogContent className='sm:max-w-md'>
+              <DialogContent className="sm:max-w-md">
                 <DialogHeader>
                   <DialogTitle>Share tenzyu.com</DialogTitle>
                 </DialogHeader>
-                <div className='grid grid-cols-3 gap-4 py-4'>
+                <div className="grid grid-cols-3 gap-4 py-4">
                   <Button
-                    variant='outline'
-                    className='flex flex-col items-center gap-1 h-auto py-3'
-                    onClick={() => handleShare('copy')}
+                    variant="outline"
+                    className="flex h-auto flex-col items-center gap-1 py-3"
+                    onClick={() => {
+                      handleShare('copy')
+                    }}
                   >
-                    <Link className='h-5 w-5' />
-                    <span className='text-xs'>copy</span>
+                    <Link className="h-5 w-5" />
+                    <span className="text-xs">copy</span>
                   </Button>
                   <Button
-                    variant='outline'
-                    className='flex flex-col items-center gap-1 h-auto py-3'
-                    onClick={() => handleShare('share.twitter')}
+                    variant="outline"
+                    className="flex h-auto flex-col items-center gap-1 py-3"
+                    onClick={() => {
+                      handleShare('share.twitter')
+                    }}
                   >
-                    <Twitter className='h-5 w-5 text-[#1DA1F2]' />
-                    <span className='text-xs'>twitter</span>
+                    <Twitter className="h-5 w-5 text-[#1DA1F2]" />
+                    <span className="text-xs">twitter</span>
                   </Button>
                   <Button
-                    variant='outline'
-                    className='flex flex-col items-center gap-1 h-auto py-3'
-                    onClick={() => handleShare('email')}
+                    variant="outline"
+                    className="flex h-auto flex-col items-center gap-1 py-3"
+                    onClick={() => {
+                      handleShare('email')
+                    }}
                   >
-                    <Mail className='h-5 w-5' />
-                    <span className='text-xs'>email</span>
+                    <Mail className="h-5 w-5" />
+                    <span className="text-xs">email</span>
                   </Button>
                 </div>
               </DialogContent>

@@ -19,7 +19,7 @@ const LANGUAGES = [
 
 export function LanguageSwitcher({ currentLocale }: { currentLocale: string }) {
   const router = useRouter()
-  const [_, startTransition] = useTransition()
+  const [, startTransition] = useTransition()
 
   const handleChange = (locale: string) => {
     // Cookie を JS でセット（Secure/HttpOnly は無理だけど今回は不要）
@@ -34,15 +34,17 @@ export function LanguageSwitcher({ currentLocale }: { currentLocale: string }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant='ghost' size='icon' aria-label='Change language'>
-          <Globe className='h-[1.2rem] w-[1.2rem]' />
+        <Button variant="ghost" size="icon" aria-label="Change language">
+          <Globe className="h-[1.2rem] w-[1.2rem]" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align='end'>
-        {LANGUAGES.map(lang => (
+      <DropdownMenuContent align="end">
+        {LANGUAGES.map((lang) => (
           <DropdownMenuItem
             key={lang.value}
-            onClick={() => handleChange(lang.value)}
+            onClick={() => {
+              handleChange(lang.value)
+            }}
             className={lang.value === currentLocale ? 'bg-muted' : ''}
           >
             {lang.label}

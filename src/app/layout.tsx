@@ -1,16 +1,14 @@
-import { Geist, Geist_Mono } from 'next/font/google'
-
 import { Analytics } from '@vercel/analytics/react'
+import type { Metadata } from 'next'
+import { Geist, Geist_Mono } from 'next/font/google'
 import { NextIntlClientProvider } from 'next-intl'
 import { getLocale } from 'next-intl/server'
+import type React from 'react'
 
 import { Container } from '@/components/common/container'
 import { ThemeProvider } from '@/components/features/theme-provider'
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
-
-import type { Metadata } from 'next'
-import type React from 'react'
 
 import './globals.css'
 
@@ -70,21 +68,21 @@ export default async function RootLayout({
   const locale = await getLocale()
 
   return (
-    <html lang={locale} suppressHydrationWarning={true}>
+    <html lang={locale} suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Analytics />
         <ThemeProvider
-          attribute='class'
-          defaultTheme='system'
-          enableSystem={true}
-          disableTransitionOnChange={true}
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
         >
           <NextIntlClientProvider>
-            <div className='flex flex-col min-h-screen'>
+            <div className="flex min-h-screen flex-col">
               <Header locale={locale} />
-              <main className='flex-grow bg-zinc-100 dark:bg-zinc-800 transform -translate-y-16 pt-16 -mb-16'>
+              <main className="-mb-16 flex-grow -translate-y-16 transform bg-zinc-100 pt-16 dark:bg-zinc-800">
                 <Container>{children}</Container>
               </main>
               <Footer />

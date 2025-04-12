@@ -1,6 +1,7 @@
 import 'server-only'
 
 import type * as osu from 'osu-api-v2-js'
+
 import { type ApiInstance, createApi } from './createApi'
 import { handleOsuAPIError, withRetry } from './utils'
 

@@ -1,10 +1,11 @@
-import { cn } from '@/lib/utils'
 import { AlertTriangle } from 'lucide-react'
 import type * as React from 'react'
 
-interface CautionProps extends React.HTMLAttributes<HTMLDivElement> {
+import { cn } from '@/lib/utils'
+
+type CautionProps = {
   children?: React.ReactNode
-}
+} & React.HTMLAttributes<HTMLDivElement>
 
 export function Caution({ className, children, ...props }: CautionProps) {
   return (
@@ -15,8 +16,8 @@ export function Caution({ className, children, ...props }: CautionProps) {
       )}
       {...props}
     >
-      <AlertTriangle className='size-4 shrink-0' />
-      <div className='[&_a]:underline [&_a]:underline-offset-4'>{children}</div>
+      <AlertTriangle className="size-4 shrink-0" />
+      <div className="[&_a]:underline [&_a]:underline-offset-4">{children}</div>
     </div>
   )
 }

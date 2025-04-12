@@ -1,8 +1,8 @@
 'use client'
 
 import { Loader2 } from 'lucide-react'
-import { useTranslations } from 'next-intl'
 import Image from 'next/image'
+import { useTranslations } from 'next-intl'
 import { useState } from 'react'
 
 export const ProfileHeader = () => {
@@ -11,34 +11,36 @@ export const ProfileHeader = () => {
 
   return (
     <div
-      className='aspect-[16/9] relative overflow-hidden bg-muted'
+      className="bg-muted relative aspect-[16/9] overflow-hidden"
       aria-label={t('profile.loading.gameplay')}
     >
       {isGifLoading && (
-        <div className='absolute inset-0 flex items-center justify-center z-10 bg-muted'>
-          <div className='flex flex-col items-center gap-2'>
+        <div className="bg-muted absolute inset-0 z-10 flex items-center justify-center">
+          <div className="flex flex-col items-center gap-2">
             <Loader2
-              className='h-8 w-8 animate-spin text-primary'
-              aria-hidden='true'
+              className="text-primary h-8 w-8 animate-spin"
+              aria-hidden="true"
             />
-            <span className='text-sm text-muted-foreground'>
+            <span className="text-muted-foreground text-sm">
               {t('profile.loading.gameplay')}
             </span>
           </div>
         </div>
       )}
       <Image
-        src='/images/osu-gif.gif'
-        alt='osu gameplay'
-        fill={true}
-        className='object-cover transition-opacity duration-300'
+        src="/images/osu-gif.gif"
+        alt="osu gameplay"
+        fill
+        className="object-cover transition-opacity duration-300"
         style={{ opacity: isGifLoading ? 0 : 1 }}
-        onLoad={() => setIsGifLoading(false)}
+        onLoad={() => {
+          setIsGifLoading(false)
+        }}
         unoptimized
         priority={false}
-        loading='eager'
+        loading="eager"
       />
-      <div className='absolute inset-0 bg-black/20' aria-hidden='true' />
+      <div className="absolute inset-0 bg-black/20" aria-hidden="true" />
     </div>
   )
 }
