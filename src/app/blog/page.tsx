@@ -1,6 +1,8 @@
 import { BlogCard } from '@/components/blog/blog-card'
 import { getBlogPosts } from '@/lib/blog'
 
+export const dynamic = 'force-static'
+
 export default async function Page() {
   const awaited_posts = await getBlogPosts()
 
