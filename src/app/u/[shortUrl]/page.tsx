@@ -1,6 +1,7 @@
 import { MY_LINKS } from '@/data/links'
 import { redirect } from 'next/navigation'
 
+export const dynamicParams = false
 export function generateStaticParams() {
   return MY_LINKS.map(link => ({
     shortUrl: link.shortenUrl,

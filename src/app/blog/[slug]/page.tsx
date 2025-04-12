@@ -4,6 +4,7 @@ import { baseUrl } from '@/app/sitemap'
 import { ProfileCard } from '@/components/common/profile-card'
 import { CustomMDX, formatDate, getBlogPosts } from '@/lib/blog'
 
+export const dynamicParams = false
 export async function generateStaticParams() {
   const posts = await getBlogPosts()
 
