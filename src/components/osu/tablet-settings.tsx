@@ -31,8 +31,12 @@ const TabletArea = memo(function TabletArea({
         width: '100%',
         maxWidth: '400px',
       }}
+      role="img"
+      aria-label="Tablet area visualization"
     >
       <div
+        role="presentation"
+        aria-hidden="true"
         className="absolute rounded-sm bg-purple-500"
         style={{
           left: `${((x - width / 2) / 152) * 100}%`,
@@ -76,7 +80,7 @@ export const TabletSettings = memo(function TabletSettings() {
 
       <SettingsData>
         <SettingsDataItem label="Name">
-          <div className="text-lg">{settings.name}</div>
+          <div className="text-lg text-foreground">{settings.name}</div>
         </SettingsDataItem>
 
         <SettingsDataItem label="Area">

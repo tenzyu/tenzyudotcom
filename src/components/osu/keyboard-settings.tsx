@@ -24,8 +24,12 @@ const Key = memo(function Key({ label, className }: KeyProps) {
         'flex h-29 w-29 items-center justify-center rounded-md bg-gray-300 dark:bg-[#252c38]',
         className,
       )}
+      role="img"
+      aria-label={`${label} key`}
     >
-      <span className="text-lg font-medium dark:text-gray-300">{label}</span>
+      <span className="text-lg font-medium text-gray-900 dark:text-gray-300">
+        {label}
+      </span>
     </div>
   )
 })
@@ -42,9 +46,17 @@ const StatusIndicator = memo(function StatusIndicator({
   label,
 }: StatusIndicatorProps) {
   return (
-    <div className={cn('flex items-center gap-3', className)}>
-      <div className={cn('h-3 w-3 rounded-full', color)} />
-      <span>{label}</span>
+    <div
+      className={cn('flex items-center gap-3', className)}
+      role="status"
+      aria-label={label}
+    >
+      <div
+        className={cn('h-3 w-3 rounded-full', color)}
+        role="presentation"
+        aria-hidden="true"
+      />
+      <span className="text-muted-foreground">{label}</span>
     </div>
   )
 })
@@ -72,25 +84,43 @@ export const KeyboardSettings = memo(function KeyboardSettings() {
   return (
     <SettingsCard title="Keyboard">
       <SettingsVisualization>
-        <div className="relative mx-auto aspect-[4/3] max-w-[400px] rounded-md bg-gray-100 p-4 dark:bg-[#2d3642]">
+        <div
+          className="relative mx-auto aspect-[4/3] max-w-[400px] rounded-md bg-gray-100 p-4 dark:bg-[#2d3642]"
+          role="img"
+          aria-label="Keyboard visualization"
+        >
           {/* Knob */}
-          <div className="absolute top-[4%] left-[3%] flex h-34 w-34 items-center justify-center rounded-full bg-gray-200 dark:bg-[#252c38]">
+          <div
+            className="absolute top-[4%] left-[3%] flex h-34 w-34 items-center justify-center rounded-full bg-gray-200 dark:bg-[#252c38]"
+            role="img"
+            aria-label="Keyboard knob"
+          >
             <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-gray-300 dark:bg-[#1e2530]">
-              <div className="text-lg font-medium dark:text-gray-300">
+              <div className="text-lg font-medium text-gray-900 dark:text-gray-300">
                 {settings.knobFunctions.press}
               </div>
 
-              <div className="absolute top-1/2 -left-5 -translate-y-1/2 transform text-gray-400">
-                <ArrowLeft className="h-4 w-4" />
+              <div
+                className="absolute top-1/2 -left-5 -translate-y-1/2 transform text-gray-400"
+                aria-label="Left rotation"
+              >
+                <ArrowLeft className="h-4 w-4" aria-hidden="true" />
               </div>
-              <div className="absolute top-1/2 -right-5 -translate-y-1/2 transform text-gray-400">
-                <ArrowRight className="h-4 w-4" />
+              <div
+                className="absolute top-1/2 -right-5 -translate-y-1/2 transform text-gray-400"
+                aria-label="Right rotation"
+              >
+                <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </div>
             </div>
           </div>
 
           {/* Keys */}
-          <div className="absolute right-0 bottom-[5%] left-0 flex justify-center gap-2">
+          <div
+            className="absolute right-0 bottom-[5%] left-0 flex justify-center gap-2"
+            role="group"
+            aria-label="Keyboard keys"
+          >
             <Key label={settings.keyMapping.leftKey} />
             <Key label={settings.keyMapping.middleKey} />
             <Key label={settings.keyMapping.rightKey} />
@@ -100,7 +130,7 @@ export const KeyboardSettings = memo(function KeyboardSettings() {
 
       <SettingsData>
         <SettingsDataItem label="Name">
-          <div className="text-lg">{settings.name}</div>
+          <div className="text-lg text-foreground">{settings.name}</div>
         </SettingsDataItem>
 
         <SettingsDataItem label="Key Mapping">
@@ -137,7 +167,7 @@ export const KeyboardSettings = memo(function KeyboardSettings() {
           </SettingsGrid>
         </SettingsDataItem>
 
-        <div className="mt-3 text-sm text-gray-600 dark:text-gray-400">
+        <div className="mt-3 text-sm">
           <StatusIndicator
             color="bg-green-500"
             label={`Actuation: ${settings.actuation.distance}mm`}

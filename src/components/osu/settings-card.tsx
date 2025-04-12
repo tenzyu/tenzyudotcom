@@ -15,10 +15,18 @@ export function SettingsCard({
   className,
 }: SettingsCardProps) {
   return (
-    <Card className={cn('h-full', className)}>
+    <Card className={cn('h-full', className)} role="region" aria-label={title}>
       <CardContent className="px-6 py-4">
-        <CardTitle className="pb-4 text-lg">{title}</CardTitle>
-        <div className="flex flex-col gap-6 md:flex-row">{children}</div>
+        <CardTitle className="pb-4 text-lg" role="heading" aria-level={2}>
+          {title}
+        </CardTitle>
+        <div
+          className="flex flex-col gap-6 md:flex-row"
+          role="group"
+          aria-label={`${title} settings content`}
+        >
+          {children}
+        </div>
       </CardContent>
     </Card>
   )
@@ -33,7 +41,15 @@ export function SettingsVisualization({
   children,
   className,
 }: SettingsVisualizationProps) {
-  return <div className={cn('md:w-1/2', className)}>{children}</div>
+  return (
+    <div
+      className={cn('md:w-1/2', className)}
+      role="img"
+      aria-label="Settings visualization"
+    >
+      {children}
+    </div>
+  )
 }
 
 type SettingsDataProps = {
@@ -43,7 +59,11 @@ type SettingsDataProps = {
 
 export function SettingsData({ children, className }: SettingsDataProps) {
   return (
-    <div className={cn('md:w-1/2', className)}>
+    <div
+      className={cn('md:w-1/2', className)}
+      role="complementary"
+      aria-label="Settings details"
+    >
       <div className="space-y-4">{children}</div>
     </div>
   )
@@ -56,8 +76,13 @@ type SettingsDataItemProps = {
 
 export function SettingsDataItem({ label, children }: SettingsDataItemProps) {
   return (
-    <div>
-      <div className="mb-1 font-medium">{label}:</div>
+    <div role="group" aria-labelledby={`settings-label-${label.toLowerCase()}`}>
+      <div
+        id={`settings-label-${label.toLowerCase()}`}
+        className="mb-1 font-medium text-foreground"
+      >
+        {label}:
+      </div>
       {children}
     </div>
   )
@@ -82,6 +107,7 @@ export function SettingsGrid({
         columns === 2 ? 'grid-cols-2' : 'grid-cols-3',
         className,
       )}
+      role="list"
     >
       {children}
     </div>
@@ -95,9 +121,9 @@ type SettingsGridItemProps = {
 
 export function SettingsGridItem({ label, value }: SettingsGridItemProps) {
   return (
-    <div>
-      <span>{label}:</span>
-      <span className="ml-2 font-medium">{value}</span>
+    <div role="listitem">
+      <span className="text-muted-foreground">{label}:</span>
+      <span className="ml-2 font-medium text-foreground">{value}</span>
     </div>
   )
 }
