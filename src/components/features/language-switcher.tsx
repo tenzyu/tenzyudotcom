@@ -34,7 +34,7 @@ export function LanguageSwitcher({ currentLocale }: { currentLocale: string }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label="Change language">
+        <Button variant="outline" size="icon" aria-label="Change language">
           <Globe className="h-[1.2rem] w-[1.2rem]" />
         </Button>
       </DropdownMenuTrigger>
