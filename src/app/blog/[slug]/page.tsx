@@ -39,7 +39,7 @@ export async function generateMetadata({ params }: { params: Params }) {
       title,
       description,
       type: 'article',
-      publishedTime,
+      publishedTime: publishedTime.toISOString(), // Ensure publishedTime is serialized
       url: `${baseUrl}/blog/${post.slug}`,
       images: [
         {
@@ -78,13 +78,27 @@ export default async function Blog({ params }: { params: Params }) {
                 '@context': 'https://schema.org',
                 '@type': 'BlogPosting',
                 headline: post.metadata.title,
-                datePublished: post.metadata.publishedAt,
-                dateModified: post.metadata.updatedAt,
+                datePublished: post.metadata.publishedAt.toISOString(), // Serialize date
+                dateModified: post.metadata.updatedAt?.toISOString(), // Serialize date
                 description: post.metadata.summary,
                 image: post.metadata.image
                   ? `${baseUrl}${post.metadata.image}`
                   : `/og?title=${encodeURIComponent(post.metadata.title)}`,
-                url: `${baseUrl}/blog/articles/${post.slug}`,
+                url: `${baseUrl}/blog/${post.slug}`, // Corrected URL path
+                author: {
+                  // Add author info if available
+                  '@type': 'Person',
+                  name: 'tenzyu', // Replace with actual author name if dynamic
+                },
+                publisher: {
+                  // Add publisher info
+                  '@type': 'Organization',
+                  name: 'tenzyu.com', // Replace with site name
+                  logo: {
+                    '@type': 'ImageObject',
+                    url: `${baseUrl}/images/my-icon.png`, // Example logo URL
+                  },
+                },
               }),
             }}
           />
@@ -92,7 +106,7 @@ export default async function Blog({ params }: { params: Params }) {
             {post.metadata.title}
           </h1>
           <div className="mt-2 mb-8 flex items-center justify-between text-sm">
-            <p className="text-sm text-neutral-600 dark:text-neutral-400">
+            <p className="text-sm text-muted-foreground">
               {formatDate(post.metadata.publishedAt)}
             </p>
           </div>

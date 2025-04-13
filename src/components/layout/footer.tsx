@@ -74,15 +74,16 @@ export function Footer() {
 
           <div className="flex items-center gap-4">
             {socialLinks.map((link) => (
-              <a
-                key={link.label}
-                href={link.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-primary transition-colors"
-              >
-                {link.label}
-              </a>
+              <Button key={link.label} variant="ghost" asChild>
+                <a
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-muted-foreground hover:text-primary transition-colors"
+                >
+                  {link.label}
+                </a>
+              </Button>
             ))}
 
             <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
@@ -104,17 +105,23 @@ export function Footer() {
                   <ShareButton
                     icon={<Link className="h-5 w-5" />}
                     label="copy"
-                    onClick={() => { handleShare('copy'); }}
+                    onClick={() => {
+                      handleShare('copy')
+                    }}
                   />
                   <ShareButton
                     icon={<Twitter className="h-5 w-5 text-[#1DA1F2]" />}
                     label="twitter"
-                    onClick={() => { handleShare('share.twitter'); }}
+                    onClick={() => {
+                      handleShare('share.twitter')
+                    }}
                   />
                   <ShareButton
                     icon={<Mail className="h-5 w-5" />}
                     label="email"
-                    onClick={() => { handleShare('email'); }}
+                    onClick={() => {
+                      handleShare('email')
+                    }}
                   />
                 </div>
               </DialogContent>

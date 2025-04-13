@@ -6,6 +6,7 @@ import { memo } from 'react'
 
 import { Card, CardContent } from '@/components/shadcn-ui/card'
 import type { MyLink } from '@/data/links'
+import { cn } from '@/lib/utils'
 
 type LinkCardProps = {
   link: MyLink
@@ -45,23 +46,26 @@ export const LinkCard = memo(function LinkCard({ link }: LinkCardProps) {
   return (
     <Link
       href={`/u/${link.shortenUrl}`}
-      className="focus:ring-primary block focus:ring-2 focus:outline-none"
+      className="focus:ring-primary block focus:ring-2 focus:outline-none rounded-lg"
       target="_blank"
       rel="noreferrer"
       aria-label={`Visit ${link.name} profile - ${link.id}`}
     >
-      <Card className="p-0 transition-colors hover:bg-gray-100 dark:hover:bg-zinc-950">
+      <Card className="p-0 transition-colors hover:bg-accent dark:hover:bg-accent">
         <CardContent className="flex flex-col items-center p-4 text-center">
           <div
-            className="mb-3 rounded-full p-2 dark:bg-[#ddd]"
+            className={cn(
+              'mb-3 rounded-full p-2',
+              'dark:bg-secondary-foreground',
+            )}
             aria-hidden="true"
           >
             <LinkIcon name={link.name} />
           </div>
-          <h3 className="mb-1 text-lg font-medium dark:text-white">
+          <h3 className="mb-1 text-lg font-medium text-card-foreground">
             {link.name}
           </h3>
-          <p className="text-sm text-gray-400">{link.id}</p>
+          <p className="text-sm text-muted-foreground">{link.id}</p>
         </CardContent>
       </Card>
     </Link>

@@ -66,7 +66,7 @@ export function YearlyGoals() {
                 ? 'bg-primary/5 hover:bg-primary/5'
                 : index % 2 === 0
                   ? 'bg-background hover:bg-background'
-                  : 'bg-muted/20 hover:bg-muted/20',
+                  : 'bg-muted hover:bg-muted',
               goal.month === 12 && 'rounded-b-lg', // FIX: なんか親に last: つけてもうまくいかない
             )}
           >

@@ -1,23 +1,29 @@
-import { AlertTriangle } from 'lucide-react'
+import { AlertCircleIcon } from 'lucide-react'
 import type * as React from 'react'
 
+import {
+  Alert,
+  AlertTitle,
+  AlertDescription,
+} from '@/components/shadcn-ui/alert'
 import { cn } from '@/lib/utils'
 
 type CautionProps = {
-  children?: React.ReactNode
+  title?: React.ReactNode
+  description?: React.ReactNode
 } & React.HTMLAttributes<HTMLDivElement>
 
-export function Caution({ className, children, ...props }: CautionProps) {
+export function Caution({ className, title, description }: CautionProps) {
   return (
-    <div
+    <Alert
       className={cn(
-        'mb-4 flex items-center gap-2 rounded-lg border border-yellow-200 bg-yellow-50 px-4 py-2 text-sm text-yellow-800 dark:border-yellow-900/50 dark:bg-yellow-900/20 dark:text-yellow-500',
+        'border-amber-50 bg-amber-50 text-amber-900 dark:border-amber-950 dark:bg-amber-950 dark:text-amber-100',
         className,
       )}
-      {...props}
     >
-      <AlertTriangle className="size-4 shrink-0" />
-      <div className="[&_a]:underline [&_a]:underline-offset-4">{children}</div>
-    </div>
+      <AlertCircleIcon />
+      <AlertTitle>{title}</AlertTitle>
+      <AlertDescription>{description}</AlertDescription>
+    </Alert>
   )
 }

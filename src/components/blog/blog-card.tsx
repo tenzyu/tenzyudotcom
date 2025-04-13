@@ -9,6 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/shadcn-ui/card'
+import { formatDate } from '@/lib/blog'
 import { cn } from '@/lib/utils'
 
 type BlogCardProps = {
@@ -27,8 +28,8 @@ type BlogMetadataProps = {
 const BlogMetadata = ({ publishedAt }: BlogMetadataProps) => (
   <div className="text-muted-foreground flex items-center gap-2 text-sm">
     <CalendarIcon className="h-4 w-4" />
-    <time dateTime={publishedAt.toLocaleDateString('ja-JP')}>
-      {new Date(publishedAt).toLocaleDateString('ja-JP')}
+    <time dateTime={new Date(publishedAt).toISOString()}>
+      {formatDate(publishedAt)}
     </time>
   </div>
 )
