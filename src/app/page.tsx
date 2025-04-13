@@ -1,4 +1,5 @@
 import { getTranslations } from 'next-intl/server'
+import type { PropsWithChildren } from 'react'
 
 import { LinkList } from '@/components/common/link-list'
 import { ProfileCard } from '@/components/common/profile-card'
@@ -22,6 +23,14 @@ export const revalidate = 60
 export default async function Home() {
   const t = await getTranslations()
 
+  const SectionHeader = ({ children }: PropsWithChildren) => {
+    return (
+      <h2 className="mb-6 text-center text-2xl font-bold tracking-tight">
+        {children}
+      </h2>
+    )
+  }
+
   return (
     <div className="flex flex-col items-center">
       <Section className="w-full">
@@ -30,38 +39,28 @@ export default async function Home() {
 
       <div className="grid w-full max-w-4xl grid-cols-1 gap-y-12 md:grid-cols-2 md:gap-x-4 md:gap-y-0">
         <Section>
-          <h2 className="mb-6 text-center text-2xl font-bold tracking-tight">
-            Best Scores
-          </h2>
+          <SectionHeader>OSU Best Scores</SectionHeader>
           <OsuBestScores />
         </Section>
 
         <Section>
-          <h2 className="mb-6 text-center text-2xl font-bold tracking-tight">
-            Yearly Goals
-          </h2>
+          <SectionHeader>Yearly Goals</SectionHeader>
           <YearlyGoals />
         </Section>
       </div>
 
       <Section className="w-full">
-        <h2 className="mb-6 text-center text-2xl font-bold tracking-tight">
-          PERSONAL BEST HISTORY
-        </h2>
+        <SectionHeader>Personal Best History</SectionHeader>
         <YouTubeCarousel videos={YOUTUBE_PERSONAL_BEST_HISTORY} />
       </Section>
 
       <Section className="w-full">
-        <h2 className="mb-6 text-center text-2xl font-bold tracking-tight">
-          Featured Videos
-        </h2>
+        <SectionHeader>Featured Videos</SectionHeader>
         <YouTubeCarousel videos={YOUTUBE_VIDEOS} type="video" />
       </Section>
 
       <Section className="w-full">
-        <h2 className="mb-6 text-center text-2xl font-bold tracking-tight">
-          Twitter Clips
-        </h2>
+        <SectionHeader>Twitter Clips</SectionHeader>
         <span className="block text-center text-xs">
           {t('sections.twitterNote')}
         </span>
@@ -69,9 +68,7 @@ export default async function Home() {
       </Section>
 
       <Section className="w-full">
-        <h2 className="mb-6 text-center text-2xl font-bold tracking-tight">
-          osu! settings
-        </h2>
+        <SectionHeader>Osu Settings</SectionHeader>
         <div className="mx-auto w-full max-w-4xl space-y-4">
           <TabletSettings />
           <KeyboardSettings />
@@ -80,9 +77,7 @@ export default async function Home() {
       </Section>
 
       <Section className="w-full">
-        <h2 className="mb-6 text-center text-2xl font-bold tracking-tight">
-          My Links
-        </h2>
+        <SectionHeader>My Links</SectionHeader>
         <LinkList />
       </Section>
 
