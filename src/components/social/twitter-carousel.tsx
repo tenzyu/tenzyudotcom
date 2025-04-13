@@ -35,8 +35,8 @@ export function TwitterCarousel({ tweets, className }: TwitterCarouselProps) {
             </CarouselItem>
           ))}
         </CarouselContent>
-        <CarouselPrevious className="absolute left-4 top-1/2 z-10 -translate-y-1/2 transform dark:bg-black dark:font-white" />
-        <CarouselNext className="absolute right-4 top-1/2 z-10 -translate-y-1/2 transform dark:bg-black dark:font-white" />
+        <CarouselPrevious className="absolute left-4 top-1/2 z-10 -translate-y-1/2 transform dark:bg-popover dark:text-popover-foreground" />
+        <CarouselNext className="absolute right-4 top-1/2 z-10 -translate-y-1/2 transform dark:bg-popover dark:text-popover-foreground" />
       </Carousel>
     </div>
   )
