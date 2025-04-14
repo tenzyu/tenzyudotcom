@@ -23,7 +23,7 @@ const MonitorDisplay = memo(function MonitorDisplay({
 }: MonitorDisplayProps) {
   return (
     <div
-      className="relative mx-auto overflow-hidden rounded-md bg-gray-100 dark:bg-gray-800"
+      className="relative mx-auto overflow-hidden rounded-md bg-visualization-bg"
       style={{
         aspectRatio: '16/9',
         maxWidth: '400px',
@@ -32,24 +32,24 @@ const MonitorDisplay = memo(function MonitorDisplay({
       aria-label="Monitor display visualization"
     >
       <div
-        className="absolute inset-2 rounded-md border-8 border-gray-700 dark:border-gray-900"
+        className="absolute inset-2 rounded-md border-8 border-visualization-secondary"
         role="presentation"
         aria-hidden="true"
       >
         <div
-          className="absolute inset-0 flex items-center justify-center bg-gray-200 dark:bg-gray-600"
+          className="absolute inset-0 flex items-center justify-center bg-visualization-tertiary"
           role="presentation"
           aria-hidden="true"
         >
           <div className="text-center">
             <div
-              className="text-2xl font-bold text-purple-600 dark:text-purple-400"
+              className="text-2xl font-bold text-visualization-primary"
               aria-label={`Refresh rate: ${refreshRate}Hz`}
             >
               {refreshRate}Hz
             </div>
             <div
-              className="text-sm text-gray-700 dark:text-gray-300"
+              className="text-sm text-visualization-fg"
               aria-label={`Screen size: ${size} inches`}
             >
               {size}&quot;
@@ -57,13 +57,13 @@ const MonitorDisplay = memo(function MonitorDisplay({
           </div>
         </div>
         <div
-          className="absolute bottom-0 left-1/2 h-4 w-16 -translate-x-1/2 translate-y-full transform bg-gray-200 dark:bg-gray-700"
+          className="absolute bottom-0 left-1/2 h-4 w-16 -translate-x-1/2 translate-y-full transform bg-visualization-tertiary"
           role="presentation"
           aria-hidden="true"
         />
       </div>
       <div
-        className="absolute top-3 right-3 rounded-full bg-purple-500 px-2 py-1 text-xs text-white"
+        className="absolute top-3 right-3 rounded-full bg-visualization-accent px-2 py-1 text-xs text-visualization-fg"
         aria-label={`Response time: ${responseTime}ms`}
       >
         {responseTime}ms
