@@ -21,15 +21,13 @@ const Key = memo(function Key({ label, className }: KeyProps) {
   return (
     <div
       className={cn(
-        'flex h-29 w-29 items-center justify-center rounded-md bg-gray-300 dark:bg-[#252c38]',
+        'flex h-29 w-29 items-center justify-center rounded-md bg-visualization-secondary',
         className,
       )}
       role="img"
       aria-label={`${label} key`}
     >
-      <span className="text-lg font-medium text-gray-900 dark:text-gray-300">
-        {label}
-      </span>
+      <span className="text-lg font-medium text-visualization-fg">{label}</span>
     </div>
   )
 })
@@ -85,29 +83,29 @@ export const KeyboardSettings = memo(function KeyboardSettings() {
     <SettingsCard title="Keyboard">
       <SettingsVisualization>
         <div
-          className="relative mx-auto aspect-[4/3] max-w-[400px] rounded-md bg-gray-100 p-4 dark:bg-[#2d3642]"
+          className="relative mx-auto aspect-[4/3] max-w-[400px] rounded-md bg-visualization-bg p-4"
           role="img"
           aria-label="Keyboard visualization"
         >
           {/* Knob */}
           <div
-            className="absolute top-[4%] left-[3%] flex h-34 w-34 items-center justify-center rounded-full bg-gray-200 dark:bg-[#252c38]"
+            className="absolute top-[4%] left-[3%] flex h-34 w-34 items-center justify-center rounded-full bg-visualization-secondary"
             role="img"
             aria-label="Keyboard knob"
           >
-            <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-gray-300 dark:bg-[#1e2530]">
-              <div className="text-lg font-medium text-gray-900 dark:text-gray-300">
+            <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-visualization-tertiary">
+              <div className="text-lg font-medium text-[var(--color-visualization-fg)]">
                 {settings.knobFunctions.press}
               </div>
 
               <div
-                className="absolute top-1/2 -left-5 -translate-y-1/2 transform text-gray-400"
+                className="absolute top-1/2 -left-5 -translate-y-1/2 transform text-visualization-fg"
                 aria-label="Left rotation"
               >
                 <ArrowLeft className="h-4 w-4" aria-hidden="true" />
               </div>
               <div
-                className="absolute top-1/2 -right-5 -translate-y-1/2 transform text-gray-400"
+                className="absolute top-1/2 -right-5 -translate-y-1/2 transform text-visualization-fg"
                 aria-label="Right rotation"
               >
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />

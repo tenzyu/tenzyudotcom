@@ -25,7 +25,7 @@ const TabletArea = memo(function TabletArea({
 }: TabletAreaProps) {
   return (
     <div
-      className="relative mx-auto overflow-hidden rounded-md bg-gray-100 dark:bg-gray-800"
+      className="relative mx-auto overflow-hidden rounded-md bg-visualization-bg"
       style={{
         aspectRatio: '152/95',
         width: '100%',
@@ -35,18 +35,24 @@ const TabletArea = memo(function TabletArea({
       aria-label="Tablet area visualization"
     >
       <div
+        className="absolute inset-2 rounded-md bg-visualization-secondary"
         role="presentation"
         aria-hidden="true"
-        className="absolute rounded-sm bg-purple-500"
-        style={{
-          left: `${((x - width / 2) / 152) * 100}%`,
-          top: `${((y - height / 2) / 95) * 100}%`,
-          width: `${(width / 152) * 100}%`,
-          height: `${(height / 95) * 100}%`,
-        }}
       >
-        <div className="absolute top-1/2 left-1/2 z-30 -translate-x-1/2 -translate-y-1/2 transform px-2 py-0.5 text-lg text-white">
-          {width} x {height}
+        <div
+          role="presentation"
+          aria-hidden="true"
+          className="absolute rounded-sm bg-visualization-primary"
+          style={{
+            left: `${((x - width / 2) / 152) * 100}%`,
+            top: `${((y - height / 2) / 95) * 100}%`,
+            width: `${(width / 152) * 100}%`,
+            height: `${(height / 95) * 100}%`,
+          }}
+        >
+          <div className="absolute top-1/2 left-1/2 z-30 -translate-x-1/2 -translate-y-1/2 transform px-2 py-0.5 text-lg text-visualization-fg">
+            {width} x {height}
+          </div>
         </div>
       </div>
     </div>
