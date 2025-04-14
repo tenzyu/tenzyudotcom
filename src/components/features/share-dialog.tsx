@@ -76,17 +76,23 @@ export function ShareDialog({
           <ShareButton
             icon={<Link className="h-5 w-5" />}
             label="Copy"
-            onClick={() => { handleShare('copy'); }}
+            onClick={() => {
+              handleShare('copy')
+            }}
           />
           <ShareButton
             icon={<Twitter className="h-5 w-5 text-[#1DA1F2]" />}
             label="Twitter"
-            onClick={() => { handleShare('twitter'); }}
+            onClick={() => {
+              handleShare('twitter')
+            }}
           />
           <ShareButton
             icon={<Mail className="h-5 w-5" />}
             label="Email"
-            onClick={() => { handleShare('email'); }}
+            onClick={() => {
+              handleShare('email')
+            }}
           />
         </div>
       </DialogContent>

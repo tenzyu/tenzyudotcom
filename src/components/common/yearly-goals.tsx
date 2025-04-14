@@ -9,14 +9,14 @@ import {
   TableRow,
 } from '@/components/shadcn-ui/table'
 import { YEARLY_GOALS } from '@/data/goals'
-import type { SupportedLocales } from '@/i18n/request'
+import type { SupportedLang } from '@/i18n/request'
 import { cn } from '@/lib/utils'
 
 export function YearlyGoals() {
-  const locale = useLocale() as SupportedLocales
+  const lang = useLocale() as SupportedLang
 
   const getMonthName = (month: number): string => {
-    if (locale === 'ja') {
+    if (lang === 'ja') {
       const monthNames = [
         '1月',
         '2月',
@@ -85,7 +85,7 @@ export function YearlyGoals() {
               )}
             >
               <div className="flex items-center text-wrap">
-                {goal.title[locale] || '-'}
+                {goal.title[lang] || '-'}
               </div>
             </TableCell>
           </TableRow>
