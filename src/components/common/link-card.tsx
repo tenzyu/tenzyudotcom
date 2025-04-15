@@ -46,12 +46,12 @@ export const LinkCard = memo(function LinkCard({ link }: LinkCardProps) {
   return (
     <Link
       href={`/u/${link.shortenUrl}`}
-      className="focus:ring-primary block focus:ring-2 focus:outline-none rounded-lg"
+      className="focus:ring-primary block rounded-lg focus:ring-2 focus:outline-none"
       target="_blank"
       rel="noreferrer"
       aria-label={`Visit ${link.name} profile - ${link.id}`}
     >
-      <Card className="p-0 transition-colors hover:bg-accent dark:hover:bg-accent">
+      <Card className="hover:bg-accent dark:hover:bg-accent p-0 transition-colors">
         <CardContent className="flex flex-col items-center p-4 text-center">
           <div
             className={cn(
@@ -62,10 +62,10 @@ export const LinkCard = memo(function LinkCard({ link }: LinkCardProps) {
           >
             <LinkIcon name={link.name} />
           </div>
-          <h3 className="mb-1 text-lg font-medium text-card-foreground">
+          <h3 className="text-card-foreground mb-1 text-lg font-medium">
             {link.name}
           </h3>
-          <p className="text-sm text-muted-foreground">{link.id}</p>
+          <p className="text-muted-foreground text-sm">{link.id}</p>
         </CardContent>
       </Card>
     </Link>
