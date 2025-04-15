@@ -1,28 +1,21 @@
 import { dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { FlatCompat } from '@eslint/eslintrc'
-
-import eslint from '@eslint/js'
-import tseslint from 'typescript-eslint'
-import importPlugin from 'eslint-plugin-import'
-import unusedImports from 'eslint-plugin-unused-imports'
+import js from '@eslint/js'
 import eslintConfigPrettier from 'eslint-config-prettier'
+import tseslint from 'typescript-eslint'
 
+// chore {{{
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
-
 const compat = new FlatCompat({
   baseDirectory: __dirname,
 })
+// }}}
 
 export default tseslint.config(
-  {
-    files: ['*.ts', '*.tsx'], // 読み込むファイル
-  },
-  {
-    ignores: ['**/.next/**/*'], // 無視するファイル
-  },
-  eslint.configs.recommended,
+  js.configs.recommended,
+  tseslint.configs.recommended,
   tseslint.configs.strictTypeChecked,
   tseslint.configs.stylisticTypeChecked,
   ...compat.extends('next/core-web-vitals'),
