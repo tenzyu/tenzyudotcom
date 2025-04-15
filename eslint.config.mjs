@@ -103,5 +103,13 @@ export default tseslint.config(
       'react/jsx-curly-brace-presence': 'error', // JSXの中での余分な{}の使用
     },
   },
-  eslintConfigPrettier, // Prettierとの競合防止
+
+  // tailwindcss
+  {
+    settings: {
+      tailwindcss: {
+        whitelist: ['hidden-scrollbar', '-webkit-scrollbar'],
+      },
+    },
+  },
 )
