@@ -79,7 +79,7 @@ export function SettingsDataItem({ label, children }: SettingsDataItemProps) {
     <div role="group" aria-labelledby={`settings-label-${label.toLowerCase()}`}>
       <div
         id={`settings-label-${label.toLowerCase()}`}
-        className="mb-1 font-medium text-foreground"
+        className="text-foreground mb-1 font-medium"
       >
         {label}:
       </div>
@@ -123,7 +123,7 @@ export function SettingsGridItem({ label, value }: SettingsGridItemProps) {
   return (
     <div role="listitem">
       <span className="text-muted-foreground">{label}:</span>
-      <span className="ml-2 font-medium text-foreground">{value}</span>
+      <span className="text-foreground ml-2 font-medium">{value}</span>
     </div>
   )
 }

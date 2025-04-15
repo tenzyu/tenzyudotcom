@@ -1,33 +1,31 @@
 import { dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
+
 import { FlatCompat } from '@eslint/eslintrc'
-
-import eslint from '@eslint/js'
-import tseslint from 'typescript-eslint'
-import importPlugin from 'eslint-plugin-import'
-import unusedImports from 'eslint-plugin-unused-imports'
+import js from '@eslint/js'
 import eslintConfigPrettier from 'eslint-config-prettier'
+import importPlugin from 'eslint-plugin-import'
+import unusedImportsPlugin from 'eslint-plugin-unused-imports'
+import tseslint from 'typescript-eslint'
 
+// chore {{{
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
-
 const compat = new FlatCompat({
   baseDirectory: __dirname,
 })
+// }}}
 
 export default tseslint.config(
-  {
-    files: ['*.ts', '*.tsx'], // 読み込むファイル
-  },
-  {
-    ignores: ['**/.next/**/*'], // 無視するファイル
-  },
-  eslint.configs.recommended,
+  js.configs.recommended,
+  tseslint.configs.recommended,
   tseslint.configs.strictTypeChecked,
   tseslint.configs.stylisticTypeChecked,
   ...compat.extends('next/core-web-vitals'),
+  eslintConfigPrettier,
+
+  // @typescript-eslintに関する設定
   {
-    // @typescript-eslintに関する設定
     languageOptions: {
       parser: tseslint.parser,
       parserOptions: {
@@ -44,16 +42,9 @@ export default tseslint.config(
       '@typescript-eslint/no-deprecated': 'warn',
     },
   },
+
+  // related to import
   {
-    // tailwindcssに関する設定
-    settings: {
-      tailwindcss: {
-        whitelist: ['hidden-scrollbar', '-webkit-scrollbar'],
-      },
-    },
-  },
-  {
-    // eslint-plugin-importに関する設定
     plugins: {
       import: importPlugin,
     },
@@ -61,17 +52,9 @@ export default tseslint.config(
       'import/order': [
         'error',
         {
-          groups: ['builtin', 'external', 'internal'],
+          groups: ['builtin', 'external', 'internal', 'type'],
           alphabetize: { order: 'asc', caseInsensitive: true },
           'newlines-between': 'always', // import groups 1行空ける
-          pathGroups: [
-            {
-              pattern: 'src/components/**',
-              group: 'internal',
-              position: 'before',
-            },
-            { pattern: 'src/lib/**', group: 'internal', position: 'before' },
-          ],
         },
       ],
       'import/newline-after-import': 'error',
@@ -79,16 +62,25 @@ export default tseslint.config(
     },
   },
   {
-    // eslint-plugin-unused-importsに関する設定
     plugins: {
-      'unused-imports': unusedImports,
+      'unused-imports': unusedImportsPlugin,
     },
     rules: {
       'unused-imports/no-unused-imports': 'error',
     },
   },
+
+  // tailwindcss
   {
-    // その他設定
+    settings: {
+      tailwindcss: {
+        whitelist: ['hidden-scrollbar', '-webkit-scrollbar'],
+      },
+    },
+  },
+
+  // その他設定
+  {
     files: ['src/**/*.{js,jsx,ts,tsx}'],
     linterOptions: {
       reportUnusedDisableDirectives: 'error',
@@ -99,9 +91,8 @@ export default tseslint.config(
       },
     },
     rules: {
-      'react/jsx-boolean-value': 'error', // JSXの中でのbooleanの使用
-      'react/jsx-curly-brace-presence': 'error', // JSXの中での余分な{}の使用
+      'react/jsx-boolean-value': 'error',
+      'react/jsx-curly-brace-presence': 'error',
     },
   },
-  eslintConfigPrettier, // Prettierとの競合防止
 )

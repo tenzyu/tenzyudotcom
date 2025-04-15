@@ -8,6 +8,7 @@ import {
   SettingsGridItem,
   SettingsVisualization,
 } from '@/components/osu/settings-card'
+
 import type { MonitorSettings as MonitorSettingsType } from '@/types/osu/settings'
 
 type MonitorDisplayProps = {
@@ -23,7 +24,7 @@ const MonitorDisplay = memo(function MonitorDisplay({
 }: MonitorDisplayProps) {
   return (
     <div
-      className="relative mx-auto overflow-hidden rounded-md bg-visualization-bg"
+      className="bg-visualization-bg relative mx-auto overflow-hidden rounded-md"
       style={{
         aspectRatio: '16/9',
         maxWidth: '400px',
@@ -32,24 +33,24 @@ const MonitorDisplay = memo(function MonitorDisplay({
       aria-label="Monitor display visualization"
     >
       <div
-        className="absolute inset-2 rounded-md border-8 border-visualization-secondary"
+        className="border-visualization-secondary absolute inset-2 rounded-md border-8"
         role="presentation"
         aria-hidden="true"
       >
         <div
-          className="absolute inset-0 flex items-center justify-center bg-visualization-tertiary"
+          className="bg-visualization-tertiary absolute inset-0 flex items-center justify-center"
           role="presentation"
           aria-hidden="true"
         >
           <div className="text-center">
             <div
-              className="text-2xl font-bold text-visualization-primary"
+              className="text-visualization-primary text-2xl font-bold"
               aria-label={`Refresh rate: ${refreshRate}Hz`}
             >
               {refreshRate}Hz
             </div>
             <div
-              className="text-sm text-visualization-fg"
+              className="text-visualization-fg text-sm"
               aria-label={`Screen size: ${size} inches`}
             >
               {size}&quot;
@@ -57,13 +58,13 @@ const MonitorDisplay = memo(function MonitorDisplay({
           </div>
         </div>
         <div
-          className="absolute bottom-0 left-1/2 h-4 w-16 -translate-x-1/2 translate-y-full transform bg-visualization-tertiary"
+          className="bg-visualization-tertiary absolute bottom-0 left-1/2 h-4 w-16 -translate-x-1/2 translate-y-full transform"
           role="presentation"
           aria-hidden="true"
         />
       </div>
       <div
-        className="absolute top-3 right-3 rounded-full bg-visualization-accent px-2 py-1 text-xs text-visualization-fg"
+        className="bg-visualization-accent text-visualization-fg absolute top-3 right-3 rounded-full px-2 py-1 text-xs"
         aria-label={`Response time: ${responseTime}ms`}
       >
         {responseTime}ms
@@ -97,7 +98,7 @@ export const MonitorSettings = memo(function MonitorSettings() {
 
       <SettingsData>
         <SettingsDataItem label="Name">
-          <div className="text-lg text-foreground">{settings.name}</div>
+          <div className="text-foreground text-lg">{settings.name}</div>
         </SettingsDataItem>
 
         <SettingsDataItem label="Display">

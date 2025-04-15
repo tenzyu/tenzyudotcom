@@ -20,10 +20,9 @@ export const handleError = (error: unknown) => {
 
 export const handleAPIError = async (response: Response) => {
   if (!response.ok) {
-    const error = await response.json()
+    const error = (await response.json()) as { message: string }
     throw new AppError(
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      (error.message as string) || 'APIエラーが発生しました',
+      error.message || 'APIエラーが発生しました',
       'API_ERROR',
       response.status,
     )

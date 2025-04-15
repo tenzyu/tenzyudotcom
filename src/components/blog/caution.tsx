@@ -1,5 +1,4 @@
 import { AlertCircleIcon } from 'lucide-react'
-import type * as React from 'react'
 
 import {
   Alert,
@@ -7,6 +6,8 @@ import {
   AlertDescription,
 } from '@/components/shadcn-ui/alert'
 import { cn } from '@/lib/utils'
+
+import type * as React from 'react'
 
 type CautionProps = {
   title?: React.ReactNode

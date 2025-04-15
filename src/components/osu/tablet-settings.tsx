@@ -8,6 +8,7 @@ import {
   SettingsGridItem,
   SettingsVisualization,
 } from '@/components/osu/settings-card'
+
 import type { TabletSettings as TabletSettingsType } from '@/types/osu/settings'
 
 type TabletAreaProps = {
@@ -25,7 +26,7 @@ const TabletArea = memo(function TabletArea({
 }: TabletAreaProps) {
   return (
     <div
-      className="relative mx-auto overflow-hidden rounded-md bg-visualization-bg"
+      className="bg-visualization-bg relative mx-auto overflow-hidden rounded-md"
       style={{
         aspectRatio: '152/95',
         width: '100%',
@@ -35,14 +36,14 @@ const TabletArea = memo(function TabletArea({
       aria-label="Tablet area visualization"
     >
       <div
-        className="absolute inset-2 rounded-md bg-visualization-secondary"
+        className="bg-visualization-secondary absolute inset-2 rounded-md"
         role="presentation"
         aria-hidden="true"
       >
         <div
           role="presentation"
           aria-hidden="true"
-          className="absolute rounded-sm bg-visualization-primary"
+          className="bg-visualization-primary absolute rounded-sm"
           style={{
             left: `${((x - width / 2) / 152) * 100}%`,
             top: `${((y - height / 2) / 95) * 100}%`,
@@ -50,7 +51,7 @@ const TabletArea = memo(function TabletArea({
             height: `${(height / 95) * 100}%`,
           }}
         >
-          <div className="absolute top-1/2 left-1/2 z-30 -translate-x-1/2 -translate-y-1/2 transform px-2 py-0.5 text-lg text-visualization-fg">
+          <div className="text-visualization-fg absolute top-1/2 left-1/2 z-30 -translate-x-1/2 -translate-y-1/2 transform px-2 py-0.5 text-lg">
             {width} x {height}
           </div>
         </div>
@@ -86,7 +87,7 @@ export const TabletSettings = memo(function TabletSettings() {
 
       <SettingsData>
         <SettingsDataItem label="Name">
-          <div className="text-lg text-foreground">{settings.name}</div>
+          <div className="text-foreground text-lg">{settings.name}</div>
         </SettingsDataItem>
 
         <SettingsDataItem label="Area">

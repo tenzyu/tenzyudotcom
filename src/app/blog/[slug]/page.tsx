@@ -106,7 +106,7 @@ export default async function Blog({ params }: { params: Params }) {
             {post.metadata.title}
           </h1>
           <div className="mt-2 mb-8 flex items-center justify-between text-sm">
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               {formatDate(post.metadata.publishedAt)}
             </p>
           </div>
@@ -115,7 +115,7 @@ export default async function Blog({ params }: { params: Params }) {
           </article>
         </section>
       </div>
-      <div className="w-full mt-16">
+      <div className="mt-16 w-full">
         <ProfileCard />
       </div>
     </main>

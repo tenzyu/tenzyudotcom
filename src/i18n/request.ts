@@ -1,9 +1,10 @@
 import { match } from '@formatjs/intl-localematcher'
 import Negotiator from 'negotiator'
-import type { ReadonlyHeaders } from 'next/dist/server/web/spec-extension/adapters/headers'
-import type { ReadonlyRequestCookies } from 'next/dist/server/web/spec-extension/adapters/request-cookies'
 import { cookies, headers } from 'next/headers'
 import { getRequestConfig } from 'next-intl/server'
+
+import type { ReadonlyHeaders } from 'next/dist/server/web/spec-extension/adapters/headers'
+import type { ReadonlyRequestCookies } from 'next/dist/server/web/spec-extension/adapters/request-cookies'
 
 const SUPPORTED_LANG = ['en', 'ja'] as const
 const DEFAULT_LANG = 'ja'

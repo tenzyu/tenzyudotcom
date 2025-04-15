@@ -14,8 +14,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/shadcn-ui/dialog'
-import type { YouTube } from '@/data/youtube'
 import { cn } from '@/lib/utils'
+
+import type { YouTube } from '@/data/youtube'
 
 type YouTubeCarouselProps = {
   videos: YouTube[]
@@ -56,7 +57,7 @@ const VideoThumbnail = ({ video, isShort }: VideoThumbnailProps) => (
     <div className="p-2">
       <h3
         className={cn(
-          'line-clamp-1 font-medium text-foreground',
+          'text-foreground line-clamp-1 font-medium',
           isShort ? 'text-xs' : 'text-lg',
         )}
       >
@@ -77,7 +78,7 @@ const VideoDialogContent = ({ video, isShort }: VideoDialogContentProps) => (
       'overflow-hidden',
       isShort
         ? 'max-h-[90vh] bg-black p-0 sm:max-w-md'
-        : 'min-w-screen border-black bg-black p-0 md:min-w-[90vw] md:border-white md:bg-white md:p-4 dark:border-border dark:bg-background md:dark:p-4',
+        : 'dark:border-border dark:bg-background min-w-screen border-black bg-black p-0 md:min-w-[90vw] md:border-white md:bg-white md:p-4 md:dark:p-4',
     )}
   >
     <VisuallyHidden>
@@ -141,13 +142,13 @@ export function YouTubeCarousel({
         </CarouselContent>
         <CarouselPrevious
           className={cn(
-            'absolute top-1/2 z-10 -translate-y-1/2 transform dark:bg-popover dark:text-popover-foreground',
+            'dark:bg-popover dark:text-popover-foreground absolute top-1/2 z-10 -translate-y-1/2 transform',
             isShort ? 'left-2' : 'left-4',
           )}
         />
         <CarouselNext
           className={cn(
-            'absolute top-1/2 z-10 -translate-y-1/2 transform dark:bg-popover dark:text-popover-foreground',
+            'dark:bg-popover dark:text-popover-foreground absolute top-1/2 z-10 -translate-y-1/2 transform',
             isShort ? 'right-2' : 'right-4',
           )}
         />

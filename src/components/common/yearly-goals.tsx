@@ -9,8 +9,9 @@ import {
   TableRow,
 } from '@/components/shadcn-ui/table'
 import { YEARLY_GOALS } from '@/data/goals'
-import type { SupportedLang } from '@/i18n/request'
 import { cn } from '@/lib/utils'
+
+import type { SupportedLang } from '@/i18n/request'
 
 export function YearlyGoals() {
   const lang = useLocale() as SupportedLang

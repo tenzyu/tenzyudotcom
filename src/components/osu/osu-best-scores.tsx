@@ -1,6 +1,5 @@
 import { Clock, Music } from 'lucide-react'
 import Image from 'next/image'
-import type { Score } from 'osu-api-v2-js'
 import { Suspense } from 'react'
 
 import { Card, CardContent, CardTitle } from '@/components/shadcn-ui/card'
@@ -8,6 +7,8 @@ import { Skeleton } from '@/components/shadcn-ui/skeleton'
 import { ID_OSU, DEFAULT_SCORE_LIMIT } from '@/data/constants'
 import { getUserScores } from '@/data/osu'
 import { cn } from '@/lib/utils'
+
+import type { Score } from 'osu-api-v2-js'
 
 const RANK_STYLES = {
   XH: 'text-yellow-400 border-yellow-400',
@@ -64,7 +65,7 @@ type BeatmapMetadataProps = {
 }
 
 const BeatmapMetadata = ({ bpm, totalLength }: BeatmapMetadataProps) => (
-  <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
+  <div className="text-muted-foreground mt-1 flex items-center gap-2 text-xs">
     <div className="flex items-center gap-1">
       <Music className="h-3 w-3" />
       <span>{bpm.toFixed(0)}bpm</span>
@@ -122,7 +123,7 @@ const ScoreCard = ({ score, index, className }: ScoreCardProps) => {
               <CardTitle className="line-clamp-1 text-sm font-bold dark:text-white">
                 {score.beatmapset.title}
               </CardTitle>
-              <div className="text-xs text-muted-foreground">
+              <div className="text-muted-foreground text-xs">
                 by {score.beatmapset.artist}
               </div>
               <BeatmapMetadata
@@ -141,7 +142,7 @@ const ScoreCard = ({ score, index, className }: ScoreCardProps) => {
           </div>
 
           <div className="flex justify-between px-2 py-1">
-            <div className="translate-y-1 transform text-xl font-bold text-primary">
+            <div className="text-primary translate-y-1 transform text-xl font-bold">
               {score.pp ? Math.round(score.pp) : 'N/A'}pp
             </div>
 

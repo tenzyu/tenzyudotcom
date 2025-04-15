@@ -1,8 +1,9 @@
 import { type EvaluateOptions, evaluate } from '@mdx-js/mdx'
-import type * as React from 'react'
 import * as runtime from 'react/jsx-runtime'
 import rehypePrettyCode from 'rehype-pretty-code'
 import remarkGfm from 'remark-gfm'
+
+import type * as React from 'react'
 
 import { components } from '../../app/mdx-components'
 
