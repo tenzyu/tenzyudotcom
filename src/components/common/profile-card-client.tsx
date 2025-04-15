@@ -52,12 +52,13 @@ export const ProfileHeader = () => {
           loop
           muted
           playsInline
-          onCanPlay={() => { setIsLoading(false); }}
+          onCanPlay={() => {
+            setIsLoading(false)
+          }}
           onError={handleVideoError}
           suppressHydrationWarning
         >
           <source src="/images/header-background.webm" type="video/webm" />
-          {/* {t('common.errors.videoNotSupported')} */}
         </video>
       )}
       <div className="absolute inset-0 bg-black/20" aria-hidden="true" />
