@@ -1,8 +1,11 @@
 import { dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
+
 import { FlatCompat } from '@eslint/eslintrc'
 import js from '@eslint/js'
 import eslintConfigPrettier from 'eslint-config-prettier'
+import importPlugin from 'eslint-plugin-import'
+import unusedImportsPlugin from 'eslint-plugin-unused-imports'
 import tseslint from 'typescript-eslint'
 
 // chore {{{
@@ -72,9 +75,8 @@ export default tseslint.config(
     },
   },
   {
-    // eslint-plugin-unused-importsに関する設定
     plugins: {
-      'unused-imports': unusedImports,
+      'unused-imports': unusedImportsPlugin,
     },
     rules: {
       'unused-imports/no-unused-imports': 'error',
