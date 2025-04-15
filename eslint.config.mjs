@@ -41,15 +41,6 @@ export default tseslint.config(
     },
   },
   {
-    // tailwindcssに関する設定
-    settings: {
-      tailwindcss: {
-        whitelist: ['hidden-scrollbar', '-webkit-scrollbar'],
-      },
-    },
-  },
-  {
-    // eslint-plugin-importに関する設定
     plugins: {
       import: importPlugin,
     },
