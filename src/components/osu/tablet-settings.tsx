@@ -8,6 +8,7 @@ import {
   SettingsGridItem,
   SettingsVisualization,
 } from '@/components/osu/settings-card'
+
 import type { TabletSettings as TabletSettingsType } from '@/types/osu/settings'
 
 type TabletAreaProps = {

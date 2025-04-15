@@ -1,5 +1,4 @@
 import { getTranslations } from 'next-intl/server'
-import type { PropsWithChildren } from 'react'
 
 import { LinkList } from '@/components/common/link-list'
 import { ProfileCard } from '@/components/common/profile-card'
@@ -16,6 +15,8 @@ import { TwitterCarousel } from '@/components/social/twitter-carousel'
 import { YouTubeCarousel } from '@/components/social/youtube-carousel'
 import { TWEETS } from '@/data/twitter'
 import { YOUTUBE_PERSONAL_BEST_HISTORY, YOUTUBE_VIDEOS } from '@/data/youtube'
+
+import type { PropsWithChildren } from 'react'
 
 // for osu contents
 export const revalidate = 60

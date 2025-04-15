@@ -14,8 +14,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/shadcn-ui/dialog'
-import type { YouTube } from '@/data/youtube'
 import { cn } from '@/lib/utils'
+
+import type { YouTube } from '@/data/youtube'
 
 type YouTubeCarouselProps = {
   videos: YouTube[]

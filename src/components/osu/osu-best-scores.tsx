@@ -1,6 +1,5 @@
 import { Clock, Music } from 'lucide-react'
 import Image from 'next/image'
-import type { Score } from 'osu-api-v2-js'
 import { Suspense } from 'react'
 
 import { Card, CardContent, CardTitle } from '@/components/shadcn-ui/card'
@@ -8,6 +7,8 @@ import { Skeleton } from '@/components/shadcn-ui/skeleton'
 import { ID_OSU, DEFAULT_SCORE_LIMIT } from '@/data/constants'
 import { getUserScores } from '@/data/osu'
 import { cn } from '@/lib/utils'
+
+import type { Score } from 'osu-api-v2-js'
 
 const RANK_STYLES = {
   XH: 'text-yellow-400 border-yellow-400',

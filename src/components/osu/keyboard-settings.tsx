@@ -10,6 +10,7 @@ import {
   SettingsVisualization,
 } from '@/components/osu/settings-card'
 import { cn } from '@/lib/utils'
+
 import type { KeyboardSettings as KeyboardSettingsType } from '@/types/osu/settings'
 
 type KeyProps = {

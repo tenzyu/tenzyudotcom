@@ -5,8 +5,9 @@ import Link from 'next/link'
 import { memo } from 'react'
 
 import { Card, CardContent } from '@/components/shadcn-ui/card'
-import type { MyLink } from '@/data/links'
 import { cn } from '@/lib/utils'
+
+import type { MyLink } from '@/data/links'
 
 type LinkCardProps = {
   link: MyLink

@@ -1,5 +1,6 @@
-import type { APIError } from '@/lib/error/types'
 import { retry } from '@/lib/utils/retry'
+
+import type { APIError } from '@/lib/error/types'
 
 export class OsuAPIError extends Error implements APIError {
   constructor(

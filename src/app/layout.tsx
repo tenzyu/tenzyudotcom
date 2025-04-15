@@ -1,15 +1,16 @@
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/next'
-import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { NextIntlClientProvider } from 'next-intl'
 import { getLocale } from 'next-intl/server'
-import type React from 'react'
 
 import { Container } from '@/components/common/container'
 import { ThemeProvider } from '@/components/features/theme-provider'
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
+
+import type { Metadata } from 'next'
+import type React from 'react'
 
 import './globals.css'
 

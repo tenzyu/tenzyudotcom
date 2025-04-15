@@ -5,8 +5,9 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from '@/components/shadcn-ui/carousel'
-import type { TWEET } from '@/data/twitter'
 import { cn } from '@/lib/utils'
+
+import type { TWEET } from '@/data/twitter'
 
 import { TweetItem } from './twitter-carousel-client'
 

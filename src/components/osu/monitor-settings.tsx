@@ -8,6 +8,7 @@ import {
   SettingsGridItem,
   SettingsVisualization,
 } from '@/components/osu/settings-card'
+
 import type { MonitorSettings as MonitorSettingsType } from '@/types/osu/settings'
 
 type MonitorDisplayProps = {
