@@ -43,7 +43,8 @@ const getLocaleFromHeaders = (headers: ReadonlyHeaders): LangResult | null => {
 const getLocaleFromSearchParams = (
   headers: ReadonlyHeaders,
 ): LangResult | null => {
-  const paramsString = headers.get('referer')?.split('?')[1] ?? ''
+  const fullUrl = headers.get('x-current-path') ?? ''
+  const paramsString = fullUrl.split('?')[1] ?? ''
   const params = new URLSearchParams(paramsString)
   const lang = params.get(LANG_PARAM)
 
