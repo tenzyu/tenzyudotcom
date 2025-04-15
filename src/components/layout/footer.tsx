@@ -113,7 +113,7 @@ export function Footer() {
                     icon={<Twitter className="h-5 w-5 text-[#1DA1F2]" />}
                     label="twitter"
                     onClick={() => {
-                      handleShare('share.twitter')
+                      handleShare('twitter')
                     }}
                   />
                   <ShareButton

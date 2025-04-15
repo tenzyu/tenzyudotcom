@@ -8,6 +8,7 @@ import { Container } from '@/components/common/container'
 import { ThemeProvider } from '@/components/features/theme-provider'
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
+import { Toaster } from '@/components/shadcn-ui/sonner'
 
 import type { Metadata } from 'next'
 import type React from 'react'
@@ -88,6 +89,7 @@ export default async function RootLayout({
                 <Analytics />
                 <SpeedInsights />
               </main>
+              <Toaster />
               <Footer />
             </div>
           </NextIntlClientProvider>
