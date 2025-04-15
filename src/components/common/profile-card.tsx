@@ -1,3 +1,5 @@
+import { list } from '@vercel/blob'
+import { Loader2 } from 'lucide-react'
 import Image from 'next/image'
 import { getTranslations } from 'next-intl/server'
 import { Suspense, memo } from 'react'
@@ -8,7 +10,47 @@ import { Skeleton } from '@/components/shadcn-ui/skeleton'
 import { ID_OSU } from '@/data/constants'
 import { getUser } from '@/data/osu'
 
-import { ProfileHeader } from './profile-card-client'
+const LoadingComponent = async () => {
+  const t = await getTranslations()
+
+  return (
+    <div className="bg-muted absolute inset-0 z-10 flex items-center justify-center">
+      <div className="flex flex-col items-center gap-2">
+        <Loader2
+          className="text-primary h-8 w-8 animate-spin"
+          aria-hidden="true"
+        />
+        <span className="text-muted-foreground text-sm">
+          {t('profile.loading.gameplay')}
+        </span>
+      </div>
+    </div>
+  )
+}
+
+const HeaderBackground = async () => {
+  const { blobs } = await list({
+    prefix: 'header-background.webm',
+    limit: 1,
+  })
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const { url } = blobs.pop()!
+
+  return (
+    <video
+      className="h-full w-full object-cover transition-opacity duration-300"
+      autoPlay
+      loop
+      muted
+      playsInline
+      preload="none"
+      aria-label="Video player"
+    >
+      <source src={url} type="video/webm" />
+      Your browser does not support the video tag.
+    </video>
+  )
+}
 
 const ProfileImage = memo(function ProfileImage() {
   return (
@@ -63,12 +105,21 @@ const SocialButton = memo(function SocialButton({
   )
 })
 
-export const ProfileCard = memo(async function ProfileCard() {
+export const ProfileCard = async () => {
   const t = await getTranslations()
 
   return (
     <Card className="mx-auto w-full max-w-2xl overflow-hidden pt-0">
-      <ProfileHeader />
+      <div
+        className="bg-muted relative aspect-[16/9] overflow-hidden"
+        aria-label={t('profile.loading.gameplay')}
+        role="figure"
+      >
+        <Suspense fallback={<LoadingComponent />}>
+          <HeaderBackground />
+        </Suspense>
+        <div className="absolute inset-0 bg-black/20" aria-hidden="true" />
+      </div>
 
       <CardContent className="px-6 pt-0 pb-6">
         <div className="relative z-10 -mt-16 flex flex-col items-center">
@@ -118,7 +169,7 @@ export const ProfileCard = memo(async function ProfileCard() {
       </CardContent>
     </Card>
   )
-})
+}
 
 async function RankingsSkeleton() {
   const t = await getTranslations()
