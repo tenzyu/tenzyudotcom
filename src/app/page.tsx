@@ -10,7 +10,6 @@ import {
   OsuBestScores,
   TabletSettings,
 } from '@/components/osu'
-import { Toaster } from '@/components/shadcn-ui/sonner'
 import { TwitterCarousel } from '@/components/social/twitter-carousel'
 import { YouTubeCarousel } from '@/components/social/youtube-carousel'
 import { TWEETS } from '@/data/twitter'
@@ -81,8 +80,6 @@ export default async function Home() {
         <SectionHeader>My Links</SectionHeader>
         <LinkList />
       </Section>
-
-      <Toaster />
     </div>
   )
 }
