@@ -94,8 +94,8 @@ export default tseslint.config(
       },
     },
     rules: {
-      'react/jsx-boolean-value': 'error', // JSXの中でのbooleanの使用
-      'react/jsx-curly-brace-presence': 'error', // JSXの中での余分な{}の使用
+      'react/jsx-boolean-value': 'error',
+      'react/jsx-curly-brace-presence': 'error',
     },
   },
 
