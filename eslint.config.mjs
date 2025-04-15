@@ -22,8 +22,10 @@ export default tseslint.config(
   tseslint.configs.strictTypeChecked,
   tseslint.configs.stylisticTypeChecked,
   ...compat.extends('next/core-web-vitals'),
+  eslintConfigPrettier,
+
+  // @typescript-eslintに関する設定
   {
-    // @typescript-eslintに関する設定
     languageOptions: {
       parser: tseslint.parser,
       parserOptions: {
@@ -40,6 +42,8 @@ export default tseslint.config(
       '@typescript-eslint/no-deprecated': 'warn',
     },
   },
+
+  // related to import
   {
     plugins: {
       import: importPlugin,
@@ -48,17 +52,9 @@ export default tseslint.config(
       'import/order': [
         'error',
         {
-          groups: ['builtin', 'external', 'internal'],
+          groups: ['builtin', 'external', 'internal', 'type'],
           alphabetize: { order: 'asc', caseInsensitive: true },
           'newlines-between': 'always', // import groups 1行空ける
-          pathGroups: [
-            {
-              pattern: 'src/components/**',
-              group: 'internal',
-              position: 'before',
-            },
-            { pattern: 'src/lib/**', group: 'internal', position: 'before' },
-          ],
         },
       ],
       'import/newline-after-import': 'error',
@@ -73,8 +69,18 @@ export default tseslint.config(
       'unused-imports/no-unused-imports': 'error',
     },
   },
+
+  // tailwindcss
   {
-    // その他設定
+    settings: {
+      tailwindcss: {
+        whitelist: ['hidden-scrollbar', '-webkit-scrollbar'],
+      },
+    },
+  },
+
+  // その他設定
+  {
     files: ['src/**/*.{js,jsx,ts,tsx}'],
     linterOptions: {
       reportUnusedDisableDirectives: 'error',
@@ -89,14 +95,4 @@ export default tseslint.config(
       'react/jsx-curly-brace-presence': 'error',
     },
   },
-
-  // tailwindcss
-  {
-    settings: {
-      tailwindcss: {
-        whitelist: ['hidden-scrollbar', '-webkit-scrollbar'],
-      },
-    },
-  },
-  eslintConfigPrettier,
 )
