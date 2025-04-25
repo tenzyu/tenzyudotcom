@@ -163,7 +163,7 @@ export const ProfileCard = async () => {
           <ul className="list-disc space-y-1 pl-5">
             <li>{t('profile.facts.birthdate')}</li>
             <li>{t('profile.facts.osuStart')}</li>
-            <li>{t('profile.facts.previousJob')}</li>
+            <li>{t('profile.facts.standingUp')}</li>
           </ul>
         </div>
       </CardContent>
