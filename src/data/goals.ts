@@ -17,22 +17,22 @@ export const YEARLY_GOALS: YearlyGoal[] = [
   {
     month: 5,
     title: {
-      ja: '',
-      en: '',
-    },
-  },
-  {
-    month: 6,
-    title: {
       ja: '5000位を切る',
       en: 'Break into top 5000',
     },
   },
   {
+    month: 6,
+    title: {
+      ja: '4000位を切る',
+      en: 'Break into top 4000',
+    },
+  },
+  {
     month: 7,
     title: {
-      ja: '',
-      en: '',
+      ja: '3000位を切る',
+      en: 'Break into top 3000',
     },
   },
   {
@@ -45,15 +45,15 @@ export const YEARLY_GOALS: YearlyGoal[] = [
   {
     month: 9,
     title: {
-      ja: '3000位を切る',
-      en: 'Break into top 3000',
+      ja: '',
+      en: '',
     },
   },
   {
     month: 10,
     title: {
-      ja: '',
-      en: '',
+      ja: '2000位を切る',
+      en: 'Break into top 2000',
     },
   },
   {
