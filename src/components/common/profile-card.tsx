@@ -1,4 +1,3 @@
-import { list } from '@vercel/blob'
 import { Loader2 } from 'lucide-react'
 import Image from 'next/image'
 import { getTranslations } from 'next-intl/server'
@@ -28,14 +27,7 @@ const LoadingComponent = async () => {
   )
 }
 
-const HeaderBackground = async () => {
-  const { blobs } = await list({
-    prefix: 'header-background.webm',
-    limit: 1,
-  })
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const { url } = blobs.pop()!
-
+const HeaderBackground = () => {
   return (
     <video
       className="h-full w-full object-cover transition-opacity duration-300"
@@ -46,7 +38,7 @@ const HeaderBackground = async () => {
       preload="none"
       aria-label="Video player"
     >
-      <source src={url} type="video/webm" />
+      <source src="/header-background.webm" type="video/webm" />
       Your browser does not support the video tag.
     </video>
   )
