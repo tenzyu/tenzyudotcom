@@ -7,12 +7,12 @@ import {
   CardTitle,
 } from '@/components/shadcn-ui/card'
 
-export interface TocSection {
+export type TocSection = {
   id: string
   title: string
 }
 
-interface TableOfContentsProps {
+type TableOfContentsProps = {
   sections: TocSection[]
 }
 

@@ -3,6 +3,10 @@ import { getTranslations } from 'next-intl/server'
 import { LinkList } from '@/components/common/link-list'
 import { ProfileCard } from '@/components/common/profile-card'
 import { Section } from '@/components/common/section'
+import {
+  TableOfContents,
+  type TocSection,
+} from '@/components/common/table-of-contents'
 import { YearlyGoals } from '@/components/common/yearly-goals'
 import {
   KeyboardSettings,
@@ -12,10 +16,6 @@ import {
 } from '@/components/osu'
 import { TwitterCarousel } from '@/components/social/twitter-carousel'
 import { YouTubeCarousel } from '@/components/social/youtube-carousel'
-import {
-  TableOfContents,
-  type TocSection,
-} from '@/components/common/table-of-contents'
 import { TWEETS } from '@/data/twitter'
 import { YOUTUBE_PERSONAL_BEST_HISTORY, YOUTUBE_VIDEOS } from '@/data/youtube'
 

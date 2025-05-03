@@ -25,7 +25,8 @@ export const YOUTUBE_PERSONAL_BEST_HISTORY: YouTube[] = [
 export const YOUTUBE_VIDEOS: YouTube[] = [
   {
     id: '9TCExaK1ZVM',
-    title: '【初心者向け】私のペンの持ち方・クリックの仕方を紹介します【TENZYU】#osu #osugame',
+    title:
+      '【初心者向け】私のペンの持ち方・クリックの仕方を紹介します【TENZYU】#osu #osugame',
     type: 'video',
   },
   {
