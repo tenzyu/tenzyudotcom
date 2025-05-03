@@ -24,9 +24,20 @@ export const YOUTUBE_PERSONAL_BEST_HISTORY: YouTube[] = [
 
 export const YOUTUBE_VIDEOS: YouTube[] = [
   {
+    id: '9TCExaK1ZVM',
+    title: '【初心者向け】私のペンの持ち方・クリックの仕方を紹介します【TENZYU】#osu #osugame',
+    type: 'video',
+  },
+  {
     id: 'ieKX5r1NRzo',
     title:
       'ダイジェスト 4桁入りから自己ベスト更新まで【TENZYU/切り抜き】【osu!】',
+    type: 'video',
+  },
+  {
+    id: 'vykLwlk0NXg',
+    title:
+      '【初心者向け】Stable と Lazer どちらで始めるべきか？【TENZYU】#osu #osugame',
     type: 'video',
   },
   {
@@ -36,32 +47,8 @@ export const YOUTUBE_VIDEOS: YouTube[] = [
     type: 'video',
   },
   {
-    id: 'faLwgZd9Uu0',
-    title:
-      'osuのマップはこうやって見つける。スキルから見つける方法。【TENZYU/切り抜き】【2024/9/23】',
-    type: 'video',
-  },
-  {
     id: 'c-G7vHbzb_M',
     title: '最も簡単に星6のFCメダルを獲得する方法【osu!】',
     type: 'video',
   },
 ]
-
-// export const YOUTUBE_SHORTS: YouTube[] = [
-//   {
-//     id: 'g0xCSdVmtzc',
-//     title: '#shorts 4桁到達の瞬間 #osu #osugame #tenzyu #音ゲー',
-//     type: 'short'
-//   },
-//   {
-//     id: 'vGM6YwMeDCM',
-//     title: '#shorts osu!lazer の設定を紹介します #osu #osugame',
-//     type: 'short'
-//   },
-//   {
-//     id: 'yZ7xsxi66Ww',
-//     title: '#shorts osuのマップはこうやって見つける。スキルから見つける方法。【TENZYU/切り抜き】【2024/9/23】 #osu #osugame',
-//     type: 'short'
-//   },
-// ]
