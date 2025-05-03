@@ -21,14 +21,14 @@
     }
   },
   "sections": {
-    "bestScores": "Best Scores",
+    "osuBestScores": "ベストパフォーマンス",
     "yearlyGoals": "2025年の目標",
-    "personalBestHistory": "PERSONAL BEST HISTORY",
-    "featuredVideos": "Featured Videos",
-    "twitterClips": "Twitter Clips",
+    "personalBestHistory": "BP更新履歴",
+    "featuredVideos": "おすすめ動画",
+    "twitterClips": "Twitter クリップ",
     "twitterNote": "*ブラウザのトラッキングプロテクションで画像／動画が表示されない場合があります。",
-    "osuSettings": "osu! settings",
-    "myLinks": "My Links"
+    "osuSettings": "osu! 設定",
+    "myLinks": "リンク集"
   },
   "settings": {
     "tablet": "Tablet",
