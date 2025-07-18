@@ -1,3 +1,6 @@
+import { type LucideIcon } from 'lucide-react'
+
+import { Badge } from '@/components/shadcn-ui/badge'
 import {
   Card,
   CardContent,
@@ -5,8 +8,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/shadcn-ui/card'
-import { Badge } from '@/components/shadcn-ui/badge'
-import { type LucideIcon } from 'lucide-react'
 
 export type BadgeInfo = {
   icon: LucideIcon

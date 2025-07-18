@@ -10,6 +10,7 @@ import {
   HardDrive,
   Network,
 } from 'lucide-react'
+
 import { EnvironmentCard, EnvironmentCardProps } from './environment-card'
 
 const environments: EnvironmentCardProps[] = [

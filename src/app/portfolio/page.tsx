@@ -1,9 +1,10 @@
 import { Section } from '@/components/common/section'
-import { ProjectsSection } from './_components/project-section'
-import { ExperienceSection } from './_components/experience-section'
+
 import { AboutMeSection } from './_components/about-me-section'
-import { PhilosophySection } from './_components/philosophy-section'
 import { DevEnvironmentSection } from './_components/dev-environment-section'
+import { ExperienceSection } from './_components/experience-section'
+import { PhilosophySection } from './_components/philosophy-section'
+import { ProjectsSection } from './_components/project-section'
 
 export default function PortfolioPage() {
   return (

@@ -1,5 +1,8 @@
-import { Button } from '@/components/shadcn-ui/button'
 import Image from 'next/image'
+
+import { Button } from '@/components/shadcn-ui/button'
+
+
 import type { FC } from 'react'
 
 export type AboutMeProps = {
