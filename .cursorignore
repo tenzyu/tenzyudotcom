@@ -3,3 +3,4 @@
 .ai-studio/
 .next/
 node_modules/
+.env
