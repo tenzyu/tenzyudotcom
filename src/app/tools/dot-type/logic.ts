@@ -72,7 +72,7 @@ export function generateDotArt({
       const char = text[i]
       const metrics = ctx.measureText(char)
       const x = (width - metrics.width) / 2
-      const y = i * fontSize
+      const y = i * fontSize + 2
       ctx.fillText(char, x, y)
     }
   }
