@@ -31,30 +31,27 @@ export function generateDotArt({
   ctx.textBaseline = 'top'
 
   // Calculate dimensions
-  let width = 0
-  let height = 0
-
-  if (orientation === 'horizontal') {
-    const metrics = ctx.measureText(text)
-    width = Math.ceil(metrics.width)
-    height = fontSize
-  } else {
-    // Vertical: max width of chars, height = char count * line height
-    let maxWidth = 0
-    for (const char of text) {
-      const metrics = ctx.measureText(char)
-      maxWidth = Math.max(maxWidth, metrics.width)
+  const [width, height] = (() => {
+    if (orientation === 'horizontal') {
+      const metrics = ctx.measureText(text)
+      return [Math.ceil(metrics.width), fontSize]
+    } else {
+      // Vertical: max width of chars, height = char count * line height
+      let maxWidth = 0
+      for (const char of text) {
+        const metrics = ctx.measureText(char)
+        maxWidth = Math.max(maxWidth, metrics.width)
+      }
+      return [Math.ceil(maxWidth), fontSize * text.length]
     }
-    width = Math.ceil(maxWidth)
-    height = fontSize * text.length
-  }
+  })()
 
   // Sanity check for dimensions to prevent crashes
   if (width === 0 || height === 0) return ''
 
   // Resize canvas
   canvas.width = width
-  canvas.height = height
+  canvas.height = orientation === 'horizontal' ? height : height + 2
 
   // Clear background (white = 255, 255, 255)
   ctx.fillStyle = '#ffffff'
