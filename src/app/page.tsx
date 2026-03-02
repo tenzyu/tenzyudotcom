@@ -1,158 +1,67 @@
-import { getTranslations } from 'next-intl/server'
+import Link from 'next/link'
 
-import { LinkList } from '@/components/common/link-list'
-import { ProfileCard } from '@/components/common/profile-card'
-import { Section } from '@/components/common/section'
-import {
-  TableOfContents,
-  type TocSection,
-} from '@/components/common/table-of-contents'
-import { YearlyGoals } from '@/components/common/yearly-goals'
-import {
-  KeyboardSettings,
-  MonitorSettings,
-  OsuBestScores,
-  TabletSettings,
-} from '@/components/osu'
-import { TwitterCarousel } from '@/components/social/twitter-carousel'
-import { YouTubeCarousel } from '@/components/social/youtube-carousel'
-import { TWEETS } from '@/data/twitter'
-import { YOUTUBE_PERSONAL_BEST_HISTORY, YOUTUBE_VIDEOS } from '@/data/youtube'
-
-import type { PropsWithChildren } from 'react'
-
-// Define keys for sections
-const SectionKeys = {
-  OSU_BEST_SCORES: 'osu-best-scores',
-  YEARLY_GOALS: 'yearly-goals',
-  PERSONAL_BEST_HISTORY: 'personal-best-history',
-  FEATURED_VIDEOS: 'featured-videos',
-  TWITTER_CLIPS: 'twitter-clips',
-  OSU_SETTINGS: 'osu-settings',
-  MY_LINKS: 'my-links',
-} as const
-
-type SectionKey = (typeof SectionKeys)[keyof typeof SectionKeys]
-
-// for osu contents
-export const revalidate = 60
-
-export default async function Home() {
-  const t = await getTranslations()
-
-  const SectionHeader = ({ children }: PropsWithChildren) => {
-    return (
-      <h2 className="mb-6 text-center text-2xl font-bold tracking-tight">
-        {children}
-      </h2>
-    )
-  }
-
-  // Define sections for TOC using keys and translations
-  const tocSections: Record<SectionKey, TocSection> = {
-    [SectionKeys.OSU_BEST_SCORES]: {
-      id: SectionKeys.OSU_BEST_SCORES,
-      title: t('sections.osuBestScores'),
-    },
-    [SectionKeys.YEARLY_GOALS]: {
-      id: SectionKeys.YEARLY_GOALS,
-      title: t('sections.yearlyGoals'),
-    },
-    [SectionKeys.PERSONAL_BEST_HISTORY]: {
-      id: SectionKeys.PERSONAL_BEST_HISTORY,
-      title: t('sections.personalBestHistory'),
-    },
-    [SectionKeys.FEATURED_VIDEOS]: {
-      id: SectionKeys.FEATURED_VIDEOS,
-      title: t('sections.featuredVideos'),
-    },
-    [SectionKeys.TWITTER_CLIPS]: {
-      id: SectionKeys.TWITTER_CLIPS,
-      title: t('sections.twitterClips'),
-    },
-    [SectionKeys.OSU_SETTINGS]: {
-      id: SectionKeys.OSU_SETTINGS,
-      title: t('sections.osuSettings'),
-    },
-    [SectionKeys.MY_LINKS]: {
-      id: SectionKeys.MY_LINKS,
-      title: t('sections.myLinks'),
-    },
-  }
-
+export default function Home() {
   return (
-    <div className="flex flex-col items-center">
-      <Section className="w-full">
-        <ProfileCard />
-      </Section>
+    <div className="flex min-h-[70vh] flex-col items-center justify-center px-4 py-12">
+      <div className="w-full max-w-2xl space-y-12 text-center md:text-left">
+        {/* Hero Section */}
+        <section className="space-y-6">
+          <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
+            <span className="from-foreground to-muted-foreground bg-gradient-to-br bg-clip-text text-transparent">
+              夢持って生きろ
+            </span>
+          </h1>
+          <div className="text-muted-foreground flex flex-col items-center gap-2 md:items-start">
+            <p className="text-xl font-medium">
+              夢 <span className="text-sm opacity-70">(本名 = 天珠)</span>
+            </p>
+            <p className="flex items-center gap-2 text-sm">
+              <span className="bg-muted/50 rounded-md px-2 py-0.5 font-mono">
+                @FlawInAffection
+              </span>
+              <span>on X</span>
+            </p>
+          </div>
+        </section>
 
-      <TableOfContents sections={Object.values(tocSections)} />
+        {/* Navigation Grid */}
+        <section className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+          <Link
+            href="/blog"
+            className="group border-border/50 bg-card text-card-foreground hover:bg-accent hover:text-accent-foreground flex flex-col items-center justify-center gap-2 rounded-xl border p-6 shadow-sm transition-all hover:shadow-md"
+          >
+            <span className="text-sm font-medium">Blog</span>
+          </Link>
+          <Link
+            href="/portfolio"
+            className="group border-border/50 bg-card text-card-foreground hover:bg-accent hover:text-accent-foreground flex flex-col items-center justify-center gap-2 rounded-xl border p-6 shadow-sm transition-all hover:shadow-md"
+          >
+            <span className="text-sm font-medium">Portfolio</span>
+          </Link>
+          <Link
+            href="/tools"
+            className="group border-border/50 bg-card text-card-foreground hover:bg-accent hover:text-accent-foreground flex flex-col items-center justify-center gap-2 rounded-xl border p-6 shadow-sm transition-all hover:shadow-md"
+          >
+            <span className="text-sm font-medium">Tools</span>
+          </Link>
+          <Link
+            href="/archives"
+            className="group border-border/50 bg-card text-card-foreground hover:bg-accent hover:text-accent-foreground flex flex-col items-center justify-center gap-2 rounded-xl border p-6 shadow-sm transition-all hover:shadow-md"
+          >
+            <span className="text-sm font-medium">Archives</span>
+          </Link>
+        </section>
 
-      <div className="grid w-full max-w-4xl grid-cols-1 gap-y-12 md:grid-cols-2 md:gap-x-4 md:gap-y-0">
-        {/* Access sections by key */}
-        <Section id={tocSections[SectionKeys.OSU_BEST_SCORES].id}>
-          <SectionHeader>
-            {tocSections[SectionKeys.OSU_BEST_SCORES].title}
-          </SectionHeader>
-          <OsuBestScores />
-        </Section>
-
-        <Section id={tocSections[SectionKeys.YEARLY_GOALS].id}>
-          <SectionHeader>
-            {tocSections[SectionKeys.YEARLY_GOALS].title}
-          </SectionHeader>
-          <YearlyGoals />
-        </Section>
+        {/* Footer Link */}
+        <section className="border-border/30 border-t pt-12">
+          <Link
+            href="/archives/osu-profile"
+            className="text-muted-foreground hover:text-primary inline-flex items-center text-xs transition-colors"
+          >
+            tenzyudotcom時代のサイトが見たい方はこちら &rarr;
+          </Link>
+        </section>
       </div>
-
-      <Section
-        className="w-full"
-        id={tocSections[SectionKeys.PERSONAL_BEST_HISTORY].id}
-      >
-        <SectionHeader>
-          {tocSections[SectionKeys.PERSONAL_BEST_HISTORY].title}
-        </SectionHeader>
-        <YouTubeCarousel videos={YOUTUBE_PERSONAL_BEST_HISTORY} />
-      </Section>
-
-      <Section
-        className="w-full"
-        id={tocSections[SectionKeys.FEATURED_VIDEOS].id}
-      >
-        <SectionHeader>
-          {tocSections[SectionKeys.FEATURED_VIDEOS].title}
-        </SectionHeader>
-        <YouTubeCarousel videos={YOUTUBE_VIDEOS} type="video" />
-      </Section>
-
-      <Section
-        className="w-full"
-        id={tocSections[SectionKeys.TWITTER_CLIPS].id}
-      >
-        <SectionHeader>
-          {tocSections[SectionKeys.TWITTER_CLIPS].title}
-        </SectionHeader>
-        <span className="block text-center text-xs">
-          {t('sections.twitterNote')}
-        </span>
-        <TwitterCarousel tweets={TWEETS} />
-      </Section>
-
-      <Section className="w-full" id={tocSections[SectionKeys.OSU_SETTINGS].id}>
-        <SectionHeader>
-          {tocSections[SectionKeys.OSU_SETTINGS].title}
-        </SectionHeader>
-        <div className="mx-auto w-full max-w-4xl space-y-4">
-          <TabletSettings />
-          <KeyboardSettings />
-          <MonitorSettings />
-        </div>
-      </Section>
-
-      <Section className="w-full" id={tocSections[SectionKeys.MY_LINKS].id}>
-        <SectionHeader>{tocSections[SectionKeys.MY_LINKS].title}</SectionHeader>
-        <LinkList />
-      </Section>
     </div>
   )
 }

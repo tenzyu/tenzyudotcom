@@ -1,19 +1,3 @@
-import { Badge } from '@/components/shadcn-ui/badge'
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-} from '@/components/shadcn-ui/card'
-import {
-  Table,
-  TableBody,
-  TableRow,
-  TableCell,
-} from '@/components/shadcn-ui/table'
-
-import type { FC } from 'react'
-
 export type Experience = {
   company: string
   period: string
@@ -78,84 +62,48 @@ const experiences: Experience[] = [
   },
 ]
 
-const ExperienceCard: FC<{ exp: Experience }> = ({ exp }) => (
-  <Card className="overflow-hidden pt-0">
-    <CardHeader className="bg-muted p-4 px-6">
-      <CardTitle className="text-xl font-semibold">{exp.company}</CardTitle>
-      <div className="text-muted-foreground mt-2">{exp.period}</div>
-    </CardHeader>
-    <CardContent>
-      <Table>
-        <TableBody>
-          <TableRow>
-            <TableCell className="w-32 align-top font-medium">役割</TableCell>
-            <TableCell className="align-top break-words whitespace-normal">
-              {exp.role}（{exp.position}）
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell className="align-top font-medium">事業内容</TableCell>
-            <TableCell className="align-top break-words whitespace-normal">
-              {exp.business}
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell className="align-top font-medium">資本金</TableCell>
-            <TableCell className="align-top break-words whitespace-normal">
-              {exp.capital}
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell className="align-top font-medium">従業員数</TableCell>
-            <TableCell className="align-top break-words whitespace-normal">
-              {exp.employees}
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell className="align-top font-medium">
-              業務内容・実績
-            </TableCell>
-            <TableCell className="align-top break-words whitespace-normal">
-              <ul className="text-muted-foreground list-disc space-y-1 pl-5 text-sm">
-                {exp.responsibilities.map((resp, idx) => (
-                  <li key={idx}>{resp}</li>
-                ))}
-              </ul>
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell className="align-top font-medium">
-              技術スタック
-            </TableCell>
-            <TableCell className="align-top break-words whitespace-normal">
-              <div className="flex flex-wrap gap-2">
-                {exp.technologies.map((tech) => (
-                  <Badge
-                    key={tech}
-                    variant="secondary"
-                    className="bg-gray-600 px-2 py-0.5 text-xs text-white"
-                  >
-                    {tech}
-                  </Badge>
-                ))}
-              </div>
-            </TableCell>
-          </TableRow>
-        </TableBody>
-      </Table>
-    </CardContent>
-  </Card>
-)
-
 export function ExperienceSection() {
   return (
-    <>
-      <h2 className="mb-8 text-center text-2xl font-bold">実務経験</h2>
-      <div className="space-y-8">
+    <div className="space-y-8">
+      <h2 className="border-border text-foreground border-b pb-2 text-2xl font-bold tracking-tight">
+        実務経験
+      </h2>
+      <div className="space-y-10">
         {experiences.map((exp) => (
-          <ExperienceCard key={exp.company + exp.period} exp={exp} />
+          <div key={exp.company + exp.period} className="space-y-3">
+            <div className="flex flex-col md:flex-row md:items-baseline md:justify-between">
+              <h3 className="text-lg font-semibold">{exp.company}</h3>
+              <span className="text-muted-foreground text-sm font-medium">
+                {exp.period}
+              </span>
+            </div>
+            <p className="text-sm font-medium">
+              {exp.role}（{exp.position}）
+            </p>
+            <div className="text-muted-foreground text-sm leading-relaxed">
+              <p>事業内容: {exp.business}</p>
+              <p>
+                資本金: {exp.capital} / 従業員数: {exp.employees}
+              </p>
+            </div>
+            <ul className="text-foreground list-inside list-disc pl-2 text-sm leading-relaxed">
+              {exp.responsibilities.map((resp, idx) => (
+                <li key={idx}>{resp}</li>
+              ))}
+            </ul>
+            <div className="flex flex-wrap gap-2 pt-2">
+              {exp.technologies.map((tech) => (
+                <span
+                  key={tech}
+                  className="bg-muted text-muted-foreground rounded-md px-2 py-0.5 text-xs font-medium"
+                >
+                  {tech}
+                </span>
+              ))}
+            </div>
+          </div>
         ))}
       </div>
-    </>
+    </div>
   )
 }
