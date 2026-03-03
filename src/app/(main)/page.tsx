@@ -20,7 +20,7 @@ export default async function Home() {
         <div className="flex items-center gap-6">
           <div className="border-background ring-primary/20 mx-auto h-36 w-36 overflow-hidden rounded-full border-4 shadow-2xl ring-4">
             <Image
-              src="/images/my-icon.png"
+              src="/images/ltvgbz.png"
               alt="Profile"
               width={44}
               height={44}
