@@ -2,6 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
 
+import { SectionHeader } from '@/components/common/section-header'
 import { NavigationGrid } from '@/components/home/navigation-grid'
 import { TimelineSection } from '@/components/home/timeline-section'
 import { Badge } from '@/components/shadcn-ui/badge'
@@ -22,8 +23,8 @@ export default async function Home() {
             <Image
               src="/images/ltvgbz.jpg"
               alt="Profile"
-              width={44}
-              height={44}
+              width={144}
+              height={144}
               priority
               className="h-full w-full object-cover transition-transform duration-500 hover:scale-110"
             />
@@ -74,13 +75,7 @@ export default async function Home() {
 
       {/* Music Recommendations Section */}
       <section className="space-y-6">
-        <div className="flex items-center gap-4">
-          <h2 className="text-2xl font-bold tracking-tight">{t('music')}</h2>
-          <div className="bg-border/50 h-px flex-1"></div>
-        </div>
-        <p className="text-muted-foreground text-sm font-medium">
-          {t('musicDesc')}
-        </p>
+        <SectionHeader title={t('music')} description={t('musicDesc')} />
 
         <Card className="bg-card/50 overflow-hidden p-6 shadow-sm">
           <YouTubeCarousel videos={HOME_VIDEOS} type="video" />

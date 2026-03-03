@@ -8,8 +8,7 @@ export function getEmailShareUri(title: string, url: string): string {
 
 export const copyToClipboard = (text: string) => {
   if (typeof navigator !== 'undefined') {
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    navigator.clipboard.writeText(text)
+    void navigator.clipboard.writeText(text)
   }
 }
 

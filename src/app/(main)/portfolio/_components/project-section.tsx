@@ -1,3 +1,7 @@
+import { SectionHeader } from '@/components/common/section-header'
+import { Badge } from '@/components/shadcn-ui/badge'
+import { Button } from '@/components/shadcn-ui/button'
+
 export type Project = {
   name: string
   description: string
@@ -45,9 +49,7 @@ const projects: Project[] = [
 export function ProjectsSection() {
   return (
     <div className="space-y-8">
-      <h2 className="border-border text-foreground border-b pb-2 text-2xl font-bold tracking-tight">
-        個人開発プロジェクト
-      </h2>
+      <SectionHeader title="個人開発プロジェクト" variant="underline" />
       <div className="space-y-10">
         {projects.map((project) => (
           <div key={project.name} className="space-y-3">
@@ -58,41 +60,40 @@ export function ProjectsSection() {
             </p>
             <div className="flex flex-wrap gap-2 pt-1">
               {project.technologies.map((tech) => (
-                <span
-                  key={tech}
-                  className="bg-muted text-muted-foreground rounded-md px-2 py-0.5 text-xs font-medium"
-                >
+                <Badge key={tech} variant="secondary">
                   {tech}
-                </span>
+                </Badge>
               ))}
             </div>
             <div className="flex flex-wrap gap-4 pt-2 text-sm font-medium">
-              {project.github && (
-                <a
-                  href={project.github}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-primary transition-colors hover:underline"
-                >
-                  GitHub &rarr;
-                </a>
-              )}
-              {project.demo && (
-                <a
-                  href={project.demo}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-primary transition-colors hover:underline"
-                >
-                  Demo &rarr;
-                </a>
-              )}
+              {project.github ? (
+                <Button variant="link" className="h-auto p-0" asChild>
+                  <a
+                    href={project.github}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    GitHub &rarr;
+                  </a>
+                </Button>
+              ) : null}
+              {project.demo ? (
+                <Button variant="link" className="h-auto p-0" asChild>
+                  <a
+                    href={project.demo}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Demo &rarr;
+                  </a>
+                </Button>
+              ) : null}
             </div>
-            {project.note && (
+            {project.note ? (
               <p className="text-muted-foreground mt-1 text-xs">
                 ※ {project.note}
               </p>
-            )}
+            ) : null}
           </div>
         ))}
       </div>

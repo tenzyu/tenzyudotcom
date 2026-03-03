@@ -1,9 +1,9 @@
+import { SectionHeader } from '@/components/common/section-header'
+
 export function PhilosophySection() {
   return (
     <div className="space-y-6">
-      <h2 className="border-border text-foreground border-b pb-2 text-2xl font-bold tracking-tight">
-        プログラミングとの向き合い方
-      </h2>
+      <SectionHeader title="プログラミングとの向き合い方" variant="underline" />
       <div className="text-muted-foreground space-y-4 text-sm leading-relaxed">
         <p>
           私はこれからプログラミングの仕事がAIで代替されていくことを良いことだと思っています。積極的にAIを採用し、課題解決や価値提供に集中できる時代が来ることを歓迎しています。

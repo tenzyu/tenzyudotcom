@@ -1,8 +1,5 @@
-'use client'
-
 import Image from 'next/image'
 import Link from 'next/link'
-import { memo } from 'react'
 
 import { Card, CardContent } from '@/components/shadcn-ui/card'
 import { cn } from '@/lib/utils'
@@ -13,21 +10,20 @@ type LinkCardProps = {
   link: MyLink
 }
 
-const LinkIcon = memo(function LinkIcon({ icon }: { icon: string }) {
+function LinkIcon({ icon }: { icon: string }) {
   return (
     <Image
       src={`/icons/${icon}.svg`}
       width={44}
       height={44}
       alt={`${icon}'s icon`}
-      priority={false}
       loading="lazy"
       quality={75}
     />
   )
-})
+}
 
-export const LinkCard = memo(function LinkCard({ link }: LinkCardProps) {
+export function LinkCard({ link }: LinkCardProps) {
   return (
     <Link
       href={`/links/${link.shortenUrl}`}
@@ -55,4 +51,4 @@ export const LinkCard = memo(function LinkCard({ link }: LinkCardProps) {
       </Card>
     </Link>
   )
-})
+}

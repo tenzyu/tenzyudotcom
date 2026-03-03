@@ -6,6 +6,8 @@ import Image from 'next/image'
 import { Suspense } from 'react'
 import { Tweet, type TwitterComponents } from 'react-tweet'
 
+import { Skeleton } from '@/components/shadcn-ui/skeleton'
+
 import type { TweetData } from './twitter-carousel'
 
 type TweetItemProps = {
@@ -28,11 +30,7 @@ const twitterComponents: TwitterComponents = {
 }
 
 export const TweetItem = ({ tweet }: TweetItemProps) => (
-  <Suspense
-    fallback={
-      <div className="h-[300px] w-full animate-pulse rounded-lg bg-gray-200 dark:bg-gray-800" />
-    }
-  >
+  <Suspense fallback={<Skeleton className="h-[300px] w-full rounded-lg" />}>
     <Tweet id={tweet.id} components={twitterComponents} />
   </Suspense>
 )

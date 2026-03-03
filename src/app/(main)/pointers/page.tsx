@@ -1,6 +1,9 @@
+import { ActionLinkCard } from '@/components/common/action-link-card'
 import { PageHeader } from '@/components/common/page-header'
 
 import type { Metadata } from 'next'
+
+export const dynamic = 'force-static'
 
 export const metadata: Metadata = {
   title: 'Pointers | Dashboard',
@@ -70,27 +73,13 @@ export default function PointersPage() {
             <h2 className="text-lg font-semibold">{category.title}</h2>
             <div className="grid gap-4">
               {category.links.map((link) => (
-                <a
+                <ActionLinkCard
                   key={link.name}
+                  title={link.name}
+                  description={link.description}
                   href={link.url}
-                  target={link.isApp ? '_self' : '_blank'}
-                  rel={link.isApp ? '' : 'noopener noreferrer'}
-                  className="group border-border/50 bg-card hover:bg-accent hover:border-primary/30 flex flex-col justify-center rounded-xl border p-5 shadow-sm transition-all"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-card-foreground group-hover:text-primary font-medium transition-colors">
-                      {link.name}
-                    </span>
-                    <span className="text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100">
-                      &rarr;
-                    </span>
-                  </div>
-                  {link.description && (
-                    <span className="text-muted-foreground mt-1 text-xs">
-                      {link.description}
-                    </span>
-                  )}
-                </a>
+                  internal={!!link.isApp}
+                />
               ))}
             </div>
           </section>

@@ -1,6 +1,7 @@
 import { CalendarIcon } from 'lucide-react'
 import Link from 'next/link'
 
+import { Badge } from '@/components/shadcn-ui/badge'
 import { formatDate } from '@/lib/blog'
 import { cn } from '@/lib/utils'
 
@@ -45,18 +46,19 @@ export function BlogCard({
       <p className="text-muted-foreground line-clamp-3 text-sm leading-relaxed">
         {summary}
       </p>
-      {tags && tags.length > 0 && (
+      {tags && tags.length > 0 ? (
         <div className="flex flex-wrap gap-2 pt-1">
           {tags.map((tag) => (
-            <span
+            <Badge
               key={tag}
-              className="bg-muted text-muted-foreground group-hover:text-primary/80 rounded-md px-2 py-0.5 text-xs font-medium transition-colors"
+              variant="secondary"
+              className="group-hover:text-primary/80 transition-colors"
             >
               #{tag}
-            </span>
+            </Badge>
           ))}
         </div>
-      )}
+      ) : null}
     </Link>
   )
 }

@@ -1,9 +1,9 @@
 import { ExternalLink } from 'lucide-react'
 
+import { SectionHeader } from '@/components/common/section-header'
 import { Card } from '@/components/shadcn-ui/card'
+import { TweetImage } from '@/components/social/tweet-image'
 import { HOME_SELFIES } from '@/data/home'
-
-import { TweetImage } from '../social/tweet-image'
 
 type TimelineSectionProps = {
   title: string
@@ -13,11 +13,7 @@ type TimelineSectionProps = {
 export function TimelineSection({ title, description }: TimelineSectionProps) {
   return (
     <section className="space-y-6">
-      <div className="flex items-center gap-4">
-        <h2 className="text-2xl font-bold tracking-tight">{title}</h2>
-        <div className="bg-border/50 h-px flex-1"></div>
-      </div>
-      <p className="text-muted-foreground text-sm font-medium">{description}</p>
+      <SectionHeader title={title} description={description} />
 
       <div className="columns-2 gap-4 md:columns-3">
         {HOME_SELFIES.map((selfie) => (

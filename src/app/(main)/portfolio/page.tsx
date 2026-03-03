@@ -4,6 +4,8 @@ import { ExperienceSection } from './_components/experience-section'
 import { PhilosophySection } from './_components/philosophy-section'
 import { ProjectsSection } from './_components/project-section'
 
+export const dynamic = 'force-static'
+
 export default function PortfolioPage() {
   return (
     <>

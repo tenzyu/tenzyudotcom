@@ -1,3 +1,7 @@
+import { SectionHeader } from '@/components/common/section-header'
+import { Badge } from '@/components/shadcn-ui/badge'
+import { Card, CardContent } from '@/components/shadcn-ui/card'
+
 type Environment = {
   title: string
   subtitle: string
@@ -40,40 +44,35 @@ const environments: Environment[] = [
   },
 ]
 
-export const DevEnvironmentSection = () => {
+export function DevEnvironmentSection() {
   return (
     <div className="space-y-8">
-      <div className="border-border border-b pb-2">
-        <h2 className="text-foreground text-2xl font-bold tracking-tight">
-          Development Environment
-        </h2>
-        <p className="text-muted-foreground mt-1 text-sm">
-          NixOSを中心としたリモート・分散開発環境の構成
-        </p>
-      </div>
+      <SectionHeader
+        title="Development Environment"
+        description="NixOSを中心としたリモート・分散開発環境の構成"
+        variant="underline"
+      />
 
-      <div className="space-y-10">
-        <div className="space-y-8">
-          {environments.map((env) => (
-            <div key={env.title} className="space-y-2">
+      <div className="space-y-6">
+        {environments.map((env) => (
+          <Card key={env.title}>
+            <CardContent className="space-y-2 pt-6">
               <h3 className="text-lg font-semibold">{env.title}</h3>
               <p className="text-sm font-medium">{env.subtitle}</p>
               <p className="text-muted-foreground text-sm leading-relaxed">
                 {env.description}
               </p>
               <div className="flex flex-wrap gap-2 pt-1">
-                <span className="bg-muted text-muted-foreground rounded-md px-2 py-0.5 text-xs font-medium">
-                  {env.os}
-                </span>
-                <span className="bg-muted text-muted-foreground rounded-md px-2 py-0.5 text-xs font-medium">
-                  {env.role}
-                </span>
+                <Badge variant="secondary">{env.os}</Badge>
+                <Badge variant="secondary">{env.role}</Badge>
               </div>
-            </div>
-          ))}
-        </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
 
-        <div className="border-border/50 bg-muted/20 space-y-3 rounded-lg border p-5">
+      <Card className="bg-muted/20">
+        <CardContent className="space-y-3 pt-6">
           <h3 className="text-sm font-semibold">ネットワーク接続構成</h3>
           <ul className="text-muted-foreground list-inside list-disc space-y-1 text-sm">
             <li>
@@ -82,8 +81,8 @@ export const DevEnvironmentSection = () => {
             <li>neko5 から neko6 へ: SSH接続によるCLI開発</li>
             <li>neko5 から neko7 へ: SSH接続によるリモートデプロイ</li>
           </ul>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }

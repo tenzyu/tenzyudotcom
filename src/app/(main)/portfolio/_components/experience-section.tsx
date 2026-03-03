@@ -1,3 +1,6 @@
+import { SectionHeader } from '@/components/common/section-header'
+import { Badge } from '@/components/shadcn-ui/badge'
+
 export type Experience = {
   company: string
   period: string
@@ -65,9 +68,7 @@ const experiences: Experience[] = [
 export function ExperienceSection() {
   return (
     <div className="space-y-8">
-      <h2 className="border-border text-foreground border-b pb-2 text-2xl font-bold tracking-tight">
-        実務経験
-      </h2>
+      <SectionHeader title="実務経験" variant="underline" />
       <div className="space-y-10">
         {experiences.map((exp) => (
           <div key={exp.company + exp.period} className="space-y-3">
@@ -93,12 +94,9 @@ export function ExperienceSection() {
             </ul>
             <div className="flex flex-wrap gap-2 pt-2">
               {exp.technologies.map((tech) => (
-                <span
-                  key={tech}
-                  className="bg-muted text-muted-foreground rounded-md px-2 py-0.5 text-xs font-medium"
-                >
+                <Badge key={tech} variant="secondary">
                   {tech}
-                </span>
+                </Badge>
               ))}
             </div>
           </div>

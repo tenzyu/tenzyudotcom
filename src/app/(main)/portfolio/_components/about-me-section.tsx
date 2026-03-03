@@ -1,5 +1,7 @@
 import Image from 'next/image'
 
+import { Button } from '@/components/shadcn-ui/button'
+
 import type { FC } from 'react'
 
 export type AboutMeProps = {
@@ -53,16 +55,21 @@ export const AboutMeSection: FC<Partial<AboutMeProps>> = ({
         <p className="text-sm leading-relaxed">{description}</p>
         <div className="flex flex-wrap gap-4 pt-2 text-sm font-medium">
           {links.map((link) => (
-            <a
+            <Button
               key={link.url}
-              href={link.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={link.ariaLabel}
-              className="text-primary transition-colors hover:underline"
+              variant="link"
+              className="h-auto p-0"
+              asChild
             >
-              {link.label} &rarr;
-            </a>
+              <a
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={link.ariaLabel}
+              >
+                {link.label} &rarr;
+              </a>
+            </Button>
           ))}
         </div>
       </div>

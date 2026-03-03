@@ -66,58 +66,57 @@ export default async function Blog({ params }: { params: Params }) {
   }
 
   return (
-    <main className="flex flex-col items-center p-4">
-      <div className="container flex flex-col items-center gap-8 px-4 pt-8">
-        <section className="max-w-3xl">
-          <script
-            type="application/ld+json"
-            suppressHydrationWarning
-            // biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
-            dangerouslySetInnerHTML={{
-              __html: JSON.stringify({
-                '@context': 'https://schema.org',
-                '@type': 'BlogPosting',
-                headline: post.metadata.title,
-                datePublished: post.metadata.publishedAt.toISOString(), // Serialize date
-                dateModified: post.metadata.updatedAt?.toISOString(), // Serialize date
-                description: post.metadata.summary,
-                image: post.metadata.image
-                  ? `${baseUrl}${post.metadata.image}`
-                  : `/og?title=${encodeURIComponent(post.metadata.title)}`,
-                url: `${baseUrl}/blog/${post.slug}`, // Corrected URL path
-                author: {
-                  // Add author info if available
-                  '@type': 'Person',
-                  name: 'tenzyu', // Replace with actual author name if dynamic
-                },
-                publisher: {
-                  // Add publisher info
-                  '@type': 'Organization',
-                  name: 'tenzyu.com', // Replace with site name
-                  logo: {
-                    '@type': 'ImageObject',
-                    url: `${baseUrl}/images/my-icon.png`, // Example logo URL
-                  },
-                },
-              }),
-            }}
-          />
+    <>
+      <script
+        type="application/ld+json"
+        suppressHydrationWarning
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'BlogPosting',
+            headline: post.metadata.title,
+            datePublished: post.metadata.publishedAt.toISOString(), // Serialize date
+            dateModified: post.metadata.updatedAt?.toISOString(), // Serialize date
+            description: post.metadata.summary,
+            image: post.metadata.image
+              ? `${baseUrl}${post.metadata.image}`
+              : `/og?title=${encodeURIComponent(post.metadata.title)}`,
+            url: `${baseUrl}/blog/${post.slug}`, // Corrected URL path
+            author: {
+              // Add author info if available
+              '@type': 'Person',
+              name: 'tenzyu', // Replace with actual author name if dynamic
+            },
+            publisher: {
+              // Add publisher info
+              '@type': 'Organization',
+              name: 'tenzyu.com', // Replace with site name
+              logo: {
+                '@type': 'ImageObject',
+                url: `${baseUrl}/images/my-icon.png`, // Example logo URL
+              },
+            },
+          }),
+        }}
+      />
+      <div className="space-y-8">
+        <div>
           <h1 className="title text-2xl font-semibold tracking-tighter">
             {post.metadata.title}
           </h1>
-          <div className="mt-2 mb-8 flex items-center justify-between text-sm">
-            <p className="text-muted-foreground text-sm">
-              {formatDate(post.metadata.publishedAt)}
-            </p>
+          <div className="text-muted-foreground mt-2 text-sm">
+            {formatDate(post.metadata.publishedAt)}
           </div>
-          <article className="prose prose-zinc dark:prose-invert !max-w-3xl">
-            <CustomMDX source={post.rawContent} />
-          </article>
-        </section>
+        </div>
+        <article className="prose prose-zinc dark:prose-invert max-w-none">
+          <CustomMDX source={post.rawContent} />
+        </article>
       </div>
-      <div className="mt-16 w-full">
+
+      <div className="mt-16">
         <ProfileCard />
       </div>
-    </main>
+    </>
   )
 }
