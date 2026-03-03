@@ -28,7 +28,7 @@ export function ThemeSwitcher() {
         <Moon className="text-muted-foreground/70 h-4 w-4" />
       </div>
       <span
-        className={`bg-background absolute left-1 flex h-6 w-6 items-center justify-center rounded-full shadow-md transition-all duration-300 ease-in-out ${
+        className={`bg-background absolute left-1 flex h-6 w-6 items-center justify-center rounded-full shadow-md transition-transform duration-300 ease-in-out ${
           mounted && isDark ? 'translate-x-8' : 'translate-x-0'
         }`}
       >

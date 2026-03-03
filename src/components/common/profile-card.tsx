@@ -1,7 +1,7 @@
 import { Loader2 } from 'lucide-react'
 import Image from 'next/image'
 import { getTranslations } from 'next-intl/server'
-import { Suspense, memo } from 'react'
+import { Suspense } from 'react'
 
 import { ID_OSU } from '@/app/archives/osu-profile/_data/osu'
 import { getUser } from '@/app/archives/osu-profile/_lib'
@@ -44,7 +44,7 @@ const HeaderBackground = () => {
   )
 }
 
-const ProfileImage = memo(function ProfileImage() {
+function ProfileImage() {
   return (
     <Image
       src="/images/my-icon.png"
@@ -57,9 +57,9 @@ const ProfileImage = memo(function ProfileImage() {
       quality={90}
     />
   )
-})
+}
 
-const SocialButton = memo(function SocialButton({
+function SocialButton({
   href,
   iconSrc,
   iconAlt,
@@ -95,7 +95,7 @@ const SocialButton = memo(function SocialButton({
       </a>
     </Button>
   )
-})
+}
 
 export const ProfileCard = async () => {
   const t = await getTranslations()

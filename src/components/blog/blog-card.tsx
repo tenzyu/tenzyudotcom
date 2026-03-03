@@ -2,7 +2,7 @@ import { CalendarIcon } from 'lucide-react'
 import Link from 'next/link'
 
 import { Badge } from '@/components/shadcn-ui/badge'
-import { formatDate } from '@/lib/blog'
+import { formatDate } from '@/lib/blog/utils'
 import { cn } from '@/lib/utils'
 
 type BlogCardProps = {

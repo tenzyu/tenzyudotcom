@@ -1,9 +1,10 @@
 'use client'
 
 import { Link, Mail, Share2 } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
+import { ShareButton } from '@/components/common/share-button'
 import { XIcon } from '@/components/common/social-icons'
 import { Button } from '@/components/shadcn-ui/button'
 import {
@@ -30,28 +31,13 @@ const socialLinks = [
   },
 ]
 
-type ShareButtonProps = {
-  icon: React.ReactNode
-  label: string
-  onClick: () => void
-}
-
-function ShareButton({ icon, label, onClick }: ShareButtonProps) {
-  return (
-    <Button
-      variant="outline"
-      className="flex h-auto flex-col items-center gap-1 py-3"
-      onClick={onClick}
-    >
-      {icon}
-      <span className="text-xs">{label}</span>
-    </Button>
-  )
-}
-
 export function Footer() {
   const [shareDialogOpen, setShareDialogOpen] = useState(false)
-  const siteUrl = typeof window !== 'undefined' ? window.location.origin : ''
+  const [siteUrl, setSiteUrl] = useState('')
+
+  useEffect(() => {
+    setSiteUrl(window.location.origin)
+  }, [])
 
   const handleShare = (platform: string) => {
     const encodedTitle = 'tenzyu.com - osu! player'

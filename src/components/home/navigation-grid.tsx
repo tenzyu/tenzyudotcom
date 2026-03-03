@@ -10,17 +10,19 @@ import Link from 'next/link'
 
 import { Button } from '@/components/shadcn-ui/button'
 
+const NAV_ITEMS = [
+  { href: '/links', label: 'Links', icon: LinkIcon },
+  { href: '/blog', label: 'Blog', icon: FileText },
+  { href: '/tools', label: 'Tools', icon: Hammer },
+  { href: '/pointers', label: 'Pointers', icon: Pointer },
+  { href: '/portfolio', label: 'Portfolio', icon: Disc },
+  { href: '/archives', label: 'Archives', icon: FolderArchive },
+] as const
+
 export function NavigationGrid() {
   return (
     <section className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-      {[
-        { href: '/links', label: 'Links', icon: LinkIcon },
-        { href: '/blog', label: 'Blog', icon: FileText },
-        { href: '/tools', label: 'Tools', icon: Hammer },
-        { href: '/pointers', label: 'Pointers', icon: Pointer },
-        { href: '/portfolio', label: 'Portfolio', icon: Disc },
-        { href: '/archives', label: 'Archives', icon: FolderArchive },
-      ].map((item) => (
+      {NAV_ITEMS.map((item) => (
         <Button
           key={item.href}
           variant="outline"

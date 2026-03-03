@@ -11,11 +11,13 @@ export function SpoilerTweet({ id }: { id: string }) {
 
   if (!revealed) {
     return (
-      <div
+      <button
+        type="button"
         className="border-destructive/20 bg-destructive/5 hover:bg-destructive/10 flex h-64 w-full cursor-pointer flex-col items-center justify-center gap-4 rounded-xl border transition-colors"
         onClick={() => {
           setRevealed(true)
         }}
+        aria-label={t('sensitive')}
       >
         <EyeOff className="text-destructive/70 h-8 w-8" />
         <div className="text-center">
@@ -24,7 +26,7 @@ export function SpoilerTweet({ id }: { id: string }) {
             {t('sensitiveDesc')}
           </p>
         </div>
-      </div>
+      </button>
     )
   }
 

@@ -39,6 +39,8 @@ const nextConfig: NextConfig = {
       '@radix-ui/react-visually-hidden',
       'sonner',
       'class-variance-authority',
+      'next-themes',
+      'embla-carousel-react',
     ],
     optimizeCss: true,
     webpackBuildWorker: true,

@@ -5,14 +5,12 @@ type XIconProps = {
 }
 export function XIcon(props: XIconProps) {
   return (
-    <div>
-      <Image
-        src="/icons/x.svg"
-        alt="X"
-        width={24}
-        height={24}
-        className={props.className}
-      />
-    </div>
+    <Image
+      src="/icons/x.svg"
+      alt="X"
+      width={24}
+      height={24}
+      className={props.className}
+    />
   )
 }

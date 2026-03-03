@@ -1,9 +1,10 @@
 'use client'
 
 import { Link, Mail, Share2 } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
+import { ShareButton } from '@/components/common/share-button'
 import { XIcon } from '@/components/common/social-icons'
 import { Button } from '@/components/shadcn-ui/button'
 import {
@@ -15,25 +16,6 @@ import {
 } from '@/components/shadcn-ui/dialog'
 import { cn } from '@/lib/utils'
 import { shareContent } from '@/lib/utils/share'
-
-type ShareButtonProps = {
-  icon: React.ReactNode
-  label: string
-  onClick: () => void
-}
-
-function ShareButton({ icon, label, onClick }: ShareButtonProps) {
-  return (
-    <Button
-      variant="outline"
-      className="flex h-auto flex-col items-center gap-1 py-3"
-      onClick={onClick}
-    >
-      {icon}
-      <span className="text-xs">{label}</span>
-    </Button>
-  )
-}
 
 type ShareDialogProps = {
   title: string
@@ -47,8 +29,12 @@ export function ShareDialog({
   triggerClassName,
 }: ShareDialogProps) {
   const [open, setOpen] = useState(false)
-  const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
+  const [baseUrl, setBaseUrl] = useState('')
   const shareUrl = `${baseUrl}/u/${url}`
+
+  useEffect(() => {
+    setBaseUrl(window.location.origin)
+  }, [])
 
   const handleShare = (platform: string) => {
     const result = shareContent(platform, shareUrl, title)

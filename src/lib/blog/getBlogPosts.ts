@@ -2,6 +2,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 import matter from 'gray-matter'
+import { cache } from 'react'
 
 export type FrontmatterBase = {
   title: string
@@ -48,7 +49,7 @@ async function getMDXData<T extends Record<string, unknown>>(
   return Promise.all(files.map((file) => readMDXFile<T>(path.join(dir, file))))
 }
 
-export async function getBlogPosts() {
+export const getBlogPosts = cache(async () => {
   const posts = await getMDXData(
     path.join(process.cwd(), 'src', 'content', 'blog'),
   )
@@ -57,4 +58,4 @@ export async function getBlogPosts() {
       new Date(b.metadata.publishedAt).getTime() -
       new Date(a.metadata.publishedAt).getTime(),
   )
-}
+})

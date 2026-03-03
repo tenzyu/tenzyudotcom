@@ -1,6 +1,6 @@
 import { BlogCard } from '@/components/blog/blog-card'
 import { PageHeader } from '@/components/common/page-header'
-import { getBlogPosts } from '@/lib/blog'
+import { getBlogPosts } from '@/lib/blog/getBlogPosts'
 
 export const dynamic = 'force-static'
 

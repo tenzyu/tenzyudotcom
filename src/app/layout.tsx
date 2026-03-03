@@ -1,5 +1,4 @@
-import { Analytics } from '@vercel/analytics/react'
-import { SpeedInsights } from '@vercel/speed-insights/next'
+import dynamic from 'next/dynamic'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { NextIntlClientProvider } from 'next-intl'
 import { getLocale } from 'next-intl/server'
@@ -15,6 +14,13 @@ import type { Metadata } from 'next'
 import type React from 'react'
 
 import './globals.css'
+
+const Analytics = dynamic(() =>
+  import('@vercel/analytics/react').then((m) => m.Analytics),
+)
+const SpeedInsights = dynamic(() =>
+  import('@vercel/speed-insights/next').then((m) => m.SpeedInsights),
+)
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -73,6 +79,11 @@ export default async function RootLayout({
 
   return (
     <html lang={locale} suppressHydrationWarning>
+      <head>
+        <link rel="preconnect" href="https://img.youtube.com" />
+        <link rel="preconnect" href="https://pbs.twimg.com" />
+        <link rel="preconnect" href="https://assets.ppy.sh" />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >

@@ -18,7 +18,7 @@ export const ImageWithLoading = ({
 
   return (
     <>
-      {isLoading && loadingComponent}
+      {isLoading ? loadingComponent : null}
       <Image
         {...props}
         className={cn(

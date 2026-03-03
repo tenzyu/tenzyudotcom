@@ -2,7 +2,9 @@ import { notFound } from 'next/navigation'
 
 import { baseUrl } from '@/app/sitemap'
 import { ProfileCard } from '@/components/common/profile-card'
-import { CustomMDX, formatDate, getBlogPosts } from '@/lib/blog'
+import { CustomMDX } from '@/lib/blog/custom-mdx'
+import { getBlogPosts } from '@/lib/blog/getBlogPosts'
+import { formatDate } from '@/lib/blog/utils'
 
 export const dynamicParams = false
 

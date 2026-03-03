@@ -2,6 +2,8 @@ import Link from 'next/link'
 
 import { PageHeader } from '@/components/common/page-header'
 
+export const dynamic = 'force-static'
+
 export default function ArchivesPage() {
   return (
     <main className="flex flex-col items-center p-4 py-8 md:py-12">
