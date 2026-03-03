@@ -91,6 +91,7 @@ const ModBadge = ({ acronym }: ModBadgeProps) => (
 
 const ScoreCard = ({ score, index, className }: ScoreCardProps) => {
   const rankStyle =
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     RANK_STYLES[score.rank as keyof typeof RANK_STYLES] ||
     'text-gray-400 border-gray-400'
 
@@ -181,10 +182,9 @@ const BestScoresContainer = async ({ limit }: { limit: number }) => {
 
   return (
     <>
-      {scores.map(
-        (score, index) =>
-          score && <ScoreCard key={score.id} score={score} index={index} />,
-      )}
+      {scores.map((score, index) => (
+        <ScoreCard key={score.id} score={score} index={index} />
+      ))}
     </>
   )
 }

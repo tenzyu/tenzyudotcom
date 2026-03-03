@@ -1,3 +1,5 @@
+import { BackToHome } from '@/components/common/back-to-home'
+
 import { AboutMeSection } from './_components/about-me-section'
 import { DevEnvironmentSection } from './_components/dev-environment-section'
 import { ExperienceSection } from './_components/experience-section'
@@ -8,11 +10,13 @@ export default function PortfolioPage() {
   return (
     <div className="flex justify-center px-4 py-12 sm:px-6 lg:px-8">
       <div className="w-full max-w-3xl space-y-12">
+        <BackToHome className="Print:hidden" />
         <AboutMeSection />
         <ExperienceSection />
         <ProjectsSection />
         <PhilosophySection />
         <DevEnvironmentSection />
+        <BackToHome className="Print:hidden" />
 
         {/* --- フッター --- */}
         <footer className="border-border/50 text-muted-foreground mt-12 border-t pt-8 text-center text-xs">

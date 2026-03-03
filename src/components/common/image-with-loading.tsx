@@ -30,6 +30,7 @@ export const ImageWithLoading = ({
           setIsLoading(false)
           props.onLoad?.(e)
         }}
+        alt=""
       />
     </>
   )

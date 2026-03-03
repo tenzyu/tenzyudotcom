@@ -1,4 +1,5 @@
 import { BlogCard } from '@/components/blog/blog-card'
+import { BackToHome } from '@/components/common/back-to-home'
 import { getBlogPosts } from '@/lib/blog'
 
 export const dynamic = 'force-static'
@@ -9,6 +10,7 @@ export default async function Page() {
   return (
     <main className="flex flex-col items-center p-4 py-8 md:py-12">
       <div className="w-full max-w-3xl space-y-8">
+        <BackToHome />
         <div className="border-border/50 space-y-2 border-b px-4 pb-6">
           <h1 className="text-3xl font-bold tracking-tight">Blog</h1>
           <p className="text-muted-foreground text-sm">
@@ -20,6 +22,7 @@ export default async function Page() {
             <BlogCard key={post.slug} {...post.metadata} slug={post.slug} />
           ))}
         </div>
+        <BackToHome />
       </div>
     </main>
   )

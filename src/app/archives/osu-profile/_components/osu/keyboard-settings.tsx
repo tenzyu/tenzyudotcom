@@ -1,6 +1,10 @@
 import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { memo } from 'react'
 
+import { cn } from '@/lib/utils'
+
+import type { KeyboardSettings as KeyboardSettingsType } from '@/types/osu/settings'
+
 import {
   SettingsCard,
   SettingsData,
@@ -8,10 +12,7 @@ import {
   SettingsGrid,
   SettingsGridItem,
   SettingsVisualization,
-} from '@/components/osu/settings-card'
-import { cn } from '@/lib/utils'
-
-import type { KeyboardSettings as KeyboardSettingsType } from '@/types/osu/settings'
+} from './settings-card'
 
 type KeyProps = {
   label: string

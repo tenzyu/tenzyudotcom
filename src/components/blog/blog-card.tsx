@@ -26,7 +26,7 @@ export function BlogCard({
       href={`/blog/${slug}`}
       prefetch
       className={cn(
-        'group hover:bg-muted/30 focus-visible:bg-muted/30 flex flex-col gap-3 rounded-2xl p-5 transition-colors focus-visible:outline-none',
+        'group border-border/40 hover:border-primary/50 hover:bg-muted/30 focus-visible:ring-primary flex flex-col gap-3 rounded-2xl border p-5 transition-all focus-visible:ring-2 focus-visible:outline-none',
         className,
       )}
     >

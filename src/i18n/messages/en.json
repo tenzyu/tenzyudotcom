@@ -56,5 +56,17 @@
     "performance": "Performance:",
     "refreshRate": "Refresh Rate:",
     "responseTime": "Response Time:"
+  },
+  "home": {
+    "catchphrase": "Live with a dream",
+    "realName": "(Real Name = Tenzyu)",
+    "slogan": "\"Instead of using SNS, let's build a secret base together.\"",
+    "timeline": "Timeline Gallery",
+    "timelineDesc": "Life logs & Selfies",
+    "sensitive": "Sensitive Content",
+    "sensitiveDesc": "Tap to view (contains self-harm imagery)",
+    "music": "Music Recommendations",
+    "musicDesc": "My favorite tunes",
+    "archiveLink": "Click here for the legacy tenzyu.com site"
   }
 }

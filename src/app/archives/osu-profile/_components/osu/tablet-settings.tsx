@@ -1,5 +1,7 @@
 import { memo } from 'react'
 
+import type { TabletSettings as TabletSettingsType } from '@/types/osu/settings'
+
 import {
   SettingsCard,
   SettingsData,
@@ -7,9 +9,7 @@ import {
   SettingsGrid,
   SettingsGridItem,
   SettingsVisualization,
-} from '@/components/osu/settings-card'
-
-import type { TabletSettings as TabletSettingsType } from '@/types/osu/settings'
+} from './settings-card'
 
 type TabletAreaProps = {
   width: number

@@ -24,7 +24,7 @@ const socialLinks = [
     label: 'YouTube',
   },
   {
-    href: 'https://x.com/tenzyudotcom',
+    href: 'https://x.com/FlawInAffection',
     label: 'Twitter',
   },
 ]

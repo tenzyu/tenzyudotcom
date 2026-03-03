@@ -27,6 +27,7 @@ const ICON_MAPPING = {
 
 const LinkIcon = memo(function LinkIcon({ name }: { name: string }) {
   const filename =
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     ICON_MAPPING[name.toLowerCase() as keyof typeof ICON_MAPPING] ||
     name.toLowerCase()
 

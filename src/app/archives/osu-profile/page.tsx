@@ -9,19 +9,20 @@ import {
   TableOfContents,
   type TocSection,
 } from '@/components/common/table-of-contents'
-import { YearlyGoals } from '@/components/common/yearly-goals'
-import {
-  KeyboardSettings,
-  MonitorSettings,
-  OsuBestScores,
-  TabletSettings,
-} from '@/components/osu'
 import { TwitterCarousel } from '@/components/social/twitter-carousel'
 import { YouTubeCarousel } from '@/components/social/youtube-carousel'
 import { TWEETS } from '@/data/twitter'
 import { YOUTUBE_PERSONAL_BEST_HISTORY, YOUTUBE_VIDEOS } from '@/data/youtube'
 
 import type { PropsWithChildren } from 'react'
+
+import {
+  KeyboardSettings,
+  MonitorSettings,
+  OsuBestScores,
+  TabletSettings,
+} from './_components/osu'
+import { YearlyGoals } from './_components/yearly-goals'
 
 // Define keys for sections
 const SectionKeys = {
@@ -83,90 +84,97 @@ export default async function OsuProfileArchive() {
   }
 
   return (
-    <div className="flex flex-col items-center">
-      <div className="w-full max-w-4xl py-4">
-        <Link
-          href="/"
-          className="text-muted-foreground hover:text-foreground inline-flex items-center text-sm transition-colors"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Home
-        </Link>
-        <p className="text-muted-foreground mt-2 text-xs">
-          This is an archive of the past tenzyudotcom landing page.
-        </p>
-      </div>
-
-      <Section className="w-full">
-        <ProfileCard />
-      </Section>
-
-      <TableOfContents sections={Object.values(tocSections)} />
-
-      <div className="grid w-full max-w-4xl grid-cols-1 gap-y-12 md:grid-cols-2 md:gap-x-4 md:gap-y-0">
-        <Section id={tocSections[SectionKeys.OSU_BEST_SCORES].id}>
-          <SectionHeader>
-            {tocSections[SectionKeys.OSU_BEST_SCORES].title}
-          </SectionHeader>
-          <OsuBestScores />
-        </Section>
-
-        <Section id={tocSections[SectionKeys.YEARLY_GOALS].id}>
-          <SectionHeader>
-            {tocSections[SectionKeys.YEARLY_GOALS].title}
-          </SectionHeader>
-          <YearlyGoals />
-        </Section>
-      </div>
-
-      <Section
-        className="w-full"
-        id={tocSections[SectionKeys.PERSONAL_BEST_HISTORY].id}
-      >
-        <SectionHeader>
-          {tocSections[SectionKeys.PERSONAL_BEST_HISTORY].title}
-        </SectionHeader>
-        <YouTubeCarousel videos={YOUTUBE_PERSONAL_BEST_HISTORY} />
-      </Section>
-
-      <Section
-        className="w-full"
-        id={tocSections[SectionKeys.FEATURED_VIDEOS].id}
-      >
-        <SectionHeader>
-          {tocSections[SectionKeys.FEATURED_VIDEOS].title}
-        </SectionHeader>
-        <YouTubeCarousel videos={YOUTUBE_VIDEOS} type="video" />
-      </Section>
-
-      <Section
-        className="w-full"
-        id={tocSections[SectionKeys.TWITTER_CLIPS].id}
-      >
-        <SectionHeader>
-          {tocSections[SectionKeys.TWITTER_CLIPS].title}
-        </SectionHeader>
-        <span className="block text-center text-xs">
-          {t('sections.twitterNote')}
-        </span>
-        <TwitterCarousel tweets={TWEETS} />
-      </Section>
-
-      <Section className="w-full" id={tocSections[SectionKeys.OSU_SETTINGS].id}>
-        <SectionHeader>
-          {tocSections[SectionKeys.OSU_SETTINGS].title}
-        </SectionHeader>
-        <div className="mx-auto w-full max-w-4xl space-y-4">
-          <TabletSettings />
-          <KeyboardSettings />
-          <MonitorSettings />
+    <div className="legacy-osu">
+      <div className="flex flex-col items-center">
+        <div className="w-full max-w-4xl py-4">
+          <Link
+            href="/"
+            className="text-muted-foreground hover:text-foreground inline-flex items-center text-sm transition-colors"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Home
+          </Link>
+          <p className="text-muted-foreground mt-2 text-xs">
+            This is an archive of the past tenzyudotcom landing page.
+          </p>
         </div>
-      </Section>
 
-      <Section className="w-full" id={tocSections[SectionKeys.MY_LINKS].id}>
-        <SectionHeader>{tocSections[SectionKeys.MY_LINKS].title}</SectionHeader>
-        <LinkList />
-      </Section>
+        <Section className="w-full">
+          <ProfileCard />
+        </Section>
+
+        <TableOfContents sections={Object.values(tocSections)} />
+
+        <div className="grid w-full max-w-4xl grid-cols-1 gap-y-12 md:grid-cols-2 md:gap-x-4 md:gap-y-0">
+          <Section id={tocSections[SectionKeys.OSU_BEST_SCORES].id}>
+            <SectionHeader>
+              {tocSections[SectionKeys.OSU_BEST_SCORES].title}
+            </SectionHeader>
+            <OsuBestScores />
+          </Section>
+
+          <Section id={tocSections[SectionKeys.YEARLY_GOALS].id}>
+            <SectionHeader>
+              {tocSections[SectionKeys.YEARLY_GOALS].title}
+            </SectionHeader>
+            <YearlyGoals />
+          </Section>
+        </div>
+
+        <Section
+          className="w-full"
+          id={tocSections[SectionKeys.PERSONAL_BEST_HISTORY].id}
+        >
+          <SectionHeader>
+            {tocSections[SectionKeys.PERSONAL_BEST_HISTORY].title}
+          </SectionHeader>
+          <YouTubeCarousel videos={YOUTUBE_PERSONAL_BEST_HISTORY} />
+        </Section>
+
+        <Section
+          className="w-full"
+          id={tocSections[SectionKeys.FEATURED_VIDEOS].id}
+        >
+          <SectionHeader>
+            {tocSections[SectionKeys.FEATURED_VIDEOS].title}
+          </SectionHeader>
+          <YouTubeCarousel videos={YOUTUBE_VIDEOS} type="video" />
+        </Section>
+
+        <Section
+          className="w-full"
+          id={tocSections[SectionKeys.TWITTER_CLIPS].id}
+        >
+          <SectionHeader>
+            {tocSections[SectionKeys.TWITTER_CLIPS].title}
+          </SectionHeader>
+          <span className="block text-center text-xs">
+            {t('sections.twitterNote')}
+          </span>
+          <TwitterCarousel tweets={TWEETS} />
+        </Section>
+
+        <Section
+          className="w-full"
+          id={tocSections[SectionKeys.OSU_SETTINGS].id}
+        >
+          <SectionHeader>
+            {tocSections[SectionKeys.OSU_SETTINGS].title}
+          </SectionHeader>
+          <div className="mx-auto w-full max-w-4xl space-y-4">
+            <TabletSettings />
+            <KeyboardSettings />
+            <MonitorSettings />
+          </div>
+        </Section>
+
+        <Section className="w-full" id={tocSections[SectionKeys.MY_LINKS].id}>
+          <SectionHeader>
+            {tocSections[SectionKeys.MY_LINKS].title}
+          </SectionHeader>
+          <LinkList />
+        </Section>
+      </div>
     </div>
   )
 }

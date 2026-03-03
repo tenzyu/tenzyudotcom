@@ -13,7 +13,7 @@ type TweetItemProps = {
 }
 
 const twitterComponents: TwitterComponents = {
-  AvatarImg: (props) => <Image {...props} loading="lazy" quality={75} />,
+  AvatarImg: (props) => <Image {...props} loading="lazy" quality={75} alt="" />,
   MediaImg: (props) => (
     <Image
       {...props}
@@ -21,6 +21,7 @@ const twitterComponents: TwitterComponents = {
       unoptimized
       loading="lazy"
       quality={75}
+      alt=""
       crossOrigin="anonymous"
     />
   ),

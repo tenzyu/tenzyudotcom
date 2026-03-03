@@ -17,7 +17,7 @@ type TableOfContentsProps = {
 }
 
 export const TableOfContents = ({ sections }: TableOfContentsProps) => {
-  if (!sections || sections.length === 0) {
+  if (sections.length === 0) {
     return null
   }
 
