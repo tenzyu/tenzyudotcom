@@ -26,7 +26,7 @@ export const AboutMeSection: FC<Partial<AboutMeProps>> = ({
     },
     {
       label: 'X (Twitter)',
-      url: 'https://twitter.com/tenzyudotcom',
+      url: 'https://x.com/tenzyudotcom',
       ariaLabel: 'X(Twitter)',
     },
   ],

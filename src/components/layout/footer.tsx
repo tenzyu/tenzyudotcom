@@ -1,9 +1,10 @@
 'use client'
 
-import { Link, Mail, Share2, Twitter } from 'lucide-react'
+import { Link, Mail, Share2 } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
+import { XIcon } from '@/components/common/social-icons'
 import { Button } from '@/components/shadcn-ui/button'
 import {
   Dialog,
@@ -25,7 +26,7 @@ const socialLinks = [
   },
   {
     href: 'https://x.com/FlawInAffection',
-    label: 'Twitter',
+    label: 'X',
   },
 ]
 
@@ -110,8 +111,8 @@ export function Footer() {
                     }}
                   />
                   <ShareButton
-                    icon={<Twitter className="h-5 w-5 text-[#1DA1F2]" />}
-                    label="twitter"
+                    icon={<XIcon className="h-5 w-5 text-[#1DA1F2]" />}
+                    label="X"
                     onClick={() => {
                       handleShare('twitter')
                     }}

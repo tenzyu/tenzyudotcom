@@ -13,30 +13,13 @@ type LinkCardProps = {
   link: MyLink
 }
 
-const ICON_MAPPING = {
-  github: 'github',
-  twitter: 'x',
-  twitch: 'twitch',
-  youtube: 'youtube',
-  notion: 'notion',
-  discord: 'discord',
-  'osu!': 'osu',
-  reddit: 'reddit',
-  'reddit (old)': 'reddit',
-} as const
-
-const LinkIcon = memo(function LinkIcon({ name }: { name: string }) {
-  const filename =
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-    ICON_MAPPING[name.toLowerCase() as keyof typeof ICON_MAPPING] ||
-    name.toLowerCase()
-
+const LinkIcon = memo(function LinkIcon({ icon }: { icon: string }) {
   return (
     <Image
-      src={`/icons/${filename}.svg`}
+      src={`/icons/${icon}.svg`}
       width={44}
       height={44}
-      alt={`${name} icon`}
+      alt={`${icon}'s icon`}
       priority={false}
       loading="lazy"
       quality={75}
@@ -62,7 +45,7 @@ export const LinkCard = memo(function LinkCard({ link }: LinkCardProps) {
             )}
             aria-hidden="true"
           >
-            <LinkIcon name={link.name} />
+            <LinkIcon icon={link.icon} />
           </div>
           <h3 className="text-card-foreground mb-1 text-lg font-medium">
             {link.name}

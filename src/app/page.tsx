@@ -5,6 +5,7 @@ import {
   Hammer,
   ExternalLink,
   Pointer,
+  Link as LinkIcon,
 } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -71,6 +72,7 @@ export default async function Home() {
         {/* Navigation Grid */}
         <section className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           {[
+            { href: '/links', label: 'Links', icon: LinkIcon },
             { href: '/blog', label: 'Blog', icon: FileText },
             { href: '/tools', label: 'Tools', icon: Hammer },
             { href: '/pointers', label: 'Pointers', icon: Pointer },
