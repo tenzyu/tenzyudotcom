@@ -1,7 +1,19 @@
 {
   "site": {
-    "title": "TENZYU | osu! player, streamer",
-    "description": "Aiming to be the #1 osu! player in Japan."
+    "title": "TENZYU | a secret hideout",
+    "description": "A secret hideout"
+  },
+  "home": {
+    "catchphrase": "Live with a dream",
+    "realName": "Real Name = Tenzyu",
+    "slogan": "\"Instead of using SNS, let's build a secret base together.\"",
+    "timeline": "Selfies",
+    "timelineDesc": "Click to open X",
+    "sensitive": "Sensitive Content",
+    "sensitiveDesc": "Tap to view (contains self-harm imagery)",
+    "music": "Music Recommendations",
+    "musicDesc": "My favorite tunes",
+    "archiveLink": "Click here for the legacy tenzyu.com site"
   },
   "profile": {
     "globalRanking": "Global Ranking",
@@ -56,17 +68,5 @@
     "performance": "Performance:",
     "refreshRate": "Refresh Rate:",
     "responseTime": "Response Time:"
-  },
-  "home": {
-    "catchphrase": "Live with a dream",
-    "realName": "(Real Name = Tenzyu)",
-    "slogan": "\"Instead of using SNS, let's build a secret base together.\"",
-    "timeline": "Selfies",
-    "timelineDesc": "Click to open X",
-    "sensitive": "Sensitive Content",
-    "sensitiveDesc": "Tap to view (contains self-harm imagery)",
-    "music": "Music Recommendations",
-    "musicDesc": "My favorite tunes",
-    "archiveLink": "Click here for the legacy tenzyu.com site"
   }
 }

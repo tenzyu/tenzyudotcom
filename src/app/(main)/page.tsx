@@ -17,10 +17,10 @@ export default async function Home() {
     <>
       {/* Hero & Profile Section */}
       <section className="relative space-y-8 pt-8 text-center">
-        <div className="flex items-center gap-6">
-          <div className="border-background ring-primary/20 mx-auto h-36 w-36 overflow-hidden rounded-full border-4 shadow-2xl ring-4">
+        <div className="flex items-center">
+          <div className="border-background ring-primary/20 mx-auto h-36 w-36 overflow-hidden rounded-full border-2 shadow-2xl ring-4">
             <Image
-              src="/images/ltvgbz.png"
+              src="/images/ltvgbz.jpg"
               alt="Profile"
               width={44}
               height={44}

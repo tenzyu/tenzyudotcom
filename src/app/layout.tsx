@@ -26,8 +26,8 @@ const geistMono = Geist_Mono({
   subsets: ['latin'],
 })
 
-const title = 'TENZYU | osu! player, streamer'
-const description = 'osu! の日本一を目指しています。'
+const title = 'TENZYU | a secret hideout'
+const description = 'a secret hideout'
 export const metadata: Metadata = {
   title,
   description,

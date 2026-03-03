@@ -1,7 +1,19 @@
 {
   "site": {
-    "title": "TENZYU | osu! player, streamer",
-    "description": "osu! の日本一を目指しています。"
+    "title": "TENZYU | 秘密基地",
+    "description": "秘密基地"
+  },
+  "home": {
+    "catchphrase": "夢持って生きろ",
+    "realName": "本名 = 天珠",
+    "slogan": "\"SNSなんてやってないでさ、オレたちで秘密基地をつくろうよ\"",
+    "timeline": "Selfies",
+    "timelineDesc": "クリックでXに飛びます",
+    "sensitive": "センシティブな内容",
+    "sensitiveDesc": "タップして表示 (肌を切っている写真が含まれます)",
+    "music": "Music Recommendations",
+    "musicDesc": "好きな音楽など",
+    "archiveLink": "tenzyudotcom時代のサイトが見たい方はこちら"
   },
   "profile": {
     "globalRanking": "世界ランキング",
@@ -56,17 +68,5 @@
     "performance": "Performance:",
     "refreshRate": "Refresh Rate:",
     "responseTime": "Response Time:"
-  },
-  "home": {
-    "catchphrase": "夢持って生きろ",
-    "realName": "(本名 = 天珠)",
-    "slogan": "\"SNSなんてやってないでさ、オレたちで秘密基地をつくろうよ\"",
-    "timeline": "Selfies",
-    "timelineDesc": "クリックでXに飛びます",
-    "sensitive": "センシティブな内容",
-    "sensitiveDesc": "タップして表示 (肌を切っている写真が含まれます)",
-    "music": "Music Recommendations",
-    "musicDesc": "好きな音楽など",
-    "archiveLink": "tenzyudotcom時代のサイトが見たい方はこちら"
   }
 }
