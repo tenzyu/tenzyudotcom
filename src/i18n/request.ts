@@ -81,8 +81,6 @@ export default getRequestConfig(async () => {
       source: 'default',
     }
 
-  console.log({ localeResult })
-
   return {
     locale: localeResult.lang,
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
