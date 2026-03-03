@@ -5,9 +5,13 @@ export const dynamic = 'force-static'
 
 export default function LinkTreePage() {
   return (
-    <main className="flex flex-col items-center p-4">
-      <div className="container flex flex-col items-center gap-8 px-4 pt-8">
-        <PageHeader title="My Links" className="border-none pb-0 text-center" />
+    <main className="flex flex-col items-center p-4 py-8 md:py-12">
+      <div className="w-full max-w-3xl space-y-8">
+        <PageHeader
+          title="Links"
+          description="各種リンクをまとめています。"
+          className="px-4"
+        />
         <LinkList />
       </div>
     </main>

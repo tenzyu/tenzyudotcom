@@ -25,24 +25,25 @@ export default async function Home() {
       <div className="w-full max-w-3xl space-y-16 px-4 pb-12 sm:px-6">
         {/* Hero & Profile Section */}
         <section className="relative space-y-8 pt-8 text-center">
-          <h1 className="text-center text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl">
-            <span className="from-primary bg-gradient-to-r via-purple-500 to-pink-500 bg-clip-text text-transparent drop-shadow-sm">
-              {t('catchphrase')}
-            </span>
-          </h1>
-
-          <div className="border-background ring-primary/20 mx-auto h-36 w-36 overflow-hidden rounded-full border-4 shadow-2xl ring-4">
-            <Image
-              src="/images/my-icon.png"
-              alt="Profile"
-              width={144}
-              height={144}
-              priority
-              className="h-full w-full object-cover transition-transform duration-500 hover:scale-110"
-            />
+          <div className="flex items-center gap-6">
+            <div className="border-background ring-primary/20 mx-auto h-36 w-36 overflow-hidden rounded-full border-4 shadow-2xl ring-4">
+              <Image
+                src="/images/my-icon.png"
+                alt="Profile"
+                width={44}
+                height={44}
+                priority
+                className="h-full w-full object-cover transition-transform duration-500 hover:scale-110"
+              />
+            </div>
+            <h1 className="text-center text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl">
+              <span className="from-primary bg-gradient-to-r via-purple-500 to-pink-500 bg-clip-text text-transparent drop-shadow-sm">
+                {t('catchphrase')}
+              </span>
+            </h1>
           </div>
 
-          <div className="space-y-6">
+          <div className="items-center justify-center space-y-6">
             <div className="flex items-center gap-6">
               <p className="text-foreground text-3xl font-bold">夢</p>
               <Badge
