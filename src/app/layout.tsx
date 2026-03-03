@@ -4,7 +4,7 @@ import { Geist, Geist_Mono } from 'next/font/google'
 import { NextIntlClientProvider } from 'next-intl'
 import { getLocale } from 'next-intl/server'
 
-import { BreadcrumbNav } from '@/components/common/breadcrumbs'
+import { BreadcrumbNav } from '@/components/common/breadcrumb-nav'
 import { Container } from '@/components/common/container'
 import { ThemeProvider } from '@/components/features/theme-provider'
 import { Footer } from '@/components/layout/footer'
