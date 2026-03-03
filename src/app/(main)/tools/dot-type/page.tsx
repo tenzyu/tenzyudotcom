@@ -8,9 +8,9 @@ import {
   CardTitle,
 } from '@/components/shadcn-ui/card'
 
-import { ControlPanel } from './components/control-panel'
-import { PreviewPanel } from './components/preview-panel'
-import { SettingsPanel } from './components/settings-panel'
+import { ControlPanel } from './_components/control-panel'
+import { PreviewPanel } from './_components/preview-panel'
+import { SettingsPanel } from './_components/settings-panel'
 import { useDotGeneration } from './use-dot-generation'
 
 export default function DotTypePage() {
