@@ -3,11 +3,11 @@ import Image from 'next/image'
 import { getTranslations } from 'next-intl/server'
 import { Suspense, memo } from 'react'
 
+import { ID_OSU } from '@/app/archives/osu-profile/_data/osu'
+import { getUser } from '@/app/archives/osu-profile/_lib'
 import { Button } from '@/components/shadcn-ui/button'
 import { Card, CardContent } from '@/components/shadcn-ui/card'
 import { Skeleton } from '@/components/shadcn-ui/skeleton'
-import { ID_OSU } from '@/data/constants'
-import { getUser } from '@/data/osu'
 
 const LoadingComponent = async () => {
   const t = await getTranslations()

@@ -16,15 +16,19 @@ import {
 } from '@/components/shadcn-ui/dialog'
 import { cn } from '@/lib/utils'
 
-import type { YouTube } from '@/data/youtube'
+export type YouTubeVideo = {
+  id: string
+  title: string
+  type: 'video' | 'short'
+}
 
 type YouTubeCarouselProps = {
-  videos: YouTube[]
+  videos: YouTubeVideo[]
   type?: 'video' | 'short'
 }
 
 type VideoThumbnailProps = {
-  video: YouTube
+  video: YouTubeVideo
   isShort: boolean
 }
 
@@ -68,7 +72,7 @@ const VideoThumbnail = ({ video, isShort }: VideoThumbnailProps) => (
 )
 
 type VideoDialogContentProps = {
-  video: YouTube
+  video: YouTubeVideo
   isShort: boolean
 }
 

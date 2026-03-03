@@ -31,12 +31,6 @@ export const MY_LINKS: MyLink[] = [
     shortenUrl: 'youtube',
   },
   {
-    name: 'Twitter',
-    id: '@tenzyudotcom',
-    url: 'https://x.com/tenzyudotcom',
-    shortenUrl: 'twitter',
-  },
-  {
     name: 'GitHub',
     id: '@tenzyu',
     url: 'https://github.com/tenzyu',
@@ -49,14 +43,26 @@ export const MY_LINKS: MyLink[] = [
     shortenUrl: 'reddit',
   },
   {
+    name: 'X (Twitter)',
+    id: '@FlawInAffection',
+    url: 'https://x.com/FlawInAffection',
+    shortenUrl: 'x',
+  },
+  {
+    name: 'Twitter (old)',
+    id: '@tenzyudotcom',
+    url: 'https://x.com/tenzyudotcom',
+    shortenUrl: 'twitter',
+  },
+  {
     name: 'Reddit (old)',
     id: 'tenzyuosu',
     url: 'https://www.reddit.com/user/tenzyuosu/',
     shortenUrl: 'reddit-old',
   },
   {
-    name: 'Notion',
-    id: 'osu beatmaps for beginners',
+    name: 'Notion (old)',
+    id: 'osu! beatmaps for beginners',
     url: 'https://tenzyu.notion.site/107cca384d6780e0a504f5ee28d9dd94?v=6fc3622a159f4671a7635ebd2e32e5b1',
     shortenUrl: 'osuhistorical',
   },

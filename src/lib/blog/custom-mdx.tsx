@@ -5,7 +5,7 @@ import remarkGfm from 'remark-gfm'
 
 import type * as React from 'react'
 
-import { components } from '../../app/mdx-components'
+import { components } from './mdx-components'
 
 type MDXProps = {
   components?: Record<string, React.ComponentType<Record<string, unknown>>>

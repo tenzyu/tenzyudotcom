@@ -1,18 +1,16 @@
 import Link from 'next/link'
 
-import { BackToHome } from '@/components/common/back-to-home'
+import { PageHeader } from '@/components/common/page-header'
 
 export default function ArchivesPage() {
   return (
     <main className="flex flex-col items-center p-4 py-8 md:py-12">
       <div className="w-full max-w-3xl space-y-8">
-        <BackToHome />
-        <div className="border-border/50 space-y-2 border-b px-4 pb-6">
-          <h1 className="text-3xl font-bold tracking-tight">Archives</h1>
-          <p className="text-muted-foreground text-sm">
-            過去のコンテンツや古いバージョンのページのアーカイブ。
-          </p>
-        </div>
+        <PageHeader
+          title="Archives"
+          description="過去のコンテンツや古いバージョンのページのアーカイブ。"
+          className="px-4"
+        />
 
         <section className="grid gap-4">
           <Link
@@ -25,7 +23,6 @@ export default function ArchivesPage() {
             </p>
           </Link>
         </section>
-        <BackToHome />
       </div>
     </main>
   )

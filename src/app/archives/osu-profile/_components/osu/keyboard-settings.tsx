@@ -3,7 +3,7 @@ import { memo } from 'react'
 
 import { cn } from '@/lib/utils'
 
-import type { KeyboardSettings as KeyboardSettingsType } from '@/types/osu/settings'
+import type { KeyboardSettings as KeyboardSettingsType } from '@/app/archives/osu-profile/_type/settings'
 
 import {
   SettingsCard,

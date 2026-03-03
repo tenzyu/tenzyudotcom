@@ -1,8 +1,6 @@
-export type TWEET = {
-  id: string
-}
+import type { TweetData } from '@/components/social/twitter-carousel'
 
-export const TWEETS: TWEET[] = [
+export const TWEETS: TweetData[] = [
   {
     // Union A rank
     id: '1917575188818067854',

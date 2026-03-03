@@ -1,10 +1,6 @@
-export type YouTube = {
-  id: string
-  title: string
-  type: 'video' | 'short'
-}
+import type { YouTubeVideo } from '@/components/social/youtube-carousel'
 
-export const YOUTUBE_PERSONAL_BEST_HISTORY: YouTube[] = [
+export const YOUTUBE_PERSONAL_BEST_HISTORY: YouTubeVideo[] = [
   {
     id: 'xpLVatdM_SA',
     title: 'MY NEW TOP PLAY 590PP',
@@ -22,7 +18,7 @@ export const YOUTUBE_PERSONAL_BEST_HISTORY: YouTube[] = [
   },
 ]
 
-export const YOUTUBE_VIDEOS: YouTube[] = [
+export const YOUTUBE_VIDEOS: YouTubeVideo[] = [
   {
     id: '9TCExaK1ZVM',
     title:

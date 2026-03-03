@@ -2,13 +2,14 @@ import { Clock, Music } from 'lucide-react'
 import Image from 'next/image'
 import { Suspense } from 'react'
 
+import { getUserScores } from '@/app/archives/osu-profile/_lib'
 import { Card, CardContent, CardTitle } from '@/components/shadcn-ui/card'
 import { Skeleton } from '@/components/shadcn-ui/skeleton'
-import { ID_OSU, DEFAULT_SCORE_LIMIT } from '@/data/constants'
-import { getUserScores } from '@/data/osu'
 import { cn } from '@/lib/utils'
 
 import type { Score } from 'osu-api-v2-js'
+
+import { ID_OSU, DEFAULT_SCORE_LIMIT } from '../../_data/osu'
 
 const RANK_STYLES = {
   XH: 'text-yellow-400 border-yellow-400',

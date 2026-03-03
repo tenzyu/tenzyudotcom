@@ -1,3 +1,5 @@
+import { PageHeader } from '@/components/common/page-header'
+
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -57,12 +59,11 @@ export default function PointersPage() {
   return (
     <main className="flex justify-center px-4 py-16 sm:px-6 lg:px-8">
       <div className="w-full max-w-4xl space-y-12">
-        <div className="border-border/50 space-y-4 border-b pb-6">
-          <h1 className="text-3xl font-bold tracking-tight">Pointers</h1>
-          <p className="text-muted-foreground text-sm">
-            Quick access dashboard for personal daily use.
-          </p>
-        </div>
+        <PageHeader
+          title="Pointers"
+          description="Quick access dashboard for personal daily use."
+          className="space-y-4"
+        />
 
         <div className="grid gap-12 md:grid-cols-2">
           {DASHBOARD_DATA.map((category) => (

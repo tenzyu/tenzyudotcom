@@ -1,6 +1,6 @@
 import { memo } from 'react'
 
-import type { TabletSettings as TabletSettingsType } from '@/types/osu/settings'
+import type { TabletSettings as TabletSettingsType } from '@/app/archives/osu-profile/_type/settings'
 
 import {
   SettingsCard,

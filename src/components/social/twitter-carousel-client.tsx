@@ -6,10 +6,10 @@ import Image from 'next/image'
 import { Suspense } from 'react'
 import { Tweet, type TwitterComponents } from 'react-tweet'
 
-import type { TWEET } from '@/data/twitter'
+import type { TweetData } from './twitter-carousel'
 
 type TweetItemProps = {
-  tweet: TWEET
+  tweet: TweetData
 }
 
 const twitterComponents: TwitterComponents = {

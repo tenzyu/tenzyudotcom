@@ -1,5 +1,3 @@
-import { ArrowLeft } from 'lucide-react'
-import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
 
 import { LinkList } from '@/components/common/link-list'
@@ -11,8 +9,6 @@ import {
 } from '@/components/common/table-of-contents'
 import { TwitterCarousel } from '@/components/social/twitter-carousel'
 import { YouTubeCarousel } from '@/components/social/youtube-carousel'
-import { TWEETS } from '@/data/twitter'
-import { YOUTUBE_PERSONAL_BEST_HISTORY, YOUTUBE_VIDEOS } from '@/data/youtube'
 
 import type { PropsWithChildren } from 'react'
 
@@ -23,6 +19,8 @@ import {
   TabletSettings,
 } from './_components/osu'
 import { YearlyGoals } from './_components/yearly-goals'
+import { TWEETS } from './_data/twitter'
+import { YOUTUBE_PERSONAL_BEST_HISTORY, YOUTUBE_VIDEOS } from './_data/youtube'
 
 // Define keys for sections
 const SectionKeys = {
@@ -87,13 +85,6 @@ export default async function OsuProfileArchive() {
     <div className="legacy-osu">
       <div className="flex flex-col items-center">
         <div className="w-full max-w-4xl py-4">
-          <Link
-            href="/"
-            className="text-muted-foreground hover:text-foreground inline-flex items-center text-sm transition-colors"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Home
-          </Link>
           <p className="text-muted-foreground mt-2 text-xs">
             This is an archive of the past tenzyudotcom landing page.
           </p>

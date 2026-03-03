@@ -7,12 +7,14 @@ import {
 } from '@/components/shadcn-ui/carousel'
 import { cn } from '@/lib/utils'
 
-import type { TWEET } from '@/data/twitter'
+export type TweetData = {
+  id: string
+}
 
 import { TweetItem } from './twitter-carousel-client'
 
 type TwitterCarouselProps = {
-  tweets: TWEET[]
+  tweets: TweetData[]
   className?: string
 }
 

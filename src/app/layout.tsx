@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from 'next/font/google'
 import { NextIntlClientProvider } from 'next-intl'
 import { getLocale } from 'next-intl/server'
 
+import { BreadcrumbNav } from '@/components/common/breadcrumbs'
 import { Container } from '@/components/common/container'
 import { ThemeProvider } from '@/components/features/theme-provider'
 import { Footer } from '@/components/layout/footer'
@@ -85,7 +86,11 @@ export default async function RootLayout({
             <div className="flex min-h-screen flex-col">
               <Header locale={locale} />
               <main className="-mb-16 flex-grow -translate-y-16 transform pt-16">
-                <Container>{children}</Container>
+                <Container>
+                  <BreadcrumbNav />
+                  {children}
+                  <BreadcrumbNav />
+                </Container>
                 <Analytics />
                 <SpeedInsights />
               </main>

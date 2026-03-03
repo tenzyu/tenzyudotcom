@@ -47,7 +47,7 @@ const LinkIcon = memo(function LinkIcon({ name }: { name: string }) {
 export const LinkCard = memo(function LinkCard({ link }: LinkCardProps) {
   return (
     <Link
-      href={`/u/${link.shortenUrl}`}
+      href={`/links/${link.shortenUrl}`}
       className="focus:ring-primary block rounded-lg focus:ring-2 focus:outline-none"
       target="_blank"
       rel="noreferrer"
