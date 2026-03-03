@@ -1,6 +1,6 @@
 'use client'
 
-import { Globe } from 'lucide-react'
+import { ChevronDown, Globe } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useTransition } from 'react'
 
@@ -13,8 +13,8 @@ import {
 } from '@/components/shadcn-ui/dropdown-menu'
 
 const LANGUAGES = [
-  { label: '日本語', value: 'ja' },
-  { label: 'English', value: 'en' },
+  { label: '日本語', value: 'ja', short: 'JA' },
+  { label: 'English', value: 'en', short: 'EN' },
 ]
 
 export function LanguageSwitcher({ currentLocale }: { currentLocale: string }) {
@@ -31,11 +31,24 @@ export function LanguageSwitcher({ currentLocale }: { currentLocale: string }) {
     })
   }
 
+  const currentLang = LANGUAGES.find((lang) => lang.value === currentLocale)
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon" aria-label="Change language">
-          <Globe className="h-[1.2rem] w-[1.2rem]" />
+        <Button
+          variant="outline"
+          className="gap-2 px-3"
+          aria-label="Change language"
+        >
+          <Globe className="text-muted-foreground h-[1.2rem] w-[1.2rem]" />
+          <span className="hidden font-medium sm:inline-block">
+            {currentLang?.label ?? 'Language'}
+          </span>
+          <span className="inline-block font-medium sm:hidden">
+            {currentLang?.short ?? 'Lang'}
+          </span>
+          <ChevronDown className="h-4 w-4 opacity-50" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
