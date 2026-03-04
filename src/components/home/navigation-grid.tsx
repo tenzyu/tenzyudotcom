@@ -4,6 +4,7 @@ import {
   FolderArchive,
   Hammer,
   Pointer,
+  Puzzle,
   Link as LinkIcon,
 } from 'lucide-react'
 import Link from 'next/link'
@@ -14,6 +15,7 @@ const NAV_ITEMS = [
   { href: '/links', label: 'Links', icon: LinkIcon },
   { href: '/blog', label: 'Blog', icon: FileText },
   { href: '/tools', label: 'Tools', icon: Hammer },
+  { href: '/puzzles', label: 'Puzzles', icon: Puzzle },
   { href: '/pointers', label: 'Pointers', icon: Pointer },
   { href: '/portfolio', label: 'Portfolio', icon: Disc },
   { href: '/archives', label: 'Archives', icon: FolderArchive },
