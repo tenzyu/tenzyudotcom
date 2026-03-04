@@ -3,13 +3,10 @@ import { getTranslations } from 'next-intl/server'
 import { LinkList } from '@/components/common/link-list'
 import { ProfileCard } from '@/components/common/profile-card'
 import { Section } from '@/components/common/section'
-import {
-  TableOfContents,
-  type TocSection,
-} from '@/components/common/table-of-contents'
 import { TwitterCarousel } from '@/components/social/twitter-carousel'
 import { YouTubeCarousel } from '@/components/social/youtube-carousel'
 
+import type { Metadata } from 'next'
 import type { PropsWithChildren } from 'react'
 
 import {
@@ -18,6 +15,10 @@ import {
   OsuBestScores,
   TabletSettings,
 } from './_components/osu'
+import {
+  TableOfContents,
+  type TocSection,
+} from './_components/table-of-contents'
 import { YearlyGoals } from './_components/yearly-goals'
 import { TWEETS } from './_data/twitter'
 import { YOUTUBE_PERSONAL_BEST_HISTORY, YOUTUBE_VIDEOS } from './_data/youtube'
@@ -37,6 +38,11 @@ type SectionKey = (typeof SectionKeys)[keyof typeof SectionKeys]
 
 // for osu contents
 export const revalidate = 60
+
+export const metadata: Metadata = {
+  title: 'osu-profile | Archives',
+  description: 'An archive of the past tenzyudotcom landing page.',
+}
 
 export default async function OsuProfileArchive() {
   const t = await getTranslations()

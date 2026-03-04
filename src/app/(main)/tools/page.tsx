@@ -3,7 +3,14 @@ import { Type } from 'lucide-react'
 import { ActionLinkCard } from '@/components/common/action-link-card'
 import { PageHeader } from '@/components/common/page-header'
 
+import type { Metadata } from 'next'
+
 export const dynamic = 'force-static'
+
+export const metadata: Metadata = {
+  title: 'Tools',
+  description: '自作したツールや便利スクリプトの公開用ページ',
+}
 
 const TOOLS_DATA = [
   {

@@ -2,7 +2,14 @@ import Link from 'next/link'
 
 import { PageHeader } from '@/components/common/page-header'
 
+import type { Metadata } from 'next'
+
 export const dynamic = 'force-static'
+
+export const metadata: Metadata = {
+  title: 'Archives',
+  description: '過去のコンテンツや古いバージョンのページのアーカイブ。',
+}
 
 export default function ArchivesPage() {
   return (

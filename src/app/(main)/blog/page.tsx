@@ -2,7 +2,14 @@ import { BlogCard } from '@/components/blog/blog-card'
 import { PageHeader } from '@/components/common/page-header'
 import { getBlogPosts } from '@/lib/blog/getBlogPosts'
 
+import type { Metadata } from 'next'
+
 export const dynamic = 'force-static'
+
+export const metadata: Metadata = {
+  title: 'Blog',
+  description: '技術的な知見や日常の記録などを書き残します。',
+}
 
 export default async function Page() {
   const awaited_posts = await getBlogPosts()

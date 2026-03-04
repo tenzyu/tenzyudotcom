@@ -1,5 +1,7 @@
 'use client'
 
+import { Metadata } from 'next'
+
 import {
   Card,
   CardContent,
@@ -12,6 +14,12 @@ import { ControlPanel } from './_components/control-panel'
 import { PreviewPanel } from './_components/preview-panel'
 import { SettingsPanel } from './_components/settings-panel'
 import { useDotGeneration } from './use-dot-generation'
+
+export const metadata: Metadata = {
+  title: 'Dot Type Generator',
+  description:
+    'テキストを入力すると、ドット絵のようなテキスト（アスキーアート風）に変換します。',
+}
 
 export default function DotTypePage() {
   const {

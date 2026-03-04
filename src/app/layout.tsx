@@ -32,10 +32,13 @@ const geistMono = Geist_Mono({
   subsets: ['latin'],
 })
 
-const title = 'TENZYU | a secret hideout'
+const title = "TENZYU's secret hideout"
 const description = 'a secret hideout'
 export const metadata: Metadata = {
-  title,
+  title: {
+    template: "%s | TENZYU's secret hideout",
+    default: title,
+  },
   description,
   keywords: [
     'tenzyu',
@@ -49,6 +52,7 @@ export const metadata: Metadata = {
   authors: [{ name: 'tenzyu', url: 'https://tenzyu.com' }],
   creator: 'tenzyu',
   publisher: 'tenzyu',
+  metadataBase: new URL('https://tenzyu.com'),
   // todo: ogp 画像
   openGraph: {
     type: 'website',

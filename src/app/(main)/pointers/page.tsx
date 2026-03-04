@@ -6,7 +6,8 @@ import type { Metadata } from 'next'
 export const dynamic = 'force-static'
 
 export const metadata: Metadata = {
-  title: 'Pointers | Dashboard',
+  title: 'Pointers',
+  description: 'Quick access dashboard for personal daily use.',
 }
 
 type LinkItem = {
