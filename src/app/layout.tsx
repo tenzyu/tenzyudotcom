@@ -9,6 +9,7 @@ import { ThemeProvider } from '@/components/features/theme-provider'
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
 import { Toaster } from '@/components/shadcn-ui/sonner'
+import { TooltipProvider } from '@/components/shadcn-ui/tooltip'
 
 import type { Metadata } from 'next'
 import type React from 'react'
@@ -103,7 +104,7 @@ export default async function RootLayout({
               <main className="-mb-16 flex-grow -translate-y-16 transform pt-16">
                 <Container>
                   <BreadcrumbNav />
-                  {children}
+                  <TooltipProvider>{children}</TooltipProvider>
                   <BreadcrumbNav />
                 </Container>
                 <Analytics />
