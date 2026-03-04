@@ -39,7 +39,7 @@ export default function PuzzlesPage() {
               />
               <div className="grid gap-3">
                 {category.puzzles.map((puzzle) => (
-                  <PuzzleCard key={puzzle.url} puzzle={puzzle} />
+                  <PuzzleCard key={puzzle.title} puzzle={puzzle} />
                 ))}
               </div>
             </section>

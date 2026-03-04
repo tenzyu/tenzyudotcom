@@ -1,9 +1,14 @@
 export type Platform = 'web' | 'ios' | 'android' | 'steam' | 'switch' | 'other'
 
+export type PuzzleLink = {
+  platform: Platform
+  url: string
+}
+
 export type Puzzle = {
   title: string
-  url: string
-  platforms: Platform[]
+  url?: string
+  links: PuzzleLink[]
 }
 
 export type PuzzleCategory = {
