@@ -10,7 +10,8 @@ export const dynamic = 'force-static'
 
 export const metadata: Metadata = {
   title: 'Puzzles',
-  description: '解いた謎解きのアプリやウェブサイトを紹介しています。',
+  description:
+    '解いた謎解きのアプリやウェブサイトを紹介しています。(ページ作成中)',
 }
 
 export default function PuzzlesPage() {

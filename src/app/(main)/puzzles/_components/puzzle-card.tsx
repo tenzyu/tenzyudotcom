@@ -23,21 +23,12 @@ function PlatformBadge({ link }: { link: PuzzleLink }) {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <a
-          href={link.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={(e) => {
-            e.stopPropagation()
-          }}
+        <Badge
+          variant="secondary"
+          className="hover:bg-primary hover:text-primary-foreground cursor-pointer text-xs transition-colors"
         >
-          <Badge
-            variant="secondary"
-            className="hover:bg-primary hover:text-primary-foreground cursor-pointer text-xs transition-colors"
-          >
-            {PLATFORM_LABELS[link.platform]}
-          </Badge>
-        </a>
+          {PLATFORM_LABELS[link.platform]}
+        </Badge>
       </TooltipTrigger>
       <TooltipContent>
         <p className="text-xs">{link.url}</p>

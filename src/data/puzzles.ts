@@ -21,12 +21,44 @@ export const PUZZLE_CATEGORIES: PuzzleCategory[] = [
   {
     name: 'ブラウザゲーム',
     description: 'ブラウザ上で遊べる謎解き',
-    puzzles: [],
+    puzzles: [
+      {
+        title: 'push',
+        links: [{ platform: 'web', url: 'https://o24.works/push' }],
+      },
+    ],
   },
   {
     name: 'スマホアプリ',
     description: 'iOS / Android で遊べる謎解きアプリ',
-    puzzles: [],
+    puzzles: [
+      {
+        title: 'pink',
+        links: [
+          {
+            platform: 'ios',
+            url: 'https://apps.apple.com/pl/app/pink-game/id1548980409',
+          },
+          {
+            platform: 'android',
+            url: 'https://play.google.com/store/apps/details?id=air.com.bartbonte.pink',
+          },
+        ],
+      },
+      {
+        title: 'purple',
+        links: [
+          {
+            platform: 'ios',
+            url: 'https://apps.apple.com/jp/app/purple-game/id6503608929',
+          },
+          {
+            platform: 'android',
+            url: 'https://play.google.com/store/apps/details?id=air.com.bartbonte.purple',
+          },
+        ],
+      },
+    ],
   },
   {
     name: 'その他',
