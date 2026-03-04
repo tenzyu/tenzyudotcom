@@ -82,6 +82,7 @@ export default tseslint.config(
   // その他設定
   {
     files: ['src/**/*.{js,jsx,ts,tsx}'],
+    ignores: ['src/components/shadcn-ui/**'], // NOTE: 無視
     linterOptions: {
       reportUnusedDisableDirectives: 'error',
     },
