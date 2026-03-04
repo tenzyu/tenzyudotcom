@@ -17,6 +17,9 @@ const compat = new FlatCompat({
 // }}}
 
 export default tseslint.config(
+  // shadcn-ui はリント対象外
+  { ignores: ['src/components/shadcn-ui/**'] },
+
   js.configs.recommended,
   tseslint.configs.recommended,
   tseslint.configs.strictTypeChecked,
@@ -82,7 +85,6 @@ export default tseslint.config(
   // その他設定
   {
     files: ['src/**/*.{js,jsx,ts,tsx}'],
-    ignores: ['src/components/shadcn-ui/**'], // NOTE: 無視
     linterOptions: {
       reportUnusedDisableDirectives: 'error',
     },
