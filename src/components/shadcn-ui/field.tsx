@@ -1,11 +1,11 @@
 'use client'
 
-import { useMemo } from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
+import { useMemo } from 'react'
 
-import { cn } from '@/lib/utils/index'
 import { Label } from '@/components/shadcn-ui/label'
 import { Separator } from '@/components/shadcn-ui/separator'
+import { cn } from '@/lib/utils/index'
 
 function FieldSet({ className, ...props }: React.ComponentProps<'fieldset'>) {
   return (
@@ -189,7 +189,7 @@ function FieldError({
   errors,
   ...props
 }: React.ComponentProps<'div'> & {
-  errors?: Array<{ message?: string } | undefined>
+  errors?: ({ message?: string } | undefined)[]
 }) {
   const content = useMemo(() => {
     if (children) {
@@ -204,7 +204,7 @@ function FieldError({
       ...new Map(errors.map((error) => [error?.message, error])).values(),
     ]
 
-    if (uniqueErrors?.length == 1) {
+    if (uniqueErrors.length == 1) {
       return uniqueErrors[0]?.message
     }
 

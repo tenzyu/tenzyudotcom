@@ -1,8 +1,7 @@
 'use client'
 
-import * as React from 'react'
-import type { Label as LabelPrimitive } from 'radix-ui'
 import { Slot } from 'radix-ui'
+import * as React from 'react'
 import {
   Controller,
   FormProvider,
@@ -13,8 +12,10 @@ import {
   type FieldValues,
 } from 'react-hook-form'
 
-import { cn } from '@/lib/utils/index'
 import { Label } from '@/components/shadcn-ui/label'
+import { cn } from '@/lib/utils/index'
+
+import type { Label as LabelPrimitive } from 'radix-ui'
 
 const Form = FormProvider
 
@@ -113,7 +114,7 @@ function FormControl({ ...props }: React.ComponentProps<typeof Slot.Root>) {
       id={formItemId}
       aria-describedby={
         !error
-          ? `${formDescriptionId}`
+          ? formDescriptionId
           : `${formDescriptionId} ${formMessageId}`
       }
       aria-invalid={!!error}
@@ -137,7 +138,7 @@ function FormDescription({ className, ...props }: React.ComponentProps<'p'>) {
 
 function FormMessage({ className, ...props }: React.ComponentProps<'p'>) {
   const { error, formMessageId } = useFormField()
-  const body = error ? String(error?.message ?? '') : props.children
+  const body = error ? String(error.message ?? '') : props.children
 
   if (!body) {
     return null

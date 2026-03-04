@@ -1,10 +1,9 @@
 'use client'
 
-import * as React from 'react'
 import { Combobox as ComboboxPrimitive } from '@base-ui/react'
 import { CheckIcon, ChevronDownIcon, XIcon } from 'lucide-react'
+import * as React from 'react'
 
-import { cn } from '@/lib/utils/index'
 import { Button } from '@/components/shadcn-ui/button'
 import {
   InputGroup,
@@ -12,6 +11,7 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from '@/components/shadcn-ui/input-group'
+import { cn } from '@/lib/utils/index'
 
 const Combobox = ComboboxPrimitive.Root
 
@@ -274,6 +274,7 @@ function ComboboxChip({
 
 function ComboboxChipsInput({
   className,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   children,
   ...props
 }: ComboboxPrimitive.Input.Props) {
