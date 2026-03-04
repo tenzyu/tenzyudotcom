@@ -19,21 +19,20 @@ import { shareContent } from '@/lib/utils/share'
 
 type ShareDialogProps = {
   title: string
-  url: string
   triggerClassName?: string
+  triggerLabel?: string
 }
 
 export function ShareDialog({
   title,
-  url,
   triggerClassName,
+  triggerLabel,
 }: ShareDialogProps) {
   const [open, setOpen] = useState(false)
-  const [baseUrl, setBaseUrl] = useState('')
-  const shareUrl = `${baseUrl}/u/${url}`
+  const [shareUrl, setShareUrl] = useState('')
 
   useEffect(() => {
-    setBaseUrl(window.location.origin)
+    setShareUrl(window.location.href)
   }, [])
 
   const handleShare = (platform: string) => {
@@ -50,9 +49,17 @@ export function ShareDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" className={cn('h-auto py-4', triggerClassName)}>
+        <Button
+          variant="ghost"
+          size={triggerLabel ? 'sm' : 'default'}
+          className={cn('h-auto py-4', triggerClassName)}
+        >
           <Share2 className="size-5" />
-          <span className="sr-only">Share {title}</span>
+          {triggerLabel ? (
+            <span className="ml-1">{triggerLabel}</span>
+          ) : (
+            <span className="sr-only">Share {title}</span>
+          )}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">

@@ -187,30 +187,53 @@ async function RankingsSkeleton() {
 }
 
 async function Rankings() {
-  const osuProfile = await getUser(ID_OSU)
   const t = await getTranslations()
 
-  return (
-    <div className="flex items-center gap-4">
-      <div className="flex flex-col items-center">
-        <div className="text-muted-foreground text-sm font-medium">
-          {t('profile.globalRanking')}
+  try {
+    const osuProfile = await getUser(ID_OSU)
+
+    return (
+      <div className="flex items-center gap-4">
+        <div className="flex flex-col items-center">
+          <div className="text-muted-foreground text-sm font-medium">
+            {t('profile.globalRanking')}
+          </div>
+          <div className="h-8 text-2xl font-bold">
+            #{osuProfile.statistics.global_rank}
+          </div>
         </div>
-        <div className="h-8 text-2xl font-bold">
-          #{osuProfile.statistics.global_rank}
+
+        <div className="bg-border h-8 w-px" aria-hidden="true" />
+
+        <div className="flex flex-col items-center">
+          <div className="text-muted-foreground text-sm font-medium">
+            {t('profile.countryRanking')}
+          </div>
+          <div className="h-8 text-2xl font-bold">
+            #{osuProfile.statistics.country_rank}
+          </div>
         </div>
       </div>
-
-      <div className="bg-border h-8 w-px" aria-hidden="true" />
-
-      <div className="flex flex-col items-center">
-        <div className="text-muted-foreground text-sm font-medium">
-          {t('profile.countryRanking')}
+    )
+  } catch {
+    return (
+      <div className="flex items-center gap-4">
+        <div className="flex flex-col items-center">
+          <div className="text-muted-foreground text-sm font-medium">
+            {t('profile.globalRanking')}
+          </div>
+          <div className="h-8 text-2xl font-bold">-</div>
         </div>
-        <div className="h-8 text-2xl font-bold">
-          #{osuProfile.statistics.country_rank}
+
+        <div className="bg-border h-8 w-px" aria-hidden="true" />
+
+        <div className="flex flex-col items-center">
+          <div className="text-muted-foreground text-sm font-medium">
+            {t('profile.countryRanking')}
+          </div>
+          <div className="h-8 text-2xl font-bold">-</div>
         </div>
       </div>
-    </div>
-  )
+    )
+  }
 }

@@ -14,13 +14,5 @@ type Params = Promise<{
 }>
 export default async function RedirectPage({ params }: { params: Params }) {
   const awaited_params = await params
-  const link = MY_LINKS.find(
-    (link) => link.shortenUrl === awaited_params.shortUrl,
-  )
-
-  if (!link?.url) {
-    redirect('/')
-  }
-
-  redirect(link.url)
+  redirect(`/links/${awaited_params.shortUrl}`)
 }
