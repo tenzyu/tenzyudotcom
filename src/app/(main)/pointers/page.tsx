@@ -7,10 +7,6 @@ export const dynamic = 'force-static'
 
 export const metadata: Metadata = {
   title: 'Pointers | Dashboard',
-  robots: {
-    index: false,
-    follow: false,
-  },
 }
 
 type LinkItem = {
