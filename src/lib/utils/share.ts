@@ -1,5 +1,5 @@
 export function getTwitterShareUri(text: string, url: string): string {
-  return `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`
+  return `https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`
 }
 
 export function getEmailShareUri(title: string, url: string): string {

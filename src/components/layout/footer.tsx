@@ -43,7 +43,7 @@ export function Footer() {
             ))}
 
             <ShareDialog
-              title="tenzyu.com"
+              title="TENZYU's secret hideout"
               triggerLabel="Share"
               triggerClassName="text-muted-foreground hover:text-primary py-2"
             />
