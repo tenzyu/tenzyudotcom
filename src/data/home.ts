@@ -1,5 +1,3 @@
-import type { YouTubeVideo } from '@/components/social/youtube-carousel'
-
 export type SelfiesData = {
   id: string
 }
@@ -13,9 +11,9 @@ export const HOME_SELFIES: SelfiesData[] = [
   { id: '2001518051955793947' },
 ]
 
-export const HOME_VIDEOS: YouTubeVideo[] = [
-  { id: 'tOWeLMJNYz4', title: 'Music 1', type: 'video' },
-  { id: 'L7giMsyfFQQ', title: 'Music 2', type: 'video' },
-  { id: 'uIxtjaSJZmA', title: 'Music 3', type: 'video' },
-  { id: 'ksdvNgqOToQ', title: 'Music 4', type: 'video' },
+export const HOME_VIDEOS = [
+  { id: 'tOWeLMJNYz4' },
+  { id: 'L7giMsyfFQQ' },
+  { id: 'uIxtjaSJZmA' },
+  { id: 'ksdvNgqOToQ' },
 ]

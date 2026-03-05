@@ -10,9 +10,17 @@ import { Button } from '@/components/shadcn-ui/button'
 import { Card } from '@/components/shadcn-ui/card'
 import { YouTubeCarousel } from '@/components/social/youtube-carousel'
 import { HOME_VIDEOS } from '@/data/home'
+import { fetchYouTubeTitle } from '@/lib/youtube'
 
 export default async function Home() {
   const t = await getTranslations('home')
+
+  const videosWithTitles = await Promise.all(
+    HOME_VIDEOS.map(async (v) => ({
+      id: v.id,
+      title: await fetchYouTubeTitle(v.id),
+    })),
+  )
 
   return (
     <>
@@ -87,7 +95,7 @@ export default async function Home() {
         <SectionHeader title={t('music')} description={t('musicDesc')} />
 
         <Card className="bg-card/50 overflow-hidden p-6 shadow-sm">
-          <YouTubeCarousel videos={HOME_VIDEOS} type="video" />
+          <YouTubeCarousel videos={videosWithTitles as any} type="video" />
         </Card>
       </section>
 
