@@ -49,6 +49,16 @@ const nextConfig: NextConfig = {
     removeConsole: process.env.NODE_ENV === 'production',
   },
   pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx'],
+  // eslint-disable-next-line @typescript-eslint/require-await
+  async redirects() {
+    return [
+      {
+        source: '/u/:path*',
+        destination: '/links/:path*',
+        permanent: true,
+      },
+    ]
+  },
 }
 
 const prettyCodeOptions = {
