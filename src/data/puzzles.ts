@@ -58,6 +58,19 @@ export const PUZZLE_CATEGORIES: PuzzleCategory[] = [
           },
         ],
       },
+      {
+        title: 'green',
+        links: [
+          {
+            platform: 'ios',
+            url: 'https://apps.apple.com/jp/app/green-game/id1502106711',
+          },
+          {
+            platform: 'android',
+            url: 'https://play.google.com/store/apps/details?id=air.com.bartbonte.green',
+          },
+        ],
+      },
     ],
   },
   {
