@@ -1,5 +1,5 @@
-import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
 import Image from 'next/image'
+import { VisuallyHidden } from 'radix-ui'
 
 import {
   Carousel,
@@ -85,9 +85,9 @@ const VideoDialogContent = ({ video, isShort }: VideoDialogContentProps) => (
         : 'dark:border-border dark:bg-background min-w-screen border-black bg-black p-0 md:min-w-[90vw] md:border-white md:bg-white md:p-4 md:dark:p-4',
     )}
   >
-    <VisuallyHidden>
+    <VisuallyHidden.Root>
       <DialogTitle>{video.title}</DialogTitle>
-    </VisuallyHidden>
+    </VisuallyHidden.Root>
     <div
       className={cn(
         'mx-auto',
