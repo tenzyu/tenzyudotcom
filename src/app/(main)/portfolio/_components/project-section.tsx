@@ -4,6 +4,7 @@ import { Button } from '@/components/shadcn-ui/button'
 
 export type Project = {
   name: string
+  highlight: string
   description: string
   motivation: string
   technologies: string[]
@@ -15,6 +16,8 @@ export type Project = {
 const projects: Project[] = [
   {
     name: '個人ウェブサイト',
+    highlight:
+      'Next.jsベースのポートフォリオ兼ブログ。osu!プレイヤーとしての世界観を表現',
     description: 'osu!関連コンテンツを集約した個人サイト（現在閲覧中のサイト）',
     motivation:
       '趣味でosu!というリズムゲームをしていて、配信やYouTubeの投稿もしていたので、コンテンツを集中させた場所がほしくて作りました。',
@@ -24,6 +27,8 @@ const projects: Project[] = [
   },
   {
     name: 'osu! bp database',
+    highlight:
+      '数十万ユーザーの数千万件に及ぶスコアを瞬時に検索・集計できる高速なDB',
     description:
       'osu!というリズムゲームの、数十万のプレイヤーの数千万のベストスコアを、データテーブルとして操作できるウェブアプリ',
     motivation:
@@ -35,6 +40,8 @@ const projects: Project[] = [
   },
   {
     name: 'osu! skin remixer',
+    highlight:
+      'インストール不要で、ブラウザ上で直感的にゲームスキンをブレンドできるツール',
     description:
       'osu!というゲームには、スキンと呼ばれるゲーム画面のカスタマイズがあって、それらスキンを簡単に混ぜるためのウェブアプリ',
     motivation:
@@ -54,6 +61,9 @@ export function ProjectsSection() {
         {projects.map((project) => (
           <div key={project.name} className="space-y-3">
             <h3 className="text-lg font-semibold">{project.name}</h3>
+            <p className="text-primary leading-relaxed font-medium">
+              {project.highlight}
+            </p>
             <p className="text-sm leading-relaxed">{project.description}</p>
             <p className="text-muted-foreground text-sm leading-relaxed">
               <strong>開発の動機:</strong> {project.motivation}

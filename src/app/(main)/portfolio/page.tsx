@@ -16,9 +16,9 @@ export const metadata: Metadata = {
 export default function PortfolioPage() {
   return (
     <>
-      <AboutMeSection />
-      <ExperienceSection />
       <ProjectsSection />
+      <ExperienceSection />
+      <AboutMeSection />
       <PhilosophySection />
       <DevEnvironmentSection />
 

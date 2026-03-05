@@ -115,10 +115,6 @@ export default async function Blog({ params }: { params: Params }) {
           <CustomMDX source={post.rawContent} />
         </article>
       </div>
-
-      <div className="mt-16">
-        <ProfileCard />
-      </div>
     </>
   )
 }

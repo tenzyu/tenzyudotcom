@@ -4,6 +4,7 @@ import { getTranslations } from 'next-intl/server'
 
 import { SectionHeader } from '@/components/common/section-header'
 import { NavigationGrid } from '@/components/home/navigation-grid'
+import { PurposeNavigation } from '@/components/home/purpose-navigation'
 import { TimelineSection } from '@/components/home/timeline-section'
 import { Badge } from '@/components/shadcn-ui/badge'
 import { Button } from '@/components/shadcn-ui/button'
@@ -79,6 +80,12 @@ export default async function Home() {
           </Button>
         </div>
       </section>
+
+      <section className="space-y-6">
+        <PurposeNavigation />
+      </section>
+
+      <div className="py-2" />
 
       <NavigationGrid />
 

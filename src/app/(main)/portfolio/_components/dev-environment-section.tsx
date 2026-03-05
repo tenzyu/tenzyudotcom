@@ -1,4 +1,10 @@
 import { SectionHeader } from '@/components/common/section-header'
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/shadcn-ui/accordion'
 import { Badge } from '@/components/shadcn-ui/badge'
 import { Card, CardContent } from '@/components/shadcn-ui/card'
 
@@ -53,36 +59,46 @@ export function DevEnvironmentSection() {
         variant="underline"
       />
 
-      <div className="space-y-6">
-        {environments.map((env) => (
-          <Card key={env.title}>
-            <CardContent className="space-y-2 pt-6">
-              <h3 className="text-lg font-semibold">{env.title}</h3>
-              <p className="text-sm font-medium">{env.subtitle}</p>
-              <p className="text-muted-foreground text-sm leading-relaxed">
-                {env.description}
-              </p>
-              <div className="flex flex-wrap gap-2 pt-1">
-                <Badge variant="secondary">{env.os}</Badge>
-                <Badge variant="secondary">{env.role}</Badge>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      <Accordion type="single" collapsible className="w-full">
+        <AccordionItem value="environments">
+          <AccordionTrigger className="text-sm font-semibold hover:no-underline">
+            環境の詳細を表示
+          </AccordionTrigger>
+          <AccordionContent className="space-y-6 pt-4">
+            <div className="space-y-6">
+              {environments.map((env) => (
+                <Card key={env.title}>
+                  <CardContent className="space-y-2 pt-6">
+                    <h3 className="text-lg font-semibold">{env.title}</h3>
+                    <p className="text-sm font-medium">{env.subtitle}</p>
+                    <p className="text-muted-foreground text-sm leading-relaxed">
+                      {env.description}
+                    </p>
+                    <div className="flex flex-wrap gap-2 pt-1">
+                      <Badge variant="secondary">{env.os}</Badge>
+                      <Badge variant="secondary">{env.role}</Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
 
-      <Card className="bg-muted/20">
-        <CardContent className="space-y-3 pt-6">
-          <h3 className="text-sm font-semibold">ネットワーク接続構成</h3>
-          <ul className="text-muted-foreground list-inside list-disc space-y-1 text-sm">
-            <li>
-              neko5 から neko3 へ: Parsecによる低遅延リモートデスクトップ接続
-            </li>
-            <li>neko5 から neko6 へ: SSH接続によるCLI開発</li>
-            <li>neko5 から neko7 へ: SSH接続によるリモートデプロイ</li>
-          </ul>
-        </CardContent>
-      </Card>
+            <Card className="bg-muted/20">
+              <CardContent className="space-y-3 pt-6">
+                <h3 className="text-sm font-semibold">ネットワーク接続構成</h3>
+                <ul className="text-muted-foreground list-inside list-disc space-y-1 text-sm">
+                  <li>
+                    neko5 から neko3 へ:
+                    Parsecによる低遅延リモートデスクトップ接続
+                  </li>
+                  <li>neko5 から neko6 へ: SSH接続によるCLI開発</li>
+                  <li>neko5 から neko7 へ: SSH接続によるリモートデプロイ</li>
+                </ul>
+              </CardContent>
+            </Card>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </div>
   )
 }

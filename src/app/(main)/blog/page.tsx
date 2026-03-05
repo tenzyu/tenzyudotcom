@@ -8,7 +8,7 @@ export const dynamic = 'force-static'
 
 export const metadata: Metadata = {
   title: 'Blog',
-  description: '技術的な知見や日常の記録などを書き残します。',
+  description: 'osu! の記録、ツールやWeb技術、日常の気付きなどを書き残します。',
 }
 
 export default async function Page() {
@@ -18,7 +18,7 @@ export default async function Page() {
     <>
       <PageHeader
         title="Blog"
-        description="技術的な知見や日常の記録などを書き残します。"
+        description="osu! の記録、ツールやWeb技術、日常の気付きなどを書き残します。"
       />
       <div className="flex flex-col gap-y-4">
         {awaited_posts.map((post) => (

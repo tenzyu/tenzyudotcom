@@ -1,9 +1,12 @@
+export type LinkCategory = 'Watch' | 'Social' | 'Build' | 'Legacy'
+
 export type MyLink = {
   name: string
   id: string
   url: string
   shortenUrl: string
   icon: string
+  category: LinkCategory
 }
 
 export const MY_LINKS: MyLink[] = [
@@ -13,13 +16,7 @@ export const MY_LINKS: MyLink[] = [
     url: 'https://osu.ppy.sh/users/23318599',
     shortenUrl: 'osu',
     icon: 'osu',
-  },
-  {
-    name: 'Discord',
-    id: 'server',
-    url: 'https://discord.gg/vWEypRa86N',
-    shortenUrl: 'discord',
-    icon: 'discord',
+    category: 'Social',
   },
   {
     name: 'Twitch',
@@ -27,6 +24,7 @@ export const MY_LINKS: MyLink[] = [
     url: 'https://www.twitch.tv/tenzyudotcom',
     shortenUrl: 'twitch',
     icon: 'twitch',
+    category: 'Watch',
   },
   {
     name: 'YouTube',
@@ -34,20 +32,7 @@ export const MY_LINKS: MyLink[] = [
     url: 'https://www.youtube.com/@tenzyudotcom',
     shortenUrl: 'youtube',
     icon: 'youtube',
-  },
-  {
-    name: 'GitHub',
-    id: '@tenzyu',
-    url: 'https://github.com/tenzyu',
-    shortenUrl: 'github',
-    icon: 'github',
-  },
-  {
-    name: 'Reddit',
-    id: 'u/tenzyudotcom',
-    url: 'https://www.reddit.com/user/tenzyudotcom/',
-    shortenUrl: 'reddit',
-    icon: 'reddit',
+    category: 'Watch',
   },
   {
     name: 'X (Twitter)',
@@ -55,6 +40,31 @@ export const MY_LINKS: MyLink[] = [
     url: 'https://x.com/FlawInAffection',
     shortenUrl: 'x',
     icon: 'x',
+    category: 'Social',
+  },
+  {
+    name: 'Discord',
+    id: 'server',
+    url: 'https://discord.gg/vWEypRa86N',
+    shortenUrl: 'discord',
+    icon: 'discord',
+    category: 'Social',
+  },
+  {
+    name: 'Reddit',
+    id: 'u/tenzyudotcom',
+    url: 'https://www.reddit.com/user/tenzyudotcom/',
+    shortenUrl: 'reddit',
+    icon: 'reddit',
+    category: 'Social',
+  },
+  {
+    name: 'GitHub',
+    id: '@tenzyu',
+    url: 'https://github.com/tenzyu',
+    shortenUrl: 'github',
+    icon: 'github',
+    category: 'Build',
   },
   {
     name: 'Twitter (old)',
@@ -62,6 +72,7 @@ export const MY_LINKS: MyLink[] = [
     url: 'https://x.com/tenzyudotcom',
     shortenUrl: 'twitter',
     icon: 'x',
+    category: 'Legacy',
   },
   {
     name: 'Reddit (old)',
@@ -69,6 +80,7 @@ export const MY_LINKS: MyLink[] = [
     url: 'https://www.reddit.com/user/tenzyuosu/',
     shortenUrl: 'reddit-old',
     icon: 'reddit',
+    category: 'Legacy',
   },
   {
     name: 'Notion (old)',
@@ -76,5 +88,6 @@ export const MY_LINKS: MyLink[] = [
     url: 'https://tenzyu.notion.site/107cca384d6780e0a504f5ee28d9dd94?v=6fc3622a159f4671a7635ebd2e32e5b1',
     shortenUrl: 'osuhistorical',
     icon: 'notion',
+    category: 'Legacy',
   },
 ]
