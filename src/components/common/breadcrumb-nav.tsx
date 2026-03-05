@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import React, { useMemo } from 'react'
 
@@ -42,7 +43,9 @@ export function BreadcrumbNav() {
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink href="/">Home</BreadcrumbLink>
+            <BreadcrumbLink asChild>
+              <Link href="/">Home</Link>
+            </BreadcrumbLink>
           </BreadcrumbItem>
           {segments.map((segment) => (
             <React.Fragment key={segment.href}>
@@ -51,8 +54,8 @@ export function BreadcrumbNav() {
                 {segment.isLast ? (
                   <BreadcrumbPage>{segment.label}</BreadcrumbPage>
                 ) : (
-                  <BreadcrumbLink href={segment.href}>
-                    {segment.label}
+                  <BreadcrumbLink asChild>
+                    <Link href={segment.href}>{segment.label}</Link>
                   </BreadcrumbLink>
                 )}
               </BreadcrumbItem>
