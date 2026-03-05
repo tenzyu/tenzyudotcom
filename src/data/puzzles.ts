@@ -33,15 +33,15 @@ export const PUZZLE_CATEGORIES: PuzzleCategory[] = [
     description: 'iOS / Android で遊べる謎解きアプリ',
     puzzles: [
       {
-        title: 'pink',
+        title: 'green',
         links: [
           {
             platform: 'ios',
-            url: 'https://apps.apple.com/jp/app/pink-game/id1548980409',
+            url: 'https://apps.apple.com/jp/app/green-game/id1502106711',
           },
           {
             platform: 'android',
-            url: 'https://play.google.com/store/apps/details?id=air.com.bartbonte.pink',
+            url: 'https://play.google.com/store/apps/details?id=air.com.bartbonte.green',
           },
         ],
       },
@@ -59,15 +59,15 @@ export const PUZZLE_CATEGORIES: PuzzleCategory[] = [
         ],
       },
       {
-        title: 'green',
+        title: 'pink',
         links: [
           {
             platform: 'ios',
-            url: 'https://apps.apple.com/jp/app/green-game/id1502106711',
+            url: 'https://apps.apple.com/jp/app/pink-game/id1548980409',
           },
           {
             platform: 'android',
-            url: 'https://play.google.com/store/apps/details?id=air.com.bartbonte.green',
+            url: 'https://play.google.com/store/apps/details?id=air.com.bartbonte.pink',
           },
         ],
       },
