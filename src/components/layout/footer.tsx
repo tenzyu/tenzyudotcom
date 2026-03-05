@@ -21,9 +21,9 @@ const socialLinks = [
 
 export function Footer() {
   return (
-    <footer className="bg-background/80 w-full border-t py-6 backdrop-blur-sm">
-      <div className="container mx-auto px-4">
-        <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
+    <footer className="border-border/40 bg-background/50 w-full border-t py-12 backdrop-blur-md">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-12">
+        <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
           <div className="text-muted-foreground text-sm">
             © {new Date().getFullYear()} tenzyu
           </div>

@@ -28,12 +28,14 @@ export function NavigationGrid() {
         <Button
           key={item.href}
           variant="outline"
-          className="group hover:bg-primary hover:text-primary-foreground h-auto flex-col gap-3 rounded-2xl p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md"
+          className="group border-border/40 bg-card/40 hover:border-primary/40 hover:bg-primary/5 h-auto flex-col gap-4 rounded-3xl border p-6 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] backdrop-blur-md transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(255,255,255,0.04)]"
           asChild
         >
           <Link href={item.href}>
-            <item.icon className="h-6 w-6 opacity-70 transition-transform group-hover:scale-110 group-hover:opacity-100" />
-            <span className="text-sm font-bold tracking-wide">
+            <div className="bg-primary/10 group-hover:bg-primary flex h-12 w-12 items-center justify-center rounded-full transition-colors duration-500">
+              <item.icon className="text-primary group-hover:text-primary-foreground h-6 w-6 transition-colors duration-500" />
+            </div>
+            <span className="group-hover:text-primary text-sm font-bold tracking-wide transition-colors duration-500">
               {item.label}
             </span>
           </Link>

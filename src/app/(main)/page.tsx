@@ -17,49 +17,58 @@ export default async function Home() {
   return (
     <>
       {/* Hero & Profile Section */}
-      <section className="relative space-y-8 pt-8 text-center">
-        <div className="flex items-center">
-          <div className="border-background ring-primary/20 mx-auto h-36 w-36 overflow-hidden rounded-full border-2 shadow-2xl ring-4">
+      <section className="relative flex flex-col items-center justify-center gap-8 py-12 text-center sm:py-20">
+        <div className="relative mx-auto h-36 w-36 sm:h-44 sm:w-44">
+          <div className="bg-primary/20 absolute inset-0 animate-pulse rounded-full blur-3xl" />
+          <div className="border-border/50 bg-background relative h-full w-full overflow-hidden rounded-full border shadow-2xl ring-1 ring-black/5 transition-transform duration-700 hover:scale-105 dark:ring-white/5">
             <Image
               src="/images/ltvgbz.jpg"
               alt="Profile"
-              width={144}
-              height={144}
+              width={176}
+              height={176}
               priority
-              className="h-full w-full object-cover transition-transform duration-500 hover:scale-110"
+              className="h-full w-full object-cover"
             />
           </div>
-          <h1 className="text-center text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl">
-            <span className="from-primary bg-gradient-to-r via-purple-500 to-pink-500 bg-clip-text text-transparent drop-shadow-sm">
+        </div>
+
+        <div className="flex flex-col items-center space-y-4">
+          <h1 className="text-4xl font-extrabold tracking-tight text-balance sm:text-5xl md:text-7xl">
+            <span className="from-foreground via-foreground/90 to-muted-foreground bg-gradient-to-br bg-clip-text text-transparent drop-shadow-sm">
               {t('catchphrase')}
             </span>
           </h1>
         </div>
 
-        <div className="items-center justify-center space-y-6">
-          <div className="flex items-center gap-6">
-            <p className="text-foreground text-3xl font-bold">夢</p>
+        <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
+          <div className="border-border/40 bg-card/60 flex items-center gap-3 rounded-full border px-5 py-2 pr-3 shadow-sm backdrop-blur-md">
+            <span className="text-foreground text-sm font-bold tracking-widest">
+              夢
+            </span>
             <Badge
               variant="secondary"
-              className="items-center justify-center px-2 py-1 text-sm font-medium"
+              className="bg-primary/10 text-primary hover:bg-primary/20 border-none px-3 py-1 font-semibold tracking-wider uppercase transition-colors"
             >
               {t('realName')}
             </Badge>
-
-            <Button
-              asChild
-              className="group rounded-full shadow-md transition-all hover:shadow-lg"
-            >
-              <a
-                href="https://x.com/FlawInAffection"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2"
-              >
-                <span className="font-bold">FlawInAffection on X</span>
-              </a>
-            </Button>
           </div>
+
+          <Button
+            asChild
+            variant="outline"
+            className="group border-border/40 bg-card/60 hover:border-primary/40 hover:bg-primary/5 rounded-full px-6 shadow-sm backdrop-blur-md transition-all duration-300"
+          >
+            <a
+              href="https://x.com/FlawInAffection"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2"
+            >
+              <span className="text-muted-foreground group-hover:text-foreground font-semibold transition-colors">
+                @FlawInAffection
+              </span>
+            </a>
+          </Button>
         </div>
       </section>
 
