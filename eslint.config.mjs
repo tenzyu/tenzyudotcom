@@ -1,30 +1,22 @@
+import nextCoreWebVitals from 'eslint-config-next/core-web-vitals'
 import { dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { FlatCompat } from '@eslint/eslintrc'
-import js from '@eslint/js'
 import eslintConfigPrettier from 'eslint-config-prettier'
 import importPlugin from 'eslint-plugin-import'
 import unusedImportsPlugin from 'eslint-plugin-unused-imports'
 import tseslint from 'typescript-eslint'
 
-// chore {{{
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-})
-// }}}
-
 export default tseslint.config(
   // shadcn-ui はリント対象外
   { ignores: ['src/components/shadcn-ui/**'] },
+
+  ...nextCoreWebVitals,
 
   js.configs.recommended,
   tseslint.configs.recommended,
   tseslint.configs.strictTypeChecked,
   tseslint.configs.stylisticTypeChecked,
-  ...compat.extends('next/core-web-vitals'),
   eslintConfigPrettier,
 
   // @typescript-eslintに関する設定

@@ -1,10 +1,6 @@
 import withBundleAnalyzer from '@next/bundle-analyzer'
 import createMDX from '@next/mdx'
 import createNextIntlPlugin from 'next-intl/plugin'
-import rehypeAutolinkHeadings from 'rehype-autolink-headings'
-import rehypePrettyCode from 'rehype-pretty-code'
-import rehypeSlug from 'rehype-slug'
-import remarkGfm from 'remark-gfm'
 
 import type { NextConfig } from 'next'
 
@@ -67,11 +63,11 @@ const autolinkHeadingsOptions = {
 
 const withMDX = createMDX({
   options: {
-    remarkPlugins: [remarkGfm],
+    remarkPlugins: [['remark-gfm']],
     rehypePlugins: [
-      rehypeSlug,
-      [rehypePrettyCode, prettyCodeOptions],
-      [rehypeAutolinkHeadings, autolinkHeadingsOptions],
+      ['rehype-slug'],
+      ['rehype-pretty-code', prettyCodeOptions],
+      ['rehype-autolink-headings', autolinkHeadingsOptions],
     ],
   },
 })

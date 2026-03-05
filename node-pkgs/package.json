@@ -1,0 +1,9 @@
+{
+  "name": "cli-env",
+  "version": "1.0.0",
+  "private": "true",
+  "devDependencies": {
+    "@next/codemod": "16.1.6"
+  },
+  "scripts": {}
+}
