@@ -1,114 +1,111 @@
-import { ExternalLink } from 'lucide-react'
+import { ExternalLink as ExternalLinkIcon } from 'lucide-react'
+import Image from 'next/image'
 
-import { Badge } from '@/components/shadcn-ui/badge'
-import { Card } from '@/components/shadcn-ui/card'
+import { Button } from '@/components/shadcn-ui/button'
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/shadcn-ui/tooltip'
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/shadcn-ui/card'
 
-import type { Platform, Puzzle, PuzzleLink } from '@/data/puzzles'
+import type { Platform, PuzzleLink } from '@/data/puzzles'
+import type { OgpData } from '@/lib/ogp'
 
-const PLATFORM_LABELS: Record<Platform, string> = {
-  web: 'Web',
-  ios: 'iOS',
-  android: 'Android',
-  steam: 'Steam',
-  switch: 'Switch',
-  other: 'Other',
+const PLATFORM_CONFIG: Record<Platform, { ctaLabel: string; icon: string }> = {
+  web: { ctaLabel: 'ウェブで遊ぶ', icon: '🌐' },
+  ios: { ctaLabel: 'App Store で入手', icon: '🍎' },
+  android: { ctaLabel: 'Google Play で入手', icon: '▶️' },
+  steam: { ctaLabel: 'Steam で入手', icon: '🎮' },
+  switch: { ctaLabel: 'Nintendo eShop で入手', icon: '🕹️' },
+  other: { ctaLabel: 'リンクを開く', icon: '🔗' },
 }
 
-function PlatformBadge({ link }: { link: PuzzleLink }) {
+function PlatformButton({ link }: { link: PuzzleLink }) {
+  const config = PLATFORM_CONFIG[link.platform]
+
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Badge
-          variant="secondary"
-          className="hover:bg-primary hover:text-primary-foreground cursor-pointer text-xs transition-colors"
-        >
-          {PLATFORM_LABELS[link.platform]}
-        </Badge>
-      </TooltipTrigger>
-      <TooltipContent>
-        <p className="text-xs">{link.url}</p>
-      </TooltipContent>
-    </Tooltip>
+    <Button asChild>
+      <a
+        href={link.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="bg-secondary text-secondary-foreground hover:bg-primary hover:text-primary-foreground active:bg-primary/90 focus-visible:ring-ring group/btn inline-flex items-center gap-2 rounded-lg border border-transparent px-3 py-2 text-sm font-medium transition-colors hover:shadow-md focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+        aria-label={config.ctaLabel}
+      >
+        <span className="text-base leading-none" aria-hidden="true">
+          {config.icon}
+        </span>
+        <span>{config.ctaLabel}</span>
+        <ExternalLinkIcon
+          className="h-3.5 w-3.5 opacity-40 transition-opacity group-hover/btn:opacity-100"
+          aria-hidden="true"
+        />
+      </a>
+    </Button>
   )
 }
 
-export function PuzzleCard({ puzzle }: { puzzle: Puzzle }) {
-  const primaryUrl = puzzle.url ?? puzzle.links[0]?.url
-  const hasMultipleLinks = puzzle.links.length > 1
+export type PuzzleWithOgp = {
+  title: string
+  url?: string
+  links: PuzzleLink[]
+  ogp: OgpData
+}
 
-  const cardContent = (
-    <Card className="group hover:bg-accent hover:border-primary/30 flex items-center justify-between gap-4 p-4 shadow-sm transition-all">
-      <div className="flex items-center gap-3 overflow-hidden">
-        <ExternalLink className="text-muted-foreground group-hover:text-primary h-4 w-4 shrink-0 transition-colors" />
-        <span className="text-card-foreground group-hover:text-primary truncate font-medium transition-colors">
-          {puzzle.title}
-        </span>
-      </div>
-      <div className="flex shrink-0 items-center gap-1.5">
-        {hasMultipleLinks
-          ? puzzle.links.map((link) => (
-              <PlatformBadge key={link.platform} link={link} />
-            ))
-          : puzzle.links.map((link) => (
-              <Badge
-                key={link.platform}
-                variant="secondary"
-                className="text-xs"
+export function PuzzleCard({ puzzle }: { puzzle: PuzzleWithOgp }) {
+  const ogpDescription = puzzle.ogp.description
+  const ogpImage = puzzle.ogp.image
+
+  return (
+    <Card className="overflow-hidden p-0 shadow-sm transition-shadow hover:shadow-md">
+      <div className="flex flex-col sm:flex-row">
+        {/* OGP Image / Fallback */}
+        <div className="bg-muted relative aspect-[2/1] w-full shrink-0 sm:aspect-[4/3] sm:w-44">
+          {ogpImage ? (
+            <Image
+              src={ogpImage}
+              alt={`${puzzle.title} のサムネイル`}
+              fill
+              className="object-cover"
+              sizes="(max-width: 640px) 100vw, 176px"
+              unoptimized
+            />
+          ) : (
+            <div className="flex h-full items-center justify-center">
+              <span
+                className="text-muted-foreground/60 text-5xl"
+                aria-hidden="true"
               >
-                {PLATFORM_LABELS[link.platform]}
-              </Badge>
-            ))}
-        <span className="text-muted-foreground ml-1 opacity-0 transition-opacity group-hover:opacity-100">
-          &rarr;
-        </span>
+                🧩
+              </span>
+            </div>
+          )}
+        </div>
+
+        {/* Content */}
+        <div className="flex min-w-0 flex-1 flex-col justify-center gap-2 py-2">
+          <CardHeader className="gap-1">
+            <CardTitle className="text-lg leading-snug text-balance">
+              {puzzle.title}
+            </CardTitle>
+            {ogpDescription ? (
+              <CardDescription className="line-clamp-2 text-pretty">
+                {ogpDescription}
+              </CardDescription>
+            ) : null}
+          </CardHeader>
+
+          <CardContent className="">
+            <div className="flex flex-wrap gap-2">
+              {puzzle.links.map((link) => (
+                <PlatformButton key={link.platform} link={link} />
+              ))}
+            </div>
+          </CardContent>
+        </div>
       </div>
     </Card>
-  )
-
-  if (hasMultipleLinks) {
-    // Multiple links: card title links to primary URL, badges link individually
-    return primaryUrl ? (
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <a
-            href={primaryUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="block"
-          >
-            {cardContent}
-          </a>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p className="text-xs">{primaryUrl}</p>
-        </TooltipContent>
-      </Tooltip>
-    ) : (
-      <div className="block">{cardContent}</div>
-    )
-  }
-
-  // Single link: whole card is clickable
-  return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <a
-          href={primaryUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="block"
-        >
-          {cardContent}
-        </a>
-      </TooltipTrigger>
-      <TooltipContent>
-        <p className="text-xs">{primaryUrl}</p>
-      </TooltipContent>
-    </Tooltip>
   )
 }

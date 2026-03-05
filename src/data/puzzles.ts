@@ -37,7 +37,7 @@ export const PUZZLE_CATEGORIES: PuzzleCategory[] = [
         links: [
           {
             platform: 'ios',
-            url: 'https://apps.apple.com/pl/app/pink-game/id1548980409',
+            url: 'https://apps.apple.com/jp/app/pink-game/id1548980409',
           },
           {
             platform: 'android',
