@@ -32,7 +32,7 @@ export default function ErrorBoundary({ error, reset }: ErrorBoundaryProps) {
         )}
       </div>
       <Button
-        variant="outline"
+        variant="soft"
         onClick={() => {
           reset()
           toast.success('Retrying...')

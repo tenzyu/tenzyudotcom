@@ -37,7 +37,7 @@ export function LanguageSwitcher({ currentLocale }: { currentLocale: string }) {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
-          variant="outline"
+          variant="soft"
           className="gap-2 px-3"
           aria-label="Change language"
         >

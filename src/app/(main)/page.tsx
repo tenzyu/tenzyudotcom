@@ -31,17 +31,15 @@ export default async function Home() {
           </div>
         </div>
 
-        <div className="flex flex-col items-center space-y-4">
-          <h1 className="font-serif text-4xl font-black tracking-tighter text-balance sm:text-5xl md:text-7xl">
-            <span className="bg-linear-to-r from-pink-500 via-purple-500 to-indigo-500 bg-clip-text px-2 pb-2 text-transparent drop-shadow-sm dark:from-pink-400 dark:via-purple-400 dark:to-indigo-400">
-              {t('catchphrase')}
-            </span>
-          </h1>
-        </div>
+        <h1 className="font-serif text-4xl font-black tracking-tighter text-balance sm:text-5xl md:text-7xl">
+          <span className="bg-linear-to-r from-pink-500 via-purple-500 to-indigo-500 bg-clip-text px-2 pb-2 text-transparent drop-shadow-sm dark:from-pink-400 dark:via-purple-400 dark:to-indigo-400">
+            {t('catchphrase')}
+          </span>
+        </h1>
 
         <ButtonGroup className="mt-6 w-full max-w-sm flex-col items-center justify-center gap-3 sm:w-auto sm:max-w-none sm:flex-row">
           <Button
-            variant="secondary"
+            variant="soft"
             size="lg"
             className="w-full shadow-sm transition-transform hover:scale-105 sm:w-auto"
           >
@@ -62,7 +60,6 @@ export default async function Home() {
               href="https://x.com/FlawInAffection"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2"
             >
               <span className="font-bold tracking-widest">
                 @FlawInAffection
@@ -75,7 +72,7 @@ export default async function Home() {
           {t('slogan')}
         </span>
 
-        <Card variant="glass" className="w-full max-w-2xl">
+        <Card variant="soft" className="w-full max-w-2xl">
           <CardHeader>
             <CardTitle className="text-left text-xl font-bold tracking-tight">
               <div className="flex flex-wrap items-center gap-3">

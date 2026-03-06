@@ -26,7 +26,7 @@ function PlatformButton({ link }: { link: PuzzleLink }) {
   const config = PLATFORM_CONFIG[link.platform]
 
   return (
-    <Button variant="action" size="sm" className="group/btn gap-2" asChild>
+    <Button variant="soft" size="sm" className="group/btn gap-2" asChild>
       <a
         href={link.url}
         target="_blank"
@@ -96,7 +96,7 @@ export function PuzzleTile({ puzzle }: { puzzle: PuzzleWithOgp }) {
             ) : null}
           </CardHeader>
 
-          <CardContent className="">
+          <CardContent>
             <div className="flex flex-wrap gap-2">
               {puzzle.links.map((link) => (
                 <PlatformButton key={link.platform} link={link} />

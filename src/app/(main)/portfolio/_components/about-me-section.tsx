@@ -34,7 +34,7 @@ export const AboutMeSection: FC<Partial<AboutMeProps>> = ({
     },
   ],
 }) => (
-  <Card variant="glass" className="p-0">
+  <Card variant="soft" className="p-0">
     <CardContent className="flex flex-col items-start gap-6 pt-6 md:flex-row">
       <div className="shrink-0">
         <Image
@@ -58,8 +58,8 @@ export const AboutMeSection: FC<Partial<AboutMeProps>> = ({
           {links.map((link) => (
             <Button
               key={link.url}
-              variant="link"
-              className="h-auto p-0"
+              variant="ghost"
+              className="h-auto px-0 text-primary hover:bg-transparent hover:underline"
               asChild
             >
               <a

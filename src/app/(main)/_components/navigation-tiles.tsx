@@ -12,7 +12,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 
-import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 
 const NAV_GROUPS = [
@@ -68,13 +68,16 @@ export function NavigationTiles() {
           {/* content */}
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
             {group.items.map((item) => (
-              <Button
+              <Card
                 key={item.href}
-                variant="feature-card"
-                className="group h-auto w-full"
+                variant="interactive"
+                className="group h-auto w-full items-center gap-3 px-4 py-5 text-center"
                 asChild
               >
-                <Link href={item.href} className="flex flex-col items-center">
+                <Link
+                  href={item.href}
+                  className="flex flex-col items-center gap-3"
+                >
                   <div className="bg-primary/10 group-hover:bg-primary flex h-12 w-12 items-center justify-center rounded-full transition-colors duration-500">
                     <item.icon className="text-primary group-hover:text-primary-foreground h-6 w-6 transition-colors duration-500" />
                   </div>
@@ -82,7 +85,7 @@ export function NavigationTiles() {
                     {item.label}
                   </span>
                 </Link>
-              </Button>
+              </Card>
             ))}
           </div>
         </section>

@@ -36,9 +36,8 @@ const itemVariants = cva(
     variants: {
       variant: {
         default: 'bg-transparent',
-        outline: 'border-border',
-        muted: 'bg-muted/50',
-        card: 'border-border/50 bg-card/60 hover:border-primary/30 hover:bg-accent/40 hover:shadow-sm transition-all duration-200',
+        soft: 'bg-muted/50 border-border/40',
+        card: 'border-border/50 bg-card/70 hover:border-primary/30 hover:bg-accent/40 hover:shadow-sm transition-all duration-200',
       },
       size: {
         default: 'gap-4 p-4',
@@ -81,8 +80,6 @@ const itemMediaVariants = cva(
         icon: "size-8 rounded-sm border bg-muted [&_svg:not([class*='size-'])]:size-4",
         avatar:
           "size-10 rounded-full border border-border/60 bg-primary/5 [&_img]:size-5",
-        image:
-          'size-10 overflow-hidden rounded-sm [&_img]:size-full [&_img]:object-cover',
       },
     },
     defaultVariants: {

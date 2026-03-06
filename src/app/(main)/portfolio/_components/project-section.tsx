@@ -83,7 +83,11 @@ export function ProjectsSection() {
               </div>
               <div className="flex flex-wrap gap-4 pt-2 text-sm font-medium">
                 {project.github ? (
-                  <Button variant="link" asChild>
+                  <Button
+                    variant="ghost"
+                    className="h-auto px-0 text-primary hover:bg-transparent hover:underline"
+                    asChild
+                  >
                     <a
                       href={project.github}
                       target="_blank"
@@ -94,7 +98,11 @@ export function ProjectsSection() {
                   </Button>
                 ) : null}
                 {project.demo ? (
-                  <Button variant="link" asChild>
+                  <Button
+                    variant="ghost"
+                    className="h-auto px-0 text-primary hover:bg-transparent hover:underline"
+                    asChild
+                  >
                     <a
                       href={project.demo}
                       target="_blank"

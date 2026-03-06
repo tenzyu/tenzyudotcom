@@ -83,7 +83,7 @@ export function DevEnvironmentSection() {
               ))}
             </div>
 
-            <Card variant="outline">
+            <Card variant="soft">
               <CardContent className="space-y-3 pt-6">
                 <h3 className="text-sm font-semibold">ネットワーク接続構成</h3>
                 <ul className="text-muted-foreground list-inside list-disc space-y-1 text-sm">

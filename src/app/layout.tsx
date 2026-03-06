@@ -11,17 +11,13 @@ import { Header } from '@/components/site/header'
 import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
 
+import { Analytics } from '@vercel/analytics/react'
+import { SpeedInsights } from '@vercel/speed-insights/next'
+
 import type { Metadata } from 'next'
 import type React from 'react'
 
 import './globals.css'
-
-const Analytics = dynamic(() =>
-  import('@vercel/analytics/react').then((m) => m.Analytics),
-)
-const SpeedInsights = dynamic(() =>
-  import('@vercel/speed-insights/next').then((m) => m.SpeedInsights),
-)
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -107,11 +103,11 @@ export default async function RootLayout({
                   <TooltipProvider>{children}</TooltipProvider>
                   <BreadcrumbNav />
                 </Container>
-                <Analytics />
-                <SpeedInsights />
               </main>
               <Toaster />
               <Footer />
+              <Analytics />
+              <SpeedInsights />
             </div>
           </NextIntlClientProvider>
         </ThemeProvider>

@@ -11,7 +11,7 @@ type ShareButtonProps = {
 export function ShareButton({ icon, label, onClick }: ShareButtonProps) {
   return (
     <Button
-      variant="outline"
+      variant="soft"
       className="flex h-auto flex-col items-center gap-1 py-3"
       onClick={onClick}
     >

@@ -72,7 +72,7 @@ function SocialButton({
 }) {
   return (
     <Button
-      variant="outline"
+      variant="soft"
       className="flex w-full items-center justify-center gap-2"
       asChild
     >
