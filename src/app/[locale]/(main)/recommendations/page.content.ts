@@ -49,29 +49,29 @@ const recommendationsPageContent = {
       {
         id: 'tOWeLMJNYz4',
         note: t({
-          ja: '集中が切れた瞬間の空気を、静かに整え直してくれる一本。',
-          en: 'Resets the room when focus starts to fray.',
+          ja: '1:33 好きすぎる。集中力なくなって一日終わりだと思ったら聞いてます。',
+          en: 'Love the 1:33 mark. I listen when my focus is gone and I feel like the day is over.',
         }),
       },
       {
         id: 'L7giMsyfFQQ',
         note: t({
-          ja: '夜の作業前に流すと、音の温度がちょうどいい。',
-          en: 'Nighttime workflow: warm, steady, just right.',
+          ja: '言葉遊び楽しいなと思って聞いていたらそういう楽曲投稿祭があったらしい。',
+          en: 'I was enjoying the wordplay and found out there’s a song submission festival for that.',
         }),
       },
       {
         id: 'uIxtjaSJZmA',
         note: t({
-          ja: '考えが詰まったときの視点ずらしに効く。',
-          en: 'A small nudge when my thoughts get stuck.',
+          ja: '再生数が足りなさすぎる。',
+          en: 'Way too few views for this one.',
         }),
       },
       {
         id: 'ksdvNgqOToQ',
         note: t({
-          ja: '手を動かす日にちょうどいいテンポ感。',
-          en: 'Tempo that keeps my hands moving.',
+          ja: '同じフレーズを繰り返すだけの曲探してます。',
+          en: 'I’m looking for songs that just repeat the same phrase.',
         }),
       },
     ],

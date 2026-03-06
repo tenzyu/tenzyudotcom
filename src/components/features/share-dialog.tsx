@@ -79,7 +79,7 @@ export function ShareDialog({
         <div className="grid grid-cols-3 gap-4 py-4">
           <ShareButton
             icon={<Link className="h-5 w-5" />}
-            label={content.copy}
+            label={content.copy.value}
             onClick={() => {
               handleShare('copy')
             }}
@@ -93,7 +93,7 @@ export function ShareDialog({
           />
           <ShareButton
             icon={<Mail className="h-5 w-5" />}
-            label={content.email}
+            label={content.email.value}
             onClick={() => {
               handleShare('email')
             }}

@@ -1,37 +1,42 @@
-import {
-  IntlayerServerProvider,
-  getLocale,
-  useIntlayer,
-} from 'next-intlayer/server'
+import { IntlayerServerProvider, useIntlayer } from 'next-intlayer/server'
 
 import { PageHeader } from '@/components/site/page-header'
-import { YouTubePlaylist } from '@/components/features/social/youtube-playlist'
+import {
+  YouTubePlaylist,
+  type YouTubePlaylistItem,
+} from '@/components/features/social/youtube-playlist'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { fetchYouTubeVideoMeta } from '@/lib/youtube'
+import { getIntlayer } from 'intlayer'
+import { Metadata } from 'next'
+import { LocalPromiseParams, NextPageIntlayer } from 'next-intlayer'
 
-export async function generateMetadata() {
-  const locale = await getLocale()
-  const content = useIntlayer('recommendationsPage', locale)
+export async function generateMetadata({
+  params,
+}: LocalPromiseParams): Promise<Metadata> {
+  const { locale } = await params
+  const content = getIntlayer('recommendationsPage', locale)
 
   return {
-    title: content.metadata.title.value,
-    description: content.metadata.description.value,
+    title: content.metadata.title,
+    description: content.metadata.description,
   }
 }
 
-export default async function RecommendationsPage() {
-  const locale = await getLocale()
+const RecommendationsPage: NextPageIntlayer = async ({ params }) => {
+  const { locale } = await params
   const content = useIntlayer('recommendationsPage', locale)
   const viewLocale = locale === 'ja' ? 'ja-JP' : 'en-US'
-  const videosWithTitles = await Promise.all(
+  const videosWithTitles = await Promise.all<YouTubePlaylistItem>(
     content.videos.map(async (video) => {
       const { title, views } = await fetchYouTubeVideoMeta(
         video.id.value,
         viewLocale,
       )
+
       return {
-        id: video.id,
-        note: video.note,
+        id: video.id.value,
+        note: video.note.value,
         views,
         title,
       }
@@ -59,8 +64,7 @@ export default async function RecommendationsPage() {
 
         <TabsContent value="music" className="space-y-4 border-none p-0">
           <YouTubePlaylist
-            // TODO: any やめる
-            videos={videosWithTitles.values() as any}
+            videos={videosWithTitles}
             viewLabel={content.labels.views.value}
             commentLabel={content.labels.comment.value}
           />
@@ -69,3 +73,5 @@ export default async function RecommendationsPage() {
     </IntlayerServerProvider>
   )
 }
+
+export default RecommendationsPage

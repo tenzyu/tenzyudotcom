@@ -43,11 +43,11 @@ export function TwitterCarousel({ tweets, className }: TwitterCarouselProps) {
         </CarouselContent>
         <CarouselPrevious
           className="dark:bg-popover dark:text-popover-foreground absolute top-1/2 left-4 z-10 -translate-y-1/2 transform"
-          label={content.previous}
+          label={content.previous.value}
         />
         <CarouselNext
           className="dark:bg-popover dark:text-popover-foreground absolute top-1/2 right-4 z-10 -translate-y-1/2 transform"
-          label={content.next}
+          label={content.next.value}
         />
       </Carousel>
     </Content>

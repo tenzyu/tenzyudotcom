@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import type { ReactNode } from 'react'
 import { VisuallyHidden } from 'radix-ui'
 
 import {
@@ -13,7 +14,7 @@ import { OtakuAside } from '@/components/site/otaku-aside'
 export type YouTubePlaylistItem = {
   id: string
   title: string
-  note: string
+  note: ReactNode
   views: string
 }
 
@@ -29,10 +30,7 @@ type VideoDialogContentProps = {
   commentLabel: string
 }
 
-const VideoDialogContent = ({
-  video,
-  commentLabel,
-}: VideoDialogContentProps) => (
+const VideoDialogContent = ({ video }: VideoDialogContentProps) => (
   <DialogContent className="overflow-hidden p-0 sm:max-w-3xl">
     <VisuallyHidden.Root>
       <DialogTitle>{video.title}</DialogTitle>
