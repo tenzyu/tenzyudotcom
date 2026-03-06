@@ -1,5 +1,4 @@
 import Image from 'next/image'
-import Link from 'next/link'
 import { MapPin, Sparkles, Gamepad2 } from 'lucide-react'
 import { getTranslations } from 'next-intl/server'
 
@@ -13,7 +12,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/shadcn-ui/card'
-import { XIcon } from '@/components/common/social-icons'
 
 export default async function Home() {
   const t = await getTranslations('home')
