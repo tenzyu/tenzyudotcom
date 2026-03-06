@@ -1,7 +1,7 @@
 import { getTranslations } from 'next-intl/server'
 
 import { LinkList } from '@/components/features/links/link-list'
-import { ProfileCard } from '@/components/site/profile-card'
+import { ProfileCard } from './_components/profile-card'
 import { Section } from '@/components/site/section'
 import { TwitterCarousel } from '@/components/features/social/twitter-carousel'
 import { YouTubeCarousel } from '@/components/features/social/youtube-carousel'

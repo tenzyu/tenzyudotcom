@@ -1,4 +1,4 @@
-import { ActionLinkTile } from '@/components/site/action-link-tile'
+import { ActionLinkTile } from '../_components/action-link-tile'
 import { PageHeader } from '@/components/site/page-header'
 import { SectionHeader } from '@/components/site/section-header'
 import { DASHBOARD_DATA } from '@/data/pointers'

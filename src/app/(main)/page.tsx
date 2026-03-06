@@ -1,8 +1,8 @@
 import { Gamepad2, MapPin, Sparkles } from 'lucide-react'
 import { getTranslations } from 'next-intl/server'
 
-import { NavigationTiles } from '@/components/features/home/navigation-tiles'
-import { SelfieGallerySection } from '@/components/features/home/selfie-gallery-section'
+import { NavigationTiles } from './_components/navigation-tiles'
+import { SelfieGallerySection } from './_components/selfie-gallery-section'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'

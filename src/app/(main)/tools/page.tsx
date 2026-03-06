@@ -1,6 +1,6 @@
 import { Type } from 'lucide-react'
 
-import { ActionLinkTile } from '@/components/site/action-link-tile'
+import { ActionLinkTile } from '../_components/action-link-tile'
 import { PageHeader } from '@/components/site/page-header'
 
 import type { Metadata } from 'next'

@@ -1,4 +1,4 @@
-import { BlogTile } from '@/components/features/blog/blog-tile'
+import { BlogTile } from './_components/blog-tile'
 import { PageHeader } from '@/components/site/page-header'
 import { getBlogPosts } from '@/lib/blog/getBlogPosts'
 
