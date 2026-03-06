@@ -96,18 +96,20 @@ export default async function RootLayout({
         >
           <NextIntlClientProvider>
             <div className="flex min-h-screen flex-col">
-              <Header locale={locale} />
-              <main className="-mb-16 grow -translate-y-16 transform pt-16">
-                <Container>
-                  <BreadcrumbNav />
-                  <TooltipProvider>{children}</TooltipProvider>
-                  <BreadcrumbNav />
-                </Container>
-              </main>
-              <Toaster />
-              <Footer />
-              <Analytics />
-              <SpeedInsights />
+              <TooltipProvider>
+                <Header locale={locale} />
+                <main className="-mb-16 grow -translate-y-16 transform pt-16">
+                  <Container>
+                    <BreadcrumbNav />
+                    {children}
+                    <BreadcrumbNav />
+                  </Container>
+                </main>
+                <Toaster />
+                <Footer />
+                <Analytics />
+                <SpeedInsights />
+              </TooltipProvider>
             </div>
           </NextIntlClientProvider>
         </ThemeProvider>
