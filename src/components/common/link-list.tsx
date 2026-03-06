@@ -1,12 +1,12 @@
-import { MY_LINKS, type LinkCategory, type MyLink } from '@/data/links'
+import { MY_LINKS, type LinkCategory } from '@/data/links'
 
 import { LinkCard } from './link-card'
 
 const CATEGORIES: { label: string; value: LinkCategory }[] = [
-  { label: 'Watch 📺', value: 'Watch' },
-  { label: 'Social 🌐', value: 'Social' },
-  { label: 'Build 🛠️', value: 'Build' },
-  { label: 'Legacy 🏛️', value: 'Legacy' },
+  { label: '📺 Watch', value: 'Watch' },
+  { label: '🌐 Social', value: 'Social' },
+  { label: '🛠️ Build', value: 'Build' },
+  { label: '🏛️ Legacy', value: 'Legacy' },
 ]
 
 export function LinkList() {
@@ -16,7 +16,7 @@ export function LinkList() {
   }))
 
   return (
-    <div className="mx-auto w-full max-w-4xl space-y-12">
+    <div className="mx-auto w-full max-w-4xl space-y-6">
       {groupedLinks.map(
         (group) =>
           group.links.length > 0 && (

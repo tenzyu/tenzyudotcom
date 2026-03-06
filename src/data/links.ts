@@ -35,7 +35,7 @@ export const MY_LINKS: MyLink[] = [
     category: 'Watch',
   },
   {
-    name: 'X (Twitter)',
+    name: 'X',
     id: '@FlawInAffection',
     url: 'https://x.com/FlawInAffection',
     shortenUrl: 'x',
@@ -67,7 +67,15 @@ export const MY_LINKS: MyLink[] = [
     category: 'Build',
   },
   {
-    name: 'Twitter (old)',
+    name: 'GitHub',
+    id: '@tenzyulab',
+    url: 'https://github.com/tenzyulab',
+    shortenUrl: 'tenzyulab',
+    icon: 'github',
+    category: 'Build',
+  },
+  {
+    name: 'X',
     id: '@tenzyudotcom',
     url: 'https://x.com/tenzyudotcom',
     shortenUrl: 'twitter',
@@ -75,7 +83,7 @@ export const MY_LINKS: MyLink[] = [
     category: 'Legacy',
   },
   {
-    name: 'Reddit (old)',
+    name: 'Reddit',
     id: 'tenzyuosu',
     url: 'https://www.reddit.com/user/tenzyuosu/',
     shortenUrl: 'reddit-old',
@@ -83,7 +91,7 @@ export const MY_LINKS: MyLink[] = [
     category: 'Legacy',
   },
   {
-    name: 'Notion (old)',
+    name: 'Notion',
     id: 'osu! beatmaps for beginners',
     url: 'https://tenzyu.notion.site/107cca384d6780e0a504f5ee28d9dd94?v=6fc3622a159f4671a7635ebd2e32e5b1',
     shortenUrl: 'osuhistorical',
