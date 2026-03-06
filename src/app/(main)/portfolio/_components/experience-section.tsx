@@ -1,5 +1,5 @@
-import { SectionHeader } from '@/components/common/section-header'
-import { Badge } from '@/components/shadcn-ui/badge'
+import { SectionHeader } from '@/components/site/section-header'
+import { Badge } from '@/components/ui/badge'
 
 export type Experience = {
   company: string

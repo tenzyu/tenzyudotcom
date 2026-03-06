@@ -1,4 +1,4 @@
-import type { TweetData } from '@/components/social/twitter-carousel'
+import type { TweetData } from '@/components/features/social/twitter-carousel'
 
 export const TWEETS: TweetData[] = [
   {

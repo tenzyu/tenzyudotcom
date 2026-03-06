@@ -4,13 +4,13 @@ import { ChevronDown, Globe } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useTransition } from 'react'
 
-import { Button } from '@/components/shadcn-ui/button'
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/shadcn-ui/dropdown-menu'
+} from '@/components/ui/dropdown-menu'
 
 const LANGUAGES = [
   { label: '日本語', value: 'ja', short: 'JA' },

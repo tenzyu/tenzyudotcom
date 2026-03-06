@@ -1,10 +1,10 @@
 import { getTranslations } from 'next-intl/server'
 
-import { LinkList } from '@/components/common/link-list'
-import { ProfileCard } from '@/components/common/profile-card'
-import { Section } from '@/components/common/section'
-import { TwitterCarousel } from '@/components/social/twitter-carousel'
-import { YouTubeCarousel } from '@/components/social/youtube-carousel'
+import { LinkList } from '@/components/features/links/link-list'
+import { ProfileCard } from '@/components/site/profile-card'
+import { Section } from '@/components/site/section'
+import { TwitterCarousel } from '@/components/features/social/twitter-carousel'
+import { YouTubeCarousel } from '@/components/features/social/youtube-carousel'
 
 import type { Metadata } from 'next'
 import type { PropsWithChildren } from 'react'

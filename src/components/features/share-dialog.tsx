@@ -4,16 +4,16 @@ import { Link, Mail, Share2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
-import { ShareButton } from '@/components/common/share-button'
-import { XIcon } from '@/components/common/social-icons'
-import { Button } from '@/components/shadcn-ui/button'
+import { ShareButton } from '@/components/site/share-button'
+import { XIcon } from '@/components/site/social-icons'
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/shadcn-ui/dialog'
+} from '@/components/ui/dialog'
 import { cn } from '@/lib/utils'
 import { shareContent } from '@/lib/utils/share'
 

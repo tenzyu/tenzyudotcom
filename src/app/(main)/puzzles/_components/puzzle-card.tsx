@@ -1,14 +1,14 @@
 import { ExternalLink as ExternalLinkIcon } from 'lucide-react'
 import Image from 'next/image'
 
-import { Button } from '@/components/shadcn-ui/button'
+import { Button } from '@/components/ui/button'
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/shadcn-ui/card'
+} from '@/components/ui/card'
 
 import type { Platform, PuzzleLink } from '@/data/puzzles'
 import type { OgpData } from '@/lib/ogp'
@@ -26,12 +26,12 @@ function PlatformButton({ link }: { link: PuzzleLink }) {
   const config = PLATFORM_CONFIG[link.platform]
 
   return (
-    <Button asChild>
+    <Button variant="action" asChild>
       <a
         href={link.url}
         target="_blank"
         rel="noopener noreferrer"
-        className="bg-secondary text-secondary-foreground hover:bg-primary hover:text-primary-foreground active:bg-primary/90 focus-visible:ring-ring group/btn inline-flex items-center gap-2 rounded-lg border border-transparent px-3 py-2 text-sm font-medium transition-colors hover:shadow-md focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+        className="group/btn inline-flex items-center gap-2 px-3 py-2 text-sm font-medium focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
         aria-label={config.ctaLabel}
       >
         <span className="text-base leading-none" aria-hidden="true">

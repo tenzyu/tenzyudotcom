@@ -1,5 +1,5 @@
-import { LinkList } from '@/components/common/link-list'
-import { PageHeader } from '@/components/common/page-header'
+import { LinkList } from '@/components/features/links/link-list'
+import { PageHeader } from '@/components/site/page-header'
 
 import type { Metadata } from 'next'
 

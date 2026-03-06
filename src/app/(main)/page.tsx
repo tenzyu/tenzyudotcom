@@ -2,16 +2,11 @@ import Image from 'next/image'
 import { MapPin, Sparkles, Gamepad2 } from 'lucide-react'
 import { getTranslations } from 'next-intl/server'
 
-import { NavigationGrid } from '@/components/home/navigation-grid'
-import { SelfieSection } from '@/components/home/selfie-section'
-import { Badge } from '@/components/shadcn-ui/badge'
-import { Button } from '@/components/shadcn-ui/button'
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/components/shadcn-ui/card'
+import { NavigationGrid } from '@/components/features/home/navigation-grid'
+import { SelfieSection } from '@/components/features/home/selfie-section'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 export default async function Home() {
   const t = await getTranslations('home')

@@ -3,8 +3,8 @@ import Image from 'next/image'
 import { Suspense } from 'react'
 
 import { getUserScores } from '@/app/archives/osu-profile/_lib'
-import { Card, CardContent, CardTitle } from '@/components/shadcn-ui/card'
-import { Skeleton } from '@/components/shadcn-ui/skeleton'
+import { Card, CardContent, CardTitle } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 
 import type { Score } from 'osu-api-v2-js'

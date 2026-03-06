@@ -1,4 +1,4 @@
-import type { YouTubeVideo } from '@/components/social/youtube-carousel'
+import type { YouTubeVideo } from '@/components/features/social/youtube-carousel'
 
 export const YOUTUBE_PERSONAL_BEST_HISTORY: YouTubeVideo[] = [
   {

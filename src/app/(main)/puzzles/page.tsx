@@ -1,5 +1,5 @@
-import { PageHeader } from '@/components/common/page-header'
-import { SectionHeader } from '@/components/common/section-header'
+import { PageHeader } from '@/components/site/page-header'
+import { SectionHeader } from '@/components/site/section-header'
 import { PUZZLE_CATEGORIES } from '@/data/puzzles'
 import { fetchOgp } from '@/lib/ogp'
 

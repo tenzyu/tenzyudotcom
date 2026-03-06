@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction } from 'react'
 
-import { Input } from '@/components/shadcn-ui/input'
+import { Input } from '@/components/ui/input'
 
 type SettingsPanelProps = {
   fontSize: number

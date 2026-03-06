@@ -1,7 +1,7 @@
 import { Check, Copy } from 'lucide-react'
 
-import { Button } from '@/components/shadcn-ui/button'
-import { Textarea } from '@/components/shadcn-ui/textarea'
+import { Button } from '@/components/ui/button'
+import { Textarea } from '@/components/ui/textarea'
 
 type PreviewPanelProps = {
   outputText: string

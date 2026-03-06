@@ -6,7 +6,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/shadcn-ui/card'
+} from '@/components/ui/card'
 
 import { ControlPanel } from './_components/control-panel'
 import { PreviewPanel } from './_components/preview-panel'

@@ -3,7 +3,7 @@
 import { useEffect } from 'react'
 import { toast } from 'sonner'
 
-import { Button } from '@/components/shadcn-ui/button'
+import { Button } from '@/components/ui/button'
 
 type ErrorBoundaryProps = {
   error: Error & { digest?: string }

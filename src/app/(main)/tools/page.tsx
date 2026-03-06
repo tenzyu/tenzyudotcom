@@ -1,7 +1,7 @@
 import { Type } from 'lucide-react'
 
-import { ActionLinkCard } from '@/components/common/action-link-card'
-import { PageHeader } from '@/components/common/page-header'
+import { ActionLinkCard } from '@/components/site/action-link-card'
+import { PageHeader } from '@/components/site/page-header'
 
 import type { Metadata } from 'next'
 

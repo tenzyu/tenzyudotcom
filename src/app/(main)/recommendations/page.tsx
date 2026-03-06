@@ -1,12 +1,7 @@
-import { PageHeader } from '@/components/common/page-header'
-import { Card } from '@/components/shadcn-ui/card'
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from '@/components/shadcn-ui/tabs'
-import { YouTubeCarousel } from '@/components/social/youtube-carousel'
+import { PageHeader } from '@/components/site/page-header'
+import { Card } from '@/components/ui/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { YouTubeCarousel } from '@/components/features/social/youtube-carousel'
 import { HOME_VIDEOS } from '@/data/home'
 import { fetchYouTubeTitle } from '@/lib/youtube'
 

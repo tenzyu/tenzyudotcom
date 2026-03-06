@@ -1,6 +1,6 @@
-import { SectionHeader } from '@/components/common/section-header'
-import { Badge } from '@/components/shadcn-ui/badge'
-import { Button } from '@/components/shadcn-ui/button'
+import { SectionHeader } from '@/components/site/section-header'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 
 export type Project = {
   name: string
@@ -77,7 +77,7 @@ export function ProjectsSection() {
             </div>
             <div className="flex flex-wrap gap-4 pt-2 text-sm font-medium">
               {project.github ? (
-                <Button variant="link" className="h-auto p-0" asChild>
+                <Button variant="link" asChild>
                   <a
                     href={project.github}
                     target="_blank"
@@ -88,7 +88,7 @@ export function ProjectsSection() {
                 </Button>
               ) : null}
               {project.demo ? (
-                <Button variant="link" className="h-auto p-0" asChild>
+                <Button variant="link" asChild>
                   <a
                     href={project.demo}
                     target="_blank"

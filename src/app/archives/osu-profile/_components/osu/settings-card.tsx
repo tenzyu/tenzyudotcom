@@ -1,6 +1,6 @@
 import { ReactNode } from 'react'
 
-import { Card, CardContent, CardTitle } from '@/components/shadcn-ui/card'
+import { Card, CardContent, CardTitle } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 
 type SettingsCardProps = {

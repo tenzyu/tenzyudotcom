@@ -1,6 +1,6 @@
 import Link from 'next/link'
 
-import { PageHeader } from '@/components/common/page-header'
+import { PageHeader } from '@/components/site/page-header'
 
 import type { Metadata } from 'next'
 

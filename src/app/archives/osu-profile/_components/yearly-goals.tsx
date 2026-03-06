@@ -2,12 +2,7 @@
 
 import { useLocale } from 'next-intl'
 
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableRow,
-} from '@/components/shadcn-ui/table'
+import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
 
 import type { SupportedLang } from '@/i18n/request'

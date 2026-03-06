@@ -1,5 +1,5 @@
-import { BlogCard } from '@/components/blog/blog-card'
-import { PageHeader } from '@/components/common/page-header'
+import { BlogCard } from '@/components/features/blog/blog-card'
+import { PageHeader } from '@/components/site/page-header'
 import { getBlogPosts } from '@/lib/blog/getBlogPosts'
 
 import type { Metadata } from 'next'

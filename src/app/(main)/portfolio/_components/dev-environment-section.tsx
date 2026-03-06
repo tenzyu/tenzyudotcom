@@ -1,12 +1,12 @@
-import { SectionHeader } from '@/components/common/section-header'
+import { SectionHeader } from '@/components/site/section-header'
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from '@/components/shadcn-ui/accordion'
-import { Badge } from '@/components/shadcn-ui/badge'
-import { Card, CardContent } from '@/components/shadcn-ui/card'
+} from '@/components/ui/accordion'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent } from '@/components/ui/card'
 
 type Environment = {
   title: string

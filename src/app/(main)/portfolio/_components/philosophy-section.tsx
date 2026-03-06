@@ -1,4 +1,4 @@
-import { SectionHeader } from '@/components/common/section-header'
+import { SectionHeader } from '@/components/site/section-header'
 
 export function PhilosophySection() {
   return (
