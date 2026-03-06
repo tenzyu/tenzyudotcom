@@ -59,7 +59,7 @@ export default async function ToolsPage() {
                 <OtakuAside label={commentLabel}>
                   {isJa ? tool.note.ja : tool.note.en}
                 </OtakuAside>
-                <Button asChild variant="soft" size="sm">
+                <Button asChild variant="soft" size="sm" className="w-full justify-center">
                   <Link href={tool.href}>Open tool</Link>
                 </Button>
               </CardContent>
