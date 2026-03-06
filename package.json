@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "bunx @react-grab/codex@latest && next dev",
+    "dev": "bunx @react-grab/codex@latest && intlayer watch --with 'next dev'",
     "build": "rimraf .next && next build",
     "start": "next start",
     "lint": "eslint .",
@@ -54,6 +54,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.3",
+    "@intlayer/swc": "^8.2.2",
     "@mdx-js/loader": "^3.1.1",
     "@mdx-js/mdx": "^3.1.1",
     "@mdx-js/react": "^3.1.1",
@@ -78,6 +79,7 @@
     "i18n-locale-lint": "^0.3.5",
     "intlayer": "^8.2.2",
     "lint-staged": "^15.5.2",
+    "next-intlayer": "^8.2.2",
     "picomatch": "^4.0.3",
     "prettier": "^3.8.1",
     "prettier-plugin-tailwindcss": "^0.6.14",

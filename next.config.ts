@@ -1,3 +1,4 @@
+import { withIntlayer } from 'next-intlayer/server'
 import withBundleAnalyzer from '@next/bundle-analyzer'
 import createMDX from '@next/mdx'
 import createNextIntlPlugin from 'next-intl/plugin'
@@ -74,6 +75,8 @@ const withMDX = createMDX({
 
 const withNextIntl = createNextIntlPlugin()
 
-export default withBundleAnalyzer({
-  enabled: process.env.ANALYZE === 'true',
-})(withNextIntl(withMDX(nextConfig)))
+export default withIntlayer(
+  withBundleAnalyzer({
+    enabled: process.env.ANALYZE === 'true',
+  })(withNextIntl(withMDX(nextConfig))),
+)
