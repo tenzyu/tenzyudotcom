@@ -34,15 +34,20 @@ export default async function Home() {
         </div>
 
         <div className="flex flex-col items-center space-y-4">
-          <h1 className="text-4xl font-extrabold tracking-tight text-balance sm:text-5xl md:text-7xl">
-            <span className="from-foreground via-foreground/90 to-muted-foreground bg-gradient-to-br bg-clip-text text-transparent drop-shadow-sm">
+          <h1 className="font-serif text-4xl font-black tracking-tighter text-balance sm:text-5xl md:text-7xl">
+            <span className="bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 bg-clip-text px-2 pb-2 text-transparent drop-shadow-sm dark:from-pink-400 dark:via-purple-400 dark:to-indigo-400">
               {t('catchphrase')}
             </span>
           </h1>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 pt-2">
-          <Button asChild variant="default" size="lg">
+        <div className="mt-6 flex w-full max-w-sm flex-col items-center justify-center gap-4 sm:w-auto sm:max-w-none sm:flex-row">
+          <Button
+            asChild
+            variant="default"
+            size="lg"
+            className="w-full shadow-md transition-transform hover:scale-105 sm:w-auto"
+          >
             <a
               href="https://x.com/FlawInAffection"
               target="_blank"
@@ -55,15 +60,24 @@ export default async function Home() {
             </a>
           </Button>
 
-          <Button variant="secondary" size="lg">
+          <Button
+            variant="secondary"
+            size="lg"
+            className="w-full shadow-sm transition-transform hover:scale-105 sm:w-auto"
+          >
             <span className="text-foreground text-sm font-bold tracking-widest">
               夢
             </span>
-            <Badge variant="outline">{t('realName')}</Badge>
+            <Badge
+              variant="outline"
+              className="bg-background/50 border-border ml-1"
+            >
+              {t('realName')}
+            </Badge>
           </Button>
         </div>
 
-        <span className="text-muted-foreground text-sm font-medium italic">
+        <span className="bg-gradient-to-r from-teal-500 to-blue-500 bg-clip-text font-serif text-sm font-medium text-transparent italic drop-shadow-sm dark:from-teal-400 dark:to-blue-400">
           {t('slogan')}
         </span>
 
