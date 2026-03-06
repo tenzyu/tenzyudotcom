@@ -1,4 +1,5 @@
 import dynamic from 'next/dynamic'
+import Script from "next/script";
 import { Geist, Geist_Mono } from 'next/font/google'
 import { NextIntlClientProvider } from 'next-intl'
 import { getLocale } from 'next-intl/server'
@@ -81,6 +82,19 @@ export default async function RootLayout({
   return (
     <html lang={locale} suppressHydrationWarning>
       <head>
+        {process.env.NODE_ENV === "development" && (
+          <Script
+            src="//unpkg.com/react-grab/dist/index.global.js"
+            crossOrigin="anonymous"
+            strategy="beforeInteractive"
+          />
+        )}
+        {process.env.NODE_ENV === "development" && (
+          <Script
+            src="//unpkg.com/@react-grab/codex/dist/client.global.js"
+            strategy="lazyOnload"
+          />
+        )}
         <link rel="preconnect" href="https://img.youtube.com" />
         <link rel="preconnect" href="https://pbs.twimg.com" />
         <link rel="preconnect" href="https://assets.ppy.sh" />

@@ -10,10 +10,3 @@ export const HOME_SELFIES: SelfiesData[] = [
   { id: '2000244564473549114' },
   { id: '2001518051955793947' },
 ]
-
-export const HOME_VIDEOS = [
-  { id: 'tOWeLMJNYz4' },
-  { id: 'L7giMsyfFQQ' },
-  { id: 'uIxtjaSJZmA' },
-  { id: 'ksdvNgqOToQ' },
-]
