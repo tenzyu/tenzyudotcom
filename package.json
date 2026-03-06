@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "REACT_EDITOR=codex bunx @react-grab/codex@latest && next dev",
+    "dev": "bunx @react-grab/codex@latest && next dev",
     "build": "rimraf .next && next build",
     "start": "next start",
     "lint": "eslint .",
