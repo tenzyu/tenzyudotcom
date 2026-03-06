@@ -3,15 +3,16 @@ import Image from 'next/image'
 import { useIntlayer } from 'next-intlayer/server'
 import { Suspense } from 'react'
 
-import { ID_OSU } from '@/app/[locale]/archives/osu-profile/_data/osu'
-import { getUser } from '@/app/[locale]/archives/osu-profile/_lib'
 import { Content } from '@/components/site/content'
 import { ExternalLink } from '@/components/site/external-link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 
-const LoadingComponent = async () => {
+import { ID_OSU } from '../_data/osu'
+import { getUser } from '../_lib'
+
+const LoadingComponent = () => {
   const profile = useIntlayer('profile')
 
   return (
@@ -60,7 +61,7 @@ function ProfileImage() {
       className="border-background rounded-full border-4 bg-white shadow-md"
       priority={false}
       loading="eager"
-      quality={90}
+      quality={75}
     />
   )
 }
