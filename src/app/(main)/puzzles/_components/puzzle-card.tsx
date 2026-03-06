@@ -62,7 +62,7 @@ export function PuzzleCard({ puzzle }: { puzzle: PuzzleWithOgp }) {
     <Card className="overflow-hidden p-0 shadow-sm transition-shadow hover:shadow-md">
       <div className="flex flex-col sm:flex-row">
         {/* OGP Image / Fallback */}
-        <div className="bg-muted relative aspect-[2/1] w-full shrink-0 sm:aspect-[4/3] sm:w-44">
+        <div className="bg-muted relative aspect-2/1 w-full shrink-0 sm:aspect-4/3 sm:w-44">
           {ogpImage ? (
             <Image
               src={ogpImage}

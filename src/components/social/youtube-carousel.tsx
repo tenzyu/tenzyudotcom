@@ -34,7 +34,7 @@ type VideoThumbnailProps = {
 
 const VideoThumbnail = ({ video, isShort }: VideoThumbnailProps) => (
   <div className="group relative cursor-pointer overflow-hidden rounded-lg">
-    <div className={cn('relative', isShort ? 'aspect-[9/16]' : 'aspect-video')}>
+    <div className={cn('relative', isShort ? 'aspect-9/16' : 'aspect-video')}>
       <Image
         src={`https://img.youtube.com/vi/${video.id}/maxresdefault.jpg`}
         alt={video.title}
@@ -92,7 +92,7 @@ const VideoDialogContent = ({ video, isShort }: VideoDialogContentProps) => (
       className={cn(
         'mx-auto',
         isShort
-          ? 'aspect-[9/16] w-full max-w-[350px]'
+          ? 'aspect-9/16 w-full max-w-[350px]'
           : 'aspect-video w-full md:p-5',
       )}
     >
