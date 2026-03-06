@@ -103,7 +103,7 @@ export const ProfileCard = async () => {
   return (
     <Card className="mx-auto w-full max-w-2xl overflow-hidden pt-0">
       <div
-        className="bg-muted relative aspect-[16/9] overflow-hidden"
+        className="bg-muted relative aspect-video overflow-hidden"
         aria-label={t('profile.loading.gameplay')}
         role="figure"
       >
