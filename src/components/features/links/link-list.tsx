@@ -1,6 +1,6 @@
 import { MY_LINKS, type LinkCategory } from '@/data/links'
 
-import { LinkCard } from './link-card'
+import { LinkTile } from './link-tile'
 import { ItemGroup } from '@/components/ui/item'
 import { SectionHeader } from '@/components/site/section-header'
 const CATEGORIES: { label: string; value: LinkCategory }[] = [
@@ -30,7 +30,7 @@ export function LinkList() {
               <nav aria-label={`${group.label} links`}>
                 <ItemGroup className="xs:grid-cols-2 grid grid-cols-1 gap-4 p-0 sm:grid-cols-3">
                   {group.links.map((link) => (
-                    <LinkCard key={link.shortenUrl} link={link} />
+                    <LinkTile key={link.shortenUrl} link={link} />
                   ))}
                 </ItemGroup>
               </nav>

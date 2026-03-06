@@ -1,8 +1,8 @@
 import { Gamepad2, MapPin, Sparkles } from 'lucide-react'
 import { getTranslations } from 'next-intl/server'
 
-import { NavigationGrid } from '@/components/features/home/navigation-grid'
-import { SelfieSection } from '@/components/features/home/selfie-section'
+import { NavigationTiles } from '@/components/features/home/navigation-tiles'
+import { SelfieGallerySection } from '@/components/features/home/selfie-gallery-section'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -117,11 +117,14 @@ export default async function Home() {
 
       <div className="py-4" />
 
-      <NavigationGrid />
+      <NavigationTiles />
 
       <div className="py-4" />
 
-      <SelfieSection title={t('timeline')} description={t('timelineDesc')} />
+      <SelfieGallerySection
+        title={t('timeline')}
+        description={t('timelineDesc')}
+      />
     </>
   )
 }

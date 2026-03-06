@@ -11,7 +11,7 @@ import {
 
 import type { MyLink } from '@/data/links'
 
-type LinkCardProps = {
+type LinkTileProps = {
   link: MyLink
 }
 
@@ -28,7 +28,7 @@ function LinkIcon({ icon }: { icon: string }) {
   )
 }
 
-export function LinkCard({ link }: LinkCardProps) {
+export function LinkTile({ link }: LinkTileProps) {
   return (
     <Item asChild variant="card" className="w-full">
       <Link

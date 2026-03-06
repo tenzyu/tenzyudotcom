@@ -1,4 +1,4 @@
-import { BlogCard } from '@/components/features/blog/blog-card'
+import { BlogTile } from '@/components/features/blog/blog-tile'
 import { PageHeader } from '@/components/site/page-header'
 import { getBlogPosts } from '@/lib/blog/getBlogPosts'
 
@@ -22,7 +22,7 @@ export default async function Page() {
       />
       <div className="flex flex-col gap-y-4">
         {awaited_posts.map((post) => (
-          <BlogCard key={post.slug} {...post.metadata} slug={post.slug} />
+          <BlogTile key={post.slug} {...post.metadata} slug={post.slug} />
         ))}
       </div>
     </>

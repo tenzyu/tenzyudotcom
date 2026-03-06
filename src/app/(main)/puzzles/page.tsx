@@ -3,10 +3,10 @@ import { SectionHeader } from '@/components/site/section-header'
 import { PUZZLE_CATEGORIES } from '@/data/puzzles'
 import { fetchOgp } from '@/lib/ogp'
 
-import type { PuzzleWithOgp } from './_components/puzzle-card'
+import type { PuzzleWithOgp } from './_components/puzzle-tile'
 import type { Metadata } from 'next'
 
-import { PuzzleCard } from './_components/puzzle-card'
+import { PuzzleTile } from './_components/puzzle-tile'
 
 export const dynamic = 'force-static'
 
@@ -67,7 +67,7 @@ export default async function PuzzlesPage() {
               />
               <div className="grid gap-4">
                 {category.puzzles.map((puzzle) => (
-                  <PuzzleCard key={puzzle.title} puzzle={puzzle} />
+                  <PuzzleTile key={puzzle.title} puzzle={puzzle} />
                 ))}
               </div>
             </section>

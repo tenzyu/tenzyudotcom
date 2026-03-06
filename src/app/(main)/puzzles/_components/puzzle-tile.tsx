@@ -53,7 +53,7 @@ export type PuzzleWithOgp = {
   ogp: OgpData
 }
 
-export function PuzzleCard({ puzzle }: { puzzle: PuzzleWithOgp }) {
+export function PuzzleTile({ puzzle }: { puzzle: PuzzleWithOgp }) {
   const ogpDescription = puzzle.ogp.description
   const ogpImage = puzzle.ogp.image
 

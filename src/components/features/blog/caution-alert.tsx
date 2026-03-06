@@ -10,7 +10,7 @@ type CautionProps = {
   description?: React.ReactNode
 } & React.HTMLAttributes<HTMLDivElement>
 
-export function Caution({ className, title, description }: CautionProps) {
+export function CautionAlert({ className, title, description }: CautionProps) {
   return (
     <Alert
       className={cn(

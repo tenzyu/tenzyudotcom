@@ -1,5 +1,5 @@
-import { Caution } from '@/components/features/blog/caution'
+import { CautionAlert } from '@/components/features/blog/caution-alert'
 
 export const components = {
-  Caution,
+  CautionAlert,
 }

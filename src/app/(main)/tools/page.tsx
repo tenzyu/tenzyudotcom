@@ -1,6 +1,6 @@
 import { Type } from 'lucide-react'
 
-import { ActionLinkCard } from '@/components/site/action-link-card'
+import { ActionLinkTile } from '@/components/site/action-link-tile'
 import { PageHeader } from '@/components/site/page-header'
 
 import type { Metadata } from 'next'
@@ -31,7 +31,7 @@ export default function ToolsPage() {
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {TOOLS_DATA.map((tool) => (
-          <ActionLinkCard
+          <ActionLinkTile
             key={tool.href}
             title={tool.title}
             description={tool.description}

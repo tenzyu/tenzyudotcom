@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 
 import type { LucideIcon } from 'lucide-react'
 
-type ActionLinkCardProps = {
+type ActionLinkTileProps = {
   title: string
   description?: string
   href: string
@@ -13,13 +13,13 @@ type ActionLinkCardProps = {
   internal?: boolean
 }
 
-export function ActionLinkCard({
+export function ActionLinkTile({
   title,
   description,
   href,
   icon: Icon,
   internal = true,
-}: ActionLinkCardProps) {
+}: ActionLinkTileProps) {
   const content = (
     <div>
       <div className="flex w-full items-center justify-between">

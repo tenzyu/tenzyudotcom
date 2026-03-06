@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/card'
 import { formatDate } from '@/lib/blog/utils'
 import { cn } from '@/lib/utils'
 
-type BlogCardProps = {
+type BlogTileProps = {
   title: string
   summary: string
   publishedAt: Date
@@ -15,14 +15,14 @@ type BlogCardProps = {
   className?: string
 }
 
-export function BlogCard({
+export function BlogTile({
   title,
   summary,
   publishedAt,
   slug,
   tags,
   className,
-}: BlogCardProps) {
+}: BlogTileProps) {
   return (
     <Card
       asChild

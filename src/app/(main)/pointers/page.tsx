@@ -1,4 +1,4 @@
-import { ActionLinkCard } from '@/components/site/action-link-card'
+import { ActionLinkTile } from '@/components/site/action-link-tile'
 import { PageHeader } from '@/components/site/page-header'
 import { SectionHeader } from '@/components/site/section-header'
 import { DASHBOARD_DATA } from '@/data/pointers'
@@ -31,7 +31,7 @@ export default function PointersPage() {
             />
             <div className="grid gap-4">
               {category.links.map((link) => (
-                <ActionLinkCard
+                <ActionLinkTile
                   key={link.name}
                   title={link.name}
                   description={link.description}

@@ -40,7 +40,7 @@ const NAV_GROUPS = [
   },
 ] as const
 
-export function NavigationGrid() {
+export function NavigationTiles() {
   return (
     <div className="mx-auto w-full max-w-5xl space-y-12">
       {NAV_GROUPS.map((group) => (

@@ -10,7 +10,10 @@ type TimelineSectionProps = {
   description: string
 }
 
-export function SelfieSection({ title, description }: TimelineSectionProps) {
+export function SelfieGallerySection({
+  title,
+  description,
+}: TimelineSectionProps) {
   return (
     <section className="space-y-6">
       <SectionHeader title={title} description={description} />
