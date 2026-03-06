@@ -4,13 +4,17 @@ import { ExperienceSection } from './_components/experience-section'
 import { PhilosophySection } from './_components/philosophy-section'
 import { ProjectsSection } from './_components/project-section'
 import { Separator } from '@/components/ui/separator'
-import { IntlayerServerProvider, getLocale, useIntlayer } from 'next-intlayer/server'
+import { IntlayerServerProvider } from 'next-intlayer/server'
+import { getIntlayer, LocalPromiseParams, NextPageIntlayer } from 'next-intlayer'
+import { Metadata } from 'next'
 
 export const dynamic = 'force-static'
 
-export async function generateMetadata() {
-  const locale = await getLocale()
-  const content = useIntlayer('portfolio', locale)
+export async function generateMetadata({
+  params,
+}: LocalPromiseParams): Promise<Metadata> {
+  const { locale } = await params
+  const content = getIntlayer('portfolio', locale)
 
   return {
     title: content.metadata.title.value,
@@ -18,9 +22,9 @@ export async function generateMetadata() {
   }
 }
 
-export default async function PortfolioPage() {
-  const locale = await getLocale()
-  const content = useIntlayer('portfolio', locale)
+const PortfolioPage: NextPageIntlayer = async ({ params }) => {
+  const { locale } = await params
+  const content = getIntlayer('portfolio', locale)
 
   return (
     <IntlayerServerProvider locale={locale}>
@@ -37,3 +41,5 @@ export default async function PortfolioPage() {
     </IntlayerServerProvider>
   )
 }
+
+export default PortfolioPage

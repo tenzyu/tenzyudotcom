@@ -3,6 +3,7 @@ import { Dispatch, SetStateAction } from 'react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Slider } from '@/components/ui/slider'
+import { useIntlayer } from 'next-intlayer'
 
 type SettingsPanelProps = {
   fontSize: number
@@ -13,12 +14,6 @@ type SettingsPanelProps = {
   setPixelChar: Dispatch<SetStateAction<string>>
   emptyChar: string
   setEmptyChar: Dispatch<SetStateAction<string>>
-  labels: {
-    fontSize: string
-    threshold: string
-    pixelChar: string
-    emptyChar: string
-  }
 }
 
 export function SettingsPanel({
@@ -30,8 +25,8 @@ export function SettingsPanel({
   setPixelChar,
   emptyChar,
   setEmptyChar,
-  labels,
 }: SettingsPanelProps) {
+  const { labels } = useIntlayer('dotType')
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">

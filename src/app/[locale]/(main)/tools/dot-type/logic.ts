@@ -1,3 +1,5 @@
+import 'client-only'
+
 export type DotGenerationParams = {
   text: string
   fontSize: number
@@ -20,6 +22,11 @@ export function generateDotArt({
   orientation,
 }: DotGenerationParams): string {
   if (!text) return ''
+  // NOTE: Client Component だからといって「初回表示の render が完全にブラウザだけで走る」わけではない。
+  // Next.js は初回ロード時、Client Component も含めて HTML のプレビューを作ってから hydrate するので、render 中に document や window を触る処理は落ちる。
+  // Next.js 公式も、Client Components は初回ロード時にサーバー側でプレビュー用 HTML を使い、その後 hydration されると説明してる。
+  // useEffect を使うのはなんとなく嫌なので document がないなら return
+  if (typeof document === 'undefined') return ''
 
   const canvas = document.createElement('canvas')
   const ctx = canvas.getContext('2d', { willReadFrequently: true })

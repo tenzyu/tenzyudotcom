@@ -5,7 +5,7 @@ const dotTypeContent = {
   content: {
     metadata: {
       title: t({
-        ja: 'Dot Type Generator',
+        ja: 'デカ文字生成器',
         en: 'Dot Type Generator',
       }),
       description: t({

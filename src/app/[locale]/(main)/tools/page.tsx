@@ -1,11 +1,9 @@
 import Link from 'next/link'
 import { Type } from 'lucide-react'
 import { getLocalizedUrl } from 'intlayer'
-import {
-  IntlayerServerProvider,
-  getLocale,
-  useIntlayer,
-} from 'next-intlayer/server'
+import { IntlayerServerProvider } from 'next-intlayer/server'
+import { getIntlayer, LocalPromiseParams, NextPageIntlayer } from 'next-intlayer'
+import { Metadata } from 'next'
 
 import { PageHeader } from '@/components/site/page-header'
 import { OtakuAside } from '@/components/site/otaku-aside'
@@ -17,13 +15,13 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { NextLayoutIntlayer } from 'next-intlayer'
-
 export const dynamic = 'force-static'
 
-export async function generateMetadata() {
-  const locale = await getLocale()
-  const content = useIntlayer('toolsPage', locale)
+export async function generateMetadata({
+  params,
+}: LocalPromiseParams): Promise<Metadata> {
+  const { locale } = await params
+  const content = getIntlayer('toolsPage', locale)
 
   return {
     title: content.metadata.title.value,
@@ -35,9 +33,9 @@ const ICONS = {
   type: Type,
 } as const
 
-const ToolsPage: NextLayoutIntlayer = async ({ params }) => {
+const ToolsPage: NextPageIntlayer = async ({ params }) => {
   const { locale } = await params
-  const content = useIntlayer('toolsPage', locale)
+  const content = getIntlayer('toolsPage', locale)
 
   return (
     <IntlayerServerProvider locale={locale}>

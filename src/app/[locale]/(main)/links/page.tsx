@@ -1,13 +1,17 @@
-import { IntlayerServerProvider, getLocale, useIntlayer } from 'next-intlayer/server'
+import { IntlayerServerProvider } from 'next-intlayer/server'
+import { getIntlayer, LocalPromiseParams, NextPageIntlayer } from 'next-intlayer'
+import { Metadata } from 'next'
 
 import { LinkList } from '@/components/features/links/link-list'
 import { PageHeader } from '@/components/site/page-header'
 
 export const dynamic = 'force-static'
 
-export async function generateMetadata() {
-  const locale = await getLocale()
-  const content = useIntlayer('linksPage', locale)
+export async function generateMetadata({
+  params,
+}: LocalPromiseParams): Promise<Metadata> {
+  const { locale } = await params
+  const content = getIntlayer('linksPage', locale)
 
   return {
     title: content.metadata.title.value,
@@ -15,9 +19,9 @@ export async function generateMetadata() {
   }
 }
 
-export default async function LinkTreePage() {
-  const locale = await getLocale()
-  const content = useIntlayer('linksPage', locale)
+const LinkTreePage: NextPageIntlayer = async ({ params }) => {
+  const { locale } = await params
+  const content = getIntlayer('linksPage', locale)
 
   return (
     <IntlayerServerProvider locale={locale}>
@@ -29,3 +33,5 @@ export default async function LinkTreePage() {
     </IntlayerServerProvider>
   )
 }
+
+export default LinkTreePage

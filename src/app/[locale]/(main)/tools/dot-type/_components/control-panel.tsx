@@ -3,19 +3,13 @@ import { Dispatch, SetStateAction } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { useIntlayer } from 'next-intlayer'
 
 type ControlPanelProps = {
   inputText: string
   setInputText: Dispatch<SetStateAction<string>>
   orientation: 'horizontal' | 'vertical'
   setOrientation: Dispatch<SetStateAction<'horizontal' | 'vertical'>>
-  labels: {
-    inputText: string
-    inputPlaceholder: string
-    orientation: string
-    horizontal: string
-    vertical: string
-  }
 }
 
 export function ControlPanel({
@@ -23,8 +17,8 @@ export function ControlPanel({
   setInputText,
   orientation,
   setOrientation,
-  labels,
 }: ControlPanelProps) {
+  const { labels } = useIntlayer('dotType')
   return (
     <div className="space-y-6">
       <div className="space-y-2">
@@ -34,7 +28,7 @@ export function ControlPanel({
           onChange={(e) => {
             setInputText(e.target.value)
           }}
-          placeholder={labels.inputPlaceholder}
+          placeholder={labels.inputPlaceholder.value}
           className="text-lg"
         />
       </div>

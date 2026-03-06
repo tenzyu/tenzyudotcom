@@ -8,16 +8,20 @@ import {
 } from '@/components/ui/empty'
 import { PUZZLE_CATEGORIES } from '@/data/puzzles'
 import { fetchOgp } from '@/lib/ogp'
-import { IntlayerServerProvider, getLocale, useIntlayer } from 'next-intlayer/server'
+import { IntlayerServerProvider } from 'next-intlayer/server'
+import { getIntlayer, LocalPromiseParams, NextPageIntlayer } from 'next-intlayer'
+import { Metadata } from 'next'
 
 import type { PuzzleWithOgp } from './_components/puzzle-tile'
 import { PuzzleTile } from './_components/puzzle-tile'
 
 export const dynamic = 'force-static'
 
-export async function generateMetadata() {
-  const locale = await getLocale()
-  const content = useIntlayer('puzzlesPage', locale)
+export async function generateMetadata({
+  params,
+}: LocalPromiseParams): Promise<Metadata> {
+  const { locale } = await params
+  const content = getIntlayer('puzzlesPage', locale)
 
   return {
     title: content.metadata.title.value,
@@ -53,9 +57,9 @@ async function getPuzzleCategoriesWithOgp() {
   return categories
 }
 
-export default async function PuzzlesPage() {
-  const locale = await getLocale()
-  const content = useIntlayer('puzzlesPage', locale)
+const PuzzlesPage: NextPageIntlayer = async ({ params }) => {
+  const { locale } = await params
+  const content = getIntlayer('puzzlesPage', locale)
   const categoriesWithOgp = await getPuzzleCategoriesWithOgp()
 
   return (
@@ -96,3 +100,5 @@ export default async function PuzzlesPage() {
     </IntlayerServerProvider>
   )
 }
+
+export default PuzzlesPage

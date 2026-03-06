@@ -3,24 +3,20 @@ import { Check, Copy } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { useIntlayer } from 'next-intlayer'
 
 type PreviewPanelProps = {
   outputText: string
   onCopy: () => void
   isCopied: boolean
-  labels: {
-    preview: string
-    copy: string
-    copied: string
-  }
 }
 
 export function PreviewPanel({
   outputText,
   onCopy,
   isCopied,
-  labels,
 }: PreviewPanelProps) {
+  const { labels } = useIntlayer('dotType')
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">

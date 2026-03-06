@@ -9,18 +9,18 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination'
 import { getBlogPosts } from '@/lib/blog/getBlogPosts'
-import {
-  IntlayerServerProvider,
-  getLocale,
-  useIntlayer,
-} from 'next-intlayer/server'
+import { IntlayerServerProvider } from 'next-intlayer/server'
+import { getIntlayer, LocalPromiseParams } from 'next-intlayer'
 import { getLocalizedUrl } from 'intlayer'
+import { Metadata } from 'next'
 
 export const dynamic = 'force-static'
 
-export async function generateMetadata() {
-  const locale = await getLocale()
-  const content = useIntlayer('blogPage', locale)
+export async function generateMetadata({
+  params,
+}: LocalPromiseParams): Promise<Metadata> {
+  const { locale } = await params
+  const content = getIntlayer('blogPage', locale)
 
   return {
     title: content.metadata.title.value,
@@ -30,15 +30,15 @@ export async function generateMetadata() {
 
 const PAGE_SIZE = 6
 
-type PageProps = {
+type PageProps = LocalPromiseParams & {
   searchParams?: {
     page?: string
   }
 }
 
-export default async function Page({ searchParams }: PageProps) {
-  const locale = await getLocale()
-  const content = useIntlayer('blogPage', locale)
+export default async function Page({ params, searchParams }: PageProps) {
+  const { locale } = await params
+  const content = getIntlayer('blogPage', locale)
 
   const awaited_posts = await getBlogPosts()
   const totalPages = Math.ceil(awaited_posts.length / PAGE_SIZE)

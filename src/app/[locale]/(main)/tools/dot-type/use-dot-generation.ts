@@ -7,9 +7,7 @@ type DotGenerationOptions = {
 }
 
 export function useDotGeneration(options: DotGenerationOptions = {}) {
-  const [inputText, setInputText] = useState(
-    options.initialText ?? 'dot type',
-  )
+  const [inputText, setInputText] = useState(options.initialText ?? 'dot type')
   const [fontSize, setFontSize] = useState(16)
   const [threshold, setThreshold] = useState(128)
   const [pixelChar, setPixelChar] = useState('■')
