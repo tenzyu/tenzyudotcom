@@ -22,25 +22,25 @@ export function ActionLinkCard({
   internal = true,
 }: ActionLinkCardProps) {
   const content = (
-    <Card className="group hover:bg-accent hover:border-primary/30 flex items-center justify-between px-4 py-3 shadow-sm transition-all sm:px-5 sm:py-4">
-      <div className="flex w-full min-w-0 items-center gap-3">
-        {Icon && (
-          <Icon className="text-muted-foreground group-hover:text-primary h-5 w-5 shrink-0 transition-colors" />
-        )}
-        <div className="flex min-w-0 flex-col">
-          <span className="text-card-foreground group-hover:text-primary truncate text-sm font-medium transition-colors">
+    <Card className="group hover:bg-accent hover:border-primary/30 flex flex-col justify-center gap-4 p-5 shadow-sm transition-all">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          {Icon && (
+            <Icon className="text-muted-foreground group-hover:text-primary h-6 w-6 transition-colors" />
+          )}
+          <span className="text-card-foreground group-hover:text-primary font-medium transition-colors">
             {title}
           </span>
-          {description && (
-            <span className="text-muted-foreground truncate text-xs leading-relaxed">
-              {description}
-            </span>
-          )}
         </div>
+        <span className="text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100">
+          &rarr;
+        </span>
       </div>
-      <span className="text-muted-foreground ml-4 shrink-0 font-medium opacity-0 transition-opacity group-hover:opacity-100">
-        &rarr;
-      </span>
+      {description && (
+        <span className="text-muted-foreground text-xs leading-relaxed">
+          {description}
+        </span>
+      )}
     </Card>
   )
 
