@@ -48,3 +48,6 @@ todo.md
 .agent/
 .agents/
 AGENTS.md
+
+# i18n
+.intlayer
