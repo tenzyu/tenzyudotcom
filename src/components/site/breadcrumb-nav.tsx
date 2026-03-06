@@ -1,8 +1,10 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
 import React, { useEffect, useMemo, useState } from 'react'
+import { useIntlayer } from 'next-intlayer'
+import { useLocale } from 'next-intlayer'
+import { getLocalizedUrl } from 'intlayer'
 
 import {
   Breadcrumb,
@@ -16,13 +18,15 @@ import { Content } from '@/components/site/content'
 
 export function BreadcrumbNav() {
   const [mounted, setMounted] = useState(false)
-  const pathname = usePathname()
+  const { locale, pathWithoutLocale } = useLocale()
+  const content = useIntlayer('breadcrumb')
 
   useEffect(() => {
     setMounted(true)
   }, [])
 
   const segments = useMemo(() => {
+    const pathname = pathWithoutLocale ?? '/'
     if (!pathname || pathname === '/') return []
 
     // Remove empty segments
@@ -31,16 +35,17 @@ export function BreadcrumbNav() {
     // Map to breadcrumb structure
     return parts.map((part, index) => {
       const href = `/${parts.slice(0, index + 1).join('/')}`
-      // Capitalize first letter or custom label mapping could be applied here
-      const label = part.charAt(0).toUpperCase() + part.slice(1)
+      const label =
+        content.labels[part as keyof typeof content.labels] ??
+        part.charAt(0).toUpperCase() + part.slice(1)
 
       return {
         label,
-        href,
+        href: getLocalizedUrl(href, locale),
         isLast: index === parts.length - 1,
       }
     })
-  }, [pathname])
+  }, [pathWithoutLocale, content, locale])
 
   if (!mounted || segments.length === 0) return null
 
@@ -50,7 +55,7 @@ export function BreadcrumbNav() {
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link href="/">Home</Link>
+              <Link href={getLocalizedUrl('/', locale)}>{content.home}</Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           {segments.map((segment) => (

@@ -5,8 +5,15 @@ const config: IntlayerConfig = {
     locales: [Locales.JAPANESE, Locales.ENGLISH],
     defaultLocale: Locales.JAPANESE,
   },
+  dictionary: {
+    fill: false,
+  },
+  content: {
+    contentDir: ['src'],
+    codeDir: ['src'],
+  },
   routing: {
-    mode: 'search-params',
+    mode: 'prefix-no-default',
     // storage: 'cookie',
   },
 }

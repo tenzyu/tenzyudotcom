@@ -3,6 +3,7 @@
 import { Moon, Sun } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { useEffect, useState } from 'react'
+import { useIntlayer } from 'next-intlayer'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -12,6 +13,7 @@ import {
 } from '@/components/ui/tooltip'
 
 export function ThemeSwitcher() {
+  const content = useIntlayer('themeSwitcher')
   const { theme, resolvedTheme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
 
@@ -32,14 +34,14 @@ export function ThemeSwitcher() {
             setTheme(isDark ? 'light' : 'dark')
           }}
           className="relative shrink-0"
-          aria-label="Toggle theme"
+          aria-label={content.toggleLabel.value}
         >
-          <span className="sr-only">Toggle theme</span>
+          <span className="sr-only">{content.toggleLabel}</span>
           <Sun className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
           <Moon className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
         </Button>
       </TooltipTrigger>
-      <TooltipContent>Toggle theme</TooltipContent>
+      <TooltipContent>{content.toggleLabel}</TooltipContent>
     </Tooltip>
   )
 }

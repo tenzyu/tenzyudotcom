@@ -1,4 +1,8 @@
-export function formatDate(targetDate: Date, includeRelative = false) {
+export function formatDate(
+  targetDate: Date,
+  locale = 'en-US',
+  includeRelative = false,
+) {
   const currentDate = new Date()
 
   const yearsAgo = currentDate.getFullYear() - targetDate.getFullYear()
@@ -7,17 +11,19 @@ export function formatDate(targetDate: Date, includeRelative = false) {
 
   let formattedDate = ''
 
+  const isJa = locale.startsWith('ja')
+
   if (yearsAgo > 0) {
-    formattedDate = `${yearsAgo}y ago`
+    formattedDate = isJa ? `${yearsAgo}年前` : `${yearsAgo}y ago`
   } else if (monthsAgo > 0) {
-    formattedDate = `${monthsAgo}mo ago`
+    formattedDate = isJa ? `${monthsAgo}ヶ月前` : `${monthsAgo}mo ago`
   } else if (daysAgo > 0) {
-    formattedDate = `${daysAgo}d ago`
+    formattedDate = isJa ? `${daysAgo}日前` : `${daysAgo}d ago`
   } else {
-    formattedDate = 'Today'
+    formattedDate = isJa ? '今日' : 'Today'
   }
 
-  const fullDate = targetDate.toLocaleString('en-us', {
+  const fullDate = targetDate.toLocaleString(locale, {
     month: 'long',
     day: 'numeric',
     year: 'numeric',

@@ -1,10 +1,12 @@
+import { getLocalizedUrl, locales } from 'intlayer'
+
 import { getBlogPosts } from '@/lib/blog/getBlogPosts'
 
 export const baseUrl = 'https://tenzyu.com'
 
 export default async function sitemap() {
   const routes = [
-    '',
+    '/',
     '/blog',
     '/links',
     '/tools',
@@ -12,16 +14,22 @@ export default async function sitemap() {
     '/archives',
     '/puzzles',
     '/recommendations',
-  ].map((route) => ({
-    url: `${baseUrl}${route}`,
-    lastModified: new Date().toISOString().split('T')[0],
-  }))
+  ]
+
+  const routesByLocale = routes.flatMap((route) =>
+    locales.map((locale) => ({
+      url: `${baseUrl}${getLocalizedUrl(route, locale)}`,
+      lastModified: new Date().toISOString().split('T')[0],
+    })),
+  )
 
   const awaited_blogs = await getBlogPosts()
-  const blogs = awaited_blogs.map((post) => ({
-    url: `${baseUrl}/blog/${post.slug}`,
-    lastModified: post.metadata.updatedAt ?? post.metadata.publishedAt,
-  }))
+  const blogs = awaited_blogs.flatMap((post) =>
+    locales.map((locale) => ({
+      url: `${baseUrl}${getLocalizedUrl(`/blog/${post.slug}`, locale)}`,
+      lastModified: post.metadata.updatedAt ?? post.metadata.publishedAt,
+    })),
+  )
 
-  return [...routes, ...blogs]
+  return [...routesByLocale, ...blogs]
 }

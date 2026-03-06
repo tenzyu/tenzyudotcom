@@ -1,20 +1,28 @@
+import { useIntlayer } from 'next-intlayer/server'
+
 import { MY_LINKS, type LinkCategory } from '@/data/links'
 
 import { LinkTile } from './link-tile'
 import { ItemGroup } from '@/components/ui/item'
 import { SectionHeader } from '@/components/site/section-header'
 import { Content } from '@/components/site/content'
-const CATEGORIES: { label: string; value: LinkCategory }[] = [
-  { label: '📺 Watch', value: 'Watch' },
-  { label: '🌐 Social', value: 'Social' },
-  { label: '🛠️ Build', value: 'Build' },
-  { label: '🏛️ Legacy', value: 'Legacy' },
-]
+const CATEGORY_KEYS: Record<
+  LinkCategory,
+  'watch' | 'social' | 'build' | 'legacy'
+> = {
+  Watch: 'watch',
+  Social: 'social',
+  Build: 'build',
+  Legacy: 'legacy',
+}
+const CATEGORY_ORDER: LinkCategory[] = ['Watch', 'Social', 'Build', 'Legacy']
 
 export function LinkList() {
-  const groupedLinks = CATEGORIES.map((cat) => ({
-    ...cat,
-    links: MY_LINKS.filter((link) => link.category === cat.value),
+  const content = useIntlayer('linksPage')
+  const groupedLinks = CATEGORY_ORDER.map((category) => ({
+    value: category,
+    label: content.categories[CATEGORY_KEYS[category]],
+    links: MY_LINKS.filter((link) => link.category === category),
   }))
 
   return (
@@ -24,11 +32,13 @@ export function LinkList() {
           group.links.length > 0 && (
             <section key={group.value} className="space-y-4">
               <SectionHeader
-                title={group.label}
+                title={group.label.value}
                 titleClassName="text-xl"
                 className="space-y-1"
               />
-              <nav aria-label={`${group.label} links`}>
+              <nav
+                aria-label={`${group.label.value} ${content.aria.groupLabelSuffix.value}`}
+              >
                 <ItemGroup className="xs:grid-cols-2 grid grid-cols-1 gap-4 p-0 sm:grid-cols-3">
                   {group.links.map((link) => (
                     <LinkTile key={link.shortenUrl} link={link} />

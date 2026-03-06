@@ -16,11 +16,11 @@ import {
 } from '@/components/ui/dialog'
 import { Content } from '@/components/site/content'
 import { cn } from '@/lib/utils'
+import { useIntlayer } from 'next-intlayer/server'
 
-export type YouTubeVideo = {
+type YouTubeVideo = {
   id: string
   title: string
-  type: 'video' | 'short'
 }
 
 type YouTubeCarouselProps = {
@@ -114,6 +114,7 @@ export function YouTubeCarousel({
   videos,
   type = 'video',
 }: YouTubeCarouselProps) {
+  const content = useIntlayer('youtubeCarousel')
   const isShort = type === 'short'
 
   return (
@@ -150,12 +151,14 @@ export function YouTubeCarousel({
             'dark:bg-popover dark:text-popover-foreground absolute top-1/2 z-10 -translate-y-1/2 transform',
             isShort ? 'left-2' : 'left-4',
           )}
+          label={content.previous.value}
         />
         <CarouselNext
           className={cn(
             'dark:bg-popover dark:text-popover-foreground absolute top-1/2 z-10 -translate-y-1/2 transform',
             isShort ? 'right-2' : 'right-4',
           )}
+          label={content.next.value}
         />
       </Carousel>
     </Content>

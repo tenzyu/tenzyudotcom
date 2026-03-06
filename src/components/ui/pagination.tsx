@@ -8,11 +8,15 @@ import {
 import { cn } from '@/lib/utils/index'
 import { buttonVariants, type Button } from '@/components/ui/button'
 
-function Pagination({ className, ...props }: React.ComponentProps<'nav'>) {
+type PaginationProps = React.ComponentProps<'nav'> & {
+  ariaLabel?: string
+}
+
+function Pagination({ className, ariaLabel, ...props }: PaginationProps) {
   return (
     <nav
       role="navigation"
-      aria-label="pagination"
+      aria-label={ariaLabel ?? 'pagination'}
       data-slot="pagination"
       className={cn('mx-auto flex w-full justify-center', className)}
       {...props}
@@ -65,44 +69,58 @@ function PaginationLink({
   )
 }
 
+type PaginationControlProps = React.ComponentProps<typeof PaginationLink> & {
+  label?: string
+  ariaLabel?: string
+}
+
 function PaginationPrevious({
   className,
+  label,
+  ariaLabel,
   ...props
-}: React.ComponentProps<typeof PaginationLink>) {
+}: PaginationControlProps) {
   return (
     <PaginationLink
-      aria-label="Go to previous page"
+      aria-label={ariaLabel ?? 'Go to previous page'}
       size="default"
       className={cn('gap-1 px-2.5 sm:pl-2.5', className)}
       {...props}
     >
       <ChevronLeftIcon />
-      <span className="hidden sm:block">Previous</span>
+      <span className="hidden sm:block">{label ?? 'Previous'}</span>
     </PaginationLink>
   )
 }
 
 function PaginationNext({
   className,
+  label,
+  ariaLabel,
   ...props
-}: React.ComponentProps<typeof PaginationLink>) {
+}: PaginationControlProps) {
   return (
     <PaginationLink
-      aria-label="Go to next page"
+      aria-label={ariaLabel ?? 'Go to next page'}
       size="default"
       className={cn('gap-1 px-2.5 sm:pr-2.5', className)}
       {...props}
     >
-      <span className="hidden sm:block">Next</span>
+      <span className="hidden sm:block">{label ?? 'Next'}</span>
       <ChevronRightIcon />
     </PaginationLink>
   )
 }
 
+type PaginationEllipsisProps = React.ComponentProps<'span'> & {
+  label?: string
+}
+
 function PaginationEllipsis({
   className,
+  label,
   ...props
-}: React.ComponentProps<'span'>) {
+}: PaginationEllipsisProps) {
   return (
     <span
       aria-hidden
@@ -111,7 +129,7 @@ function PaginationEllipsis({
       {...props}
     >
       <MoreHorizontalIcon className="size-4" />
-      <span className="sr-only">More pages</span>
+      <span className="sr-only">{label ?? 'More pages'}</span>
     </span>
   )
 }

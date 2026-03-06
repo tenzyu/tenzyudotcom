@@ -12,15 +12,13 @@ export type Puzzle = {
 }
 
 export type PuzzleCategory = {
-  name: string
-  description?: string
+  id: 'web' | 'mobile' | 'other'
   puzzles: Puzzle[]
 }
 
 export const PUZZLE_CATEGORIES: PuzzleCategory[] = [
   {
-    name: 'ブラウザゲーム',
-    description: 'ブラウザ上で遊べる謎解き',
+    id: 'web',
     puzzles: [
       {
         title: 'push',
@@ -29,8 +27,7 @@ export const PUZZLE_CATEGORIES: PuzzleCategory[] = [
     ],
   },
   {
-    name: 'スマホアプリ',
-    description: 'iOS / Android で遊べる謎解きアプリ',
+    id: 'mobile',
     puzzles: [
       {
         title: 'green',
@@ -74,8 +71,7 @@ export const PUZZLE_CATEGORIES: PuzzleCategory[] = [
     ],
   },
   {
-    name: 'その他',
-    description: 'Steam・Switch などのプラットフォーム',
+    id: 'other',
     puzzles: [],
   },
 ]

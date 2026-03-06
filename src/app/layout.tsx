@@ -1,7 +1,8 @@
 import Script from 'next/script'
 import { Geist, Geist_Mono, Noto_Serif_JP } from 'next/font/google'
-import { NextIntlClientProvider } from 'next-intl'
-import { getLocale } from 'next-intl/server'
+import { IntlayerClientProvider } from 'next-intlayer'
+import { getLocale } from 'next-intlayer/server'
+import { useIntlayer } from 'next-intlayer/server'
 
 import { BreadcrumbNav } from '@/components/site/breadcrumb-nav'
 import { Container } from '@/components/site/container'
@@ -18,6 +19,7 @@ import type { Metadata } from 'next'
 import type React from 'react'
 
 import './globals.css'
+import { getHTMLTextDir, getLocalizedUrl, locales } from 'intlayer'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -35,46 +37,63 @@ const notoSerifJp = Noto_Serif_JP({
   fallback: ['Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'sans-serif'],
 })
 
-const title = "TENZYU's secret hideout"
-const description = 'a secret hideout'
-export const metadata: Metadata = {
-  title: {
-    template: "%s | TENZYU's secret hideout",
-    default: title,
-  },
-  description,
-  keywords: [
-    'tenzyu',
-    'osu',
-    'streamer',
-    'twitch',
-    'gaming',
-    'テンジュ',
-    '天珠',
-  ],
-  authors: [{ name: 'tenzyu', url: 'https://tenzyu.com' }],
-  creator: 'tenzyu',
-  publisher: 'tenzyu',
-  metadataBase: new URL('https://tenzyu.com'),
-  // todo: ogp 画像
-  openGraph: {
-    type: 'website',
-    locale: 'ja_JP',
-    url: 'https://tenzyu.com',
-    title,
-    description,
-    siteName: 'tenzyu.com',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    creator: '@tenzyudotcom',
-    title,
-    description,
-  },
-  robots: {
-    index: true,
-    follow: true,
-  },
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale()
+  const site = useIntlayer('site', locale)
+  const ogLocale = locale === 'ja' ? 'ja_JP' : 'en_US'
+  const ogAlternateLocale = locale === 'ja' ? 'en_US' : 'ja_JP'
+  const metadataBase = new URL('https://tenzyu.com')
+  const localizedUrl = new URL(getLocalizedUrl('/', locale), metadataBase).toString()
+  const alternateLanguages = Object.fromEntries(
+    locales.map((localeItem) => [
+      localeItem,
+      new URL(getLocalizedUrl('/', localeItem), metadataBase).toString(),
+    ]),
+  )
+
+  return {
+    title: {
+      template: site.titleTemplate.value,
+      default: site.title.value,
+    },
+    description: site.description.value,
+    keywords: [
+      'tenzyu',
+      'osu',
+      'streamer',
+      'twitch',
+      'gaming',
+      'テンジュ',
+      '天珠',
+    ],
+    authors: [{ name: 'tenzyu', url: 'https://tenzyu.com' }],
+    creator: 'tenzyu',
+    publisher: 'tenzyu',
+    metadataBase,
+    alternates: {
+      canonical: localizedUrl,
+      languages: alternateLanguages,
+    },
+    openGraph: {
+      type: 'website',
+      locale: ogLocale,
+      alternateLocale: [ogAlternateLocale],
+      url: localizedUrl,
+      title: site.title.value,
+      description: site.description.value,
+      siteName: 'tenzyu.com',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      creator: '@tenzyudotcom',
+      title: site.title.value,
+      description: site.description.value,
+    },
+    robots: {
+      index: true,
+      follow: true,
+    },
+  }
 }
 
 export default async function RootLayout({
@@ -85,7 +104,7 @@ export default async function RootLayout({
   const locale = await getLocale()
 
   return (
-    <html lang={locale} suppressHydrationWarning>
+    <html lang={locale} dir={getHTMLTextDir(locale)} suppressHydrationWarning>
       <head>
         {process.env.NODE_ENV === 'development' && (
           <Script
@@ -104,19 +123,19 @@ export default async function RootLayout({
         <link rel="preconnect" href="https://pbs.twimg.com" />
         <link rel="preconnect" href="https://assets.ppy.sh" />
       </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} ${notoSerifJp.variable} antialiased`}
-      >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
+      <IntlayerClientProvider locale={locale}>
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} ${notoSerifJp.variable} antialiased`}
         >
-          <NextIntlClientProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
             <div className="flex min-h-screen flex-col">
               <TooltipProvider>
-                <Header locale={locale} />
+                <Header />
                 <main className="-mb-16 grow -translate-y-16 transform pt-16">
                   <Container>
                     <BreadcrumbNav />
@@ -125,14 +144,14 @@ export default async function RootLayout({
                   </Container>
                 </main>
                 <Toaster />
-                <Footer />
+                <Footer locale={locale} />
                 <Analytics />
                 <SpeedInsights />
               </TooltipProvider>
             </div>
-          </NextIntlClientProvider>
-        </ThemeProvider>
-      </body>
+          </ThemeProvider>
+        </body>
+      </IntlayerClientProvider>
     </html>
   )
 }

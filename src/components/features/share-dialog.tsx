@@ -3,6 +3,7 @@
 import { Link, Mail, Share2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
+import { useIntlayer } from 'next-intlayer'
 
 import { ShareButton } from '@/components/site/share-button'
 import { XIcon } from '@/components/site/social-icons'
@@ -30,6 +31,7 @@ export function ShareDialog({
   triggerClassName,
   triggerLabel,
 }: ShareDialogProps) {
+  const content = useIntlayer('shareDialog')
   const [open, setOpen] = useState(false)
   const [shareUrl, setShareUrl] = useState('')
   const shareMessage = shareText ?? title
@@ -41,7 +43,7 @@ export function ShareDialog({
   const handleShare = (platform: string) => {
     const result = shareContent(platform, shareUrl, shareMessage)
     if (result.copied) {
-      toast.success('Link copied to clipboard', { description: shareUrl })
+      toast.success(content.linkCopied, { description: shareUrl })
       setOpen(false)
     } else if (result.uri) {
       window.open(result.uri, '_blank')
@@ -61,18 +63,23 @@ export function ShareDialog({
           {triggerLabel ? (
             <span className="ml-1">{triggerLabel}</span>
           ) : (
-            <span className="sr-only">Share {title}</span>
+            <span className="sr-only">
+              {content.triggerAriaPrefix} {title}
+            </span>
           )}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Share {title}</DialogTitle>
+          <DialogTitle>
+            {content.titlePrefix}
+            {title}
+          </DialogTitle>
         </DialogHeader>
         <div className="grid grid-cols-3 gap-4 py-4">
           <ShareButton
             icon={<Link className="h-5 w-5" />}
-            label="Copy"
+            label={content.copy}
             onClick={() => {
               handleShare('copy')
             }}
@@ -86,7 +93,7 @@ export function ShareDialog({
           />
           <ShareButton
             icon={<Mail className="h-5 w-5" />}
-            label="Email"
+            label={content.email}
             onClick={() => {
               handleShare('email')
             }}

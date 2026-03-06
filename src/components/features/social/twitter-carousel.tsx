@@ -6,6 +6,7 @@ import {
   CarouselPrevious,
 } from '@/components/ui/carousel'
 import { Content } from '@/components/site/content'
+import { useIntlayer } from 'next-intlayer/server'
 
 export type TweetData = {
   id: string
@@ -19,6 +20,8 @@ type TwitterCarouselProps = {
 }
 
 export function TwitterCarousel({ tweets, className }: TwitterCarouselProps) {
+  const content = useIntlayer('twitterCarousel')
+
   return (
     <Content size="4xl" className={className}>
       <Carousel
@@ -38,8 +41,14 @@ export function TwitterCarousel({ tweets, className }: TwitterCarouselProps) {
             </CarouselItem>
           ))}
         </CarouselContent>
-        <CarouselPrevious className="dark:bg-popover dark:text-popover-foreground absolute top-1/2 left-4 z-10 -translate-y-1/2 transform" />
-        <CarouselNext className="dark:bg-popover dark:text-popover-foreground absolute top-1/2 right-4 z-10 -translate-y-1/2 transform" />
+        <CarouselPrevious
+          className="dark:bg-popover dark:text-popover-foreground absolute top-1/2 left-4 z-10 -translate-y-1/2 transform"
+          label={content.previous}
+        />
+        <CarouselNext
+          className="dark:bg-popover dark:text-popover-foreground absolute top-1/2 right-4 z-10 -translate-y-1/2 transform"
+          label={content.next}
+        />
       </Carousel>
     </Content>
   )

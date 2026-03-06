@@ -3,6 +3,7 @@ import { Heart } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { Suspense } from 'react'
 import { getTweet } from 'react-tweet/api'
+import { useIntlayer, useLocale } from 'next-intlayer/server'
 
 type TweetImageProps = {
   id: string
@@ -15,6 +16,8 @@ const TweetImageComponent = async ({
   overlay,
   showLikes,
 }: TweetImageProps) => {
+  const { locale } = useLocale()
+  const content = useIntlayer('tweetImage')
   const tweet = await getTweet(id)
   const media = tweet?.mediaDetails?.[0]
   if (!media) return null
@@ -35,7 +38,9 @@ const TweetImageComponent = async ({
     metrics?.like_count
   const formattedLikes =
     typeof likeCount === 'number'
-      ? new Intl.NumberFormat('ja-JP').format(likeCount)
+      ? new Intl.NumberFormat(locale === 'ja' ? 'ja-JP' : 'en-US').format(
+          likeCount,
+        )
       : null
 
   return (
@@ -64,7 +69,7 @@ const TweetImageComponent = async ({
           <Heart className="h-3.5 w-3.5" aria-hidden="true" />
           <span>{formattedLikes ?? '—'}</span>
           <span className="text-muted-foreground/70 ml-auto text-[10px] uppercase tracking-wide">
-            from X
+            {content.fromLabel}
           </span>
         </div>
       ) : null}
