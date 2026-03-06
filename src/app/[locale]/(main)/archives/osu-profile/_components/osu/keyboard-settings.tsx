@@ -4,7 +4,7 @@ import { useIntlayer } from 'next-intlayer/server'
 
 import { cn } from '@/lib/utils'
 
-import type { KeyboardSettings as KeyboardSettingsType } from '@/app/[locale]/archives/osu-profile/_type/settings'
+import type { KeyboardSettings as KeyboardSettingsType } from '../../_type/settings'
 
 import {
   SettingsCard,

@@ -1,3 +1,5 @@
+import 'server-only'
+
 export type OgpData = {
   title?: string
   description?: string

@@ -1,7 +1,7 @@
 import { memo } from 'react'
 import { useIntlayer } from 'next-intlayer/server'
 
-import type { MonitorSettings as MonitorSettingsType } from '@/app/[locale]/archives/osu-profile/_type/settings'
+import type { MonitorSettings as MonitorSettingsType } from '../../_type/settings'
 
 import {
   SettingsCard,
