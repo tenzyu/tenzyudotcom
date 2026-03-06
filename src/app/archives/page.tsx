@@ -1,5 +1,6 @@
 import Link from 'next/link'
 
+import { Content } from '@/components/site/content'
 import { PageHeader } from '@/components/site/page-header'
 
 import type { Metadata } from 'next'
@@ -14,7 +15,7 @@ export const metadata: Metadata = {
 export default function ArchivesPage() {
   return (
     <main className="flex flex-col items-center p-4 py-8 md:py-12">
-      <div className="w-full max-w-3xl space-y-8">
+      <Content size="3xl" className="space-y-8">
         <PageHeader
           title="Archives"
           description="過去のコンテンツや古いバージョンのページのアーカイブ。"
@@ -32,7 +33,7 @@ export default function ArchivesPage() {
             </p>
           </Link>
         </section>
-      </div>
+      </Content>
     </main>
   )
 }

@@ -1,4 +1,5 @@
 import { SectionHeader } from '@/components/site/section-header'
+import { ExternalLink } from '@/components/site/external-link'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -88,13 +89,9 @@ export function ProjectsSection() {
                     className="h-auto px-0 text-primary hover:bg-transparent hover:underline"
                     asChild
                   >
-                    <a
-                      href={project.github}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
+                    <ExternalLink href={project.github}>
                       GitHub &rarr;
-                    </a>
+                    </ExternalLink>
                   </Button>
                 ) : null}
                 {project.demo ? (
@@ -103,13 +100,9 @@ export function ProjectsSection() {
                     className="h-auto px-0 text-primary hover:bg-transparent hover:underline"
                     asChild
                   >
-                    <a
-                      href={project.demo}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
+                    <ExternalLink href={project.demo}>
                       Demo &rarr;
-                    </a>
+                    </ExternalLink>
                   </Button>
                 ) : null}
               </div>

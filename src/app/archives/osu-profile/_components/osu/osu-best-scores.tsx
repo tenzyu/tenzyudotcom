@@ -5,6 +5,8 @@ import { Suspense } from 'react'
 import { getUserScores } from '@/app/archives/osu-profile/_lib'
 import { Card, CardContent, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Content } from '@/components/site/content'
+import { ExternalLink } from '@/components/site/external-link'
 import { cn } from '@/lib/utils'
 
 import type { Score } from 'osu-api-v2-js'
@@ -99,10 +101,8 @@ const ScoreCard = ({ score, index, className }: ScoreCardProps) => {
   return (
     <Card className={cn('overflow-hidden rounded-lg border py-0', className)}>
       <CardContent className="px-0">
-        <a
+        <ExternalLink
           href={`https://osu.ppy.sh/beatmapsets/${score.beatmapset.id}#osu/${score.beatmap.id}`}
-          target="_blank"
-          rel="noopener noreferrer"
           className="block transition-colors hover:bg-gray-100 dark:hover:bg-zinc-950"
         >
           <div className="flex items-center border-b border-gray-700">
@@ -136,11 +136,11 @@ const ScoreCard = ({ score, index, className }: ScoreCardProps) => {
 
             <div className="flex -translate-y-4 transform flex-col pr-2">
               <div className="flex items-center gap-2">
-                <div className="flex h-10 w-10 items-center justify-center text-lg font-bold">
-                  <span>#{index + 1}</span>
-                </div>
+              <div className="flex h-10 w-10 items-center justify-center text-lg font-bold">
+                <span>#{index + 1}</span>
               </div>
             </div>
+          </div>
           </div>
 
           <div className="flex justify-between px-2 py-1">
@@ -166,7 +166,7 @@ const ScoreCard = ({ score, index, className }: ScoreCardProps) => {
               </div>
             </div>
           </div>
-        </a>
+        </ExternalLink>
       </CardContent>
     </Card>
   )
@@ -194,7 +194,7 @@ export const OsuBestScores = () => {
   const limit = DEFAULT_SCORE_LIMIT
 
   return (
-    <div className="mx-auto w-full max-w-md space-y-1">
+    <Content size="md" className="space-y-1">
       <Suspense
         fallback={
           <>
@@ -206,6 +206,6 @@ export const OsuBestScores = () => {
       >
         <BestScoresContainer limit={limit} />
       </Suspense>
-    </div>
+    </Content>
   )
 }

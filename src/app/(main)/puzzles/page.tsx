@@ -1,5 +1,11 @@
 import { PageHeader } from '@/components/site/page-header'
 import { SectionHeader } from '@/components/site/section-header'
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyTitle,
+} from '@/components/ui/empty'
 import { PUZZLE_CATEGORIES } from '@/data/puzzles'
 import { fetchOgp } from '@/lib/ogp'
 
@@ -54,9 +60,14 @@ export default async function PuzzlesPage() {
       <PageHeader title={title} description={description} />
 
       {categoriesWithOgp.length === 0 ? (
-        <p className="text-muted-foreground text-sm">
-          まだ謎解きが追加されていません。
-        </p>
+        <Empty>
+          <EmptyHeader>
+            <EmptyTitle>謎解きはまだありません</EmptyTitle>
+            <EmptyDescription>
+              まだ謎解きが追加されていません。
+            </EmptyDescription>
+          </EmptyHeader>
+        </Empty>
       ) : (
         <div className="space-y-10">
           {categoriesWithOgp.map((category) => (

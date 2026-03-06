@@ -5,7 +5,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from '@/components/ui/carousel'
-import { cn } from '@/lib/utils'
+import { Content } from '@/components/site/content'
 
 export type TweetData = {
   id: string
@@ -20,7 +20,7 @@ type TwitterCarouselProps = {
 
 export function TwitterCarousel({ tweets, className }: TwitterCarouselProps) {
   return (
-    <div className={cn('mx-auto w-full max-w-4xl', className)}>
+    <Content size="4xl" className={className}>
       <Carousel
         opts={{
           align: 'start',
@@ -41,6 +41,6 @@ export function TwitterCarousel({ tweets, className }: TwitterCarouselProps) {
         <CarouselPrevious className="dark:bg-popover dark:text-popover-foreground absolute top-1/2 left-4 z-10 -translate-y-1/2 transform" />
         <CarouselNext className="dark:bg-popover dark:text-popover-foreground absolute top-1/2 right-4 z-10 -translate-y-1/2 transform" />
       </Carousel>
-    </div>
+    </Content>
   )
 }

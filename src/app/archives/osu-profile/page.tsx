@@ -5,6 +5,7 @@ import { ProfileCard } from './_components/profile-card'
 import { Section } from '@/components/site/section'
 import { TwitterCarousel } from '@/components/features/social/twitter-carousel'
 import { YouTubeCarousel } from '@/components/features/social/youtube-carousel'
+import { Content } from '@/components/site/content'
 
 import type { Metadata } from 'next'
 import type { PropsWithChildren } from 'react'
@@ -90,11 +91,11 @@ export default async function OsuProfileArchive() {
   return (
     <div className="legacy-osu">
       <div className="flex flex-col items-center">
-        <div className="w-full max-w-4xl py-4">
+        <Content size="4xl" className="py-4">
           <p className="text-muted-foreground mt-2 text-xs">
             This is an archive of the past tenzyudotcom landing page.
           </p>
-        </div>
+        </Content>
 
         <Section className="w-full">
           <ProfileCard />
@@ -102,7 +103,10 @@ export default async function OsuProfileArchive() {
 
         <TableOfContents sections={Object.values(tocSections)} />
 
-        <div className="grid w-full max-w-4xl grid-cols-1 gap-y-12 md:grid-cols-2 md:gap-x-4 md:gap-y-0">
+        <Content
+          size="4xl"
+          className="grid grid-cols-1 gap-y-12 md:grid-cols-2 md:gap-x-4 md:gap-y-0"
+        >
           <Section id={tocSections[SectionKeys.OSU_BEST_SCORES].id}>
             <SectionHeader>
               {tocSections[SectionKeys.OSU_BEST_SCORES].title}
@@ -116,7 +120,7 @@ export default async function OsuProfileArchive() {
             </SectionHeader>
             <YearlyGoals />
           </Section>
-        </div>
+        </Content>
 
         <Section
           className="w-full"
@@ -158,11 +162,11 @@ export default async function OsuProfileArchive() {
           <SectionHeader>
             {tocSections[SectionKeys.OSU_SETTINGS].title}
           </SectionHeader>
-          <div className="mx-auto w-full max-w-4xl space-y-4">
+          <Content size="4xl" className="space-y-4">
             <TabletSettings />
             <KeyboardSettings />
             <MonitorSettings />
-          </div>
+          </Content>
         </Section>
 
         <Section className="w-full" id={tocSections[SectionKeys.MY_LINKS].id}>

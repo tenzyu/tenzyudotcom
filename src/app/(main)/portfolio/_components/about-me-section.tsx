@@ -1,5 +1,6 @@
 import Image from 'next/image'
 
+import { ExternalLink } from '@/components/site/external-link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 
@@ -62,14 +63,9 @@ export const AboutMeSection: FC<Partial<AboutMeProps>> = ({
               className="h-auto px-0 text-primary hover:bg-transparent hover:underline"
               asChild
             >
-              <a
-                href={link.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={link.ariaLabel}
-              >
+              <ExternalLink href={link.url} aria-label={link.ariaLabel}>
                 {link.label} &rarr;
-              </a>
+              </ExternalLink>
             </Button>
           ))}
         </div>

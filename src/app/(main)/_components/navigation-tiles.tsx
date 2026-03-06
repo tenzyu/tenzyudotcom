@@ -14,6 +14,7 @@ import Link from 'next/link'
 
 import { Card } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
+import { Content } from '@/components/site/content'
 
 const NAV_GROUPS = [
   {
@@ -42,7 +43,7 @@ const NAV_GROUPS = [
 
 export function NavigationTiles() {
   return (
-    <div className="mx-auto w-full max-w-5xl space-y-12">
+    <Content size="5xl" className="space-y-12">
       {NAV_GROUPS.map((group) => (
         <section key={group.title} className="space-y-6">
           {/* header */}
@@ -90,6 +91,6 @@ export function NavigationTiles() {
           </div>
         </section>
       ))}
-    </div>
+    </Content>
   )
 }

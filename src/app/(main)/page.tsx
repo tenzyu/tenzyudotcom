@@ -3,6 +3,7 @@ import { getTranslations } from 'next-intl/server'
 
 import { NavigationTiles } from './_components/navigation-tiles'
 import { SelfieGallerySection } from './_components/selfie-gallery-section'
+import { ExternalLink } from '@/components/site/external-link'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -46,22 +47,18 @@ export default async function Home() {
               {t('realName')}
             </Badge>
           </Button>
-          <Button
-            asChild
-            variant="default"
-            size="lg"
-            className="shadow-md transition-transform hover:scale-105"
-          >
-            <a
-              href="https://x.com/FlawInAffection"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <span className="font-bold tracking-widest">
-                @FlawInAffection
-              </span>
-            </a>
-          </Button>
+        <Button
+          asChild
+          variant="default"
+          size="lg"
+          className="shadow-md transition-transform hover:scale-105"
+        >
+          <ExternalLink href="https://x.com/FlawInAffection">
+            <span className="font-bold tracking-widest">
+              @FlawInAffection
+            </span>
+          </ExternalLink>
+        </Button>
         </ButtonGroup>
 
         <span className="bg-linear-to-r from-teal-500 to-blue-500 bg-clip-text font-serif text-sm font-medium text-transparent italic drop-shadow-sm dark:from-teal-400 dark:to-blue-400">

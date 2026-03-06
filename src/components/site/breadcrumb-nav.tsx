@@ -12,6 +12,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
+import { Content } from '@/components/site/content'
 
 export function BreadcrumbNav() {
   const pathname = usePathname()
@@ -39,7 +40,7 @@ export function BreadcrumbNav() {
   if (segments.length === 0) return null
 
   return (
-    <div className="container mx-auto w-full max-w-4xl px-4 py-4 md:py-6">
+    <Content size="4xl" className="px-4 py-4 md:py-6">
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -63,6 +64,6 @@ export function BreadcrumbNav() {
           ))}
         </BreadcrumbList>
       </Breadcrumb>
-    </div>
+    </Content>
   )
 }

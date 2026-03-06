@@ -7,6 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import { Content } from '@/components/site/content'
 
 import { ControlPanel } from './_components/control-panel'
 import { PreviewPanel } from './_components/preview-panel'
@@ -33,7 +34,7 @@ export default function DotTypePage() {
   } = useDotGeneration()
 
   return (
-    <div className="container mx-auto max-w-4xl py-12">
+    <Content size="4xl" className="py-12">
       <Card variant="soft">
         <CardHeader>
           <CardTitle className="text-2xl">Dot Type Generator</CardTitle>
@@ -66,6 +67,6 @@ export default function DotTypePage() {
           />
         </CardContent>
       </Card>
-    </div>
+    </Content>
   )
 }

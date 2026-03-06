@@ -3,6 +3,7 @@ import { MY_LINKS, type LinkCategory } from '@/data/links'
 import { LinkTile } from './link-tile'
 import { ItemGroup } from '@/components/ui/item'
 import { SectionHeader } from '@/components/site/section-header'
+import { Content } from '@/components/site/content'
 const CATEGORIES: { label: string; value: LinkCategory }[] = [
   { label: '📺 Watch', value: 'Watch' },
   { label: '🌐 Social', value: 'Social' },
@@ -17,7 +18,7 @@ export function LinkList() {
   }))
 
   return (
-    <div className="mx-auto w-full max-w-4xl space-y-6">
+    <Content size="4xl" className="space-y-6">
       {groupedLinks.map(
         (group) =>
           group.links.length > 0 && (
@@ -37,6 +38,6 @@ export function LinkList() {
             </section>
           ),
       )}
-    </div>
+    </Content>
   )
 }

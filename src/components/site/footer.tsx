@@ -1,5 +1,7 @@
 'use client'
 
+import { ExternalLink } from '@/components/site/external-link'
+import { Container } from '@/components/site/container'
 import { Button } from '@/components/ui/button'
 
 import { ShareDialog } from '../features/share-dialog'
@@ -22,7 +24,7 @@ const socialLinks = [
 export function Footer() {
   return (
     <footer className="border-border/40 bg-background/50 w-full border-t py-12 backdrop-blur-md">
-      <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-12">
+      <Container>
         <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
           <div className="text-muted-foreground text-sm">
             © {new Date().getFullYear()} tenzyu
@@ -31,14 +33,12 @@ export function Footer() {
           <div className="flex items-center gap-4">
             {socialLinks.map((link) => (
               <Button key={link.label} variant="ghost" asChild>
-                <a
+                <ExternalLink
                   href={link.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
                   className="text-muted-foreground hover:text-primary transition-colors"
                 >
                   {link.label}
-                </a>
+                </ExternalLink>
               </Button>
             ))}
 
@@ -49,7 +49,7 @@ export function Footer() {
             />
           </div>
         </div>
-      </div>
+      </Container>
     </footer>
   )
 }

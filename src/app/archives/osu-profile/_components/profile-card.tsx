@@ -5,6 +5,8 @@ import { Suspense } from 'react'
 
 import { ID_OSU } from '@/app/archives/osu-profile/_data/osu'
 import { getUser } from '@/app/archives/osu-profile/_lib'
+import { Content } from '@/components/site/content'
+import { ExternalLink } from '@/components/site/external-link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -76,12 +78,7 @@ function SocialButton({
       className="flex w-full items-center justify-center gap-2"
       asChild
     >
-      <a
-        href={href}
-        target="_blank"
-        rel="noreferrer"
-        aria-label={`Visit ${iconAlt}`}
-      >
+      <ExternalLink href={href} rel="noreferrer" aria-label={`Visit ${iconAlt}`}>
         <Image
           src={iconSrc}
           alt={iconAlt}
@@ -92,7 +89,7 @@ function SocialButton({
           quality={75}
         />
         <span>{children}</span>
-      </a>
+      </ExternalLink>
     </Button>
   )
 }
@@ -101,65 +98,67 @@ export const ProfileCard = async () => {
   const t = await getTranslations()
 
   return (
-    <Card className="mx-auto w-full max-w-2xl overflow-hidden pt-0">
-      <div
-        className="bg-muted relative aspect-video overflow-hidden"
-        aria-label={t('profile.loading.gameplay')}
-        role="figure"
-      >
-        <Suspense fallback={<LoadingComponent />}>
-          <HeaderBackground />
-        </Suspense>
-        <div className="absolute inset-0 bg-black/20" aria-hidden="true" />
-      </div>
-
-      <CardContent className="px-6 pt-0 pb-6">
-        <div className="relative z-10 -mt-16 flex flex-col items-center">
-          <ProfileImage />
-          <Suspense fallback={<RankingsSkeleton />}>
-            <Rankings />
+    <Content size="2xl">
+      <Card className="overflow-hidden pt-0">
+        <div
+          className="bg-muted relative aspect-video overflow-hidden"
+          aria-label={t('profile.loading.gameplay')}
+          role="figure"
+        >
+          <Suspense fallback={<LoadingComponent />}>
+            <HeaderBackground />
           </Suspense>
+          <div className="absolute inset-0 bg-black/20" aria-hidden="true" />
         </div>
 
-        <div className="mt-4 text-center">
-          <h1 className="text-2xl font-bold">{t('profile.name')}</h1>
-          <p className="mt-2 text-base">{t('profile.description')}</p>
-        </div>
-
-        <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div className="space-y-2">
-            <p className="text-center">{t('profile.goal')}</p>
-            <SocialButton
-              href="https://osu.ppy.sh/users/23318599"
-              iconSrc="/images/osu-logo.png"
-              iconAlt="osu! logo here"
-            >
-              tenzyu
-            </SocialButton>
+        <CardContent className="px-6 pt-0 pb-6">
+          <div className="relative z-10 -mt-16 flex flex-col items-center">
+            <ProfileImage />
+            <Suspense fallback={<RankingsSkeleton />}>
+              <Rankings />
+            </Suspense>
           </div>
 
-          <div className="space-y-2">
-            <p className="text-center">{t('profile.twitchGoal')}</p>
-            <SocialButton
-              href="https://tenzyu.com/u/twitch"
-              iconSrc="/images/twitch-logo.png"
-              iconAlt="Twitch logo here"
-            >
-              tenzyudotcom
-            </SocialButton>
+          <div className="mt-4 text-center">
+            <h1 className="text-2xl font-bold">{t('profile.name')}</h1>
+            <p className="mt-2 text-base">{t('profile.description')}</p>
           </div>
-        </div>
 
-        <div className="mt-6 border-t pt-4">
-          <h3 className="mb-2 font-medium">{t('profile.funFacts')}</h3>
-          <ul className="list-disc space-y-1 pl-5">
-            <li>{t('profile.facts.birthdate')}</li>
-            <li>{t('profile.facts.osuStart')}</li>
-            <li>{t('profile.facts.standingUp')}</li>
-          </ul>
-        </div>
-      </CardContent>
-    </Card>
+          <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <p className="text-center">{t('profile.goal')}</p>
+              <SocialButton
+                href="https://osu.ppy.sh/users/23318599"
+                iconSrc="/images/osu-logo.png"
+                iconAlt="osu! logo here"
+              >
+                tenzyu
+              </SocialButton>
+            </div>
+
+            <div className="space-y-2">
+              <p className="text-center">{t('profile.twitchGoal')}</p>
+              <SocialButton
+                href="https://tenzyu.com/u/twitch"
+                iconSrc="/images/twitch-logo.png"
+                iconAlt="Twitch logo here"
+              >
+                tenzyudotcom
+              </SocialButton>
+            </div>
+          </div>
+
+          <div className="mt-6 border-t pt-4">
+            <h3 className="mb-2 font-medium">{t('profile.funFacts')}</h3>
+            <ul className="list-disc space-y-1 pl-5">
+              <li>{t('profile.facts.birthdate')}</li>
+              <li>{t('profile.facts.osuStart')}</li>
+              <li>{t('profile.facts.standingUp')}</li>
+            </ul>
+          </div>
+        </CardContent>
+      </Card>
+    </Content>
   )
 }
 

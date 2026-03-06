@@ -14,6 +14,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
+import { Content } from '@/components/site/content'
 import { cn } from '@/lib/utils'
 
 export type YouTubeVideo = {
@@ -116,7 +117,7 @@ export function YouTubeCarousel({
   const isShort = type === 'short'
 
   return (
-    <div className={cn('mx-auto w-full', isShort ? 'max-w-3xl' : 'max-w-4xl')}>
+    <Content size={isShort ? '3xl' : '4xl'}>
       <Carousel
         opts={{
           align: 'start',
@@ -157,6 +158,6 @@ export function YouTubeCarousel({
           )}
         />
       </Carousel>
-    </div>
+    </Content>
   )
 }

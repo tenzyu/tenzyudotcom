@@ -1,6 +1,7 @@
 import { ExternalLink as ExternalLinkIcon } from 'lucide-react'
 import Image from 'next/image'
 
+import { ExternalLink } from '@/components/site/external-link'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -27,12 +28,7 @@ function PlatformButton({ link }: { link: PuzzleLink }) {
 
   return (
     <Button variant="soft" size="sm" className="group/btn gap-2" asChild>
-      <a
-        href={link.url}
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label={config.ctaLabel}
-      >
+      <ExternalLink href={link.url} aria-label={config.ctaLabel}>
         <span className="text-base leading-none" aria-hidden="true">
           {config.icon}
         </span>
@@ -41,7 +37,7 @@ function PlatformButton({ link }: { link: PuzzleLink }) {
           className="h-3.5 w-3.5 opacity-40 transition-opacity group-hover/btn:opacity-100"
           aria-hidden="true"
         />
-      </a>
+      </ExternalLink>
     </Button>
   )
 }

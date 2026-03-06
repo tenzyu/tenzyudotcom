@@ -1,3 +1,4 @@
+import { Content } from '@/components/site/content'
 import { cn } from '@/lib/utils'
 
 type ContainerProps = {
@@ -6,14 +7,12 @@ type ContainerProps = {
 
 export function Container({ children, className, ...props }: ContainerProps) {
   return (
-    <div
-      className={cn(
-        'mx-auto w-full max-w-7xl px-5 sm:px-8 lg:px-12',
-        className,
-      )}
+    <Content
+      size="7xl"
+      className={cn('px-5 sm:px-8 lg:px-12', className)}
       {...props}
     >
       {children}
-    </div>
+    </Content>
   )
 }
