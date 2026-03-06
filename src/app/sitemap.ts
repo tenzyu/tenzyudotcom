@@ -10,7 +10,8 @@ export default async function sitemap() {
     '/tools',
     '/portfolio',
     '/archives',
-    '/u',
+    '/puzzles',
+    '/recommendations',
   ].map((route) => ({
     url: `${baseUrl}${route}`,
     lastModified: new Date().toISOString().split('T')[0],

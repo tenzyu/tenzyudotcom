@@ -43,6 +43,18 @@ export default async function Home() {
 
         <div className="mt-6 flex w-full max-w-sm flex-col items-center justify-center gap-4 sm:w-auto sm:max-w-none sm:flex-row">
           <Button
+            variant="secondary"
+            size="lg"
+            className="w-full shadow-sm transition-transform hover:scale-105 sm:w-auto"
+          >
+            <span className="text-foreground text-sm font-bold tracking-widest">
+              夢
+            </span>
+            <Badge className="bg-background/50 border-border ml-1">
+              {t('realName')}
+            </Badge>
+          </Button>
+          <Button
             asChild
             variant="default"
             size="lg"
@@ -58,22 +70,6 @@ export default async function Home() {
                 @FlawInAffection
               </span>
             </a>
-          </Button>
-
-          <Button
-            variant="secondary"
-            size="lg"
-            className="w-full shadow-sm transition-transform hover:scale-105 sm:w-auto"
-          >
-            <span className="text-foreground text-sm font-bold tracking-widest">
-              夢
-            </span>
-            <Badge
-              variant="outline"
-              className="bg-background/50 border-border ml-1"
-            >
-              {t('realName')}
-            </Badge>
           </Button>
         </div>
 
