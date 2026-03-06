@@ -43,12 +43,15 @@ export function SelfieGallerySection({
           >
             <SiteExternalLink
               href={`https://x.com/FlawInAffection/status/${selfie.id}`}
-              className="relative block w-full"
+              className="block w-full"
             >
-              <TweetImage id={selfie.id} />
-              <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/0 transition-colors group-hover:bg-black/10">
-                <ExternalLink className="h-8 w-8 text-white opacity-0 drop-shadow-md transition-opacity group-hover:opacity-100" />
-              </div>
+              <TweetImage
+                id={selfie.id}
+                showLikes
+                overlay={
+                  <ExternalLink className="h-8 w-8 text-white opacity-0 drop-shadow-md transition-opacity group-hover:opacity-100" />
+                }
+              />
             </SiteExternalLink>
           </Card>
         ))}

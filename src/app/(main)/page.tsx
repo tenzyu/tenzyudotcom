@@ -53,7 +53,7 @@ export default async function Home() {
             <span className="text-foreground text-sm font-bold tracking-widest">
               夢
             </span>
-            <span className="bg-border/70 h-4 w-px" aria-hidden="true" />
+            <span className="bg-foreground/30 h-5 w-px" aria-hidden="true" />
             <span className="text-muted-foreground text-xs font-medium">
               {t('realName')}
             </span>
@@ -95,8 +95,8 @@ export default async function Home() {
             </div>
           </div>
         </div>
-        <div className="border-border/60 bg-card/40 rounded-2xl border p-5 sm:p-6">
-          <div className="grid gap-6 md:grid-cols-[1.2fr_1fr_1fr] md:divide-x md:divide-border/60 md:[&>div]:px-6 md:[&>div:first-child]:pl-0 md:[&>div:last-child]:pr-0">
+        <div className="border-border/60 bg-card/40 rounded-2xl border p-4 sm:p-5">
+          <div className="grid gap-4 md:grid-cols-[1.2fr_1fr_1fr] md:gap-5 md:divide-x md:divide-border/60 md:[&>div]:px-4 md:[&>div:first-child]:pl-0 md:[&>div:last-child]:pr-0">
             <div className="space-y-2">
               <p className="text-sm font-semibold tracking-wide">
                 はじめて来た人へ

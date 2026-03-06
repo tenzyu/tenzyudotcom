@@ -75,7 +75,7 @@ export function ShareDialog({
             }}
           />
           <ShareButton
-            icon={<XIcon className="h-5 w-5 text-[#1DA1F2]" />}
+            icon={<XIcon className="h-5 w-5" />}
             label="X"
             onClick={() => {
               handleShare('twitter')

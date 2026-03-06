@@ -3,6 +3,12 @@
 import { ExternalLink } from '@/components/site/external-link'
 import { Container } from '@/components/site/container'
 import { Button } from '@/components/ui/button'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 
 import { ShareDialog } from '../features/share-dialog'
 
@@ -14,10 +20,12 @@ const socialLinks = [
   {
     href: 'https://www.youtube.com/@tenzyudotcom',
     label: 'YouTube',
+    id: '@tenzyudotcom',
   },
   {
     href: 'https://x.com/FlawInAffection',
     label: 'X',
+    id: '@FlawInAffection',
   },
 ]
 
@@ -31,19 +39,37 @@ export function Footer() {
           </div>
 
           <div className="flex items-center gap-4">
-            {socialLinks.map((link) => (
-              <Button key={link.label} variant="ghost" asChild>
-                <ExternalLink
-                  href={link.href}
-                  className="text-muted-foreground hover:text-primary transition-colors"
-                >
-                  {link.label}
-                </ExternalLink>
-              </Button>
-            ))}
+            <TooltipProvider>
+              {socialLinks.map((link) =>
+                link.id ? (
+                  <Tooltip key={link.label}>
+                    <TooltipTrigger asChild>
+                      <Button variant="ghost" asChild>
+                        <ExternalLink
+                          href={link.href}
+                          className="text-muted-foreground hover:text-primary transition-colors"
+                        >
+                          {link.label}
+                        </ExternalLink>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent sideOffset={6}>{link.id}</TooltipContent>
+                  </Tooltip>
+                ) : (
+                  <Button key={link.label} variant="ghost" asChild>
+                    <ExternalLink
+                      href={link.href}
+                      className="text-muted-foreground hover:text-primary transition-colors"
+                    >
+                      {link.label}
+                    </ExternalLink>
+                  </Button>
+                ),
+              )}
+            </TooltipProvider>
 
             <ShareDialog
-              title="TENZYU's secret hideout"
+              title="tenzyu.com"
               triggerLabel="Share"
               triggerClassName="text-muted-foreground hover:text-primary py-2"
             />

@@ -5,7 +5,7 @@ import {
   Hammer,
   Pointer,
   Puzzle,
-  ArrowUpRight,
+  ChevronUp,
   Sparkles,
   User,
   ListMusic,
@@ -24,6 +24,7 @@ import {
   ItemMedia,
   ItemTitle,
 } from '@/components/ui/item'
+import { FAVORITES_COPY } from '@/data/copies'
 
 const NAV_GROUPS = [
   {
@@ -76,8 +77,8 @@ const NAV_GROUPS = [
       },
       {
         href: '/recommendations',
-        label: 'Favorites',
-        description: '好きな音と動画。',
+        label: FAVORITES_COPY.navLabel,
+        description: FAVORITES_COPY.navDescription,
         icon: ListMusic,
       },
       {
@@ -144,7 +145,7 @@ export function NavigationTiles() {
                     </ItemDescription>
                   </ItemContent>
                   <ItemActions className="text-muted-foreground/80">
-                    <ArrowUpRight className="h-4 w-4" />
+                    <ChevronUp className="h-4 w-4" />
                   </ItemActions>
                 </Link>
               </Item>
