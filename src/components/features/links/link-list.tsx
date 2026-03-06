@@ -2,6 +2,7 @@ import { MY_LINKS, type LinkCategory } from '@/data/links'
 
 import { LinkCard } from './link-card'
 import { ItemGroup } from '@/components/ui/item'
+import { SectionHeader } from '@/components/site/section-header'
 const CATEGORIES: { label: string; value: LinkCategory }[] = [
   { label: '📺 Watch', value: 'Watch' },
   { label: '🌐 Social', value: 'Social' },
@@ -21,9 +22,11 @@ export function LinkList() {
         (group) =>
           group.links.length > 0 && (
             <section key={group.value} className="space-y-4">
-              <h2 className="text-xl font-bold tracking-tight">
-                {group.label}
-              </h2>
+              <SectionHeader
+                title={group.label}
+                titleClassName="text-xl"
+                className="space-y-1"
+              />
               <nav aria-label={`${group.label} links`}>
                 <ItemGroup className="xs:grid-cols-2 grid grid-cols-1 gap-4 p-0 sm:grid-cols-3">
                   {group.links.map((link) => (

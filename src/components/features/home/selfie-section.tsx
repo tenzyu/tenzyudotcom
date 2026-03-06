@@ -19,7 +19,8 @@ export function SelfieSection({ title, description }: TimelineSectionProps) {
         {HOME_SELFIES.map((selfie) => (
           <Card
             key={selfie.id}
-            className="group border-border/40 hover:border-primary/50 mb-4 break-inside-avoid overflow-hidden p-0 transition-all hover:scale-105 hover:shadow-md"
+            variant="interactive"
+            className="group mb-4 break-inside-avoid overflow-hidden p-0"
           >
             <a
               href={`https://x.com/FlawInAffection/status/${selfie.id}`}

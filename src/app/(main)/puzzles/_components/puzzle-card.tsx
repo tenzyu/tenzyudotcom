@@ -26,12 +26,11 @@ function PlatformButton({ link }: { link: PuzzleLink }) {
   const config = PLATFORM_CONFIG[link.platform]
 
   return (
-    <Button variant="action" asChild>
+    <Button variant="action" size="sm" className="group/btn gap-2" asChild>
       <a
         href={link.url}
         target="_blank"
         rel="noopener noreferrer"
-        className="group/btn inline-flex items-center gap-2 px-3 py-2 text-sm font-medium focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
         aria-label={config.ctaLabel}
       >
         <span className="text-base leading-none" aria-hidden="true">
@@ -59,7 +58,7 @@ export function PuzzleCard({ puzzle }: { puzzle: PuzzleWithOgp }) {
   const ogpImage = puzzle.ogp.image
 
   return (
-    <Card className="overflow-hidden p-0 shadow-sm transition-shadow hover:shadow-md">
+    <Card variant="interactive" className="overflow-hidden p-0">
       <div className="flex flex-col sm:flex-row">
         {/* OGP Image / Fallback */}
         <div className="bg-muted relative aspect-2/1 w-full shrink-0 sm:aspect-4/3 sm:w-44">

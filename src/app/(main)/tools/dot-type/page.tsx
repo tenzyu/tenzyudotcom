@@ -34,7 +34,7 @@ export default function DotTypePage() {
 
   return (
     <div className="container mx-auto max-w-4xl py-12">
-      <Card>
+      <Card variant="glass">
         <CardHeader>
           <CardTitle className="text-2xl">Dot Type Generator</CardTitle>
           <CardDescription>

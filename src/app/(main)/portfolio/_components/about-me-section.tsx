@@ -1,6 +1,7 @@
 import Image from 'next/image'
 
 import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
 
 import type { FC } from 'react'
 
@@ -33,15 +34,15 @@ export const AboutMeSection: FC<Partial<AboutMeProps>> = ({
     },
   ],
 }) => (
-  <div className="border-border border-b pb-8">
-    <div className="flex flex-col items-start gap-6 md:flex-row">
+  <Card variant="glass" className="p-0">
+    <CardContent className="flex flex-col items-start gap-6 pt-6 md:flex-row">
       <div className="shrink-0">
         <Image
           src={imageUrl}
           alt="Profile"
           width={120}
           height={120}
-          className="border-border rounded-md border shadow-sm"
+          className="border-border/60 rounded-2xl border shadow-sm"
           priority
         />
       </div>
@@ -73,6 +74,6 @@ export const AboutMeSection: FC<Partial<AboutMeProps>> = ({
           ))}
         </div>
       </div>
-    </div>
-  </div>
+    </CardContent>
+  </Card>
 )

@@ -1,6 +1,7 @@
 import { SectionHeader } from '@/components/site/section-header'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 export type Project = {
   name: string
@@ -59,52 +60,58 @@ export function ProjectsSection() {
       <SectionHeader title="個人開発プロジェクト" variant="underline" />
       <div className="space-y-10">
         {projects.map((project) => (
-          <div key={project.name} className="space-y-3">
-            <h3 className="text-lg font-semibold">{project.name}</h3>
-            <p className="text-primary leading-relaxed font-medium">
-              {project.highlight}
-            </p>
-            <p className="text-sm leading-relaxed">{project.description}</p>
-            <p className="text-muted-foreground text-sm leading-relaxed">
-              <strong>開発の動機:</strong> {project.motivation}
-            </p>
-            <div className="flex flex-wrap gap-2 pt-1">
-              {project.technologies.map((tech) => (
-                <Badge key={tech} variant="secondary">
-                  {tech}
-                </Badge>
-              ))}
-            </div>
-            <div className="flex flex-wrap gap-4 pt-2 text-sm font-medium">
-              {project.github ? (
-                <Button variant="link" asChild>
-                  <a
-                    href={project.github}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    GitHub &rarr;
-                  </a>
-                </Button>
-              ) : null}
-              {project.demo ? (
-                <Button variant="link" asChild>
-                  <a
-                    href={project.demo}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Demo &rarr;
-                  </a>
-                </Button>
-              ) : null}
-            </div>
-            {project.note ? (
-              <p className="text-muted-foreground mt-1 text-xs">
-                ※ {project.note}
+          <Card key={project.name} variant="soft" className="p-0">
+            <CardHeader className="gap-2">
+              <CardTitle className="text-lg font-semibold">
+                {project.name}
+              </CardTitle>
+              <p className="text-primary text-sm leading-relaxed font-medium">
+                {project.highlight}
               </p>
-            ) : null}
-          </div>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <p className="text-sm leading-relaxed">{project.description}</p>
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                <strong>開発の動機:</strong> {project.motivation}
+              </p>
+              <div className="flex flex-wrap gap-2 pt-1">
+                {project.technologies.map((tech) => (
+                  <Badge key={tech} variant="secondary">
+                    {tech}
+                  </Badge>
+                ))}
+              </div>
+              <div className="flex flex-wrap gap-4 pt-2 text-sm font-medium">
+                {project.github ? (
+                  <Button variant="link" asChild>
+                    <a
+                      href={project.github}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      GitHub &rarr;
+                    </a>
+                  </Button>
+                ) : null}
+                {project.demo ? (
+                  <Button variant="link" asChild>
+                    <a
+                      href={project.demo}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Demo &rarr;
+                    </a>
+                  </Button>
+                ) : null}
+              </div>
+              {project.note ? (
+                <p className="text-muted-foreground text-xs">
+                  ※ {project.note}
+                </p>
+              ) : null}
+            </CardContent>
+          </Card>
         ))}
       </div>
     </div>

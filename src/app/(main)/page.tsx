@@ -1,12 +1,19 @@
-import Image from 'next/image'
-import { MapPin, Sparkles, Gamepad2 } from 'lucide-react'
+import { Gamepad2, MapPin, Sparkles } from 'lucide-react'
 import { getTranslations } from 'next-intl/server'
 
 import { NavigationGrid } from '@/components/features/home/navigation-grid'
 import { SelfieSection } from '@/components/features/home/selfie-section'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { ButtonGroup } from '@/components/ui/button-group'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from '@/components/ui/hover-card'
+import { Separator } from '@/components/ui/separator'
 
 export default async function Home() {
   const t = await getTranslations('home')
@@ -17,14 +24,10 @@ export default async function Home() {
         <div className="relative mx-auto h-36 w-36 sm:h-44 sm:w-44">
           <div className="bg-primary/20 absolute inset-0 animate-pulse rounded-full blur-3xl" />
           <div className="border-border/50 bg-background relative h-full w-full overflow-hidden rounded-full border shadow-2xl ring-1 ring-black/5 transition-transform duration-700 hover:scale-105 dark:ring-white/5">
-            <Image
-              src="/images/ltvgbz.jpg"
-              alt="Profile"
-              width={176}
-              height={176}
-              priority
-              className="h-full w-full object-cover"
-            />
+            <Avatar className="h-full w-full">
+              <AvatarImage src="/images/ltvgbz.jpg" alt="Profile" />
+              <AvatarFallback>TN</AvatarFallback>
+            </Avatar>
           </div>
         </div>
 
@@ -36,7 +39,7 @@ export default async function Home() {
           </h1>
         </div>
 
-        <div className="mt-6 flex w-full max-w-sm flex-col items-center justify-center gap-4 sm:w-auto sm:max-w-none sm:flex-row">
+        <ButtonGroup className="mt-6 w-full max-w-sm flex-col items-center justify-center gap-3 sm:w-auto sm:max-w-none sm:flex-row">
           <Button
             variant="secondary"
             size="lg"
@@ -66,19 +69,28 @@ export default async function Home() {
               </span>
             </a>
           </Button>
-        </div>
+        </ButtonGroup>
 
         <span className="bg-linear-to-r from-teal-500 to-blue-500 bg-clip-text font-serif text-sm font-medium text-transparent italic drop-shadow-sm dark:from-teal-400 dark:to-blue-400">
           {t('slogan')}
         </span>
 
-        <Card>
+        <Card variant="glass" className="w-full max-w-2xl">
           <CardHeader>
             <CardTitle className="text-left text-xl font-bold tracking-tight">
-              <p className="flex items-center gap-3">
-                <MapPin className="text-primary h-8 w-8 shrink-0" />
-                <span>Now in Tokyo, Japan</span>
-              </p>
+              <div className="flex flex-wrap items-center gap-3">
+                <MapPin className="text-primary h-7 w-7 shrink-0" />
+                <HoverCard>
+                  <HoverCardTrigger asChild>
+                    <span className="cursor-help text-left underline decoration-dashed decoration-border/70 underline-offset-4">
+                      Now in Tokyo, Japan
+                    </span>
+                  </HoverCardTrigger>
+                  <HoverCardContent className="text-sm leading-relaxed">
+                    {t('slogan')}
+                  </HoverCardContent>
+                </HoverCard>
+              </div>
             </CardTitle>
           </CardHeader>
 
@@ -92,6 +104,7 @@ export default async function Home() {
                 </span>
               </span>
             </p>
+            <Separator className="bg-border/50" />
             <p className="flex items-center gap-3">
               <Gamepad2 className="text-primary h-4 w-4 shrink-0" />
               <span>

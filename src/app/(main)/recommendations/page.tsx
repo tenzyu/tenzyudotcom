@@ -40,7 +40,7 @@ export default async function RecommendationsPage() {
         </TabsList>
 
         <TabsContent value="music" className="space-y-4 border-none p-0">
-          <Card className="bg-card/50 overflow-hidden p-6 shadow-sm">
+          <Card variant="glass" className="overflow-hidden p-6">
             <YouTubeCarousel videos={videosWithTitles as any} type="video" />
           </Card>
         </TabsContent>

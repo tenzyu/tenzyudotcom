@@ -1,6 +1,7 @@
 import { Check, Copy } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
+import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 
 type PreviewPanelProps = {
@@ -17,9 +18,7 @@ export function PreviewPanel({
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <label className="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-          プレビュー (コピーして使用してください)
-        </label>
+        <Label>プレビュー (コピーして使用してください)</Label>
         <Button
           onClick={onCopy}
           size="sm"

@@ -2,6 +2,7 @@ import { Dispatch, SetStateAction } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 
 type ControlPanelProps = {
   inputText: string
@@ -19,9 +20,7 @@ export function ControlPanel({
   return (
     <div className="space-y-6">
       <div className="space-y-2">
-        <label className="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-          入力テキスト
-        </label>
+        <Label>入力テキスト</Label>
         <Input
           value={inputText}
           onChange={(e) => {
@@ -33,7 +32,7 @@ export function ControlPanel({
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-medium">文字の向き</label>
+        <Label>文字の向き</Label>
         <div className="flex gap-4">
           <Button
             variant={orientation === 'horizontal' ? 'default' : 'outline'}

@@ -1,6 +1,7 @@
 import { Dispatch, SetStateAction } from 'react'
 
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 
 type SettingsPanelProps = {
   fontSize: number
@@ -27,9 +28,9 @@ export function SettingsPanel({
     <div className="space-y-6">
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div className="space-y-2">
-          <label className="text-sm font-medium">
+          <Label>
             フォントサイズ / グリッドサイズ (px)
-          </label>
+          </Label>
           <Input
             type="number"
             value={fontSize}
@@ -41,7 +42,7 @@ export function SettingsPanel({
           />
         </div>
         <div className="space-y-2">
-          <label className="text-sm font-medium">しきい値 (0-255)</label>
+          <Label>しきい値 (0-255)</Label>
           <Input
             type="number"
             value={threshold}
@@ -56,7 +57,7 @@ export function SettingsPanel({
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div className="space-y-2">
-          <label className="text-sm font-medium">使用文字 (黒)</label>
+          <Label>使用文字 (黒)</Label>
           <Input
             value={pixelChar}
             onChange={(e) => {
@@ -66,7 +67,7 @@ export function SettingsPanel({
           />
         </div>
         <div className="space-y-2">
-          <label className="text-sm font-medium">背景文字 (白)</label>
+          <Label>背景文字 (白)</Label>
           <Input
             value={emptyChar}
             onChange={(e) => {

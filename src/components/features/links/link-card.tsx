@@ -8,7 +8,6 @@ import {
   ItemMedia,
   ItemTitle,
 } from '@/components/ui/item'
-import { cn } from '@/lib/utils'
 
 import type { MyLink } from '@/data/links'
 
@@ -31,7 +30,7 @@ function LinkIcon({ icon }: { icon: string }) {
 
 export function LinkCard({ link }: LinkCardProps) {
   return (
-    <Item asChild variant="outline" className="w-full">
+    <Item asChild variant="card" className="w-full">
       <Link
         href={`/links/${link.shortenUrl}`}
         target="_blank"
@@ -39,12 +38,8 @@ export function LinkCard({ link }: LinkCardProps) {
         aria-label={`Visit ${link.name} profile - ${link.id}`}
       >
         <ItemMedia
-          variant="default"
-          className={cn(
-            'bg-primary/5 shrink-0 rounded-full',
-            'dark:bg-secondary-foreground',
-            'size-10',
-          )}
+          variant="avatar"
+          className="dark:bg-secondary-foreground"
         >
           <LinkIcon icon={link.icon} />
         </ItemMedia>

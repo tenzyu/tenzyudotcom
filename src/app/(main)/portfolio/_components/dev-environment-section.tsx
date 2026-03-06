@@ -67,7 +67,7 @@ export function DevEnvironmentSection() {
           <AccordionContent className="space-y-6 pt-4">
             <div className="space-y-6">
               {environments.map((env) => (
-                <Card key={env.title}>
+                <Card key={env.title} variant="soft">
                   <CardContent className="space-y-2 pt-6">
                     <h3 className="text-lg font-semibold">{env.title}</h3>
                     <p className="text-sm font-medium">{env.subtitle}</p>
@@ -83,7 +83,7 @@ export function DevEnvironmentSection() {
               ))}
             </div>
 
-            <Card className="bg-muted/20">
+            <Card variant="outline">
               <CardContent className="space-y-3 pt-6">
                 <h3 className="text-sm font-semibold">ネットワーク接続構成</h3>
                 <ul className="text-muted-foreground list-inside list-disc space-y-1 text-sm">

@@ -2,6 +2,7 @@ import { CalendarIcon } from 'lucide-react'
 import Link from 'next/link'
 
 import { Badge } from '@/components/ui/badge'
+import { Card } from '@/components/ui/card'
 import { formatDate } from '@/lib/blog/utils'
 import { cn } from '@/lib/utils'
 
@@ -23,14 +24,15 @@ export function BlogCard({
   className,
 }: BlogCardProps) {
   return (
-    <Link
-      href={`/blog/${slug}`}
-      prefetch
+    <Card
+      asChild
+      variant="interactive"
       className={cn(
-        'group border-border/40 hover:border-primary/50 hover:bg-muted/30 focus-visible:ring-primary flex flex-col gap-3 rounded-2xl border p-5 transition-all focus-visible:ring-2 focus-visible:outline-none',
+        'group gap-3 rounded-2xl p-5 focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:outline-none',
         className,
       )}
     >
+      <Link href={`/blog/${slug}`} prefetch>
       <div className="flex flex-col gap-2 md:flex-row md:items-baseline md:justify-between">
         <h2 className="group-hover:text-primary line-clamp-2 text-xl font-bold tracking-tight transition-colors">
           {title}
@@ -59,6 +61,7 @@ export function BlogCard({
           ))}
         </div>
       ) : null}
-    </Link>
+      </Link>
+    </Card>
   )
 }
