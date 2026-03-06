@@ -42,7 +42,7 @@ export default async function Home() {
             <span className="text-foreground text-sm font-bold tracking-widest">
               夢
             </span>
-            <Badge className="bg-background/50 border-border ml-1">
+            <Badge className="bg-background/50 text-foreground border-border dark:bg-background/50 dark:border-border/50 ml-1">
               {t('realName')}
             </Badge>
           </Button>

@@ -23,7 +23,8 @@ export function SelfieGallerySection({
           <Card
             key={selfie.id}
             variant="interactive"
-            className="group mb-4 break-inside-avoid overflow-hidden p-0"
+            className="group mb-4 break-inside-avoid overflow-hidden border p-0"
+            asChild
           >
             <a
               href={`https://x.com/FlawInAffection/status/${selfie.id}`}
