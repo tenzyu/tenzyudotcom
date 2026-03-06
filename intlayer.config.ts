@@ -1,13 +1,13 @@
-import { type IntlayerConfig, Locales } from 'intlayer'
+import { Locales, type IntlayerConfig } from 'intlayer'
 
 const config: IntlayerConfig = {
   internationalization: {
     locales: [Locales.JAPANESE, Locales.ENGLISH],
     defaultLocale: Locales.JAPANESE,
   },
-
   routing: {
     mode: 'search-params',
+    // storage: 'cookie',
   },
 }
 

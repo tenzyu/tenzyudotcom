@@ -1,6 +1,11 @@
 {
   "version": 1,
   "skills": {
+    "intlayer-next-js": {
+      "source": "aymericzip/intlayer-skills",
+      "sourceType": "github",
+      "computedHash": "f5bf70c49efc9c67537561decf571d9555c15ad82cb7751cc2854fb21decafd4"
+    },
     "vercel-composition-patterns": {
       "source": "vercel-labs/agent-skills",
       "sourceType": "github",

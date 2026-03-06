@@ -1,7 +1,6 @@
-import { withIntlayer } from 'next-intlayer/server'
+import { withIntlayerSync } from 'next-intlayer/server'
 import withBundleAnalyzer from '@next/bundle-analyzer'
 import createMDX from '@next/mdx'
-import createNextIntlPlugin from 'next-intl/plugin'
 
 import type { NextConfig } from 'next'
 
@@ -73,10 +72,8 @@ const withMDX = createMDX({
   },
 })
 
-const withNextIntl = createNextIntlPlugin()
+const config = withBundleAnalyzer({
+  enabled: process.env.ANALYZE === 'true',
+})(withMDX(withIntlayerSync(nextConfig, { enableTurbopack: true })))
 
-export default withIntlayer(
-  withBundleAnalyzer({
-    enabled: process.env.ANALYZE === 'true',
-  })(withNextIntl(withMDX(nextConfig))),
-)
+export default config
