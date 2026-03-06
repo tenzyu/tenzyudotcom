@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import React, { useMemo } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 
 import {
   Breadcrumb,
@@ -15,7 +15,12 @@ import {
 import { Content } from '@/components/site/content'
 
 export function BreadcrumbNav() {
+  const [mounted, setMounted] = useState(false)
   const pathname = usePathname()
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const segments = useMemo(() => {
     if (!pathname || pathname === '/') return []
@@ -37,7 +42,7 @@ export function BreadcrumbNav() {
     })
   }, [pathname])
 
-  if (segments.length === 0) return null
+  if (!mounted || segments.length === 0) return null
 
   return (
     <Content size="4xl" className="px-4 py-4 md:py-6">
