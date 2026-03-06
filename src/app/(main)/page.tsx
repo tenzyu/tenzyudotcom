@@ -21,7 +21,7 @@ const ENTRY_LINKS = [
   },
   {
     href: '/recommendations',
-    label: 'Recommendations',
+    label: 'Favorites',
   },
 ] as const
 
@@ -32,8 +32,8 @@ export default async function Home() {
       {/* HeroSection */}
       <section className="relative flex flex-col items-center justify-center gap-4 py-4 text-center">
         <div className="relative mx-auto h-36 w-36 sm:h-44 sm:w-44">
-          <div className="bg-primary/40 absolute inset-0 animate-pulse rounded-full blur-3xl opacity-95" />
-          <div className="bg-primary/60 absolute inset-0 scale-110 animate-pulse rounded-full blur-[72px] opacity-70" />
+          <div className="bg-primary/40 absolute inset-0 animate-pulse rounded-full opacity-95 blur-3xl" />
+          <div className="bg-primary/60 absolute inset-0 scale-110 animate-pulse rounded-full opacity-70 blur-[72px]" />
           <div className="border-border/50 bg-background relative h-full w-full overflow-hidden rounded-full border shadow-2xl ring-1 ring-black/5 transition-transform duration-700 hover:scale-105 dark:ring-white/5">
             <Avatar className="h-full w-full">
               <AvatarImage src="/images/ltvgbz.jpg" alt="Profile" />
@@ -43,7 +43,7 @@ export default async function Home() {
         </div>
 
         <h1 className="font-serif text-4xl font-black tracking-tighter text-balance sm:text-5xl md:text-7xl">
-          <span className="bg-linear-to-r from-pink-500 via-purple-500 to-indigo-500 bg-clip-text px-2 pb-2 text-transparent drop-shadow-sm dark:from-pink-400 dark:via-purple-400 dark:to-indigo-400">
+          <span className="bg-linear-to-r from-pink-500 via-purple-500 to-indigo-500 bg-clip-text px-2 pb-2 font-serif text-transparent drop-shadow-sm dark:from-pink-400 dark:via-purple-400 dark:to-indigo-400">
             {t('catchphrase')}
           </span>
         </h1>
@@ -73,7 +73,7 @@ export default async function Home() {
           </Button>
         </ButtonGroup>
 
-        <span className="bg-linear-to-r from-teal-500 to-blue-500 bg-clip-text text-sm font-semibold text-transparent italic drop-shadow-sm dark:from-teal-400 dark:to-blue-400 font-[var(--font-shippori)]">
+        <span className="text-semibold bg-linear-to-r from-teal-500 to-blue-500 bg-clip-text font-serif text-transparent italic drop-shadow-sm dark:from-teal-400 dark:to-blue-400">
           {t('slogan')}
         </span>
       </section>
@@ -96,7 +96,7 @@ export default async function Home() {
           </div>
         </div>
         <div className="border-border/60 bg-card/40 rounded-2xl border p-4 sm:p-5">
-          <div className="grid gap-4 md:grid-cols-[1.2fr_1fr_1fr] md:gap-5 md:divide-x md:divide-border/60 md:[&>div]:px-4 md:[&>div:first-child]:pl-0 md:[&>div:last-child]:pr-0">
+          <div className="md:divide-border/60 grid gap-4 md:grid-cols-[1.2fr_1fr_1fr] md:gap-5 md:divide-x md:[&>div]:px-4 md:[&>div:first-child]:pl-0 md:[&>div:last-child]:pr-0">
             <div className="space-y-2">
               <p className="text-sm font-semibold tracking-wide">
                 はじめて来た人へ

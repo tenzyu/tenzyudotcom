@@ -1,11 +1,5 @@
-import dynamic from 'next/dynamic'
-import Script from "next/script";
-import {
-  Geist,
-  Geist_Mono,
-  Playfair_Display,
-  Shippori_Mincho,
-} from 'next/font/google'
+import Script from 'next/script'
+import { Geist, Geist_Mono, Noto_Serif_JP } from 'next/font/google'
 import { NextIntlClientProvider } from 'next-intl'
 import { getLocale } from 'next-intl/server'
 
@@ -35,16 +29,12 @@ const geistMono = Geist_Mono({
   subsets: ['latin'],
 })
 
-const playfairDisplay = Playfair_Display({
-  variable: '--font-playfair',
+const notoSerifJp = Noto_Serif_JP({
+  variable: '--font-noto-serif-jp',
   subsets: ['latin'],
+  fallback: ['Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'sans-serif'],
 })
 
-const shipporiMincho = Shippori_Mincho({
-  variable: '--font-shippori',
-  weight: ['400', '600', '700'],
-  subsets: ['latin'],
-})
 const title = "TENZYU's secret hideout"
 const description = 'a secret hideout'
 export const metadata: Metadata = {
@@ -97,14 +87,14 @@ export default async function RootLayout({
   return (
     <html lang={locale} suppressHydrationWarning>
       <head>
-        {process.env.NODE_ENV === "development" && (
+        {process.env.NODE_ENV === 'development' && (
           <Script
             src="//unpkg.com/react-grab/dist/index.global.js"
             crossOrigin="anonymous"
             strategy="beforeInteractive"
           />
         )}
-        {process.env.NODE_ENV === "development" && (
+        {process.env.NODE_ENV === 'development' && (
           <Script
             src="//unpkg.com/@react-grab/codex/dist/client.global.js"
             strategy="lazyOnload"
@@ -115,7 +105,7 @@ export default async function RootLayout({
         <link rel="preconnect" href="https://assets.ppy.sh" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${playfairDisplay.variable} ${shipporiMincho.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${notoSerifJp.variable} antialiased`}
       >
         <ThemeProvider
           attribute="class"

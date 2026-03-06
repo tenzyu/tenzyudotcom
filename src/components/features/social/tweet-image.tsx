@@ -63,6 +63,9 @@ const TweetImageComponent = async ({
         <div className="border-border/60 text-muted-foreground flex items-center gap-2 border-t px-3 py-2 text-xs font-medium">
           <Heart className="h-3.5 w-3.5" aria-hidden="true" />
           <span>{formattedLikes ?? '—'}</span>
+          <span className="text-muted-foreground/70 ml-auto text-[10px] uppercase tracking-wide">
+            from X
+          </span>
         </div>
       ) : null}
     </div>

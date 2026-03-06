@@ -23,6 +23,9 @@ export function OtakuAside({ label, children }: OtakuAsideProps) {
           variant="ghost"
           size="sm"
           className="group h-7 px-2 text-xs text-muted-foreground/80 hover:text-foreground"
+          onClick={(event) => {
+            event.stopPropagation()
+          }}
         >
           <span
             aria-hidden

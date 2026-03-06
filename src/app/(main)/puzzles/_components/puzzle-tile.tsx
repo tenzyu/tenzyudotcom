@@ -52,55 +52,86 @@ export type PuzzleWithOgp = {
 export function PuzzleTile({ puzzle }: { puzzle: PuzzleWithOgp }) {
   const ogpDescription = puzzle.ogp.description
   const ogpImage = puzzle.ogp.image
+  const isSingleWebLink =
+    puzzle.links.length === 1 && puzzle.links[0]?.platform === 'web'
+  const primaryLink = puzzle.links[0]
 
-  return (
-    <Card variant="interactive" className="overflow-hidden p-0">
-      <div className="flex flex-col sm:flex-row">
-        {/* OGP Image / Fallback */}
-        <div className="bg-muted relative aspect-2/1 w-full shrink-0 sm:aspect-4/3 sm:w-44">
-          {ogpImage ? (
-            <Image
-              src={ogpImage}
-              alt={`${puzzle.title} のサムネイル`}
-              fill
-              className="object-cover"
-              sizes="(max-width: 640px) 100vw, 176px"
-              unoptimized
-            />
-          ) : (
-            <div className="flex h-full items-center justify-center">
-              <span
-                className="text-muted-foreground/60 text-5xl"
-                aria-hidden="true"
-              >
-                🧩
+  const content = (
+    <div className="flex flex-col sm:flex-row">
+      {/* OGP Image / Fallback */}
+      <div className="bg-muted relative aspect-2/1 w-full shrink-0 sm:aspect-4/3 sm:w-44">
+        {ogpImage ? (
+          <Image
+            src={ogpImage}
+            alt={`${puzzle.title} のサムネイル`}
+            fill
+            className="object-cover"
+            sizes="(max-width: 640px) 100vw, 176px"
+            unoptimized
+          />
+        ) : (
+          <div className="flex h-full items-center justify-center">
+            <span
+              className="text-muted-foreground/60 text-5xl"
+              aria-hidden="true"
+            >
+              🧩
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* Content */}
+      <div className="flex min-w-0 flex-1 flex-col justify-center gap-2 py-2">
+        <CardHeader className="gap-1">
+          <CardTitle className="text-lg leading-snug text-balance">
+            {puzzle.title}
+          </CardTitle>
+          {ogpDescription ? (
+            <CardDescription className="line-clamp-2 text-pretty">
+              {ogpDescription}
+            </CardDescription>
+          ) : null}
+        </CardHeader>
+
+        <CardContent>
+          {isSingleWebLink ? (
+            <div className="text-muted-foreground inline-flex items-center gap-2 text-xs font-medium">
+              <span className="text-base leading-none" aria-hidden="true">
+                {PLATFORM_CONFIG.web.icon}
               </span>
+              <span>{PLATFORM_CONFIG.web.ctaLabel}</span>
+              <ExternalLinkIcon className="h-3.5 w-3.5 opacity-40" />
             </div>
-          )}
-        </div>
-
-        {/* Content */}
-        <div className="flex min-w-0 flex-1 flex-col justify-center gap-2 py-2">
-          <CardHeader className="gap-1">
-            <CardTitle className="text-lg leading-snug text-balance">
-              {puzzle.title}
-            </CardTitle>
-            {ogpDescription ? (
-              <CardDescription className="line-clamp-2 text-pretty">
-                {ogpDescription}
-              </CardDescription>
-            ) : null}
-          </CardHeader>
-
-          <CardContent>
+          ) : (
             <div className="flex flex-wrap gap-2">
               {puzzle.links.map((link) => (
                 <PlatformButton key={link.platform} link={link} />
               ))}
             </div>
-          </CardContent>
-        </div>
+          )}
+        </CardContent>
       </div>
+    </div>
+  )
+
+  if (isSingleWebLink && primaryLink) {
+    return (
+      <Card variant="interactive" className="overflow-hidden p-0" asChild>
+        <ExternalLink
+          href={primaryLink.url}
+          aria-label={PLATFORM_CONFIG.web.ctaLabel}
+          className="block"
+        >
+          {content}
+        </ExternalLink>
+      </Card>
+    )
+  }
+
+  return (
+    <Card variant="interactive" className="overflow-hidden p-0">
+      {content}
     </Card>
   )
 }

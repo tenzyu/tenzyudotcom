@@ -5,7 +5,7 @@ import { YouTubePlaylist } from '@/components/features/social/youtube-playlist'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { FAVORITES_COPY } from '@/data/copies'
 import { RECOMMENDATION_VIDEOS } from '@/data/recommendations'
-import { fetchYouTubeTitle, fetchYouTubeViewCount } from '@/lib/youtube'
+import { fetchYouTubeVideoMeta } from '@/lib/youtube'
 
 import type { Metadata } from 'next'
 
@@ -22,14 +22,11 @@ export default async function RecommendationsPage() {
   const viewLocale = isJa ? 'ja-JP' : 'en-US'
   const videosWithTitles = await Promise.all(
     RECOMMENDATION_VIDEOS.map(async (v) => {
-      const [title, fetchedViews] = await Promise.all([
-        fetchYouTubeTitle(v.id),
-        fetchYouTubeViewCount(v.id, viewLocale),
-      ])
+      const { title, views } = await fetchYouTubeVideoMeta(v.id, viewLocale)
       return {
         id: v.id,
         note: isJa ? v.note.ja : v.note.en,
-        views: fetchedViews === '—' ? v.views : fetchedViews,
+        views,
         title,
       }
     }),

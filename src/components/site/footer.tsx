@@ -1,5 +1,7 @@
 'use client'
 
+import { useLocale } from 'next-intl'
+
 import { ExternalLink } from '@/components/site/external-link'
 import { Container } from '@/components/site/container'
 import { Button } from '@/components/ui/button'
@@ -16,6 +18,7 @@ const socialLinks = [
   {
     href: 'https://twitch.tv/tenzyudotcom',
     label: 'Twitch',
+    id: '@tenzyudotcom',
   },
   {
     href: 'https://www.youtube.com/@tenzyudotcom',
@@ -30,6 +33,12 @@ const socialLinks = [
 ]
 
 export function Footer() {
+  const locale = useLocale()
+  const shareTitle =
+    locale === 'ja'
+      ? '天珠の秘密基地, tenzyu.com'
+      : "TENZYU's secret hideout, tenzyu.com"
+
   return (
     <footer className="border-border/40 bg-background/50 w-full border-t py-12 backdrop-blur-md">
       <Container>
@@ -70,6 +79,7 @@ export function Footer() {
 
             <ShareDialog
               title="tenzyu.com"
+              shareText={shareTitle}
               triggerLabel="Share"
               triggerClassName="text-muted-foreground hover:text-primary py-2"
             />

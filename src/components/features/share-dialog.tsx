@@ -19,24 +19,27 @@ import { shareContent } from '@/lib/utils/share'
 
 type ShareDialogProps = {
   title: string
+  shareText?: string
   triggerClassName?: string
   triggerLabel?: string
 }
 
 export function ShareDialog({
   title,
+  shareText,
   triggerClassName,
   triggerLabel,
 }: ShareDialogProps) {
   const [open, setOpen] = useState(false)
   const [shareUrl, setShareUrl] = useState('')
+  const shareMessage = shareText ?? title
 
   useEffect(() => {
     setShareUrl(window.location.href)
   }, [])
 
   const handleShare = (platform: string) => {
-    const result = shareContent(platform, shareUrl, title)
+    const result = shareContent(platform, shareUrl, shareMessage)
     if (result.copied) {
       toast.success('Link copied to clipboard', { description: shareUrl })
       setOpen(false)

@@ -1,30 +1,65 @@
-export async function fetchYouTubeTitle(videoId: string): Promise<string> {
-  try {
-    const res = await fetch(
-      `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`,
-    )
-    if (!res.ok) return 'Unknown'
-    const data = await res.json()
-    return data.title || 'Unknown'
-  } catch (error) {
-    return 'Unknown'
-  }
+import 'server-only'
+
+import { cache } from 'react'
+
+type YouTubeVideoData = {
+  title: string
+  viewCount?: number
 }
 
-export async function fetchYouTubeViewCount(
+type YouTubeApiResponse = {
+  items?: Array<{
+    snippet?: { title?: string }
+    statistics?: { viewCount?: string }
+  }>
+}
+
+const fetchYouTubeVideoData = cache(
+  async (videoId: string): Promise<YouTubeVideoData | null> => {
+    const apiKey = process.env.YOUTUBE_DATA_API_KEY
+    if (!apiKey) return null
+
+    try {
+      const url = new URL('https://www.googleapis.com/youtube/v3/videos')
+      url.searchParams.set('part', 'snippet,statistics')
+      url.searchParams.set('id', videoId)
+      url.searchParams.set('key', apiKey)
+
+      const res = await fetch(url.toString(), {
+        next: { revalidate: 60 * 60 },
+      })
+      if (!res.ok) return null
+
+      const data = (await res.json()) as YouTubeApiResponse
+      const item = data.items?.[0]
+      if (!item) return null
+
+      const title = item.snippet?.title ?? 'Unknown'
+      const viewCountRaw = item.statistics?.viewCount
+      const viewCount = viewCountRaw ? Number(viewCountRaw) : undefined
+
+      return {
+        title,
+        viewCount: Number.isFinite(viewCount) ? viewCount : undefined,
+      }
+    } catch {
+      return null
+    }
+  },
+)
+
+function formatViewCount(count: number | undefined, locale: string) {
+  if (!count || !Number.isFinite(count)) return '—'
+  return new Intl.NumberFormat(locale).format(count)
+}
+
+export async function fetchYouTubeVideoMeta(
   videoId: string,
   locale: string = 'en-US',
-): Promise<string> {
-  try {
-    const res = await fetch(`https://www.youtube.com/watch?v=${videoId}`)
-    if (!res.ok) return '—'
-    const html = await res.text()
-    const match = html.match(/"viewCount":"(\\d+)"/)
-    if (!match) return '—'
-    const count = Number(match[1])
-    if (!Number.isFinite(count)) return '—'
-    return new Intl.NumberFormat(locale).format(count)
-  } catch (error) {
-    return '—'
+): Promise<{ title: string; views: string }> {
+  const data = await fetchYouTubeVideoData(videoId)
+  return {
+    title: data?.title ?? 'Unknown',
+    views: formatViewCount(data?.viewCount, locale),
   }
 }

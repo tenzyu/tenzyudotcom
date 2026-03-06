@@ -5,7 +5,7 @@ import {
   Hammer,
   Pointer,
   Puzzle,
-  ChevronUp,
+  ChevronRight,
   Sparkles,
   User,
   ListMusic,
@@ -145,7 +145,7 @@ export function NavigationTiles() {
                     </ItemDescription>
                   </ItemContent>
                   <ItemActions className="text-muted-foreground/80">
-                    <ChevronUp className="h-4 w-4" />
+                    <ChevronRight className="h-4 w-4" />
                   </ItemActions>
                 </Link>
               </Item>
