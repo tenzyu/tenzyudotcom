@@ -34,7 +34,7 @@ export default function DotTypePage() {
     outputText,
     copyToClipboard,
     isCopied,
-  } = useDotGeneration({ initialText: content.defaults.inputText })
+  } = useDotGeneration({ initialText: content.defaults.inputText.value })
 
   return (
     <Content size="4xl" className="py-12">
@@ -49,7 +49,7 @@ export default function DotTypePage() {
             setInputText={setInputText}
             orientation={orientation}
             setOrientation={setOrientation}
-            labels={content.labels}
+            labels={content.labels.values()}
           />
           <SettingsPanel
             fontSize={fontSize}
@@ -60,13 +60,13 @@ export default function DotTypePage() {
             setPixelChar={setPixelChar}
             emptyChar={emptyChar}
             setEmptyChar={setEmptyChar}
-            labels={content.labels}
+            labels={content.labels.values()}
           />
           <PreviewPanel
             outputText={outputText}
             onCopy={copyToClipboard}
             isCopied={isCopied}
-            labels={content.labels}
+            labels={content.labels.values()}
           />
         </CardContent>
       </Card>

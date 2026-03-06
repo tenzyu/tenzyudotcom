@@ -1,8 +1,12 @@
-import { ActionLinkTile } from '../_components/action-link-tile'
+import { ActionLinkTile } from '../(home)/_components/action-link-tile'
 import { PageHeader } from '@/components/site/page-header'
 import { SectionHeader } from '@/components/site/section-header'
 import { DASHBOARD_DATA } from '@/data/pointers'
-import { IntlayerServerProvider, getLocale, useIntlayer } from 'next-intlayer/server'
+import {
+  IntlayerServerProvider,
+  getLocale,
+  useIntlayer,
+} from 'next-intlayer/server'
 
 export const dynamic = 'force-static'
 

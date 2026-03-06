@@ -75,8 +75,8 @@ export function Footer({ locale }: { locale: string }) {
 
             <ShareDialog
               title="tenzyu.com"
-              shareText={shareTitle}
-              triggerLabel={footer.shareLabel}
+              shareText={shareTitle.value}
+              triggerLabel={footer.shareLabel.value}
               triggerClassName="text-muted-foreground hover:text-primary py-2"
             />
           </div>

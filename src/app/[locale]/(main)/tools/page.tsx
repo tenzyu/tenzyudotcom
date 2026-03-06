@@ -17,6 +17,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import { NextLayoutIntlayer } from 'next-intlayer'
 
 export const dynamic = 'force-static'
 
@@ -34,8 +35,8 @@ const ICONS = {
   type: Type,
 } as const
 
-export default async function ToolsPage() {
-  const locale = await getLocale()
+const ToolsPage: NextLayoutIntlayer = async ({ params }) => {
+  const { locale } = await params
   const content = useIntlayer('toolsPage', locale)
 
   return (
@@ -80,3 +81,5 @@ export default async function ToolsPage() {
     </IntlayerServerProvider>
   )
 }
+
+export default ToolsPage

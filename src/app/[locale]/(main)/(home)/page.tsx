@@ -2,26 +2,26 @@ import Link from 'next/link'
 import { getLocalizedUrl } from 'intlayer'
 import {
   IntlayerServerProvider,
-  getLocale,
+  locale,
   useIntlayer,
 } from 'next-intlayer/server'
 
-import { ArrowUpRight, Clock } from 'lucide-react'
+import { Clock } from 'lucide-react'
 
 import { NavigationTiles } from './_components/navigation-tiles'
 import { SelfieGallerySection } from './_components/selfie-gallery-section'
-import { ExternalLink } from '@/components/site/external-link'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
+import { NextPageIntlayer } from 'next-intlayer'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { ButtonGroup } from '@/components/ui/button-group'
+import { ArrowUpRight } from 'lucide-react'
+import { ExternalLink } from '@/components/site/external-link'
 
-export default async function Home() {
-  const locale = await getLocale()
-  const home = useIntlayer('home', locale)
+const PageContent: React.FC = () => {
+  const home = useIntlayer('home')
 
   return (
-    <IntlayerServerProvider locale={locale}>
-      {/* HeroSection */}
+    <>
       <section className="relative flex flex-col items-center justify-center gap-4 py-4 text-center">
         <div className="relative mx-auto h-36 w-36 sm:h-44 sm:w-44">
           <div className="bg-primary/40 absolute inset-0 animate-pulse rounded-full opacity-95 blur-3xl" />
@@ -32,7 +32,7 @@ export default async function Home() {
                 src="/images/ltvgbz.jpg"
                 alt={home.profileImageAlt.value}
               />
-              <AvatarFallback>TN</AvatarFallback>
+              <AvatarFallback>{home.profileImageFallback}</AvatarFallback>
             </Avatar>
           </div>
         </div>
@@ -72,7 +72,6 @@ export default async function Home() {
           {home.slogan}
         </span>
       </section>
-
       <section className="space-y-6">
         <div className="space-y-2">
           <div className="flex items-center gap-4">
@@ -143,16 +142,24 @@ export default async function Home() {
           </div>
         </div>
       </section>
-
       <div className="py-4" />
-
       <NavigationTiles />
-
       <div className="py-4" />
       <SelfieGallerySection
         title={home.timeline.value}
         description={home.timelineDesc.value}
       />
+    </>
+  )
+}
+
+const HomePage: NextPageIntlayer = async ({ params }) => {
+  const { locale } = await params
+  return (
+    <IntlayerServerProvider locale={locale}>
+      <PageContent />
     </IntlayerServerProvider>
   )
 }
+
+export default HomePage

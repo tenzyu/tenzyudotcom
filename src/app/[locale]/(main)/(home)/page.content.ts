@@ -11,6 +11,7 @@ const homeContent = {
       ja: 'プロフィール画像',
       en: 'Profile image',
     }),
+    profileImageFallback: 'TN',
     realName: t({
       ja: '本名 = 天珠',
       en: 'Real Name = Tenzyu',
