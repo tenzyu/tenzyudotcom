@@ -101,7 +101,7 @@ export default async function RootLayout({
           <NextIntlClientProvider>
             <div className="flex min-h-screen flex-col">
               <Header locale={locale} />
-              <main className="-mb-16 flex-grow -translate-y-16 transform pt-16">
+              <main className="-mb-16 grow -translate-y-16 transform pt-16">
                 <Container>
                   <BreadcrumbNav />
                   <TooltipProvider>{children}</TooltipProvider>

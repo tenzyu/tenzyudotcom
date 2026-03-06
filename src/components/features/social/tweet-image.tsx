@@ -29,7 +29,7 @@ const TweetImageComponent = async ({ id }: { id: string }) => {
 
 export const TweetImage = ({ id }: { id: string }) => {
   return (
-    <Suspense fallback={<div className="bg-muted aspect-[3/4] w-full" />}>
+    <Suspense fallback={<div className="bg-muted aspect-3/4 w-full" />}>
       <TweetImageComponent id={id} />
     </Suspense>
   )
