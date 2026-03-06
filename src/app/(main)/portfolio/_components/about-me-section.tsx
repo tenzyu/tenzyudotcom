@@ -13,12 +13,12 @@ export type AboutMeProps = {
 
 export const AboutMeSection: FC<Partial<AboutMeProps>> = ({
   name = '天珠 (tenzyu)',
-  description = '大阪府在住のフロントエンドエンジニア。React / Next.js / TypeScript を用いたWebアプリケーション開発を専門としています。',
+  description = '東京都在住のフロントエンドエンジニア。React / Next.js / TypeScript を用いたWebアプリケーション開発を専門としています。',
   imageUrl = '/images/my-icon.png',
   links = [
     {
       label: 'Blog',
-      url: 'https://tenzyu.com',
+      url: 'https://tenzyu.com/blog',
       ariaLabel: 'Blog',
     },
     {
@@ -27,15 +27,15 @@ export const AboutMeSection: FC<Partial<AboutMeProps>> = ({
       ariaLabel: 'GitHub',
     },
     {
-      label: 'X (Twitter)',
+      label: 'X',
       url: 'https://x.com/tenzyudotcom',
-      ariaLabel: 'X(Twitter)',
+      ariaLabel: 'X',
     },
   ],
 }) => (
   <div className="border-border border-b pb-8">
     <div className="flex flex-col items-start gap-6 md:flex-row">
-      <div className="flex-shrink-0">
+      <div className="shrink-0">
         <Image
           src={imageUrl}
           alt="Profile"
