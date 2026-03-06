@@ -1,7 +1,6 @@
 import { notFound } from 'next/navigation'
 
 import { baseUrl } from '@/app/sitemap'
-import { ProfileCard } from '@/components/site/profile-card'
 import { CustomMDX } from '@/lib/blog/custom-mdx'
 import { getBlogPosts } from '@/lib/blog/getBlogPosts'
 import { formatDate } from '@/lib/blog/utils'
