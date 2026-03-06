@@ -37,12 +37,8 @@ export default async function Home() {
           </span>
         </h1>
 
-        <ButtonGroup className="mt-6 w-full max-w-sm flex-col items-center justify-center gap-3 sm:w-auto sm:max-w-none sm:flex-row">
-          <Button
-            variant="soft"
-            size="lg"
-            className="w-full shadow-sm transition-transform hover:scale-105 sm:w-auto"
-          >
+        <ButtonGroup className="flex-row-2 mt-6 items-center justify-center gap-3 sm:max-w-none">
+          <Button variant="soft" size="lg" className="shadow-sm">
             <span className="text-foreground text-sm font-bold tracking-widest">
               夢
             </span>
@@ -54,7 +50,7 @@ export default async function Home() {
             asChild
             variant="default"
             size="lg"
-            className="w-full shadow-md transition-transform hover:scale-105 sm:w-auto"
+            className="shadow-md transition-transform hover:scale-105"
           >
             <a
               href="https://x.com/FlawInAffection"
@@ -79,7 +75,7 @@ export default async function Home() {
                 <MapPin className="text-primary h-7 w-7 shrink-0" />
                 <HoverCard>
                   <HoverCardTrigger asChild>
-                    <span className="cursor-help text-left underline decoration-dashed decoration-border/70 underline-offset-4">
+                    <span className="decoration-border/70 cursor-help text-left underline decoration-dashed underline-offset-4">
                       Now in Tokyo, Japan
                     </span>
                   </HoverCardTrigger>

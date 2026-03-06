@@ -10,10 +10,9 @@ const cardVariants = cva(
     variants: {
       variant: {
         default: 'bg-card border-border shadow-sm',
-        soft:
-          'bg-card/70 border-border/50 shadow-sm backdrop-blur-md dark:bg-card/60',
+        soft: 'bg-card/70 border-border/50 shadow-sm backdrop-blur-md dark:bg-card/60',
         interactive:
-          'bg-card border-border/60 shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md',
+          'bg-card border-border/60 shadow-sm transition-all hover:border-primary/30 hover:shadow-md',
       },
     },
     defaultVariants: {
