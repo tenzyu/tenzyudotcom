@@ -11,11 +11,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip'
 
 const LANGUAGES = [
   { label: '日本語', value: 'ja', short: 'JA' },
@@ -40,27 +35,22 @@ export function LanguageSwitcher({ currentLocale }: { currentLocale: string }) {
 
   return (
     <DropdownMenu>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="soft"
-              className="gap-2 px-3"
-              aria-label="Change language"
-            >
-              <Globe className="text-muted-foreground h-[1.2rem] w-[1.2rem]" />
-              <span className="hidden font-medium sm:inline-block">
-                {currentLang?.label ?? 'Language'}
-              </span>
-              <span className="inline-block font-medium sm:hidden">
-                {currentLang?.short ?? 'Lang'}
-              </span>
-              <ChevronDown className="h-4 w-4 opacity-50" />
-            </Button>
-          </DropdownMenuTrigger>
-        </TooltipTrigger>
-        <TooltipContent>Change language</TooltipContent>
-      </Tooltip>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="soft"
+          className="gap-2 px-3"
+          aria-label="Change language"
+        >
+          <Globe className="text-muted-foreground h-[1.2rem] w-[1.2rem]" />
+          <span className="hidden font-medium sm:inline-block">
+            {currentLang?.label ?? 'Language'}
+          </span>
+          <span className="inline-block font-medium sm:hidden">
+            {currentLang?.short ?? 'Lang'}
+          </span>
+          <ChevronDown className="h-4 w-4 opacity-50" />
+        </Button>
+      </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         {LANGUAGES.map((lang) => (
           <DropdownMenuItem

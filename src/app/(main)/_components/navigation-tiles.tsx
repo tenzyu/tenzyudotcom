@@ -5,6 +5,7 @@ import {
   Hammer,
   Pointer,
   Puzzle,
+  ArrowUpRight,
   Sparkles,
   User,
   ListMusic,
@@ -12,9 +13,17 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 
-import { Card } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { Content } from '@/components/site/content'
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemGroup,
+  ItemMedia,
+  ItemTitle,
+} from '@/components/ui/item'
 
 const NAV_GROUPS = [
   {
@@ -22,10 +31,30 @@ const NAV_GROUPS = [
     subtitle: 'What I do',
     icon: User,
     items: [
-      { href: '/tools', label: 'Tools', icon: Hammer },
-      { href: '/blog', label: 'Blog', icon: FileText },
-      { href: '/portfolio', label: 'Portfolio', icon: Disc },
-      { href: '/archives', label: 'Archives', icon: FolderArchive },
+      {
+        href: '/tools',
+        label: 'Tools',
+        description: '自作ツールやスクリプト。',
+        icon: Hammer,
+      },
+      {
+        href: '/blog',
+        label: 'Blog',
+        description: '書き留めたメモと記録。',
+        icon: FileText,
+      },
+      {
+        href: '/portfolio',
+        label: 'Portfolio',
+        description: '採用担当の方はこちら。',
+        icon: Disc,
+      },
+      {
+        href: '/archives',
+        label: 'Archives',
+        description: '過去のログとまとめ。',
+        icon: FolderArchive,
+      },
     ],
   },
   {
@@ -33,10 +62,30 @@ const NAV_GROUPS = [
     subtitle: 'Jump to external resources',
     icon: Sparkles,
     items: [
-      { href: '/links', label: 'My Links', icon: LinkIcon },
-      { href: '/puzzles', label: 'Favorite Puzzles', icon: Puzzle },
-      { href: '/recommendations', label: 'Recommendations', icon: ListMusic },
-      { href: '/pointers', label: 'Quick access', icon: Pointer },
+      {
+        href: '/links',
+        label: 'My Links',
+        description: '配信先と外部リンク集。',
+        icon: LinkIcon,
+      },
+      {
+        href: '/puzzles',
+        label: 'Solved Puzzles',
+        description: '解いた謎解きの記録。',
+        icon: Puzzle,
+      },
+      {
+        href: '/recommendations',
+        label: 'Favorites',
+        description: '好きな音と動画。',
+        icon: ListMusic,
+      },
+      {
+        href: '/pointers',
+        label: 'Quick access',
+        description: 'ブックマークみたいなもの。',
+        icon: Pointer,
+      },
     ],
   },
 ] as const
@@ -67,28 +116,40 @@ export function NavigationTiles() {
           </div>
 
           {/* content */}
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+          <ItemGroup className="grid gap-3 md:grid-cols-2">
             {group.items.map((item) => (
-              <Card
+              <Item
                 key={item.href}
-                variant="interactive"
-                className="group h-auto w-full items-center gap-3 px-4 py-5 text-center"
+                variant="card"
+                size="sm"
+                className="group h-auto w-full"
                 asChild
               >
                 <Link
                   href={item.href}
-                  className="flex flex-col items-center gap-3"
+                  className="flex w-full items-center gap-3"
                 >
-                  <div className="bg-primary/10 group-hover:bg-primary flex h-12 w-12 items-center justify-center rounded-full transition-colors duration-500">
-                    <item.icon className="text-primary group-hover:text-primary-foreground h-6 w-6 transition-colors duration-500" />
-                  </div>
-                  <span className="group-hover:text-primary text-sm font-bold tracking-wide transition-colors duration-500">
-                    {item.label}
-                  </span>
+                  <ItemMedia
+                    variant="icon"
+                    className="bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground"
+                  >
+                    <item.icon className="h-4 w-4" />
+                  </ItemMedia>
+                  <ItemContent className="min-w-0">
+                    <ItemTitle className="text-sm font-semibold">
+                      {item.label}
+                    </ItemTitle>
+                    <ItemDescription className="text-xs">
+                      {item.description}
+                    </ItemDescription>
+                  </ItemContent>
+                  <ItemActions className="text-muted-foreground/80">
+                    <ArrowUpRight className="h-4 w-4" />
+                  </ItemActions>
                 </Link>
-              </Card>
+              </Item>
             ))}
-          </div>
+          </ItemGroup>
         </section>
       ))}
     </Content>

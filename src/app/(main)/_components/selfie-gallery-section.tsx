@@ -1,7 +1,6 @@
-import { ExternalLink } from 'lucide-react'
+import { Camera, ExternalLink } from 'lucide-react'
 
 import { ExternalLink as SiteExternalLink } from '@/components/site/external-link'
-import { SectionHeader } from '@/components/site/section-header'
 import { Card } from '@/components/ui/card'
 import { TweetImage } from '@/components/features/social/tweet-image'
 import { HOME_SELFIES } from '@/data/home'
@@ -17,7 +16,22 @@ export function SelfieGallerySection({
 }: TimelineSectionProps) {
   return (
     <section className="space-y-6">
-      <SectionHeader title={title} description={description} />
+      <div className="space-y-2">
+        <div className="flex items-center gap-4">
+          <div className="bg-primary/10 flex size-14 shrink-0 items-center justify-center rounded-2xl">
+            <Camera className="text-primary h-7 w-7" />
+          </div>
+          <div className="flex flex-1 flex-col justify-center">
+            <div className="flex items-center gap-4">
+              <h2 className="text-2xl font-bold tracking-tight">{title}</h2>
+              <div className="bg-border/50 h-px flex-1" />
+            </div>
+            <p className="text-muted-foreground text-sm font-medium">
+              {description}
+            </p>
+          </div>
+        </div>
+      </div>
 
       <div className="columns-2 gap-4 md:columns-3">
         {HOME_SELFIES.map((selfie) => (

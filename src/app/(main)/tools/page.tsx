@@ -30,7 +30,7 @@ const ICONS = {
 export default async function ToolsPage() {
   const locale = await getLocale()
   const isJa = locale === 'ja'
-  const otakuLabel = isJa ? 'オタク特有の早口' : 'Nerdy rapid-fire take'
+  const commentLabel = isJa ? 'ひとことコメント' : 'Quick comment'
 
   return (
     <>
@@ -56,7 +56,7 @@ export default async function ToolsPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-3 text-sm">
-                <OtakuAside label={otakuLabel}>
+                <OtakuAside label={commentLabel}>
                   {isJa ? tool.note.ja : tool.note.en}
                 </OtakuAside>
                 <Button asChild variant="soft" size="sm">
