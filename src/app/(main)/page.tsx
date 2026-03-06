@@ -35,7 +35,7 @@ export default async function Home() {
 
         <div className="flex flex-col items-center space-y-4">
           <h1 className="font-serif text-4xl font-black tracking-tighter text-balance sm:text-5xl md:text-7xl">
-            <span className="bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 bg-clip-text px-2 pb-2 text-transparent drop-shadow-sm dark:from-pink-400 dark:via-purple-400 dark:to-indigo-400">
+            <span className="bg-linear-to-r from-pink-500 via-purple-500 to-indigo-500 bg-clip-text px-2 pb-2 text-transparent drop-shadow-sm dark:from-pink-400 dark:via-purple-400 dark:to-indigo-400">
               {t('catchphrase')}
             </span>
           </h1>
@@ -73,7 +73,7 @@ export default async function Home() {
           </Button>
         </div>
 
-        <span className="bg-gradient-to-r from-teal-500 to-blue-500 bg-clip-text font-serif text-sm font-medium text-transparent italic drop-shadow-sm dark:from-teal-400 dark:to-blue-400">
+        <span className="bg-linear-to-r from-teal-500 to-blue-500 bg-clip-text font-serif text-sm font-medium text-transparent italic drop-shadow-sm dark:from-teal-400 dark:to-blue-400">
           {t('slogan')}
         </span>
 
