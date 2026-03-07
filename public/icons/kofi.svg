@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
+  <title id="title">Ko-fi</title>
+  <desc id="desc">A pink coffee mug with a heart</desc>
+  <rect x="10" y="18" width="34" height="28" rx="8" fill="#ffffff" stroke="#1f2937" stroke-width="4"/>
+  <path d="M44 24h6c5.523 0 10 4.477 10 10s-4.477 10-10 10h-6" fill="none" stroke="#1f2937" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M27 27c1.857-3.656 7.143-3.656 9 0 1.035 2.037.597 4.544-1.09 6.136L31.5 36l-3.41-2.864C26.403 31.544 25.965 29.037 27 27Z" fill="#ff5e9c"/>
+  <path d="M18 50h30" fill="none" stroke="#1f2937" stroke-width="4" stroke-linecap="round"/>
+</svg>

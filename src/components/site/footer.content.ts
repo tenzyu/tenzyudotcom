@@ -7,6 +7,10 @@ const footerContent = {
       ja: '共有',
       en: 'Share',
     }),
+    supportLabel: t({
+      ja: 'Ko-fi で支援',
+      en: 'Support on Ko-fi',
+    }),
   },
 } satisfies Dictionary
 

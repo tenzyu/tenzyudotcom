@@ -1,6 +1,7 @@
 import { useIntlayer } from 'next-intlayer/server'
 import { Container } from '@/components/site/container'
 import { ExternalLink } from '@/components/site/external-link'
+import { KoFiLink } from '@/components/site/kofi-link'
 import { Button } from '@/components/ui/button'
 import {
   Tooltip,
@@ -71,6 +72,8 @@ export function Footer({ locale }: { locale: string }) {
                 ),
               )}
             </TooltipProvider>
+
+            <KoFiLink label={footer.supportLabel.value} />
 
             <ShareDialog
               title="tenzyu.com"

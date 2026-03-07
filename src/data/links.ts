@@ -11,14 +11,6 @@ export type MyLink = {
 
 export const MY_LINKS: MyLink[] = [
   {
-    name: 'osu!',
-    id: '@tenzyu',
-    url: 'https://osu.ppy.sh/users/23318599',
-    shortenUrl: 'osu',
-    icon: 'osu',
-    category: 'Social',
-  },
-  {
     name: 'Twitch',
     id: '@tenzyudotcom',
     url: 'https://www.twitch.tv/tenzyudotcom',
@@ -43,6 +35,38 @@ export const MY_LINKS: MyLink[] = [
     category: 'Social',
   },
   {
+    name: 'Bluesky',
+    id: '@tenzyu.com',
+    url: 'https://bsky.app/profile/tenzyu.com',
+    shortenUrl: 'bsky',
+    icon: 'bsky',
+    category: 'Social',
+  },
+  {
+    name: 'Ko-fi',
+    id: '@tenzyu',
+    url: 'https://ko-fi.com/tenzyu',
+    shortenUrl: 'kofi',
+    icon: 'kofi',
+    category: 'Social',
+  },
+  {
+    name: 'TikTok',
+    id: '@flawinaffection',
+    url: 'https://www.tiktok.com/@flawinaffection',
+    shortenUrl: 'tiktok',
+    icon: 'tiktok',
+    category: 'Social',
+  },
+  {
+    name: 'Instagram',
+    id: '@flawinaffection',
+    url: 'https://www.instagram.com/flawinaffection/',
+    shortenUrl: 'instagram',
+    icon: 'instagram',
+    category: 'Social',
+  },
+  {
     name: 'Discord',
     id: 'server',
     url: 'https://discord.gg/vWEypRa86N',
@@ -56,6 +80,14 @@ export const MY_LINKS: MyLink[] = [
     url: 'https://www.reddit.com/user/tenzyudotcom/',
     shortenUrl: 'reddit',
     icon: 'reddit',
+    category: 'Social',
+  },
+  {
+    name: 'osu!',
+    id: '@tenzyu',
+    url: 'https://osu.ppy.sh/users/23318599',
+    shortenUrl: 'osu',
+    icon: 'osu',
     category: 'Social',
   },
   {
