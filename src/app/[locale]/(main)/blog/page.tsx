@@ -1,7 +1,7 @@
-import { getLocalizedUrl } from 'intlayer'
+import { getIntlayer, getLocalizedUrl } from 'intlayer'
 import type { Metadata } from 'next'
-import { getIntlayer, type LocalPromiseParams } from 'next-intlayer'
-import { IntlayerServerProvider } from 'next-intlayer/server'
+import type { LocalPromiseParams } from 'next-intlayer'
+import { IntlayerServerProvider, useIntlayer } from 'next-intlayer/server'
 import { PageHeader } from '@/components/site/page-header'
 import {
   Pagination,
@@ -23,8 +23,8 @@ export async function generateMetadata({
   const content = getIntlayer('blogPage', locale)
 
   return {
-    title: content.metadata.title.value,
-    description: content.metadata.description.value,
+    title: content.metadata.title,
+    description: content.metadata.description,
   }
 }
 
@@ -38,7 +38,7 @@ type PageProps = LocalPromiseParams & {
 
 export default async function Page({ params, searchParams }: PageProps) {
   const { locale } = await params
-  const content = getIntlayer('blogPage', locale)
+  const content = useIntlayer('blogPage', locale)
 
   const awaited_posts = await getBlogPosts()
   const totalPages = Math.ceil(awaited_posts.length / PAGE_SIZE)

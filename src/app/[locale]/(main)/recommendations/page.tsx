@@ -10,6 +10,7 @@ import { PageHeader } from '@/components/site/page-header'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { fetchYouTubeVideoMeta } from '@/lib/youtube'
 
+export const dynamic = 'force-static'
 export async function generateMetadata({
   params,
 }: LocalPromiseParams): Promise<Metadata> {

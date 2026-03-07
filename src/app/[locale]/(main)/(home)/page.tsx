@@ -1,7 +1,8 @@
-import { getLocalizedUrl } from 'intlayer'
+import { getIntlayer, getLocalizedUrl } from 'intlayer'
 import { ArrowUpRight, Clock } from 'lucide-react'
+import type { Metadata } from 'next'
 import Link from 'next/link'
-import type { NextPageIntlayer } from 'next-intlayer'
+import type { LocalPromiseParams, NextPageIntlayer } from 'next-intlayer'
 import {
   IntlayerServerProvider,
   locale,
@@ -13,6 +14,19 @@ import { Button } from '@/components/ui/button'
 import { ButtonGroup } from '@/components/ui/button-group'
 import { NavigationTiles } from './_components/navigation-tiles'
 import { SelfieGallerySection } from './_components/selfie-gallery-section'
+
+export const dynamic = 'force-static'
+
+export async function generateMetadata({
+  params,
+}: LocalPromiseParams): Promise<Metadata> {
+  const { locale } = await params
+  const content = getIntlayer('home', locale)
+
+  return {
+    description: content.metadata.description,
+  }
+}
 
 const PageContent: React.FC = () => {
   const home = useIntlayer('home')

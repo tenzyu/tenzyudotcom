@@ -1,10 +1,7 @@
+import { getIntlayer } from 'intlayer'
 import type { Metadata } from 'next'
-import {
-  getIntlayer,
-  type LocalPromiseParams,
-  type NextPageIntlayer,
-} from 'next-intlayer'
-import { IntlayerServerProvider } from 'next-intlayer/server'
+import type { LocalPromiseParams, NextPageIntlayer } from 'next-intlayer'
+import { IntlayerServerProvider, useIntlayer } from 'next-intlayer/server'
 import { PageHeader } from '@/components/site/page-header'
 import { SectionHeader } from '@/components/site/section-header'
 import { DASHBOARD_DATA } from '@/data/pointers'
@@ -19,14 +16,14 @@ export async function generateMetadata({
   const content = getIntlayer('pointersPage', locale)
 
   return {
-    title: content.metadata.title.value,
-    description: content.metadata.description.value,
+    title: content.metadata.title,
+    description: content.metadata.description,
   }
 }
 
 const PointersPage: NextPageIntlayer = async ({ params }) => {
   const { locale } = await params
-  const content = getIntlayer('pointersPage', locale)
+  const content = useIntlayer('pointersPage', locale)
 
   return (
     <IntlayerServerProvider locale={locale}>

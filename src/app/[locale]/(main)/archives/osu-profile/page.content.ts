@@ -9,18 +9,18 @@ const osuProfilePageContent = {
         en: 'osu! Profile | Archives',
       }),
       description: t({
-        ja: '過去のtenzyudotcomトップページにあったosu!プロフィールのアーカイブ。',
-        en: 'An archive of the past tenzyudotcom landing page.',
+        ja: '過去のトップページにあったosu!プロフィールのアーカイブ。',
+        en: 'An archive of the past tenzyu.com landing page.',
       }),
     },
     archiveNote: t({
-      ja: 'これは過去のtenzyudotcomトップページのアーカイブです。',
-      en: 'This is an archive of the past tenzyudotcom landing page.',
+      ja: 'これは過去のトップページのアーカイブです。',
+      en: 'This is an archive of the past tenzyu.com landing page.',
     }),
     sections: {
       osuBestScores: t({
         ja: 'ベストパフォーマンス',
-        en: 'osu! Best Scores',
+        en: 'Best Scores',
       }),
       yearlyGoals: t({
         ja: '2025年の目標',

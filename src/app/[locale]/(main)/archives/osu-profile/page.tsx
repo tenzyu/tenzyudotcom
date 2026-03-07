@@ -1,9 +1,6 @@
+import { getIntlayer } from 'intlayer'
 import type { Metadata } from 'next'
-import {
-  getIntlayer,
-  type LocalPromiseParams,
-  type NextPageIntlayer,
-} from 'next-intlayer'
+import type { LocalPromiseParams, NextPageIntlayer } from 'next-intlayer'
 import { IntlayerServerProvider, useIntlayer } from 'next-intlayer/server'
 import type { PropsWithChildren } from 'react'
 import { LinkList } from '@/components/features/links/link-list'
@@ -36,8 +33,8 @@ export async function generateMetadata({
   const content = getIntlayer('osuProfilePage', locale)
 
   return {
-    title: content.metadata.title.value,
-    description: content.metadata.description.value,
+    title: content.metadata.title,
+    description: content.metadata.description,
   }
 }
 
@@ -65,8 +62,8 @@ const ArchiveSection = ({
 
 const OsuProfileArchive: NextPageIntlayer = async ({ params }) => {
   const { locale } = await params
-  const content = useIntlayer('osuProfilePage')
-  const videoContent = useIntlayer('osuProfileVideos')
+  const content = useIntlayer('osuProfilePage', locale)
+  const videoContent = useIntlayer('osuProfileVideos', locale)
 
   const getText = (value: { value: string } | string) =>
     typeof value === 'string' ? value : value.value

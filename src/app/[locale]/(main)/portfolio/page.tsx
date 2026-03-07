@@ -4,7 +4,7 @@ import {
   type LocalPromiseParams,
   type NextPageIntlayer,
 } from 'next-intlayer'
-import { IntlayerServerProvider } from 'next-intlayer/server'
+import { IntlayerServerProvider, useIntlayer } from 'next-intlayer/server'
 import { Separator } from '@/components/ui/separator'
 import { AboutMeSection } from './_components/about-me-section'
 import { DevEnvironmentSection } from './_components/dev-environment-section'
@@ -28,7 +28,7 @@ export async function generateMetadata({
 
 const PortfolioPage: NextPageIntlayer = async ({ params }) => {
   const { locale } = await params
-  const content = getIntlayer('portfolio', locale)
+  const content = useIntlayer('portfolio', locale)
 
   return (
     <IntlayerServerProvider locale={locale}>

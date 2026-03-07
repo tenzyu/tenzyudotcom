@@ -1,13 +1,9 @@
-import { getLocalizedUrl } from 'intlayer'
+import { getIntlayer, getLocalizedUrl } from 'intlayer'
 import { Type } from 'lucide-react'
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import {
-  getIntlayer,
-  type LocalPromiseParams,
-  type NextPageIntlayer,
-} from 'next-intlayer'
-import { IntlayerServerProvider } from 'next-intlayer/server'
+import type { LocalPromiseParams, NextPageIntlayer } from 'next-intlayer'
+import { IntlayerServerProvider, useIntlayer } from 'next-intlayer/server'
 import { OtakuAside } from '@/components/site/otaku-aside'
 import { PageHeader } from '@/components/site/page-header'
 import { Button } from '@/components/ui/button'
@@ -18,6 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+
 export const dynamic = 'force-static'
 
 export async function generateMetadata({
@@ -27,8 +24,8 @@ export async function generateMetadata({
   const content = getIntlayer('toolsPage', locale)
 
   return {
-    title: content.metadata.title.value,
-    description: content.metadata.description.value,
+    title: content.metadata.title,
+    description: content.metadata.description,
   }
 }
 
@@ -38,7 +35,7 @@ const ICONS = {
 
 const ToolsPage: NextPageIntlayer = async ({ params }) => {
   const { locale } = await params
-  const content = getIntlayer('toolsPage', locale)
+  const content = useIntlayer('toolsPage', locale)
 
   return (
     <IntlayerServerProvider locale={locale}>

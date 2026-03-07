@@ -3,17 +3,19 @@ import { type Dictionary, t } from 'intlayer'
 const siteContent = {
   key: 'site',
   content: {
-    title: t({
-      ja: 'TENZYUの秘密基地',
-      en: "TENZYU's secret hideout",
-    }),
-    titleTemplate: t({
-      ja: '%s | TENZYUの秘密基地',
-      en: "%s | TENZYU's secret hideout",
-    }),
+    title: {
+      default: t({
+        ja: '天珠の個人サイト',
+        en: "TENZYU's personal website",
+      }),
+      template: t({
+        ja: '%s | 天珠の個人サイト',
+        en: "%s | TENZYU's personal website",
+      }),
+    },
     description: t({
-      ja: '秘密基地',
-      en: 'A secret hideout',
+      ja: '秘密基地 - fallback description  ',
+      en: 'A secret hideout - fallback description',
     }),
     shareTitle: t({
       ja: '天珠の秘密基地, tenzyu.com',

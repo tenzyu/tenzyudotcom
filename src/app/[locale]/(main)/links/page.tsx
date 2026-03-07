@@ -1,9 +1,6 @@
+import { getIntlayer } from 'intlayer'
 import type { Metadata } from 'next'
-import {
-  getIntlayer,
-  type LocalPromiseParams,
-  type NextPageIntlayer,
-} from 'next-intlayer'
+import type { LocalPromiseParams, NextPageIntlayer } from 'next-intlayer'
 import { IntlayerServerProvider } from 'next-intlayer/server'
 
 import { LinkList } from '@/components/features/links/link-list'
@@ -18,8 +15,8 @@ export async function generateMetadata({
   const content = getIntlayer('linksPage', locale)
 
   return {
-    title: content.metadata.title.value,
-    description: content.metadata.description.value,
+    title: content.metadata.title,
+    description: content.metadata.description,
   }
 }
 
@@ -30,8 +27,8 @@ const LinkTreePage: NextPageIntlayer = async ({ params }) => {
   return (
     <IntlayerServerProvider locale={locale}>
       <PageHeader
-        title={content.metadata.title.value}
-        description={content.metadata.description.value}
+        title={content.metadata.title}
+        description={content.metadata.description}
       />
       <LinkList />
     </IntlayerServerProvider>

@@ -3,6 +3,12 @@ import { type Dictionary, t } from 'intlayer'
 const homeContent = {
   key: 'home',
   content: {
+    metadata: {
+      description: t({
+        ja: '天珠があなたに招待を送信しました。| 天珠の秘密基地',
+        en: "I INVITE YOU | a toppage for tenzyu's secret hideout.",
+      }),
+    },
     catchphrase: t({
       ja: '夢持って生きろ',
       en: 'Live with a dream',

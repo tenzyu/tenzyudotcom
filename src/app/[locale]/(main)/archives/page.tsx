@@ -1,12 +1,8 @@
-import { getLocalizedUrl } from 'intlayer'
+import { getIntlayer, getLocalizedUrl } from 'intlayer'
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import {
-  getIntlayer,
-  type LocalPromiseParams,
-  type NextPageIntlayer,
-} from 'next-intlayer'
-import { IntlayerServerProvider } from 'next-intlayer/server'
+import type { LocalPromiseParams, NextPageIntlayer } from 'next-intlayer'
+import { IntlayerServerProvider, useIntlayer } from 'next-intlayer/server'
 
 import { Content } from '@/components/site/content'
 import { PageHeader } from '@/components/site/page-header'
@@ -20,14 +16,14 @@ export async function generateMetadata({
   const content = getIntlayer('archivesPage', locale)
 
   return {
-    title: content.metadata.title.value,
-    description: content.metadata.description.value,
+    title: content.metadata.title,
+    description: content.metadata.description,
   }
 }
 
 const ArchivesPage: NextPageIntlayer = async ({ params }) => {
   const { locale } = await params
-  const content = getIntlayer('archivesPage', locale)
+  const content = useIntlayer('archivesPage', locale)
 
   return (
     <IntlayerServerProvider locale={locale}>

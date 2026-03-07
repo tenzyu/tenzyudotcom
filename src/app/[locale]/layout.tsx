@@ -1,10 +1,14 @@
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/next'
+import { getHTMLTextDir, getIntlayer, getMultilingualUrls } from 'intlayer'
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono, Noto_Serif_JP } from 'next/font/google'
 import Script from 'next/script'
-import { IntlayerClientProvider, type NextLayoutIntlayer } from 'next-intlayer'
-import { getLocale } from 'next-intlayer/server'
+import {
+  IntlayerClientProvider,
+  type LocalPromiseParams,
+  type NextLayoutIntlayer,
+} from 'next-intlayer'
 import { ThemeProvider } from '@/components/features/theme-provider'
 import { BreadcrumbNav } from '@/components/site/breadcrumb-nav'
 import { Container } from '@/components/site/container'
@@ -14,7 +18,6 @@ import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
 
 import '../globals.css'
-import { getHTMLTextDir, getIntlayer, getLocalizedUrl, locales } from 'intlayer'
 
 export { generateStaticParams } from 'next-intlayer'
 
@@ -22,73 +25,61 @@ const geistSans = Geist({
   variable: '--font-geist-sans',
   subsets: ['latin'],
 })
-
 const geistMono = Geist_Mono({
   variable: '--font-geist-mono',
   subsets: ['latin'],
 })
-
 const notoSerifJp = Noto_Serif_JP({
   variable: '--font-noto-serif-jp',
   subsets: ['latin'],
   fallback: ['Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'sans-serif'],
 })
 
-export async function generateMetadata(): Promise<Metadata> {
-  const locale = await getLocale()
-  const site = getIntlayer('site', locale)
-  const ogLocale = locale === 'ja' ? 'ja_JP' : 'en_US'
-  const ogAlternateLocale = locale === 'ja' ? 'en_US' : 'ja_JP'
-  const metadataBase = new URL('https://tenzyu.com')
-  const localizedUrl = new URL(
-    getLocalizedUrl('/', locale),
-    metadataBase,
-  ).toString()
-  const alternateLanguages = Object.fromEntries(
-    locales.map((localeItem) => [
-      localeItem,
-      new URL(getLocalizedUrl('/', localeItem), metadataBase).toString(),
-    ]),
-  )
+// TODO: いろんな page.tsx にあるけど、これのサブセットは共通になるだろうから、
+// getIntlayer の key と url だけ渡せばつかえる関数を作る？
+export async function generateMetadata({
+  params,
+}: LocalPromiseParams): Promise<Metadata> {
+  const { locale } = await params
+  const content = getIntlayer('site', locale)
+
+  const multilingalUrls = getMultilingualUrls('/')
+  const localizedUrl = multilingalUrls[locale as keyof typeof multilingalUrls]
 
   return {
     title: {
-      template: site.titleTemplate,
-      default: site.title,
+      template: content.title.template,
+      default: content.title.default,
     },
-    description: site.description,
-    keywords: [
-      'tenzyu',
-      'osu',
-      'streamer',
-      'twitch',
-      'gaming',
-      'テンジュ',
-      '天珠',
-    ],
+    description: content.description,
+
+    // TODO: いらないかも
+    keywords: [],
+
     authors: [{ name: 'tenzyu', url: 'https://tenzyu.com' }],
     creator: 'tenzyu',
     publisher: 'tenzyu',
-    metadataBase,
+    formatDetection: {
+      email: false,
+      address: false,
+      telephone: false,
+    },
+
+    metadataBase: new URL('https://tenzyu.com'),
     alternates: {
       canonical: localizedUrl,
-      languages: alternateLanguages,
+      languages: {
+        ...multilingalUrls,
+        'x-default': '/',
+      },
     },
+
+    // TODO: 画像追加
     openGraph: {
       type: 'website',
-      locale: ogLocale,
-      alternateLocale: [ogAlternateLocale],
-      url: localizedUrl,
-      title: site.title,
-      description: site.description,
-      siteName: 'tenzyu.com',
+      images: [],
     },
-    twitter: {
-      card: 'summary_large_image',
-      creator: '@tenzyudotcom',
-      title: site.title,
-      description: site.description,
-    },
+
     robots: {
       index: true,
       follow: true,

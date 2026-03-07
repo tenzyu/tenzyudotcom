@@ -1,10 +1,7 @@
+import { getIntlayer } from 'intlayer'
 import type { Metadata } from 'next'
-import {
-  getIntlayer,
-  type LocalPromiseParams,
-  type NextPageIntlayer,
-} from 'next-intlayer'
-import { IntlayerServerProvider } from 'next-intlayer/server'
+import type { LocalPromiseParams, NextPageIntlayer } from 'next-intlayer'
+import { IntlayerServerProvider, useIntlayer } from 'next-intlayer/server'
 import { PageHeader } from '@/components/site/page-header'
 import { SectionHeader } from '@/components/site/section-header'
 import {
@@ -28,8 +25,8 @@ export async function generateMetadata({
   const content = getIntlayer('puzzlesPage', locale)
 
   return {
-    title: content.metadata.title.value,
-    description: content.metadata.description.value,
+    title: content.metadata.title,
+    description: content.metadata.description,
   }
 }
 
@@ -63,7 +60,7 @@ async function getPuzzleCategoriesWithOgp() {
 
 const PuzzlesPage: NextPageIntlayer = async ({ params }) => {
   const { locale } = await params
-  const content = getIntlayer('puzzlesPage', locale)
+  const content = useIntlayer('puzzlesPage', locale)
   const categoriesWithOgp = await getPuzzleCategoriesWithOgp()
 
   return (
