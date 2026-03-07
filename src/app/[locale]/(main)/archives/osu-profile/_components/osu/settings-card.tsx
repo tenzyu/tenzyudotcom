@@ -1,5 +1,5 @@
-import { ReactNode } from 'react'
 import { useIntlayer } from 'next-intlayer/server'
+import type { ReactNode } from 'react'
 
 import { Card, CardContent, CardTitle } from '@/components/ui/card'
 import { cn } from '@/lib/utils'

@@ -1,14 +1,14 @@
-import { ActionLinkTile } from '../(home)/_components/action-link-tile'
+import type { Metadata } from 'next'
+import {
+  getIntlayer,
+  type LocalPromiseParams,
+  type NextPageIntlayer,
+} from 'next-intlayer'
+import { IntlayerServerProvider } from 'next-intlayer/server'
 import { PageHeader } from '@/components/site/page-header'
 import { SectionHeader } from '@/components/site/section-header'
 import { DASHBOARD_DATA } from '@/data/pointers'
-import { IntlayerServerProvider } from 'next-intlayer/server'
-import {
-  getIntlayer,
-  LocalPromiseParams,
-  NextPageIntlayer,
-} from 'next-intlayer'
-import { Metadata } from 'next'
+import { ActionLinkTile } from '../(home)/_components/action-link-tile'
 
 export const dynamic = 'force-static'
 

@@ -1,4 +1,7 @@
-import { BlogTile } from './_components/blog-tile'
+import { getLocalizedUrl } from 'intlayer'
+import type { Metadata } from 'next'
+import { getIntlayer, type LocalPromiseParams } from 'next-intlayer'
+import { IntlayerServerProvider } from 'next-intlayer/server'
 import { PageHeader } from '@/components/site/page-header'
 import {
   Pagination,
@@ -9,10 +12,7 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination'
 import { getBlogPosts } from '@/lib/blog/getBlogPosts'
-import { IntlayerServerProvider } from 'next-intlayer/server'
-import { getIntlayer, LocalPromiseParams } from 'next-intlayer'
-import { getLocalizedUrl } from 'intlayer'
-import { Metadata } from 'next'
+import { BlogTile } from './_components/blog-tile'
 
 export const dynamic = 'force-static'
 

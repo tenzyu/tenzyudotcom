@@ -1,3 +1,10 @@
+import type { Metadata } from 'next'
+import {
+  getIntlayer,
+  type LocalPromiseParams,
+  type NextPageIntlayer,
+} from 'next-intlayer'
+import { IntlayerServerProvider } from 'next-intlayer/server'
 import { PageHeader } from '@/components/site/page-header'
 import { SectionHeader } from '@/components/site/section-header'
 import {
@@ -8,13 +15,6 @@ import {
 } from '@/components/ui/empty'
 import { PUZZLE_CATEGORIES } from '@/data/puzzles'
 import { fetchOgp } from '@/lib/ogp'
-import { IntlayerServerProvider } from 'next-intlayer/server'
-import {
-  getIntlayer,
-  LocalPromiseParams,
-  NextPageIntlayer,
-} from 'next-intlayer'
-import { Metadata } from 'next'
 
 import type { PuzzleWithOgp } from './_components/puzzle-tile'
 import { PuzzleTile } from './_components/puzzle-tile'

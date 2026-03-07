@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from 'react'
 
-import { DotGenerationParams, generateDotArt } from './logic'
+import { type DotGenerationParams, generateDotArt } from './logic'
 
 type DotGenerationOptions = {
   initialText?: string

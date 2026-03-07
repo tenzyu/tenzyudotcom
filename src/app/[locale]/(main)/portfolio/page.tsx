@@ -1,16 +1,16 @@
+import type { Metadata } from 'next'
+import {
+  getIntlayer,
+  type LocalPromiseParams,
+  type NextPageIntlayer,
+} from 'next-intlayer'
+import { IntlayerServerProvider } from 'next-intlayer/server'
+import { Separator } from '@/components/ui/separator'
 import { AboutMeSection } from './_components/about-me-section'
 import { DevEnvironmentSection } from './_components/dev-environment-section'
 import { ExperienceSection } from './_components/experience-section'
 import { PhilosophySection } from './_components/philosophy-section'
 import { ProjectsSection } from './_components/project-section'
-import { Separator } from '@/components/ui/separator'
-import { IntlayerServerProvider } from 'next-intlayer/server'
-import {
-  getIntlayer,
-  LocalPromiseParams,
-  NextPageIntlayer,
-} from 'next-intlayer'
-import { Metadata } from 'next'
 
 export const dynamic = 'force-static'
 

@@ -1,11 +1,11 @@
-import { IntlayerServerProvider } from 'next-intlayer/server'
+import type { Metadata } from 'next'
 
 import {
   getIntlayer,
-  LocalPromiseParams,
-  NextPageIntlayer,
+  type LocalPromiseParams,
+  type NextPageIntlayer,
 } from 'next-intlayer'
-import { Metadata } from 'next'
+import { IntlayerServerProvider } from 'next-intlayer/server'
 import ClientWrapper from '@/components/features/client-wrapper'
 import { DotTypeContent } from './_components/client'
 

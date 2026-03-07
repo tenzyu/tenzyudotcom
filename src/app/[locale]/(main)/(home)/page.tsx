@@ -1,21 +1,18 @@
-import Link from 'next/link'
 import { getLocalizedUrl } from 'intlayer'
+import { ArrowUpRight, Clock } from 'lucide-react'
+import Link from 'next/link'
+import type { NextPageIntlayer } from 'next-intlayer'
 import {
   IntlayerServerProvider,
   locale,
   useIntlayer,
 } from 'next-intlayer/server'
-
-import { Clock } from 'lucide-react'
-
+import { ExternalLink } from '@/components/site/external-link'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
+import { ButtonGroup } from '@/components/ui/button-group'
 import { NavigationTiles } from './_components/navigation-tiles'
 import { SelfieGallerySection } from './_components/selfie-gallery-section'
-import { Button } from '@/components/ui/button'
-import { NextPageIntlayer } from 'next-intlayer'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { ButtonGroup } from '@/components/ui/button-group'
-import { ArrowUpRight } from 'lucide-react'
-import { ExternalLink } from '@/components/site/external-link'
 
 const PageContent: React.FC = () => {
   const home = useIntlayer('home')

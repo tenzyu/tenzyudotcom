@@ -1,16 +1,15 @@
-import Link from 'next/link'
-import { Type } from 'lucide-react'
 import { getLocalizedUrl } from 'intlayer'
-import { IntlayerServerProvider } from 'next-intlayer/server'
+import { Type } from 'lucide-react'
+import type { Metadata } from 'next'
+import Link from 'next/link'
 import {
   getIntlayer,
-  LocalPromiseParams,
-  NextPageIntlayer,
+  type LocalPromiseParams,
+  type NextPageIntlayer,
 } from 'next-intlayer'
-import { Metadata } from 'next'
-
-import { PageHeader } from '@/components/site/page-header'
+import { IntlayerServerProvider } from 'next-intlayer/server'
 import { OtakuAside } from '@/components/site/otaku-aside'
+import { PageHeader } from '@/components/site/page-header'
 import { Button } from '@/components/ui/button'
 import {
   Card,

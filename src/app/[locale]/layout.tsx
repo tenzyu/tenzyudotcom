@@ -1,21 +1,17 @@
-import Script from 'next/script'
+import { Analytics } from '@vercel/analytics/react'
+import { SpeedInsights } from '@vercel/speed-insights/next'
+import type { Metadata } from 'next'
 import { Geist, Geist_Mono, Noto_Serif_JP } from 'next/font/google'
-import { IntlayerClientProvider, NextLayoutIntlayer } from 'next-intlayer'
-import { getLocale } from 'next-intlayer/server'
-import { useIntlayer } from 'next-intlayer/server'
-
+import Script from 'next/script'
+import { IntlayerClientProvider, type NextLayoutIntlayer } from 'next-intlayer'
+import { getLocale, useIntlayer } from 'next-intlayer/server'
+import { ThemeProvider } from '@/components/features/theme-provider'
 import { BreadcrumbNav } from '@/components/site/breadcrumb-nav'
 import { Container } from '@/components/site/container'
-import { ThemeProvider } from '@/components/features/theme-provider'
 import { Footer } from '@/components/site/footer'
 import { Header } from '@/components/site/header'
 import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
-
-import { Analytics } from '@vercel/analytics/react'
-import { SpeedInsights } from '@vercel/speed-insights/next'
-
-import type { Metadata } from 'next'
 
 import '../globals.css'
 import { getHTMLTextDir, getLocalizedUrl, locales } from 'intlayer'

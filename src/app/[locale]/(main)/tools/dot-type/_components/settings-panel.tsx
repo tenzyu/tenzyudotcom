@@ -1,9 +1,8 @@
-import { Dispatch, SetStateAction } from 'react'
-
+import { useIntlayer } from 'next-intlayer'
+import type { Dispatch, SetStateAction } from 'react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Slider } from '@/components/ui/slider'
-import { useIntlayer } from 'next-intlayer'
 
 type SettingsPanelProps = {
   fontSize: number

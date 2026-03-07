@@ -1,10 +1,10 @@
-import { IntlayerServerProvider } from 'next-intlayer/server'
+import type { Metadata } from 'next'
 import {
   getIntlayer,
-  LocalPromiseParams,
-  NextPageIntlayer,
+  type LocalPromiseParams,
+  type NextPageIntlayer,
 } from 'next-intlayer'
-import { Metadata } from 'next'
+import { IntlayerServerProvider } from 'next-intlayer/server'
 
 import { LinkList } from '@/components/features/links/link-list'
 import { PageHeader } from '@/components/site/page-header'

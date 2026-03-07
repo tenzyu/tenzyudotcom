@@ -1,15 +1,14 @@
+import { getIntlayer } from 'intlayer'
+import type { Metadata } from 'next'
+import type { LocalPromiseParams, NextPageIntlayer } from 'next-intlayer'
 import { IntlayerServerProvider, useIntlayer } from 'next-intlayer/server'
-
-import { PageHeader } from '@/components/site/page-header'
 import {
   YouTubePlaylist,
   type YouTubePlaylistItem,
 } from '@/components/features/social/youtube-playlist'
+import { PageHeader } from '@/components/site/page-header'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { fetchYouTubeVideoMeta } from '@/lib/youtube'
-import { getIntlayer } from 'intlayer'
-import { Metadata } from 'next'
-import { LocalPromiseParams, NextPageIntlayer } from 'next-intlayer'
 
 export async function generateMetadata({
   params,

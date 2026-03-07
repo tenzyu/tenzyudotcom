@@ -1,12 +1,11 @@
-import * as React from 'react'
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
   MoreHorizontalIcon,
 } from 'lucide-react'
-
+import type * as React from 'react'
+import { type Button, buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils/index'
-import { buttonVariants, type Button } from '@/components/ui/button'
 
 type PaginationProps = React.ComponentProps<'nav'> & {
   ariaLabel?: string

@@ -1,12 +1,12 @@
-import Link from 'next/link'
 import { getLocalizedUrl } from 'intlayer'
-import { IntlayerServerProvider } from 'next-intlayer/server'
+import type { Metadata } from 'next'
+import Link from 'next/link'
 import {
   getIntlayer,
-  LocalPromiseParams,
-  NextPageIntlayer,
+  type LocalPromiseParams,
+  type NextPageIntlayer,
 } from 'next-intlayer'
-import { Metadata } from 'next'
+import { IntlayerServerProvider } from 'next-intlayer/server'
 
 import { Content } from '@/components/site/content'
 import { PageHeader } from '@/components/site/page-header'

@@ -1,9 +1,8 @@
-import { Dispatch, SetStateAction } from 'react'
-
+import { useIntlayer } from 'next-intlayer'
+import type { Dispatch, SetStateAction } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { useIntlayer } from 'next-intlayer'
 
 type ControlPanelProps = {
   inputText: string
