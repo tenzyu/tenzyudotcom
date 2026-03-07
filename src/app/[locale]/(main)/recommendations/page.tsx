@@ -1,6 +1,11 @@
 import { getIntlayer } from 'intlayer'
 import type { NextPageIntlayer } from 'next-intlayer'
 import { IntlayerServerProvider, useIntlayer } from 'next-intlayer/server'
+import { PageHeader } from '@/components/site/page-header'
+import { SectionHeader } from '@/components/site/section-header'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { createPageMetadata, resolvePageLocale } from '@/lib/intlayer/page'
+import { fetchYouTubeVideoMeta } from '@/lib/youtube'
 import {
   type YouTubeChannelItem,
   YouTubeChannelList,
@@ -9,11 +14,6 @@ import {
   YouTubePlaylist,
   type YouTubePlaylistItem,
 } from './_features/youtube-playlist'
-import { PageHeader } from '@/components/site/page-header'
-import { SectionHeader } from '@/components/site/section-header'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { createPageMetadata, resolvePageLocale } from '@/lib/intlayer/page'
-import { fetchYouTubeVideoMeta } from '@/lib/youtube'
 
 export const dynamic = 'force-static'
 export const generateMetadata = createPageMetadata('page-recommendations', {
