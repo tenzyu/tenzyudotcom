@@ -26,20 +26,7 @@ import { YearlyGoals } from './_components/yearly-goals'
 import { TWEETS } from './_data/twitter'
 
 import './legacy.css'
-// Define keys for sections
-const SectionKeys = {
-  OSU_BEST_SCORES: 'osu-best-scores',
-  YEARLY_GOALS: 'yearly-goals',
-  PERSONAL_BEST_HISTORY: 'personal-best-history',
-  FEATURED_VIDEOS: 'featured-videos',
-  TWITTER_CLIPS: 'twitter-clips',
-  OSU_SETTINGS: 'osu-settings',
-  MY_LINKS: 'my-links',
-} as const
 
-type SectionKey = (typeof SectionKeys)[keyof typeof SectionKeys]
-
-// for osu contents
 export const revalidate = 60
 
 export async function generateMetadata({
@@ -53,6 +40,28 @@ export async function generateMetadata({
     description: content.metadata.description.value,
   }
 }
+
+const SectionHeader = ({ children }: PropsWithChildren) => (
+  <h2 className="mb-6 text-center text-2xl font-bold tracking-tight">
+    {children}
+  </h2>
+)
+
+const ArchiveSection = ({
+  id,
+  title,
+  className,
+  children,
+}: {
+  id: string
+  title: string
+  className?: string
+} & PropsWithChildren) => (
+  <Section id={id} className={className}>
+    <SectionHeader>{title}</SectionHeader>
+    {children}
+  </Section>
+)
 
 const OsuProfileArchive: NextPageIntlayer = async ({ params }) => {
   const { locale } = await params
@@ -72,45 +81,18 @@ const OsuProfileArchive: NextPageIntlayer = async ({ params }) => {
     title: getText(video.title),
   }))
 
-  const SectionHeader = ({ children }: PropsWithChildren) => {
-    return (
-      <h2 className="mb-6 text-center text-2xl font-bold tracking-tight">
-        {children}
-      </h2>
-    )
-  }
-
-  // Define sections for TOC using keys and translations
-  const tocSections: Record<SectionKey, TocSection> = {
-    [SectionKeys.OSU_BEST_SCORES]: {
-      id: SectionKeys.OSU_BEST_SCORES,
-      title: content.sections.osuBestScores.value,
-    },
-    [SectionKeys.YEARLY_GOALS]: {
-      id: SectionKeys.YEARLY_GOALS,
-      title: content.sections.yearlyGoals.value,
-    },
-    [SectionKeys.PERSONAL_BEST_HISTORY]: {
-      id: SectionKeys.PERSONAL_BEST_HISTORY,
+  const tocSections: TocSection[] = [
+    { id: 'osu-best-scores', title: content.sections.osuBestScores.value },
+    { id: 'yearly-goals', title: content.sections.yearlyGoals.value },
+    {
+      id: 'personal-best-history',
       title: content.sections.personalBestHistory.value,
     },
-    [SectionKeys.FEATURED_VIDEOS]: {
-      id: SectionKeys.FEATURED_VIDEOS,
-      title: content.sections.featuredVideos.value,
-    },
-    [SectionKeys.TWITTER_CLIPS]: {
-      id: SectionKeys.TWITTER_CLIPS,
-      title: content.sections.twitterClips.value,
-    },
-    [SectionKeys.OSU_SETTINGS]: {
-      id: SectionKeys.OSU_SETTINGS,
-      title: content.sections.osuSettings.value,
-    },
-    [SectionKeys.MY_LINKS]: {
-      id: SectionKeys.MY_LINKS,
-      title: content.sections.myLinks.value,
-    },
-  }
+    { id: 'featured-videos', title: content.sections.featuredVideos.value },
+    { id: 'twitter-clips', title: content.sections.twitterClips.value },
+    { id: 'osu-settings', title: content.sections.osuSettings.value },
+    { id: 'my-links', title: content.sections.myLinks.value },
+  ]
 
   return (
     <IntlayerServerProvider locale={locale}>
@@ -125,80 +107,73 @@ const OsuProfileArchive: NextPageIntlayer = async ({ params }) => {
           <ProfileCard />
         </Section>
 
-        <TableOfContents sections={Object.values(tocSections)} />
+        <TableOfContents sections={tocSections} />
 
         <Content
           size="4xl"
           className="grid grid-cols-1 gap-y-12 md:grid-cols-2 md:gap-x-4 md:gap-y-0"
         >
-          <Section id={tocSections[SectionKeys.OSU_BEST_SCORES].id}>
-            <SectionHeader>
-              {tocSections[SectionKeys.OSU_BEST_SCORES].title}
-            </SectionHeader>
+          <ArchiveSection
+            id="osu-best-scores"
+            title={content.sections.osuBestScores.value}
+          >
             <OsuBestScores />
-          </Section>
+          </ArchiveSection>
 
-          <Section id={tocSections[SectionKeys.YEARLY_GOALS].id}>
-            <SectionHeader>
-              {tocSections[SectionKeys.YEARLY_GOALS].title}
-            </SectionHeader>
+          <ArchiveSection
+            id="yearly-goals"
+            title={content.sections.yearlyGoals.value}
+          >
             <YearlyGoals />
-          </Section>
+          </ArchiveSection>
         </Content>
 
-        <Section
+        <ArchiveSection
           className="w-full"
-          id={tocSections[SectionKeys.PERSONAL_BEST_HISTORY].id}
+          id="personal-best-history"
+          title={content.sections.personalBestHistory.value}
         >
-          <SectionHeader>
-            {tocSections[SectionKeys.PERSONAL_BEST_HISTORY].title}
-          </SectionHeader>
           <YouTubeCarousel videos={personalBestVideos} />
-        </Section>
+        </ArchiveSection>
 
-        <Section
+        <ArchiveSection
           className="w-full"
-          id={tocSections[SectionKeys.FEATURED_VIDEOS].id}
+          id="featured-videos"
+          title={content.sections.featuredVideos.value}
         >
-          <SectionHeader>
-            {tocSections[SectionKeys.FEATURED_VIDEOS].title}
-          </SectionHeader>
           <YouTubeCarousel videos={featuredVideos} type="video" />
-        </Section>
+        </ArchiveSection>
 
-        <Section
+        <ArchiveSection
           className="w-full"
-          id={tocSections[SectionKeys.TWITTER_CLIPS].id}
+          id="twitter-clips"
+          title={content.sections.twitterClips.value}
         >
-          <SectionHeader>
-            {tocSections[SectionKeys.TWITTER_CLIPS].title}
-          </SectionHeader>
           <span className="block text-center text-xs">
             {content.sections.twitterNote.value}
           </span>
           <TwitterCarousel tweets={TWEETS} />
-        </Section>
+        </ArchiveSection>
 
-        <Section
+        <ArchiveSection
           className="w-full"
-          id={tocSections[SectionKeys.OSU_SETTINGS].id}
+          id="osu-settings"
+          title={content.sections.osuSettings.value}
         >
-          <SectionHeader>
-            {tocSections[SectionKeys.OSU_SETTINGS].title}
-          </SectionHeader>
           <Content size="4xl" className="space-y-4">
             <TabletSettings />
             <KeyboardSettings />
             <MonitorSettings />
           </Content>
-        </Section>
+        </ArchiveSection>
 
-        <Section className="w-full" id={tocSections[SectionKeys.MY_LINKS].id}>
-          <SectionHeader>
-            {tocSections[SectionKeys.MY_LINKS].title}
-          </SectionHeader>
+        <ArchiveSection
+          className="w-full"
+          id="my-links"
+          title={content.sections.myLinks.value}
+        >
           <LinkList />
-        </Section>
+        </ArchiveSection>
       </div>
     </IntlayerServerProvider>
   )
