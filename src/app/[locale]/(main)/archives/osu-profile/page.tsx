@@ -6,10 +6,7 @@ import { TwitterCarousel } from '@/components/features/social/twitter-carousel'
 import { YouTubeCarousel } from '@/components/features/social/youtube-carousel'
 import { Content } from '@/components/site/content'
 import { Section } from '@/components/site/section'
-import {
-  createPageMetadata,
-  resolvePageLocale,
-} from '@/lib/intlayer/page'
+import { createPageMetadata, resolvePageLocale } from '@/lib/intlayer/page'
 import {
   KeyboardSettings,
   MonitorSettings,
@@ -28,7 +25,7 @@ import './legacy.css'
 
 export const revalidate = 60
 
-export const generateMetadata = createPageMetadata('osuProfilePage', {
+export const generateMetadata = createPageMetadata('page-osu-profile', {
   pathname: '/archives/osu-profile',
 })
 
@@ -55,7 +52,7 @@ const ArchiveSection = ({
 )
 
 const OsuProfileArchiveContent = () => {
-  const content = useIntlayer('osuProfilePage')
+  const content = useIntlayer('page-osu-profile')
   const videoContent = useIntlayer('osuProfileVideos')
 
   const personalBestVideos = videoContent.personalBestHistory.map((video) => ({
@@ -87,7 +84,9 @@ const OsuProfileArchiveContent = () => {
   return (
     <div className="flex flex-col items-center legacy-osu">
       <Content size="4xl" className="py-4">
-        <p className="text-muted-foreground mt-2 text-xs">{content.archiveNote.value}</p>
+        <p className="text-muted-foreground mt-2 text-xs">
+          {content.archiveNote.value}
+        </p>
       </Content>
 
       <Section className="w-full">
@@ -100,11 +99,17 @@ const OsuProfileArchiveContent = () => {
         size="4xl"
         className="grid grid-cols-1 gap-y-12 md:grid-cols-2 md:gap-x-4 md:gap-y-0"
       >
-        <ArchiveSection id="osu-best-scores" title={content.sections.osuBestScores.value}>
+        <ArchiveSection
+          id="osu-best-scores"
+          title={content.sections.osuBestScores.value}
+        >
           <OsuBestScores />
         </ArchiveSection>
 
-        <ArchiveSection id="yearly-goals" title={content.sections.yearlyGoals.value}>
+        <ArchiveSection
+          id="yearly-goals"
+          title={content.sections.yearlyGoals.value}
+        >
           <YearlyGoals />
         </ArchiveSection>
       </Content>
@@ -130,7 +135,9 @@ const OsuProfileArchiveContent = () => {
         id="twitter-clips"
         title={content.sections.twitterClips.value}
       >
-        <span className="block text-center text-xs">{content.sections.twitterNote.value}</span>
+        <span className="block text-center text-xs">
+          {content.sections.twitterNote.value}
+        </span>
         <TwitterCarousel tweets={TWEETS} />
       </ArchiveSection>
 

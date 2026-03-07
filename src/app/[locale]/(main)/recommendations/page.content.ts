@@ -1,7 +1,7 @@
 import { type Dictionary, t } from 'intlayer'
 
 const recommendationsPageContent = {
-  key: 'recommendationsPage',
+  key: 'page-recommendations',
   content: {
     metadata: {
       title: t({

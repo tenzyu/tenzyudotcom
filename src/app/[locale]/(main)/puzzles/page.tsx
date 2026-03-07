@@ -9,10 +9,7 @@ import {
   EmptyTitle,
 } from '@/components/ui/empty'
 import { PUZZLE_CATEGORIES } from '@/data/puzzles'
-import {
-  createPageMetadata,
-  resolvePageLocale,
-} from '@/lib/intlayer/page'
+import { createPageMetadata, resolvePageLocale } from '@/lib/intlayer/page'
 import { fetchOgp } from '@/lib/ogp'
 
 import type { PuzzleWithOgp } from './_components/puzzle-tile'
@@ -20,7 +17,7 @@ import { PuzzleTile } from './_components/puzzle-tile'
 
 export const dynamic = 'force-static'
 
-export const generateMetadata = createPageMetadata('puzzlesPage', {
+export const generateMetadata = createPageMetadata('page-puzzles', {
   pathname: '/puzzles',
 })
 
@@ -57,7 +54,7 @@ const PuzzlesPageContent = ({
 }: {
   categoriesWithOgp: Awaited<ReturnType<typeof getPuzzleCategoriesWithOgp>>
 }) => {
-  const content = useIntlayer('puzzlesPage')
+  const content = useIntlayer('page-puzzles')
 
   return (
     <>

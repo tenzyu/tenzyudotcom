@@ -15,6 +15,10 @@ const config: IntlayerConfig = {
   routing: {
     mode: 'prefix-no-default',
   },
+  editor: {
+    applicationURL: 'http://localhost:3000',
+    liveSync: true
+  }
 }
 
 export default config

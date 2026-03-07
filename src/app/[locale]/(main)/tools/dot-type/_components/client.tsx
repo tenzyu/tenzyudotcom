@@ -15,7 +15,7 @@ import { PreviewPanel } from './preview-panel'
 import { SettingsPanel } from './settings-panel'
 
 export const DotTypeContent: React.FC = () => {
-  const content = useIntlayer('dotType')
+  const content = useIntlayer('page-dot-type')
 
   const {
     inputText,

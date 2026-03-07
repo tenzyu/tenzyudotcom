@@ -3,7 +3,7 @@ import { SectionHeader } from '@/components/site/section-header'
 import { Card, CardContent } from '@/components/ui/card'
 
 export function PhilosophySection() {
-  const content = useIntlayer('portfolio')
+  const content = useIntlayer('page-portfolio')
 
   return (
     <div className="space-y-6">

@@ -17,7 +17,7 @@ import { createPageMetadata, resolvePageLocale } from '@/lib/intlayer/page'
 
 export const dynamic = 'force-static'
 
-export const generateMetadata = createPageMetadata('toolsPage', {
+export const generateMetadata = createPageMetadata('page-tools', {
   pathname: '/tools',
 })
 
@@ -26,7 +26,7 @@ const ICONS = {
 } as const
 
 const ToolsPageContent = ({ locale }: { locale: string }) => {
-  const content = useIntlayer('toolsPage')
+  const content = useIntlayer('page-tools')
 
   return (
     <>

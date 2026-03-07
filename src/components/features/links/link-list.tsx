@@ -17,7 +17,7 @@ const CATEGORY_KEYS: Record<
 const CATEGORY_ORDER: LinkCategory[] = ['Watch', 'Social', 'Build', 'Legacy']
 
 export function LinkList() {
-  const content = useIntlayer('linksPage')
+  const content = useIntlayer('page-links')
   const groupedLinks = CATEGORY_ORDER.map((category) => ({
     value: category,
     label: content.categories[CATEGORY_KEYS[category]],

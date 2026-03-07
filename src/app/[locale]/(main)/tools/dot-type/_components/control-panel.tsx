@@ -17,7 +17,7 @@ export function ControlPanel({
   orientation,
   setOrientation,
 }: ControlPanelProps) {
-  const { labels } = useIntlayer('dotType')
+  const { labels } = useIntlayer('page-dot-type')
   return (
     <div className="space-y-6">
       <div className="space-y-2">

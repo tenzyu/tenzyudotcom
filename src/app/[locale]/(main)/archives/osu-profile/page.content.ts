@@ -1,7 +1,7 @@
 import { type Dictionary, t } from 'intlayer'
 
 const osuProfilePageContent = {
-  key: 'osuProfilePage',
+  key: 'page-osu-profile',
   content: {
     metadata: {
       title: t({

@@ -25,7 +25,7 @@ const PLATFORM_ICONS: Record<Platform, string> = {
 }
 
 function PlatformButton({ link }: { link: PuzzleLink }) {
-  const content = useIntlayer('puzzlesPage')
+  const content = useIntlayer('page-puzzles')
   const label = content.platforms[link.platform]
   const icon = PLATFORM_ICONS[link.platform]
 
@@ -53,7 +53,7 @@ export type PuzzleWithOgp = {
 }
 
 export function PuzzleTile({ puzzle }: { puzzle: PuzzleWithOgp }) {
-  const puzzlesContent = useIntlayer('puzzlesPage')
+  const puzzlesContent = useIntlayer('page-puzzles')
   const ogpDescription = puzzle.ogp.description
   const ogpImage = puzzle.ogp.image
   const isSingleWebLink =

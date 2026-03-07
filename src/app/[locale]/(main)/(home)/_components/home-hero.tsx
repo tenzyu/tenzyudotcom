@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { ButtonGroup } from '@/components/ui/button-group'
 
 export function HomeHero() {
-  const home = useIntlayer('home')
+  const home = useIntlayer('page-home')
 
   return (
     <section className="relative flex flex-col items-center justify-center gap-4 py-4 text-center">

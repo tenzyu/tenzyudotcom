@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 
 export function AboutMeSection() {
-  const content = useIntlayer('portfolio')
+  const content = useIntlayer('page-portfolio')
 
   return (
     <Card variant="soft" className="p-0">

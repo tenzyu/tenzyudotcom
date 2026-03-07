@@ -6,7 +6,7 @@ import { DotTypeContent } from './_components/client'
 
 export const dynamic = 'force-static'
 
-export const generateMetadata = createPageMetadata('dotType', {
+export const generateMetadata = createPageMetadata('page-dot-type', {
   pathname: '/tools/dot-type',
 })
 

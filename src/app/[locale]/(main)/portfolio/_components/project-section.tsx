@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 export function ProjectsSection() {
-  const content = useIntlayer('portfolio')
+  const content = useIntlayer('page-portfolio')
 
   return (
     <div className="space-y-8">

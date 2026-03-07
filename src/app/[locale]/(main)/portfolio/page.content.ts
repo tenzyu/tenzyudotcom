@@ -1,7 +1,7 @@
 import { type Dictionary, t } from 'intlayer'
 
 const portfolioContent = {
-  key: 'portfolio',
+  key: 'page-portfolio',
   content: {
     metadata: {
       title: t({

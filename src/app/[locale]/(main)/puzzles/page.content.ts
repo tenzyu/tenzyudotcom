@@ -1,7 +1,7 @@
 import { type Dictionary, t } from 'intlayer'
 
 const puzzlesPageContent = {
-  key: 'puzzlesPage',
+  key: 'page-puzzles',
   content: {
     metadata: {
       title: t({

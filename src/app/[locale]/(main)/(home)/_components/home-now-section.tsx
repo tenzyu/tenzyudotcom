@@ -5,7 +5,7 @@ import { useIntlayer } from 'next-intlayer/server'
 import { Button } from '@/components/ui/button'
 
 export function HomeNowSection({ locale }: { locale: string }) {
-  const home = useIntlayer('home')
+  const home = useIntlayer('page-home')
 
   return (
     <section className="flex flex-col gap-6">

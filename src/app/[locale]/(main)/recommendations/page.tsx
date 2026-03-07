@@ -7,14 +7,11 @@ import {
 } from '@/components/features/social/youtube-playlist'
 import { PageHeader } from '@/components/site/page-header'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import {
-  createPageMetadata,
-  resolvePageLocale,
-} from '@/lib/intlayer/page'
+import { createPageMetadata, resolvePageLocale } from '@/lib/intlayer/page'
 import { fetchYouTubeVideoMeta } from '@/lib/youtube'
 
 export const dynamic = 'force-static'
-export const generateMetadata = createPageMetadata('recommendationsPage', {
+export const generateMetadata = createPageMetadata('page-recommendations', {
   pathname: '/recommendations',
 })
 
@@ -23,7 +20,7 @@ const RecommendationsPageContent = ({
 }: {
   videosWithTitles: YouTubePlaylistItem[]
 }) => {
-  const content = useIntlayer('recommendationsPage')
+  const content = useIntlayer('page-recommendations')
 
   return (
     <>
@@ -58,7 +55,7 @@ const RecommendationsPageContent = ({
 
 const RecommendationsPage: NextPageIntlayer = async ({ params }) => {
   const locale = await resolvePageLocale(params)
-  const content = getIntlayer('recommendationsPage', locale)
+  const content = getIntlayer('page-recommendations', locale)
   const viewLocale = locale === 'ja' ? 'ja-JP' : 'en-US'
   const videosWithTitles: YouTubePlaylistItem[] = await Promise.all(
     content.videos.map(async (video) => {

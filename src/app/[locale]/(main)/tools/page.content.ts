@@ -1,7 +1,7 @@
 import { type Dictionary, t } from 'intlayer'
 
 const toolsPageContent = {
-  key: 'toolsPage',
+  key: 'page-tools',
   content: {
     metadata: {
       title: t({

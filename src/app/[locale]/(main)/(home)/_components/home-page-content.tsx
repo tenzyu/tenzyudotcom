@@ -5,7 +5,7 @@ import { NavigationTiles } from './navigation-tiles'
 import { SelfieGallerySection } from './selfie-gallery-section'
 
 export function HomePageContent({ locale }: { locale: string }) {
-  const home = useIntlayer('home')
+  const home = useIntlayer('page-home')
 
   return (
     <>

@@ -1,12 +1,7 @@
-import type {
-  NextPageIntlayer,
-} from 'next-intlayer'
+import type { NextPageIntlayer } from 'next-intlayer'
 import { IntlayerServerProvider, useIntlayer } from 'next-intlayer/server'
 import { Separator } from '@/components/ui/separator'
-import {
-  createPageMetadata,
-  resolvePageLocale,
-} from '@/lib/intlayer/page'
+import { createPageMetadata, resolvePageLocale } from '@/lib/intlayer/page'
 import { AboutMeSection } from './_components/about-me-section'
 import { DevEnvironmentSection } from './_components/dev-environment-section'
 import { ExperienceSection } from './_components/experience-section'
@@ -15,12 +10,12 @@ import { ProjectsSection } from './_components/project-section'
 
 export const dynamic = 'force-static'
 
-export const generateMetadata = createPageMetadata('portfolio', {
+export const generateMetadata = createPageMetadata('page-portfolio', {
   pathname: '/portfolio',
 })
 
 const PortfolioPageContent = () => {
-  const content = useIntlayer('portfolio')
+  const content = useIntlayer('page-portfolio')
 
   return (
     <>

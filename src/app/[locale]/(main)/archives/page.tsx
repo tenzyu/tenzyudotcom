@@ -5,19 +5,16 @@ import { IntlayerServerProvider, useIntlayer } from 'next-intlayer/server'
 
 import { Content } from '@/components/site/content'
 import { PageHeader } from '@/components/site/page-header'
-import {
-  createPageMetadata,
-  resolvePageLocale,
-} from '@/lib/intlayer/page'
+import { createPageMetadata, resolvePageLocale } from '@/lib/intlayer/page'
 
 export const dynamic = 'force-static'
 
-export const generateMetadata = createPageMetadata('archivesPage', {
+export const generateMetadata = createPageMetadata('page-archives', {
   pathname: '/archives',
 })
 
 const ArchivesPageContent = ({ locale }: { locale: string }) => {
-  const content = useIntlayer('archivesPage')
+  const content = useIntlayer('page-archives')
 
   return (
     <main className="flex flex-col items-center p-4 py-8 md:py-12">

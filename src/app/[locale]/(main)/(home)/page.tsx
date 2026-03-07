@@ -5,9 +5,8 @@ import { HomePageContent } from './_components/home-page-content'
 
 export const dynamic = 'force-static'
 
-export const generateMetadata = createPageMetadata('home', {
+export const generateMetadata = createPageMetadata('page-home', {
   pathname: '/',
-  select: (content) => content.metadata,
 })
 
 const HomePage: NextPageIntlayer = async ({ params }) => {

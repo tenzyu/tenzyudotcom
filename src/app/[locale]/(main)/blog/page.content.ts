@@ -1,7 +1,7 @@
 import { type Dictionary, t } from 'intlayer'
 
 const blogPageContent = {
-  key: 'blogPage',
+  key: 'page-blog',
   content: {
     metadata: {
       title: t({

@@ -7,7 +7,8 @@
     "dev:plain": "next dev",
     "clean": "rimraf .next",
     "build": "next build",
-    "start": "next start",
+    "start": "bun run clean && bun run build && next start",
+    "start:intlayer": "intlayer-editor start",
     "lint": "biome lint --fix .",
     "format": "biome format --fix .",
     "analyze": "next experimental-analyze"
@@ -22,6 +23,7 @@
     "embla-carousel-react": "^8.6.0",
     "input-otp": "^1.4.2",
     "intlayer": "^8.2.2",
+    "intlayer-editor": "^8.2.2",
     "lucide-react": "^0.577.0",
     "next": "16.1.6",
     "next-intlayer": "^8.2.2",

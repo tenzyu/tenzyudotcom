@@ -3,20 +3,17 @@ import { IntlayerServerProvider, useIntlayer } from 'next-intlayer/server'
 import { PageHeader } from '@/components/site/page-header'
 import { SectionHeader } from '@/components/site/section-header'
 import { DASHBOARD_DATA } from '@/data/pointers'
-import {
-  createPageMetadata,
-  resolvePageLocale,
-} from '@/lib/intlayer/page'
+import { createPageMetadata, resolvePageLocale } from '@/lib/intlayer/page'
 import { ActionLinkTile } from '../(home)/_components/action-link-tile'
 
 export const dynamic = 'force-static'
 
-export const generateMetadata = createPageMetadata('pointersPage', {
+export const generateMetadata = createPageMetadata('page-pointers', {
   pathname: '/pointers',
 })
 
 const PointersPageContent = () => {
-  const content = useIntlayer('pointersPage')
+  const content = useIntlayer('page-pointers')
 
   return (
     <>

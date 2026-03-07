@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 
 export function DevEnvironmentSection() {
-  const content = useIntlayer('portfolio')
+  const content = useIntlayer('page-portfolio')
 
   return (
     <div className="space-y-8">

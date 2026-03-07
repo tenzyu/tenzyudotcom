@@ -1,7 +1,7 @@
 import { type Dictionary, t } from 'intlayer'
 
 const dotTypeContent = {
-  key: 'dotType',
+  key: 'page-dot-type',
   content: {
     metadata: {
       title: t({

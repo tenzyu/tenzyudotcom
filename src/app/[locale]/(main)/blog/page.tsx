@@ -11,15 +11,12 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination'
 import { getBlogPosts } from '@/lib/blog/getBlogPosts'
-import {
-  createPageMetadata,
-  resolvePageLocale,
-} from '@/lib/intlayer/page'
+import { createPageMetadata, resolvePageLocale } from '@/lib/intlayer/page'
 import { BlogTile } from './_components/blog-tile'
 
 export const dynamic = 'force-static'
 
-export const generateMetadata = createPageMetadata('blogPage', {
+export const generateMetadata = createPageMetadata('page-blog', {
   pathname: '/blog',
 })
 
@@ -77,7 +74,7 @@ function BlogPageContent({
   pageItems: Awaited<ReturnType<typeof getBlogPosts>>
   totalPages: number
 }) {
-  const content = useIntlayer('blogPage')
+  const content = useIntlayer('page-blog')
 
   return (
     <>
@@ -97,7 +94,10 @@ function BlogPageContent({
       </div>
 
       {totalPages > 1 ? (
-        <Pagination className="mt-10" ariaLabel={content.pagination.ariaLabel.value}>
+        <Pagination
+          className="mt-10"
+          ariaLabel={content.pagination.ariaLabel.value}
+        >
           <PaginationContent>
             <PaginationItem>
               <PaginationPrevious

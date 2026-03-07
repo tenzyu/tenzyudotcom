@@ -138,7 +138,7 @@ export function createPageMetadata<K extends DictionaryKeys>(
   return async ({ params }: LocalPromiseParams): Promise<Metadata> => {
     const locale = await resolvePageLocale(params)
     const content = getIntlayer(key, locale)
-    const defaultMetadata = (content as { metadata?: MetadataLike }).metadata
+    const defaultMetadata = (content as { metadata?: MetadataLike })?.metadata
     const selectedMetadata = options.select?.(content) ?? defaultMetadata ?? {}
     const pathname = resolvePathname(options.pathname, content)
     const alternates = pathname

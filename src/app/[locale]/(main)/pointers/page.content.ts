@@ -1,7 +1,7 @@
 import { type Dictionary, t } from 'intlayer'
 
 const pointersPageContent = {
-  key: 'pointersPage',
+  key: 'page-pointers',
   content: {
     metadata: {
       title: t({

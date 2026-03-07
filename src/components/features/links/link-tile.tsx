@@ -31,7 +31,7 @@ function LinkIcon({ icon, alt }: { icon: string; alt: string }) {
 }
 
 export function LinkTile({ link }: LinkTileProps) {
-  const content = useIntlayer('linksPage')
+  const content = useIntlayer('page-links')
   const { locale } = useLocale()
 
   return (

@@ -2,19 +2,16 @@ import type { NextPageIntlayer } from 'next-intlayer'
 import { IntlayerServerProvider, useIntlayer } from 'next-intlayer/server'
 import { LinkList } from '@/components/features/links/link-list'
 import { PageHeader } from '@/components/site/page-header'
-import {
-  createPageMetadata,
-  resolvePageLocale,
-} from '@/lib/intlayer/page'
+import { createPageMetadata, resolvePageLocale } from '@/lib/intlayer/page'
 
 export const dynamic = 'force-static'
 
-export const generateMetadata = createPageMetadata('linksPage', {
+export const generateMetadata = createPageMetadata('page-links', {
   pathname: '/links',
 })
 
 const LinkTreePageContent = () => {
-  const content = useIntlayer('linksPage')
+  const content = useIntlayer('page-links')
 
   return (
     <>
