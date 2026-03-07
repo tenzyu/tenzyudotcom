@@ -1,35 +1,54 @@
-import { getLocalizedUrl, locales } from 'intlayer'
-
+import { getMultilingualUrls } from 'intlayer'
+import type { MetadataRoute } from 'next'
 import { getBlogPosts } from '@/lib/blog/getBlogPosts'
 
 export const baseUrl = 'https://tenzyu.com'
 
-export default async function sitemap() {
+const sitemap = async (): Promise<MetadataRoute.Sitemap> => {
+  // NOTE: in [rocale]
   const routes = [
     '/',
+    '/archives',
     '/blog',
     '/links',
-    '/tools',
+    '/pointers',
     '/portfolio',
-    '/archives',
     '/puzzles',
     '/recommendations',
+    '/tools',
   ]
 
-  const routesByLocale = routes.flatMap((route) =>
-    locales.map((locale) => ({
-      url: `${baseUrl}${getLocalizedUrl(route, locale)}`,
+  const routesWithAlternates = routes.map(
+    (route): MetadataRoute.Sitemap[number] => ({
+      url: `${baseUrl}${route}`,
       lastModified: new Date().toISOString().split('T')[0],
-    })),
+      alternates: {
+        languages: {
+          ...getMultilingualUrls(`${baseUrl}${route}`),
+          'x-default': `${baseUrl}${route}`,
+        },
+      },
+    }),
   )
 
   const awaited_blogs = await getBlogPosts()
-  const blogs = awaited_blogs.flatMap((post) =>
-    locales.map((locale) => ({
-      url: `${baseUrl}${getLocalizedUrl(`/blog/${post.slug}`, locale)}`,
-      lastModified: post.metadata.updatedAt ?? post.metadata.publishedAt,
-    })),
+  const blogsWithAlternates = awaited_blogs.map(
+    (post): MetadataRoute.Sitemap[number] => {
+      const route = `/blog/${post.slug}`
+      return {
+        url: `${baseUrl}${route}`,
+        lastModified: post.metadata.updatedAt ?? post.metadata.publishedAt,
+        alternates: {
+          languages: {
+            ...getMultilingualUrls(`${baseUrl}${route}`),
+            'x-default': `${baseUrl}${route}`,
+          },
+        },
+      }
+    },
   )
 
-  return [...routesByLocale, ...blogs]
+  return [...routesWithAlternates, ...blogsWithAlternates]
 }
+
+export default sitemap
