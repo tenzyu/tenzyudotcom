@@ -6,6 +6,11 @@
       "sourceType": "github",
       "computedHash": "f5bf70c49efc9c67537561decf571d9555c15ad82cb7751cc2854fb21decafd4"
     },
+    "shadcn": {
+      "source": "shadcn/ui",
+      "sourceType": "github",
+      "computedHash": "91c02eb706f046fb9d6a061efbb96496e4be751b5b14c283cf82baaa50f3a985"
+    },
     "vercel-composition-patterns": {
       "source": "vercel-labs/agent-skills",
       "sourceType": "github",
