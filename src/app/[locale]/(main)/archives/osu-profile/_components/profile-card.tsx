@@ -41,6 +41,7 @@ const HeaderBackground = () => {
       muted
       playsInline
       preload="none"
+      crossOrigin="anonymous"
       aria-label={profile.aria.videoPlayer.value}
     >
       <source src="/header-background.webm" type="video/webm" />
@@ -111,16 +112,15 @@ export const ProfileCard = async () => {
   return (
     <Content size="2xl">
       <Card className="overflow-hidden pt-0">
-        <div
+        <figure
           className="bg-muted relative aspect-video overflow-hidden"
           aria-label={profile.loading.gameplay.value}
-          role="figure"
         >
           <Suspense fallback={<LoadingComponent />}>
             <HeaderBackground />
           </Suspense>
           <div className="absolute inset-0 bg-black/20" aria-hidden="true" />
-        </div>
+        </figure>
 
         <CardContent className="px-6 pt-0 pb-6">
           <div className="relative z-10 -mt-16 flex flex-col items-center">

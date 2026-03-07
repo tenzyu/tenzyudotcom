@@ -1,8 +1,10 @@
+import type { Metadata } from 'next'
 import {
-  getLocale,
-  IntlayerServerProvider,
-  useIntlayer,
-} from 'next-intlayer/server'
+  getIntlayer,
+  type LocalPromiseParams,
+  type NextPageIntlayer,
+} from 'next-intlayer'
+import { IntlayerServerProvider, useIntlayer } from 'next-intlayer/server'
 import type { PropsWithChildren } from 'react'
 import { LinkList } from '@/components/features/links/link-list'
 import { TwitterCarousel } from '@/components/features/social/twitter-carousel'
@@ -23,6 +25,7 @@ import {
 import { YearlyGoals } from './_components/yearly-goals'
 import { TWEETS } from './_data/twitter'
 
+import './legacy.css'
 // Define keys for sections
 const SectionKeys = {
   OSU_BEST_SCORES: 'osu-best-scores',
@@ -39,10 +42,11 @@ type SectionKey = (typeof SectionKeys)[keyof typeof SectionKeys]
 // for osu contents
 export const revalidate = 60
 
-export async function generateMetadata() {
-  const locale = await getLocale()
-  const content = useIntlayer('osuProfilePage', locale)
-  const videoContent = useIntlayer('osuProfileVideos', locale)
+export async function generateMetadata({
+  params,
+}: LocalPromiseParams): Promise<Metadata> {
+  const { locale } = await params
+  const content = getIntlayer('osuProfilePage', locale)
 
   return {
     title: content.metadata.title.value,
@@ -50,10 +54,10 @@ export async function generateMetadata() {
   }
 }
 
-export default async function OsuProfileArchive() {
-  const locale = await getLocale()
-  const content = useIntlayer('osuProfilePage', locale)
-  const videoContent = useIntlayer('osuProfileVideos', locale)
+const OsuProfileArchive: NextPageIntlayer = async ({ params }) => {
+  const { locale } = await params
+  const content = useIntlayer('osuProfilePage')
+  const videoContent = useIntlayer('osuProfileVideos')
 
   const getText = (value: { value: string } | string) =>
     typeof value === 'string' ? value : value.value
@@ -110,8 +114,7 @@ export default async function OsuProfileArchive() {
 
   return (
     <IntlayerServerProvider locale={locale}>
-      <div className="legacy-osu" />
-      <div className="flex flex-col items-center">
+      <div className="flex flex-col items-center legacy-osu">
         <Content size="4xl" className="py-4">
           <p className="text-muted-foreground mt-2 text-xs">
             {content.archiveNote.value}
@@ -200,3 +203,5 @@ export default async function OsuProfileArchive() {
     </IntlayerServerProvider>
   )
 }
+
+export default OsuProfileArchive

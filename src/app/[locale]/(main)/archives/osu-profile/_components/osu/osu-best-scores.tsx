@@ -147,10 +147,11 @@ const ScoreCard = ({ score, index, className }: ScoreCardProps) => {
 
             <div className="flex flex-col items-center justify-between gap-2">
               <div className="flex items-center gap-2">
-                {score.mods.length > 0 &&
-                  score.mods.map((mod) => (
-                    <ModBadge key={mod.acronym} acronym={mod.acronym} />
-                  ))}
+                {score.mods.length > 0
+                  ? score.mods.map((mod) => (
+                      <ModBadge key={mod.acronym} acronym={mod.acronym} />
+                    ))
+                  : null}
 
                 <div
                   className={cn(
@@ -195,9 +196,11 @@ export const OsuBestScores = () => {
       <Suspense
         fallback={
           <>
-            {[...Array(limit)].map((_, index) => (
-              <ScoreCardSkeleton key={index} />
-            ))}
+            <ScoreCardSkeleton />
+            <ScoreCardSkeleton />
+            <ScoreCardSkeleton />
+            <ScoreCardSkeleton />
+            <ScoreCardSkeleton />
           </>
         }
       >
