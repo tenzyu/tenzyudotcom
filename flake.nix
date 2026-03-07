@@ -19,15 +19,6 @@
         npmDeps = importNpmLock.buildNodeModules {
           inherit npmRoot nodejs;
         };
-        shellHook = ''
-          if [ -f .env.local ]; then
-            set -a
-            source .env.local
-            set +a
-          fi
-          
-          exec zsh
-        '';
       };
       
       # NOTE: for codemod
