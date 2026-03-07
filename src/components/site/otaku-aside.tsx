@@ -1,7 +1,7 @@
 'use client'
 
+import { ChevronRight } from 'lucide-react'
 import type { ReactNode } from 'react'
-
 import { Button } from '@/components/ui/button'
 import {
   Collapsible,
@@ -31,17 +31,7 @@ export function OtakuAside({ label, children }: OtakuAsideProps) {
             aria-hidden
             className="text-muted-foreground/70 mr-1 inline-flex h-3 w-3 items-center justify-center transition-transform duration-200 group-data-[state=open]:rotate-90"
           >
-            <svg
-              viewBox="0 0 12 12"
-              className="h-3 w-3"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M4 2.5 L8 6 L4 9.5" />
-            </svg>
+            <ChevronRight />
           </span>
           <span>{label}</span>
         </Button>
