@@ -2,10 +2,15 @@ import { getIntlayer } from 'intlayer'
 import type { NextPageIntlayer } from 'next-intlayer'
 import { IntlayerServerProvider, useIntlayer } from 'next-intlayer/server'
 import {
+  type YouTubeChannelItem,
+  YouTubeChannelList,
+} from '@/components/features/social/youtube-channel-list'
+import {
   YouTubePlaylist,
   type YouTubePlaylistItem,
 } from '@/components/features/social/youtube-playlist'
 import { PageHeader } from '@/components/site/page-header'
+import { SectionHeader } from '@/components/site/section-header'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { createPageMetadata, resolvePageLocale } from '@/lib/intlayer/page'
 import { fetchYouTubeVideoMeta } from '@/lib/youtube'
@@ -17,8 +22,10 @@ export const generateMetadata = createPageMetadata('page-recommendations', {
 
 const RecommendationsPageContent = ({
   videosWithTitles,
+  channels,
 }: {
   videosWithTitles: YouTubePlaylistItem[]
+  channels: YouTubeChannelItem[]
 }) => {
   const content = useIntlayer('page-recommendations')
 
@@ -33,11 +40,9 @@ const RecommendationsPageContent = ({
       <Tabs defaultValue="music" className="mt-8 flex flex-col gap-6">
         <TabsList className="grid w-full grid-cols-3 md:inline-flex md:w-auto">
           <TabsTrigger value="music">{content.tabs.music}</TabsTrigger>
+          <TabsTrigger value="socials">{content.tabs.socials}</TabsTrigger>
           <TabsTrigger value="videos" disabled>
             {content.tabs.videos}
-          </TabsTrigger>
-          <TabsTrigger value="socials" disabled>
-            {content.tabs.socials}
           </TabsTrigger>
         </TabsList>
 
@@ -46,6 +51,20 @@ const RecommendationsPageContent = ({
             videos={videosWithTitles}
             viewLabel={content.labels.views.value}
             commentLabel={content.labels.comment.value}
+          />
+        </TabsContent>
+
+        <TabsContent value="socials" className="border-none p-0">
+          <SectionHeader
+            title={content.sections.youtubeChannels.title.value}
+            description={content.sections.youtubeChannels.description.value}
+            titleClassName="text-xl"
+            className="space-y-1 pb-4"
+          />
+          <YouTubeChannelList
+            channels={channels}
+            commentLabel={content.labels.comment.value}
+            openLabel={content.labels.openChannel.value}
           />
         </TabsContent>
       </Tabs>
@@ -57,22 +76,38 @@ const RecommendationsPage: NextPageIntlayer = async ({ params }) => {
   const locale = await resolvePageLocale(params)
   const content = getIntlayer('page-recommendations', locale)
   const viewLocale = locale === 'ja' ? 'ja-JP' : 'en-US'
-  const videosWithTitles: YouTubePlaylistItem[] = await Promise.all(
-    content.videos.map(async (video) => {
-      const { title, views } = await fetchYouTubeVideoMeta(video.id, viewLocale)
+  const [videosWithTitles, channels] = await Promise.all([
+    Promise.all(
+      content.videos.map(async (video) => {
+        const { title, views } = await fetchYouTubeVideoMeta(
+          video.id,
+          viewLocale,
+        )
 
-      return {
-        id: video.id,
-        note: video.note,
-        views,
-        title,
-      }
-    }),
-  )
+        return {
+          id: video.id,
+          note: video.note,
+          views,
+          title,
+        }
+      }),
+    ) as Promise<YouTubePlaylistItem[]>,
+    Promise.resolve(
+      content.channels.map((channel) => ({
+        title: channel.title,
+        handle: channel.handle,
+        url: channel.url,
+        note: channel.note,
+      })),
+    ) as Promise<YouTubeChannelItem[]>,
+  ])
 
   return (
     <IntlayerServerProvider locale={locale}>
-      <RecommendationsPageContent videosWithTitles={videosWithTitles} />
+      <RecommendationsPageContent
+        videosWithTitles={videosWithTitles}
+        channels={channels}
+      />
     </IntlayerServerProvider>
   )
 }
