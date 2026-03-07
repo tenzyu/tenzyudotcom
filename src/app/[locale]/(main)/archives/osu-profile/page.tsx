@@ -1,6 +1,4 @@
-import { getIntlayer } from 'intlayer'
-import type { Metadata } from 'next'
-import type { LocalPromiseParams, NextPageIntlayer } from 'next-intlayer'
+import type { NextPageIntlayer } from 'next-intlayer'
 import { IntlayerServerProvider, useIntlayer } from 'next-intlayer/server'
 import type { PropsWithChildren } from 'react'
 import { LinkList } from '@/components/features/links/link-list'
@@ -8,6 +6,10 @@ import { TwitterCarousel } from '@/components/features/social/twitter-carousel'
 import { YouTubeCarousel } from '@/components/features/social/youtube-carousel'
 import { Content } from '@/components/site/content'
 import { Section } from '@/components/site/section'
+import {
+  createPageMetadata,
+  resolvePageLocale,
+} from '@/lib/intlayer/page'
 import {
   KeyboardSettings,
   MonitorSettings,
@@ -26,17 +28,9 @@ import './legacy.css'
 
 export const revalidate = 60
 
-export async function generateMetadata({
-  params,
-}: LocalPromiseParams): Promise<Metadata> {
-  const { locale } = await params
-  const content = getIntlayer('osuProfilePage', locale)
-
-  return {
-    title: content.metadata.title,
-    description: content.metadata.description,
-  }
-}
+export const generateMetadata = createPageMetadata('osuProfilePage', {
+  pathname: '/archives/osu-profile',
+})
 
 const SectionHeader = ({ children }: PropsWithChildren) => (
   <h2 className="mb-6 text-center text-2xl font-bold tracking-tight">
@@ -60,26 +54,25 @@ const ArchiveSection = ({
   </Section>
 )
 
-const OsuProfileArchive: NextPageIntlayer = async ({ params }) => {
-  const { locale } = await params
-  const content = useIntlayer('osuProfilePage', locale)
-  const videoContent = useIntlayer('osuProfileVideos', locale)
-
-  const getText = (value: { value: string } | string) =>
-    typeof value === 'string' ? value : value.value
+const OsuProfileArchiveContent = () => {
+  const content = useIntlayer('osuProfilePage')
+  const videoContent = useIntlayer('osuProfileVideos')
 
   const personalBestVideos = videoContent.personalBestHistory.map((video) => ({
-    id: getText(video.id),
-    title: getText(video.title),
+    id: video.id.value,
+    title: video.title.value,
   }))
 
   const featuredVideos = videoContent.featuredVideos.map((video) => ({
-    id: getText(video.id),
-    title: getText(video.title),
+    id: video.id.value,
+    title: video.title.value,
   }))
 
   const tocSections: TocSection[] = [
-    { id: 'osu-best-scores', title: content.sections.osuBestScores.value },
+    {
+      id: 'osu-best-scores',
+      title: content.sections.osuBestScores.value,
+    },
     { id: 'yearly-goals', title: content.sections.yearlyGoals.value },
     {
       id: 'personal-best-history',
@@ -92,86 +85,84 @@ const OsuProfileArchive: NextPageIntlayer = async ({ params }) => {
   ]
 
   return (
+    <div className="flex flex-col items-center legacy-osu">
+      <Content size="4xl" className="py-4">
+        <p className="text-muted-foreground mt-2 text-xs">{content.archiveNote.value}</p>
+      </Content>
+
+      <Section className="w-full">
+        <ProfileCard />
+      </Section>
+
+      <TableOfContents sections={tocSections} />
+
+      <Content
+        size="4xl"
+        className="grid grid-cols-1 gap-y-12 md:grid-cols-2 md:gap-x-4 md:gap-y-0"
+      >
+        <ArchiveSection id="osu-best-scores" title={content.sections.osuBestScores.value}>
+          <OsuBestScores />
+        </ArchiveSection>
+
+        <ArchiveSection id="yearly-goals" title={content.sections.yearlyGoals.value}>
+          <YearlyGoals />
+        </ArchiveSection>
+      </Content>
+
+      <ArchiveSection
+        className="w-full"
+        id="personal-best-history"
+        title={content.sections.personalBestHistory.value}
+      >
+        <YouTubeCarousel videos={personalBestVideos} />
+      </ArchiveSection>
+
+      <ArchiveSection
+        className="w-full"
+        id="featured-videos"
+        title={content.sections.featuredVideos.value}
+      >
+        <YouTubeCarousel videos={featuredVideos} type="video" />
+      </ArchiveSection>
+
+      <ArchiveSection
+        className="w-full"
+        id="twitter-clips"
+        title={content.sections.twitterClips.value}
+      >
+        <span className="block text-center text-xs">{content.sections.twitterNote.value}</span>
+        <TwitterCarousel tweets={TWEETS} />
+      </ArchiveSection>
+
+      <ArchiveSection
+        className="w-full"
+        id="osu-settings"
+        title={content.sections.osuSettings.value}
+      >
+        <Content size="4xl" className="flex flex-col gap-4">
+          <TabletSettings />
+          <KeyboardSettings />
+          <MonitorSettings />
+        </Content>
+      </ArchiveSection>
+
+      <ArchiveSection
+        className="w-full"
+        id="my-links"
+        title={content.sections.myLinks.value}
+      >
+        <LinkList />
+      </ArchiveSection>
+    </div>
+  )
+}
+
+const OsuProfileArchive: NextPageIntlayer = async ({ params }) => {
+  const locale = await resolvePageLocale(params)
+
+  return (
     <IntlayerServerProvider locale={locale}>
-      <div className="flex flex-col items-center legacy-osu">
-        <Content size="4xl" className="py-4">
-          <p className="text-muted-foreground mt-2 text-xs">
-            {content.archiveNote.value}
-          </p>
-        </Content>
-
-        <Section className="w-full">
-          <ProfileCard />
-        </Section>
-
-        <TableOfContents sections={tocSections} />
-
-        <Content
-          size="4xl"
-          className="grid grid-cols-1 gap-y-12 md:grid-cols-2 md:gap-x-4 md:gap-y-0"
-        >
-          <ArchiveSection
-            id="osu-best-scores"
-            title={content.sections.osuBestScores.value}
-          >
-            <OsuBestScores />
-          </ArchiveSection>
-
-          <ArchiveSection
-            id="yearly-goals"
-            title={content.sections.yearlyGoals.value}
-          >
-            <YearlyGoals />
-          </ArchiveSection>
-        </Content>
-
-        <ArchiveSection
-          className="w-full"
-          id="personal-best-history"
-          title={content.sections.personalBestHistory.value}
-        >
-          <YouTubeCarousel videos={personalBestVideos} />
-        </ArchiveSection>
-
-        <ArchiveSection
-          className="w-full"
-          id="featured-videos"
-          title={content.sections.featuredVideos.value}
-        >
-          <YouTubeCarousel videos={featuredVideos} type="video" />
-        </ArchiveSection>
-
-        <ArchiveSection
-          className="w-full"
-          id="twitter-clips"
-          title={content.sections.twitterClips.value}
-        >
-          <span className="block text-center text-xs">
-            {content.sections.twitterNote.value}
-          </span>
-          <TwitterCarousel tweets={TWEETS} />
-        </ArchiveSection>
-
-        <ArchiveSection
-          className="w-full"
-          id="osu-settings"
-          title={content.sections.osuSettings.value}
-        >
-          <Content size="4xl" className="space-y-4">
-            <TabletSettings />
-            <KeyboardSettings />
-            <MonitorSettings />
-          </Content>
-        </ArchiveSection>
-
-        <ArchiveSection
-          className="w-full"
-          id="my-links"
-          title={content.sections.myLinks.value}
-        >
-          <LinkList />
-        </ArchiveSection>
-      </div>
+      <OsuProfileArchiveContent />
     </IntlayerServerProvider>
   )
 }

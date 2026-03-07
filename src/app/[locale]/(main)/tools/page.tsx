@@ -1,8 +1,7 @@
-import { getIntlayer, getLocalizedUrl } from 'intlayer'
+import { getLocalizedUrl } from 'intlayer'
 import { Type } from 'lucide-react'
-import type { Metadata } from 'next'
 import Link from 'next/link'
-import type { LocalPromiseParams, NextPageIntlayer } from 'next-intlayer'
+import type { NextPageIntlayer } from 'next-intlayer'
 import { IntlayerServerProvider, useIntlayer } from 'next-intlayer/server'
 import { OtakuAside } from '@/components/site/otaku-aside'
 import { PageHeader } from '@/components/site/page-header'
@@ -14,31 +13,23 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import { createPageMetadata, resolvePageLocale } from '@/lib/intlayer/page'
 
 export const dynamic = 'force-static'
 
-export async function generateMetadata({
-  params,
-}: LocalPromiseParams): Promise<Metadata> {
-  const { locale } = await params
-  const content = getIntlayer('toolsPage', locale)
-
-  return {
-    title: content.metadata.title,
-    description: content.metadata.description,
-  }
-}
+export const generateMetadata = createPageMetadata('toolsPage', {
+  pathname: '/tools',
+})
 
 const ICONS = {
   type: Type,
 } as const
 
-const ToolsPage: NextPageIntlayer = async ({ params }) => {
-  const { locale } = await params
-  const content = useIntlayer('toolsPage', locale)
+const ToolsPageContent = ({ locale }: { locale: string }) => {
+  const content = useIntlayer('toolsPage')
 
   return (
-    <IntlayerServerProvider locale={locale}>
+    <>
       <PageHeader
         title={content.metadata.title.value}
         description={content.metadata.description.value}
@@ -57,7 +48,7 @@ const ToolsPage: NextPageIntlayer = async ({ params }) => {
                   {tool.description}
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-3 text-sm">
+              <CardContent className="flex flex-col gap-3 text-sm">
                 <OtakuAside label={content.labels.comment.value}>
                   {tool.note}
                 </OtakuAside>
@@ -68,7 +59,7 @@ const ToolsPage: NextPageIntlayer = async ({ params }) => {
                   className="w-full justify-center"
                 >
                   <Link href={getLocalizedUrl(tool.href.value, locale)}>
-                    {content.labels.openTool}
+                    {content.labels.openTool.value}
                   </Link>
                 </Button>
               </CardContent>
@@ -76,6 +67,16 @@ const ToolsPage: NextPageIntlayer = async ({ params }) => {
           )
         })}
       </div>
+    </>
+  )
+}
+
+const ToolsPage: NextPageIntlayer = async ({ params }) => {
+  const locale = await resolvePageLocale(params)
+
+  return (
+    <IntlayerServerProvider locale={locale}>
+      <ToolsPageContent locale={locale} />
     </IntlayerServerProvider>
   )
 }

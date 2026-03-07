@@ -1,45 +1,38 @@
-import { getIntlayer } from 'intlayer'
-import type { Metadata } from 'next'
-import type { LocalPromiseParams, NextPageIntlayer } from 'next-intlayer'
+import type { NextPageIntlayer } from 'next-intlayer'
 import { IntlayerServerProvider, useIntlayer } from 'next-intlayer/server'
 import { PageHeader } from '@/components/site/page-header'
 import { SectionHeader } from '@/components/site/section-header'
 import { DASHBOARD_DATA } from '@/data/pointers'
+import {
+  createPageMetadata,
+  resolvePageLocale,
+} from '@/lib/intlayer/page'
 import { ActionLinkTile } from '../(home)/_components/action-link-tile'
 
 export const dynamic = 'force-static'
 
-export async function generateMetadata({
-  params,
-}: LocalPromiseParams): Promise<Metadata> {
-  const { locale } = await params
-  const content = getIntlayer('pointersPage', locale)
+export const generateMetadata = createPageMetadata('pointersPage', {
+  pathname: '/pointers',
+})
 
-  return {
-    title: content.metadata.title,
-    description: content.metadata.description,
-  }
-}
-
-const PointersPage: NextPageIntlayer = async ({ params }) => {
-  const { locale } = await params
-  const content = useIntlayer('pointersPage', locale)
+const PointersPageContent = () => {
+  const content = useIntlayer('pointersPage')
 
   return (
-    <IntlayerServerProvider locale={locale}>
+    <>
       <PageHeader
         title={content.metadata.title.value}
         description={content.metadata.description.value}
-        className="space-y-4"
+        className="flex flex-col gap-4"
       />
 
       <div className="grid gap-12 md:grid-cols-2">
         {DASHBOARD_DATA.map((category) => (
-          <section key={category.title} className="space-y-6">
+          <section key={category.title} className="flex flex-col gap-6">
             <SectionHeader
               title={category.title}
               titleClassName="text-lg"
-              className="space-y-1"
+              className="flex flex-col gap-1"
             />
             <div className="grid gap-4">
               {category.links.map((link) => (
@@ -55,6 +48,16 @@ const PointersPage: NextPageIntlayer = async ({ params }) => {
           </section>
         ))}
       </div>
+    </>
+  )
+}
+
+const PointersPage: NextPageIntlayer = async ({ params }) => {
+  const locale = await resolvePageLocale(params)
+
+  return (
+    <IntlayerServerProvider locale={locale}>
+      <PointersPageContent />
     </IntlayerServerProvider>
   )
 }

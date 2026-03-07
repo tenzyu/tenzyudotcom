@@ -1,30 +1,17 @@
-import type { Metadata } from 'next'
-
-import {
-  getIntlayer,
-  type LocalPromiseParams,
-  type NextPageIntlayer,
-} from 'next-intlayer'
+import type { NextPageIntlayer } from 'next-intlayer'
 import { IntlayerServerProvider } from 'next-intlayer/server'
 import ClientWrapper from '@/components/features/client-wrapper'
+import { createPageMetadata, resolvePageLocale } from '@/lib/intlayer/page'
 import { DotTypeContent } from './_components/client'
 
 export const dynamic = 'force-static'
 
-export async function generateMetadata({
-  params,
-}: LocalPromiseParams): Promise<Metadata> {
-  const { locale } = await params
-  const { metadata } = getIntlayer('dotType', locale)
-
-  return {
-    title: metadata.title.value,
-    description: metadata.description.value,
-  }
-}
+export const generateMetadata = createPageMetadata('dotType', {
+  pathname: '/tools/dot-type',
+})
 
 const DotTypePage: NextPageIntlayer = async ({ params }) => {
-  const { locale } = await params
+  const locale = await resolvePageLocale(params)
 
   return (
     <IntlayerServerProvider locale={locale}>

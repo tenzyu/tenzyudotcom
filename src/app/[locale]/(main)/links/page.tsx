@@ -1,36 +1,38 @@
-import { getIntlayer } from 'intlayer'
-import type { Metadata } from 'next'
-import type { LocalPromiseParams, NextPageIntlayer } from 'next-intlayer'
-import { IntlayerServerProvider } from 'next-intlayer/server'
-
+import type { NextPageIntlayer } from 'next-intlayer'
+import { IntlayerServerProvider, useIntlayer } from 'next-intlayer/server'
 import { LinkList } from '@/components/features/links/link-list'
 import { PageHeader } from '@/components/site/page-header'
+import {
+  createPageMetadata,
+  resolvePageLocale,
+} from '@/lib/intlayer/page'
 
 export const dynamic = 'force-static'
 
-export async function generateMetadata({
-  params,
-}: LocalPromiseParams): Promise<Metadata> {
-  const { locale } = await params
-  const content = getIntlayer('linksPage', locale)
+export const generateMetadata = createPageMetadata('linksPage', {
+  pathname: '/links',
+})
 
-  return {
-    title: content.metadata.title,
-    description: content.metadata.description,
-  }
+const LinkTreePageContent = () => {
+  const content = useIntlayer('linksPage')
+
+  return (
+    <>
+      <PageHeader
+        title={content.metadata.title.value}
+        description={content.metadata.description.value}
+      />
+      <LinkList />
+    </>
+  )
 }
 
 const LinkTreePage: NextPageIntlayer = async ({ params }) => {
-  const { locale } = await params
-  const content = getIntlayer('linksPage', locale)
+  const locale = await resolvePageLocale(params)
 
   return (
     <IntlayerServerProvider locale={locale}>
-      <PageHeader
-        title={content.metadata.title}
-        description={content.metadata.description}
-      />
-      <LinkList />
+      <LinkTreePageContent />
     </IntlayerServerProvider>
   )
 }

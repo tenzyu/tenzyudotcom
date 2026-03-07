@@ -1,5 +1,4 @@
-import { getIntlayer, getLocalizedUrl } from 'intlayer'
-import type { Metadata } from 'next'
+import { getLocalizedUrl } from 'intlayer'
 import type { LocalPromiseParams } from 'next-intlayer'
 import { IntlayerServerProvider, useIntlayer } from 'next-intlayer/server'
 import { PageHeader } from '@/components/site/page-header'
@@ -12,21 +11,17 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination'
 import { getBlogPosts } from '@/lib/blog/getBlogPosts'
+import {
+  createPageMetadata,
+  resolvePageLocale,
+} from '@/lib/intlayer/page'
 import { BlogTile } from './_components/blog-tile'
 
 export const dynamic = 'force-static'
 
-export async function generateMetadata({
-  params,
-}: LocalPromiseParams): Promise<Metadata> {
-  const { locale } = await params
-  const content = getIntlayer('blogPage', locale)
-
-  return {
-    title: content.metadata.title,
-    description: content.metadata.description,
-  }
-}
+export const generateMetadata = createPageMetadata('blogPage', {
+  pathname: '/blog',
+})
 
 const PAGE_SIZE = 6
 
@@ -37,8 +32,7 @@ type PageProps = LocalPromiseParams & {
 }
 
 export default async function Page({ params, searchParams }: PageProps) {
-  const { locale } = await params
-  const content = useIntlayer('blogPage', locale)
+  const locale = await resolvePageLocale(params)
 
   const awaited_posts = await getBlogPosts()
   const totalPages = Math.ceil(awaited_posts.length / PAGE_SIZE)
@@ -59,6 +53,34 @@ export default async function Page({ params, searchParams }: PageProps) {
 
   return (
     <IntlayerServerProvider locale={locale}>
+      <BlogPageContent
+        currentPage={currentPage}
+        locale={locale}
+        pageHref={pageHref}
+        pageItems={pageItems}
+        totalPages={totalPages}
+      />
+    </IntlayerServerProvider>
+  )
+}
+
+function BlogPageContent({
+  currentPage,
+  locale,
+  pageHref,
+  pageItems,
+  totalPages,
+}: {
+  currentPage: number
+  locale: string
+  pageHref: (page: number) => string
+  pageItems: Awaited<ReturnType<typeof getBlogPosts>>
+  totalPages: number
+}) {
+  const content = useIntlayer('blogPage')
+
+  return (
+    <>
       <PageHeader
         title={content.metadata.title.value}
         description={content.metadata.description.value}
@@ -75,10 +97,7 @@ export default async function Page({ params, searchParams }: PageProps) {
       </div>
 
       {totalPages > 1 ? (
-        <Pagination
-          className="mt-10"
-          ariaLabel={content.pagination.ariaLabel.value}
-        >
+        <Pagination className="mt-10" ariaLabel={content.pagination.ariaLabel.value}>
           <PaginationContent>
             <PaginationItem>
               <PaginationPrevious
@@ -122,6 +141,6 @@ export default async function Page({ params, searchParams }: PageProps) {
           </PaginationContent>
         </Pagination>
       ) : null}
-    </IntlayerServerProvider>
+    </>
   )
 }

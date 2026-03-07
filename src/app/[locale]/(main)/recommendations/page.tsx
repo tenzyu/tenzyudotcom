@@ -1,6 +1,5 @@
 import { getIntlayer } from 'intlayer'
-import type { Metadata } from 'next'
-import type { LocalPromiseParams, NextPageIntlayer } from 'next-intlayer'
+import type { NextPageIntlayer } from 'next-intlayer'
 import { IntlayerServerProvider, useIntlayer } from 'next-intlayer/server'
 import {
   YouTubePlaylist,
@@ -8,50 +7,33 @@ import {
 } from '@/components/features/social/youtube-playlist'
 import { PageHeader } from '@/components/site/page-header'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import {
+  createPageMetadata,
+  resolvePageLocale,
+} from '@/lib/intlayer/page'
 import { fetchYouTubeVideoMeta } from '@/lib/youtube'
 
 export const dynamic = 'force-static'
-export async function generateMetadata({
-  params,
-}: LocalPromiseParams): Promise<Metadata> {
-  const { locale } = await params
-  const content = getIntlayer('recommendationsPage', locale)
+export const generateMetadata = createPageMetadata('recommendationsPage', {
+  pathname: '/recommendations',
+})
 
-  return {
-    title: content.metadata.title,
-    description: content.metadata.description,
-  }
-}
-
-const RecommendationsPage: NextPageIntlayer = async ({ params }) => {
-  const { locale } = await params
-  const content = useIntlayer('recommendationsPage', locale)
-  const viewLocale = locale === 'ja' ? 'ja-JP' : 'en-US'
-  const videosWithTitles = await Promise.all<YouTubePlaylistItem>(
-    content.videos.map(async (video) => {
-      const { title, views } = await fetchYouTubeVideoMeta(
-        video.id.value,
-        viewLocale,
-      )
-
-      return {
-        id: video.id.value,
-        note: video.note.value,
-        views,
-        title,
-      }
-    }),
-  )
+const RecommendationsPageContent = ({
+  videosWithTitles,
+}: {
+  videosWithTitles: YouTubePlaylistItem[]
+}) => {
+  const content = useIntlayer('recommendationsPage')
 
   return (
-    <IntlayerServerProvider locale={locale}>
+    <>
       <PageHeader
         title={content.metadata.title.value}
         description={content.metadata.description.value}
-        className="space-y-4"
+        className="flex flex-col gap-4"
       />
 
-      <Tabs defaultValue="music" className="mt-8 space-y-6">
+      <Tabs defaultValue="music" className="mt-8 flex flex-col gap-6">
         <TabsList className="grid w-full grid-cols-3 md:inline-flex md:w-auto">
           <TabsTrigger value="music">{content.tabs.music}</TabsTrigger>
           <TabsTrigger value="videos" disabled>
@@ -62,7 +44,7 @@ const RecommendationsPage: NextPageIntlayer = async ({ params }) => {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="music" className="space-y-4 border-none p-0">
+        <TabsContent value="music" className="border-none p-0">
           <YouTubePlaylist
             videos={videosWithTitles}
             viewLabel={content.labels.views.value}
@@ -70,6 +52,30 @@ const RecommendationsPage: NextPageIntlayer = async ({ params }) => {
           />
         </TabsContent>
       </Tabs>
+    </>
+  )
+}
+
+const RecommendationsPage: NextPageIntlayer = async ({ params }) => {
+  const locale = await resolvePageLocale(params)
+  const content = getIntlayer('recommendationsPage', locale)
+  const viewLocale = locale === 'ja' ? 'ja-JP' : 'en-US'
+  const videosWithTitles: YouTubePlaylistItem[] = await Promise.all(
+    content.videos.map(async (video) => {
+      const { title, views } = await fetchYouTubeVideoMeta(video.id, viewLocale)
+
+      return {
+        id: video.id,
+        note: video.note,
+        views,
+        title,
+      }
+    }),
+  )
+
+  return (
+    <IntlayerServerProvider locale={locale}>
+      <RecommendationsPageContent videosWithTitles={videosWithTitles} />
     </IntlayerServerProvider>
   )
 }

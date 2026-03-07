@@ -1,6 +1,4 @@
-import { getIntlayer } from 'intlayer'
-import type { Metadata } from 'next'
-import type { LocalPromiseParams, NextPageIntlayer } from 'next-intlayer'
+import type { NextPageIntlayer } from 'next-intlayer'
 import { IntlayerServerProvider, useIntlayer } from 'next-intlayer/server'
 import { PageHeader } from '@/components/site/page-header'
 import { SectionHeader } from '@/components/site/section-header'
@@ -11,6 +9,10 @@ import {
   EmptyTitle,
 } from '@/components/ui/empty'
 import { PUZZLE_CATEGORIES } from '@/data/puzzles'
+import {
+  createPageMetadata,
+  resolvePageLocale,
+} from '@/lib/intlayer/page'
 import { fetchOgp } from '@/lib/ogp'
 
 import type { PuzzleWithOgp } from './_components/puzzle-tile'
@@ -18,17 +20,9 @@ import { PuzzleTile } from './_components/puzzle-tile'
 
 export const dynamic = 'force-static'
 
-export async function generateMetadata({
-  params,
-}: LocalPromiseParams): Promise<Metadata> {
-  const { locale } = await params
-  const content = getIntlayer('puzzlesPage', locale)
-
-  return {
-    title: content.metadata.title,
-    description: content.metadata.description,
-  }
-}
+export const generateMetadata = createPageMetadata('puzzlesPage', {
+  pathname: '/puzzles',
+})
 
 async function getPuzzleCategoriesWithOgp() {
   const categories = await Promise.all(
@@ -58,13 +52,15 @@ async function getPuzzleCategoriesWithOgp() {
   return categories
 }
 
-const PuzzlesPage: NextPageIntlayer = async ({ params }) => {
-  const { locale } = await params
-  const content = useIntlayer('puzzlesPage', locale)
-  const categoriesWithOgp = await getPuzzleCategoriesWithOgp()
+const PuzzlesPageContent = ({
+  categoriesWithOgp,
+}: {
+  categoriesWithOgp: Awaited<ReturnType<typeof getPuzzleCategoriesWithOgp>>
+}) => {
+  const content = useIntlayer('puzzlesPage')
 
   return (
-    <IntlayerServerProvider locale={locale}>
+    <>
       <PageHeader
         title={content.metadata.title.value}
         description={content.metadata.description.value}
@@ -78,12 +74,12 @@ const PuzzlesPage: NextPageIntlayer = async ({ params }) => {
           </EmptyHeader>
         </Empty>
       ) : (
-        <div className="space-y-10">
+        <div className="flex flex-col gap-10">
           {categoriesWithOgp.map((category) => {
             const categoryCopy = content.categories[category.id]
             if (!categoryCopy) return null
             return (
-              <section key={category.id} className="space-y-4">
+              <section key={category.id} className="flex flex-col gap-4">
                 <SectionHeader
                   title={categoryCopy.name.value}
                   description={categoryCopy.description.value}
@@ -98,6 +94,17 @@ const PuzzlesPage: NextPageIntlayer = async ({ params }) => {
           })}
         </div>
       )}
+    </>
+  )
+}
+
+const PuzzlesPage: NextPageIntlayer = async ({ params }) => {
+  const locale = await resolvePageLocale(params)
+  const categoriesWithOgp = await getPuzzleCategoriesWithOgp()
+
+  return (
+    <IntlayerServerProvider locale={locale}>
+      <PuzzlesPageContent categoriesWithOgp={categoriesWithOgp} />
     </IntlayerServerProvider>
   )
 }
