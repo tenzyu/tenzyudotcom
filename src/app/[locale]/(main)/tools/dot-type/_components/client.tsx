@@ -1,14 +1,14 @@
 'use client'
 
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from '@/components/ui/card'
 import { useIntlayer } from 'next-intlayer'
 import { Content } from '@/components/site/content'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { useDotGeneration } from '../use-dot-generation'
 import { ControlPanel } from './control-panel'
 import { PreviewPanel } from './preview-panel'

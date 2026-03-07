@@ -1,5 +1,5 @@
-import { memo } from 'react'
 import { useIntlayer } from 'next-intlayer/server'
+import { memo } from 'react'
 
 import type { TabletSettings as TabletSettingsType } from '../../_type/settings'
 

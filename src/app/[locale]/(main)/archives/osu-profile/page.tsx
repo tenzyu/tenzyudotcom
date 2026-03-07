@@ -1,24 +1,21 @@
 import {
-  IntlayerServerProvider,
   getLocale,
+  IntlayerServerProvider,
   useIntlayer,
 } from 'next-intlayer/server'
-
+import type { PropsWithChildren } from 'react'
 import { LinkList } from '@/components/features/links/link-list'
-import { ProfileCard } from './_components/profile-card'
-import { Section } from '@/components/site/section'
 import { TwitterCarousel } from '@/components/features/social/twitter-carousel'
 import { YouTubeCarousel } from '@/components/features/social/youtube-carousel'
 import { Content } from '@/components/site/content'
-
-import type { PropsWithChildren } from 'react'
-
+import { Section } from '@/components/site/section'
 import {
   KeyboardSettings,
   MonitorSettings,
   OsuBestScores,
   TabletSettings,
 } from './_components/osu'
+import { ProfileCard } from './_components/profile-card'
 import {
   TableOfContents,
   type TocSection,

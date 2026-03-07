@@ -1,21 +1,19 @@
+import { getLocalizedUrl } from 'intlayer'
 import {
+  ChevronRight,
   Disc,
   FileText,
   FolderArchive,
   Hammer,
+  Link as LinkIcon,
+  ListMusic,
   Pointer,
   Puzzle,
-  ChevronRight,
   Sparkles,
   User,
-  ListMusic,
-  Link as LinkIcon,
 } from 'lucide-react'
 import Link from 'next/link'
 import { useIntlayer, useLocale } from 'next-intlayer/server'
-import { getLocalizedUrl } from 'intlayer'
-
-import { Separator } from '@/components/ui/separator'
 import { Content } from '@/components/site/content'
 import {
   Item,
@@ -26,6 +24,7 @@ import {
   ItemMedia,
   ItemTitle,
 } from '@/components/ui/item'
+import { Separator } from '@/components/ui/separator'
 
 const NAV_GROUPS = [
   {

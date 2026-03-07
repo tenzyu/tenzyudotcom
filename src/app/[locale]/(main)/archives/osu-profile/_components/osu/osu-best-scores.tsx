@@ -1,17 +1,14 @@
 import { Clock, Music } from 'lucide-react'
 import Image from 'next/image'
+import type { Score } from 'osu-api-v2-js'
 import { Suspense } from 'react'
-
-import { Card, CardContent, CardTitle } from '@/components/ui/card'
-import { Skeleton } from '@/components/ui/skeleton'
 import { Content } from '@/components/site/content'
 import { ExternalLink } from '@/components/site/external-link'
+import { Card, CardContent, CardTitle } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
-
+import { DEFAULT_SCORE_LIMIT, ID_OSU } from '../../_data/osu'
 import { getUserScores } from '../../_lib'
-import { ID_OSU, DEFAULT_SCORE_LIMIT } from '../../_data/osu'
-
-import type { Score } from 'osu-api-v2-js'
 
 const RANK_STYLES = {
   XH: 'text-yellow-400 border-yellow-400',

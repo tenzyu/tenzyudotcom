@@ -1,10 +1,9 @@
 'use client'
 
-import { ChevronDown, Globe } from 'lucide-react'
 import { getLocaleName, getLocalizedUrl } from 'intlayer'
-import { useLocale } from 'next-intlayer'
-import { useIntlayer } from 'next-intlayer'
+import { ChevronDown, Globe } from 'lucide-react'
 import Link from 'next/link'
+import { useIntlayer, useLocale } from 'next-intlayer'
 
 import { Button } from '@/components/ui/button'
 import {

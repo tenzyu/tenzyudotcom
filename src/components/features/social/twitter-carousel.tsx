@@ -1,3 +1,5 @@
+import { useIntlayer } from 'next-intlayer/server'
+import { Content } from '@/components/site/content'
 import {
   Carousel,
   CarouselContent,
@@ -5,8 +7,6 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from '@/components/ui/carousel'
-import { Content } from '@/components/site/content'
-import { useIntlayer } from 'next-intlayer/server'
 
 export type TweetData = {
   id: string

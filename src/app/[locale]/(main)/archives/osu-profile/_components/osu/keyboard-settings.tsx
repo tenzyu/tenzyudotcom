@@ -1,6 +1,6 @@
 import { ArrowLeft, ArrowRight } from 'lucide-react'
-import { memo } from 'react'
 import { useIntlayer } from 'next-intlayer/server'
+import { memo } from 'react'
 
 import { cn } from '@/lib/utils'
 

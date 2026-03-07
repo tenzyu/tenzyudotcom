@@ -1,9 +1,9 @@
 'use client'
 
 import { Link, Mail, Share2 } from 'lucide-react'
+import { useIntlayer } from 'next-intlayer'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
-import { useIntlayer } from 'next-intlayer'
 
 import { ShareButton } from '@/components/site/share-button'
 import { XIcon } from '@/components/site/social-icons'

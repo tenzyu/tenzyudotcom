@@ -1,6 +1,6 @@
+import { getLocalizedUrl } from 'intlayer'
 import Image from 'next/image'
 import Link from 'next/link'
-import { getLocalizedUrl } from 'intlayer'
 import { useIntlayer, useLocale } from 'next-intlayer/server'
 
 import {

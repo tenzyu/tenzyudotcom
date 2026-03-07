@@ -1,6 +1,6 @@
+import { getLocalizedUrl, locales } from 'intlayer'
 import { notFound } from 'next/navigation'
 import { getLocale } from 'next-intlayer/server'
-import { getLocalizedUrl, locales } from 'intlayer'
 
 import { baseUrl } from '@/app/sitemap'
 import { CustomMDX } from '@/lib/blog/custom-mdx'

@@ -1,7 +1,6 @@
 import Link from 'next/link'
-
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Content } from '@/components/site/content'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 export type TocSection = {
   id: string

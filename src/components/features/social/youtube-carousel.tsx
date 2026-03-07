@@ -1,6 +1,7 @@
 import Image from 'next/image'
+import { useIntlayer } from 'next-intlayer/server'
 import { VisuallyHidden } from 'radix-ui'
-
+import { Content } from '@/components/site/content'
 import {
   Carousel,
   CarouselContent,
@@ -14,9 +15,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
-import { Content } from '@/components/site/content'
 import { cn } from '@/lib/utils'
-import { useIntlayer } from 'next-intlayer/server'
 
 type YouTubeVideo = {
   id: string

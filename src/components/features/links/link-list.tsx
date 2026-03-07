@@ -1,11 +1,10 @@
 import { useIntlayer } from 'next-intlayer/server'
-
-import { MY_LINKS, type LinkCategory } from '@/data/links'
-
-import { LinkTile } from './link-tile'
-import { ItemGroup } from '@/components/ui/item'
-import { SectionHeader } from '@/components/site/section-header'
 import { Content } from '@/components/site/content'
+import { SectionHeader } from '@/components/site/section-header'
+import { ItemGroup } from '@/components/ui/item'
+import { type LinkCategory, MY_LINKS } from '@/data/links'
+import { LinkTile } from './link-tile'
+
 const CATEGORY_KEYS: Record<
   LinkCategory,
   'watch' | 'social' | 'build' | 'legacy'

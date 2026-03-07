@@ -1,11 +1,10 @@
 'use client'
 
-import Link from 'next/link'
-import React, { useEffect, useMemo, useState } from 'react'
-import { useIntlayer } from 'next-intlayer'
-import { useLocale } from 'next-intlayer'
 import { getLocalizedUrl } from 'intlayer'
-
+import Link from 'next/link'
+import { useIntlayer, useLocale } from 'next-intlayer'
+import React, { useEffect, useMemo, useState } from 'react'
+import { Content } from '@/components/site/content'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -14,7 +13,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
-import { Content } from '@/components/site/content'
 
 export function BreadcrumbNav() {
   const [mounted, setMounted] = useState(false)

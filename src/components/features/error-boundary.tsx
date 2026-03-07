@@ -1,8 +1,8 @@
 'use client'
 
+import { useIntlayer } from 'next-intlayer'
 import { useEffect } from 'react'
 import { toast } from 'sonner'
-import { useIntlayer } from 'next-intlayer'
 
 import { Button } from '@/components/ui/button'
 

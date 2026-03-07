@@ -1,7 +1,6 @@
 import { useIntlayer } from 'next-intlayer/server'
-
-import { ExternalLink } from '@/components/site/external-link'
 import { Container } from '@/components/site/container'
+import { ExternalLink } from '@/components/site/external-link'
 import { Button } from '@/components/ui/button'
 import {
   Tooltip,

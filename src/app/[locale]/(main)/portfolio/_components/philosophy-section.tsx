@@ -1,6 +1,6 @@
+import { useIntlayer } from 'next-intlayer/server'
 import { SectionHeader } from '@/components/site/section-header'
 import { Card, CardContent } from '@/components/ui/card'
-import { useIntlayer } from 'next-intlayer/server'
 
 export function PhilosophySection() {
   const content = useIntlayer('portfolio')

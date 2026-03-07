@@ -1,6 +1,6 @@
+import { getLocalizedUrl } from 'intlayer'
 import { CalendarIcon } from 'lucide-react'
 import Link from 'next/link'
-import { getLocalizedUrl } from 'intlayer'
 
 import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'

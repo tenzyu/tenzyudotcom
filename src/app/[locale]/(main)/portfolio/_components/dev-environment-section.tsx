@@ -1,3 +1,4 @@
+import { useIntlayer } from 'next-intlayer/server'
 import { SectionHeader } from '@/components/site/section-header'
 import {
   Accordion,
@@ -7,7 +8,6 @@ import {
 } from '@/components/ui/accordion'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
-import { useIntlayer } from 'next-intlayer/server'
 
 export function DevEnvironmentSection() {
   const content = useIntlayer('portfolio')

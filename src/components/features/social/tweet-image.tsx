@@ -1,9 +1,9 @@
-import Image from 'next/image'
 import { Heart } from 'lucide-react'
+import Image from 'next/image'
+import { useIntlayer, useLocale } from 'next-intlayer/server'
 import type { ReactNode } from 'react'
 import { Suspense } from 'react'
 import { getTweet } from 'react-tweet/api'
-import { useIntlayer, useLocale } from 'next-intlayer/server'
 
 type TweetImageProps = {
   id: string

@@ -1,11 +1,9 @@
-import Link from 'next/link'
 import { getLocalizedUrl } from 'intlayer'
+import type { LucideIcon } from 'lucide-react'
+import Link from 'next/link'
 import { useLocale } from 'next-intlayer/server'
-
 import { ExternalLink } from '@/components/site/external-link'
 import { Card } from '@/components/ui/card'
-
-import type { LucideIcon } from 'lucide-react'
 
 type ActionLinkTileProps = {
   title: string

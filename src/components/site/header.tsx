@@ -1,5 +1,5 @@
-import Link from 'next/link'
 import { getLocalizedUrl } from 'intlayer'
+import Link from 'next/link'
 import { useLocale } from 'next-intlayer/server'
 
 import { LanguageSwitcher } from '@/components/features/language-switcher'
