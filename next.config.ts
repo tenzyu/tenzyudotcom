@@ -1,5 +1,4 @@
 import { withIntlayer } from 'next-intlayer/server'
-import withBundleAnalyzer from '@next/bundle-analyzer'
 import createMDX from '@next/mdx'
 
 import type { NextConfig } from 'next'
@@ -72,16 +71,10 @@ const withMDX = createMDX({
   },
 })
 
-const withAnalyzer = withBundleAnalyzer({
-  enabled: process.env.ANALYZE === 'true',
-})
-
-const withAnalyzerAndMDX = (config: NextConfig) => withAnalyzer(withMDX(config))
-
 export default async function config() {
   const intlayerConfig = await withIntlayer(nextConfig, {
     enableTurbopack: true,
   })
 
-  return withAnalyzerAndMDX(intlayerConfig)
+  return withMDX(intlayerConfig)
 }
