@@ -2,8 +2,8 @@ import { getLocalizedUrl } from 'intlayer'
 import Link from 'next/link'
 import { useLocale } from 'next-intlayer/server'
 
-import { LanguageSwitcher } from '@/components/features/language-switcher'
-import { ThemeSwitcher } from '@/components/features/theme-switcher'
+import { LanguageSwitcher } from '@/app/[locale]/_features/language-switcher'
+import { ThemeSwitcher } from '@/app/[locale]/_features/theme-switcher'
 import { Container } from '@/components/site/container'
 import { cn } from '@/lib/utils'
 

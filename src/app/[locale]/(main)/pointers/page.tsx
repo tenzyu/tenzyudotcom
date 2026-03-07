@@ -4,7 +4,7 @@ import { PageHeader } from '@/components/site/page-header'
 import { SectionHeader } from '@/components/site/section-header'
 import { DASHBOARD_DATA } from '@/data/pointers'
 import { createPageMetadata, resolvePageLocale } from '@/lib/intlayer/page'
-import { ActionLinkTile } from '../(home)/_components/action-link-tile'
+import { ActionLinkTile } from './_features/action-link-tile'
 
 export const dynamic = 'force-static'
 

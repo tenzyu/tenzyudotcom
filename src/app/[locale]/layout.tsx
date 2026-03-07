@@ -9,7 +9,7 @@ import {
   type LocalPromiseParams,
   type NextLayoutIntlayer,
 } from 'next-intlayer'
-import { ThemeProvider } from '@/components/features/theme-provider'
+import { ThemeProvider } from '@/app/[locale]/_features/theme-provider'
 import { BreadcrumbNav } from '@/components/site/breadcrumb-nav'
 import { Container } from '@/components/site/container'
 import { Footer } from '@/components/site/footer'

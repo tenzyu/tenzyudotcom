@@ -1,7 +1,7 @@
 import type { NextPageIntlayer } from 'next-intlayer'
 import { IntlayerServerProvider } from 'next-intlayer/server'
 import { createPageMetadata, resolvePageLocale } from '@/lib/intlayer/page'
-import { HomePageContent } from './_components/home-page-content'
+import { HomePageContent } from './_features/home-page-content'
 
 export const dynamic = 'force-static'
 

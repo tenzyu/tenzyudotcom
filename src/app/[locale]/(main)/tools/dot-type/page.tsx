@@ -1,8 +1,8 @@
 import type { NextPageIntlayer } from 'next-intlayer'
 import { IntlayerServerProvider } from 'next-intlayer/server'
-import ClientWrapper from '@/components/features/client-wrapper'
 import { createPageMetadata, resolvePageLocale } from '@/lib/intlayer/page'
-import { DotTypeContent } from './_components/client'
+import ClientWrapper from './_features/client-wrapper'
+import { DotTypeContent } from './_features/client'
 
 export const dynamic = 'force-static'
 

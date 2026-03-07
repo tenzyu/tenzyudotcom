@@ -12,8 +12,8 @@ import { PUZZLE_CATEGORIES } from '@/data/puzzles'
 import { createPageMetadata, resolvePageLocale } from '@/lib/intlayer/page'
 import { fetchOgp } from '@/lib/ogp'
 
-import type { PuzzleWithOgp } from './_components/puzzle-tile'
-import { PuzzleTile } from './_components/puzzle-tile'
+import type { PuzzleWithOgp } from './_features/puzzle-tile'
+import { PuzzleTile } from './_features/puzzle-tile'
 
 export const dynamic = 'force-static'
 

@@ -1,24 +1,24 @@
 import type { NextPageIntlayer } from 'next-intlayer'
 import { IntlayerServerProvider, useIntlayer } from 'next-intlayer/server'
 import type { PropsWithChildren } from 'react'
-import { LinkList } from '@/components/features/links/link-list'
-import { TwitterCarousel } from '@/components/features/social/twitter-carousel'
-import { YouTubeCarousel } from '@/components/features/social/youtube-carousel'
+import { LinkList } from '../../_features/links/link-list'
 import { Content } from '@/components/site/content'
 import { Section } from '@/components/site/section'
 import { createPageMetadata, resolvePageLocale } from '@/lib/intlayer/page'
+import { TwitterCarousel } from './_features/twitter-carousel'
+import { YouTubeCarousel } from './_features/youtube-carousel'
 import {
   KeyboardSettings,
   MonitorSettings,
   OsuBestScores,
   TabletSettings,
-} from './_components/osu'
-import { ProfileCard } from './_components/profile-card'
+} from './_features/osu'
+import { ProfileCard } from './_features/profile-card'
 import {
   TableOfContents,
   type TocSection,
-} from './_components/table-of-contents'
-import { YearlyGoals } from './_components/yearly-goals'
+} from './_features/table-of-contents'
+import { YearlyGoals } from './_features/yearly-goals'
 import { TWEETS } from './_data/twitter'
 
 import './legacy.css'

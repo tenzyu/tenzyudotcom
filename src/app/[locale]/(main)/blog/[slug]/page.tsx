@@ -3,9 +3,9 @@ import { notFound } from 'next/navigation'
 import { getLocale } from 'next-intlayer/server'
 
 import { baseUrl } from '@/app/sitemap'
-import { CustomMDX } from '@/lib/blog/custom-mdx'
 import { getBlogPosts } from '@/lib/blog/getBlogPosts'
 import { formatDate } from '@/lib/blog/utils'
+import { CustomMDX } from '../_features/custom-mdx'
 
 export const dynamicParams = false
 

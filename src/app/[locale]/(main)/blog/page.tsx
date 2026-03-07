@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/pagination'
 import { getBlogPosts } from '@/lib/blog/getBlogPosts'
 import { createPageMetadata, resolvePageLocale } from '@/lib/intlayer/page'
-import { BlogTile } from './_components/blog-tile'
+import { BlogTile } from './_features/blog-tile'
 
 export const dynamic = 'force-static'
 

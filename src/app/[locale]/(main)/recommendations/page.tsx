@@ -4,11 +4,11 @@ import { IntlayerServerProvider, useIntlayer } from 'next-intlayer/server'
 import {
   type YouTubeChannelItem,
   YouTubeChannelList,
-} from '@/components/features/social/youtube-channel-list'
+} from './_features/youtube-channel-list'
 import {
   YouTubePlaylist,
   type YouTubePlaylistItem,
-} from '@/components/features/social/youtube-playlist'
+} from './_features/youtube-playlist'
 import { PageHeader } from '@/components/site/page-header'
 import { SectionHeader } from '@/components/site/section-header'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
