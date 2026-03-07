@@ -5,7 +5,11 @@ import { PhilosophySection } from './_components/philosophy-section'
 import { ProjectsSection } from './_components/project-section'
 import { Separator } from '@/components/ui/separator'
 import { IntlayerServerProvider } from 'next-intlayer/server'
-import { getIntlayer, LocalPromiseParams, NextPageIntlayer } from 'next-intlayer'
+import {
+  getIntlayer,
+  LocalPromiseParams,
+  NextPageIntlayer,
+} from 'next-intlayer'
 import { Metadata } from 'next'
 
 export const dynamic = 'force-static'

@@ -22,14 +22,14 @@ export function OtakuAside({ label, children }: OtakuAsideProps) {
           type="button"
           variant="ghost"
           size="sm"
-          className="group h-7 px-2 text-xs text-muted-foreground/80 hover:text-foreground"
+          className="group text-muted-foreground/80 hover:text-foreground h-7 px-2 text-xs"
           onClick={(event) => {
             event.stopPropagation()
           }}
         >
           <span
             aria-hidden
-            className="mr-1 inline-flex h-3 w-3 items-center justify-center text-muted-foreground/70 transition-transform duration-200 group-data-[state=open]:rotate-90"
+            className="text-muted-foreground/70 mr-1 inline-flex h-3 w-3 items-center justify-center transition-transform duration-200 group-data-[state=open]:rotate-90"
           >
             <svg
               viewBox="0 0 12 12"

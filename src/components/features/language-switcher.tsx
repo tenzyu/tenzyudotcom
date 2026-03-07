@@ -16,8 +16,7 @@ import {
 
 export function LanguageSwitcher() {
   const content = useIntlayer('languageSwitcher')
-  const { locale, availableLocales, setLocale, pathWithoutLocale } =
-    useLocale()
+  const { locale, availableLocales, setLocale, pathWithoutLocale } = useLocale()
 
   return (
     <DropdownMenu>

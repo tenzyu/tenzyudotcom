@@ -79,7 +79,7 @@ const itemMediaVariants = cva(
         default: 'bg-transparent',
         icon: "size-8 rounded-sm border bg-muted [&_svg:not([class*='size-'])]:size-4",
         avatar:
-          "size-10 rounded-full border border-border/60 bg-primary/5 [&_img]:size-5",
+          'size-10 rounded-full border border-border/60 bg-primary/5 [&_img]:size-5',
       },
     },
     defaultVariants: {

@@ -81,8 +81,8 @@ export default async function Page({ params, searchParams }: PageProps) {
         >
           <PaginationContent>
             <PaginationItem>
-                <PaginationPrevious
-                  href={pageHref(Math.max(currentPage - 1, 1))}
+              <PaginationPrevious
+                href={pageHref(Math.max(currentPage - 1, 1))}
                 aria-disabled={currentPage === 1}
                 className={
                   currentPage === 1

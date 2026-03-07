@@ -1,7 +1,11 @@
 import Link from 'next/link'
 import { getLocalizedUrl } from 'intlayer'
 import { IntlayerServerProvider } from 'next-intlayer/server'
-import { getIntlayer, LocalPromiseParams, NextPageIntlayer } from 'next-intlayer'
+import {
+  getIntlayer,
+  LocalPromiseParams,
+  NextPageIntlayer,
+} from 'next-intlayer'
 import { Metadata } from 'next'
 
 import { Content } from '@/components/site/content'

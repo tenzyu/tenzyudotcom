@@ -33,7 +33,7 @@ export function BlogTile({
       asChild
       variant="interactive"
       className={cn(
-        'group gap-3 p-5 focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:outline-none',
+        'group focus-visible:ring-ring/50 gap-3 p-5 focus-visible:ring-2 focus-visible:outline-none',
         className,
       )}
     >

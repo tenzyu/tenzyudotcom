@@ -2,7 +2,11 @@ import Link from 'next/link'
 import { Type } from 'lucide-react'
 import { getLocalizedUrl } from 'intlayer'
 import { IntlayerServerProvider } from 'next-intlayer/server'
-import { getIntlayer, LocalPromiseParams, NextPageIntlayer } from 'next-intlayer'
+import {
+  getIntlayer,
+  LocalPromiseParams,
+  NextPageIntlayer,
+} from 'next-intlayer'
 import { Metadata } from 'next'
 
 import { PageHeader } from '@/components/site/page-header'

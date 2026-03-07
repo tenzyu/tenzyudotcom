@@ -22,9 +22,7 @@ export default function ErrorBoundary({ error, reset }: ErrorBoundaryProps) {
   return (
     <div className="flex min-h-[400px] flex-col items-center justify-center space-y-4 text-center">
       <div className="space-y-2">
-        <h1 className="text-2xl font-bold tracking-tighter">
-          {content.title}
-        </h1>
+        <h1 className="text-2xl font-bold tracking-tighter">{content.title}</h1>
         <p className="text-muted-foreground">
           {error.message || content.fallbackMessage}
         </p>

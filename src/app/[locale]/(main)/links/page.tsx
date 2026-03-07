@@ -1,5 +1,9 @@
 import { IntlayerServerProvider } from 'next-intlayer/server'
-import { getIntlayer, LocalPromiseParams, NextPageIntlayer } from 'next-intlayer'
+import {
+  getIntlayer,
+  LocalPromiseParams,
+  NextPageIntlayer,
+} from 'next-intlayer'
 import { Metadata } from 'next'
 
 import { LinkList } from '@/components/features/links/link-list'

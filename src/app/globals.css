@@ -3,7 +3,7 @@
 
 @custom-variant dark (&:is(.dark *));
 
-@plugin "@tailwindcss/typography";
+@plugin '@tailwindcss/typography';
 
 :root {
   --radius: 0.75rem;

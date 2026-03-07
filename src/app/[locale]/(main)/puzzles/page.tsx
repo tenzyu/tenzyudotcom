@@ -9,7 +9,11 @@ import {
 import { PUZZLE_CATEGORIES } from '@/data/puzzles'
 import { fetchOgp } from '@/lib/ogp'
 import { IntlayerServerProvider } from 'next-intlayer/server'
-import { getIntlayer, LocalPromiseParams, NextPageIntlayer } from 'next-intlayer'
+import {
+  getIntlayer,
+  LocalPromiseParams,
+  NextPageIntlayer,
+} from 'next-intlayer'
 import { Metadata } from 'next'
 
 import type { PuzzleWithOgp } from './_components/puzzle-tile'
@@ -83,16 +87,16 @@ const PuzzlesPage: NextPageIntlayer = async ({ params }) => {
             if (!categoryCopy) return null
             return (
               <section key={category.id} className="space-y-4">
-              <SectionHeader
-                title={categoryCopy.name.value}
-                description={categoryCopy.description.value}
-              />
-              <div className="grid gap-4">
-                {category.puzzles.map((puzzle) => (
-                  <PuzzleTile key={puzzle.title} puzzle={puzzle} />
-                ))}
-              </div>
-            </section>
+                <SectionHeader
+                  title={categoryCopy.name.value}
+                  description={categoryCopy.description.value}
+                />
+                <div className="grid gap-4">
+                  {category.puzzles.map((puzzle) => (
+                    <PuzzleTile key={puzzle.title} puzzle={puzzle} />
+                  ))}
+                </div>
+              </section>
             )
           })}
         </div>
