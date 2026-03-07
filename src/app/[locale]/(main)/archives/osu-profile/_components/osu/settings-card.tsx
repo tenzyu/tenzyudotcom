@@ -23,13 +23,12 @@ export function SettingsCard({
         <CardTitle className="pb-4 text-lg" role="heading" aria-level={2}>
           {title}
         </CardTitle>
-        <div
+        <fieldset
           className="flex flex-col gap-6 md:flex-row"
-          role="group"
           aria-label={`${title} ${settings.aria.settingsContent.value}`}
         >
           {children}
-        </div>
+        </fieldset>
       </CardContent>
     </Card>
   )
@@ -66,13 +65,12 @@ export function SettingsData({ children, className }: SettingsDataProps) {
   const settings = useIntlayer('settings')
 
   return (
-    <div
+    <aside
       className={cn('md:w-1/2', className)}
-      role="complementary"
       aria-label={settings.aria.settingsDetails.value}
     >
       <div className="space-y-4">{children}</div>
-    </div>
+    </aside>
   )
 }
 
@@ -83,7 +81,7 @@ type SettingsDataItemProps = {
 
 export function SettingsDataItem({ label, children }: SettingsDataItemProps) {
   return (
-    <div role="group" aria-labelledby={`settings-label-${label}`}>
+    <fieldset aria-labelledby={`settings-label-${label}`}>
       <div
         id={`settings-label-${label.toLowerCase()}`}
         className="text-foreground mb-1 font-medium"
@@ -91,7 +89,7 @@ export function SettingsDataItem({ label, children }: SettingsDataItemProps) {
         {label}:
       </div>
       {children}
-    </div>
+    </fieldset>
   )
 }
 
@@ -108,16 +106,15 @@ export function SettingsGrid({
   className,
 }: SettingsGridProps) {
   return (
-    <div
+    <ul
       className={cn(
         'grid gap-2',
         columns === 2 ? 'grid-cols-2' : 'grid-cols-3',
         className,
       )}
-      role="list"
     >
       {children}
-    </div>
+    </ul>
   )
 }
 
@@ -128,9 +125,9 @@ type SettingsGridItemProps = {
 
 export function SettingsGridItem({ label, value }: SettingsGridItemProps) {
   return (
-    <div role="listitem">
+    <li>
       <span className="text-muted-foreground">{label}:</span>
       <span className="text-foreground ml-2 font-medium">{value}</span>
-    </div>
+    </li>
   )
 }

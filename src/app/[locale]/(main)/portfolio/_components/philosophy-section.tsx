@@ -13,8 +13,8 @@ export function PhilosophySection() {
       />
       <Card variant="soft">
         <CardContent className="text-muted-foreground space-y-4 pt-6 text-sm leading-relaxed">
-          {content.philosophy.paragraphs.map((paragraph, index) => (
-            <p key={index}>{paragraph}</p>
+          {content.philosophy.paragraphs.map((paragraph) => (
+            <p key={paragraph.value}>{paragraph}</p>
           ))}
         </CardContent>
       </Card>

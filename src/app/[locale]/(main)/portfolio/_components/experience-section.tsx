@@ -43,8 +43,8 @@ export function ExperienceSection() {
                 </p>
               </div>
               <ul className="text-foreground list-inside list-disc pl-2 text-sm leading-relaxed">
-                {exp.responsibilities.map((resp, idx) => (
-                  <li key={idx}>{resp}</li>
+                {exp.responsibilities.map((resp) => (
+                  <li key={resp.value}>{resp}</li>
                 ))}
               </ul>
               <div className="flex flex-wrap gap-2 pt-2">

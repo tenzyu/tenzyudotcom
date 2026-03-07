@@ -49,9 +49,8 @@ const StatusIndicator = memo(function StatusIndicator({
   label,
 }: StatusIndicatorProps) {
   return (
-    <div
+    <output
       className={cn('flex items-center gap-3', className)}
-      role="status"
       aria-label={label}
     >
       <div
@@ -60,7 +59,7 @@ const StatusIndicator = memo(function StatusIndicator({
         aria-hidden="true"
       />
       <span className="text-muted-foreground">{label}</span>
-    </div>
+    </output>
   )
 })
 
@@ -104,31 +103,30 @@ export const KeyboardSettings = memo(function KeyboardSettings() {
                 {settings.knobFunctions.press}
               </div>
 
-              <div
-                className="text-visualization-fg absolute top-1/2 -left-5 -translate-y-1/2 transform"
-                aria-label={settingsContent.aria.leftRotation.value}
-              >
+              <div className="text-visualization-fg absolute top-1/2 -left-5 -translate-y-1/2 transform">
+                <span className="sr-only">
+                  {settingsContent.aria.leftRotation.value}
+                </span>
                 <ArrowLeft className="h-4 w-4" aria-hidden="true" />
               </div>
-              <div
-                className="text-visualization-fg absolute top-1/2 -right-5 -translate-y-1/2 transform"
-                aria-label={settingsContent.aria.rightRotation.value}
-              >
+              <div className="text-visualization-fg absolute top-1/2 -right-5 -translate-y-1/2 transform">
+                <span className="sr-only">
+                  {settingsContent.aria.rightRotation.value}
+                </span>
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </div>
             </div>
           </div>
 
           {/* Keys */}
-          <div
+          <fieldset
             className="absolute right-0 bottom-[5%] left-0 flex justify-center gap-2"
-            role="group"
             aria-label={settingsContent.aria.keyboardKeys.value}
           >
             <Key label={settings.keyMapping.leftKey} />
             <Key label={settings.keyMapping.middleKey} />
             <Key label={settings.keyMapping.rightKey} />
-          </div>
+          </fieldset>
         </div>
       </SettingsVisualization>
 

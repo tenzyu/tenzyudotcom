@@ -4,7 +4,7 @@ import type { Metadata } from 'next'
 import { Geist, Geist_Mono, Noto_Serif_JP } from 'next/font/google'
 import Script from 'next/script'
 import { IntlayerClientProvider, type NextLayoutIntlayer } from 'next-intlayer'
-import { getLocale, useIntlayer } from 'next-intlayer/server'
+import { getLocale } from 'next-intlayer/server'
 import { ThemeProvider } from '@/components/features/theme-provider'
 import { BreadcrumbNav } from '@/components/site/breadcrumb-nav'
 import { Container } from '@/components/site/container'
@@ -14,7 +14,7 @@ import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
 
 import '../globals.css'
-import { getHTMLTextDir, getLocalizedUrl, locales } from 'intlayer'
+import { getHTMLTextDir, getIntlayer, getLocalizedUrl, locales } from 'intlayer'
 
 export { generateStaticParams } from 'next-intlayer'
 
@@ -36,7 +36,7 @@ const notoSerifJp = Noto_Serif_JP({
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getLocale()
-  const site = useIntlayer('site', locale)
+  const site = getIntlayer('site', locale)
   const ogLocale = locale === 'ja' ? 'ja_JP' : 'en_US'
   const ogAlternateLocale = locale === 'ja' ? 'en_US' : 'ja_JP'
   const metadataBase = new URL('https://tenzyu.com')
@@ -53,10 +53,10 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     title: {
-      template: site.titleTemplate.value,
-      default: site.title.value,
+      template: site.titleTemplate,
+      default: site.title,
     },
-    description: site.description.value,
+    description: site.description,
     keywords: [
       'tenzyu',
       'osu',
@@ -79,15 +79,15 @@ export async function generateMetadata(): Promise<Metadata> {
       locale: ogLocale,
       alternateLocale: [ogAlternateLocale],
       url: localizedUrl,
-      title: site.title.value,
-      description: site.description.value,
+      title: site.title,
+      description: site.description,
       siteName: 'tenzyu.com',
     },
     twitter: {
       card: 'summary_large_image',
       creator: '@tenzyudotcom',
-      title: site.title.value,
-      description: site.description.value,
+      title: site.title,
+      description: site.description,
     },
     robots: {
       index: true,

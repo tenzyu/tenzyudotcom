@@ -15,7 +15,7 @@ import {
 export function ThemeSwitcher() {
   const content = useIntlayer('themeSwitcher')
   const { theme, resolvedTheme, setTheme } = useTheme()
-  const [mounted, setMounted] = useState(false)
+  const [_, setMounted] = useState(false)
 
   useEffect(() => {
     setMounted(true)

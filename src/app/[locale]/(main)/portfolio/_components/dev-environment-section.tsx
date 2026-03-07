@@ -50,8 +50,8 @@ export function DevEnvironmentSection() {
                   {content.environments.networkTitle}
                 </h3>
                 <ul className="text-muted-foreground list-inside list-disc space-y-1 text-sm">
-                  {content.environments.networkItems.map((item, index) => (
-                    <li key={index}>{item}</li>
+                  {content.environments.networkItems.map((item) => (
+                    <li key={item.value}>{item}</li>
                   ))}
                 </ul>
               </CardContent>

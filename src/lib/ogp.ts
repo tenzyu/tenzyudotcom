@@ -41,13 +41,13 @@ function parseOgpFromHtml(html: string): OgpData {
 
   const metas = new Map<string, string>()
 
-  let match: RegExpExecArray | null
-
-  while ((match = metaRegex.exec(html)) !== null) {
+  const matches = html.matchAll(metaRegex)
+  for (const match of matches) {
     metas.set(match[1].toLowerCase(), match[2])
   }
 
-  while ((match = metaRegexReverse.exec(html)) !== null) {
+  const matchesReverse = html.matchAll(metaRegexReverse)
+  for (const match of matchesReverse) {
     metas.set(match[2].toLowerCase(), match[1])
   }
 

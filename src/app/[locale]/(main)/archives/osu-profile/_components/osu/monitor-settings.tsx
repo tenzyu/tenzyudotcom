@@ -46,17 +46,18 @@ const MonitorDisplay = memo(function MonitorDisplay({
           aria-hidden="true"
         >
           <div className="text-center">
-            <div
-              className="text-visualization-primary text-2xl font-bold"
-              aria-label={`${settingsContent.aria.refreshRate.value}: ${refreshRate}Hz`}
-            >
-              {refreshRate}Hz
+            <div className="text-visualization-primary text-2xl font-bold">
+              <span className="sr-only">
+                {settingsContent.aria.refreshRate.value}: {refreshRate}Hz
+              </span>
+              <span aria-hidden="true">{refreshRate}Hz</span>
             </div>
-            <div
-              className="text-visualization-fg text-sm"
-              aria-label={`${settingsContent.aria.screenSize.value}: ${size} ${settingsContent.units.inches.value}`}
-            >
-              {size}&quot;
+            <div className="text-visualization-fg text-sm">
+              <span className="sr-only">
+                {settingsContent.aria.screenSize.value}: {size}{' '}
+                {settingsContent.units.inches.value}
+              </span>
+              <span aria-hidden="true">{size}&quot;</span>
             </div>
           </div>
         </div>
@@ -66,11 +67,11 @@ const MonitorDisplay = memo(function MonitorDisplay({
           aria-hidden="true"
         />
       </div>
-      <div
-        className="bg-visualization-accent text-visualization-fg absolute top-3 right-3 rounded-full px-2 py-1 text-xs"
-        aria-label={`${settingsContent.aria.responseTime.value}: ${responseTime}ms`}
-      >
-        {responseTime}ms
+      <div className="bg-visualization-accent text-visualization-fg absolute top-3 right-3 rounded-full px-2 py-1 text-xs">
+        <span className="sr-only">
+          {settingsContent.aria.responseTime.value}: {responseTime}ms
+        </span>
+        <span aria-hidden="true">{responseTime}ms</span>
       </div>
     </div>
   )
