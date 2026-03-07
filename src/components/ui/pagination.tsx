@@ -13,7 +13,9 @@ type PaginationProps = React.ComponentProps<'nav'> & {
 
 function Pagination({ className, ariaLabel, ...props }: PaginationProps) {
   return (
+    // biome-ignore lint/a11y/useSemanticElements: XXX: shadcnui がそうしているから
     <nav
+      // biome-ignore lint/a11y/noRedundantRoles: XXX: shadcnui がそうしているから
       role="navigation"
       aria-label={ariaLabel ?? 'pagination'}
       data-slot="pagination"
