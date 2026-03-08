@@ -3,6 +3,7 @@ import path from 'node:path'
 
 import matter from 'gray-matter'
 import { cache } from 'react'
+import { parseFrontmatterBase } from './frontmatter.contract'
 
 export type FrontmatterBase = {
   title: string
@@ -34,8 +35,17 @@ async function readMDXFile<T extends Record<string, unknown>>(
 ): Promise<MDXData<T>> {
   const rawContent = await fs.promises.readFile(filePath, 'utf-8')
   const { data, content } = matter(rawContent)
+  const metadata = parseFrontmatterBase(data, filePath)
+
   return {
-    metadata: data as Frontmatter<T>,
+    metadata: {
+      title: metadata.title,
+      summary: metadata.summary,
+      image: metadata.image,
+      publishedAt: metadata.publishedAt,
+      updatedAt: metadata.updatedAt,
+      ...(metadata.rest as T),
+    },
     slug: path.basename(filePath, path.extname(filePath)),
     rawContent: content,
   }
