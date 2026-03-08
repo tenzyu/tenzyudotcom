@@ -1,20 +1,16 @@
-import { getLocalizedUrl, locales } from 'intlayer'
 import { notFound } from 'next/navigation'
 import { getLocale } from 'next-intlayer/server'
-
-import { BASE_URL } from '@/config/site'
-import { getBlogPosts } from '@/lib/blog/getBlogPosts'
-import { CustomMDX } from '../_features/custom-mdx'
-import { formatDate } from '../_features/lib'
+import { BlogPostPageContent } from './_features/blog-post-page-content'
+import {
+  buildBlogPostMetadata,
+  getBlogPostBySlug,
+  getBlogStaticParams,
+} from './_lib/blog-post'
 
 export const dynamicParams = false
 
 export async function generateStaticParams() {
-  const posts = await getBlogPosts()
-
-  return posts.map((post) => ({
-    slug: post.slug,
-  }))
+  return getBlogStaticParams()
 }
 
 type Params = Promise<{
@@ -23,114 +19,21 @@ type Params = Promise<{
 
 export async function generateMetadata({ params }: { params: Params }) {
   const locale = await getLocale()
-  const awaited_posts = await getBlogPosts()
-  const awaited_params = await params
-  const post = awaited_posts.find((post) => post.slug === awaited_params.slug)
+  const { slug } = await params
+  const post = await getBlogPostBySlug(slug)
   if (!post) return
 
-  const {
-    title,
-    publishedAt: publishedTime,
-    summary: description,
-    image,
-  } = post.metadata
-  const ogImage = image ?? `${BASE_URL}/og?title=${encodeURIComponent(title)}`
-  const localizedPath = getLocalizedUrl(`/blog/${post.slug}`, locale)
-  const localizedUrl = `${BASE_URL}${localizedPath}`
-  const alternateLanguages = Object.fromEntries(
-    locales.map((localeItem) => [
-      localeItem,
-      `${BASE_URL}${getLocalizedUrl(`/blog/${post.slug}`, localeItem)}`,
-    ]),
-  )
-
-  return {
-    title,
-    description,
-    alternates: {
-      canonical: localizedUrl,
-      languages: alternateLanguages,
-    },
-    openGraph: {
-      title,
-      description,
-      type: 'article',
-      publishedTime: publishedTime.toISOString(), // Ensure publishedTime is serialized
-      url: localizedUrl,
-      images: [
-        {
-          url: ogImage,
-        },
-      ],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title,
-      description,
-      images: [ogImage],
-    },
-  }
+  return buildBlogPostMetadata(post, locale)
 }
 
 export default async function Blog({ params }: { params: Params }) {
   const locale = await getLocale()
-  const dateLocale = locale === 'ja' ? 'ja-JP' : 'en-US'
-  const awaited_posts = await getBlogPosts()
-  const awaited_params = await params
-  const post = awaited_posts.find((post) => post.slug === awaited_params.slug)
+  const { slug } = await params
+  const post = await getBlogPostBySlug(slug)
 
   if (!post) {
     notFound()
   }
 
-  return (
-    <>
-      <script
-        type="application/ld+json"
-        suppressHydrationWarning
-        // biome-ignore lint/security/noDangerouslySetInnerHtml: Injecting structured data for SEO
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            '@context': 'https://schema.org',
-            '@type': 'BlogPosting',
-            headline: post.metadata.title,
-            datePublished: post.metadata.publishedAt.toISOString(), // Serialize date
-            dateModified: post.metadata.updatedAt?.toISOString(), // Serialize date
-            description: post.metadata.summary,
-            image: post.metadata.image
-              ? `${BASE_URL}${post.metadata.image}`
-              : `/og?title=${encodeURIComponent(post.metadata.title)}`,
-            url: `${BASE_URL}${getLocalizedUrl(`/blog/${post.slug}`, locale)}`, // Corrected URL path
-            author: {
-              // Add author info if available
-              '@type': 'Person',
-              name: 'tenzyu', // Replace with actual author name if dynamic
-            },
-            publisher: {
-              // Add publisher info
-              '@type': 'Organization',
-              name: 'tenzyu.com', // Replace with site name
-              logo: {
-                '@type': 'ImageObject',
-                url: `${BASE_URL}/images/my-icon.png`, // Example logo URL
-              },
-            },
-          }),
-        }}
-      />
-      <div className="space-y-8">
-        <div>
-          <h1 className="title text-2xl font-semibold tracking-tighter">
-            {post.metadata.title}
-          </h1>
-          <div className="text-muted-foreground mt-2 text-sm">
-            {formatDate(post.metadata.publishedAt, dateLocale)}
-          </div>
-        </div>
-        <article className="prose prose-zinc dark:prose-invert max-w-none">
-          <CustomMDX source={post.rawContent} />
-        </article>
-      </div>
-    </>
-  )
+  return <BlogPostPageContent locale={locale} post={post} />
 }
