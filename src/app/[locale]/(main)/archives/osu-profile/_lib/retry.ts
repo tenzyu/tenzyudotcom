@@ -8,18 +8,12 @@ type RetryOptions = {
 
 const defaultOptions: Required<RetryOptions> = {
   maxAttempts: 3,
-  initialDelay: 1000, // 1 second
-  maxDelay: 10000, // 10 seconds
+  initialDelay: 1000,
+  maxDelay: 10000,
   backoffFactor: 2,
   shouldRetry: () => true,
 }
 
-/**
- * Retry a function with exponential backoff
- * @param fn Function to retry
- * @param options Retry options
- * @returns Promise that resolves with the function result or rejects with the last error
- */
 export async function retry<T>(
   fn: () => Promise<T>,
   options: RetryOptions = {},
@@ -38,10 +32,7 @@ export async function retry<T>(
         throw error
       }
 
-      // Calculate next delay with exponential backoff
       delay = Math.min(delay * opts.backoffFactor, opts.maxDelay)
-
-      // Wait before next attempt
       await new Promise((resolve) => setTimeout(resolve, delay))
     }
   }

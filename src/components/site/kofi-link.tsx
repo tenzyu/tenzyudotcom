@@ -1,7 +1,8 @@
 import { Coffee } from 'lucide-react'
-import { KOFI_LINK } from '@/lib/kofi'
 import { Button } from '../ui/button'
 import { ExternalLink } from './external-link'
+
+const KOFI_URL = 'https://ko-fi.com/tenzyu'
 
 type KoFiLinkProps = {
   label: string
@@ -18,7 +19,7 @@ export function KoFiLink({
 }: KoFiLinkProps) {
   return (
     <Button variant={variant} size={size} asChild className={className}>
-      <ExternalLink href={KOFI_LINK.url} aria-label={label}>
+      <ExternalLink href={KOFI_URL} aria-label={label}>
         <Coffee className="size-4" />
         <span>{label}</span>
       </ExternalLink>

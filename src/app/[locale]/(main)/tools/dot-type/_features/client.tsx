@@ -9,7 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { useDotGeneration } from '../use-dot-generation'
+import { useDotGeneration } from './use-dot-generation'
 import { ControlPanel } from './control-panel'
 import { PreviewPanel } from './preview-panel'
 import { SettingsPanel } from './settings-panel'

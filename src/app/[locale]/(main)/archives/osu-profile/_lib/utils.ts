@@ -1,7 +1,6 @@
-import type { APIError } from '@/lib/error/types'
-import { retry } from '@/lib/utils/retry'
+import { retry } from './retry'
 
-export class OsuAPIError extends Error implements APIError {
+export class OsuAPIError extends Error {
   constructor(
     message: string,
     public readonly statusCode = 500,

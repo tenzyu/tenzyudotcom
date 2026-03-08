@@ -56,7 +56,6 @@ function parseOgpFromHtml(html: string): OgpData {
   data.image = metas.get('og:image')
   data.siteName = metas.get('og:site_name')
 
-  // Fallback to regular title tag
   if (!data.title) {
     const titleMatch = /<title[^>]*>([^<]*)<\/title>/i.exec(html)
     if (titleMatch) {
@@ -64,7 +63,6 @@ function parseOgpFromHtml(html: string): OgpData {
     }
   }
 
-  // Fallback to regular meta description
   data.description ??= metas.get('description')
 
   return data

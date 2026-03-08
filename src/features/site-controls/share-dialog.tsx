@@ -5,7 +5,6 @@ import { useIntlayer } from 'next-intlayer'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
-import { ShareButton } from '@/components/site/share-button'
 import { XIcon } from '@/components/site/social-icons'
 import { Button } from '@/components/ui/button'
 import {
@@ -16,7 +15,8 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { cn } from '@/lib/utils'
-import { shareContent } from '@/lib/utils/share'
+import { shareContent } from './lib/share'
+import { ShareButton } from './share-button'
 
 type ShareDialogProps = {
   title: string
@@ -40,7 +40,7 @@ export function ShareDialog({
     setShareUrl(window.location.href)
   }, [])
 
-  const handleShare = (platform: string) => {
+  const handleShare = (platform: Parameters<typeof shareContent>[0]) => {
     const result = shareContent(platform, shareUrl, shareMessage)
     if (result.copied) {
       toast.success(content.linkCopied, { description: shareUrl })

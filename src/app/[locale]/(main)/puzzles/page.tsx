@@ -9,11 +9,10 @@ import {
   EmptyTitle,
 } from '@/components/ui/empty'
 import { createPageMetadata, resolvePageLocale } from '@/lib/intlayer/page'
-import { fetchOgp } from '@/lib/ogp'
 import { PUZZLE_CATEGORIES } from './_data/puzzles'
-
 import type { PuzzleWithOgp } from './_features/puzzle-tile'
 import { PuzzleTile } from './_features/puzzle-tile'
+import { fetchOgp } from './_lib/ogp'
 
 export const dynamic = 'force-static'
 

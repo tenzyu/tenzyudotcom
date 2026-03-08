@@ -1,25 +1,24 @@
-export function getTwitterShareUri(text: string, url: string): string {
+function getTwitterShareUri(text: string, url: string): string {
   return `https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`
 }
 
-export function getEmailShareUri(title: string, url: string): string {
+function getEmailShareUri(title: string, url: string): string {
   return `mailto:?subject=${title}&body=${url}`
 }
 
-export const copyToClipboard = (text: string) => {
+function copyToClipboard(text: string) {
   if (typeof navigator !== 'undefined') {
     void navigator.clipboard.writeText(text)
   }
 }
 
-/**
- * コンテンツをシェアするためのユーティリティ関数
- * @param platform シェアするプラットフォーム（twitter, email, copy）
- * @param url シェアするURL
- * @param title シェアするタイトル
- * @returns シェア結果
- */
-export const shareContent = (platform: string, url: string, title: string) => {
+type SharePlatform = 'twitter' | 'email' | 'copy'
+
+export function shareContent(
+  platform: SharePlatform,
+  url: string,
+  title: string,
+) {
   let uri = ''
   let copied = false
 
