@@ -49,6 +49,7 @@ todo.md
 .agents/
 AGENTS.md
 .claude
+docs/harness
 
 # i18n
 .intlayer

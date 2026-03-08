@@ -7,6 +7,10 @@ nix develop
 bun run dev
 ```
 
+## Harness
+
+AI エージェント運用のための設計文書は [docs/harness/README.md](./docs/harness/README.md) にまとめています。
+
 ## Getting Started
 
 First, run the development server:
