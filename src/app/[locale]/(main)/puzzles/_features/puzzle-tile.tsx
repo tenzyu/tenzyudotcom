@@ -1,7 +1,6 @@
 import { ExternalLink as ExternalLinkIcon } from 'lucide-react'
 import Image from 'next/image'
 import { useIntlayer } from 'next-intlayer/server'
-
 import { ExternalLink } from '@/components/site/external-link'
 import { Button } from '@/components/ui/button'
 import {
@@ -12,7 +11,7 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import type { Platform, PuzzleLink } from '../_data/puzzles'
-import type { OgpData } from './lib/ogp'
+import type { PuzzleWithOgp } from './lib/types'
 
 const PLATFORM_ICONS: Record<Platform, string> = {
   web: '🌐',
@@ -42,13 +41,6 @@ function PlatformButton({ link }: { link: PuzzleLink }) {
       </ExternalLink>
     </Button>
   )
-}
-
-export type PuzzleWithOgp = {
-  title: string
-  url?: string
-  links: PuzzleLink[]
-  ogp: OgpData
 }
 
 export function PuzzleTile({ puzzle }: { puzzle: PuzzleWithOgp }) {

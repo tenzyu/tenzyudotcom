@@ -5,14 +5,12 @@ import {
   type RecommendationChannelId,
   type RecommendationVideoId,
 } from '../../_data/recommendations'
-import type { YouTubeChannelItem } from '../youtube-channel-list'
-import type { YouTubePlaylistItem } from '../youtube-playlist'
 import { fetchYouTubeVideoMeta } from './youtube'
-
-export type RecommendationsPageData = {
-  channels: YouTubeChannelItem[]
-  videos: YouTubePlaylistItem[]
-}
+import type {
+  RecommendationsPageData,
+  YouTubeChannelItem,
+  YouTubePlaylistItem,
+} from './types'
 
 export async function getRecommendationsPageData(
   locale: string,

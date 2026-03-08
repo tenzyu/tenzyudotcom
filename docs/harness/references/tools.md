@@ -45,7 +45,8 @@ Intlayer は localized meaning のための tool として使う。
 ### UI
 
 - shadcn primitives
-- site shell components
+- site shell components (`src/components/shell`)
+- site-wide shared components (`src/components/site`)
 - feature components
 
 ### Content / Data

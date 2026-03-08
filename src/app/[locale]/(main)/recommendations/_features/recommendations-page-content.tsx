@@ -2,7 +2,7 @@ import { useIntlayer } from 'next-intlayer/server'
 import { PageHeader } from '@/components/site/page-header'
 import { SectionHeader } from '@/components/site/section-header'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import type { RecommendationsPageData } from './lib/get-recommendations-page-data'
+import type { RecommendationsPageData } from './lib/types'
 import { YouTubeChannelList } from './youtube-channel-list'
 import { YouTubePlaylist } from './youtube-playlist'
 

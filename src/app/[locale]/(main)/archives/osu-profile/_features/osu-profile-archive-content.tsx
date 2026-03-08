@@ -2,6 +2,7 @@ import { useIntlayer } from 'next-intlayer/server'
 import type { PropsWithChildren } from 'react'
 import { Content } from '@/components/site/content'
 import { Section } from '@/components/site/section'
+import { SectionHeader } from '@/components/site/section-header'
 import { LinkList } from '@/features/links/link-list'
 import { TWEETS } from '../_data/twitter'
 import {
@@ -20,12 +21,6 @@ import { TwitterCarousel } from './twitter-carousel'
 import { YearlyGoals } from './yearly-goals'
 import { YouTubeCarousel } from './youtube-carousel'
 
-const SectionHeader = ({ children }: PropsWithChildren) => (
-  <h2 className="mb-6 text-center text-2xl font-bold tracking-tight">
-    {children}
-  </h2>
-)
-
 const ArchiveSection = ({
   id,
   title,
@@ -37,7 +32,12 @@ const ArchiveSection = ({
   className?: string
 } & PropsWithChildren) => (
   <Section id={id} className={className}>
-    <SectionHeader>{title}</SectionHeader>
+    <SectionHeader
+      title={title}
+      variant="plain"
+      className="space-y-0"
+      titleClassName="mb-6 text-center"
+    />
     {children}
   </Section>
 )

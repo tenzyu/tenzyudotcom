@@ -4,7 +4,7 @@ import { getLocalizedUrl } from 'intlayer'
 import Link from 'next/link'
 import { useIntlayer, useLocale } from 'next-intlayer'
 import React, { useEffect, useMemo, useState } from 'react'
-import { Content } from '@/components/shells/content'
+import { Content } from '@/components/site/content'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -27,10 +27,8 @@ export function BreadcrumbNav() {
     const pathname = pathWithoutLocale ?? '/'
     if (!pathname || pathname === '/') return []
 
-    // Remove empty segments
     const parts = pathname.split('/').filter(Boolean)
 
-    // Map to breadcrumb structure
     return parts.map((part, index) => {
       const href = `/${parts.slice(0, index + 1).join('/')}`
       const label =

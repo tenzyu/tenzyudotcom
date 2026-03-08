@@ -7,7 +7,7 @@ import {
   EmptyHeader,
   EmptyTitle,
 } from '@/components/ui/empty'
-import type { PuzzleCategoryWithOgp } from './lib/get-puzzle-categories-with-ogp'
+import type { PuzzleCategoryWithOgp } from './lib/types'
 import { PuzzleTile } from './puzzle-tile'
 
 type PuzzlesPageContentProps = {

@@ -1,11 +1,10 @@
 import { getLocalizedUrl } from 'intlayer'
 import Link from 'next/link'
 import { useLocale } from 'next-intlayer/server'
-
-import { Container } from '@/components/shells/container'
 import { LanguageSwitcher } from '@/features/site-controls/language-switcher'
 import { ThemeSwitcher } from '@/features/site-controls/theme-switcher'
 import { cn } from '@/lib/utils'
+import { Container } from './container'
 
 const navLinkStyles = 'hover:text-primary transition-colors'
 

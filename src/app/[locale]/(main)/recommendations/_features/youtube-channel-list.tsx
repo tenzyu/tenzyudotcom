@@ -1,16 +1,9 @@
 import { ArrowUpRight, Youtube } from 'lucide-react'
-import type { ReactNode } from 'react'
 import { ExternalLink } from '@/components/site/external-link'
 import { OtakuAside } from '@/components/site/otaku-aside'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-
-export type YouTubeChannelItem = {
-  title: string
-  handle: string
-  url: string
-  note: ReactNode
-}
+import type { YouTubeChannelItem } from './lib/types'
 
 type YouTubeChannelListProps = {
   channels: YouTubeChannelItem[]

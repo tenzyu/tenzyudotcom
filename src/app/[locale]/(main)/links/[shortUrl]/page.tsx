@@ -1,22 +1,20 @@
 import { redirect } from 'next/navigation'
-
-import { MY_LINKS } from '@/features/links/data'
+import {
+  getLinkByShortUrl,
+  getLinkShortUrlStaticParams,
+} from './_features/lib/short-url'
 
 export const dynamicParams = false
 export function generateStaticParams() {
-  return MY_LINKS.map((link) => ({
-    shortUrl: link.shortenUrl,
-  }))
+  return getLinkShortUrlStaticParams()
 }
 
 type Params = Promise<{
   shortUrl: string
 }>
 export default async function RedirectPage({ params }: { params: Params }) {
-  const awaited_params = await params
-  const link = MY_LINKS.find(
-    (link) => link.shortenUrl === awaited_params.shortUrl,
-  )
+  const awaitedParams = await params
+  const link = getLinkByShortUrl(awaitedParams.shortUrl)
 
   if (!link?.url) {
     redirect('/')

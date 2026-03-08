@@ -1,21 +1,9 @@
-import Image from 'next/image'
-import { VisuallyHidden } from 'radix-ui'
-import type { ReactNode } from 'react'
 import { OtakuAside } from '@/components/site/otaku-aside'
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog'
+import { Dialog, DialogTrigger } from '@/components/ui/dialog'
+import { YouTubeDialogContent } from '@/features/youtube/youtube-dialog-content'
+import { YouTubeThumbnailImage } from '@/features/youtube/youtube-thumbnail-image'
 import { cn } from '@/lib/utils'
-
-export type YouTubePlaylistItem = {
-  id: string
-  title: string
-  note: ReactNode
-  views: string
-}
+import type { YouTubePlaylistItem } from './lib/types'
 
 type YouTubePlaylistProps = {
   videos: YouTubePlaylistItem[]
@@ -23,32 +11,6 @@ type YouTubePlaylistProps = {
   commentLabel?: string
   className?: string
 }
-
-type VideoDialogContentProps = {
-  video: YouTubePlaylistItem
-  commentLabel: string
-}
-
-const VideoDialogContent = ({ video }: VideoDialogContentProps) => (
-  <DialogContent className="overflow-hidden p-0 sm:max-w-3xl">
-    <VisuallyHidden.Root>
-      <DialogTitle>{video.title}</DialogTitle>
-    </VisuallyHidden.Root>
-    <div className="bg-black">
-      <div className="aspect-video w-full">
-        <iframe
-          width="100%"
-          height="100%"
-          className="border-0"
-          src={`https://www.youtube.com/embed/${video.id}?autoplay=1&rel=0&modestbranding=1`}
-          title={video.title}
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          allowFullScreen
-        />
-      </div>
-    </div>
-  </DialogContent>
-)
 
 export function YouTubePlaylist({
   videos,
@@ -75,14 +37,11 @@ export function YouTubePlaylist({
                   >
                     <div className="flex w-full flex-col gap-3 px-4 pt-4 pb-2 sm:flex-row sm:items-center sm:gap-4 sm:px-5">
                       <div className="relative aspect-video w-full shrink-0 overflow-hidden rounded-lg sm:w-48">
-                        <Image
-                          src={`https://img.youtube.com/vi/${video.id}/maxresdefault.jpg`}
-                          alt={video.title}
-                          fill
+                        <YouTubeThumbnailImage
+                          videoId={video.id}
+                          title={video.title}
                           className="object-cover transition-transform duration-300 group-hover:scale-105"
                           sizes="(max-width: 640px) 100vw, 240px"
-                          loading="lazy"
-                          quality={75}
                         />
                       </div>
                       <div className="flex flex-1 flex-col gap-2">
@@ -106,7 +65,13 @@ export function YouTubePlaylist({
                   </OtakuAside>
                 </div>
               </div>
-              <VideoDialogContent video={video} commentLabel={commentLabel} />
+              <YouTubeDialogContent
+                videoId={video.id}
+                title={video.title}
+                className="sm:max-w-3xl"
+                frameClassName="aspect-video w-full"
+                iframeClassName="h-full w-full"
+              />
             </Dialog>
           </li>
         ))}

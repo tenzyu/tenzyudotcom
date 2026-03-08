@@ -1,11 +1,6 @@
-import type { PuzzleCategory } from '../../_data/puzzles'
 import { PUZZLE_CATEGORIES } from '../../_data/puzzles'
-import type { PuzzleWithOgp } from '../puzzle-tile'
 import { fetchOgp } from './ogp'
-
-export type PuzzleCategoryWithOgp = Omit<PuzzleCategory, 'puzzles'> & {
-  puzzles: PuzzleWithOgp[]
-}
+import type { PuzzleCategoryWithOgp } from './types'
 
 export async function getPuzzleCategoriesWithOgp(): Promise<
   PuzzleCategoryWithOgp[]

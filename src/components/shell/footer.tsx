@@ -1,7 +1,5 @@
 import { useIntlayer } from 'next-intlayer/server'
-import { Container } from '@/components/shells/container'
-import { ExternalLink } from '@/components/shells/external-link'
-import { KoFiLink } from '@/components/shells/kofi-link'
+import { ExternalLink } from '@/components/site/external-link'
 import { Button } from '@/components/ui/button'
 import {
   Tooltip,
@@ -9,8 +7,9 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-
-import { ShareDialog } from '@/features/site-controls/share-dialog'
+import { Container } from './container'
+import { FooterShareDialog } from './footer-share-dialog'
+import { KoFiLink } from './kofi-link'
 
 const socialLinks = [
   {
@@ -75,7 +74,7 @@ export function Footer({ locale }: { locale: string }) {
 
             <KoFiLink label={footer.supportLabel.value} />
 
-            <ShareDialog
+            <FooterShareDialog
               title="tenzyu.com"
               shareText={shareTitle.value}
               triggerLabel={footer.shareLabel.value}

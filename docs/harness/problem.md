@@ -4,10 +4,12 @@
 - feature の粒度定義がありません。page feature なのか、business capability なのか、workflow 単位
   なのかが曖昧です。notifications や billing のような横断機能で必ず揉めます。context.md:74
   structure.md:221
-- 5層モデルに backend / ops / contract の受け皿がありません。route-local feature / shared
-  feature / site shell / pure shared logic / authored content では足りません。structure.md:37
-- shared feature と site shell の境界が曖昧です。検索モーダル、通知センター、コマンドパレット、認
-  証ゲートは「全体に出るUI」ですが、単なる shell ではありません。structure.md:50 structure.md:199
+- 6層モデルに backend / ops / contract の受け皿がありません。route-local feature / shared
+  feature / site shell / site-shared component / pure shared logic / authored content では足りま
+  せん。structure.md:37
+- shared feature / `src/components/site` / `src/components/shell` の境界がまだ揺れます。検索
+  モーダル、通知センター、コマンドパレット、認証ゲートは「全体に出るUI」ですが、単なる shell でも
+  feature でもありません。structure.md:50 structure.md:199
 - src/lib の定義が揺れています。Structure では pure shared logic / API helper / parser、Tools で
   は cross-route pure logic です。auth 文脈を持つ shared server helper をどこに置くか決め切れませ
   ん。structure.md:56 tools.md:72 tools.md:86
@@ -30,8 +32,8 @@
   deprecation の扱いが書かれていません。context.md:95 guard.md:82
 - Memory の更新条件が 2 route 基準なのは小さすぎます。大きいプロジェクトでは dashboard + worker
   や webhook + admin の曖昧さも拾う必要があります。memory.md:125
-- 「top-level の syntax bucket を主軸にしない」と言いながら、実際には src/components/site、src/
-  components/ui、src/lib、src/config が強い例外です。どこまでが sanctioned exception かが不明で
-  す。structure.md:61 structure.md:210
+- 「top-level の syntax bucket を主軸にしない」と言いながら、実際には src/components/shell、src/
+  components/site、src/components/ui、src/lib、src/config が強い例外です。どこまでが sanctioned
+  exception かを継続して明文化する必要があります。structure.md:61 structure.md:210
 - replaceability は model-agnostic を強く言う一方、tool layer はかなり Next.js / Intlayer /
   shadcn 前提です。思想を汎用化したいのか、実装ハーネスを repo-specific に保つのか、層ごとに明記

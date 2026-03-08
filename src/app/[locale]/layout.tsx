@@ -1,6 +1,6 @@
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/next'
-import { getHTMLTextDir, getIntlayer, getMultilingualUrls } from 'intlayer'
+import { getHTMLTextDir } from 'intlayer'
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono, Noto_Serif_JP } from 'next/font/google'
 import Script from 'next/script'
@@ -9,13 +9,14 @@ import {
   type LocalPromiseParams,
   type NextLayoutIntlayer,
 } from 'next-intlayer'
-import { BreadcrumbNav } from '@/components/site/breadcrumb-nav'
-import { Container } from '@/components/site/container'
-import { Footer } from '@/components/site/footer'
-import { Header } from '@/components/site/header'
+import { BreadcrumbNav } from '@/components/shell/breadcrumb-nav'
+import { Container } from '@/components/shell/container'
+import { Footer } from '@/components/shell/footer'
+import { Header } from '@/components/shell/header'
 import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { ThemeProvider } from '@/features/site-controls/theme-provider'
+import { buildSiteMetadata } from './_features/lib/site-metadata'
 
 import '../globals.css'
 
@@ -35,56 +36,11 @@ const notoSerifJp = Noto_Serif_JP({
   fallback: ['Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'sans-serif'],
 })
 
-// TODO: いろんな page.tsx にあるけど、これのサブセットは共通になるだろうから、
-// getIntlayer の key と url だけ渡せばつかえる関数を作る？
 export async function generateMetadata({
   params,
 }: LocalPromiseParams): Promise<Metadata> {
   const { locale } = await params
-  const content = getIntlayer('site', locale)
-
-  const multilingalUrls = getMultilingualUrls('/')
-  const localizedUrl = multilingalUrls[locale as keyof typeof multilingalUrls]
-
-  return {
-    title: {
-      template: content.title.template,
-      default: content.title.default,
-    },
-    description: content.description,
-
-    // TODO: いらないかも
-    keywords: [],
-
-    authors: [{ name: 'tenzyu', url: 'https://tenzyu.com' }],
-    creator: 'tenzyu',
-    publisher: 'tenzyu',
-    formatDetection: {
-      email: false,
-      address: false,
-      telephone: false,
-    },
-
-    metadataBase: new URL('https://tenzyu.com'),
-    alternates: {
-      canonical: localizedUrl,
-      languages: {
-        ...multilingalUrls,
-        'x-default': '/',
-      },
-    },
-
-    // TODO: 画像追加
-    openGraph: {
-      type: 'website',
-      images: [],
-    },
-
-    robots: {
-      index: true,
-      follow: true,
-    },
-  }
+  return buildSiteMetadata(locale)
 }
 
 const LocaleLayout: NextLayoutIntlayer = async ({ children, params }) => {
