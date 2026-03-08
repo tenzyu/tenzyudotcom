@@ -1,6 +1,4 @@
-'use client'
-
-import { useIntlayer } from 'next-intlayer'
+import { useIntlayer } from 'next-intlayer/server'
 
 import { Content } from '@/components/site-ui/content'
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table'
@@ -9,8 +7,7 @@ import { cn } from '@/lib/utils/common'
 export function YearlyGoals() {
   const content = useIntlayer('yearlyGoals')
 
-  // 現在の月を取得
-  const currentMonth = new Date().getMonth() + 1 // JavaScriptの月は0から始まるため+1
+  const currentMonth = new Date().getMonth() + 1
 
   return (
     <Content size="md">
