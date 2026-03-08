@@ -70,7 +70,8 @@ Intlayer は localized meaning のための tool として使う。
 | site-wide presentation primitive | `src/components/site-ui` | domain-aware feature |
 | shared capability UI | `src/features/<domain>` | site-ui primitive |
 | route-local transform / loader | route feature-local `lib` | route root convenience bucket |
-| cross-route pure logic | `src/lib` | UI-aware helper layer |
+| cross-route shared logic / parser / API helper | `src/lib` | UI-aware helper layer |
+| site-wide config / env / policy | `src/config` | feature-local dumping ground |
 | page entry wiring | `page.tsx`, `layout.tsx`, convention files | feature implementation body |
 | display sections | `_features/*` or `src/features/*` | syntax-first dumping ground |
 

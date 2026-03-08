@@ -112,6 +112,10 @@ repo 自体に埋め込まれた方針。
 - 既存文書を読んでも複数の妥当そうな置き場所が残った
 - 最終報告で毎回同じ補足説明を書き足している
 
+`2 route` は十分条件であって必要条件ではない。
+dashboard + worker、webhook + admin、route + config のように、
+owner の曖昧さが別 runtime 間で再発した場合も更新対象にする。
+
 特に、path semantics や ownership の語彙を 1 段増やした場合は、
 その task の中で harness へ還元するのを優先する。
 
