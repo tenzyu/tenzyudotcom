@@ -1,11 +1,11 @@
-import { locales, getLocalizedUrl } from 'intlayer'
+import { getLocalizedUrl, locales } from 'intlayer'
 import {
-  getAbsoluteUrl,
   BASE_URL,
+  buildOgTitleImageUrl,
+  getAbsoluteUrl,
   SITE_AUTHOR_NAME,
   SITE_LOGO_PATH,
   SITE_PUBLISHER_NAME,
-  buildOgTitleImageUrl,
 } from '@/config/site'
 import { getBlogPosts } from '@/lib/blog/getBlogPosts'
 
