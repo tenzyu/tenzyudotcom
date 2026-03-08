@@ -10,8 +10,8 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import type { Platform, PuzzleLink } from './puzzles.data'
 import type { PuzzleWithOgp } from './lib/types'
+import type { Platform, PuzzleLink } from './puzzles.data'
 
 const PLATFORM_ICONS: Record<Platform, string> = {
   web: '🌐',
