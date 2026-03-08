@@ -56,8 +56,8 @@ Guard は次の順で使う。
 4. 未設計の新機能なら、実装をエミュレートして詰まりどころと分岐を先に列挙する
 5. その判断基準が harness にないなら、実装より先に docs 更新を優先する
 6. 既存コードの慣性を止める必要があるなら、その宣言は harness に残す
-7. 具体的な失敗、成功条件、検討分岐は `docs/ai-reports/*.md` に残す
-8. `docs/ai-reports` を full spec の置き場にしない
+7. 具体的な失敗、成功条件、検討分岐は `docs/harness/cases/*.md` に残す
+8. `docs/harness/cases` を full spec の置き場にしない
 9. 実行中は structure / mutation / tool boundary を監視する
 10. harness gap が見えたら docs 更新か follow-up debt 化を判断する
 11. docs を更新した場合は、rule のまとまり方と思想競合を review する
@@ -194,7 +194,7 @@ docs を更新した後は、更新内容そのものを review する。
 - 既存の `context.md` / `structure.md` / `tools.md` / `guard.md` と競合していないか
 - 同じ概念が別名で増えていないか
 - README から辿れる位置に置かれているか
-- 実装前後の失敗条件と成功条件が、必要なら `docs/ai-reports/*.md` に残っているか
+- 実装前後の失敗条件と成功条件が、必要なら `docs/harness/cases/*.md` に残っているか
 
 ## Output Guard
 
@@ -203,7 +203,7 @@ docs を更新した後は、更新内容そのものを review する。
 - 何を promote したか
 - 何を demote したか
 - どの structural decision を採ったか
-- 何を harness に宣言し、何を `ai-reports` に逃がしたか
+- 何を harness に宣言し、何を `cases` に逃がしたか
 - まだ検証していないことは何か
 
 出力で避けるべきこと:

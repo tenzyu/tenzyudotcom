@@ -50,6 +50,8 @@ harness 自体の review や extension では
 | docs に何を残すか決めたい | `references/memory.md` |
 | まだ定義されていない論点を確認したい | `known-gaps.md` |
 | editorial gateway / source / assemble をどう置くか決めたい | `references/structure.md` |
+| 具体的なケースや実装由来の判断材料を見たい | `cases/README.md` |
+| repo 固有の product / architecture spec を見たい | `repo-specific/README.md` |
 
 典型の組み合わせ:
 
@@ -63,12 +65,16 @@ harness 自体の review や extension では
   - `structure -> tools`
 - docs 更新や durable memory の整理
   - `memory`
+- 具体例や source 付きケースを見たい
+  - `cases/README.md`
+- repo 固有の product / architecture 前提を確認したい
+  - `repo-specific/README.md`
 - harness の review / extension / gap 整理
   - `context -> structure -> guard -> known-gaps`
 - 未設計の新機能を追加する前の仕様化
   - `context -> guard -> known-gaps -> memory`
   - harness に残すべき判断だけ先に宣言する
-  - 具体的な分岐、失敗、成功条件は `docs/ai-reports/*.md` に残す
+  - 具体的な分岐、失敗、成功条件は `docs/harness/cases/*.md` に残す
 
 ## Core Rule
 
@@ -98,7 +104,7 @@ harness は full spec の置き場ではない。
 - どの unsafe pattern を拒否するか
 - 既存コードを precedent と見なさない論点は何か
 
-具体的な経緯や試行錯誤は `docs/ai-reports` に寄せる。
+具体的な経緯や試行錯誤は `docs/harness/cases` に寄せる。
 
 - 何が失敗したか
 - なぜ失敗したか
