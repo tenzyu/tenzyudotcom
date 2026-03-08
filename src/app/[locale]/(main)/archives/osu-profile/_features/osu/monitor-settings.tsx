@@ -1,8 +1,5 @@
 import { useIntlayer } from 'next-intlayer/server'
 import { memo } from 'react'
-
-import type { MonitorSettings as MonitorSettingsType } from '../../_type/settings'
-
 import {
   SettingsCard,
   SettingsData,
@@ -11,6 +8,7 @@ import {
   SettingsGridItem,
   SettingsVisualization,
 } from './settings-card'
+import type { MonitorSettings as MonitorSettingsType } from './types-settings'
 
 type MonitorDisplayProps = {
   refreshRate: number

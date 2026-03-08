@@ -8,7 +8,7 @@ import { Tweet, type TwitterComponents } from 'react-tweet'
 
 import { Skeleton } from '@/components/ui/skeleton'
 
-import type { TweetData } from './twitter-carousel'
+import type { TweetData } from '../_data/twitter'
 
 type TweetItemProps = {
   tweet: TweetData

@@ -1,4 +1,6 @@
-import type { TweetData } from '../_features/twitter-carousel'
+export type TweetData = {
+  id: string
+}
 
 export const TWEETS: TweetData[] = [
   {

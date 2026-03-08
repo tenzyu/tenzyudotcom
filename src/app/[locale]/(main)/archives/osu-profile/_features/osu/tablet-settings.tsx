@@ -1,8 +1,5 @@
 import { useIntlayer } from 'next-intlayer/server'
 import { memo } from 'react'
-
-import type { TabletSettings as TabletSettingsType } from '../../_type/settings'
-
 import {
   SettingsCard,
   SettingsData,
@@ -11,6 +8,7 @@ import {
   SettingsGridItem,
   SettingsVisualization,
 } from './settings-card'
+import type { TabletSettings as TabletSettingsType } from './types-settings'
 
 type TabletAreaProps = {
   width: number

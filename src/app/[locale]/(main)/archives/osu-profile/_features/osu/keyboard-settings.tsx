@@ -3,9 +3,6 @@ import { useIntlayer } from 'next-intlayer/server'
 import { memo } from 'react'
 
 import { cn } from '@/lib/utils'
-
-import type { KeyboardSettings as KeyboardSettingsType } from '../../_type/settings'
-
 import {
   SettingsCard,
   SettingsData,
@@ -14,6 +11,7 @@ import {
   SettingsGridItem,
   SettingsVisualization,
 } from './settings-card'
+import type { KeyboardSettings as KeyboardSettingsType } from './types-settings'
 
 type KeyProps = {
   label: string

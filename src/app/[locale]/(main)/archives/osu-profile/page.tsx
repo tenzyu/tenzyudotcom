@@ -7,6 +7,10 @@ import { LinkList } from '@/features/links/link-list'
 import { createPageMetadata, resolvePageLocale } from '@/lib/intlayer/page'
 import { TWEETS } from './_data/twitter'
 import {
+  FEATURED_VIDEO_IDS,
+  PERSONAL_BEST_HISTORY_VIDEO_IDS,
+} from './_data/youtube'
+import {
   KeyboardSettings,
   MonitorSettings,
   OsuBestScores,
@@ -52,14 +56,14 @@ const OsuProfileArchiveContent = () => {
   const content = useIntlayer('page-osu-profile')
   const videoContent = useIntlayer('osuProfileVideos')
 
-  const personalBestVideos = videoContent.personalBestHistory.map((video) => ({
-    id: video.id.value,
-    title: video.title.value,
+  const personalBestVideos = PERSONAL_BEST_HISTORY_VIDEO_IDS.map((id) => ({
+    id,
+    title: videoContent.titles[id].value,
   }))
 
-  const featuredVideos = videoContent.featuredVideos.map((video) => ({
-    id: video.id.value,
-    title: video.title.value,
+  const featuredVideos = FEATURED_VIDEO_IDS.map((id) => ({
+    id,
+    title: videoContent.titles[id].value,
   }))
 
   const tocSections: TocSection[] = [

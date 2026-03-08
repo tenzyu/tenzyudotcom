@@ -7,10 +7,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from '@/components/ui/carousel'
-
-export type TweetData = {
-  id: string
-}
+import type { TweetData } from '../_data/twitter'
 
 import { TweetItem } from './twitter-carousel-client'
 
