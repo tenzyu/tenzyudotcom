@@ -98,6 +98,7 @@ feature を先に決めたあと、その内部を整理するために使う。
 
 - `env.contract.ts`
 - `site.ts`
+- `site-policy.ts`
 - site-wide pricing / limit / role / feature-flag config
 
 `src/config` に置かないもの:

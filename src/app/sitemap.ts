@@ -1,23 +1,11 @@
 import { getMultilingualUrls } from 'intlayer'
 import type { MetadataRoute } from 'next'
 import { BASE_URL } from '@/config/site'
+import { STATIC_SITEMAP_ROUTE_PATHS } from '@/config/site-policy'
 import { getBlogPosts } from '@/lib/blog/getBlogPosts'
 
 const sitemap = async (): Promise<MetadataRoute.Sitemap> => {
-  // NOTE: in [rocale]
-  const routes = [
-    '/',
-    '/archives',
-    '/blog',
-    '/links',
-    '/pointers',
-    '/portfolio',
-    '/puzzles',
-    '/recommendations',
-    '/tools',
-  ]
-
-  const routesWithAlternates = routes.map(
+  const routesWithAlternates = STATIC_SITEMAP_ROUTE_PATHS.map(
     (route): MetadataRoute.Sitemap[number] => ({
       url: `${BASE_URL}${route}`,
       lastModified: new Date().toISOString().split('T')[0],

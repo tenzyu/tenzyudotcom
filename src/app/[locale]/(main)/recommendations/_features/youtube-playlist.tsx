@@ -7,6 +7,7 @@ import type { YouTubePlaylistItem } from './lib/types'
 
 type YouTubePlaylistProps = {
   videos: YouTubePlaylistItem[]
+  openLabel?: string
   viewLabel?: string
   commentLabel?: string
   className?: string
@@ -14,6 +15,7 @@ type YouTubePlaylistProps = {
 
 export function YouTubePlaylist({
   videos,
+  openLabel = 'Open video',
   viewLabel = 'Views',
   commentLabel = 'Quick comment',
   className,
@@ -34,6 +36,7 @@ export function YouTubePlaylist({
                   <button
                     type="button"
                     className="group hover:bg-muted/40 w-full text-left transition-colors"
+                    aria-label={`${openLabel}: ${video.title}`}
                   >
                     <div className="flex w-full flex-col gap-3 px-4 pt-4 pb-2 sm:flex-row sm:items-center sm:gap-4 sm:px-5">
                       <div className="relative aspect-video w-full shrink-0 overflow-hidden rounded-lg sm:w-48">

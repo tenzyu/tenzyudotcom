@@ -1,15 +1,8 @@
-export type LinkCategory = 'Watch' | 'Social' | 'Build' | 'Legacy'
+import { defineLinks, type MyLink } from './links.contract'
 
-export type MyLink = {
-  name: string
-  id: string
-  url: string
-  shortenUrl: string
-  icon: string
-  category: LinkCategory
-}
+export type { LinkCategory, MyLink } from './links.contract'
 
-export const MY_LINKS: MyLink[] = [
+export const MY_LINKS: readonly MyLink[] = defineLinks([
   {
     name: 'Twitch',
     id: '@tenzyudotcom',
@@ -130,4 +123,4 @@ export const MY_LINKS: MyLink[] = [
     icon: 'notion',
     category: 'Legacy',
   },
-]
+])

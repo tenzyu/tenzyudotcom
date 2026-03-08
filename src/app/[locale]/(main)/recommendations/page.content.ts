@@ -53,6 +53,10 @@ const recommendationsPageContent = {
         ja: 'ひとことコメント',
         en: 'Quick comment',
       }),
+      openVideo: t({
+        ja: '動画を開く',
+        en: 'Open video',
+      }),
       views: t({
         ja: '再生数',
         en: 'Views',

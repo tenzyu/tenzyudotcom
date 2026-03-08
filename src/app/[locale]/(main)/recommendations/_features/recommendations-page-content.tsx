@@ -34,6 +34,7 @@ export function RecommendationsPageContent({
         <TabsContent value="music" className="border-none p-0">
           <YouTubePlaylist
             videos={videos}
+            openLabel={content.labels.openVideo.value}
             viewLabel={content.labels.views.value}
             commentLabel={content.labels.comment.value}
           />

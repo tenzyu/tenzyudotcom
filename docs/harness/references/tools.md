@@ -75,6 +75,15 @@ Intlayer は localized meaning のための tool として使う。
 | page entry wiring | `page.tsx`, `layout.tsx`, convention files | feature implementation body |
 | display sections | `_features/*` or `src/features/*` | syntax-first dumping ground |
 
+`src/config` の中でも責務を混ぜない。
+
+- `site.ts`
+  - site identity, canonical host, shared URL builder
+- `site-policy.ts`
+  - robots, sitemap, indexing policy, globally shared route policy
+- `env.contract.ts`
+  - environment parse / required credentials
+
 ### File-System Tools
 
 - path naming conventions
