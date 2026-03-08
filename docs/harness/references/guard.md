@@ -85,6 +85,26 @@ Guard は次の順で使う。
 
 - Intlayer の利用境界は `tools.md` と `structure.md` に従う
 - hidden prompt scaffolding や model-specific な convenience layer を増やさない
+- internal barrel import を増やさない
+
+### Verification Guard
+
+変更に応じて、実行可能な verification を最低 1 つは通す。
+
+- runtime / route / data flow を触ったら `build`
+- formatter / linter / config / import graph を触ったら `lint` または `format`
+- test が存在する repo では、影響範囲に応じた test を通す
+
+repo に test が未整備なら、それ自体を gap として報告する。
+ただし test 不在を理由に build/lint まで省略しない。
+
+環境差異で command が失敗する場合は、黙って諦めない。
+
+- NixOS など platform 固有の実行問題か
+- tool binary の配布形態が原因か
+- repo-local に吸収できるか
+
+を切り分け、回避策を docs か repo に還元する。
 
 ### Harness Gap Guard
 

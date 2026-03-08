@@ -110,6 +110,23 @@ Intlayer は localized meaning のための tool として使う。
 - data, i18n, fetching を 1 層に潰す library
 - 外部 memory service 前提の設計
 
+## Bundle / Discovery Hygiene
+
+内部 code の barrel import は原則禁止にする。
+
+- `index.ts` や `export *` で ownership を隠さない
+- 同一 feature 内でも `./lib`, `./osu`, `@/lib/utils/index` のような省略 import は避ける
+- import 先は具体 file を指し、探索経路を縮める
+
+例外にしてよいのは、次のように境界自体が public entrypoint である場合だけ。
+
+- 外部 package として公開する module の entrypoint
+- framework が directory entry を前提にする箇所
+- third-party 制約で file を直接指定できない箇所
+
+bundle size と discovery の両方で得がない barrel は作らない。
+特に app code では、短さより ownership の可視性を優先する。
+
 ## Tool Boundary Warnings
 
 ### Intlayer must not become
