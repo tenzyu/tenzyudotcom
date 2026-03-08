@@ -138,3 +138,13 @@ placement の具体は `references/structure.md` に置く。
 
 ハーネス改善ループでは、project の改善だけでなく、
 ハーネス更新そのものの readability / non-conflict も毎回 review 対象に含める。
+
+また、同じ観点だけで loop し続けない。
+次の loop では、直前とは異なる観点を 1 つ主軸に選ぶ。
+
+- ownership / placement
+- verification / testability
+- runtime boundary / contract
+- config / policy / sanctioned exception
+- UX / content / accessibility
+- performance / bundle / discovery

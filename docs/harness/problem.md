@@ -13,9 +13,6 @@
 - src/lib の定義が揺れています。Structure では pure shared logic / API helper / parser、Tools で
   は cross-route pure logic です。auth 文脈を持つ shared server helper をどこに置くか決め切れませ
   ん。structure.md:56 tools.md:72 tools.md:86
-- config がモデル外です。5層にはないのに、good shared では src/config/site.ts が出てきます。
-  feature flags、pricing、limits、roles、env schema の置き場が新たな捨て場になります。
-  structure.md:37 structure.md:248
 - promote only after reuse is real は強い原則ですが、schema、policy、event type、permission model
   には遅すぎます。これらは「再利用されたから shared」ではなく「最初から唯一の定義であるべき」で
   す。context.md:52 structure.md:166

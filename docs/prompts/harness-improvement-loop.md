@@ -20,10 +20,12 @@
    - 既存文書と競合する思想がないか
    - 同じ概念が別名で増えていないか
    - README から辿れる routing になっているか
-6. 改善オプションを 2〜4 個に絞って返す。推奨順も示す。
-7. ユーザーが選んだオプションを harness に反映し、その基準で project にも実装を入れる。
-8. 実装後は最低 1 つ以上の verification を通す。影響が route/data/config に及ぶなら build を優先する。
-9. 何を promote / demote したか、どの structural decision を採ったか、未検証事項は何かを短く報告する。
+6. 今回の主観点を 1 つ明示する。次の loop では、直前と異なる観点を主軸にする。
+   - 例: ownership / placement, contract / boundary, verification, config, UX, performance
+7. 改善オプションを 2〜4 個に絞って返す。推奨順も示す。
+8. ユーザーが選んだオプションを harness に反映し、その基準で project にも実装を入れる。
+9. 実装後は最低 1 つ以上の verification を通す。影響が route/data/config に及ぶなら build を優先する。
+10. 何を promote / demote したか、どの structural decision を採ったか、未検証事項は何かを短く報告する。
 
 ループ規律:
 - `local-first, promote-later`
