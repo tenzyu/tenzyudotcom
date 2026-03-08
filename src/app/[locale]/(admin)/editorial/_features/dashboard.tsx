@@ -1,11 +1,17 @@
-import Link from 'next/link'
 import { getLocalizedUrl } from 'intlayer'
+import Link from 'next/link'
 import { useIntlayer } from 'next-intlayer/server'
 import { Content } from '@/components/site-ui/content'
 import { PageHeader } from '@/components/site-ui/page-header'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { listEditorialCollectionDescriptors } from '@/lib/editorial/registry'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { env, isEditorialBlobStorage } from '@/config/env.contract'
+import { listEditorialCollectionDescriptors } from '@/lib/editorial/registry'
 import { logoutEditorialAdminAction } from './actions'
 import { EDITORIAL_ADMIN_LOCALE } from './constants'
 
@@ -36,7 +42,8 @@ export function EditorialDashboard({ locale }: { locale: string }) {
             </CardHeader>
             <CardContent className="space-y-3 text-sm">
               <p>
-                <strong>{content.dashboard.storageLabel.value}:</strong> {storageLabel}
+                <strong>{content.dashboard.storageLabel.value}:</strong>{' '}
+                {storageLabel}
               </p>
               <div className="space-y-1">
                 <strong>{content.dashboard.publicPathsLabel.value}:</strong>

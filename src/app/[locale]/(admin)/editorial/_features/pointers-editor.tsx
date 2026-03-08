@@ -24,8 +24,10 @@ export function PointersEditor({
         save: content.dashboard.saveLabel.value,
         categoryTitleJa: content.pointersEditor.categoryTitleJa.value,
         categoryTitleEn: content.pointersEditor.categoryTitleEn.value,
-        categoryDescriptionJa: content.pointersEditor.categoryDescriptionJa.value,
-        categoryDescriptionEn: content.pointersEditor.categoryDescriptionEn.value,
+        categoryDescriptionJa:
+          content.pointersEditor.categoryDescriptionJa.value,
+        categoryDescriptionEn:
+          content.pointersEditor.categoryDescriptionEn.value,
         linkTitleJa: content.pointersEditor.linkTitleJa.value,
         linkTitleEn: content.pointersEditor.linkTitleEn.value,
         linkDescriptionJa: content.pointersEditor.linkDescriptionJa.value,

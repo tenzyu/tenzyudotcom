@@ -37,7 +37,9 @@ export function EditorialLogin({
               required
             />
           </label>
-          {error ? <p className="text-sm">{content.login.invalidMessage.value}</p> : null}
+          {error ? (
+            <p className="text-sm">{content.login.invalidMessage.value}</p>
+          ) : null}
           <Button type="submit">{content.login.submitLabel.value}</Button>
         </form>
       )}

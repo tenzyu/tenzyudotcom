@@ -1,13 +1,19 @@
 'use client'
 
-import { useState } from 'react'
 import { ArrowDown, ArrowUp, Plus, Trash2 } from 'lucide-react'
+import { useState } from 'react'
+import type { NoteSourceEntry } from '@/app/[locale]/(main)/notes/_features/notes.source'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
-import type { NoteSourceEntry } from '@/app/[locale]/(main)/notes/_features/notes.source'
 import { saveEditorialCollectionAction } from './actions'
 import { moveItem } from './editor-utils'
 
@@ -64,7 +70,7 @@ export function NotesEditorClient({
 
       <div className="space-y-4">
         {entries.map((entry, index) => (
-          <Card key={`${entry.createdAt}-${index}`}>
+          <Card key={`${entry.createdAt}`}>
             <CardHeader className="space-y-2">
               <div className="flex items-start justify-between gap-4">
                 <div>
@@ -78,7 +84,9 @@ export function NotesEditorClient({
                     size="icon"
                     disabled={index === 0}
                     aria-label={labels.moveUp}
-                    onClick={() => setEntries((current) => moveItem(current, index, -1))}
+                    onClick={() =>
+                      setEntries((current) => moveItem(current, index, -1))
+                    }
                   >
                     <ArrowUp />
                   </Button>
@@ -88,7 +96,9 @@ export function NotesEditorClient({
                     size="icon"
                     disabled={index === entries.length - 1}
                     aria-label={labels.moveDown}
-                    onClick={() => setEntries((current) => moveItem(current, index, 1))}
+                    onClick={() =>
+                      setEntries((current) => moveItem(current, index, 1))
+                    }
                   >
                     <ArrowDown />
                   </Button>
@@ -99,7 +109,9 @@ export function NotesEditorClient({
                     aria-label={labels.remove}
                     onClick={() =>
                       setEntries((current) =>
-                        current.filter((_, currentIndex) => currentIndex !== index),
+                        current.filter(
+                          (_, currentIndex) => currentIndex !== index,
+                        ),
                       )
                     }
                   >
@@ -110,7 +122,9 @@ export function NotesEditorClient({
             </CardHeader>
             <CardContent className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2 text-sm md:col-span-2">
-                <label htmlFor={`note-${index}-createdAt`}>{labels.createdAt}</label>
+                <label htmlFor={`note-${index}-createdAt`}>
+                  {labels.createdAt}
+                </label>
                 <Input
                   id={`note-${index}-createdAt`}
                   value={entry.createdAt}
@@ -127,7 +141,9 @@ export function NotesEditorClient({
                 />
               </div>
               <div className="space-y-2 text-sm md:col-span-2">
-                <label htmlFor={`note-${index}-externalUrl`}>{labels.externalUrl}</label>
+                <label htmlFor={`note-${index}-externalUrl`}>
+                  {labels.externalUrl}
+                </label>
                 <Input
                   id={`note-${index}-externalUrl`}
                   value={entry.externalUrl ?? ''}
@@ -197,7 +213,9 @@ export function NotesEditorClient({
                     )
                   }}
                 />
-                <label htmlFor={`note-${index}-published`}>{labels.published}</label>
+                <label htmlFor={`note-${index}-published`}>
+                  {labels.published}
+                </label>
               </div>
             </CardContent>
           </Card>

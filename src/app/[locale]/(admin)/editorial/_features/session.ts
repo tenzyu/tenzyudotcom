@@ -2,7 +2,10 @@ import { createHmac, timingSafeEqual } from 'node:crypto'
 import { getLocalizedUrl } from 'intlayer'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
-import { getRequiredEditorialAdminCredentials, isProduction } from '@/config/env.contract'
+import {
+  getRequiredEditorialAdminCredentials,
+  isProduction,
+} from '@/config/env.contract'
 
 const EDITORIAL_SESSION_COOKIE = 'editorial_admin_session'
 const EDITORIAL_SESSION_TTL_SECONDS = 60 * 60 * 24 * 14
@@ -30,7 +33,10 @@ function serializeSession(payload: EditorialSessionPayload, secret: string) {
   return `${encodedPayload}.${signature}`
 }
 
-function parseSession(token: string, secret: string): EditorialSessionPayload | null {
+function parseSession(
+  token: string,
+  secret: string,
+): EditorialSessionPayload | null {
   const [encodedPayload, signature] = token.split('.')
   if (!encodedPayload || !signature) {
     return null
@@ -70,13 +76,17 @@ export async function createEditorialAdminSession() {
   }
   const cookieStore = await cookies()
 
-  cookieStore.set(EDITORIAL_SESSION_COOKIE, serializeSession(payload, sessionSecret), {
-    httpOnly: true,
-    sameSite: 'lax',
-    secure: isProduction,
-    path: '/',
-    maxAge: EDITORIAL_SESSION_TTL_SECONDS,
-  })
+  cookieStore.set(
+    EDITORIAL_SESSION_COOKIE,
+    serializeSession(payload, sessionSecret),
+    {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: isProduction,
+      path: '/',
+      maxAge: EDITORIAL_SESSION_TTL_SECONDS,
+    },
+  )
 }
 
 export async function clearEditorialAdminSession() {
@@ -100,10 +110,7 @@ export async function hasEditorialAdminSession() {
   }
 }
 
-export function isValidEditorialAdminPassword(
-  input: string,
-  expected: string,
-) {
+export function isValidEditorialAdminPassword(input: string, expected: string) {
   const inputBuffer = Buffer.from(input)
   const expectedBuffer = Buffer.from(expected)
 

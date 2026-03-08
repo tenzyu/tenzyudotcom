@@ -1,17 +1,17 @@
 'use client'
 
-import { useState } from 'react'
 import { ArrowDown, ArrowUp, Plus, Trash2 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { saveEditorialCollectionAction } from './actions'
-import { moveItem } from './editor-utils'
+import { useState } from 'react'
 import type {
   Platform,
   PuzzleCategory,
   PuzzleLink,
 } from '@/app/[locale]/(main)/puzzles/_features/puzzles.source'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { saveEditorialCollectionAction } from './actions'
+import { moveItem } from './editor-utils'
 
 type PuzzlesEditorClientProps = {
   initialEntries: PuzzleCategory[]
@@ -31,7 +31,14 @@ type PuzzlesEditorClientProps = {
   }
 }
 
-const PLATFORMS: Platform[] = ['web', 'ios', 'android', 'steam', 'switch', 'other']
+const PLATFORMS: Platform[] = [
+  'web',
+  'ios',
+  'android',
+  'steam',
+  'switch',
+  'other',
+]
 
 function createEmptyPuzzleLink(): PuzzleLink {
   return {
@@ -79,7 +86,10 @@ export function PuzzlesEditorClient({
                         currentIndex === categoryIndex
                           ? {
                               ...currentCategory,
-                              puzzles: [...currentCategory.puzzles, createEmptyPuzzle()],
+                              puzzles: [
+                                ...currentCategory.puzzles,
+                                createEmptyPuzzle(),
+                              ],
                             }
                           : currentCategory,
                       ),
@@ -173,7 +183,9 @@ export function PuzzlesEditorClient({
 
                     <div className="grid gap-4 md:grid-cols-2">
                       <div className="space-y-2 text-sm">
-                        <label htmlFor={`puzzle-${categoryIndex}-${puzzleIndex}-title`}>
+                        <label
+                          htmlFor={`puzzle-${categoryIndex}-${puzzleIndex}-title`}
+                        >
                           {labels.title}
                         </label>
                         <Input
@@ -200,7 +212,9 @@ export function PuzzlesEditorClient({
                         />
                       </div>
                       <div className="space-y-2 text-sm">
-                        <label htmlFor={`puzzle-${categoryIndex}-${puzzleIndex}-url`}>
+                        <label
+                          htmlFor={`puzzle-${categoryIndex}-${puzzleIndex}-url`}
+                        >
                           {labels.primaryUrl}
                         </label>
                         <Input
@@ -267,11 +281,13 @@ export function PuzzlesEditorClient({
                       </div>
                       {puzzle.links.map((link, linkIndex) => (
                         <div
-                          key={`${category.id}-${puzzleIndex}-${linkIndex}`}
+                          key={`${category.id}`}
                           className="grid gap-4 md:grid-cols-[1fr_200px_auto]"
                         >
                           <div className="space-y-2 text-sm">
-                            <label htmlFor={`puzzle-${categoryIndex}-${puzzleIndex}-link-${linkIndex}-url`}>
+                            <label
+                              htmlFor={`puzzle-${categoryIndex}-${puzzleIndex}-link-${linkIndex}-url`}
+                            >
                               {labels.linkUrl}
                             </label>
                             <Input
@@ -280,36 +296,49 @@ export function PuzzlesEditorClient({
                               onChange={(event) => {
                                 const value = event.target.value
                                 setEntries((current) =>
-                                  current.map((currentCategory, currentIndex) =>
-                                    currentIndex === categoryIndex
-                                      ? {
-                                          ...currentCategory,
-                                          puzzles: currentCategory.puzzles.map(
-                                            (currentPuzzle, currentPuzzleIndex) =>
-                                              currentPuzzleIndex === puzzleIndex
-                                                ? {
-                                                    ...currentPuzzle,
-                                                    links: currentPuzzle.links.map(
-                                                      (currentLink, currentLinkIndex) =>
-                                                        currentLinkIndex === linkIndex
-                                                          ? {
-                                                              ...currentLink,
-                                                              url: value,
-                                                            }
-                                                          : currentLink,
-                                                    ),
-                                                  }
-                                                : currentPuzzle,
-                                          ),
-                                        }
-                                      : currentCategory,
+                                  current.map(
+                                    (currentCategory, currentIndex) =>
+                                      currentIndex === categoryIndex
+                                        ? {
+                                            ...currentCategory,
+                                            puzzles:
+                                              currentCategory.puzzles.map(
+                                                (
+                                                  currentPuzzle,
+                                                  currentPuzzleIndex,
+                                                ) =>
+                                                  currentPuzzleIndex ===
+                                                  puzzleIndex
+                                                    ? {
+                                                        ...currentPuzzle,
+                                                        links:
+                                                          currentPuzzle.links.map(
+                                                            (
+                                                              currentLink,
+                                                              currentLinkIndex,
+                                                            ) =>
+                                                              currentLinkIndex ===
+                                                              linkIndex
+                                                                ? {
+                                                                    ...currentLink,
+                                                                    url: value,
+                                                                  }
+                                                                : currentLink,
+                                                          ),
+                                                      }
+                                                    : currentPuzzle,
+                                              ),
+                                          }
+                                        : currentCategory,
                                   ),
                                 )
                               }}
                             />
                           </div>
                           <div className="space-y-2 text-sm">
-                            <label htmlFor={`puzzle-${categoryIndex}-${puzzleIndex}-link-${linkIndex}-platform`}>
+                            <label
+                              htmlFor={`puzzle-${categoryIndex}-${puzzleIndex}-link-${linkIndex}-platform`}
+                            >
                               {labels.platform}
                             </label>
                             <select
@@ -319,29 +348,41 @@ export function PuzzlesEditorClient({
                               onChange={(event) => {
                                 const value = event.target.value as Platform
                                 setEntries((current) =>
-                                  current.map((currentCategory, currentIndex) =>
-                                    currentIndex === categoryIndex
-                                      ? {
-                                          ...currentCategory,
-                                          puzzles: currentCategory.puzzles.map(
-                                            (currentPuzzle, currentPuzzleIndex) =>
-                                              currentPuzzleIndex === puzzleIndex
-                                                ? {
-                                                    ...currentPuzzle,
-                                                    links: currentPuzzle.links.map(
-                                                      (currentLink, currentLinkIndex) =>
-                                                        currentLinkIndex === linkIndex
-                                                          ? {
-                                                              ...currentLink,
-                                                              platform: value,
-                                                            }
-                                                          : currentLink,
-                                                    ),
-                                                  }
-                                                : currentPuzzle,
-                                          ),
-                                        }
-                                      : currentCategory,
+                                  current.map(
+                                    (currentCategory, currentIndex) =>
+                                      currentIndex === categoryIndex
+                                        ? {
+                                            ...currentCategory,
+                                            puzzles:
+                                              currentCategory.puzzles.map(
+                                                (
+                                                  currentPuzzle,
+                                                  currentPuzzleIndex,
+                                                ) =>
+                                                  currentPuzzleIndex ===
+                                                  puzzleIndex
+                                                    ? {
+                                                        ...currentPuzzle,
+                                                        links:
+                                                          currentPuzzle.links.map(
+                                                            (
+                                                              currentLink,
+                                                              currentLinkIndex,
+                                                            ) =>
+                                                              currentLinkIndex ===
+                                                              linkIndex
+                                                                ? {
+                                                                    ...currentLink,
+                                                                    platform:
+                                                                      value,
+                                                                  }
+                                                                : currentLink,
+                                                          ),
+                                                      }
+                                                    : currentPuzzle,
+                                              ),
+                                          }
+                                        : currentCategory,
                                   ),
                                 )
                               }}
@@ -361,24 +402,35 @@ export function PuzzlesEditorClient({
                               aria-label={labels.remove}
                               onClick={() => {
                                 setEntries((current) =>
-                                  current.map((currentCategory, currentIndex) =>
-                                    currentIndex === categoryIndex
-                                      ? {
-                                          ...currentCategory,
-                                          puzzles: currentCategory.puzzles.map(
-                                            (currentPuzzle, currentPuzzleIndex) =>
-                                              currentPuzzleIndex === puzzleIndex
-                                                ? {
-                                                    ...currentPuzzle,
-                                                    links: currentPuzzle.links.filter(
-                                                      (_, currentLinkIndex) =>
-                                                        currentLinkIndex !== linkIndex,
-                                                    ),
-                                                  }
-                                                : currentPuzzle,
-                                          ),
-                                        }
-                                      : currentCategory,
+                                  current.map(
+                                    (currentCategory, currentIndex) =>
+                                      currentIndex === categoryIndex
+                                        ? {
+                                            ...currentCategory,
+                                            puzzles:
+                                              currentCategory.puzzles.map(
+                                                (
+                                                  currentPuzzle,
+                                                  currentPuzzleIndex,
+                                                ) =>
+                                                  currentPuzzleIndex ===
+                                                  puzzleIndex
+                                                    ? {
+                                                        ...currentPuzzle,
+                                                        links:
+                                                          currentPuzzle.links.filter(
+                                                            (
+                                                              _,
+                                                              currentLinkIndex,
+                                                            ) =>
+                                                              currentLinkIndex !==
+                                                              linkIndex,
+                                                          ),
+                                                      }
+                                                    : currentPuzzle,
+                                              ),
+                                          }
+                                        : currentCategory,
                                   ),
                                 )
                               }}

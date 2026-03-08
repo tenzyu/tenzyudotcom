@@ -1,17 +1,23 @@
 'use client'
 
-import { useState } from 'react'
 import { ArrowDown, ArrowUp, Plus, Trash2 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Switch } from '@/components/ui/switch'
-import { Textarea } from '@/components/ui/textarea'
+import { useState } from 'react'
 import type {
   RecommendationSourceChannelEntry,
   RecommendationSourceEntry,
   RecommendationSourceVideoEntry,
 } from '@/app/[locale]/(main)/recommendations/_features/recommendations.source'
+import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Switch } from '@/components/ui/switch'
+import { Textarea } from '@/components/ui/textarea'
 import { saveEditorialCollectionAction } from './actions'
 import { moveItem } from './editor-utils'
 
@@ -79,7 +85,8 @@ export function RecommendationsEditorClient({
   previews,
   labels,
 }: RecommendationsEditorClientProps) {
-  const [entries, setEntries] = useState<RecommendationSourceEntry[]>(initialEntries)
+  const [entries, setEntries] =
+    useState<RecommendationSourceEntry[]>(initialEntries)
 
   const sourceJson = JSON.stringify(entries, null, 2)
 
@@ -124,7 +131,7 @@ export function RecommendationsEditorClient({
           const publishedId = `recommendation-${index}-published`
 
           return (
-            <Card key={`${entry.kind}-${index}`}>
+            <Card key={`${entry.kind}`}>
               <CardHeader className="space-y-2">
                 <div className="flex items-start justify-between gap-4">
                   <div className="space-y-1">
@@ -172,7 +179,9 @@ export function RecommendationsEditorClient({
                       size="icon"
                       onClick={() => {
                         setEntries((current) =>
-                          current.filter((_, currentIndex) => currentIndex !== index),
+                          current.filter(
+                            (_, currentIndex) => currentIndex !== index,
+                          ),
                         )
                       }}
                       aria-label={labels.remove}
@@ -193,7 +202,8 @@ export function RecommendationsEditorClient({
                         const value = event.target.value
                         setEntries((current) =>
                           current.map((currentEntry, currentIndex) =>
-                            currentIndex === index && currentEntry.kind === 'youtube-video'
+                            currentIndex === index &&
+                            currentEntry.kind === 'youtube-video'
                               ? { ...currentEntry, sourceUrl: value }
                               : currentEntry,
                           ),
@@ -212,7 +222,8 @@ export function RecommendationsEditorClient({
                           const value = event.target.value
                           setEntries((current) =>
                             current.map((currentEntry, currentIndex) =>
-                              currentIndex === index && currentEntry.kind === 'youtube-channel'
+                              currentIndex === index &&
+                              currentEntry.kind === 'youtube-channel'
                                 ? { ...currentEntry, title: value }
                                 : currentEntry,
                             ),
@@ -229,7 +240,8 @@ export function RecommendationsEditorClient({
                           const value = event.target.value
                           setEntries((current) =>
                             current.map((currentEntry, currentIndex) =>
-                              currentIndex === index && currentEntry.kind === 'youtube-channel'
+                              currentIndex === index &&
+                              currentEntry.kind === 'youtube-channel'
                                 ? { ...currentEntry, handle: value }
                                 : currentEntry,
                             ),
@@ -246,7 +258,8 @@ export function RecommendationsEditorClient({
                           const value = event.target.value
                           setEntries((current) =>
                             current.map((currentEntry, currentIndex) =>
-                              currentIndex === index && currentEntry.kind === 'youtube-channel'
+                              currentIndex === index &&
+                              currentEntry.kind === 'youtube-channel'
                                 ? { ...currentEntry, url: value }
                                 : currentEntry,
                             ),

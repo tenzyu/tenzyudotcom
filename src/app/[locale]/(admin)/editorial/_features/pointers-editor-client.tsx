@@ -1,16 +1,16 @@
 'use client'
 
-import { useState } from 'react'
 import { ArrowDown, ArrowUp, Plus, Trash2 } from 'lucide-react'
+import { useState } from 'react'
+import type {
+  DashboardSourceCategory,
+  DashboardSourceLink,
+} from '@/app/[locale]/(main)/pointers/_features/dashboard/dashboard.source'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
-import type {
-  DashboardSourceCategory,
-  DashboardSourceLink,
-} from '@/app/[locale]/(main)/pointers/_features/dashboard/dashboard.source'
 import { saveEditorialCollectionAction } from './actions'
 import { moveItem } from './editor-utils'
 
@@ -54,7 +54,8 @@ export function PointersEditorClient({
   locale,
   labels,
 }: PointersEditorClientProps) {
-  const [entries, setEntries] = useState<DashboardSourceCategory[]>(initialEntries)
+  const [entries, setEntries] =
+    useState<DashboardSourceCategory[]>(initialEntries)
   const sourceJson = JSON.stringify(entries, null, 2)
 
   return (
@@ -180,7 +181,10 @@ export function PointersEditorClient({
                           currentIndex === categoryIndex
                             ? {
                                 ...currentCategory,
-                                links: [...currentCategory.links, createEmptyLink()],
+                                links: [
+                                  ...currentCategory.links,
+                                  createEmptyLink(),
+                                ],
                               }
                             : currentCategory,
                         ),
@@ -257,7 +261,8 @@ export function PointersEditorClient({
                                   ? {
                                       ...currentCategory,
                                       links: currentCategory.links.filter(
-                                        (_, currentLinkIndex) => currentLinkIndex !== linkIndex,
+                                        (_, currentLinkIndex) =>
+                                          currentLinkIndex !== linkIndex,
                                       ),
                                     }
                                   : currentCategory,
@@ -270,7 +275,9 @@ export function PointersEditorClient({
                       </div>
                       <div className="grid gap-4 md:grid-cols-2">
                         <div className="space-y-2 text-sm">
-                          <label htmlFor={`link-${categoryIndex}-${linkIndex}-id`}>
+                          <label
+                            htmlFor={`link-${categoryIndex}-${linkIndex}-id`}
+                          >
                             {labels.linkId}
                           </label>
                           <Input
@@ -297,7 +304,9 @@ export function PointersEditorClient({
                           />
                         </div>
                         <div className="space-y-2 text-sm">
-                          <label htmlFor={`link-${categoryIndex}-${linkIndex}-url`}>
+                          <label
+                            htmlFor={`link-${categoryIndex}-${linkIndex}-url`}
+                          >
                             {labels.url}
                           </label>
                           <Input
@@ -324,7 +333,9 @@ export function PointersEditorClient({
                           />
                         </div>
                         <div className="space-y-2 text-sm">
-                          <label htmlFor={`link-${categoryIndex}-${linkIndex}-title-ja`}>
+                          <label
+                            htmlFor={`link-${categoryIndex}-${linkIndex}-title-ja`}
+                          >
                             {labels.linkTitleJa}
                           </label>
                           <Input
@@ -342,7 +353,10 @@ export function PointersEditorClient({
                                             currentLinkIndex === linkIndex
                                               ? {
                                                   ...currentLink,
-                                                  title: { ...currentLink.title, ja: value },
+                                                  title: {
+                                                    ...currentLink.title,
+                                                    ja: value,
+                                                  },
                                                 }
                                               : currentLink,
                                         ),
@@ -354,7 +368,9 @@ export function PointersEditorClient({
                           />
                         </div>
                         <div className="space-y-2 text-sm">
-                          <label htmlFor={`link-${categoryIndex}-${linkIndex}-title-en`}>
+                          <label
+                            htmlFor={`link-${categoryIndex}-${linkIndex}-title-en`}
+                          >
                             {labels.linkTitleEn}
                           </label>
                           <Input
@@ -372,7 +388,10 @@ export function PointersEditorClient({
                                             currentLinkIndex === linkIndex
                                               ? {
                                                   ...currentLink,
-                                                  title: { ...currentLink.title, en: value },
+                                                  title: {
+                                                    ...currentLink.title,
+                                                    en: value,
+                                                  },
                                                 }
                                               : currentLink,
                                         ),
@@ -384,7 +403,9 @@ export function PointersEditorClient({
                           />
                         </div>
                         <div className="space-y-2 text-sm">
-                          <label htmlFor={`link-${categoryIndex}-${linkIndex}-description-ja`}>
+                          <label
+                            htmlFor={`link-${categoryIndex}-${linkIndex}-description-ja`}
+                          >
                             {labels.linkDescriptionJa}
                           </label>
                           <Textarea
@@ -417,7 +438,9 @@ export function PointersEditorClient({
                           />
                         </div>
                         <div className="space-y-2 text-sm">
-                          <label htmlFor={`link-${categoryIndex}-${linkIndex}-description-en`}>
+                          <label
+                            htmlFor={`link-${categoryIndex}-${linkIndex}-description-en`}
+                          >
                             {labels.linkDescriptionEn}
                           </label>
                           <Textarea
@@ -472,7 +495,9 @@ export function PointersEditorClient({
                             )
                           }}
                         />
-                        <label htmlFor={`link-${categoryIndex}-${linkIndex}-is-app`}>
+                        <label
+                          htmlFor={`link-${categoryIndex}-${linkIndex}-is-app`}
+                        >
                           {labels.isApp}
                         </label>
                       </div>

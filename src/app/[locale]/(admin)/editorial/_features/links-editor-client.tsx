@@ -1,13 +1,19 @@
 'use client'
 
-import { useState } from 'react'
 import { ArrowDown, ArrowUp, Plus, Trash2 } from 'lucide-react'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import type { LinkCategory, MyLink } from '@/features/links/links.contract'
 import { saveEditorialCollectionAction } from './actions'
 import { moveItem } from './editor-utils'
-import type { LinkCategory, MyLink } from '@/features/links/links.contract'
 
 type LinksEditorClientProps = {
   initialEntries: MyLink[]
@@ -72,12 +78,14 @@ export function LinksEditorClient({
         {entries.map((entry, index) => {
           const baseId = `link-${index}`
           return (
-            <Card key={`${entry.shortenUrl || 'new'}-${index}`}>
+            <Card key={`${entry.shortenUrl || 'new'}`}>
               <CardHeader className="space-y-2">
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <CardTitle>{entry.name || 'Link'}</CardTitle>
-                    <CardDescription>{entry.url || 'https://example.com'}</CardDescription>
+                    <CardDescription>
+                      {entry.url || 'https://example.com'}
+                    </CardDescription>
                   </div>
                   <div className="flex items-center gap-2">
                     <Button
@@ -86,7 +94,9 @@ export function LinksEditorClient({
                       size="icon"
                       disabled={index === 0}
                       aria-label={labels.moveUp}
-                      onClick={() => setEntries((current) => moveItem(current, index, -1))}
+                      onClick={() =>
+                        setEntries((current) => moveItem(current, index, -1))
+                      }
                     >
                       <ArrowUp />
                     </Button>
@@ -96,7 +106,9 @@ export function LinksEditorClient({
                       size="icon"
                       disabled={index === entries.length - 1}
                       aria-label={labels.moveDown}
-                      onClick={() => setEntries((current) => moveItem(current, index, 1))}
+                      onClick={() =>
+                        setEntries((current) => moveItem(current, index, 1))
+                      }
                     >
                       <ArrowDown />
                     </Button>
@@ -107,7 +119,9 @@ export function LinksEditorClient({
                       aria-label={labels.remove}
                       onClick={() =>
                         setEntries((current) =>
-                          current.filter((_, currentIndex) => currentIndex !== index),
+                          current.filter(
+                            (_, currentIndex) => currentIndex !== index,
+                          ),
                         )
                       }
                     >
@@ -169,7 +183,9 @@ export function LinksEditorClient({
                   />
                 </div>
                 <div className="space-y-2 text-sm">
-                  <label htmlFor={`${baseId}-shortenUrl`}>{labels.shortenUrl}</label>
+                  <label htmlFor={`${baseId}-shortenUrl`}>
+                    {labels.shortenUrl}
+                  </label>
                   <Input
                     id={`${baseId}-shortenUrl`}
                     value={entry.shortenUrl}
@@ -203,7 +219,9 @@ export function LinksEditorClient({
                   />
                 </div>
                 <div className="space-y-2 text-sm">
-                  <label htmlFor={`${baseId}-category`}>{labels.category}</label>
+                  <label htmlFor={`${baseId}-category`}>
+                    {labels.category}
+                  </label>
                   <select
                     id={`${baseId}-category`}
                     className="border-input h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm"
