@@ -3,7 +3,6 @@
 import { XIcon } from 'lucide-react'
 import { useIntlayer } from 'next-intlayer'
 import { Dialog as SheetPrimitive } from 'radix-ui'
-import type * as React from 'react'
 
 import { cn } from '@/lib/utils/index'
 
