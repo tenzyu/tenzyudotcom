@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
-import { formatDate } from '../_lib/format-date'
+import { formatDate } from './lib'
 
 type BlogTileProps = {
   title: string

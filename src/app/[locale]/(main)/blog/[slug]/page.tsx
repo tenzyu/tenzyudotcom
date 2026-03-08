@@ -5,7 +5,7 @@ import { getLocale } from 'next-intlayer/server'
 import { BASE_URL } from '@/config/site'
 import { getBlogPosts } from '@/lib/blog/getBlogPosts'
 import { CustomMDX } from '../_features/custom-mdx'
-import { formatDate } from '../_lib/format-date'
+import { formatDate } from '../_features/lib'
 
 export const dynamicParams = false
 
