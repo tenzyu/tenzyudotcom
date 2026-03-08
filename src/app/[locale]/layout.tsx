@@ -1,6 +1,6 @@
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/next'
-import { getHTMLTextDir } from 'intlayer'
+import { getHTMLTextDir, getIntlayer } from 'intlayer'
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono, Noto_Serif_JP } from 'next/font/google'
 import Script from 'next/script'
@@ -46,6 +46,7 @@ export async function generateMetadata({
 
 const LocaleLayout: NextLayoutIntlayer = async ({ children, params }) => {
   const { locale } = await params
+  const shellContent = getIntlayer('shell', locale)
 
   return (
     <html lang={locale} dir={getHTMLTextDir(locale)} suppressHydrationWarning>
@@ -80,8 +81,18 @@ const LocaleLayout: NextLayoutIntlayer = async ({ children, params }) => {
           >
             <div className="flex min-h-screen flex-col">
               <TooltipProvider>
+                <a
+                  href="#main-content"
+                  className="bg-background text-foreground ring-border focus-visible:ring-ring sr-only fixed top-4 left-4 z-60 rounded-md px-4 py-2 shadow-lg ring-1 transition focus:not-sr-only focus-visible:ring-2 focus-visible:outline-none"
+                >
+                  {shellContent.skipToContent}
+                </a>
                 <Header />
-                <main className="-mb-16 grow -translate-y-16 transform pt-16">
+                <main
+                  id="main-content"
+                  tabIndex={-1}
+                  className="-mb-16 grow -translate-y-16 transform scroll-mt-20 pt-16 focus:outline-none"
+                >
                   <Container>
                     <BreadcrumbNav />
                     {children}

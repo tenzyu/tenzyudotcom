@@ -35,10 +35,6 @@ const recommendationsPageContent = {
         ja: 'チャンネル',
         en: 'Channels',
       }),
-      socials: t({
-        ja: 'SNS',
-        en: 'Socials',
-      }),
     } satisfies Record<RecommendationTabId, ReturnType<typeof t>>,
     sections: {
       youtubeChannels: {

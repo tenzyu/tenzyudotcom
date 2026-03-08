@@ -1,12 +1,11 @@
 export type DashboardLink = {
-  name: string
+  id: string
   url: string
-  description?: string
   isApp?: boolean
 }
 
 export type DashboardCategory = {
-  title: string
+  id: string
   links: readonly DashboardLink[]
 }
 
@@ -33,31 +32,29 @@ function assertDashboardUrl(
 export function defineDashboardCategories<const T extends DashboardCategory>(
   categories: readonly T[],
 ): readonly T[] {
-  const categoryTitles = new Set<string>()
+  const categoryIds = new Set<string>()
+  const linkIds = new Set<string>()
 
   for (const category of categories) {
-    assertNonEmpty(category.title, 'dashboard category title')
+    assertNonEmpty(category.id, 'dashboard category id')
 
-    if (categoryTitles.has(category.title)) {
-      throw new Error(`Duplicate dashboard category title: ${category.title}`)
+    if (categoryIds.has(category.id)) {
+      throw new Error(`Duplicate dashboard category id: ${category.id}`)
     }
-    categoryTitles.add(category.title)
+    categoryIds.add(category.id)
 
-    const linkNames = new Set<string>()
     for (const link of category.links) {
-      assertNonEmpty(link.name, `dashboard link name in ${category.title}`)
+      assertNonEmpty(link.id, `dashboard link id in ${category.id}`)
       assertDashboardUrl(
         link.url,
         link.isApp,
-        `dashboard link url for ${category.title}/${link.name}`,
+        `dashboard link url for ${category.id}/${link.id}`,
       )
 
-      if (linkNames.has(link.name)) {
-        throw new Error(
-          `Duplicate dashboard link name in ${category.title}: ${link.name}`,
-        )
+      if (linkIds.has(link.id)) {
+        throw new Error(`Duplicate dashboard link id: ${link.id}`)
       }
-      linkNames.add(link.name)
+      linkIds.add(link.id)
     }
   }
 

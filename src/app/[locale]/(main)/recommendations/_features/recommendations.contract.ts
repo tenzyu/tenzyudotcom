@@ -1,4 +1,4 @@
-export type RecommendationTabId = 'music' | 'channels' | 'socials'
+export type RecommendationTabId = 'music' | 'channels'
 
 type RecommendationChannel = {
   id: string
@@ -75,4 +75,10 @@ export function defineRecommendationTabs<const T extends RecommendationTab>(
 ): readonly T[] {
   assertUniqueIds(tabs, 'recommendation tab')
   return tabs
+}
+
+export function isRecommendationTabId(
+  value: string | null,
+): value is RecommendationTabId {
+  return value === 'music' || value === 'channels'
 }

@@ -17,20 +17,23 @@ export function PointersPageContent() {
 
       <div className="grid gap-12 md:grid-cols-2">
         {DASHBOARD_DATA.map((category) => (
-          <section key={category.title} className="flex flex-col gap-6">
+          <section key={category.id} className="flex flex-col gap-6">
             <SectionHeader
-              title={category.title}
+              title={content.dashboard.categories[category.id].title.value}
+              description={
+                content.dashboard.categories[category.id].description.value
+              }
               titleClassName="text-lg"
               className="flex flex-col gap-1"
             />
             <div className="grid gap-4">
               {category.links.map((link) => (
                 <ActionLinkTile
-                  key={link.name}
-                  title={link.name}
-                  description={link.description}
+                  key={link.id}
+                  title={content.dashboard.links[link.id].title.value}
+                  description={content.dashboard.links[link.id].description.value}
                   href={link.url}
-                  internal={!!link.isApp}
+                  internal={'isApp' in link && !!link.isApp}
                 />
               ))}
             </div>

@@ -43,7 +43,6 @@ export const RECOMMENDATION_VIDEOS = defineRecommendationVideos([
 export const RECOMMENDATION_TABS = defineRecommendationTabs([
   { id: 'music' },
   { id: 'channels' },
-  { id: 'socials', disabled: true },
 ]) satisfies ReadonlyArray<{
   id: RecommendationTabId
   disabled?: boolean

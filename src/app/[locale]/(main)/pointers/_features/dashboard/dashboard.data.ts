@@ -1,38 +1,41 @@
-import {
-  type DashboardCategory,
-  defineDashboardCategories,
-} from './dashboard.contract'
+import { defineDashboardCategories } from './dashboard.contract'
 
-export const DASHBOARD_DATA: readonly DashboardCategory[] =
-  defineDashboardCategories([
+export type DashboardCategoryId = 'ai-assistants' | 'productivity'
+
+export type DashboardLinkId =
+  | 'gemini'
+  | 'chatgpt'
+  | 'grok'
+  | 'claude'
+  | 'todoist-web'
+  | 'todoist-app'
+  | 'obsidian-app'
+  | 'github'
+
+export const DASHBOARD_DATA = defineDashboardCategories([
     {
-      title: 'AI Assistants',
+      id: 'ai-assistants',
       links: [
-        {
-          name: 'Gemini',
-          url: 'https://gemini.google.com/app',
-          description: 'Google Advanced AI',
-        },
-        {
-          name: 'ChatGPT',
-          url: 'https://chat.openai.com/',
-          description: 'OpenAI GPT-4',
-        },
-        { name: 'Grok', url: 'https://x.com/i/grok', description: 'xAI' },
-        {
-          name: 'Claude',
-          url: 'https://claude.ai/',
-          description: 'Anthropic Claude',
-        },
+        { id: 'gemini', url: 'https://gemini.google.com/app' },
+        { id: 'chatgpt', url: 'https://chat.openai.com/' },
+        { id: 'grok', url: 'https://x.com/i/grok' },
+        { id: 'claude', url: 'https://claude.ai/' },
       ],
     },
     {
-      title: 'Productivity',
+      id: 'productivity',
       links: [
-        { name: 'Todoist (Web)', url: 'https://todoist.com/app/' },
-        { name: 'Todoist (App)', url: 'todoist://', isApp: true },
-        { name: 'Obsidian (App)', url: 'obsidian://', isApp: true },
-        { name: 'GitHub', url: 'https://github.com/' },
+        { id: 'todoist-web', url: 'https://todoist.com/app/' },
+        { id: 'todoist-app', url: 'todoist://', isApp: true },
+        { id: 'obsidian-app', url: 'obsidian://', isApp: true },
+        { id: 'github', url: 'https://github.com/' },
       ],
     },
-  ])
+  ]) satisfies ReadonlyArray<{
+    id: DashboardCategoryId
+    links: ReadonlyArray<{
+      id: DashboardLinkId
+      url: string
+      isApp?: boolean
+    }>
+  }>
