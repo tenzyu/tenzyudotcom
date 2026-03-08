@@ -359,6 +359,7 @@ app-specific な parse / normalize を `*.contract.ts` に分ける。
 - MDX frontmatter の schema
 - external API response の normalize / guard
 - static dataset record の shape
+- search params や URL state の parse / serialize
 - env や config の parse
 - JSON-LD や metadata builder の入力 shape
 

@@ -89,6 +89,21 @@ Intlayer は localized meaning のための tool として使う。
 - `apply_patch` for precise edits
 - non-destructive git inspection
 
+## Server / Client Boundary Hygiene
+
+React / Next.js では、client を default にしない。
+
+- route page content や content assembly はまず server に置く
+- browser API, interaction state, `useSearchParams`, `useRouter` が必要な leaf だけ client にする
+- URL state を読むためだけに page 全体を client 化しない
+- server で集めた data を client へ渡すときは、serialize する値を最小化する
+
+search params も境界として扱う。
+
+- parse / normalize / serialize は feature-local の `*.contract.ts` に置く
+- component 本体に query key や default 値を直書きしない
+- view state の contract は route owner の近くで完結させる
+
 ### Human Review Tools
 
 - markdown design docs

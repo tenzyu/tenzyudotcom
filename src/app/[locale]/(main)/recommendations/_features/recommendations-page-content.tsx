@@ -1,13 +1,9 @@
-'use client'
-
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { useIntlayer } from 'next-intlayer'
-import { startTransition } from 'react'
+import { useIntlayer } from 'next-intlayer/server'
 import { PageHeader } from '@/components/site-ui/page-header'
 import { SectionHeader } from '@/components/site-ui/section-header'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { TabsContent } from '@/components/ui/tabs'
 import type { RecommendationsPageData } from './lib/types'
-import { isRecommendationTabId } from './recommendations.contract'
+import { RecommendationTabs } from './recommendation-tabs'
 import { RECOMMENDATION_TABS } from './recommendations.data'
 import { YouTubeChannelList } from './youtube-channel-list'
 import { YouTubePlaylist } from './youtube-playlist'
@@ -19,33 +15,6 @@ export function RecommendationsPageContent({
   videos,
 }: RecommendationsPageContentProps) {
   const content = useIntlayer('page-recommendations')
-  const pathname = usePathname()
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const requestedTab = searchParams.get('tab')
-  const activeTab = isRecommendationTabId(requestedTab)
-    ? requestedTab
-    : 'music'
-
-  function handleTabChange(value: string) {
-    if (!isRecommendationTabId(value)) {
-      return
-    }
-
-    const params = new URLSearchParams(searchParams.toString())
-    if (value === 'music') {
-      params.delete('tab')
-    } else {
-      params.set('tab', value)
-    }
-
-    const nextQuery = params.toString()
-    const nextUrl = nextQuery ? `${pathname}?${nextQuery}` : pathname
-
-    startTransition(() => {
-      router.replace(nextUrl, { scroll: false })
-    })
-  }
 
   return (
     <>
@@ -55,19 +24,13 @@ export function RecommendationsPageContent({
         className="flex flex-col gap-4"
       />
 
-      <Tabs
-        value={activeTab}
-        onValueChange={handleTabChange}
+      <RecommendationTabs
         className="mt-8 flex flex-col gap-6"
+        tabs={RECOMMENDATION_TABS.map((tab) => ({
+          id: tab.id,
+          label: content.tabs[tab.id].value,
+        }))}
       >
-        <TabsList className="grid w-full grid-cols-2 md:inline-flex md:w-auto">
-          {RECOMMENDATION_TABS.map((tab) => (
-            <TabsTrigger key={tab.id} value={tab.id}>
-              {content.tabs[tab.id]}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-
         <TabsContent value="music" className="border-none p-0">
           <YouTubePlaylist
             videos={videos}
@@ -89,7 +52,7 @@ export function RecommendationsPageContent({
             openLabel={content.labels.openChannel.value}
           />
         </TabsContent>
-      </Tabs>
+      </RecommendationTabs>
     </>
   )
 }
