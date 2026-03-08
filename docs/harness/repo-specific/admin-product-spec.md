@@ -1,7 +1,7 @@
 ---
 name: admin-product-spec
 description: Repo-specific product spec for the self-only editorial admin.
-summary: Defines the intended operating model, scope, and constraints for the site's editorial admin.
+summary: Defines the intended operating model, scope, constraints, and self-only locale stance for the site's editorial admin.
 read_when:
   - changing the editorial admin scope or UX
   - deciding capabilities for author-only editing flows

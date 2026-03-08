@@ -1,11 +1,11 @@
 ---
 name: editorial-boundary-spec
-description: Repo-specific boundary spec for the editorial subsystem.
-summary: Captures the current boundary responsibilities and failure policy for source, content, contract, assemble, and storage in the editorial workflow.
+description: Repo-specific failure policy for the editorial subsystem.
+summary: Captures the repo-specific failure policy for editorial reads and writes; generic boundary vocabulary and interview triggers live in harness references.
 read_when:
   - clarifying responsibilities inside the editorial subsystem
   - deciding failure behavior for editorial reads and writes
-  - evaluating whether a change belongs in source, contract, assemble, or storage
+  - checking repo-specific fallback behavior for editorial reads and writes
 skip_when:
   - you only need the site-wide harness guard and structure rules
 body_refs:

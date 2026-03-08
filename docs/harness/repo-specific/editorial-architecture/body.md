@@ -13,24 +13,10 @@
 - `links`
 - `pointers`
 
-## Canonical Model
+## Boundary Baseline
 
-この repo では、author-curated collection を次の語彙で扱う。
-
-- `*.source.ts`
-  - canonical source
-  - 人が編集する主入口
-  - 将来 Blob / DB / API に置き換わりうる
-- `*.content.ts`
-  - Intlayer meaning
-  - page / feature の fixed copy
-- `*.contract.ts`
-  - boundary contract
-  - parse / normalize / validate
-- `*.assemble.ts`
-  - source / content / external fetch を束ねて page / feature 用 data を作る
-
-`*.data.ts` と `*.copy.ts` は新規の主語彙として使わない。
+editorial の一般語彙は `docs/harness/references/tools.md` を正とする。
+この文書では、この repo 固有の運用前提だけを追加する。
 
 ## Ownership
 

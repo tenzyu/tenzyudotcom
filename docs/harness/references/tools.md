@@ -94,6 +94,30 @@ shadcn/ui source は vendor-like primitive として扱う。
 - `env.contract.ts`
   - environment parse / required credentials
 
+## Editorial Boundary Vocabulary
+
+editorial workflow では、
+`source / content / contract / assemble / storage` を別境界として扱う。
+
+- `*.source.ts`
+  - human-authored canonical source
+  - UI-ready shape ではない
+  - 将来 Blob / DB / API に置き換わりうる
+- `*.content.ts`
+  - Intlayer meaning only
+  - page / feature の fixed copy
+  - source record や fetch input を持たない
+- `*.contract.ts`
+  - source / URL / env / external input を app が信頼できる shape に落とす
+  - parse / normalize / validate を担う
+  - view model assembly までは持たない
+- `*.assemble.ts`
+  - source / content / external fetch を束ねて feature / page data を作る
+  - raw input validation を ad-hoc にやり直さない
+- `src/lib/editorial/*`
+  - shared storage / registry helper
+  - canonical source の代わりにならない
+
 ### File-System Tools
 
 - path naming conventions

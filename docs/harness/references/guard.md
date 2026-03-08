@@ -138,6 +138,27 @@ Guard は次の順で使う。
   - utility nav の label
   - sticky header と競合しない focus / jump 導線
 
+### Editorial Revalidation Guard
+
+- public editorial route の freshness は、原則として request-time dynamic ではなく write-side の明示的な revalidation で反映する
+- revalidation の owner は対象 feature か editorial workflow owner の近くに置き、route entry や ad-hoc helper に散らさない
+- affected path、locale、trigger 条件、freshness source of truth の具体設計は `docs/harness/cases/static-editorial-updates` に残し、ここには再利用できる最小ルールだけを残す
+- dynamic segment や tag taxonomy が未整理な段階で rule を広げない
+  - まず `docs/harness/cases/static-editorial-updates` に具体策を書く
+
+### Editorial Planning Trigger
+
+editorial workflow を実装する前に、次が未設計なら短いインタビューを先に行う。
+
+- route placement
+- primary nav exposure
+- source shape
+- auth model
+- storage model
+- publish / draft semantics
+- fallback / failure policy
+- auto-enrichment policy
+
 ### Verification Guard
 
 変更に応じて、実行可能な verification を最低 1 つは通す。

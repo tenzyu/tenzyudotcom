@@ -1,7 +1,7 @@
 ---
 name: editorial-architecture
 description: Repo-specific architecture note for author-curated editorial collections.
-summary: Defines the repository's current editorial model, ownership, storage stance, and collection-specific editing direction.
+summary: Defines the repository's editorial model, ownership, storage stance, and collection-specific editing direction; generic boundary vocabulary lives in harness references.
 read_when:
   - changing the editorial subsystem architecture
   - deciding ownership between source, admin, storage, and assemble layers

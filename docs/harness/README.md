@@ -47,6 +47,7 @@ harness 自体の review や extension では
 | file placement を決めたい | `references/structure.md` |
 | unsafe な変更を避けたい | `references/guard.md` |
 | Intlayer / tool / dependency の境界を決めたい | `references/tools.md` |
+| editorial の `source / content / contract / assemble / storage` 境界を決めたい | `references/tools.md` |
 | docs に何を残すか決めたい | `references/memory.md` |
 | まだ定義されていない論点を確認したい | `known-gaps.md` |
 | editorial gateway / source / assemble をどう置くか決めたい | `references/structure.md` |

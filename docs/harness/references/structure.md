@@ -374,8 +374,6 @@ owner は「どこに canonical source があるか」である。
 - route-local の source を shared owner に見せかけない
 - shared feature の source でも、admin helper から product runtime import source を逆転させない
 - `src/lib/editorial` は storage / registry の shared helper であり、canonical source ではない
-- self-only admin route では、固定 locale の Intlayer content を使ってよい
-  - public locale UX に影響しない場合に限る
 
 ### 5. Syntax buckets are subordinate
 
@@ -475,26 +473,20 @@ top-level public route registry は narrow shared data として扱う。
 
 ### Good shared
 
-- `src/features/links/*`
-- `src/features/site-controls/*`
+- `src/features/<domain>/*`
 - `src/components/shell/*`
 - `src/components/site-ui/*`
-- `src/lib/blog/getBlogPosts.ts`
-- `src/lib/intlayer/page.ts`
+- `src/lib/<domain>/<name>.ts`
 - `src/config/site.ts`
-- `src/config/env.contract.ts`
+- `src/config/<policy>.ts`
 
 ### Good local
 
-- `src/app/[locale]/(main)/pointers/_features/dashboard/*`
-- `src/app/[locale]/(main)/puzzles/_features/puzzles/*`
-- `src/app/[locale]/(main)/recommendations/_features/recommendations/*`
-- `src/app/[locale]/(main)/blog/_features/blog/*`
-- `src/app/[locale]/(main)/blog/[slug]/_features/lib/blog-post.ts`
-- `src/app/[locale]/(main)/puzzles/_features/puzzles.source.ts`
-- `src/app/[locale]/(main)/recommendations/_features/recommendations.source.ts`
-- `src/app/[locale]/(main)/archives/osu-profile/_features/lib/getUser.ts`
-- `src/app/[locale]/(main)/archives/osu-profile/_data/youtube.ts`
+- `src/app/[locale]/.../<route>/_features/<feature>.tsx`
+- `src/app/[locale]/.../<route>/_features/<feature>.source.ts`
+- `src/app/[locale]/.../<route>/_features/<feature>.assemble.ts`
+- `src/app/[locale]/.../<route>/_features/lib/<name>.ts`
+- `src/app/[locale]/.../<route>/_data/<domain>.ts`
 
 ### Smells
 
