@@ -1,5 +1,4 @@
 import { AlertCircleIcon } from 'lucide-react'
-import type * as React from 'react'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { cn } from '@/lib/utils'
 

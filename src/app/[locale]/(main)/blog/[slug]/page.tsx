@@ -2,10 +2,10 @@ import { getLocalizedUrl, locales } from 'intlayer'
 import { notFound } from 'next/navigation'
 import { getLocale } from 'next-intlayer/server'
 
-import { baseUrl } from '@/app/sitemap'
+import { BASE_URL } from '@/config/site'
 import { getBlogPosts } from '@/lib/blog/getBlogPosts'
-import { formatDate } from '@/lib/blog/utils'
 import { CustomMDX } from '../_features/custom-mdx'
+import { formatDate } from '../_lib/format-date'
 
 export const dynamicParams = false
 
@@ -34,13 +34,13 @@ export async function generateMetadata({ params }: { params: Params }) {
     summary: description,
     image,
   } = post.metadata
-  const ogImage = image ?? `${baseUrl}/og?title=${encodeURIComponent(title)}`
+  const ogImage = image ?? `${BASE_URL}/og?title=${encodeURIComponent(title)}`
   const localizedPath = getLocalizedUrl(`/blog/${post.slug}`, locale)
-  const localizedUrl = `${baseUrl}${localizedPath}`
+  const localizedUrl = `${BASE_URL}${localizedPath}`
   const alternateLanguages = Object.fromEntries(
     locales.map((localeItem) => [
       localeItem,
-      `${baseUrl}${getLocalizedUrl(`/blog/${post.slug}`, localeItem)}`,
+      `${BASE_URL}${getLocalizedUrl(`/blog/${post.slug}`, localeItem)}`,
     ]),
   )
 
@@ -98,9 +98,9 @@ export default async function Blog({ params }: { params: Params }) {
             dateModified: post.metadata.updatedAt?.toISOString(), // Serialize date
             description: post.metadata.summary,
             image: post.metadata.image
-              ? `${baseUrl}${post.metadata.image}`
+              ? `${BASE_URL}${post.metadata.image}`
               : `/og?title=${encodeURIComponent(post.metadata.title)}`,
-            url: `${baseUrl}${getLocalizedUrl(`/blog/${post.slug}`, locale)}`, // Corrected URL path
+            url: `${BASE_URL}${getLocalizedUrl(`/blog/${post.slug}`, locale)}`, // Corrected URL path
             author: {
               // Add author info if available
               '@type': 'Person',
@@ -112,7 +112,7 @@ export default async function Blog({ params }: { params: Params }) {
               name: 'tenzyu.com', // Replace with site name
               logo: {
                 '@type': 'ImageObject',
-                url: `${baseUrl}/images/my-icon.png`, // Example logo URL
+                url: `${BASE_URL}/images/my-icon.png`, // Example logo URL
               },
             },
           }),

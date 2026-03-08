@@ -1,8 +1,7 @@
 import { getMultilingualUrls } from 'intlayer'
 import type { MetadataRoute } from 'next'
+import { BASE_URL } from '@/config/site'
 import { getBlogPosts } from '@/lib/blog/getBlogPosts'
-
-export const baseUrl = 'https://tenzyu.com'
 
 const sitemap = async (): Promise<MetadataRoute.Sitemap> => {
   // NOTE: in [rocale]
@@ -20,12 +19,12 @@ const sitemap = async (): Promise<MetadataRoute.Sitemap> => {
 
   const routesWithAlternates = routes.map(
     (route): MetadataRoute.Sitemap[number] => ({
-      url: `${baseUrl}${route}`,
+      url: `${BASE_URL}${route}`,
       lastModified: new Date().toISOString().split('T')[0],
       alternates: {
         languages: {
-          ...getMultilingualUrls(`${baseUrl}${route}`),
-          'x-default': `${baseUrl}${route}`,
+          ...getMultilingualUrls(`${BASE_URL}${route}`),
+          'x-default': `${BASE_URL}${route}`,
         },
       },
     }),
@@ -36,12 +35,12 @@ const sitemap = async (): Promise<MetadataRoute.Sitemap> => {
     (post): MetadataRoute.Sitemap[number] => {
       const route = `/blog/${post.slug}`
       return {
-        url: `${baseUrl}${route}`,
+        url: `${BASE_URL}${route}`,
         lastModified: post.metadata.updatedAt ?? post.metadata.publishedAt,
         alternates: {
           languages: {
-            ...getMultilingualUrls(`${baseUrl}${route}`),
-            'x-default': `${baseUrl}${route}`,
+            ...getMultilingualUrls(`${BASE_URL}${route}`),
+            'x-default': `${BASE_URL}${route}`,
           },
         },
       }

@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 
-import { MY_LINKS } from '@/data/links'
+import { MY_LINKS } from '@/features/links/data'
 
 export const dynamicParams = false
 export function generateStaticParams() {

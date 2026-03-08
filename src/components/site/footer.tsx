@@ -10,7 +10,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 
-import { ShareDialog } from '@/app/[locale]/_features/share-dialog'
+import { ShareDialog } from '@/features/site-controls/share-dialog'
 
 const socialLinks = [
   {

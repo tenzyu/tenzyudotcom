@@ -5,7 +5,12 @@ import { PageHeader } from '@/components/site/page-header'
 import { SectionHeader } from '@/components/site/section-header'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { createPageMetadata, resolvePageLocale } from '@/lib/intlayer/page'
-import { fetchYouTubeVideoMeta } from '@/lib/youtube'
+import {
+  RECOMMENDATION_CHANNELS,
+  RECOMMENDATION_VIDEOS,
+  type RecommendationChannelId,
+  type RecommendationVideoId,
+} from './_data/recommendations'
 import {
   type YouTubeChannelItem,
   YouTubeChannelList,
@@ -14,6 +19,7 @@ import {
   YouTubePlaylist,
   type YouTubePlaylistItem,
 } from './_features/youtube-playlist'
+import { fetchYouTubeVideoMeta } from './_lib/youtube'
 
 export const dynamic = 'force-static'
 export const generateMetadata = createPageMetadata('page-recommendations', {
@@ -78,7 +84,7 @@ const RecommendationsPage: NextPageIntlayer = async ({ params }) => {
   const viewLocale = locale === 'ja' ? 'ja-JP' : 'en-US'
   const [videosWithTitles, channels] = await Promise.all([
     Promise.all(
-      content.videos.map(async (video) => {
+      RECOMMENDATION_VIDEOS.map(async (video) => {
         const { title, views } = await fetchYouTubeVideoMeta(
           video.id,
           viewLocale,
@@ -86,18 +92,18 @@ const RecommendationsPage: NextPageIntlayer = async ({ params }) => {
 
         return {
           id: video.id,
-          note: video.note,
+          note: content.videoNotes[video.id as RecommendationVideoId],
           views,
           title,
         }
       }),
     ) as Promise<YouTubePlaylistItem[]>,
     Promise.resolve(
-      content.channels.map((channel) => ({
+      RECOMMENDATION_CHANNELS.map((channel) => ({
         title: channel.title,
         handle: channel.handle,
         url: channel.url,
-        note: channel.note,
+        note: content.channelNotes[channel.id as RecommendationChannelId],
       })),
     ) as Promise<YouTubeChannelItem[]>,
   ])

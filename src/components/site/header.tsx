@@ -2,9 +2,9 @@ import { getLocalizedUrl } from 'intlayer'
 import Link from 'next/link'
 import { useLocale } from 'next-intlayer/server'
 
-import { LanguageSwitcher } from '@/app/[locale]/_features/language-switcher'
-import { ThemeSwitcher } from '@/app/[locale]/_features/theme-switcher'
 import { Container } from '@/components/site/container'
+import { LanguageSwitcher } from '@/features/site-controls/language-switcher'
+import { ThemeSwitcher } from '@/features/site-controls/theme-switcher'
 import { cn } from '@/lib/utils'
 
 const navLinkStyles = 'hover:text-primary transition-colors'

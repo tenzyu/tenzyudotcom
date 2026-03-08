@@ -1,7 +1,7 @@
 import type { NextPageIntlayer } from 'next-intlayer'
 import { IntlayerServerProvider, useIntlayer } from 'next-intlayer/server'
-import { LinkList } from '../_features/links/link-list'
 import { PageHeader } from '@/components/site/page-header'
+import { LinkList } from '@/features/links/link-list'
 import { createPageMetadata, resolvePageLocale } from '@/lib/intlayer/page'
 
 export const dynamic = 'force-static'

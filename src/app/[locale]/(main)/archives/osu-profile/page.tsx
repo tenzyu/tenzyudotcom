@@ -1,12 +1,11 @@
 import type { NextPageIntlayer } from 'next-intlayer'
 import { IntlayerServerProvider, useIntlayer } from 'next-intlayer/server'
 import type { PropsWithChildren } from 'react'
-import { LinkList } from '../../_features/links/link-list'
 import { Content } from '@/components/site/content'
 import { Section } from '@/components/site/section'
+import { LinkList } from '@/features/links/link-list'
 import { createPageMetadata, resolvePageLocale } from '@/lib/intlayer/page'
-import { TwitterCarousel } from './_features/twitter-carousel'
-import { YouTubeCarousel } from './_features/youtube-carousel'
+import { TWEETS } from './_data/twitter'
 import {
   KeyboardSettings,
   MonitorSettings,
@@ -14,12 +13,10 @@ import {
   TabletSettings,
 } from './_features/osu'
 import { ProfileCard } from './_features/profile-card'
-import {
-  TableOfContents,
-  type TocSection,
-} from './_features/table-of-contents'
+import { TableOfContents, type TocSection } from './_features/table-of-contents'
+import { TwitterCarousel } from './_features/twitter-carousel'
 import { YearlyGoals } from './_features/yearly-goals'
-import { TWEETS } from './_data/twitter'
+import { YouTubeCarousel } from './_features/youtube-carousel'
 
 import './legacy.css'
 

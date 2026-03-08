@@ -8,9 +8,9 @@ import {
   EmptyHeader,
   EmptyTitle,
 } from '@/components/ui/empty'
-import { PUZZLE_CATEGORIES } from '@/data/puzzles'
 import { createPageMetadata, resolvePageLocale } from '@/lib/intlayer/page'
 import { fetchOgp } from '@/lib/ogp'
+import { PUZZLE_CATEGORIES } from './_data/puzzles'
 
 import type { PuzzleWithOgp } from './_features/puzzle-tile'
 import { PuzzleTile } from './_features/puzzle-tile'

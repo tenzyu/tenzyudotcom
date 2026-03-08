@@ -1,5 +1,4 @@
 import { Coffee } from 'lucide-react'
-import type * as React from 'react'
 import { KOFI_LINK } from '@/lib/kofi'
 import { Button } from '../ui/button'
 import { ExternalLink } from './external-link'

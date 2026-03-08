@@ -9,13 +9,13 @@ import {
   type LocalPromiseParams,
   type NextLayoutIntlayer,
 } from 'next-intlayer'
-import { ThemeProvider } from '@/app/[locale]/_features/theme-provider'
 import { BreadcrumbNav } from '@/components/site/breadcrumb-nav'
 import { Container } from '@/components/site/container'
 import { Footer } from '@/components/site/footer'
 import { Header } from '@/components/site/header'
 import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
+import { ThemeProvider } from '@/features/site-controls/theme-provider'
 
 import '../globals.css'
 
