@@ -1,7 +1,7 @@
 import { useIntlayer } from 'next-intlayer/server'
-import { Container } from '@/components/site/container'
-import { ExternalLink } from '@/components/site/external-link'
-import { KoFiLink } from '@/components/site/kofi-link'
+import { Container } from '@/components/shells/container'
+import { ExternalLink } from '@/components/shells/external-link'
+import { KoFiLink } from '@/components/shells/kofi-link'
 import { Button } from '@/components/ui/button'
 import {
   Tooltip,
