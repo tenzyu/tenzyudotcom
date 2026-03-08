@@ -1,7 +1,7 @@
 import { cva, type VariantProps } from 'class-variance-authority'
 import { Slot } from 'radix-ui'
 
-import { cn } from '@/lib/utils/index'
+import { cn } from '@/lib/utils/common'
 
 const cardVariants = cva(
   'text-card-foreground flex flex-col gap-6 rounded-xl border py-6',

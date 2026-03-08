@@ -1,18 +1,29 @@
 import 'server-only'
 
 import * as osu from 'osu-api-v2-js'
+import { getRequiredOsuApiCredentials } from '@/config/env.contract'
 
 import { OsuAPIError } from './utils'
 
-const CLIENT_ID = Number(process.env.OSU_CLIENT_ID)
-const CLIENT_SECRET = process.env.OSU_CLIENT_SECRET
+let credentials:
+  | ReturnType<typeof getRequiredOsuApiCredentials>
+  | undefined
 
-if (!CLIENT_ID || !CLIENT_SECRET) {
-  throw new OsuAPIError(
-    'osu! API credentials are missing. Please set OSU_CLIENT_ID and OSU_CLIENT_SECRET environment variables.',
-    500,
-    'OSU_API_CREDENTIALS_MISSING',
-  )
+const getOsuApiCredentials = () => {
+  if (credentials) {
+    return credentials
+  }
+
+  try {
+    credentials = getRequiredOsuApiCredentials()
+    return credentials
+  } catch {
+    throw new OsuAPIError(
+      'osu! API credentials are missing. Please set OSU_CLIENT_ID and OSU_CLIENT_SECRET environment variables.',
+      500,
+      'OSU_API_CREDENTIALS_MISSING',
+    )
+  }
 }
 
 // APIインスタンスをキャッシュ
@@ -24,7 +35,8 @@ export const createApi = async () => {
   }
 
   try {
-    apiInstance = await osu.API.createAsync(CLIENT_ID, CLIENT_SECRET)
+    const { clientId, clientSecret } = getOsuApiCredentials()
+    apiInstance = await osu.API.createAsync(clientId, clientSecret)
     return apiInstance
   } catch (error) {
     console.error(error)

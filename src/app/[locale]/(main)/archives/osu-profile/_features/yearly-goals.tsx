@@ -4,7 +4,7 @@ import { useIntlayer } from 'next-intlayer'
 
 import { Content } from '@/components/site-ui/content'
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table'
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/utils/common'
 
 export function YearlyGoals() {
   const content = useIntlayer('yearlyGoals')

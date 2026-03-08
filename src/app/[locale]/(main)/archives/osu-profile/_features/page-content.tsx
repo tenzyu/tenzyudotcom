@@ -9,12 +9,10 @@ import {
   FEATURED_VIDEO_IDS,
   PERSONAL_BEST_HISTORY_VIDEO_IDS,
 } from './data/youtube'
-import {
-  KeyboardSettings,
-  MonitorSettings,
-  OsuBestScores,
-  TabletSettings,
-} from './osu'
+import { KeyboardSettings } from './osu/keyboard-settings'
+import { MonitorSettings } from './osu/monitor-settings'
+import { OsuBestScores } from './osu/osu-best-scores'
+import { TabletSettings } from './osu/tablet-settings'
 import { ProfileCard } from './profile-card'
 import { TableOfContents, type TocSection } from './table-of-contents'
 import { TwitterCarousel } from './twitter/twitter-carousel'

@@ -2,7 +2,7 @@
 
 import { Avatar as AvatarPrimitive } from 'radix-ui'
 
-import { cn } from '@/lib/utils/index'
+import { cn } from '@/lib/utils/common'
 
 function Avatar({
   className,

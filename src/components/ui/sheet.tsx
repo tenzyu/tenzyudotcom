@@ -4,7 +4,7 @@ import { XIcon } from 'lucide-react'
 import { useIntlayer } from 'next-intlayer'
 import { Dialog as SheetPrimitive } from 'radix-ui'
 
-import { cn } from '@/lib/utils/index'
+import { cn } from '@/lib/utils/common'
 
 function Sheet({ ...props }: React.ComponentProps<typeof SheetPrimitive.Root>) {
   return <SheetPrimitive.Root data-slot="sheet" {...props} />

@@ -10,7 +10,7 @@ import {
 import { Dialog, DialogTrigger } from '@/components/ui/dialog'
 import { YouTubeDialogContent } from '@/features/youtube/youtube-dialog-content'
 import { YouTubeThumbnailImage } from '@/features/youtube/youtube-thumbnail-image'
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/utils/common'
 
 type YouTubeVideo = {
   id: string

@@ -5,7 +5,7 @@ import {
 } from 'lucide-react'
 
 import { type Button, buttonVariants } from '@/components/ui/button'
-import { cn } from '@/lib/utils/index'
+import { cn } from '@/lib/utils/common'
 
 type PaginationProps = React.ComponentProps<'nav'> & {
   ariaLabel?: string

@@ -2,7 +2,7 @@
 
 import { HoverCard as HoverCardPrimitive } from 'radix-ui'
 
-import { cn } from '@/lib/utils/index'
+import { cn } from '@/lib/utils/common'
 
 function HoverCard({
   ...props

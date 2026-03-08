@@ -6,9 +6,9 @@ import { Content } from '@/components/site-ui/content'
 import { ExternalLink } from '@/components/site-ui/external-link'
 import { Card, CardContent, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/utils/common'
 import { DEFAULT_SCORE_LIMIT, ID_OSU } from '../data/osu'
-import { getUserScores } from '../lib'
+import { getUserScores } from '../lib/getUserScores'
 
 const RANK_STYLES = {
   XH: 'text-yellow-400 border-yellow-400',

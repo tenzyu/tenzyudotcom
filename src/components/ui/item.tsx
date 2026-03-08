@@ -2,7 +2,7 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { Slot } from 'radix-ui'
 
 import { Separator } from '@/components/ui/separator'
-import { cn } from '@/lib/utils/index'
+import { cn } from '@/lib/utils/common'
 
 function ItemGroup({ className, ...props }: React.ComponentProps<'div'>) {
   return (

@@ -2,7 +2,7 @@ import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { useIntlayer } from 'next-intlayer/server'
 import { memo } from 'react'
 
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/utils/common'
 import {
   SettingsCard,
   SettingsData,

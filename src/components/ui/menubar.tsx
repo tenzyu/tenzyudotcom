@@ -3,7 +3,7 @@
 import { CheckIcon, ChevronRightIcon, CircleIcon } from 'lucide-react'
 import { Menubar as MenubarPrimitive } from 'radix-ui'
 
-import { cn } from '@/lib/utils/index'
+import { cn } from '@/lib/utils/common'
 
 function Menubar({
   className,

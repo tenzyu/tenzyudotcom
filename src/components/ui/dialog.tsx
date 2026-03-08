@@ -5,7 +5,7 @@ import { useIntlayer } from 'next-intlayer'
 import { Dialog as DialogPrimitive } from 'radix-ui'
 
 import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils/index'
+import { cn } from '@/lib/utils/common'
 
 function Dialog({
   ...props
