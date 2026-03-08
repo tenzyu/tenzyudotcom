@@ -9,8 +9,8 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '@/components/ui/pagination'
-import type { BlogListItem } from '../_lib/get-paginated-blog-posts'
 import { BlogTile } from './blog-tile'
+import type { BlogListItem } from './lib/get-paginated-blog-posts'
 
 type BlogPageContentProps = {
   currentPage: number

@@ -12,7 +12,7 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import type { Platform, PuzzleLink } from '../_data/puzzles'
-import type { OgpData } from '../_lib/ogp'
+import type { OgpData } from './lib/ogp'
 
 const PLATFORM_ICONS: Record<Platform, string> = {
   web: '🌐',

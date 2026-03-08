@@ -1,6 +1,6 @@
 import { CustomMDX } from '../../_features/custom-mdx'
 import { formatDate } from '../../_features/lib'
-import { type BlogPost, buildBlogPostStructuredData } from '../_lib/blog-post'
+import { type BlogPost, buildBlogPostStructuredData } from './lib/blog-post'
 
 type BlogPostPageContentProps = {
   locale: string

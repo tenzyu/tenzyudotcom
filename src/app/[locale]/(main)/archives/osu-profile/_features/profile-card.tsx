@@ -10,7 +10,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 
 import { ID_OSU } from '../_data/osu'
-import { getUser } from '../_lib'
+import { getUser } from './lib'
 
 const LoadingComponent = () => {
   const profile = useIntlayer('profile')

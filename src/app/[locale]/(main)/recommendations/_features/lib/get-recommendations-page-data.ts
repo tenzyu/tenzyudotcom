@@ -4,9 +4,9 @@ import {
   RECOMMENDATION_VIDEOS,
   type RecommendationChannelId,
   type RecommendationVideoId,
-} from '../_data/recommendations'
-import type { YouTubeChannelItem } from '../_features/youtube-channel-list'
-import type { YouTubePlaylistItem } from '../_features/youtube-playlist'
+} from '../../_data/recommendations'
+import type { YouTubeChannelItem } from '../youtube-channel-list'
+import type { YouTubePlaylistItem } from '../youtube-playlist'
 import { fetchYouTubeVideoMeta } from './youtube'
 
 export type RecommendationsPageData = {

@@ -2,7 +2,7 @@ import type { LocalPromiseParams } from 'next-intlayer'
 import { IntlayerServerProvider } from 'next-intlayer/server'
 import { createPageMetadata, resolvePageLocale } from '@/lib/intlayer/page'
 import { BlogPageContent } from './_features/blog-page-content'
-import { getPaginatedBlogPosts } from './_lib/get-paginated-blog-posts'
+import { getPaginatedBlogPosts } from './_features/lib/get-paginated-blog-posts'
 
 export const dynamic = 'force-static'
 

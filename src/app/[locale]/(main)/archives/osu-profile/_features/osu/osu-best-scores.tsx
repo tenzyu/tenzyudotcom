@@ -8,7 +8,7 @@ import { Card, CardContent, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 import { DEFAULT_SCORE_LIMIT, ID_OSU } from '../../_data/osu'
-import { getUserScores } from '../../_lib'
+import { getUserScores } from '../lib'
 
 const RANK_STYLES = {
   XH: 'text-yellow-400 border-yellow-400',
