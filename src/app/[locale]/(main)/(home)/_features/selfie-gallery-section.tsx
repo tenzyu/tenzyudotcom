@@ -1,7 +1,7 @@
 import { Camera, ExternalLink } from 'lucide-react'
 import { ExternalLink as SiteExternalLink } from '@/components/site/external-link'
 import { Card } from '@/components/ui/card'
-import { HOME_SELFIES } from '../_data/selfies'
+import { HOME_SELFIES } from './selfies'
 import { TweetImage } from './tweet-image'
 
 type TimelineSectionProps = {
