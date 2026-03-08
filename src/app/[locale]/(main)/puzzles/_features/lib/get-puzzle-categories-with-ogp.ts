@@ -1,12 +1,13 @@
-import { PUZZLE_CATEGORIES } from '../puzzles.data'
+import { loadPuzzleCategories } from '../puzzles.assemble'
 import { fetchOgp } from './ogp'
 import type { PuzzleCategoryWithOgp } from './types'
 
 export async function getPuzzleCategoriesWithOgp(): Promise<
   PuzzleCategoryWithOgp[]
 > {
+  const categories = await loadPuzzleCategories()
   return Promise.all(
-    PUZZLE_CATEGORIES.filter((category) => category.puzzles.length > 0).map(
+    categories.filter((category) => category.puzzles.length > 0).map(
       async (category) => {
         const puzzles = await Promise.all(
           category.puzzles.map(async (puzzle) => {

@@ -1,28 +1,29 @@
 import { useIntlayer } from 'next-intlayer/server'
+import { useLocale } from 'next-intlayer/server'
 import { PageHeader } from '@/components/site-ui/page-header'
 import { SectionHeader } from '@/components/site-ui/section-header'
 import { ActionLinkTile } from './dashboard/action-link-tile'
-import { DASHBOARD_DATA } from './dashboard/dashboard.data'
+import { assembleDashboardContent } from './dashboard/dashboard.assemble'
 
-export function PointersPageContent() {
-  const content = useIntlayer('page-pointers')
+export async function PointersPageContent() {
+  const pageContent = useIntlayer('page-pointers')
+  const { locale } = useLocale()
+  const dashboardContent = await assembleDashboardContent(locale)
 
   return (
     <>
       <PageHeader
-        title={content.metadata.title.value}
-        description={content.lead.value}
+        title={pageContent.metadata.title.value}
+        description={pageContent.lead.value}
         className="flex flex-col gap-4"
       />
 
       <div className="grid gap-12 md:grid-cols-2">
-        {DASHBOARD_DATA.map((category) => (
+        {dashboardContent.categories.map((category) => (
           <section key={category.id} className="flex flex-col gap-6">
             <SectionHeader
-              title={content.dashboard.categories[category.id].title.value}
-              description={
-                content.dashboard.categories[category.id].description.value
-              }
+              title={dashboardContent.categoryContent[category.id].title}
+              description={dashboardContent.categoryContent[category.id].description}
               titleClassName="text-lg"
               className="flex flex-col gap-1"
             />
@@ -30,8 +31,8 @@ export function PointersPageContent() {
               {category.links.map((link) => (
                 <ActionLinkTile
                   key={link.id}
-                  title={content.dashboard.links[link.id].title.value}
-                  description={content.dashboard.links[link.id].description.value}
+                  title={dashboardContent.links[link.id].title}
+                  description={dashboardContent.links[link.id].description}
                   href={link.url}
                   openInNewTab={!('isApp' in link && !!link.isApp)}
                 />

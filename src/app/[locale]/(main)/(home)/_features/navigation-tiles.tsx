@@ -7,6 +7,7 @@ import {
   Hammer,
   Link as LinkIcon,
   ListMusic,
+  MessageSquareText,
   Pointer,
   Puzzle,
   Sparkles,
@@ -40,6 +41,7 @@ const NAVIGATION_GROUP_ICONS = {
 const NAVIGATION_ITEM_ICONS = {
   tools: Hammer,
   blog: FileText,
+  notes: MessageSquareText,
   portfolio: Disc,
   archives: FolderArchive,
   links: LinkIcon,

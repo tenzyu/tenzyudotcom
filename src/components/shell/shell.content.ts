@@ -17,6 +17,10 @@ const shellContent = {
         ja: 'ブログ',
         en: 'Blog',
       }),
+      notes: t({
+        ja: 'ノート',
+        en: 'Notes',
+      }),
       tools: t({
         ja: 'ツール',
         en: 'Tools',

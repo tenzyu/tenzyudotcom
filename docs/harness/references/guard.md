@@ -95,6 +95,10 @@ Guard は次の順で使う。
 - Intlayer の利用境界は `tools.md` と `structure.md` に従う
 - hidden prompt scaffolding や model-specific な convenience layer を増やさない
 - internal barrel import を増やさない
+- `src/lib/editorial` を canonical source の代わりに使わない
+- `*.content.ts` に author-curated record や fetch input を押し込まない
+- `*.contract.ts` で view model assembly まで済ませない
+- `*.assemble.ts` で raw input の validate をやり直さない
 
 ### Outbound Boundary Guard
 
@@ -113,6 +117,8 @@ Guard は次の順で使う。
 
 - locale path を持つ route では、visible IA を unlocalized data のまま公開しない
   - locale-neutral な固有名詞だけが data に残るのは許容する
+- `prefix-no-default` routing では、default locale の internal route を強制 prefix 付きで組み立てない
+  - locale-aware link / redirect は framework helper で生成する
 - site が複数の primary route を持つなら、home だけを discovery の唯一入口にしない
   - shell か nav で主要導線を最低限 expose する
 - primary navigation や primary action に dead affordance を置かない

@@ -73,6 +73,21 @@ user-invocable: false
 - permission / role / limit
 - freshness policy
 
+### Editorial externalization
+
+- `*.source.ts` を local file のまま保つか、
+  Blob / DB / API へ昇格させるかの最終形はまだ固定していない
+- 現在は local fallback + storage override という二層で運用している
+- source schema versioning と migration は今後の課題
+- storage read failure を not-found と invalid-data / outage にどう分けるかは未整理
+- optimistic concurrency と versioning は未導入
+
+### Revalidation taxonomy
+
+- static public page を維持しながら editorial update をどう反映するかは、
+  まだ path-based revalidation 中心である
+- tag-based taxonomy を導入するかは保留
+
 ## Deferred By Default
 
 この repo では、必要条件が現れるまでは次を常設しない。

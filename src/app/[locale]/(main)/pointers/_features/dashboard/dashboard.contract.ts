@@ -1,4 +1,5 @@
 import { normalizeExternalUrl } from '@/lib/url/external-url.contract'
+import { z } from 'zod'
 
 export type DashboardLink = {
   id: string
@@ -10,6 +11,26 @@ export type DashboardCategory = {
   id: string
   links: readonly DashboardLink[]
 }
+
+const LocalizedTextSchema = z.object({
+  ja: z.string().trim().min(1),
+  en: z.string().trim().min(1),
+})
+
+const DashboardSourceLinkSchema = z.object({
+  id: z.string().trim().min(1),
+  title: LocalizedTextSchema,
+  description: LocalizedTextSchema,
+  url: z.string().trim().min(1),
+  isApp: z.boolean().optional(),
+})
+
+const DashboardSourceCategorySchema = z.object({
+  id: z.string().trim().min(1),
+  title: LocalizedTextSchema,
+  description: LocalizedTextSchema,
+  links: z.array(DashboardSourceLinkSchema),
+})
 
 function assertNonEmpty(value: string, label: string) {
   if (!value.trim()) {
@@ -60,6 +81,22 @@ export function defineDashboardCategories<const T extends DashboardCategory>(
         throw new Error(`Duplicate dashboard link id: ${link.id}`)
       }
       linkIds.add(link.id)
+    }
+  }
+
+  return categories
+}
+
+export function parseDashboardSourceCategories(raw: unknown) {
+  const categories = z.array(DashboardSourceCategorySchema).parse(raw)
+
+  for (const category of categories) {
+    for (const link of category.links) {
+      assertDashboardUrl(
+        link.url,
+        link.isApp,
+        `dashboard source url for ${category.id}/${link.id}`,
+      )
     }
   }
 

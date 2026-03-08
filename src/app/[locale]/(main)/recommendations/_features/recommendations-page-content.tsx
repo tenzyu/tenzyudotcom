@@ -4,7 +4,7 @@ import { SectionHeader } from '@/components/site-ui/section-header'
 import { TabsContent } from '@/components/ui/tabs'
 import type { RecommendationsPageData } from './lib/types'
 import { RecommendationTabs } from './recommendation-tabs'
-import { RECOMMENDATION_TABS } from './recommendations.data'
+import { RECOMMENDATION_TABS } from './recommendations.assemble'
 import { YouTubeChannelList } from './youtube-channel-list'
 import { YouTubePlaylist } from './youtube-playlist'
 

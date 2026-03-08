@@ -1,4 +1,5 @@
 import { normalizeExternalUrl } from '@/lib/url/external-url.contract'
+import { z } from 'zod'
 
 export type LinkCategory = 'Watch' | 'Social' | 'Build' | 'Legacy'
 
@@ -10,6 +11,15 @@ export type MyLink = {
   icon: string
   category: LinkCategory
 }
+
+const LinkSourceEntrySchema = z.object({
+  name: z.string().trim().min(1),
+  id: z.string().trim().min(1),
+  url: z.string().trim().min(1),
+  shortenUrl: z.string().trim().min(1),
+  icon: z.string().trim().min(1),
+  category: z.enum(['Watch', 'Social', 'Build', 'Legacy']),
+})
 
 function assertNonEmpty(value: string, label: string) {
   if (!value.trim()) {
@@ -42,4 +52,9 @@ export function defineLinks<const T extends MyLink>(
   }
 
   return links
+}
+
+export function parseLinkSourceEntries(raw: unknown) {
+  const links = z.array(LinkSourceEntrySchema).parse(raw)
+  return defineLinks(links)
 }

@@ -42,6 +42,7 @@ harness 自体の review や extension では
 | Intlayer / tool / dependency の境界を決めたい | `references/tools.md` |
 | docs に何を残すか決めたい | `references/memory.md` |
 | まだ定義されていない論点を確認したい | `known-gaps.md` |
+| editorial gateway / source / assemble をどう置くか決めたい | `references/structure.md` |
 
 典型の組み合わせ:
 

@@ -10,7 +10,7 @@ import {
   ItemMedia,
   ItemTitle,
 } from '@/components/ui/item'
-import type { MyLink } from '@/features/links/data'
+import type { MyLink } from '@/features/links/links.assemble'
 
 type LinkTileProps = {
   link: MyLink

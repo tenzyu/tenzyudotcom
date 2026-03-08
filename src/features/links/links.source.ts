@@ -1,8 +1,8 @@
-import { defineLinks, type MyLink } from './links.contract'
+import type { LinkCategory, MyLink } from './links.contract'
 
 export type { LinkCategory, MyLink } from './links.contract'
 
-export const MY_LINKS: readonly MyLink[] = defineLinks([
+export const LINK_SOURCE_ENTRIES = [
   {
     name: 'Twitch',
     id: '@tenzyudotcom',
@@ -123,4 +123,11 @@ export const MY_LINKS: readonly MyLink[] = defineLinks([
     icon: 'notion',
     category: 'Legacy',
   },
-])
+] as const satisfies readonly MyLink[]
+
+export const LINK_CATEGORY_ORDER = [
+  'Watch',
+  'Social',
+  'Build',
+  'Legacy',
+] as const satisfies readonly LinkCategory[]

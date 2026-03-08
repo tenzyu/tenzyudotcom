@@ -11,7 +11,7 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import type { PuzzleWithOgp } from './lib/types'
-import type { Platform, PuzzleLink } from './puzzles.data'
+import type { Platform, PuzzleLink } from './puzzles.assemble'
 
 const PLATFORM_ICONS: Record<Platform, string> = {
   web: '🌐',

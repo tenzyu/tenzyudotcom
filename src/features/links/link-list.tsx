@@ -2,7 +2,11 @@ import { useIntlayer } from 'next-intlayer/server'
 import { Content } from '@/components/site-ui/content'
 import { SectionHeader } from '@/components/site-ui/section-header'
 import { ItemGroup } from '@/components/ui/item'
-import { type LinkCategory, MY_LINKS } from '@/features/links/data'
+import {
+  LINK_CATEGORY_ORDER,
+  loadLinks,
+  type LinkCategory,
+} from '@/features/links/links.assemble'
 import { LinkTile } from './link-tile'
 
 const CATEGORY_KEYS: Record<
@@ -14,14 +18,13 @@ const CATEGORY_KEYS: Record<
   Build: 'build',
   Legacy: 'legacy',
 }
-const CATEGORY_ORDER: LinkCategory[] = ['Watch', 'Social', 'Build', 'Legacy']
-
-export function LinkList() {
+export async function LinkList() {
   const content = useIntlayer('linksFeature')
-  const groupedLinks = CATEGORY_ORDER.map((category) => ({
+  const links = await loadLinks()
+  const groupedLinks = LINK_CATEGORY_ORDER.map((category) => ({
     value: category,
     label: content.categories[CATEGORY_KEYS[category]],
-    links: MY_LINKS.filter((link) => link.category === category),
+    links: links.filter((link) => link.category === category),
   }))
 
   return (

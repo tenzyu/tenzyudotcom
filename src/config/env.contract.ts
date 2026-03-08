@@ -1,5 +1,4 @@
 type NodeEnv = 'development' | 'production' | 'test'
-
 const NODE_ENV_VALUES = ['development', 'production', 'test'] as const
 
 const readOptionalString = (name: string) => {
@@ -19,6 +18,22 @@ const readOptionalInteger = (name: string) => {
   }
 
   return parsed
+}
+
+const readOptionalEnum = <T extends readonly string[]>(
+  name: string,
+  values: T,
+): T[number] | undefined => {
+  const value = readOptionalString(name)
+  if (!value) {
+    return undefined
+  }
+
+  if ((values as readonly string[]).includes(value)) {
+    return value as T[number]
+  }
+
+  throw new Error(`${name} must be one of: ${values.join(', ')}`)
 }
 
 const readBooleanFlag = (name: string) => {
@@ -55,10 +70,17 @@ export const env = {
   youtubeDataApiKey: readOptionalString('YOUTUBE_DATA_API_KEY'),
   osuClientId: readOptionalInteger('OSU_CLIENT_ID'),
   osuClientSecret: readOptionalString('OSU_CLIENT_SECRET'),
+  editorialAdminPassword: readOptionalString('EDITORIAL_ADMIN_PASSWORD'),
+  editorialSessionSecret: readOptionalString('EDITORIAL_SESSION_SECRET'),
+  editorialStorageDriver:
+    readOptionalEnum('EDITORIAL_STORAGE_DRIVER', ['local', 'blob'] as const) ??
+    'local',
+  editorialBlobPrefix: readOptionalString('EDITORIAL_BLOB_PREFIX') ?? 'editorial',
 } as const
 
 export const isDevelopment = env.nodeEnv === 'development'
 export const isProduction = env.nodeEnv === 'production'
+export const isEditorialBlobStorage = env.editorialStorageDriver === 'blob'
 
 export const getRequiredOsuApiCredentials = () => {
   if (!env.osuClientId || !env.osuClientSecret) {
@@ -70,5 +92,18 @@ export const getRequiredOsuApiCredentials = () => {
   return {
     clientId: env.osuClientId,
     clientSecret: env.osuClientSecret,
+  }
+}
+
+export const getRequiredEditorialAdminCredentials = () => {
+  if (!env.editorialAdminPassword || !env.editorialSessionSecret) {
+    throw new Error(
+      'Editorial admin credentials are missing. Please set EDITORIAL_ADMIN_PASSWORD and EDITORIAL_SESSION_SECRET.',
+    )
+  }
+
+  return {
+    password: env.editorialAdminPassword,
+    sessionSecret: env.editorialSessionSecret,
   }
 }

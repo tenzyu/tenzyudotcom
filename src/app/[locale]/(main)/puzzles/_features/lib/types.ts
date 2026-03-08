@@ -1,4 +1,4 @@
-import type { PuzzleCategory, PuzzleLink } from '../puzzles.data'
+import type { PuzzleCategory, PuzzleLink } from '../puzzles.assemble'
 import type { OgpData } from './ogp'
 
 export type PuzzleWithOgp = {

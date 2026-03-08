@@ -76,11 +76,14 @@ shadcn/ui source は vendor-like primitive として扱う。
 | stable IDs / handles / URLs | `_data` or stable config | translated meaning store |
 | site-wide presentation primitive | `src/components/site-ui` | domain-aware feature |
 | shared capability UI | `src/features/<domain>` | site-ui primitive |
+| human-edited canonical source | nearest feature-local `*.source.ts` | Intlayer dictionary |
+| feature/page assembly | nearest feature-local `*.assemble.ts` | contract-only layer |
 | route-local transform / loader | nearest route feature-local file, then `_features/lib` after growth | route root convenience bucket |
 | cross-route shared logic / parser / API helper | `src/lib` | UI-aware helper layer |
 | site-wide config / env / policy | `src/config` | feature-local dumping ground |
 | page entry wiring | `page.tsx`, `layout.tsx`, convention files | feature implementation body |
 | display sections | `_features/*` or `src/features/*` | syntax-first dumping ground |
+| editorial storage / registry helper | `src/lib/editorial/*` | canonical source |
 
 `src/config` の中でも責務を混ぜない。
 

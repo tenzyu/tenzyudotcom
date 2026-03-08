@@ -38,6 +38,16 @@ const navigationTilesContent = {
               en: 'Notes and logs I wrote down.',
             }),
           },
+          notes: {
+            label: t({
+              ja: 'ノート',
+              en: 'Notes',
+            }),
+            description: t({
+              ja: '短文の記録とリンク付きメモ。',
+              en: 'Short notes and linked observations.',
+            }),
+          },
           portfolio: {
             label: t({
               ja: 'ポートフォリオ',

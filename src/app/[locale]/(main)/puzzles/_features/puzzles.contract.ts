@@ -1,5 +1,22 @@
 import { normalizeExternalUrl } from '@/lib/url/external-url.contract'
-import type { PuzzleCategory } from './puzzles.data'
+import type { PuzzleCategory } from './puzzles.source'
+import { z } from 'zod'
+
+const PuzzleLinkSchema = z.object({
+  platform: z.enum(['web', 'ios', 'android', 'steam', 'switch', 'other']),
+  url: z.string().trim().min(1),
+})
+
+const PuzzleSchema = z.object({
+  title: z.string().trim().min(1),
+  url: z.string().trim().min(1).optional(),
+  links: z.array(PuzzleLinkSchema),
+})
+
+const PuzzleCategorySchema = z.object({
+  id: z.enum(['web', 'mobile', 'other']),
+  puzzles: z.array(PuzzleSchema),
+})
 
 function assertNonEmpty(value: string, label: string) {
   if (!value.trim()) {
@@ -43,4 +60,9 @@ export function definePuzzleCategories<const T extends PuzzleCategory>(
   }
 
   return categories
+}
+
+export function parsePuzzleSourceCategories(raw: unknown) {
+  const categories = z.array(PuzzleCategorySchema).parse(raw)
+  return definePuzzleCategories(categories)
 }

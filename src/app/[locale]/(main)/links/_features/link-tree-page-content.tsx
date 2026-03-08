@@ -2,7 +2,7 @@ import { useIntlayer } from 'next-intlayer/server'
 import { PageHeader } from '@/components/site-ui/page-header'
 import { LinkList } from '@/features/links/link-list'
 
-export function LinkTreePageContent() {
+export async function LinkTreePageContent() {
   const content = useIntlayer('page-links')
 
   return (
