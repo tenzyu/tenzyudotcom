@@ -49,6 +49,12 @@ Intlayer は localized meaning のための tool として使う。
 - site-wide shared presentation (`src/components/site-ui`)
 - feature components
 
+shadcn/ui source は vendor-like primitive として扱う。
+
+- `src/components/ui` から移動しない
+- local-first を満たしたい場合でも、移動ではなく compose で対応する
+- route や feature 固有の意味は wrapper / feature component 側へ載せる
+
 ### Content / Data
 
 - MDX

@@ -1,8 +1,8 @@
 import { type Dictionary, t } from 'intlayer'
 import type {
-  NavigationGroupId,
-  NavigationItemId,
-} from './navigation-tiles.data'
+  PublicRouteGroupId,
+  PublicRouteId,
+} from '@/features/site-navigation/public-routes.data'
 
 const navigationTilesContent = {
   key: 'navigationTiles',
@@ -113,13 +113,13 @@ const navigationTilesContent = {
         },
       },
     } satisfies Record<
-      NavigationGroupId,
+      PublicRouteGroupId,
       {
         title: ReturnType<typeof t>
         subtitle: ReturnType<typeof t>
         items: Partial<
           Record<
-            NavigationItemId,
+            PublicRouteId,
             { label: ReturnType<typeof t>; description: ReturnType<typeof t> }
           >
         >

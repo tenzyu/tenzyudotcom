@@ -3,16 +3,14 @@ import Link from 'next/link'
 import { useIntlayer, useLocale } from 'next-intlayer/server'
 import { LanguageSwitcher } from '@/features/site-controls/language-switcher'
 import { ThemeSwitcher } from '@/features/site-controls/theme-switcher'
+import {
+  PRIMARY_NAV_ROUTE_IDS,
+  PUBLIC_ROUTES,
+} from '@/features/site-navigation/public-routes.data'
 import { cn } from '@/lib/utils/common'
 import { Container } from './container'
 
 const navLinkStyles = 'hover:text-primary transition-colors'
-const PRIMARY_NAV_ITEMS = [
-  { id: 'blog', href: '/blog' },
-  { id: 'tools', href: '/tools' },
-  { id: 'recommendations', href: '/recommendations' },
-  { id: 'portfolio', href: '/portfolio' },
-] as const
 
 export function Header() {
   const { locale } = useLocale()
@@ -34,13 +32,13 @@ export function Header() {
             aria-label={content.primaryNavLabel.value}
             className="hidden items-center gap-4 md:flex"
           >
-            {PRIMARY_NAV_ITEMS.map((item) => (
+            {PRIMARY_NAV_ROUTE_IDS.map((routeId) => (
               <Link
-                key={item.id}
-                href={getLocalizedUrl(item.href, locale)}
+                key={routeId}
+                href={getLocalizedUrl(PUBLIC_ROUTES[routeId].href, locale)}
                 className="text-muted-foreground hover:text-foreground text-sm font-medium transition-colors"
               >
-                {content.primaryNav[item.id].value}
+                {content.primaryNav[routeId].value}
               </Link>
             ))}
           </nav>

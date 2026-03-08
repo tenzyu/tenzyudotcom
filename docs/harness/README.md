@@ -61,6 +61,8 @@ user-invocable: false
 - `Workflow-aligned, Not Syntax-aligned`
 - `Proximity-driven, Overhead-minimal`
 - `Attribute-priority, Discovery-oriented`
+- vendor-like primitive は anchored のまま扱う
+  - 例: shadcn/ui は `src/components/ui` から移動しない
 
 原理の優先順位は `context.md`、
 placement の具体は `structure.md`、

@@ -1,4 +1,5 @@
 import { type Dictionary, t } from 'intlayer'
+import type { PrimaryNavRouteId } from '@/features/site-navigation/public-routes.data'
 
 const shellContent = {
   key: 'shell',
@@ -28,7 +29,7 @@ const shellContent = {
         ja: 'ポートフォリオ',
         en: 'Portfolio',
       }),
-    },
+    } satisfies Record<PrimaryNavRouteId, ReturnType<typeof t>>,
     utilityNavLabel: t({
       ja: 'サイト設定',
       en: 'Site controls',

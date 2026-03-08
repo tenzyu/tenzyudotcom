@@ -27,9 +27,10 @@ import {
 } from '@/components/ui/item'
 import { Separator } from '@/components/ui/separator'
 import {
-  HOME_NAVIGATION_GROUPS,
-  type NavigationItemId,
-} from './navigation-tiles.data'
+  PUBLIC_ROUTE_GROUPS,
+  PUBLIC_ROUTES,
+  type PublicRouteId,
+} from '@/features/site-navigation/public-routes.data'
 
 const NAVIGATION_GROUP_ICONS = {
   outputs: User,
@@ -58,11 +59,11 @@ export function NavigationTiles() {
 
   return (
     <Content size="5xl" className="space-y-12">
-      {HOME_NAVIGATION_GROUPS.map((group) => {
+      {PUBLIC_ROUTE_GROUPS.map((group) => {
         const groupContent = navigation.groups[group.id]
         const GroupIcon = NAVIGATION_GROUP_ICONS[group.id]
         const itemContents = groupContent.items as unknown as Partial<
-          Record<NavigationItemId, NavigationItemContent>
+          Record<PublicRouteId, NavigationItemContent>
         >
 
         return (
@@ -89,21 +90,21 @@ export function NavigationTiles() {
 
             {/* content */}
             <ItemGroup className="grid gap-3 md:grid-cols-2">
-              {group.items.map((item) => {
-                const itemContent = itemContents[item.id]
-                const Icon = NAVIGATION_ITEM_ICONS[item.id]
+              {group.routeIds.map((routeId) => {
+                const itemContent = itemContents[routeId]
+                const Icon = NAVIGATION_ITEM_ICONS[routeId]
                 if (!itemContent) return null
 
                 return (
                   <Item
-                    key={item.id}
+                    key={routeId}
                     variant="card"
                     size="sm"
                     className="group h-auto w-full"
                     asChild
                   >
                     <Link
-                      href={getLocalizedUrl(item.href, locale)}
+                      href={getLocalizedUrl(PUBLIC_ROUTES[routeId].href, locale)}
                       className="flex w-full items-center gap-3"
                     >
                       <ItemMedia

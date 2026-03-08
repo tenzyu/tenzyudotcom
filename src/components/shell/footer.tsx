@@ -1,12 +1,7 @@
 import { useIntlayer } from 'next-intlayer/server'
 import { ExternalLink } from '@/components/site-ui/external-link'
 import { Button } from '@/components/ui/button'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { Container } from './container'
 import { FooterShareDialog } from './footer-share-dialog'
 import { KoFiLink } from './kofi-link'
@@ -43,34 +38,32 @@ export function Footer({ locale }: { locale: string }) {
           </div>
 
           <div className="flex items-center gap-4">
-            <TooltipProvider>
-              {socialLinks.map((link) =>
-                link.id ? (
-                  <Tooltip key={link.label}>
-                    <TooltipTrigger asChild>
-                      <Button variant="ghost" asChild>
-                        <ExternalLink
-                          href={link.href}
-                          className="text-muted-foreground hover:text-primary transition-colors"
-                        >
-                          {link.label}
-                        </ExternalLink>
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent sideOffset={6}>{link.id}</TooltipContent>
-                  </Tooltip>
-                ) : (
-                  <Button key={link.label} variant="ghost" asChild>
-                    <ExternalLink
-                      href={link.href}
-                      className="text-muted-foreground hover:text-primary transition-colors"
-                    >
-                      {link.label}
-                    </ExternalLink>
-                  </Button>
-                ),
-              )}
-            </TooltipProvider>
+            {socialLinks.map((link) =>
+              link.id ? (
+                <Tooltip key={link.label}>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" asChild>
+                      <ExternalLink
+                        href={link.href}
+                        className="text-muted-foreground hover:text-primary transition-colors"
+                      >
+                        {link.label}
+                      </ExternalLink>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent sideOffset={6}>{link.id}</TooltipContent>
+                </Tooltip>
+              ) : (
+                <Button key={link.label} variant="ghost" asChild>
+                  <ExternalLink
+                    href={link.href}
+                    className="text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    {link.label}
+                  </ExternalLink>
+                </Button>
+              ),
+            )}
 
             <KoFiLink label={footer.supportLabel.value} />
 

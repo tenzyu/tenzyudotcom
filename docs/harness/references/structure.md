@@ -46,6 +46,7 @@ Structure は、この repo が収束すべき target filesystem と ownership m
   - 例: `PageHeader`, `SectionHeader`, `Content`, `ExternalLink`
 - `src/components/ui`
   - shadcn primitives
+  - vendor-like source としてここに固定する
 - `src/config`
   - site-wide shared config, env parse, feature flag, policy, limit
 - `src/lib`
@@ -81,6 +82,10 @@ feature を先に決めたあと、その内部を整理するために使う。
   - shell ではない site-wide shared presentation
   - data shape、workflow rule、domain knowledge を持たない primitive に限る
   - domain knowledge を持った瞬間に `src/features/<domain>` へ送る
+- `src/components/ui`
+  - shadcn/ui source の定位置
+  - local-first を理由に feature 配下へ移動しない
+  - 触るときは `components/ui` に残したまま compose する
 - `src/config`
   - site identity、env parse、feature flag、limit、policy の single source of truth
   - route-local option や page-specific constant を置かない
@@ -233,6 +238,7 @@ promote 対象の典型:
 - 2 route 以上から参照される feature
 - shell 全体から使われる UI
 - shell ではないが site 全体で繰り返し使われる component
+- shell と home が共有する top-level public route registry
 - sitemap / metadata / robots から共通利用される config
 - cross-route の content loader
 
@@ -378,6 +384,12 @@ app-specific な parse / normalize を `*.contract.ts` に分ける。
 
 contract は `promote only after reuse is real` の例外になりうる。
 理由は、再利用の有無より「唯一の定義であるべきか」が優先されるためである。
+
+top-level public route registry は narrow shared data として扱う。
+
+- 置き場所は `src/features/site-navigation/*.data.ts`
+- 持ってよいのは `id`, `href`, group, primary-nav order のような discovery 用 stable data まで
+- `metadata`, `page lead`, section copy, localized prose まで同居させない
 
 ## Decision Order
 
