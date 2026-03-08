@@ -1,3 +1,5 @@
+import { definePuzzleCategories } from './puzzles.contract'
+
 export type Platform = 'web' | 'ios' | 'android' | 'steam' | 'switch' | 'other'
 
 export type PuzzleLink = {
@@ -16,7 +18,7 @@ export type PuzzleCategory = {
   puzzles: Puzzle[]
 }
 
-export const PUZZLE_CATEGORIES: PuzzleCategory[] = [
+const puzzleCategories: PuzzleCategory[] = [
   {
     id: 'web',
     puzzles: [
@@ -75,3 +77,5 @@ export const PUZZLE_CATEGORIES: PuzzleCategory[] = [
     puzzles: [],
   },
 ]
+
+export const PUZZLE_CATEGORIES = definePuzzleCategories(puzzleCategories)

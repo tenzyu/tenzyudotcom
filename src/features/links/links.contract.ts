@@ -1,3 +1,5 @@
+import { normalizeExternalUrl } from '@/lib/url/external-url.contract'
+
 export type LinkCategory = 'Watch' | 'Social' | 'Build' | 'Legacy'
 
 export type MyLink = {
@@ -26,20 +28,17 @@ export function defineLinks<const T extends MyLink>(
     assertNonEmpty(link.id, `link id (${link.name})`)
     assertNonEmpty(link.shortenUrl, `link shortenUrl (${link.name})`)
 
-    const parsedUrl = new URL(link.url)
-    if (parsedUrl.protocol !== 'https:' && parsedUrl.protocol !== 'http:') {
-      throw new Error(`link url must be http(s): ${link.url}`)
-    }
+    const normalizedUrl = normalizeExternalUrl(link.url, `link url (${link.name})`)
 
     if (shortUrls.has(link.shortenUrl)) {
       throw new Error(`Duplicate link shortenUrl: ${link.shortenUrl}`)
     }
     shortUrls.add(link.shortenUrl)
 
-    if (urls.has(link.url)) {
-      throw new Error(`Duplicate link url: ${link.url}`)
+    if (urls.has(normalizedUrl)) {
+      throw new Error(`Duplicate link url: ${normalizedUrl}`)
     }
-    urls.add(link.url)
+    urls.add(normalizedUrl)
   }
 
   return links

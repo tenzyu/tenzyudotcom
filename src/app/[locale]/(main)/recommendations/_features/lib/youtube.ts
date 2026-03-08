@@ -4,6 +4,7 @@ import 'server-only'
 
 import { cache } from 'react'
 import { env } from '@/config/env.contract'
+import { normalizeYouTubeVideoId } from '@/features/youtube/youtube.contract'
 import { parseYouTubeVideoApiResponse } from './youtube.contract'
 
 const fetchYouTubeVideoData = cache(
@@ -12,9 +13,13 @@ const fetchYouTubeVideoData = cache(
     if (!apiKey) return null
 
     try {
+      const normalizedVideoId = normalizeYouTubeVideoId(
+        videoId,
+        'youtube api video id',
+      )
       const url = new URL('https://www.googleapis.com/youtube/v3/videos')
       url.searchParams.set('part', 'snippet,statistics')
-      url.searchParams.set('id', videoId)
+      url.searchParams.set('id', normalizedVideoId)
       url.searchParams.set('key', apiKey)
 
       const res = await fetch(url.toString(), {

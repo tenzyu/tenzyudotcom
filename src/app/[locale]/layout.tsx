@@ -15,7 +15,7 @@ import { Footer } from '@/components/shell/footer'
 import { Header } from '@/components/shell/header'
 import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
-import { isDevelopment } from '@/config/env.contract'
+import { env, isDevelopment } from '@/config/env.contract'
 import { ThemeProvider } from '@/features/site-controls/theme-provider'
 import { buildSiteMetadata } from './_features/site-metadata'
 import { buildSiteStructuredData } from './_features/site-structured-data'
@@ -49,18 +49,20 @@ const LocaleLayout: NextLayoutIntlayer = async ({ children, params }) => {
   const { locale } = await params
   const shellContent = getIntlayer('shell', locale)
   const siteStructuredData = buildSiteStructuredData(locale)
+  const shouldLoadReactGrabOverlay =
+    isDevelopment && env.enableReactGrabOverlay
 
   return (
     <html lang={locale} dir={getHTMLTextDir(locale)} suppressHydrationWarning>
       <head>
-        {isDevelopment && (
+        {shouldLoadReactGrabOverlay && (
           <Script
             src="//unpkg.com/react-grab/dist/index.global.js"
             crossOrigin="anonymous"
             strategy="beforeInteractive"
           />
         )}
-        {isDevelopment && (
+        {shouldLoadReactGrabOverlay && (
           <Script
             src="//unpkg.com/@react-grab/codex/dist/client.global.js"
             strategy="lazyOnload"

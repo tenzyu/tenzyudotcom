@@ -33,7 +33,7 @@ export function PointersPageContent() {
                   title={content.dashboard.links[link.id].title.value}
                   description={content.dashboard.links[link.id].description.value}
                   href={link.url}
-                  internal={'isApp' in link && !!link.isApp}
+                  openInNewTab={!('isApp' in link && !!link.isApp)}
                 />
               ))}
             </div>

@@ -1,6 +1,7 @@
 import { VisuallyHidden } from 'radix-ui'
 import { DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { cn } from '@/lib/utils/common'
+import { buildYouTubeEmbedUrl } from './youtube.contract'
 
 type YouTubeDialogContentProps = {
   videoId: string
@@ -8,7 +9,6 @@ type YouTubeDialogContentProps = {
   className?: string
   frameClassName?: string
   iframeClassName?: string
-  embedParams?: string
 }
 
 export function YouTubeDialogContent({
@@ -17,8 +17,11 @@ export function YouTubeDialogContent({
   className,
   frameClassName,
   iframeClassName,
-  embedParams = '&rel=0&modestbranding=1',
 }: YouTubeDialogContentProps) {
+  const embedUrl = buildYouTubeEmbedUrl(videoId, {
+    autoplay: true,
+  })
+
   return (
     <DialogContent className={cn('overflow-hidden p-0', className)}>
       <VisuallyHidden.Root>
@@ -29,9 +32,10 @@ export function YouTubeDialogContent({
           width="100%"
           height="100%"
           className={cn('border-0', iframeClassName)}
-          src={`https://www.youtube.com/embed/${videoId}?autoplay=1${embedParams}`}
+          src={embedUrl}
           title={title}
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          referrerPolicy="strict-origin-when-cross-origin"
           allowFullScreen
         />
       </div>

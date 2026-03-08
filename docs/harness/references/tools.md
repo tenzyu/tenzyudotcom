@@ -125,6 +125,21 @@ search params も境界として扱う。
 - component 本体に query key や default 値を直書きしない
 - view state の contract は route owner の近くで完結させる
 
+## Outbound Boundary Hygiene
+
+外向きの URL, embed, redirect も境界として扱う。
+
+- cross-route で使う `http(s)` URL parse / normalize は `src/lib/url/*.contract.ts` に置く
+- feature 固有の embed URL や remote host policy は feature owner の近くに置く
+  - 例: YouTube embed / thumbnail builder は `src/features/youtube/*.contract.ts`
+- `src/components/site-ui/ExternalLink` は validated な `http(s)` だけを受ける primitive にする
+- custom scheme, app deep link, mailto は `ExternalLink` に混ぜない
+  - feature-local な判断で別境界として扱う
+- `window.open` する URI は ad-hoc に組み立て続けない
+  - trusted builder か small helper を通す
+  - 新規 window には `noopener,noreferrer` を付ける
+- remote script を route/layout に差し込むなら、env contract で opt-in させる
+
 ### Human Review Tools
 
 - markdown design docs

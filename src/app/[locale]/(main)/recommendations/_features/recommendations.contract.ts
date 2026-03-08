@@ -1,3 +1,6 @@
+import { normalizeYouTubeVideoId } from '@/features/youtube/youtube.contract'
+import { normalizeExternalUrl } from '@/lib/url/external-url.contract'
+
 export type RecommendationTabId = 'music' | 'channels'
 
 type RecommendationChannel = {
@@ -47,10 +50,10 @@ export function defineRecommendationChannels<
     assertNonEmpty(channel.title, `recommendation channel title (${channel.id})`)
     assertNonEmpty(channel.handle, `recommendation channel handle (${channel.id})`)
 
-    const url = new URL(channel.url)
-    if (url.protocol !== 'https:' && url.protocol !== 'http:') {
-      throw new Error(`Recommendation channel url must be http(s): ${channel.url}`)
-    }
+    normalizeExternalUrl(
+      channel.url,
+      `recommendation channel url (${channel.id})`,
+    )
   }
 
   return channels
@@ -62,9 +65,7 @@ export function defineRecommendationVideos<const T extends RecommendationVideo>(
   assertUniqueIds(videos, 'recommendation video')
 
   for (const video of videos) {
-    if (!/^[A-Za-z0-9_-]{11}$/.test(video.id)) {
-      throw new Error(`Invalid YouTube video id: ${video.id}`)
-    }
+    normalizeYouTubeVideoId(video.id)
   }
 
   return videos

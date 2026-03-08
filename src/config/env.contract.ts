@@ -21,6 +21,24 @@ const readOptionalInteger = (name: string) => {
   return parsed
 }
 
+const readBooleanFlag = (name: string) => {
+  const value = readOptionalString(name)
+
+  if (!value) {
+    return false
+  }
+
+  if (value === '1' || value === 'true') {
+    return true
+  }
+
+  if (value === '0' || value === 'false') {
+    return false
+  }
+
+  throw new Error(`${name} must be true/false or 1/0`)
+}
+
 const readNodeEnv = (): NodeEnv => {
   const value = process.env.NODE_ENV
   if (NODE_ENV_VALUES.includes(value as NodeEnv)) {
@@ -32,6 +50,7 @@ const readNodeEnv = (): NodeEnv => {
 
 export const env = {
   nodeEnv: readNodeEnv(),
+  enableReactGrabOverlay: readBooleanFlag('ENABLE_REACT_GRAB_OVERLAY'),
   reactEditor: readOptionalString('REACT_EDITOR'),
   youtubeDataApiKey: readOptionalString('YOUTUBE_DATA_API_KEY'),
   osuClientId: readOptionalInteger('OSU_CLIENT_ID'),

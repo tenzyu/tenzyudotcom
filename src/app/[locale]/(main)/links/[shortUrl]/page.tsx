@@ -1,3 +1,4 @@
+import { getLocalizedUrl } from 'intlayer'
 import { redirect } from 'next/navigation'
 import {
   getLinkByShortUrl,
@@ -10,6 +11,7 @@ export function generateStaticParams() {
 }
 
 type Params = Promise<{
+  locale: string
   shortUrl: string
 }>
 export default async function RedirectPage({ params }: { params: Params }) {
@@ -17,7 +19,7 @@ export default async function RedirectPage({ params }: { params: Params }) {
   const link = getLinkByShortUrl(awaitedParams.shortUrl)
 
   if (!link?.url) {
-    redirect('/')
+    redirect(getLocalizedUrl('/', awaitedParams.locale))
   }
 
   redirect(link.url)

@@ -1,3 +1,5 @@
+import { normalizeExternalUrl } from '@/lib/url/external-url.contract'
+
 export type DashboardLink = {
   id: string
   url: string
@@ -20,13 +22,16 @@ function assertDashboardUrl(
   isApp: boolean | undefined,
   label: string,
 ) {
-  const parsed = new URL(url)
-  const protocol = parsed.protocol
-  const isWebUrl = protocol === 'https:' || protocol === 'http:'
+  if (isApp) {
+    const parsed = new URL(url)
+    if (parsed.protocol === 'https:' || parsed.protocol === 'http:') {
+      throw new Error(`${label} is marked as app but uses http(s)`)
+    }
 
-  if (!isWebUrl && !isApp) {
-    throw new Error(`${label} uses a custom scheme but isApp is not set`)
+    return
   }
+
+  normalizeExternalUrl(url, label)
 }
 
 export function defineDashboardCategories<const T extends DashboardCategory>(

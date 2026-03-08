@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import { buildYouTubeThumbnailUrl } from './youtube.contract'
 
 type YouTubeThumbnailImageProps = {
   videoId: string
@@ -17,7 +18,7 @@ export function YouTubeThumbnailImage({
 }: YouTubeThumbnailImageProps) {
   return (
     <Image
-      src={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`}
+      src={buildYouTubeThumbnailUrl(videoId)}
       alt={title}
       fill
       className={className}

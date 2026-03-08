@@ -114,7 +114,7 @@ export function FooterShareDialog({
       toast.success(content.linkCopied, { description: shareUrl })
       setOpen(false)
     } else if (result.uri) {
-      window.open(result.uri, '_blank')
+      window.open(result.uri, '_blank', 'noopener,noreferrer')
       setOpen(false)
     }
   }

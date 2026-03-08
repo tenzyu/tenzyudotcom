@@ -108,7 +108,6 @@ export function YouTubeCarousel({
                       : 'aspect-video w-full md:p-5',
                   )}
                   iframeClassName="h-full w-full rounded-lg"
-                  embedParams={isShort ? '&rel=0&modestbranding=1' : ''}
                 />
               </Dialog>
             </CarouselItem>

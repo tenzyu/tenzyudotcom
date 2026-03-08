@@ -90,6 +90,7 @@ tool boundary は `tools.md` が担当する。
 - ownership / placement
 - verification / testability
 - runtime boundary / contract
+- security / outbound boundary
 - config / policy / sanctioned exception
 - UX / content / accessibility
 - performance / bundle / discovery

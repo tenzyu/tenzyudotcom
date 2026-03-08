@@ -10,8 +10,7 @@ type ActionLinkTileProps = {
   description?: string
   href: string
   icon?: LucideIcon
-  /** true = open in same tab, false = open in new tab */
-  internal?: boolean
+  openInNewTab?: boolean
 }
 
 export function ActionLinkTile({
@@ -19,9 +18,10 @@ export function ActionLinkTile({
   description,
   href,
   icon: Icon,
-  internal = true,
+  openInNewTab = false,
 }: ActionLinkTileProps) {
   const { locale } = useLocale()
+  const isLocalizedRoute = href.startsWith('/')
   const content = (
     <>
       <div className="flex w-full items-center justify-between">
@@ -51,14 +51,14 @@ export function ActionLinkTile({
       className="group w-full gap-3 px-5 py-4"
       asChild
     >
-      {internal ? (
-        <Link
-          href={href.startsWith('/') ? getLocalizedUrl(href, locale) : href}
-        >
-          {content}
-        </Link>
-      ) : (
+      {isLocalizedRoute ? (
+        <Link href={getLocalizedUrl(href, locale)}>{content}</Link>
+      ) : openInNewTab ? (
         <ExternalLink href={href}>{content}</ExternalLink>
+      ) : (
+        <a href={href}>
+          {content}
+        </a>
       )}
     </Card>
   )
