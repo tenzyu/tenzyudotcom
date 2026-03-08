@@ -34,9 +34,9 @@ const blogPageContent = {
         ja: '次のページへ',
         en: 'Go to next page',
       }),
-      more: t({
-        ja: '他のページ',
-        en: 'More pages',
+      updatedPrefix: t({
+        ja: '更新',
+        en: 'Updated',
       }),
     },
   },

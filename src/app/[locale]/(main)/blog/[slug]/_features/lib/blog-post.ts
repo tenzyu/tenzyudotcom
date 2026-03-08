@@ -20,6 +20,8 @@ type BlogPostingJsonLd = {
   description: string
   image: string
   url: string
+  mainEntityOfPage: string
+  keywords?: string[]
   author: {
     '@type': 'Person'
     name: string
@@ -99,6 +101,7 @@ export function buildBlogPostMetadata(post: BlogPost, locale: string) {
 }
 
 export function buildBlogPostStructuredData(post: BlogPost, locale: string) {
+  const url = buildBlogPostUrl(post.slug, locale)
   const ogImage = buildBlogPostImageUrl(
     post.metadata.title,
     post.metadata.image,
@@ -112,7 +115,9 @@ export function buildBlogPostStructuredData(post: BlogPost, locale: string) {
     dateModified: post.metadata.updatedAt?.toISOString(),
     description: post.metadata.summary,
     image: ogImage,
-    url: buildBlogPostUrl(post.slug, locale),
+    url,
+    mainEntityOfPage: url,
+    keywords: post.metadata.tags,
     author: {
       '@type': 'Person',
       name: SITE_AUTHOR_NAME,

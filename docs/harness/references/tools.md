@@ -98,6 +98,16 @@ Intlayer は localized meaning のための tool として使う。
 - `apply_patch` for precise edits
 - non-destructive git inspection
 
+repo に tests が入り始めたら、verification の入口も道具として揃える。
+
+- `test`
+  - 日常的な test 実行入口
+- `verify`
+  - lint / targeted test / build を束ねる repo-level 入口
+
+ただし broad すぎる verify を毎回 mandatory にしない。
+変更範囲に応じて targeted command を優先してよい。
+
 ## Server / Client Boundary Hygiene
 
 React / Next.js では、client を default にしない。
@@ -106,6 +116,8 @@ React / Next.js では、client を default にしない。
 - browser API, interaction state, `useSearchParams`, `useRouter` が必要な leaf だけ client にする
 - URL state を読むためだけに page 全体を client 化しない
 - server で集めた data を client へ渡すときは、serialize する値を最小化する
+- simple disclosure や accordion 程度なら、まず native element で済まないか確認する
+  - `details` / `summary` で足りるなら client primitive を増やさない
 
 search params も境界として扱う。
 

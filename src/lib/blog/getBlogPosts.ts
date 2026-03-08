@@ -3,7 +3,7 @@ import path from 'node:path'
 
 import matter from 'gray-matter'
 import { cache } from 'react'
-import { parseFrontmatterBase } from './frontmatter.contract'
+import { parseBlogFrontmatter } from './blog-frontmatter.contract'
 
 export type FrontmatterBase = {
   title: string
@@ -17,12 +17,15 @@ export type Frontmatter<
   T extends Record<string, unknown> = Record<string, never>,
 > = FrontmatterBase & T
 
-export type MDXData<T extends Record<string, unknown> = Record<string, never>> =
-  {
-    metadata: Frontmatter<T>
-    slug: string
-    rawContent: string
-  }
+export type BlogFrontmatter = Frontmatter<{
+  tags?: string[]
+}>
+
+export type MDXData = {
+  metadata: BlogFrontmatter
+  slug: string
+  rawContent: string
+}
 
 async function getMDXFiles(dir: string): Promise<string[]> {
   return (await fs.promises.readdir(dir)).filter(
@@ -30,33 +33,22 @@ async function getMDXFiles(dir: string): Promise<string[]> {
   )
 }
 
-async function readMDXFile<T extends Record<string, unknown>>(
-  filePath: string,
-): Promise<MDXData<T>> {
+async function readMDXFile(filePath: string): Promise<MDXData> {
   const rawContent = await fs.promises.readFile(filePath, 'utf-8')
   const { data, content } = matter(rawContent)
-  const metadata = parseFrontmatterBase(data, filePath)
+  const metadata = parseBlogFrontmatter(data, filePath)
 
   return {
-    metadata: {
-      title: metadata.title,
-      summary: metadata.summary,
-      image: metadata.image,
-      publishedAt: metadata.publishedAt,
-      updatedAt: metadata.updatedAt,
-      ...(metadata.rest as T),
-    },
+    metadata,
     slug: path.basename(filePath, path.extname(filePath)),
     rawContent: content,
   }
 }
 
-async function getMDXData<T extends Record<string, unknown>>(
-  dir: string,
-): Promise<MDXData<T>[]> {
+async function getMDXData(dir: string): Promise<MDXData[]> {
   const files = await getMDXFiles(dir)
 
-  return Promise.all(files.map((file) => readMDXFile<T>(path.join(dir, file))))
+  return Promise.all(files.map((file) => readMDXFile(path.join(dir, file))))
 }
 
 export const getBlogPosts = cache(async () => {

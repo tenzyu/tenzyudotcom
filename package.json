@@ -11,6 +11,9 @@
     "start:intlayer": "intlayer-editor start",
     "lint": "./scripts/biome lint --fix .",
     "format": "./scripts/biome format --write .",
+    "test": "bun test",
+    "test:contracts": "bun test 'src/app/[locale]/_features/site-structured-data.test.ts' 'src/app/[locale]/(main)/recommendations/_features/recommendation-search-params.contract.test.ts' 'src/features/links/links.contract.test.ts' 'src/lib/blog/blog-frontmatter.contract.test.ts'",
+    "verify": "bun run lint && bun run test:contracts && bun run build",
     "analyze": "next experimental-analyze"
   },
   "dependencies": {
