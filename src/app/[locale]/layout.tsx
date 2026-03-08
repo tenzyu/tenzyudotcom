@@ -49,8 +49,7 @@ const LocaleLayout: NextLayoutIntlayer = async ({ children, params }) => {
   const { locale } = await params
   const shellContent = getIntlayer('shell', locale)
   const siteStructuredData = buildSiteStructuredData(locale)
-  const shouldLoadReactGrabOverlay =
-    isDevelopment && env.enableReactGrabOverlay
+  const shouldLoadReactGrabOverlay = isDevelopment && env.enableReactGrabOverlay
 
   return (
     <html lang={locale} dir={getHTMLTextDir(locale)} suppressHydrationWarning>
@@ -98,7 +97,7 @@ const LocaleLayout: NextLayoutIntlayer = async ({ children, params }) => {
                 >
                   {shellContent.skipToContent}
                 </a>
-                <Header />
+                <Header locale={locale} />
                 <main
                   id="main-content"
                   tabIndex={-1}

@@ -1,6 +1,6 @@
 import { getLocalizedUrl } from 'intlayer'
 import Link from 'next/link'
-import { useIntlayer, useLocale } from 'next-intlayer/server'
+import { useIntlayer } from 'next-intlayer/server'
 import { LanguageSwitcher } from '@/features/site-controls/language-switcher'
 import { ThemeSwitcher } from '@/features/site-controls/theme-switcher'
 import {
@@ -12,9 +12,8 @@ import { Container } from './container'
 
 const navLinkStyles = 'hover:text-primary transition-colors'
 
-export function Header() {
-  const { locale } = useLocale()
-  const content = useIntlayer('shell')
+export function Header({ locale }: { locale: string }) {
+  const content = useIntlayer('shell', locale)
 
   return (
     <header className="bg-background/70 supports-backdrop-filter:bg-background/50 border-border/40 sticky top-0 z-50 w-full border-b backdrop-blur-xl transition-all duration-300">
