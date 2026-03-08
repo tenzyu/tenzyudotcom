@@ -7,7 +7,7 @@ import { ExternalLink } from '@/components/site-ui/external-link'
 import { Card, CardContent, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
-import { DEFAULT_SCORE_LIMIT, ID_OSU } from '../../_data/osu'
+import { DEFAULT_SCORE_LIMIT, ID_OSU } from '../data/osu'
 import { getUserScores } from '../lib'
 
 const RANK_STYLES = {

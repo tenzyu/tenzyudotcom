@@ -1,7 +1,7 @@
 import type { NextPageIntlayer } from 'next-intlayer'
 import { IntlayerServerProvider } from 'next-intlayer/server'
 import { createPageMetadata, resolvePageLocale } from '@/lib/intlayer/page'
-import { OsuProfileArchiveContent } from './_features/osu-profile-archive-content'
+import { OsuProfileContent } from './_features/page-content'
 
 import './legacy.css'
 
@@ -16,7 +16,7 @@ const OsuProfileArchive: NextPageIntlayer = async ({ params }) => {
 
   return (
     <IntlayerServerProvider locale={locale}>
-      <OsuProfileArchiveContent />
+      <OsuProfileContent />
     </IntlayerServerProvider>
   )
 }

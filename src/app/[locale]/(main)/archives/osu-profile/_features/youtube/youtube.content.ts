@@ -1,5 +1,5 @@
 import { type Dictionary, t } from 'intlayer'
-import type { OsuProfileVideoId } from '../_data/youtube'
+import type { OsuProfileVideoId } from '../data/youtube'
 
 export type OsuProfileVideosContent = {
   titles: Record<OsuProfileVideoId, ReturnType<typeof t>>

@@ -4,11 +4,11 @@ import { Content } from '@/components/site-ui/content'
 import { Section } from '@/components/site-ui/section'
 import { SectionHeader } from '@/components/site-ui/section-header'
 import { LinkList } from '@/features/links/link-list'
-import { TWEETS } from '../_data/twitter'
+import { TWEETS } from './data/twitter'
 import {
   FEATURED_VIDEO_IDS,
   PERSONAL_BEST_HISTORY_VIDEO_IDS,
-} from '../_data/youtube'
+} from './data/youtube'
 import {
   KeyboardSettings,
   MonitorSettings,
@@ -17,9 +17,9 @@ import {
 } from './osu'
 import { ProfileCard } from './profile-card'
 import { TableOfContents, type TocSection } from './table-of-contents'
-import { TwitterCarousel } from './twitter-carousel'
+import { TwitterCarousel } from './twitter/twitter-carousel'
 import { YearlyGoals } from './yearly-goals'
-import { YouTubeCarousel } from './youtube-carousel'
+import { YouTubeCarousel } from './youtube/youtube-carousel'
 
 const ArchiveSection = ({
   id,
@@ -42,7 +42,7 @@ const ArchiveSection = ({
   </Section>
 )
 
-export function OsuProfileArchiveContent() {
+export function OsuProfileContent() {
   const content = useIntlayer('page-osu-profile')
   const videoContent = useIntlayer('osuProfileVideos')
 
