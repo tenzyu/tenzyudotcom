@@ -10,6 +10,13 @@ user-invocable: false
 判断基準を定義する。
 
 現状コードの説明ではなく、repo が収束すべき target architecture を扱う。
+ここで残すのは、仕様の全量ではない。
+
+- 何を優先するか
+- 何をやらせないか
+- 既存コードに引っ張られたくないとき、どこで止めるか
+
+を宣言するための、軽量な ADR 群として扱う。
 
 ## First Read
 
@@ -60,7 +67,8 @@ harness 自体の review や extension では
   - `context -> structure -> guard -> known-gaps`
 - 未設計の新機能を追加する前の仕様化
   - `context -> guard -> known-gaps -> memory`
-  - spec を `docs/ai-reports/*.md` に残してから実装する
+  - harness に残すべき判断だけ先に宣言する
+  - 具体的な分岐、失敗、成功条件は `docs/ai-reports/*.md` に残す
 
 ## Core Rule
 
@@ -80,6 +88,25 @@ placement の具体は `structure.md`、
 安全制約は `guard.md`、
 tool boundary は `tools.md` が担当する。
 
+## Decision Record Stance
+
+harness は full spec の置き場ではない。
+ここに残すのは、毎回 AI と人間が再利用する判断宣言だけである。
+
+- どの原理を優先するか
+- どの path を第一候補にするか
+- どの unsafe pattern を拒否するか
+- 既存コードを precedent と見なさない論点は何か
+
+具体的な経緯や試行錯誤は `docs/ai-reports` に寄せる。
+
+- 何が失敗したか
+- なぜ失敗したか
+- どうすれば成功したか
+- どの分岐を捨てたか
+
+を集積し、必要ならそこから再利用可能な最小ルールだけを harness に昇格する。
+
 ## Harness Review
 
 ハーネス自体を更新した場合は、更新後に次を review する。
@@ -89,6 +116,7 @@ tool boundary は `tools.md` が担当する。
 - route / feature / contract / tool boundary が別名で二重定義されていないか
 - README から辿れる routing になっているか
 - known gaps が README から辿れるか
+- harness に spec の詳細を抱え込みすぎていないか
 
 ## Loop Discipline
 

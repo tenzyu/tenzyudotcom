@@ -55,12 +55,13 @@ Guard は次の順で使う。
 3. user の思想確認が必要なら、短いインタビューを先に行う
 4. 未設計の新機能なら、実装をエミュレートして詰まりどころと分岐を先に列挙する
 5. その判断基準が harness にないなら、実装より先に docs 更新を優先する
-6. 仕様メモは `docs/ai-reports/*.md` に残す
-7. 仕様メモには少なくとも operating design / product spec / boundary spec のどれかを含める
-8. 実行中は structure / mutation / tool boundary を監視する
-9. harness gap が見えたら docs 更新か follow-up debt 化を判断する
-10. docs を更新した場合は、rule のまとまり方と思想競合を review する
-11. 最終報告で structural decision と未検証事項を明示する
+6. 既存コードの慣性を止める必要があるなら、その宣言は harness に残す
+7. 具体的な失敗、成功条件、検討分岐は `docs/ai-reports/*.md` に残す
+8. `docs/ai-reports` を full spec の置き場にしない
+9. 実行中は structure / mutation / tool boundary を監視する
+10. harness gap が見えたら docs 更新か follow-up debt 化を判断する
+11. docs を更新した場合は、rule のまとまり方と思想競合を review する
+12. 最終報告で structural decision と未検証事項を明示する
 
 ### Refuse / Slow Down Conditions
 
@@ -76,7 +77,8 @@ Guard は次の順で使う。
 - docs を読んでも placement 候補が複数残り、どれを第一候補にするか決めきれない
 - locale UX や公開 affordance の方針が user の意図次第で分かれる
 - destructive な git / filesystem 操作が必要
-- 新機能の product spec / operating model / boundary spec が未設計
+- 新機能の goal / operating model / boundary policy が未設計
+- 既存コードに引っ張られたくないのに、その停止宣言が harness に存在しない
 
 ## Execution Guard
 
@@ -192,7 +194,7 @@ docs を更新した後は、更新内容そのものを review する。
 - 既存の `context.md` / `structure.md` / `tools.md` / `guard.md` と競合していないか
 - 同じ概念が別名で増えていないか
 - README から辿れる位置に置かれているか
-- 実装前の詰まりどころと分岐が `docs/ai-reports/*.md` に残っているか
+- 実装前後の失敗条件と成功条件が、必要なら `docs/ai-reports/*.md` に残っているか
 
 ## Output Guard
 
@@ -201,6 +203,7 @@ docs を更新した後は、更新内容そのものを review する。
 - 何を promote したか
 - 何を demote したか
 - どの structural decision を採ったか
+- 何を harness に宣言し、何を `ai-reports` に逃がしたか
 - まだ検証していないことは何か
 
 出力で避けるべきこと:
