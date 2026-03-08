@@ -1,39 +1,35 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
-
-## memo
-
-```zsh
-nix develop
-bun run dev
-```
+This is a Next.js App Router project managed with Nix + Bun.
 
 ## Harness
 
 AI エージェント運用のための設計文書は [docs/harness/README.md](./docs/harness/README.md) にまとめています。
 
-## Getting Started
-
-First, run the development server:
+## Development
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+nix develop
+bun run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+補助コマンド:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+bun run dev:overlay   # react-grab overlay を明示的に使うとき
+bun run dev:plain     # Intlayer watch なしで next dev
+bun run lint
+bun run test:contracts
+bun run typecheck
+bun run verify        # lint + typecheck + contracts + build
+bun run analyze
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+通常の開発では `bun run dev` を使い、remote overlay は `bun run dev:overlay` で明示的に opt-in します。
 
-## Learn More
+## Notes
 
-To learn more about Next.js, take a look at the following resources:
+- `nix develop -c bun run verify` が repo の標準 verification 入口です。
+- `typecheck` は app code を対象にし、test file の検証は `bun run test:contracts` が担当します。
+- `docs/harness` は current code ではなく target architecture を定義します。
 
 - [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
 - [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.

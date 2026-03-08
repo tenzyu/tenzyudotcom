@@ -91,6 +91,8 @@ tool boundary は `tools.md` が担当する。
 - verification / testability
 - runtime boundary / contract
 - security / outbound boundary
+- data freshness / caching
 - config / policy / sanctioned exception
 - UX / content / accessibility
 - performance / bundle / discovery
+- tooling / developer workflow

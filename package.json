@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "bunx @react-grab/codex@latest && intlayer watch --with 'next dev'",
+    "dev": "intlayer watch --with 'next dev'",
+    "dev:overlay": "ENABLE_REACT_GRAB_OVERLAY=1 bunx @react-grab/codex@latest && ENABLE_REACT_GRAB_OVERLAY=1 intlayer watch --with 'next dev'",
     "dev:plain": "next dev",
     "clean": "rimraf .next",
     "build": "next build",
@@ -13,7 +14,9 @@
     "format": "./scripts/biome format --write .",
     "test": "bun test",
     "test:contracts": "bun test 'src/app/[locale]/_features/site-structured-data.test.ts' 'src/app/[locale]/(main)/recommendations/_features/recommendation-search-params.contract.test.ts' 'src/features/links/links.contract.test.ts' 'src/lib/blog/blog-frontmatter.contract.test.ts' 'src/lib/url/external-url.contract.test.ts' 'src/features/youtube/youtube.contract.test.ts'",
-    "verify": "bun run lint && bun run test:contracts && bun run build",
+    "typecheck": "tsc --noEmit -p tsconfig.typecheck.json",
+    "verify:quick": "bun run lint && bun run typecheck && bun run test:contracts",
+    "verify": "bun run verify:quick && bun run build",
     "analyze": "next experimental-analyze"
   },
   "dependencies": {

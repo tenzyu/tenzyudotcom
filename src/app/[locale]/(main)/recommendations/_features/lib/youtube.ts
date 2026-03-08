@@ -5,6 +5,7 @@ import 'server-only'
 import { cache } from 'react'
 import { env } from '@/config/env.contract'
 import { normalizeYouTubeVideoId } from '@/features/youtube/youtube.contract'
+import { RECOMMENDATIONS_REVALIDATE_SECONDS } from './recommendations.cache-policy'
 import { parseYouTubeVideoApiResponse } from './youtube.contract'
 
 const fetchYouTubeVideoData = cache(
@@ -23,7 +24,7 @@ const fetchYouTubeVideoData = cache(
       url.searchParams.set('key', apiKey)
 
       const res = await fetch(url.toString(), {
-        next: { revalidate: 60 * 60 },
+        next: { revalidate: RECOMMENDATIONS_REVALIDATE_SECONDS },
       })
       if (!res.ok) return null
 

@@ -128,6 +128,7 @@ Guard は次の順で使う。
 - runtime / route / data flow を触ったら `build`
 - formatter / linter / config / import graph を触ったら `lint` または `format`
 - test が存在する repo では、影響範囲に応じた test を通す
+- caching / revalidate / fetch timeout を触ったら、magic number のまま散っていないか確認する
 
 test を増やす価値が高いのは次のとき。
 

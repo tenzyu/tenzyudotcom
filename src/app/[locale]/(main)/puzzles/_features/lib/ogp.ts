@@ -1,5 +1,12 @@
 import 'server-only'
 
+import { cache } from 'react'
+import { normalizeExternalUrl } from '@/lib/url/external-url.contract'
+import {
+  PUZZLES_OGP_FETCH_TIMEOUT_MS,
+  PUZZLES_OGP_REVALIDATE_SECONDS,
+} from './puzzles.cache-policy'
+
 export type OgpData = {
   title?: string
   description?: string
@@ -11,14 +18,17 @@ export type OgpData = {
  * Fetch Open Graph metadata from a URL.
  * Intended for use at build time (server-side only).
  */
-export async function fetchOgp(url: string): Promise<OgpData> {
+export const fetchOgp = cache(async (url: string): Promise<OgpData> => {
+  const normalizedUrl = normalizeExternalUrl(url, 'OGP fetch url')
+
   try {
-    const res = await fetch(url, {
+    const res = await fetch(normalizedUrl, {
       headers: {
         'User-Agent':
           'Mozilla/5.0 (compatible; OGPBot/1.0; +https://tenzyu.com)',
       },
-      signal: AbortSignal.timeout(5000),
+      next: { revalidate: PUZZLES_OGP_REVALIDATE_SECONDS },
+      signal: AbortSignal.timeout(PUZZLES_OGP_FETCH_TIMEOUT_MS),
     })
 
     if (!res.ok) return {}
@@ -26,10 +36,10 @@ export async function fetchOgp(url: string): Promise<OgpData> {
     const html = await res.text()
     return parseOgpFromHtml(html)
   } catch {
-    console.warn(`[OGP] Failed to fetch: ${url}`)
+    console.warn(`[OGP] Failed to fetch: ${normalizedUrl}`)
     return {}
   }
-}
+})
 
 function parseOgpFromHtml(html: string): OgpData {
   const data: OgpData = {}

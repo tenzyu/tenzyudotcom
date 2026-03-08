@@ -100,13 +100,22 @@ Intlayer は localized meaning のための tool として使う。
 
 repo に tests が入り始めたら、verification の入口も道具として揃える。
 
+- `dev`
+  - 安全な日常開発入口
+- `dev:overlay`
+  - remote overlay や extra tooling を明示的に opt-in するときだけ使う
 - `test`
   - 日常的な test 実行入口
+- `typecheck`
+  - build より速く type safety を確認する入口
+- `verify:quick`
+  - lint / typecheck / targeted test を束ねる日常 verification
 - `verify`
   - lint / targeted test / build を束ねる repo-level 入口
 
 ただし broad すぎる verify を毎回 mandatory にしない。
 変更範囲に応じて targeted command を優先してよい。
+また、unsafe な third-party 補助導線を `dev` の default にしない。
 
 ## Server / Client Boundary Hygiene
 
@@ -139,6 +148,19 @@ search params も境界として扱う。
   - trusted builder か small helper を通す
   - 新規 window には `noopener,noreferrer` を付ける
 - remote script を route/layout に差し込むなら、env contract で opt-in させる
+
+## Freshness / Cache Hygiene
+
+freshness policy は magic number のまま route entry や fetch call に散らさない。
+
+- 1 route / 1 feature の freshness policy は、その owner の近くに置く
+  - 例: `recommendations.cache-policy.ts`, `puzzles.cache-policy.ts`
+- 複数 route や metadata route で共有される freshness policy だけを `src/config` に上げる
+- `revalidate` export と `fetch(..., { next: { revalidate }})` は、同じ owner なら同じ policy constant を参照する
+- timeout も freshness policy と同じ owner で管理してよい
+- `react` の `cache()` は per-request dedupe 用であり、freshness source of truth の代わりにしない
+- Next.js segment config export は framework 制約で inline literal が必要なことがある
+  - import 共有できない場合は、segment export だけ inline に残し、fetch policy 側を source of truth にする
 
 ### Human Review Tools
 

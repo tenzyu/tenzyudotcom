@@ -22,7 +22,7 @@
    - 同じ概念が別名で増えていないか
    - README から辿れる routing になっているか
 6. 今回の主観点を 1 つ明示する。次の loop では、直前と異なる観点を主軸にする。
-   - 例: ownership / placement, contract / boundary, security / outbound boundary, verification, config, UX, performance
+   - 例: ownership / placement, contract / boundary, security / outbound boundary, verification, data freshness / caching, config, UX, performance, tooling
 7. 改善オプションを 2〜4 個に絞って返す。推奨順も示す。
 8. ユーザーが選んだオプションを harness に反映し、その基準で project にも実装を入れる。
 9. 実装後は最低 1 つ以上の verification を通す。影響が route/data/config に及ぶなら build を優先する。
