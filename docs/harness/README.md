@@ -1,6 +1,6 @@
 ---
 name: harness
-description: Entry point for the repo's agent harness. Read this first to decide which harness documents to load for architecture, structure, safety, tools, and memory questions.
+description: Entry point for the repo's agent harness. Read this first to decide which harness documents to load for architecture, structure, safety, tools, memory, and known-gap questions.
 user-invocable: false
 ---
 
@@ -23,10 +23,14 @@ user-invocable: false
 3. `references/guard.md`
 4. `references/tools.md`
 5. `references/memory.md`
+6. `known-gaps.md`
 
 通常の実装や refactor では
 `context -> structure -> guard`
 までで足りる。
+
+harness 自体の review や extension では
+`known-gaps.md` も確認する。
 
 ## Routing
 
@@ -37,6 +41,7 @@ user-invocable: false
 | unsafe な変更を避けたい | `references/guard.md` |
 | Intlayer / tool / dependency の境界を決めたい | `references/tools.md` |
 | docs に何を残すか決めたい | `references/memory.md` |
+| まだ定義されていない論点を確認したい | `known-gaps.md` |
 
 典型の組み合わせ:
 
@@ -50,6 +55,8 @@ user-invocable: false
   - `structure -> tools`
 - docs 更新や durable memory の整理
   - `memory`
+- harness の review / extension / gap 整理
+  - `context -> structure -> guard -> known-gaps`
 
 ## Core Rule
 
@@ -77,6 +84,7 @@ tool boundary は `tools.md` が担当する。
 - 同じ判断軸について、複数文書が競合する思想を出していないか
 - route / feature / contract / tool boundary が別名で二重定義されていないか
 - README から辿れる routing になっているか
+- known gaps が README から辿れるか
 
 ## Loop Discipline
 

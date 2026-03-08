@@ -83,6 +83,7 @@ repo 自体に埋め込まれた方針。
 - 置き場所の判断基準
 - Guard 条件
 - tool boundary
+- known gaps と deferred decision
 - 複数 task / 複数 route で再発した曖昧さへの恒久ルール
 
 ここに残すべきでないもの:

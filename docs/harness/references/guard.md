@@ -128,7 +128,8 @@ Guard は次の順で使う。
 変更に応じて、実行可能な verification を最低 1 つは通す。
 
 - runtime / route / data flow を触ったら `build`
-- formatter / linter / config / import graph を触ったら `lint` または `format`
+- formatter / linter / config / import graph を触ったら、まず non-mutating な `lint` を使う
+- rewrite を伴う `lint:fix` や `format` は、意図して tree を直すときだけ使う
 - test が存在する repo では、影響範囲に応じた test を通す
 - caching / revalidate / fetch timeout を触ったら、magic number のまま散っていないか確認する
 - external SDK wrapper や route-local loader を触ったら、request 内 dedupe と error boundary が崩れていないか確認する
@@ -141,10 +142,13 @@ test を増やす価値が高いのは次のとき。
 - bug を再発防止したい
 
 逆に、静的 page の見た目だけを snapshot で広く固定するのは慎重にする。
-保守コストに対して得が小さいなら、build と lint を優先する。
+保守コストに対して得が小さいなら、build と non-mutating lint を優先する。
 
 repo に test が未整備なら、それ自体を gap として報告する。
 ただし test 不在を理由に build/lint まで省略しない。
+
+repo が `nix develop -c` を標準入口にしているなら、
+verification でもその入口を優先して環境差異を減らす。
 
 環境差異で command が失敗する場合は、黙って諦めない。
 

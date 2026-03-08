@@ -15,8 +15,8 @@ bun run dev
 
 ```bash
 bun run dev:overlay   # react-grab overlay を明示的に使うとき
-bun run dev:plain     # Intlayer watch なしで next dev
 bun run lint
+bun run lint:fix
 bun run test:contracts
 bun run typecheck
 bun run verify        # lint + typecheck + contracts + build
