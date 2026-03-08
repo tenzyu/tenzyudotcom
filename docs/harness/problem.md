@@ -16,9 +16,6 @@
 - config がモデル外です。5層にはないのに、good shared では src/config/site.ts が出てきます。
   feature flags、pricing、limits、roles、env schema の置き場が新たな捨て場になります。
   structure.md:37 structure.md:248
-- Intlayer = meaning、data = identifiers は良いですが、中間物が未定義です。料金表や plan matrix
-  のように、ID・順序・ポリシー・文言が混ざる構造で source of truth が曖昧です。structure.md:180
-  tools.md:82
 - promote only after reuse is real は強い原則ですが、schema、policy、event type、permission model
   には遅すぎます。これらは「再利用されたから shared」ではなく「最初から唯一の定義であるべき」で
   す。context.md:52 structure.md:166
@@ -26,14 +23,8 @@
   sender、sync worker、admin batch にこの判断軸は効きません。structure.md:223
 - Guard の入力分類が狭いです。incident 対応、性能改善、依存更新、security fix、ops 変更、データ移
   行が入りません。guard.md:34
-- test 戦略がありません。unit / integration / e2e / contract test をどこに置き、promote/demote 時
-  に何を最低限通すかが未定義です。guard.md:113
 - ops は未導入段階で受け皿を premature に作るか、non-route runtime が出るまで保留にするかの方針が
   必要です。cron / webhook / queue を始める前に判断基準だけでも固定したいです。structure.md
-- internal barrel import の扱いが未定義でした。bundle size と discovery の両面で不利なのに、
-  `index.ts` / `export *` をどこまで許すか書かれていませんでした。tools.md
-- verification の最低線が弱いです。test 不在でも build/lint のどちらを必須にするか、platform 固有
-  の実行失敗を repo-local に吸収するかが guard にありませんでした。guard.md
 - migration 規律が弱いです。target へ一歩寄せる は正しいですが、長期移行の途中状態、互換層、
   deprecation の扱いが書かれていません。context.md:95 guard.md:82
 - Memory の更新条件が 2 route 基準なのは小さすぎます。大きいプロジェクトでは dashboard + worker
