@@ -18,6 +18,7 @@ import { TooltipProvider } from '@/components/ui/tooltip'
 import { isDevelopment } from '@/config/env.contract'
 import { ThemeProvider } from '@/features/site-controls/theme-provider'
 import { buildSiteMetadata } from './_features/site-metadata'
+import { buildSiteStructuredData } from './_features/site-structured-data'
 
 import '../globals.css'
 
@@ -47,6 +48,7 @@ export async function generateMetadata({
 const LocaleLayout: NextLayoutIntlayer = async ({ children, params }) => {
   const { locale } = await params
   const shellContent = getIntlayer('shell', locale)
+  const siteStructuredData = buildSiteStructuredData(locale)
 
   return (
     <html lang={locale} dir={getHTMLTextDir(locale)} suppressHydrationWarning>
@@ -64,6 +66,13 @@ const LocaleLayout: NextLayoutIntlayer = async ({ children, params }) => {
             strategy="lazyOnload"
           />
         )}
+        <script
+          type="application/ld+json"
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: Injecting structured data for SEO
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(siteStructuredData),
+          }}
+        />
         <link rel="preconnect" href="https://img.youtube.com" />
         <link rel="preconnect" href="https://pbs.twimg.com" />
         <link rel="preconnect" href="https://assets.ppy.sh" />

@@ -9,17 +9,17 @@ const siteContent = {
         en: "TENZYU's personal website",
       }),
       template: t({
-        ja: '%s | 天珠の個人サイト',
-        en: "%s | TENZYU's personal website",
+        ja: '%s | 天珠の秘密基地',
+        en: "%s | Tenzyu's Secret Hideout",
       }),
     },
     description: t({
-      ja: '秘密基地 - fallback description  ',
-      en: 'A secret hideout - fallback description',
+      ja: '天珠のブログ、ツール、ポートフォリオ、記録をまとめた個人サイト。',
+      en: 'Personal site by Tenzyu with blog posts, tools, portfolio, and archives.',
     }),
     shareTitle: t({
-      ja: '天珠の秘密基地, tenzyu.com',
-      en: "TENZYU's secret hideout, tenzyu.com",
+      ja: '天珠の秘密基地',
+      en: "Tenzyu's Secret Hideout",
     }),
   },
 } satisfies Dictionary

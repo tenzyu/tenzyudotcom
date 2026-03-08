@@ -1,11 +1,19 @@
 import { getIntlayer, getMultilingualUrls } from 'intlayer'
 import type { Metadata } from 'next'
-import { BASE_URL, SITE_AUTHOR_NAME, SITE_METADATA_BASE } from '@/config/site'
+import {
+  BASE_URL,
+  buildOgTitleImageUrl,
+  getAbsoluteUrl,
+  SITE_AUTHOR_NAME,
+  SITE_METADATA_BASE,
+} from '@/config/site'
 
 export function buildSiteMetadata(locale: string): Metadata {
   const content = getIntlayer('site', locale)
   const multilingualUrls = getMultilingualUrls('/')
   const localizedUrl = multilingualUrls[locale as keyof typeof multilingualUrls]
+  const canonicalUrl = getAbsoluteUrl(localizedUrl ?? '/')
+  const ogImage = buildOgTitleImageUrl(content.shareTitle)
 
   return {
     title: {
@@ -32,7 +40,16 @@ export function buildSiteMetadata(locale: string): Metadata {
     },
     openGraph: {
       type: 'website',
-      images: [],
+      url: canonicalUrl,
+      title: content.shareTitle,
+      description: content.description,
+      images: [{ url: ogImage }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: content.shareTitle,
+      description: content.description,
+      images: [ogImage],
     },
     robots: {
       index: true,

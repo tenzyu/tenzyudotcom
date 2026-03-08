@@ -9,8 +9,8 @@ const homeContent = {
         en: '天珠があなたに招待を送信しました。| 天珠の秘密基地',
       }),
       description: t({
-        ja: '天珠があなたに招待を送信しました。| 天珠の秘密基地',
-        en: "I INVITE YOU | a toppage for tenzyu's secret hideout.",
+        ja: '天珠の今の関心、入口、記録をまとめたホームページ。',
+        en: "Home page for Tenzyu's current interests, entry points, and records.",
       }),
     },
     catchphrase: t({
