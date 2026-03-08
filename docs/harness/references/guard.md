@@ -95,6 +95,16 @@ Guard は次の順で使う。
 - formatter / linter / config / import graph を触ったら `lint` または `format`
 - test が存在する repo では、影響範囲に応じた test を通す
 
+test を増やす価値が高いのは次のとき。
+
+- parse / normalize / validate をしている
+- branch が多い pure logic がある
+- metadata / structured data / contract を組み立てている
+- bug を再発防止したい
+
+逆に、静的 page の見た目だけを snapshot で広く固定するのは慎重にする。
+保守コストに対して得が小さいなら、build と lint を優先する。
+
 repo に test が未整備なら、それ自体を gap として報告する。
 ただし test 不在を理由に build/lint まで省略しない。
 
@@ -105,6 +115,10 @@ repo に test が未整備なら、それ自体を gap として報告する。
 - repo-local に吸収できるか
 
 を切り分け、回避策を docs か repo に還元する。
+
+ops runtime がまだ repo に存在しない場合は、
+そのためだけに test/ops の枠を増やさない。
+必要が現れた時点で owner を定義する。
 
 ### Harness Gap Guard
 

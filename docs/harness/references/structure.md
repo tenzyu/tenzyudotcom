@@ -51,6 +51,19 @@ Structure は、この repo が収束すべき target filesystem と ownership m
 - `src/content`
   - MDX など人が管理する authored content
 
+この 6 層は product code の owner を表す。
+test と contract は主層を増やすものではなく、既存 owner に付随する補助層として扱う。
+
+- test
+  - owner を持つ code の近くに置く
+  - feature や shared logic を鏡写しに検証する補助物
+- contract
+  - 境界で受け取る data shape を定義し、normalize / validate する補助物
+  - 再利用前でも単一の定義が必要なら早めに置いてよい
+- ops
+  - webhook / cron / queue / batch のような non-route runtime
+  - 現在 repo に常設しないなら、受け皿を premature に作らず gap として保留する
+
 ## Path Semantics
 
 `components`, `hooks`, `lib`, `data` は top-level の分類軸ではない。
@@ -256,6 +269,70 @@ feature と ownership の判断が終わった後にだけ使う。
 - `src/components/*` が shared feature の代わりになること
 - `src/hooks/*` が feature 境界を消すこと
 - `src/utils/*` が ownership 不明の捨て場になること
+
+### 6. Tests follow owners, not the other way around
+
+test は feature や shared logic の owner を写す。
+test のために新しい top-level bucket を主軸にしない。
+
+優先順:
+
+1. pure function / parser / builder の隣
+2. feature-local loader / transform の隣
+3. shared feature や `src/lib` の隣
+
+置き方の目安:
+
+- route-local feature の pure logic
+  - `<feature>.test.ts`
+  - `<feature>.data.test.ts`
+  - `<feature>/lib/<name>.test.ts`
+- shared logic
+  - `src/lib/<domain>/<name>.test.ts`
+  - `src/features/<domain>/<name>.test.ts`
+
+この repo では、静的 page の見た目を snapshot で広く固定するより、
+pure logic / parsing / metadata / contract を小さく検証する方を優先する。
+
+e2e が未導入なら、`tests/e2e` のような受け皿を先に作らない。
+まず「本当に継続運用するか」を決めてから導入する。
+
+### 7. Contracts live at the boundary they defend
+
+contract は、外から入る data や authored content の shape を定義する。
+validation だけでなく normalize や parse も含む。
+
+命名は `*.contract.ts` と `*.schema.ts` を基本にする。
+
+- `*.contract.ts`
+  - app が実際に受け入れる shape と normalize / guard
+- `*.schema.ts`
+  - schema object や validator definition が主役のとき
+
+両方が必要なら、schema を `*.schema.ts`、
+app-specific な parse / normalize を `*.contract.ts` に分ける。
+
+この repo で contract と見なす典型:
+
+- MDX frontmatter の schema
+- external API response の normalize / guard
+- static dataset record の shape
+- env や config の parse
+- JSON-LD や metadata builder の入力 shape
+
+置き場所は owner に従う。
+
+- 1 route 専用の境界
+  - `<route>/_features/lib/<name>.contract.ts`
+  - `<route>/_features/lib/<name>.schema.ts`
+- shared boundary
+  - `src/lib/<domain>/<name>.contract.ts`
+  - `src/lib/<domain>/<name>.schema.ts`
+- content loader 専用
+  - loader の隣に置く
+
+contract は `promote only after reuse is real` の例外になりうる。
+理由は、再利用の有無より「唯一の定義であるべきか」が優先されるためである。
 
 ## Decision Order
 

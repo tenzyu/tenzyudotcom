@@ -2,6 +2,7 @@ import { withIntlayer } from 'next-intlayer/server'
 import createMDX from '@next/mdx'
 
 import type { NextConfig } from 'next'
+import { isProduction } from './src/config/env.contract'
 
 const nextConfig: NextConfig = {
   images: {
@@ -34,7 +35,7 @@ const nextConfig: NextConfig = {
     webpackBuildWorker: true,
   },
   compiler: {
-    removeConsole: process.env.NODE_ENV === 'production',
+    removeConsole: isProduction,
   },
   pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx'],
   async redirects() {

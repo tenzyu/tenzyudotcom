@@ -28,6 +28,12 @@
   行が入りません。guard.md:34
 - test 戦略がありません。unit / integration / e2e / contract test をどこに置き、promote/demote 時
   に何を最低限通すかが未定義です。guard.md:113
+- ops は未導入段階で受け皿を premature に作るか、non-route runtime が出るまで保留にするかの方針が
+  必要です。cron / webhook / queue を始める前に判断基準だけでも固定したいです。structure.md
+- internal barrel import の扱いが未定義でした。bundle size と discovery の両面で不利なのに、
+  `index.ts` / `export *` をどこまで許すか書かれていませんでした。tools.md
+- verification の最低線が弱いです。test 不在でも build/lint のどちらを必須にするか、platform 固有
+  の実行失敗を repo-local に吸収するかが guard にありませんでした。guard.md
 - migration 規律が弱いです。target へ一歩寄せる は正しいですが、長期移行の途中状態、互換層、
   deprecation の扱いが書かれていません。context.md:95 guard.md:82
 - Memory の更新条件が 2 route 基準なのは小さすぎます。大きいプロジェクトでは dashboard + worker
