@@ -14,11 +14,15 @@
       devShells.default = pkgs.mkShell {
         packages = [
           importNpmLock.hooks.linkNodeModulesHook
+          pkgs.biome
           pkgs.bun
         ];
         npmDeps = importNpmLock.buildNodeModules {
           inherit npmRoot nodejs;
         };
+        shellHook = ''
+          export BIOME_BIN="${pkgs.biome}/bin/biome"
+        '';
       };
       
       # NOTE: for codemod

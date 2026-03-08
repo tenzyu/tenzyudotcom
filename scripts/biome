@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+
+set -eu
+
+if [ -n "${BIOME_BIN:-}" ] && [ -x "${BIOME_BIN}" ]; then
+  exec "${BIOME_BIN}" "$@"
+fi
+
+exec ./node_modules/.bin/biome "$@"

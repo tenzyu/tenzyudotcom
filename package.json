@@ -9,8 +9,8 @@
     "build": "next build",
     "start": "bun run clean && bun run build && next start",
     "start:intlayer": "intlayer-editor start",
-    "lint": "biome lint --fix .",
-    "format": "biome format --fix .",
+    "lint": "./scripts/biome lint --fix .",
+    "format": "./scripts/biome format --write .",
     "analyze": "next experimental-analyze"
   },
   "dependencies": {
