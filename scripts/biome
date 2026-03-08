@@ -6,4 +6,12 @@ if [ -n "${BIOME_BIN:-}" ] && [ -x "${BIOME_BIN}" ]; then
   exec "${BIOME_BIN}" "$@"
 fi
 
+if command -v biome >/dev/null 2>&1; then
+  exec "$(command -v biome)" "$@"
+fi
+
+if command -v nix >/dev/null 2>&1; then
+  exec nix develop -c biome "$@"
+fi
+
 exec ./node_modules/.bin/biome "$@"
