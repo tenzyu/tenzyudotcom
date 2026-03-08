@@ -7,20 +7,31 @@ type NotePageItem = {
   externalUrl?: string
 }
 
+type NoteTimestampedEntry = {
+  createdAt: string
+}
+
 const loadNoteSourceEntries = cache(async () => {
   const entries = await loadEditorialCollection('notes')
   return entries.filter((entry) => entry.published !== false)
 })
 
-export async function assembleNotesPageData(locale: string): Promise<NotePageItem[]> {
+export function compareNotesByCreatedAtDesc(
+  a: NoteTimestampedEntry,
+  b: NoteTimestampedEntry,
+) {
+  return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+}
+
+export async function assembleNotesPageData(
+  locale: string,
+): Promise<NotePageItem[]> {
   const entries = await loadNoteSourceEntries()
   const noteLocale = locale === 'ja' ? 'ja' : 'en'
 
-  return [...entries]
-    .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1))
-    .map((entry) => ({
-      body: entry.body[noteLocale] || entry.body.ja,
-      createdAt: entry.createdAt,
-      externalUrl: entry.externalUrl,
-    }))
+  return [...entries].sort(compareNotesByCreatedAtDesc).map((entry) => ({
+    body: entry.body[noteLocale] || entry.body.ja,
+    createdAt: entry.createdAt,
+    externalUrl: entry.externalUrl,
+  }))
 }

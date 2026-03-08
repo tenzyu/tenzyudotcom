@@ -1,7 +1,7 @@
 'use client'
 
 import { ArrowDown, ArrowUp, Plus, Trash2 } from 'lucide-react'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import type {
   RecommendationSourceChannelEntry,
   RecommendationSourceEntry,
@@ -24,6 +24,12 @@ import { moveItem } from './editor-utils'
 type RecommendationPreview = {
   title: string
   secondary?: string
+}
+
+type RecommendationEditorRow = {
+  id: string
+  entry: RecommendationSourceEntry
+  preview?: RecommendationPreview
 }
 
 type RecommendationsEditorClientProps = {
@@ -78,6 +84,17 @@ function createEmptyChannel(): RecommendationSourceChannelEntry {
   }
 }
 
+function buildInitialRows(
+  initialEntries: RecommendationSourceEntry[],
+  previews: RecommendationPreview[],
+): RecommendationEditorRow[] {
+  return initialEntries.map((entry, index) => ({
+    id: `recommendation-row-${index}`,
+    entry,
+    preview: previews[index],
+  }))
+}
+
 export function RecommendationsEditorClient({
   initialEntries,
   expectedVersion,
@@ -85,10 +102,16 @@ export function RecommendationsEditorClient({
   previews,
   labels,
 }: RecommendationsEditorClientProps) {
-  const [entries, setEntries] =
-    useState<RecommendationSourceEntry[]>(initialEntries)
+  const [rows, setRows] = useState<RecommendationEditorRow[]>(() =>
+    buildInitialRows(initialEntries, previews),
+  )
+  const nextRowIdRef = useRef(initialEntries.length)
 
-  const sourceJson = JSON.stringify(entries, null, 2)
+  const sourceJson = JSON.stringify(
+    rows.map((row) => row.entry),
+    null,
+    2,
+  )
 
   return (
     <form action={saveEditorialCollectionAction} className="space-y-6">
@@ -102,7 +125,13 @@ export function RecommendationsEditorClient({
           type="button"
           variant="outline"
           onClick={() => {
-            setEntries((current) => [...current, createEmptyVideo()])
+            setRows((current) => [
+              ...current,
+              {
+                id: `recommendation-row-${nextRowIdRef.current++}`,
+                entry: createEmptyVideo(),
+              },
+            ])
           }}
         >
           <Plus />
@@ -112,7 +141,13 @@ export function RecommendationsEditorClient({
           type="button"
           variant="outline"
           onClick={() => {
-            setEntries((current) => [...current, createEmptyChannel()])
+            setRows((current) => [
+              ...current,
+              {
+                id: `recommendation-row-${nextRowIdRef.current++}`,
+                entry: createEmptyChannel(),
+              },
+            ])
           }}
         >
           <Plus />
@@ -121,8 +156,12 @@ export function RecommendationsEditorClient({
       </div>
 
       <div className="space-y-4">
-        {entries.map((entry, index) => {
-          const preview = previews[index]
+        {rows.map((row, index) => {
+          const { entry, preview } = row
+          const channelPreview =
+            entry.kind === 'youtube-channel'
+              ? [entry.title, entry.handle].filter(Boolean).join(' / ')
+              : undefined
           const urlId = `recommendation-${index}-url`
           const titleId = `recommendation-${index}-title`
           const handleId = `recommendation-${index}-handle`
@@ -131,7 +170,7 @@ export function RecommendationsEditorClient({
           const publishedId = `recommendation-${index}-published`
 
           return (
-            <Card key={`${entry.kind}`}>
+            <Card key={row.id}>
               <CardHeader className="space-y-2">
                 <div className="flex items-start justify-between gap-4">
                   <div className="space-y-1">
@@ -141,11 +180,13 @@ export function RecommendationsEditorClient({
                         : labels.channelType}
                     </CardTitle>
                     <CardDescription>
-                      {preview
-                        ? `${labels.preview}: ${preview.title}${preview.secondary ? ` / ${preview.secondary}` : ''}`
-                        : entry.kind === 'youtube-video'
-                          ? labels.autoFetched
-                          : labels.channelHint}
+                      {entry.kind === 'youtube-channel' && channelPreview
+                        ? `${labels.preview}: ${channelPreview}`
+                        : preview
+                          ? `${labels.preview}: ${preview.title}${preview.secondary ? ` / ${preview.secondary}` : ''}`
+                          : entry.kind === 'youtube-video'
+                            ? labels.autoFetched
+                            : labels.channelHint}
                     </CardDescription>
                   </div>
                   <div className="flex items-center gap-2">
@@ -154,7 +195,7 @@ export function RecommendationsEditorClient({
                       variant="ghost"
                       size="icon"
                       onClick={() => {
-                        setEntries((current) => moveItem(current, index, -1))
+                        setRows((current) => moveItem(current, index, -1))
                       }}
                       disabled={index === 0}
                       aria-label={labels.moveUp}
@@ -166,9 +207,9 @@ export function RecommendationsEditorClient({
                       variant="ghost"
                       size="icon"
                       onClick={() => {
-                        setEntries((current) => moveItem(current, index, 1))
+                        setRows((current) => moveItem(current, index, 1))
                       }}
-                      disabled={index === entries.length - 1}
+                      disabled={index === rows.length - 1}
                       aria-label={labels.moveDown}
                     >
                       <ArrowDown />
@@ -178,7 +219,7 @@ export function RecommendationsEditorClient({
                       variant="ghost"
                       size="icon"
                       onClick={() => {
-                        setEntries((current) =>
+                        setRows((current) =>
                           current.filter(
                             (_, currentIndex) => currentIndex !== index,
                           ),
@@ -200,12 +241,19 @@ export function RecommendationsEditorClient({
                       value={entry.sourceUrl}
                       onChange={(event) => {
                         const value = event.target.value
-                        setEntries((current) =>
-                          current.map((currentEntry, currentIndex) =>
+                        setRows((current) =>
+                          current.map((currentRow, currentIndex) =>
                             currentIndex === index &&
-                            currentEntry.kind === 'youtube-video'
-                              ? { ...currentEntry, sourceUrl: value }
-                              : currentEntry,
+                            currentRow.entry.kind === 'youtube-video'
+                              ? {
+                                  ...currentRow,
+                                  entry: {
+                                    ...currentRow.entry,
+                                    sourceUrl: value,
+                                  },
+                                  preview: undefined,
+                                }
+                              : currentRow,
                           ),
                         )
                       }}
@@ -220,12 +268,18 @@ export function RecommendationsEditorClient({
                         value={entry.title}
                         onChange={(event) => {
                           const value = event.target.value
-                          setEntries((current) =>
-                            current.map((currentEntry, currentIndex) =>
+                          setRows((current) =>
+                            current.map((currentRow, currentIndex) =>
                               currentIndex === index &&
-                              currentEntry.kind === 'youtube-channel'
-                                ? { ...currentEntry, title: value }
-                                : currentEntry,
+                              currentRow.entry.kind === 'youtube-channel'
+                                ? {
+                                    ...currentRow,
+                                    entry: {
+                                      ...currentRow.entry,
+                                      title: value,
+                                    },
+                                  }
+                                : currentRow,
                             ),
                           )
                         }}
@@ -238,12 +292,18 @@ export function RecommendationsEditorClient({
                         value={entry.handle}
                         onChange={(event) => {
                           const value = event.target.value
-                          setEntries((current) =>
-                            current.map((currentEntry, currentIndex) =>
+                          setRows((current) =>
+                            current.map((currentRow, currentIndex) =>
                               currentIndex === index &&
-                              currentEntry.kind === 'youtube-channel'
-                                ? { ...currentEntry, handle: value }
-                                : currentEntry,
+                              currentRow.entry.kind === 'youtube-channel'
+                                ? {
+                                    ...currentRow,
+                                    entry: {
+                                      ...currentRow.entry,
+                                      handle: value,
+                                    },
+                                  }
+                                : currentRow,
                             ),
                           )
                         }}
@@ -256,12 +316,18 @@ export function RecommendationsEditorClient({
                         value={entry.url}
                         onChange={(event) => {
                           const value = event.target.value
-                          setEntries((current) =>
-                            current.map((currentEntry, currentIndex) =>
+                          setRows((current) =>
+                            current.map((currentRow, currentIndex) =>
                               currentIndex === index &&
-                              currentEntry.kind === 'youtube-channel'
-                                ? { ...currentEntry, url: value }
-                                : currentEntry,
+                              currentRow.entry.kind === 'youtube-channel'
+                                ? {
+                                    ...currentRow,
+                                    entry: {
+                                      ...currentRow.entry,
+                                      url: value,
+                                    },
+                                  }
+                                : currentRow,
                             ),
                           )
                         }}
@@ -278,17 +344,20 @@ export function RecommendationsEditorClient({
                       value={entry.note.ja}
                       onChange={(event) => {
                         const value = event.target.value
-                        setEntries((current) =>
-                          current.map((currentEntry, currentIndex) =>
+                        setRows((current) =>
+                          current.map((currentRow, currentIndex) =>
                             currentIndex === index
                               ? {
-                                  ...currentEntry,
-                                  note: {
-                                    ...currentEntry.note,
-                                    ja: value,
+                                  ...currentRow,
+                                  entry: {
+                                    ...currentRow.entry,
+                                    note: {
+                                      ...currentRow.entry.note,
+                                      ja: value,
+                                    },
                                   },
                                 }
-                              : currentEntry,
+                              : currentRow,
                           ),
                         )
                       }}
@@ -301,17 +370,20 @@ export function RecommendationsEditorClient({
                       value={entry.note.en}
                       onChange={(event) => {
                         const value = event.target.value
-                        setEntries((current) =>
-                          current.map((currentEntry, currentIndex) =>
+                        setRows((current) =>
+                          current.map((currentRow, currentIndex) =>
                             currentIndex === index
                               ? {
-                                  ...currentEntry,
-                                  note: {
-                                    ...currentEntry.note,
-                                    en: value,
+                                  ...currentRow,
+                                  entry: {
+                                    ...currentRow.entry,
+                                    note: {
+                                      ...currentRow.entry.note,
+                                      en: value,
+                                    },
                                   },
                                 }
-                              : currentEntry,
+                              : currentRow,
                           ),
                         )
                       }}
@@ -324,14 +396,17 @@ export function RecommendationsEditorClient({
                     id={publishedId}
                     checked={entry.published !== false}
                     onCheckedChange={(checked) => {
-                      setEntries((current) =>
-                        current.map((currentEntry, currentIndex) =>
+                      setRows((current) =>
+                        current.map((currentRow, currentIndex) =>
                           currentIndex === index
                             ? {
-                                ...currentEntry,
-                                published: checked,
+                                ...currentRow,
+                                entry: {
+                                  ...currentRow.entry,
+                                  published: checked,
+                                },
                               }
-                            : currentEntry,
+                            : currentRow,
                         ),
                       )
                     }}
