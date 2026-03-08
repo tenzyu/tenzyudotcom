@@ -1,3 +1,5 @@
+// TODO: 自前実装じゃなくてラッパーを使ったほうがいいと思う
+
 import 'server-only'
 
 import { cache } from 'react'

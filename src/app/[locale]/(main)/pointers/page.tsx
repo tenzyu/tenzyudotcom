@@ -3,8 +3,8 @@ import { IntlayerServerProvider, useIntlayer } from 'next-intlayer/server'
 import { PageHeader } from '@/components/site/page-header'
 import { SectionHeader } from '@/components/site/section-header'
 import { createPageMetadata, resolvePageLocale } from '@/lib/intlayer/page'
-import { DASHBOARD_DATA } from './_data/dashboard'
-import { ActionLinkTile } from './_features/action-link-tile'
+import { DASHBOARD_DATA } from './_features/dashboard/data'
+import { ActionLinkTile } from './_features/dashboard/action-link-tile'
 
 export const dynamic = 'force-static'
 

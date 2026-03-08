@@ -1,4 +1,3 @@
-import type React from 'react'
 import { Content } from '@/components/site/content'
 
 export default function MainLayout({
