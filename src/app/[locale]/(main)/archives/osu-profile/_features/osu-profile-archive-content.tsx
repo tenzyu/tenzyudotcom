@@ -1,8 +1,8 @@
 import { useIntlayer } from 'next-intlayer/server'
 import type { PropsWithChildren } from 'react'
-import { Content } from '@/components/site/content'
-import { Section } from '@/components/site/section'
-import { SectionHeader } from '@/components/site/section-header'
+import { Content } from '@/components/site-ui/content'
+import { Section } from '@/components/site-ui/section'
+import { SectionHeader } from '@/components/site-ui/section-header'
 import { LinkList } from '@/features/links/link-list'
 import { TWEETS } from '../_data/twitter'
 import {

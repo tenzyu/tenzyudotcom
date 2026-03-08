@@ -4,7 +4,7 @@ import {
   RECOMMENDATION_VIDEOS,
   type RecommendationChannelId,
   type RecommendationVideoId,
-} from '../../_data/recommendations'
+} from '../recommendations.data'
 import { fetchYouTubeVideoMeta } from './youtube'
 import type {
   RecommendationsPageData,

@@ -1,6 +1,6 @@
 import { ArrowUpRight, Youtube } from 'lucide-react'
-import { ExternalLink } from '@/components/site/external-link'
-import { OtakuAside } from '@/components/site/otaku-aside'
+import { ExternalLink } from '@/components/site-ui/external-link'
+import { OtakuAside } from '@/components/site-ui/otaku-aside'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import type { YouTubeChannelItem } from './lib/types'

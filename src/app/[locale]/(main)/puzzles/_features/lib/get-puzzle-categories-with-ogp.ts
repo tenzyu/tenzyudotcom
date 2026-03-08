@@ -1,4 +1,4 @@
-import { PUZZLE_CATEGORIES } from '../../_data/puzzles'
+import { PUZZLE_CATEGORIES } from '../puzzles.data'
 import { fetchOgp } from './ogp'
 import type { PuzzleCategoryWithOgp } from './types'
 

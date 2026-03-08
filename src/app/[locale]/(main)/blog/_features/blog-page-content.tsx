@@ -1,6 +1,6 @@
 import { getLocalizedUrl } from 'intlayer'
 import { useIntlayer } from 'next-intlayer/server'
-import { PageHeader } from '@/components/site/page-header'
+import { PageHeader } from '@/components/site-ui/page-header'
 import {
   Pagination,
   PaginationContent,

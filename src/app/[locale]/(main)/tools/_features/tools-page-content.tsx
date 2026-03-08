@@ -2,8 +2,8 @@ import { getLocalizedUrl } from 'intlayer'
 import { Type } from 'lucide-react'
 import Link from 'next/link'
 import { useIntlayer } from 'next-intlayer/server'
-import { OtakuAside } from '@/components/site/otaku-aside'
-import { PageHeader } from '@/components/site/page-header'
+import { OtakuAside } from '@/components/site-ui/otaku-aside'
+import { PageHeader } from '@/components/site-ui/page-header'
 import { Button } from '@/components/ui/button'
 import {
   Card,

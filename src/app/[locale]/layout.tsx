@@ -16,7 +16,7 @@ import { Header } from '@/components/shell/header'
 import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { ThemeProvider } from '@/features/site-controls/theme-provider'
-import { buildSiteMetadata } from './_features/lib/site-metadata'
+import { buildSiteMetadata } from './_features/site-metadata'
 
 import '../globals.css'
 

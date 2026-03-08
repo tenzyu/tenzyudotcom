@@ -1,7 +1,7 @@
 'use client'
 
 import { useIntlayer } from 'next-intlayer'
-import { Content } from '@/components/site/content'
+import { Content } from '@/components/site-ui/content'
 import {
   Card,
   CardContent,

@@ -1,6 +1,6 @@
 import { useIntlayer } from 'next-intlayer/server'
-import { PageHeader } from '@/components/site/page-header'
-import { SectionHeader } from '@/components/site/section-header'
+import { PageHeader } from '@/components/site-ui/page-header'
+import { SectionHeader } from '@/components/site-ui/section-header'
 import { DASHBOARD_DATA } from './dashboard/data'
 import { ActionLinkTile } from './dashboard/action-link-tile'
 

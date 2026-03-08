@@ -1,6 +1,6 @@
 import { useIntlayer } from 'next-intlayer/server'
-import { Content } from '@/components/site/content'
-import { SectionHeader } from '@/components/site/section-header'
+import { Content } from '@/components/site-ui/content'
+import { SectionHeader } from '@/components/site-ui/section-header'
 import { ItemGroup } from '@/components/ui/item'
 import { type LinkCategory, MY_LINKS } from '@/features/links/data'
 import { LinkTile } from './link-tile'

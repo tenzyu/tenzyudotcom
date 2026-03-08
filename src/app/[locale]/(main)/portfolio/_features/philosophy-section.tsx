@@ -1,5 +1,5 @@
 import { useIntlayer } from 'next-intlayer/server'
-import { SectionHeader } from '@/components/site/section-header'
+import { SectionHeader } from '@/components/site-ui/section-header'
 import { Card, CardContent } from '@/components/ui/card'
 
 export function PhilosophySection() {

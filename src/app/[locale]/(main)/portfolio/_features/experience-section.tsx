@@ -1,5 +1,5 @@
 import { useIntlayer } from 'next-intlayer/server'
-import { SectionHeader } from '@/components/site/section-header'
+import { SectionHeader } from '@/components/site-ui/section-header'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 

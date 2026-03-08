@@ -2,7 +2,7 @@ import { type Dictionary, t } from 'intlayer'
 import type {
   RecommendationChannelId,
   RecommendationVideoId,
-} from './_data/recommendations'
+} from './_features/recommendations.data'
 
 const recommendationsPageContent = {
   key: 'page-recommendations',

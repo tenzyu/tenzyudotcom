@@ -4,7 +4,7 @@ import { getLocalizedUrl } from 'intlayer'
 import Link from 'next/link'
 import { useIntlayer, useLocale } from 'next-intlayer'
 import React, { useEffect, useMemo, useState } from 'react'
-import { Content } from '@/components/site/content'
+import { Content } from '@/components/site-ui/content'
 import {
   Breadcrumb,
   BreadcrumbItem,

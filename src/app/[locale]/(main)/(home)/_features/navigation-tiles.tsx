@@ -14,7 +14,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { useIntlayer, useLocale } from 'next-intlayer/server'
-import { Content } from '@/components/site/content'
+import { Content } from '@/components/site-ui/content'
 import {
   Item,
   ItemActions,

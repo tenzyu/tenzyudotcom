@@ -1,5 +1,5 @@
 import { useIntlayer } from 'next-intlayer/server'
-import { Content } from '@/components/site/content'
+import { Content } from '@/components/site-ui/content'
 import {
   Carousel,
   CarouselContent,

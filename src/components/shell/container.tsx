@@ -1,4 +1,4 @@
-import { Content } from '@/components/site/content'
+import { Content } from '@/components/site-ui/content'
 import { cn } from '@/lib/utils'
 
 type ContainerProps = {

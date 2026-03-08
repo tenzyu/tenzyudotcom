@@ -1,8 +1,8 @@
 import { getLocalizedUrl } from 'intlayer'
 import Link from 'next/link'
 import { useIntlayer } from 'next-intlayer/server'
-import { Content } from '@/components/site/content'
-import { PageHeader } from '@/components/site/page-header'
+import { Content } from '@/components/site-ui/content'
+import { PageHeader } from '@/components/site-ui/page-header'
 
 export function ArchivesPageContent({ locale }: { locale: string }) {
   const content = useIntlayer('page-archives')

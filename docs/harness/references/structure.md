@@ -28,7 +28,7 @@ Structure は、この repo が収束すべき target filesystem と ownership m
 1. `route-local feature`
 2. `shared feature`
 3. `site shell`
-4. `site-shared component`
+4. `site-ui component`
 5. `pure shared logic`
 6. `authored content`
 
@@ -41,8 +41,8 @@ Structure は、この repo が収束すべき target filesystem と ownership m
   - 複数 route で再利用される feature
 - `src/components/shell`
   - Header, Footer, BreadcrumbNav, Container などサイト骨格
-- `src/components/site`
-  - shell ではないが site 全体で共有される component
+- `src/components/site-ui`
+  - shell ではないが site 全体で共有される presentation component
   - 例: `PageHeader`, `SectionHeader`, `Content`, `ExternalLink`
 - `src/components/ui`
   - shadcn primitives
@@ -56,14 +56,15 @@ Structure は、この repo が収束すべき target filesystem と ownership m
 `components`, `hooks`, `lib`, `data` は top-level の分類軸ではない。
 feature を先に決めたあと、その内部を整理するために使う。
 
-ただし `src/components/shell` と `src/components/site` は sanctioned exception である。
+ただし `src/components/shell` と `src/components/site-ui` は sanctioned exception である。
 
 - `src/components/shell`
   - site shell そのもの
   - route content や business feature を置かない
-- `src/components/site`
-  - shell ではない site-wide shared component
-  - feature を持たない presentation primitive に限る
+- `src/components/site-ui`
+  - shell ではない site-wide shared presentation
+  - data shape、workflow rule、domain knowledge を持たない primitive に限る
+  - domain knowledge を持った瞬間に `src/features/<domain>` へ送る
 
 - `components`
   - feature 配下の section UI
@@ -75,6 +76,27 @@ feature を先に決めたあと、その内部を整理するために使う。
   - stable identifiers / URLs / handles / static dataset
 
 feature 名なしで目的 code に辿る必要がある path は増やさない。
+
+`src/components/features` は作らない。
+domain-aware shared component は `src/features/<domain>` に置く。
+`src/features/<domain>` 同士の依存は極力避け、必要なら shell か route entry で compose する。
+
+## Small Features Stay Flat
+
+route-local feature や小さな shared feature は、4〜5 files 程度までは flat に保つ。
+探索しやすさを優先し、先に `lib/`, `data/`, `components/` を作らない。
+
+優先順:
+
+1. `<feature>.tsx`
+2. `<feature>.data.ts`
+3. `<feature>.content.ts`
+4. `<feature>.loader.ts` / `<feature>.metadata.ts`
+
+次のどちらかが起きたら subdir を作る:
+
+- 6 file 以上になり、読み筋が分かれ始めた
+- 同じ feature 内で UI / data / loader の owner が明確に分離した
 
 ## Feature-Local Placement Order
 
@@ -89,7 +111,7 @@ route-local code の置き場は、次の順で狭く考える。
 
 - 1 の場合
   - その feature の近くに置く
-  - 例: `<route>/_features/<feature>/lib/*` または `<route>/_features/<feature>-*.tsx` の隣
+  - 例: `<route>/_features/<feature>.data.ts` や `<route>/_features/<feature>-*.tsx` の隣
 - 2 の場合
   - `<route>/_features/lib/*`
 - 3 の場合
@@ -100,7 +122,7 @@ route-local code の置き場は、次の順で狭く考える。
 である。
 
 `_features/lib` は route 内 shared のための最小 bucket であり、
-「feature がまだ曖昧だから一旦置く場所」ではない。
+「file 数が少ないが一旦整理したい」ための置き場ではない。
 
 ## Route Entry Files
 
@@ -135,8 +157,11 @@ framework と route-local world を接続する entry として扱う。
 置き場所の目安:
 
 - 表示本体は `<route>/_features/*`
-- route 内で共有する transform / loader / builder は `<route>/_features/lib/*`
-- stable identifiers は `<route>/_data/*`
+- route 内で共有する transform / loader / builder は `<route>/_features/<name>.ts`
+  - file 数が増えたときだけ `<route>/_features/lib/*`
+- stable identifiers は owner に従う
+  - 1 feature 専用なら `<route>/_features/<feature>.data.ts`
+  - route 全体の source of truth なら `<route>/_data/<domain>.ts`
 
 ただし `_features/lib` より近い feature-local な置き場があるなら、
 まずそちらを使う。
@@ -180,7 +205,7 @@ promote 対象の典型:
 
 再利用の事実がない段階では local を優先する。
 
-### 3. Intlayer stores meaning, data stores identifiers
+### 3. Intlayer stores meaning, data follows owner
 
 Intlayer に入れてよいもの:
 
@@ -197,16 +222,28 @@ Intlayer に入れるべきでないもの:
 - shared identifiers
 
 識別子の source of truth は `data` に寄せる。
+ただし static であることだけを理由に route root の `_data` へ置かない。
 
-### 4. Shell, site components, and pure logic are separate escape hatches
+- 1 feature しか使わない static data
+  - `<feature>.data.ts`
+- route 内の複数 feature や page content が共有する static data
+  - `_data/<domain>.ts`
+- cross-route shared static data
+  - route 外へ promote
+
+`page.data.ts` は owner が見えないので避ける。
+`recommendations.data.ts`, `puzzles.data.ts`, `selfie-gallery.data.ts` のように、
+責務名を file 名に残す。
+
+### 4. Shell, site-ui, and pure logic are separate escape hatches
 
 `src/components/shell` は shell のためにだけ使う。
-`src/components/site` は shell ではない site-wide shared component のためにだけ使う。
+`src/components/site-ui` は shell ではない site-wide shared presentation のためにだけ使う。
 `src/lib` は pure shared logic のためにだけ使う。
 
 - route-only helper を `src/lib` に逃がさない
-- page-specific UI を shell や `src/components/site` に昇格させない
-- business capability を `src/components/site` に押し込まない
+- page-specific UI を shell や `src/components/site-ui` に昇格させない
+- business capability を `src/components/site-ui` に押し込まない
 - ownership が曖昧な convenience layer を増やさない
 
 ### 5. Syntax buckets are subordinate
@@ -225,7 +262,7 @@ feature と ownership の判断が終わった後にだけ使う。
 新しい code を置く前に、次の順で判断する。
 
 1. これは 1 route 専用か
-2. 最上位の属性は feature / shell / site-shared component / pure logic / content のどれか
+2. 最上位の属性は feature / shell / site-ui component / pure logic / content のどれか
 3. まず最も近い feature-local placement に置けるか
 4. これは識別子データか、翻訳された意味内容か
 5. 同時に読む / 直すものを近接配置できるか
@@ -239,7 +276,7 @@ feature と ownership の判断が終わった後にだけ使う。
 - `src/features/links/*`
 - `src/features/site-controls/*`
 - `src/components/shell/*`
-- `src/components/site/*`
+- `src/components/site-ui/*`
 - `src/lib/blog/getBlogPosts.ts`
 - `src/lib/intlayer/page.ts`
 - `src/config/site.ts`
@@ -251,8 +288,10 @@ feature と ownership の判断が終わった後にだけ使う。
 - `src/app/[locale]/(main)/recommendations/_features/recommendations/*`
 - `src/app/[locale]/(main)/blog/_features/blog/*`
 - `src/app/[locale]/(main)/blog/[slug]/_features/lib/blog-post.ts`
-- `src/app/[locale]/(main)/puzzles/_features/lib/get-puzzle-categories-with-ogp.ts`
+- `src/app/[locale]/(main)/puzzles/_features/puzzles.data.ts`
+- `src/app/[locale]/(main)/recommendations/_features/recommendations.data.ts`
 - `src/app/[locale]/(main)/archives/osu-profile/_features/lib/getUser.ts`
+- `src/app/[locale]/(main)/archives/osu-profile/_data/youtube.ts`
 
 ### Smells
 
@@ -261,7 +300,8 @@ feature と ownership の判断が終わった後にだけ使う。
 - route root に `_lib` を生やして feature 外の convenience bucket を作る
 - 1 feature しか使わない helper を reflex で `_features/lib` に置く
 - `page.tsx` が route-local transform や SEO assembly を抱えている
-- shell だけが使う component が `src/components/site` にある
-- feature 固有の UI が `src/components/site` にある
+- shell だけが使う component が `src/components/site-ui` にある
+- feature 固有の UI が `src/components/site-ui` にある
+- 1 feature 専用の static data が route root の `_data` にある
 - `src/components`, `src/hooks`, `src/utils` が feature 軸を押しのける
 - `src/content/data` のような曖昧な共有フォルダを増やす

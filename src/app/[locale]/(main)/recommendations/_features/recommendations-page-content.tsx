@@ -1,6 +1,6 @@
 import { useIntlayer } from 'next-intlayer/server'
-import { PageHeader } from '@/components/site/page-header'
-import { SectionHeader } from '@/components/site/section-header'
+import { PageHeader } from '@/components/site-ui/page-header'
+import { SectionHeader } from '@/components/site-ui/section-header'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import type { RecommendationsPageData } from './lib/types'
 import { YouTubeChannelList } from './youtube-channel-list'

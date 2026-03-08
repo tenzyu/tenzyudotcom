@@ -46,7 +46,7 @@ Intlayer は localized meaning のための tool として使う。
 
 - shadcn primitives
 - site shell components (`src/components/shell`)
-- site-wide shared components (`src/components/site`)
+- site-wide shared presentation (`src/components/site-ui`)
 - feature components
 
 ### Content / Data
@@ -67,6 +67,8 @@ Intlayer は localized meaning のための tool として使う。
 | --- | --- | --- |
 | localized labels / prose | Intlayer | fetch input registry |
 | stable IDs / handles / URLs | `_data` or stable config | translated meaning store |
+| site-wide presentation primitive | `src/components/site-ui` | domain-aware feature |
+| shared capability UI | `src/features/<domain>` | site-ui primitive |
 | route-local transform / loader | route feature-local `lib` | route root convenience bucket |
 | cross-route pure logic | `src/lib` | UI-aware helper layer |
 | page entry wiring | `page.tsx`, `layout.tsx`, convention files | feature implementation body |

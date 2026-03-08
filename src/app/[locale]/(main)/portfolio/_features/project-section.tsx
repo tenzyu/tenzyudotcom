@@ -1,6 +1,6 @@
 import { useIntlayer } from 'next-intlayer/server'
-import { ExternalLink } from '@/components/site/external-link'
-import { SectionHeader } from '@/components/site/section-header'
+import { ExternalLink } from '@/components/site-ui/external-link'
+import { SectionHeader } from '@/components/site-ui/section-header'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
