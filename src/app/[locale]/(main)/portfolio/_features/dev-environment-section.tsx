@@ -8,6 +8,7 @@ import {
 } from '@/components/ui/accordion'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
+import { PORTFOLIO_ENVIRONMENTS } from '../_data/portfolio'
 
 export function DevEnvironmentSection() {
   const content = useIntlayer('page-portfolio')
@@ -27,21 +28,27 @@ export function DevEnvironmentSection() {
           </AccordionTrigger>
           <AccordionContent className="space-y-6 pt-4">
             <div className="space-y-6">
-              {content.environments.items.map((env) => (
-                <Card key={env.title.value} variant="soft">
-                  <CardContent className="space-y-2 pt-6">
-                    <h3 className="text-lg font-semibold">{env.title}</h3>
-                    <p className="text-sm font-medium">{env.subtitle}</p>
-                    <p className="text-muted-foreground text-sm leading-relaxed">
-                      {env.description}
-                    </p>
-                    <div className="flex flex-wrap gap-2 pt-1">
-                      <Badge variant="secondary">{env.os}</Badge>
-                      <Badge variant="secondary">{env.role}</Badge>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+              {PORTFOLIO_ENVIRONMENTS.map((environment) => {
+                const env = content.environments.items[environment.id]
+
+                return (
+                  <Card key={environment.id} variant="soft">
+                    <CardContent className="space-y-2 pt-6">
+                      <h3 className="text-lg font-semibold">
+                        {environment.title}
+                      </h3>
+                      <p className="text-sm font-medium">{env.subtitle}</p>
+                      <p className="text-muted-foreground text-sm leading-relaxed">
+                        {env.description}
+                      </p>
+                      <div className="flex flex-wrap gap-2 pt-1">
+                        <Badge variant="secondary">{environment.os}</Badge>
+                        <Badge variant="secondary">{environment.role}</Badge>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )
+              })}
             </div>
 
             <Card variant="soft">

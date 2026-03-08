@@ -1,5 +1,5 @@
 import { Content } from '@/components/site-ui/content'
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/utils/common'
 
 type ContainerProps = {
   children: React.ReactNode

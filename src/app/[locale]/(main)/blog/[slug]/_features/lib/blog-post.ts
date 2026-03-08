@@ -1,8 +1,44 @@
-import { getLocalizedUrl, locales } from 'intlayer'
-import { BASE_URL } from '@/config/site'
+import { locales, getLocalizedUrl } from 'intlayer'
+import {
+  getAbsoluteUrl,
+  BASE_URL,
+  SITE_AUTHOR_NAME,
+  SITE_LOGO_PATH,
+  SITE_PUBLISHER_NAME,
+  buildOgTitleImageUrl,
+} from '@/config/site'
 import { getBlogPosts } from '@/lib/blog/getBlogPosts'
 
 export type BlogPost = Awaited<ReturnType<typeof getBlogPosts>>[number]
+
+type BlogPostingJsonLd = {
+  '@context': 'https://schema.org'
+  '@type': 'BlogPosting'
+  headline: string
+  datePublished: string
+  dateModified?: string
+  description: string
+  image: string
+  url: string
+  author: {
+    '@type': 'Person'
+    name: string
+  }
+  publisher: {
+    '@type': 'Organization'
+    name: string
+    logo: {
+      '@type': 'ImageObject'
+      url: string
+    }
+  }
+}
+
+const buildBlogPostUrl = (slug: string, locale: string) =>
+  `${BASE_URL}${getLocalizedUrl(`/blog/${slug}`, locale)}`
+
+const buildBlogPostImageUrl = (title: string, image?: string) =>
+  image ? getAbsoluteUrl(image) : buildOgTitleImageUrl(title)
 
 export async function getBlogStaticParams() {
   const posts = await getBlogPosts()
@@ -25,13 +61,12 @@ export function buildBlogPostMetadata(post: BlogPost, locale: string) {
     summary: description,
     image,
   } = post.metadata
-  const ogImage = image ?? `${BASE_URL}/og?title=${encodeURIComponent(title)}`
-  const localizedPath = getLocalizedUrl(`/blog/${post.slug}`, locale)
-  const localizedUrl = `${BASE_URL}${localizedPath}`
+  const ogImage = buildBlogPostImageUrl(title, image)
+  const localizedUrl = buildBlogPostUrl(post.slug, locale)
   const alternateLanguages = Object.fromEntries(
     locales.map((localeItem) => [
       localeItem,
-      `${BASE_URL}${getLocalizedUrl(`/blog/${post.slug}`, localeItem)}`,
+      buildBlogPostUrl(post.slug, localeItem),
     ]),
   )
 
@@ -64,9 +99,10 @@ export function buildBlogPostMetadata(post: BlogPost, locale: string) {
 }
 
 export function buildBlogPostStructuredData(post: BlogPost, locale: string) {
-  const ogImage = post.metadata.image
-    ? `${BASE_URL}${post.metadata.image}`
-    : `${BASE_URL}/og?title=${encodeURIComponent(post.metadata.title)}`
+  const ogImage = buildBlogPostImageUrl(
+    post.metadata.title,
+    post.metadata.image,
+  )
 
   return {
     '@context': 'https://schema.org',
@@ -76,18 +112,18 @@ export function buildBlogPostStructuredData(post: BlogPost, locale: string) {
     dateModified: post.metadata.updatedAt?.toISOString(),
     description: post.metadata.summary,
     image: ogImage,
-    url: `${BASE_URL}${getLocalizedUrl(`/blog/${post.slug}`, locale)}`,
+    url: buildBlogPostUrl(post.slug, locale),
     author: {
       '@type': 'Person',
-      name: 'tenzyu',
+      name: SITE_AUTHOR_NAME,
     },
     publisher: {
       '@type': 'Organization',
-      name: 'tenzyu.com',
+      name: SITE_PUBLISHER_NAME,
       logo: {
         '@type': 'ImageObject',
-        url: `${BASE_URL}/images/my-icon.png`,
+        url: getAbsoluteUrl(SITE_LOGO_PATH),
       },
     },
-  }
+  } satisfies BlogPostingJsonLd
 }

@@ -30,32 +30,29 @@ const portfolioContent = {
         ja: 'プロフィール画像',
         en: 'Profile image',
       }),
-      links: [
-        {
+      links: {
+        blog: {
           label: 'Blog',
           ariaLabel: t({
             ja: 'ブログを開く',
             en: 'Open Blog',
           }),
-          url: 'https://tenzyu.com/blog',
         },
-        {
+        github: {
           label: 'GitHub',
           ariaLabel: t({
             ja: 'GitHub を開く',
             en: 'Open GitHub',
           }),
-          url: 'https://github.com/tenzyu',
         },
-        {
+        x: {
           label: 'X',
           ariaLabel: t({
             ja: 'X を開く',
             en: 'Open X',
           }),
-          url: 'https://x.com/tenzyudotcom',
         },
-      ],
+      },
     },
     projects: {
       sectionTitle: t({
@@ -78,8 +75,8 @@ const portfolioContent = {
         ja: '※ ',
         en: 'Note: ',
       }),
-      items: [
-        {
+      items: {
+        personalWebsite: {
           name: t({
             ja: '個人ウェブサイト',
             en: 'Personal Website',
@@ -96,11 +93,8 @@ const portfolioContent = {
             ja: '趣味でosu!というリズムゲームをしていて、配信やYouTubeの投稿もしていたので、コンテンツを集中させた場所がほしくて作りました。',
             en: 'I play osu! as a hobby and stream/post to YouTube, so I built a place to gather it all.',
           }),
-          technologies: ['TypeScript', 'NextJS'],
-          github: 'https://github.com/tenzyu/tenzyudotcom',
-          demo: 'https://tenzyu.com',
         },
-        {
+        osuBpDatabase: {
           name: t({
             ja: 'osu! bp database',
             en: 'osu! bp database',
@@ -117,15 +111,12 @@ const portfolioContent = {
             ja: '多くのosu!のプレイヤーは、ランキングを上げるためにPerformance Pointと呼ばれるランキングを決定する数字を得やすい譜面（難易度）を常に探していて、私もその一人だったので作成しました。',
             en: 'Many osu! players (myself included) search for maps that maximize Performance Points, so I built a tool to make that easier.',
           }),
-          technologies: ['TypeScript', 'NextJS', 'Postgres', 'Deno'],
-          github: '',
-          demo: 'https://youtu.be/d7cvjRIH4wI',
           note: t({
             ja: '開発当時の身内向けに撮影したデモ映像で、カジュアルなものになります。',
             en: 'A casual demo video recorded for friends during development.',
           }),
         },
-        {
+        osuSkinRemixer: {
           name: t({
             ja: 'osu! skin remixer',
             en: 'osu! skin remixer',
@@ -142,15 +133,12 @@ const portfolioContent = {
             ja: 'いろんなスキンの気に入った素材をチェリーピックして、自身のスキンを作る文化があって、それを初心者でも簡単にできることを目標にしています。既存のものは、インストールが必要だったり、素材の枠組みが大雑把すぎたり、逆に細かすぎて完成しなかったり、古すぎたり、意外と使いやすいものが存在しなかったので作りました。',
             en: 'There is a culture of cherry-picking favorite parts from different skins to build your own. I wanted to make that beginner-friendly. Existing tools were install-heavy, too coarse or too detailed, outdated, or simply hard to use—so I built one.',
           }),
-          technologies: ['TypeScript', 'NextJS'],
-          github: '',
-          demo: 'https://youtu.be/2ooDARE6KN8',
           note: t({
             ja: '開発当時の身内向けに撮影したデモ映像で、カジュアルなものになります。',
             en: 'A casual demo video recorded for friends during development.',
           }),
         },
-      ],
+      },
     },
     experience: {
       sectionTitle: t({
@@ -169,8 +157,8 @@ const portfolioContent = {
         ja: '従業員数:',
         en: 'Employees:',
       }),
-      items: [
-        {
+      items: {
+        webDevelopmentCompany: {
           company: t({
             ja: 'Web開発会社',
             en: 'Web Development Company',
@@ -221,9 +209,8 @@ const portfolioContent = {
               en: 'Implemented Slack integration for time tracking',
             }),
           ],
-          technologies: ['TypeScript', 'Laravel'],
         },
-        {
+        systemsDevelopmentCompany: {
           company: t({
             ja: 'システム開発会社',
             en: 'Systems Development Company',
@@ -266,9 +253,8 @@ const portfolioContent = {
               en: 'Built a student-facing web app for history and book info',
             }),
           ],
-          technologies: ['TypeScript', 'React', 'Laravel', 'PostgreSQL'],
         },
-        {
+        inHouseServiceCompany: {
           company: t({
             ja: '自社サービス開発会社',
             en: 'In-house Service Company',
@@ -319,9 +305,8 @@ const portfolioContent = {
               en: 'Implemented Stripe payments',
             }),
           ],
-          technologies: ['TypeScript', 'React', 'Cloud Functions', 'Firestore'],
         },
-      ],
+      },
     },
     philosophy: {
       sectionTitle: t({
@@ -374,9 +359,8 @@ const portfolioContent = {
           en: 'neko5 → neko7: remote deployments over SSH',
         }),
       ],
-      items: [
-        {
-          title: 'neko3 (Windows 11 Host)',
+      items: {
+        neko3: {
           subtitle: t({
             ja: 'Parsec経由のリモート開発ホスト',
             en: 'Remote dev host via Parsec',
@@ -385,11 +369,8 @@ const portfolioContent = {
             ja: '主にリモート接続を受け入れるためのメインWindows環境。',
             en: 'Main Windows environment that accepts remote connections.',
           }),
-          os: 'Windows 11',
-          role: 'Parsec Host',
         },
-        {
-          title: 'neko5 (Main Development Machine)',
+        neko5: {
           subtitle: t({
             ja: 'NixOSラップトップ',
             en: 'NixOS laptop',
@@ -398,11 +379,8 @@ const portfolioContent = {
             ja: '全ての環境の中枢を担うメイン開発機。NixOSを採用し、宣言的な環境構築を実践。',
             en: 'Primary dev machine. Built around NixOS with declarative environment setup.',
           }),
-          os: 'NixOS',
-          role: 'Primary',
         },
-        {
-          title: 'neko6 (WSL2 on neko3)',
+        neko6: {
           subtitle: t({
             ja: '開発用Linuxコンテナ・ターゲット',
             en: 'Linux container target for development',
@@ -411,11 +389,8 @@ const portfolioContent = {
             ja: 'neko3上のWSL2環境でNixOSを稼働させ、SSHのターゲットとして利用。',
             en: 'Runs NixOS on WSL2 (neko3) and acts as an SSH target.',
           }),
-          os: 'NixOS (WSL2)',
-          role: 'SSH Target',
         },
-        {
-          title: 'neko7 (Remote Server)',
+        neko7: {
           subtitle: t({
             ja: 'リモートデプロイ先サーバー',
             en: 'Remote deployment server',
@@ -424,10 +399,8 @@ const portfolioContent = {
             ja: 'Proxmox配下のVM環境。検証用のプライベートデプロイターゲット。',
             en: 'VM under Proxmox. Private deployment target for verification.',
           }),
-          os: 'NixOS',
-          role: 'Remote VM',
         },
-      ],
+      },
     },
     footer: {
       note: t({

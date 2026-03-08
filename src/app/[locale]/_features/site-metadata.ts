@@ -1,5 +1,6 @@
 import { getIntlayer, getMultilingualUrls } from 'intlayer'
 import type { Metadata } from 'next'
+import { BASE_URL, SITE_AUTHOR_NAME, SITE_METADATA_BASE } from '@/config/site'
 
 export function buildSiteMetadata(locale: string): Metadata {
   const content = getIntlayer('site', locale)
@@ -13,15 +14,15 @@ export function buildSiteMetadata(locale: string): Metadata {
     },
     description: content.description,
     keywords: [],
-    authors: [{ name: 'tenzyu', url: 'https://tenzyu.com' }],
-    creator: 'tenzyu',
-    publisher: 'tenzyu',
+    authors: [{ name: SITE_AUTHOR_NAME, url: BASE_URL }],
+    creator: SITE_AUTHOR_NAME,
+    publisher: SITE_AUTHOR_NAME,
     formatDetection: {
       email: false,
       address: false,
       telephone: false,
     },
-    metadataBase: new URL('https://tenzyu.com'),
+    metadataBase: SITE_METADATA_BASE,
     alternates: {
       canonical: localizedUrl,
       languages: {

@@ -4,6 +4,10 @@ import { useIntlayer } from 'next-intlayer/server'
 import { ExternalLink } from '@/components/site-ui/external-link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import {
+  PORTFOLIO_ABOUT_LINKS,
+  PORTFOLIO_PROFILE_IMAGE_PATH,
+} from '../_data/portfolio'
 
 export function AboutMeSection() {
   const content = useIntlayer('page-portfolio')
@@ -13,7 +17,7 @@ export function AboutMeSection() {
       <CardContent className="flex flex-col items-start gap-6 pt-6 md:flex-row">
         <div className="shrink-0">
           <Image
-            src="/images/my-icon.png"
+            src={PORTFOLIO_PROFILE_IMAGE_PATH}
             alt={content.about.imageAlt.value}
             width={120}
             height={120}
@@ -32,21 +36,25 @@ export function AboutMeSection() {
           </div>
           <p className="text-sm leading-relaxed">{content.about.description}</p>
           <div className="flex flex-wrap gap-4 pt-2 text-sm font-medium">
-            {content.about.links.map((link) => (
-              <Button
-                key={link.url.value}
-                variant="ghost"
-                className="text-primary h-auto px-0 hover:bg-transparent hover:underline"
-                asChild
-              >
-                <ExternalLink
-                  href={link.url.value}
-                  aria-label={link.ariaLabel.value}
+            {PORTFOLIO_ABOUT_LINKS.map((link) => {
+              const linkContent = content.about.links[link.id]
+
+              return (
+                <Button
+                  key={link.id}
+                  variant="ghost"
+                  className="text-primary h-auto px-0 hover:bg-transparent hover:underline"
+                  asChild
                 >
-                  {link.label} &rarr;
-                </ExternalLink>
-              </Button>
-            ))}
+                  <ExternalLink
+                    href={link.url}
+                    aria-label={linkContent.ariaLabel.value}
+                  >
+                    {linkContent.label} &rarr;
+                  </ExternalLink>
+                </Button>
+              )
+            })}
           </div>
         </div>
       </CardContent>

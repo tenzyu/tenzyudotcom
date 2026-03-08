@@ -3,6 +3,7 @@
 import 'server-only'
 
 import { cache } from 'react'
+import { env } from '@/config/env.contract'
 
 type YouTubeVideoData = {
   title: string
@@ -18,7 +19,7 @@ type YouTubeApiResponse = {
 
 const fetchYouTubeVideoData = cache(
   async (videoId: string): Promise<YouTubeVideoData | null> => {
-    const apiKey = process.env.YOUTUBE_DATA_API_KEY
+    const apiKey = env.youtubeDataApiKey
     if (!apiKey) return null
 
     try {

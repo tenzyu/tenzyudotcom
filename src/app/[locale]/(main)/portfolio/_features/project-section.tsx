@@ -4,6 +4,7 @@ import { SectionHeader } from '@/components/site-ui/section-header'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { PORTFOLIO_PROJECTS } from '../_data/portfolio'
 
 export function ProjectsSection() {
   const content = useIntlayer('page-portfolio')
@@ -15,56 +16,69 @@ export function ProjectsSection() {
         variant="underline"
       />
       <div className="space-y-10">
-        {content.projects.items.map((project) => (
-          <Card key={project.name.value} variant="soft" className="p-0">
-            <CardHeader className="gap-2">
-              <CardTitle className="text-lg font-semibold">
-                {project.name}
-              </CardTitle>
-              <p className="text-primary text-sm leading-relaxed font-medium">
-                {project.highlight}
-              </p>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <p className="text-sm leading-relaxed">{project.description}</p>
-              <p className="text-muted-foreground text-sm leading-relaxed">
-                <strong>{content.projects.motivationLabel}</strong>{' '}
-                {project.motivation}
-              </p>
-              <div className="flex flex-wrap gap-2 pt-1">
-                {project.technologies.map((tech) => (
-                  <Badge key={tech.value} variant="secondary">
-                    {tech}
-                  </Badge>
-                ))}
-              </div>
-              <div className="flex flex-wrap gap-4 pt-2 text-sm font-medium">
-                {project.github ? (
-                  <Button
-                    variant="ghost"
-                    className="text-primary h-auto px-0 hover:bg-transparent hover:underline"
-                    asChild
-                  >
-                    <ExternalLink href={project.github.value}>
-                      {content.projects.githubLabel} &rarr;
-                    </ExternalLink>
-                  </Button>
+        {PORTFOLIO_PROJECTS.map((project) => {
+          const projectContent = content.projects.items[project.id]
+          const note = 'note' in projectContent ? projectContent.note : null
+
+          return (
+            <Card key={project.id} variant="soft" className="p-0">
+              <CardHeader className="gap-2">
+                <CardTitle className="text-lg font-semibold">
+                  {projectContent.name}
+                </CardTitle>
+                <p className="text-primary text-sm leading-relaxed font-medium">
+                  {projectContent.highlight}
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <p className="text-sm leading-relaxed">
+                  {projectContent.description}
+                </p>
+                <p className="text-muted-foreground text-sm leading-relaxed">
+                  <strong>{content.projects.motivationLabel}</strong>{' '}
+                  {projectContent.motivation}
+                </p>
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {project.technologies.map((tech) => (
+                    <Badge key={tech} variant="secondary">
+                      {tech}
+                    </Badge>
+                  ))}
+                </div>
+                <div className="flex flex-wrap gap-4 pt-2 text-sm font-medium">
+                  {project.github ? (
+                    <Button
+                      variant="ghost"
+                      className="text-primary h-auto px-0 hover:bg-transparent hover:underline"
+                      asChild
+                    >
+                      <ExternalLink href={project.github}>
+                        {content.projects.githubLabel} &rarr;
+                      </ExternalLink>
+                    </Button>
+                  ) : null}
+                  {project.demo ? (
+                    <Button
+                      variant="ghost"
+                      className="text-primary h-auto px-0 hover:bg-transparent hover:underline"
+                      asChild
+                    >
+                      <ExternalLink href={project.demo}>
+                        {content.projects.demoLabel} &rarr;
+                      </ExternalLink>
+                    </Button>
+                  ) : null}
+                </div>
+                {note ? (
+                  <p className="text-muted-foreground text-sm leading-relaxed">
+                    <strong>{content.projects.notePrefix}</strong>
+                    {note}
+                  </p>
                 ) : null}
-                {project.demo ? (
-                  <Button
-                    variant="ghost"
-                    className="text-primary h-auto px-0 hover:bg-transparent hover:underline"
-                    asChild
-                  >
-                    <ExternalLink href={project.demo.value}>
-                      {content.projects.demoLabel} &rarr;
-                    </ExternalLink>
-                  </Button>
-                ) : null}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+              </CardContent>
+            </Card>
+          )
+        })}
       </div>
     </div>
   )

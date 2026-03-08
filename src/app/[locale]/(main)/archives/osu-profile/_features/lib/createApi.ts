@@ -5,9 +5,7 @@ import { getRequiredOsuApiCredentials } from '@/config/env.contract'
 
 import { OsuAPIError } from './utils'
 
-let credentials:
-  | ReturnType<typeof getRequiredOsuApiCredentials>
-  | undefined
+let credentials: ReturnType<typeof getRequiredOsuApiCredentials> | undefined
 
 const getOsuApiCredentials = () => {
   if (credentials) {

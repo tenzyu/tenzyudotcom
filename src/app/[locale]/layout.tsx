@@ -15,6 +15,7 @@ import { Footer } from '@/components/shell/footer'
 import { Header } from '@/components/shell/header'
 import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
+import { isDevelopment } from '@/config/env.contract'
 import { ThemeProvider } from '@/features/site-controls/theme-provider'
 import { buildSiteMetadata } from './_features/site-metadata'
 
@@ -49,14 +50,14 @@ const LocaleLayout: NextLayoutIntlayer = async ({ children, params }) => {
   return (
     <html lang={locale} dir={getHTMLTextDir(locale)} suppressHydrationWarning>
       <head>
-        {process.env.NODE_ENV === 'development' && (
+        {isDevelopment && (
           <Script
             src="//unpkg.com/react-grab/dist/index.global.js"
             crossOrigin="anonymous"
             strategy="beforeInteractive"
           />
         )}
-        {process.env.NODE_ENV === 'development' && (
+        {isDevelopment && (
           <Script
             src="//unpkg.com/@react-grab/codex/dist/client.global.js"
             strategy="lazyOnload"

@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { useLocale } from 'next-intlayer/server'
 import { LanguageSwitcher } from '@/features/site-controls/language-switcher'
 import { ThemeSwitcher } from '@/features/site-controls/theme-switcher'
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/utils/common'
 import { Container } from './container'
 
 const navLinkStyles = 'hover:text-primary transition-colors'
