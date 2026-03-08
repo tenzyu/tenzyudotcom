@@ -6,7 +6,4 @@
     "source.organizeImports": "never",
     "source.organizeImports.biome": "explicit"
   },
-  "files.associations": {
-    "*.css": "tailwindcss"
-  }
 }
