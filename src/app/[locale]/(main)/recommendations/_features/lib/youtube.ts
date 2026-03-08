@@ -4,21 +4,10 @@ import 'server-only'
 
 import { cache } from 'react'
 import { env } from '@/config/env.contract'
-
-type YouTubeVideoData = {
-  title: string
-  viewCount?: number
-}
-
-type YouTubeApiResponse = {
-  items?: Array<{
-    snippet?: { title?: string }
-    statistics?: { viewCount?: string }
-  }>
-}
+import { parseYouTubeVideoApiResponse } from './youtube.contract'
 
 const fetchYouTubeVideoData = cache(
-  async (videoId: string): Promise<YouTubeVideoData | null> => {
+  async (videoId: string) => {
     const apiKey = env.youtubeDataApiKey
     if (!apiKey) return null
 
@@ -33,18 +22,7 @@ const fetchYouTubeVideoData = cache(
       })
       if (!res.ok) return null
 
-      const data = (await res.json()) as YouTubeApiResponse
-      const item = data.items?.[0]
-      if (!item) return null
-
-      const title = item.snippet?.title ?? 'Unknown'
-      const viewCountRaw = item.statistics?.viewCount
-      const viewCount = viewCountRaw ? Number(viewCountRaw) : undefined
-
-      return {
-        title,
-        viewCount: Number.isFinite(viewCount) ? viewCount : undefined,
-      }
+      return parseYouTubeVideoApiResponse(await res.json())
     } catch {
       return null
     }
