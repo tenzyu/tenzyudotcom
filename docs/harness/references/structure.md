@@ -374,8 +374,8 @@ owner は「どこに canonical source があるか」である。
 - route-local の source を shared owner に見せかけない
 - shared feature の source でも、admin helper から product runtime import source を逆転させない
 - `src/lib/editorial` は storage / registry の shared helper であり、canonical source ではない
-- locale-less internal admin route では、fixed locale の Intlayer content を使ってよい
-  - self-only route で、public locale UX に影響しない場合に限る
+- self-only admin route では、固定 locale の Intlayer content を使ってよい
+  - public locale UX に影響しない場合に限る
 
 ### 5. Syntax buckets are subordinate
 

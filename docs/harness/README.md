@@ -58,6 +58,9 @@ harness 自体の review や extension では
   - `memory`
 - harness の review / extension / gap 整理
   - `context -> structure -> guard -> known-gaps`
+- 未設計の新機能を追加する前の仕様化
+  - `context -> guard -> known-gaps -> memory`
+  - spec を `docs/ai-reports/*.md` に残してから実装する
 
 ## Core Rule
 

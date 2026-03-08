@@ -84,7 +84,15 @@ repo 自体に埋め込まれた方針。
 - Guard 条件
 - tool boundary
 - known gaps と deferred decision
+- 未設計の新機能についての spec draft / interview memo
 - 複数 task / 複数 route で再発した曖昧さへの恒久ルール
+
+`docs/ai-reports/*.md` は durable spec / interview memo の置き場として扱う。
+
+- operating design
+- product spec
+- boundary spec
+- 選ばなかった案とその理由
 
 ここに残すべきでないもの:
 
