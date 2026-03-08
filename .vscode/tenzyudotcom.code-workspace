@@ -1,6 +1,9 @@
 {
 	"folders": [
 		{
+			"path": "../src/app/[locale]/(admin)"
+		},
+		{
 			"path": "../docs"
 		},
 		{
