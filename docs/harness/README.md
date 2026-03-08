@@ -84,6 +84,9 @@ tool boundary は `tools.md` が担当する。
 また、同じ観点だけで loop し続けない。
 次の loop では、直前とは異なる観点を 1 つ主軸に選ぶ。
 
+方向性が不明で、user の価値観や運用思想が structural decision に効く場合は、
+推測で進めず短いインタビューを先に行う。
+
 - ownership / placement
 - verification / testability
 - runtime boundary / contract

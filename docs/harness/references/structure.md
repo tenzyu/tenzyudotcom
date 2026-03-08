@@ -274,6 +274,16 @@ join は feature 側で行う。
 - index 順依存で join しない
 - record ごとに optional field が揺れるなら、join 点で existence を guard する
 
+locale path を持つ route では、user に見える IA 文言も meaning として扱う。
+
+- section title
+- card title
+- visible description
+- primary tab / filter label
+
+これらは raw data に直書きしない。
+ただし brand 名や locale-neutral な proper noun だけは data に残してよい。
+
 典型:
 
 - `<feature>.data.ts` が item 配列を持つ
