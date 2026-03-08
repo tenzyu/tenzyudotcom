@@ -1,8 +1,8 @@
 import { useIntlayer } from 'next-intlayer/server'
 import { PageHeader } from '@/components/site-ui/page-header'
 import { SectionHeader } from '@/components/site-ui/section-header'
-import { DASHBOARD_DATA } from './dashboard/data'
 import { ActionLinkTile } from './dashboard/action-link-tile'
+import { DASHBOARD_DATA } from './dashboard/dashboard.data'
 
 export function PointersPageContent() {
   const content = useIntlayer('page-pointers')

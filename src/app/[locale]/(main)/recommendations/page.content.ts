@@ -1,4 +1,5 @@
 import { type Dictionary, t } from 'intlayer'
+import type { RecommendationTabId } from './_features/recommendations.contract'
 import type {
   RecommendationChannelId,
   RecommendationVideoId,
@@ -30,15 +31,15 @@ const recommendationsPageContent = {
         ja: '音楽',
         en: 'Music',
       }),
-      socials: t({
-        ja: 'アカウント',
-        en: ' Accounts',
+      channels: t({
+        ja: 'チャンネル',
+        en: 'Channels',
       }),
-      videos: t({
+      socials: t({
         ja: 'SNS',
         en: 'Socials',
       }),
-    },
+    } satisfies Record<RecommendationTabId, ReturnType<typeof t>>,
     sections: {
       youtubeChannels: {
         title: t({
