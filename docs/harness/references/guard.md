@@ -46,7 +46,8 @@ Guard は次の順で使う。
 2. slow down 条件がないか確認する
 3. 実行中は structure / mutation / tool boundary を監視する
 4. harness gap が見えたら docs 更新か follow-up debt 化を判断する
-5. 最終報告で structural decision と未検証事項を明示する
+5. docs を更新した場合は、rule のまとまり方と思想競合を review する
+6. 最終報告で structural decision と未検証事項を明示する
 
 ### Refuse / Slow Down Conditions
 
@@ -130,6 +131,13 @@ ops runtime がまだ repo に存在しない場合は、
 - 同じ task で安全に更新できるなら `docs/harness` を直す
 - 直さない場合は、最終報告で不足している rule を具体的に列挙する
 - 「今回はこうしたが docs にはない」を曖昧なまま残さない
+
+docs を更新した後は、更新内容そのものを review する。
+
+- LLM がその rule を 1 回の routing で読める粒度か
+- 既存の `context.md` / `structure.md` / `tools.md` / `guard.md` と競合していないか
+- 同じ概念が別名で増えていないか
+- README から辿れる位置に置かれているか
 
 ## Output Guard
 

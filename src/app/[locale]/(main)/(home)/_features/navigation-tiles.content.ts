@@ -1,10 +1,14 @@
 import { type Dictionary, t } from 'intlayer'
+import type {
+  NavigationGroupId,
+  NavigationItemId,
+} from './navigation-tiles.data'
 
 const navigationTilesContent = {
   key: 'navigationTiles',
   content: {
-    groups: [
-      {
+    groups: {
+      outputs: {
         title: t({
           ja: 'アウトプット',
           en: 'Outputs',
@@ -13,9 +17,8 @@ const navigationTilesContent = {
           ja: 'いま作っているもの',
           en: 'What I do',
         }),
-        items: [
-          {
-            href: '/tools',
+        items: {
+          tools: {
             label: t({
               ja: 'ツール',
               en: 'Tools',
@@ -25,8 +28,7 @@ const navigationTilesContent = {
               en: 'Handmade tools and scripts.',
             }),
           },
-          {
-            href: '/blog',
+          blog: {
             label: t({
               ja: 'ブログ',
               en: 'Blog',
@@ -36,8 +38,7 @@ const navigationTilesContent = {
               en: 'Notes and logs I wrote down.',
             }),
           },
-          {
-            href: '/portfolio',
+          portfolio: {
             label: t({
               ja: 'ポートフォリオ',
               en: 'Portfolio',
@@ -47,8 +48,7 @@ const navigationTilesContent = {
               en: 'For recruiters and collaborators.',
             }),
           },
-          {
-            href: '/archives',
+          archives: {
             label: t({
               ja: 'アーカイブ',
               en: 'Archives',
@@ -58,9 +58,9 @@ const navigationTilesContent = {
               en: 'Past logs and archives.',
             }),
           },
-        ],
+        },
       },
-      {
+      externals: {
         title: t({
           ja: '外部リンク',
           en: 'Externals',
@@ -69,9 +69,8 @@ const navigationTilesContent = {
           ja: '外部リソースへジャンプ',
           en: 'Jump to external resources',
         }),
-        items: [
-          {
-            href: '/links',
+        items: {
+          links: {
             label: t({
               ja: 'リンク集',
               en: 'My Links',
@@ -81,8 +80,7 @@ const navigationTilesContent = {
               en: 'Streaming destinations and external links.',
             }),
           },
-          {
-            href: '/puzzles',
+          puzzles: {
             label: t({
               ja: '謎解き',
               en: 'Solved Puzzles',
@@ -92,8 +90,7 @@ const navigationTilesContent = {
               en: 'Records of puzzles I solved.',
             }),
           },
-          {
-            href: '/recommendations',
+          recommendations: {
             label: t({
               ja: 'お気に入り',
               en: 'Favorites',
@@ -103,8 +100,7 @@ const navigationTilesContent = {
               en: 'Favorite music and videos.',
             }),
           },
-          {
-            href: '/pointers',
+          pointers: {
             label: t({
               ja: 'クイックアクセス',
               en: 'Quick access',
@@ -114,9 +110,21 @@ const navigationTilesContent = {
               en: 'Like a personal bookmark board.',
             }),
           },
-        ],
+        },
       },
-    ],
+    } satisfies Record<
+      NavigationGroupId,
+      {
+        title: ReturnType<typeof t>
+        subtitle: ReturnType<typeof t>
+        items: Partial<
+          Record<
+            NavigationItemId,
+            { label: ReturnType<typeof t>; description: ReturnType<typeof t> }
+          >
+        >
+      }
+    >,
   },
 } satisfies Dictionary
 

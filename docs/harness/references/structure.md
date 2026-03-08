@@ -248,6 +248,20 @@ Intlayer に入れるべきでないもの:
 `recommendations.data.ts`, `puzzles.data.ts`, `selfie-gallery.data.ts` のように、
 責務名を file 名に残す。
 
+join は feature 側で行う。
+
+- `data` は `id`, `href`, `url`, `order`, stable enum を持つ
+- `*.content.ts` は `label`, `description`, localized prose を持つ
+- component / loader は stable id で両者を join する
+- index 順依存で join しない
+- record ごとに optional field が揺れるなら、join 点で existence を guard する
+
+典型:
+
+- `<feature>.data.ts` が item 配列を持つ
+- `<feature>.content.ts` が `Record<Id, Meaning>` を持つ
+- `<feature>.tsx` が `data.map(id => content[id])` で assemble する
+
 ### 4. Shell, site-ui, and pure logic are separate escape hatches
 
 `src/components/shell` は shell のためにだけ使う。

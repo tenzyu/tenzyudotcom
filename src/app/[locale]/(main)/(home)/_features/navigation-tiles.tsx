@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { useIntlayer, useLocale } from 'next-intlayer/server'
+import type { ReactNode } from 'react'
 import { Content } from '@/components/site-ui/content'
 import {
   Item,
@@ -25,17 +26,31 @@ import {
   ItemTitle,
 } from '@/components/ui/item'
 import { Separator } from '@/components/ui/separator'
+import {
+  HOME_NAVIGATION_GROUPS,
+  type NavigationItemId,
+} from './navigation-tiles.data'
 
-const NAV_GROUPS = [
-  {
-    icon: User,
-    items: [Hammer, FileText, Disc, FolderArchive],
-  },
-  {
-    icon: Sparkles,
-    items: [LinkIcon, Puzzle, ListMusic, Pointer],
-  },
-] as const
+const NAVIGATION_GROUP_ICONS = {
+  outputs: User,
+  externals: Sparkles,
+} as const
+
+const NAVIGATION_ITEM_ICONS = {
+  tools: Hammer,
+  blog: FileText,
+  portfolio: Disc,
+  archives: FolderArchive,
+  links: LinkIcon,
+  puzzles: Puzzle,
+  recommendations: ListMusic,
+  pointers: Pointer,
+} as const
+
+type NavigationItemContent = {
+  label: ReactNode
+  description: ReactNode
+}
 
 export function NavigationTiles() {
   const navigation = useIntlayer('navigationTiles')
@@ -43,27 +58,30 @@ export function NavigationTiles() {
 
   return (
     <Content size="5xl" className="space-y-12">
-      {navigation.groups.map((group, groupIndex) => {
-        const config = NAV_GROUPS[groupIndex]
-        if (!config) return null
+      {HOME_NAVIGATION_GROUPS.map((group) => {
+        const groupContent = navigation.groups[group.id]
+        const GroupIcon = NAVIGATION_GROUP_ICONS[group.id]
+        const itemContents = groupContent.items as unknown as Partial<
+          Record<NavigationItemId, NavigationItemContent>
+        >
 
         return (
-          <section key={group.title.value} className="space-y-6">
+          <section key={group.id} className="space-y-6">
             {/* header */}
             <div className="space-y-2">
               <div className="flex items-center gap-4">
                 <div className="bg-primary/10 flex size-14 shrink-0 items-center justify-center rounded-2xl">
-                  <config.icon className="text-primary h-7 w-7" />
+                  <GroupIcon className="text-primary h-7 w-7" />
                 </div>
                 <div className="flex flex-1 flex-col justify-center">
                   <div className="flex items-center gap-4">
                     <h2 className="text-2xl font-bold tracking-tight">
-                      {group.title}
+                      {groupContent.title}
                     </h2>
                     <Separator className="bg-border/50 flex-1" />
                   </div>
                   <p className="text-muted-foreground text-sm font-medium">
-                    {group.subtitle}
+                    {groupContent.subtitle}
                   </p>
                 </div>
               </div>
@@ -71,20 +89,21 @@ export function NavigationTiles() {
 
             {/* content */}
             <ItemGroup className="grid gap-3 md:grid-cols-2">
-              {group.items.map((item, itemIndex) => {
-                const Icon = config.items[itemIndex]
-                if (!Icon) return null
+              {group.items.map((item) => {
+                const itemContent = itemContents[item.id]
+                const Icon = NAVIGATION_ITEM_ICONS[item.id]
+                if (!itemContent) return null
 
                 return (
                   <Item
-                    key={item.href.value}
+                    key={item.id}
                     variant="card"
                     size="sm"
                     className="group h-auto w-full"
                     asChild
                   >
                     <Link
-                      href={getLocalizedUrl(item.href.value, locale)}
+                      href={getLocalizedUrl(item.href, locale)}
                       className="flex w-full items-center gap-3"
                     >
                       <ItemMedia
@@ -95,10 +114,10 @@ export function NavigationTiles() {
                       </ItemMedia>
                       <ItemContent className="min-w-0">
                         <ItemTitle className="text-sm font-semibold">
-                          {item.label}
+                          {itemContent.label}
                         </ItemTitle>
                         <ItemDescription className="text-xs">
-                          {item.description}
+                          {itemContent.description}
                         </ItemDescription>
                       </ItemContent>
                       <ItemActions className="text-muted-foreground/80">

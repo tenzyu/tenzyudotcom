@@ -37,6 +37,13 @@ target architecture を定義する。
 `references/context.md -> references/structure.md -> references/guard.md`
 まで読めば足りる。
 
+ハーネス自体を更新した場合は、更新後に次の review を追加で行う。
+
+- LLM にとって重要な判断情報が、1 か所で読める単位にまとまっているか
+- 同じ判断軸について、複数文書が競合する思想を出していないか
+- route / feature / contract / tool boundary のどれかが別名で二重定義されていないか
+- update した rule が、次回の task で実際に参照できる routing になっているか
+
 ## Quick Routing
 
 | Need | Read |
@@ -128,3 +135,6 @@ target architecture を定義する。
 
 ただし、これらの定義や優先順位は `references/context.md` に置く。
 placement の具体は `references/structure.md` に置く。
+
+ハーネス改善ループでは、project の改善だけでなく、
+ハーネス更新そのものの readability / non-conflict も毎回 review 対象に含める。
