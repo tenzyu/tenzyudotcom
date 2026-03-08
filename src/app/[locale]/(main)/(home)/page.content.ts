@@ -5,8 +5,8 @@ const homeContent = {
   content: {
     metadata: {
       title: t({
-        ja: 'トップページ',
-        en: '天珠があなたに招待を送信しました。| 天珠の秘密基地',
+        ja: 'ホーム',
+        en: 'Home',
       }),
       description: t({
         ja: '天珠の今の関心、入口、記録をまとめたホームページ。',

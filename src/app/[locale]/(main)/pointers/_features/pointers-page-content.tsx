@@ -11,7 +11,7 @@ export function PointersPageContent() {
     <>
       <PageHeader
         title={content.metadata.title.value}
-        description={content.metadata.description.value}
+        description={content.lead.value}
         className="flex flex-col gap-4"
       />
 

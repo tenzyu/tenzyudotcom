@@ -60,6 +60,7 @@ Intlayer は localized meaning のための tool として使う。
 - `react` cache
 - `fetch`
 - parser / API helper
+- external SDK wrapper
 
 ## Ownership Matrix
 
@@ -161,6 +162,16 @@ freshness policy は magic number のまま route entry や fetch call に散ら
 - `react` の `cache()` は per-request dedupe 用であり、freshness source of truth の代わりにしない
 - Next.js segment config export は framework 制約で inline literal が必要なことがある
   - import 共有できない場合は、segment export だけ inline に残し、fetch policy 側を source of truth にする
+
+## Runtime Boundary Hygiene
+
+外部 SDK や route-local loader も境界として扱う。
+
+- external SDK wrapper は feature-local `lib` に閉じる
+- component が raw SDK 呼び出しを直接持たない
+- 同じ request で同じ call が起きうるなら、wrapper か loader 側で `cache()` による dedupe を入れる
+- SDK 例外は wrapper 側で app の error shape に寄せる
+- route page や server component は「何を読むか」を決め、SDK details は wrapper に委譲する
 
 ### Human Review Tools
 

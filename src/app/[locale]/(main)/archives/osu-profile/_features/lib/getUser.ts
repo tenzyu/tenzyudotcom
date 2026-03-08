@@ -1,6 +1,7 @@
 import 'server-only'
 
 import type * as osu from 'osu-api-v2-js'
+import { cache } from 'react'
 
 import { type ApiInstance, createApi } from './createApi'
 import { handleOsuAPIError, withRetry } from './utils'
@@ -11,9 +12,9 @@ type GetUserParams = Parameters<ApiInstance['getUser']>
  * @param params Parameters for the getUser API call
  * @returns User data with extended information
  */
-export async function getUser(
+export const getUser = cache(async (
   ...params: GetUserParams
-): Promise<osu.User.Extended> {
+): Promise<osu.User.Extended> => {
   try {
     const api = await createApi()
     const user = await withRetry(() => api.getUser(...params))
@@ -21,4 +22,4 @@ export async function getUser(
   } catch (error) {
     return handleOsuAPIError(error)
   }
-}
+})

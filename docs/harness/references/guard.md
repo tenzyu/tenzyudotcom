@@ -113,6 +113,8 @@ Guard は次の順で使う。
 
 - locale path を持つ route では、visible IA を unlocalized data のまま公開しない
   - locale-neutral な固有名詞だけが data に残るのは許容する
+- site が複数の primary route を持つなら、home だけを discovery の唯一入口にしない
+  - shell か nav で主要導線を最低限 expose する
 - primary navigation や primary action に dead affordance を置かない
   - disabled item を出すなら、user-facing な理由と代替導線が必要
 - tab / filter / sort など、見える状態を切り替える UI は shareable なら URL へ乗せる
@@ -129,6 +131,7 @@ Guard は次の順で使う。
 - formatter / linter / config / import graph を触ったら `lint` または `format`
 - test が存在する repo では、影響範囲に応じた test を通す
 - caching / revalidate / fetch timeout を触ったら、magic number のまま散っていないか確認する
+- external SDK wrapper や route-local loader を触ったら、request 内 dedupe と error boundary が崩れていないか確認する
 
 test を増やす価値が高いのは次のとき。
 

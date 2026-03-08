@@ -1,6 +1,7 @@
 import 'server-only'
 
 import type * as osu from 'osu-api-v2-js'
+import { cache } from 'react'
 
 import { type ApiInstance, createApi } from './createApi'
 import { handleOsuAPIError, withRetry } from './utils'
@@ -12,7 +13,7 @@ type GetUserScoresParams = Parameters<ApiInstance['getUserScores']>
  * @param params Parameters for the getUserScores API call
  * @returns Array of user's scores with beatmap and beatmapset information
  */
-export const getUserScores = async (
+export const getUserScores = cache(async (
   ...params: GetUserScoresParams
 ): Promise<osu.Score.WithUserBeatmapBeatmapset[]> => {
   try {
@@ -23,4 +24,4 @@ export const getUserScores = async (
   } catch (error) {
     return handleOsuAPIError(error)
   }
-}
+})

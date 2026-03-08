@@ -17,6 +17,10 @@ const pointersPageContent = {
         en: 'Quick access dashboard for personal daily use.',
       }),
     },
+    lead: t({
+      ja: '普段すぐ開く AI や作業ツールを、迷わず触れるように並べた私用ダッシュボードです。',
+      en: 'A personal dashboard for the AI and productivity tools I open on autopilot.',
+    }),
     dashboard: {
       categories: {
         'ai-assistants': {

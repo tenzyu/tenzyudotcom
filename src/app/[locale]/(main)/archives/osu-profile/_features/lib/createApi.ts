@@ -1,6 +1,7 @@
 import 'server-only'
 
 import * as osu from 'osu-api-v2-js'
+import { cache } from 'react'
 import { getRequiredOsuApiCredentials } from '@/config/env.contract'
 
 import { OsuAPIError } from './utils'
@@ -24,18 +25,10 @@ const getOsuApiCredentials = () => {
   }
 }
 
-// APIインスタンスをキャッシュ
-let apiInstance: osu.API | null = null
-
-export const createApi = async () => {
-  if (apiInstance) {
-    return apiInstance
-  }
-
+export const createApi = cache(async () => {
   try {
     const { clientId, clientSecret } = getOsuApiCredentials()
-    apiInstance = await osu.API.createAsync(clientId, clientSecret)
-    return apiInstance
+    return await osu.API.createAsync(clientId, clientSecret)
   } catch (error) {
     console.error(error)
     throw new OsuAPIError(
@@ -44,11 +37,6 @@ export const createApi = async () => {
       'OSU_API_INITIALIZATION_ERROR',
     )
   }
-}
+})
 
 export type ApiInstance = Awaited<ReturnType<typeof createApi>>
-
-// APIインスタンスのリセット（エラー時やテスト用）
-export const resetApiInstance = () => {
-  apiInstance = null
-}

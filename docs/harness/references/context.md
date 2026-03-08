@@ -79,6 +79,9 @@ metadata と on-page copy と nav/tile copy は分けて考える。
 - page header / hero copy
   - 実際に訪問した user に向けた導入
   - metadata より expressive でよい
+- page lead
+  - page header の直下で、その page に何があるかを 1〜2 文で説明する
+  - metadata description をそのまま流用せず、訪問後の理解を優先する
 - nav / tile description
   - 1 行で行き先を判断させる短い説明
   - page lead をそのまま流用しない

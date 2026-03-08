@@ -18,6 +18,10 @@ const recommendationsPageContent = {
         en: 'Music, videos, and other things I like.',
       }),
     },
+    lead: t({
+      ja: '好きな曲、繰り返し見ている動画、雰囲気ごと好きなチャンネルをまとめています。',
+      en: 'A running list of songs, videos, and channels I keep returning to.',
+    }),
     navLabel: t({
       ja: 'お気に入り',
       en: 'Favorites',
