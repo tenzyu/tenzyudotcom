@@ -113,6 +113,16 @@ harness は full spec の置き場ではない。
 
 を集積し、必要ならそこから再利用可能な最小ルールだけを harness に昇格する。
 
+## Precedent Stop Declaration
+
+この repo では、harness に書くのは意思決定 ADR だけに絞ることでメンテナンスコストを抑える。
+それでも現状コードが勝手に「真のソース」と見なされてしまう誘惑があるため、
+意図的に既存コードへの従属を止める必要があるときは、それを宣言する。
+たとえば「この段階の feature 配置は歴史的な convenience であり、新ルールに従うこと」という観点を harness に記述するか、
+該当ケースを `docs/harness/cases` に残し、そこから分岐した新たなルールを `docs/harness/references` に昇格させる。
+
+この宣言をすることで、AI には「既存コードを precedent として使わない」「harness が現行のルール」だと明示できる。
+
 ## Harness Review
 
 ハーネス自体を更新した場合は、更新後に次を review する。
