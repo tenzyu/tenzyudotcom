@@ -19,6 +19,7 @@ user-invocable: true
 
 ## 1. タスクの認識と計画 (Research & Strategy)
 - `docs/exec-plans/active/` などのディレクトリを確認し、現在進行中または次に着手すべきタスクのMarkdownファイルを読み込んでください。
+- **重要**: `docs/exec-plans/**` の作業を行う際は、その知見に基づいて `prompts/*.md` や `docs/references/*.md` などのハーネス（エージェント用規律）を自動的に更新・改善してください。
 - 作業内容を理解したら、現状のコードベースを `codebase_investigator` などのサブエージェントを活用して調査し、実装計画を立ててください。
 
 ## 2. ブランチの作成 (Branching)
@@ -27,12 +28,12 @@ user-invocable: true
 
 ## 3. 実装と検証 (Execution & Validation)
 - 計画に従ってコードを修正・追加してください。
-- 複雑なアーキテクチャの把握や広範な修正が必要な場合は、適宜サブエージェント（`codebase_investigator` など）にタスクを委譲して並行作業を有効化してください。
-- 修正完了後は、必ず `bun run verify` などを実行して、リンター、フォーマッター、テストがPassすることを検証してください。
+- 修正完了後は、**必ず `bun run verify` を実行し、Lint (Code & Docs), Formatter, Tests がすべて Pass することを確認してください。**
+- `scripts/lint-docs.ts` による `AGENTS.md` の到達性と Frontmatter の整合性を必ずパスさせることが「完了」の定義に含まれます。
 
 ## 4. コミットとPRの作成 (Commit & Pull Request)
 - 変更内容を整理し、適切なコミットメッセージとともに `git commit` を行ってください。
 - `git push -u origin <branch-name>` でリモートに変更をPushしてください。
-- `docs/references/github-pr-workflow.md` の手順に従い、`gh pr create --base develop` を使用して、`develop` ブランチに向けたPull Requestを作成してください。
+- `docs/references/github-pr-workflow.md` の手順に従い、**必ず `gh pr create --base develop` を使用して、`develop` ブランチに向けた PR を作成してください。**
 - PRが作成できたら、ユーザーにURLを共有して作業完了を報告してください。
 ```
