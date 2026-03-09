@@ -1,13 +1,13 @@
 ---
 name: personal-site-goals
-description: Repo-specific product goals for the personal site as a whole.
-summary: Captures the site's durable value goals so feature decisions can be evaluated against owned identity, durable memory, living curation, and self-utility.
+description: 個人のサイト全体の、リポジトリ固有のプロダクト目標。
+summary: サイトの持続的な価値の目標を記録し、アイデンティティの所有、永続的な記憶、生きたキュレーション、自己効用に対して機能決定を評価できるようにする。
 read_when:
-  - prioritizing top-level product direction
-  - judging whether a new feature supports the site's long-term value
-  - deciding between archive, garden, and utility-oriented behaviors
+  - トップレベルのプロダクトの方向性を優先順位付けする時
+  - 新機能がサイトの長期的価値をサポートするかどうかを判断する時
+  - アーカイブ、ガーデン、またはユーティリティ指向の動作のいずれかを選択する時
 skip_when:
-  - you only need implementation-level guidance for one route
+  - 1つのルートに対する実装レベルのガイダンスだけが必要な時
 user-invocable: false
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: harness-context
-description: Design principles and priority order for the repo's target architecture. Read when evaluating tradeoffs, reviewing architecture, or deciding which principle wins.
+description: リポジトリのターゲットアーキテクチャのための設計原則と優先順位。トレードオフを評価したり、アーキテクチャをレビューしたり、どの原則を優先するかを決定する時に読む。
 user-invocable: false
 ---
 

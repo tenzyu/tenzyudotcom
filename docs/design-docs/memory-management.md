@@ -1,6 +1,6 @@
 ---
 name: harness-memory
-description: Memory model for the repo's harness. Read when deciding what to remember, what to forget, and what belongs in durable docs versus temporary working context.
+description: リポジトリのharnessのためのメモリモデル。何を記憶し、何を忘れ、何が一時的なコンテキストではなく永続的なドキュメントに属するかを決定する時に読む。
 user-invocable: false
 ---
 

@@ -1,13 +1,13 @@
 ---
 name: tools-product-spec
-description: Repo-specific product spec for the standalone utility tools feature.
-summary: Defines the boundaries, UI expectations, and architectural placement of utility apps on the `/tools` route.
+description: 独立したユーティリティツール機能のための、リポジトリ固有のプロダクト仕様。
+summary: /toolsルートにおけるミニアプリの境界、UIの期待値、およびアーキテクチャ上の配置を定義する。
 read_when:
-  - adding a new tool to the site
-  - investigating or resolving errors occurring within the tools section
-  - deciding if a widget belongs in /tools or as a shared UI component
+  - サイトに新しいツールを追加する時
+  - toolsセクション内で発生するエラーを調査または解決する時
+  - ウィジェットが /tools に属するか、サイトの共有UIコンポーネントかを決定する時
 skip_when:
-  - you only need general layout patterns or site-wide components
+  - 一般的なレイアウトパターンやサイト全体のコンポーネントだけが必要な時
 user-invocable: false
 ---
 

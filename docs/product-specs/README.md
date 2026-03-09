@@ -1,12 +1,12 @@
 ---
 name: harness-repo-specific
-description: Repo-specific product and architecture documents that are durable but should not be treated as general harness rules.
-summary: Use this subtree for stable repo-specific specs, product direction, and architecture notes. Each top-level file is an index card with routing frontmatter and only relative body references.
+description: 永続的ではあるが、一般的なharnessルールとして扱うべきではない、リポジトリ固有のプロダクトとアーキテクチャのドキュメント。
+summary: 安定したリポジトリ固有の仕様、プロダクトの方向性、アーキテクチャに関するノートのためにこのサブディレクトリを使用する。
 read_when:
-  - a task depends on this repository's product goals or editorial operating model
-  - you need a stable repo-specific spec that should not live in cases or harness references
+  - 既存のプロダクト仕様またはアーキテクチャルールを修正する時
+  - グローバルなharnessよりもここに置く方が安全だと感じる、新しいリポジトリ固有のルールを作成する時
 skip_when:
-  - you only need generic harness rules; start from docs/harness/references
+  - ルールがグローバルな境界、ツール、またはメモリアウトを定義する時（それらは参照にある）
 body_convention:
   - keep the top-level file to frontmatter plus relative body paths only
   - place substantive prose in ./<slug>/body.md

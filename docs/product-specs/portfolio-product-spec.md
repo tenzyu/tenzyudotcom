@@ -1,12 +1,12 @@
 ---
 name: portfolio-product-spec
-description: Repo-specific product spec for the portfolio feature.
-summary: Defines the structure and presentation rules of the /portfolio page.
+description: ポートフォリオ機能のための、リポジトリ固有のプロダクト仕様。
+summary: /portfolioページの構造とプレゼンテーション・ルールを定義する。
 read_when:
-  - modifying the portfolio layout or structure
-  - adding new projects or entries to the portfolio
+  - ポートフォリオのレイアウトや構造を変更する時
+  - ポートフォリオに新しいプロジェクトやエントリを追加する時
 skip_when:
-  - you only need general layout patterns
+  - 一般的なレイアウトパターンだけが必要な時
 user-invocable: false
 ---
 

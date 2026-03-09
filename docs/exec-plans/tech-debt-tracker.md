@@ -1,6 +1,6 @@
 ---
 name: harness-known-gaps
-description: Known gaps and deferred decisions in the repo's harness. Read when reviewing the harness, extending it, or working near boundaries that are intentionally not fully specified yet.
+description: リポジトリのharnessにおける既知のギャップと保留された決定事項。harnessをレビューする時、拡張する時、または意図的にまだ完全に指定されていない境界付近で作業する時に読む。
 user-invocable: false
 ---
 

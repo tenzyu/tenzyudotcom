@@ -1,6 +1,6 @@
 ---
 name: harness-tools
-description: Tool boundary and dependency guidance for the repo's harness. Read when deciding which tool, library, or runtime layer should own a responsibility.
+description: リポジトリのharnessのためのツールの境界と依存関係のガイダンス。どのツール、ライブラリ、またはランタイム層が責任を持つべきか決定する時に読む。
 user-invocable: false
 ---
 

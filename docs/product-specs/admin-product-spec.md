@@ -1,13 +1,13 @@
 ---
 name: admin-product-spec
-description: Repo-specific product spec for the self-only editorial admin.
-summary: Defines the intended operating model, scope, constraints, and self-only locale stance for the site's editorial admin.
+description: 自分専用のeditorial adminのための、リポジトリ固有のプロダクト仕様。
+summary: サイトのeditorial adminの意図された運用モデル、スコープ、制約、および自分専用のロケール方針を定義する。
 read_when:
-  - changing the editorial admin scope or UX
-  - deciding capabilities for author-only editing flows
-  - evaluating auth, collection coverage, or editing ergonomics
+  - editorial adminのスコープやUXを変更する時
+  - 著者専用の編集フローのための機能を決定する時
+  - 認証、コレクションのカバレッジ、または編集のエルゴノミクスを評価する時
 skip_when:
-  - you only need generic editorial boundary rules from harness references
+  - harnessの参照から一般的なeditorial boundary（境界）ルールだけが必要な時
 user-invocable: false
 ---
 

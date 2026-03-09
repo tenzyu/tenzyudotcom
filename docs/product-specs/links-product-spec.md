@@ -1,13 +1,13 @@
 ---
 name: links-product-spec
-description: Repo-specific product spec for the links collection.
-summary: Defines the categorization strategy, behavior, and structural rules for the /links feature.
+description: リンクコレクションのための、リポジトリ固有のプロダクト仕様。
+summary: /links機能のためのカテゴリ化戦略、動作、および構造的なルールを定義する。
 read_when:
-  - modifying the links page or links data schema
-  - adding a new category of links
-  - changing how external links are rendered or tracked
+  - リンクページまたはリンクデータのスキーマを変更する時
+  - リンクの新しいカテゴリを追加する時
+  - 外部リンクのレンダリング方法や追跡方法を変更する時
 skip_when:
-  - you only need general UI component styling rules
+  - 一般的なUIコンポーネントのスタイリングルールだけが必要な時
 user-invocable: false
 ---
 

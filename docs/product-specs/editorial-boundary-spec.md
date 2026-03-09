@@ -1,13 +1,13 @@
 ---
 name: editorial-boundary-spec
-description: Repo-specific failure policy for the editorial subsystem.
-summary: Captures the repo-specific failure policy for editorial reads and writes; generic boundary vocabulary and interview triggers live in harness references.
+description: editorialサブシステムのための、リポジトリ固有の障害ポリシー。
+summary: editorialの読み書きに対するリポジトリ固有の障害ポリシーを記録する。一般的な境界の語彙とインタビュートリガーはharnessの参照に存在する。
 read_when:
-  - clarifying responsibilities inside the editorial subsystem
-  - deciding failure behavior for editorial reads and writes
-  - checking repo-specific fallback behavior for editorial reads and writes
+  - editorialサブシステム内の責任を明確にする時
+  - editorialの読み書きに対する障害発生時の動作を決定する時
+  - editorialの読み書きに対するリポジトリ固有のフォールバック動作を確認する時
 skip_when:
-  - you only need the site-wide harness guard and structure rules
+  - サイト全体のharnessのガードレールや構造ルールだけが必要な時
 user-invocable: false
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: harness-structure
-description: Target filesystem and ownership model for the repo. Read when creating, moving, promoting, demoting, or classifying code and data.
+description: リポジトリのターゲットファイルシステムと所有権モデル。コードやデータを新規作成、移動、昇格、降格、または分類する時に読む。
 user-invocable: false
 ---
 

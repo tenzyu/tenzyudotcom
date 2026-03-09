@@ -1,6 +1,6 @@
 ---
 name: harness-guard
-description: Safety and execution constraints for harness-guided work. Read before risky edits, structural refactors, reviews, or final reporting.
+description: harness主導の作業のための安全性と実行の制約。リスクのある編集、構造的なリファクタリング、レビュー、または最終報告の前に読む。
 user-invocable: false
 ---
 

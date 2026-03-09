@@ -1,13 +1,13 @@
 ---
 name: editorial-architecture
-description: Repo-specific architecture note for author-curated editorial collections.
-summary: Defines the repository's editorial model, ownership, storage stance, and collection-specific editing direction; generic boundary vocabulary lives in harness references.
+description: 著者主導のeditorialコレクションのための、リポジトリ固有のアーキテクチャノート。
+summary: リポジトリのeditorialモデル、所有権、ストレージ方針、およびコレクション固有の編集方針を定義する。一般的な境界の語彙はharnessの参照に存在する。
 read_when:
-  - changing the editorial subsystem architecture
-  - deciding ownership between source, admin, storage, and assemble layers
-  - extending curated collections or their editing model
+  - editorialサブシステムのアーキテクチャを変更する時
+  - source、admin、storage、およびassemble層間の所有権を決定する時
+  - キュレーションされたコレクションやその編集モデルを拡張する時
 skip_when:
-  - you only need the generic naming rules for source/content/contract/assemble
+  - source/content/contract/assembleに関する一般的な命名規則だけが必要な時
 user-invocable: false
 ---
 

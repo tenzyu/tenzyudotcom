@@ -1,13 +1,13 @@
 ---
 name: blog-product-spec
-description: Repo-specific product spec for the blog section.
-summary: Defines rules around layout constraints, authoring processes, and editorial structure for the /blog feature.
+description: ブログセクションのための、リポジトリ固有のプロダクト仕様。
+summary: /blog機能のためのレイアウト制約、執筆プロセス、および編集構造に関するルールを定義する。
 read_when:
-  - modifying blog layouts, components, or category structures
-  - fixing blog rendering issues
-  - extending blog post capabilities (e.g., adding table of contents, MDX features)
+  - ブログのレイアウト、コンポーネント、またはカテゴリ構造を修正する時
+  - ブログのレンダリング問題を修正する時
+  - ブログ記事の機能（目次の追加、MDXの機能など）を拡張する時
 skip_when:
-  - you are editing an existing standalone blog post's actual content
+  - 既存の独立したブログ記事の実際のコンテンツを編集している時
 user-invocable: false
 ---
 

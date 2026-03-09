@@ -1,13 +1,13 @@
 ---
 name: notes-product-spec
-description: Repo-specific product spec for the notes feature.
-summary: Defines the role, route surface, source shape, UX, and admin scope for the notes collection.
+description: ノーツ機能のための、リポジトリ固有のプロダクト仕様。
+summary: ノーツコレクションの役割、ルートの表面、ソースの形状、UX、およびadminスコープを定義する。
 read_when:
-  - changing notes behavior, IA, or editing model
-  - evaluating notes source shape or route exposure
-  - deciding whether a notes feature belongs now or is explicitly out of scope
+  - ノーツの動作、情報設計、または編集モデルを変更する時
+  - ノーツのソースの形状やルートの露出を評価する時
+  - ノーツ機能が現在必要か、それとも明示的にスコープ外かを決定する時
 skip_when:
-  - you only need the generic route-local implementation rules
+  - 一般的なルートローカルの実装ルールだけが必要な時
 user-invocable: false
 ---
 
