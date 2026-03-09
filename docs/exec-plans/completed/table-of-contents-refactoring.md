@@ -1,13 +1,12 @@
 ---
 name: table-of-contents-refactoring
-description: Case study on refactoring "dirty" UI code into a well-structured component.
-summary: Documents the transition of a complex, inline-styled TableOfContents into a clean, reusable feature component using a design token-first approach.
+description: 「汚い(dirty)」UIコードを適切に構造化されたコンポーネントにリファクタリングするケーススタディ。
+summary: 複雑でインラインスタイルされた目次(TableOfContents)を、デザイン・トークン・ファーストなアプローチを用いてクリーンで再利用可能な機能コンポーネントへ移行した過程を文書化する。
 read_when:
-  - refactoring complex, legacy, or dirty React components
-  - cleaning up excessively nested logic inside a component
-  - applying the site's authoring guidelines to existing code
+  - 構造とスタイルを論理的に分離するUIのリファクタリングを行う時
+  - フック、ロジック、およびプレゼンテーションを分離する具体例を探す時
 skip_when:
-  - you are creating a new, simple UI component from scratch
+  - 基本的なMarkdownのレンダリングやリストのスタイルを実装する時
 user-invocable: false
 ---
 

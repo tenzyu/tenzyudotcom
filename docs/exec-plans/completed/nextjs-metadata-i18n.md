@@ -1,12 +1,12 @@
 ---
 name: nextjs-metadata-i18n
-description: ADSs and case study on handling Next.js metadata i18n such as robots.ts and sitemap.ts.
-summary: A rule-set and historical case on internationalizing Next.js metadata correctly without relying on non-standard context overrides.
+description: robots.tsやsitemap.tsなどのNext.jsメタデータi18nの処理に関するADSとケーススタディ。
+summary: 非標準のコンテキスト上書きに依存せずにNext.jsメタデータを正しく国際化するためのルールセットと歴史的なケース。
 read_when:
-  - modifying sitemap.ts, robots.ts, manifest.ts, or other next metadata files
-  - encountering missing base URLs or locale routing issues in metadata
+  - sitemapやrobotsのようなNext.jsのメタデータ生成を実装または変更する時
+  - ルーティングまたはローカリゼーションのインデックス作成メカニズムを分析する時
 skip_when:
-  - working with standard UI components or non-metadata routing
+  - クライアントサイドのコンポーネントや一般的なレイアウトのスタイリングのみを取り扱う時
 user-invocable: false
 ---
 

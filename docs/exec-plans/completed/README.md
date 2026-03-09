@@ -1,17 +1,12 @@
 ---
 name: harness-cases
-description: Entry point for concrete cases, evidence, and operational tradeoffs that should not be promoted into harness rules.
-summary: Use this subtree for concrete successes, failures, and evidence-backed strategy notes. Each top-level file is an index card with low-friction frontmatter and only relative body references.
+description: harnessルールに昇格させるべきではない、具体的なケース、証拠、および運用のトレードオフのためのエントリーポイント。
+summary: 具体的な成功例、失敗例、および証拠に基づいた戦略メモのためにこのサブディレクトリを使用する。
 read_when:
-  - harness references tell you what rule to apply, but you still need a concrete example or tradeoff record
-  - you need prior evidence for editorial storage, revalidation, or similar implementation choices
-  - you want implementation-specific context without inflating docs/harness/references
+  - アーキテクチャ上の決定の背景にある歴史的なトレードオフや証拠を探す時
+  - 特定のストレージやメタデータ技術がなぜ現在好まれているかの「理由」を検討する時
 skip_when:
-  - you are deciding repo-wide rules, placement, or guardrails; read docs/harness/references first
-body_convention:
-  - keep the top-level file to frontmatter plus relative body paths only
-  - put substantive prose in a child directory such as ./<slug>/body.md
-  - keep frontmatter optimized for routing: summary, read_when, skip_when, and similar friction-reducing hints
+  - 厳密な構造ルールや高レベルな境界を探している時（それらは参照にある）
 user-invocable: false
 ---
 

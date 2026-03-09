@@ -1,15 +1,12 @@
 ---
 name: static-editorial-updates
-description: Case record for keeping editorial pages static while still reflecting admin edits.
-summary: Public editorial routes can stay static/ISR if saves explicitly revalidate affected paths instead of making page rendering dynamic.
+description: 管理者の編集を反映しつつeditorialページを静的に保つためのケース記録。
+summary: 保存時にページのレンダリングを動的にするのではなく、影響を受けるパスを明示的に再検証（revalidate）すれば、公開されているeditorialルートは静的/ISRを保つことができる。
 read_when:
-  - deciding whether an editorial route really needs dynamic rendering
-  - designing revalidatePath or ISR behavior for admin-triggered updates
-  - comparing static regeneration with request-time freshness for curated collections
+  - 公開されているeditorialコレクションの取得またはレンダリング方法を変更する時
+  - editorial adminフォーム内の保存/公開フローを設計する時
 skip_when:
-  - you only need the repo-wide guard or placement rules; start from docs/harness/references
-body_refs:
-  - ./static-editorial-updates/body.md
+  - 管理者自身のような、純粋に個人的で最適化されていないルートをレンダリングする時
 user-invocable: false
 ---
 

@@ -30,5 +30,17 @@
   - `MD001` (Header levels should only increment by one level at a time)
   - `MD004` (Unordered list style: consistent)
   - `MD031` (Fenced code blocks should be surrounded by blank lines)
-  - `MD041` (First line in file should be a top level header - except when using frontmatter)
-- **Frontmatter Validation**: すべてのドキュメントが適切なYAML Frontmatter（`name`, `description` など）を保持しているか、フォーマットが不正でないかをバリデーションします。
+- **Frontmatter Validation**: すべてのドキュメントが適切なYAML Frontmatterを持ち、以下のLLM最適化スキーマに準拠しているかバリデーションします。
+
+## 4. Frontmatter 構造チェッカー (Frontmatter Schema Checker)
+
+**目的**: `docs/` 配下のすべてのMarkdownが、LLMの文脈理解に最適化された標準プロパティ（日本語による記述）を持っているか検証します。
+
+### 検証要件
+すべてのMarkdownファイルは以下のプロパティを持つYAML Frontmatterを含まなければなりません。
+- `name` (必須): ドキュメントの一意な識別子（例: `harness-guard`）。これのみ英語/ケバブケースを許容。
+- `description` (必須): ドキュメントの目的を一言で表す説明（日本語）。
+- `summary` (任意推奨): ドキュメントが解決する課題や内容の要約（日本語）。
+- `read_when` (必須): LLMエージェントが「どのようなタスクの時にこのドキュメントを読むべきか」の具体的なトリガー条件のリスト（日本語）。
+- `skip_when` (任意): 逆にファイルを読まなくてよい・無関係な状況のリスト（日本語）。
+- `user-invocable` (任意): ユーザーが直接呼び出すスキルかどうかの真偽値（boolean）。

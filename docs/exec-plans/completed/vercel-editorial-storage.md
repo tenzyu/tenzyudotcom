@@ -1,13 +1,12 @@
 ---
 name: vercel-editorial-storage
-description: Case record for choosing Vercel Blob as the current editorial storage backend.
-summary: For self-only editorial data on Vercel, private Blob is the current first-choice store because whole-record validation and replacement fit object storage better than KV-style primitives.
+description: 現在のeditorialストレージバックエンドとしてVercel Blobを選択したケース記録。
+summary: Vercel上の自分専用のeditorialデータについて、レコード全体の検証と置き換えはKVスタイルのプリミティブよりもオブジェクトストレージに適しているため、プライベートBlobが現在の第一選択ストレージである。
 read_when:
-  - deciding the current storage backend for editorial source records
-  - comparing Blob with KV, Edge Config, or Postgres for curated collections
-  - checking when the repo should outgrow object storage
+  - editorialコレクションのための代替ストレージバックエンドを評価する時
+  - ストレージインターフェースがJSON/MDXレコードをどのように読み取り、置き換え、構造化するかを変更する時
 skip_when:
-  - you need only the stable harness rules around source, contract, and assemble naming
+  - 公開向けの一般的なファイルアップロード（画像など）を実装する時
 body_refs:
   - ./vercel-editorial-storage/body.md
 user-invocable: false
