@@ -1,3 +1,15 @@
+---
+name: harness-progressive-disclosure-prompts
+description: 進行中のタスク：LLMエージェントの段階的開示（Progressive Disclosure）をテストするためのプロンプト集。
+summary: "エージェントが設計ドキュメントを正しくトラバースして自己解決できるかを評価するテストシナリオ。"
+read_when:
+  - 新しい機能のプロンプトをテストする時
+  - エージェントのアーキテクチャ理解度を評価する時
+skip_when:
+  - 通常のプロダクトコード開発時
+user-invocable: false
+---
+
 # Self-Reading (Progressive Disclosure) Test Prompts
 
 このファイルは、エージェントが「段階的開示（Progressive Disclosure）」の構造を正しく辿れるか（AGENTS.mdを起点に必要な知識へ到達できるか）を検証するためのテスト用プロンプト集です。

@@ -1,7 +1,7 @@
 ---
 name: sync-recommendation-previews
 description: 作業済みタスク：recommendationプレビューのインデックスずれを修正した記録。
-summary: [P2] 行のドラッグや追加、削除時にプレビュー表示が追従せず、別々のプレビューが表示される問題の修正。
+summary: "[P2] 行のドラッグや追加、削除時にプレビュー表示が追従せず、別々のプレビューが表示される問題の修正。"
 read_when:
   - Adminエディタのコンポーネント（特にドラッグ＆ドロップ、プレビュー）を修正する時
 skip_when:

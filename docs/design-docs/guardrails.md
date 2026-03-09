@@ -1,6 +1,9 @@
 ---
 name: harness-guard
-description: harness主導の作業のための安全性と実行の制約。リスクのある編集、構造的なリファクタリング、レビュー、または最終報告の前に読む。
+description: harness主導の作業のための安全性と実行の制約。
+read_when:
+  - リスクのある編集を行う時
+  - 構造的なリファクタリング、レビュー、または最終報告を行う前
 user-invocable: false
 ---
 

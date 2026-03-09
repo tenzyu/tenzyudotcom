@@ -1,7 +1,7 @@
 ---
 name: sort-notes-by-timestamp
 description: 作業済みタスク：notesのソート順をISO文字列ではなくパース済みのタイムスタンプで並べ替える修正の記録。
-summary: [P2] タイムゾーンオフセットの違いで note の順序が崩れる不具合の解消。
+summary: "[P2] タイムゾーンオフセットの違いで note の順序が崩れる不具合の解消。"
 read_when:
   - note のソート順やタイムゾーンの扱いについて確認が必要な時
 skip_when:

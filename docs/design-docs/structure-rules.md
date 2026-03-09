@@ -1,6 +1,8 @@
 ---
 name: harness-structure
-description: リポジトリのターゲットファイルシステムと所有権モデル。コードやデータを新規作成、移動、昇格、降格、または分類する時に読む。
+description: リポジトリのターゲットファイルシステムと所有権モデル。
+read_when:
+  - コードやデータを新規作成、移動、昇格、降格、または分類する時
 user-invocable: false
 ---
 

@@ -1,6 +1,8 @@
 ---
 name: harness-tools
-description: リポジトリのharnessのためのツールの境界と依存関係のガイダンス。どのツール、ライブラリ、またはランタイム層が責任を持つべきか決定する時に読む。
+description: リポジトリのharnessのためのツールの境界と依存関係のガイダンス。
+read_when:
+  - どのツール、ライブラリ、またはランタイム層が責任を持つべきか決定する時
 user-invocable: false
 ---
 

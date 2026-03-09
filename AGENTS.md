@@ -34,3 +34,9 @@
 ## 4. Skills (エージェントツール/フレームワーク仕様)
 - 詳細なIntlayerコマンド、Shadcn等の使い方は特定のスキルフォルダを参照:
   - `.agents/skills/` 内の各SKILL.md（Intlayer, shadcn, Vercelのプラクティスなど）
+
+## 5. References & Workflows
+- [autonomous-agent](./docs/prompts/autonomous-agent.md) : 「自立駆動して」の指示で起動するエンドツーエンドの自律作業・PR作成プロンプト
+- [error-analysis](./docs/references/error-analysis.md) : エラー発生時の根本分析とナレッジ化のループ
+- [github-pr-workflow](./docs/references/github-pr-workflow.md) : GitHub CLIによるPR作成とレビューの標準フロー
+- [ui-verification](./docs/references/ui-verification.md) : Browser Subagentを通じたフロントエンド/UI変更の自動視覚検証

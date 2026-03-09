@@ -1,3 +1,15 @@
+---
+name: harness-improvement-loop
+description: プロジェクトとharness自体を反復改善するための自己改善ループ用プロンプト集。
+summary: "エージェントが設計思想とコードベースの暗黙知のズレを解消し、ドキュメントの鮮度を上げるためのタスク定義。"
+read_when:
+  - Harness Engineering自体のルールや構造の品質を底上げしたい時
+  - エージェントに自己改善的リファクタリングを指示したい時
+skip_when:
+  - 新規機能の要件定義や直接的な実装作業を行っている時
+user-invocable: true
+---
+
 # Harness Improvement Loop
 
 この repo で、project と harness を反復改善するための prompt。
@@ -6,7 +18,7 @@
 このプロジェクトを見ながら、プロジェクト改善と harness 改善のループに入ってください。
 
 前提:
-- 最初に `docs/harness/README.md` を読んで routing してください。
+- 最初に `AGENTS.md` を読んで routing してください。
 - harness は単なる機能一覧ではなく、AI エージェント運用の判断基準です。
 - current code ではなく target architecture を基準に評価してください。
 

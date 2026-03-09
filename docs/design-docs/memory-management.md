@@ -1,6 +1,8 @@
 ---
 name: harness-memory
-description: リポジトリのharnessのためのメモリモデル。何を記憶し、何を忘れ、何が一時的なコンテキストではなく永続的なドキュメントに属するかを決定する時に読む。
+description: リポジトリのharnessのためのメモリモデル。
+read_when:
+  - 何を記憶し、何を忘れ、何が一時的なコンテキストではなく永続的なドキュメントに属するかを決定する時
 user-invocable: false
 ---
 

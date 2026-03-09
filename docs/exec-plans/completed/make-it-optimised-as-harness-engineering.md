@@ -1,3 +1,14 @@
+---
+name: make-it-optimised-as-harness-engineering
+description: 作業済みタスク：Harness Engineeringに基づくドキュメントリファクタリングのギャップ報告書。
+summary: "段階的開示モデルへの移行、メタデータ最適化、Doc-Gardening基盤の整備等についての事後報告。"
+read_when:
+  - Harness Engineering移行フェーズでの具体的な変更点やディレクトリの変遷を確認する時
+skip_when:
+  - アクティブなコード開発時
+user-invocable: false
+---
+
 # Harness Engineering 実装前後のギャップ報告書
 
 今回のリファクタリング作業により、プロジェクト全体のドキュメント構造が、AIエージェントの「段階的開示（Progressive Disclosure）」に最適化されたHarness Engineeringモデルへと完全に再構築されました。

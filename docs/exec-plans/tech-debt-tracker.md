@@ -1,6 +1,10 @@
 ---
 name: harness-known-gaps
-description: リポジトリのharnessにおける既知のギャップと保留された決定事項。harnessをレビューする時、拡張する時、または意図的にまだ完全に指定されていない境界付近で作業する時に読む。
+description: リポジトリのharnessにおける既知のギャップと保留された決定事項。
+read_when:
+  - harnessをレビューする時
+  - 拡張する時
+  - 意図的にまだ完全に指定されていない境界付近で作業する時
 user-invocable: false
 ---
 

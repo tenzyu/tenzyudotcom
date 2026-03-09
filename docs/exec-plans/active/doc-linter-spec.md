@@ -1,3 +1,15 @@
+---
+name: harness-doc-linter-spec
+description: 進行中のタスク：ドキュメントリンターの要件定義と仕様策定。
+summary: "リンク切れ検知、メタデータ検証、およびAI主導のドキュメント整備を自動化するLinter機能の仕様。"
+read_when:
+  - カスタムリンター（lint-docs.ts）の拡張・修正を行う時
+  - CIフローの一部としてドキュメントの鮮度をチェックする機能を追加する時
+skip_when:
+  - 通常のUIコンポーネントの修正時
+user-invocable: false
+---
+
 # ドキュメント整備（Doc-Gardening）リンター仕様
 
 このドキュメントは、AGENTS.md を起点とした「段階的開示（Progressive Disclosure）」の構造が維持されているか、およびMarkdownファイルの鮮度・構文が適正かを自動検証するリンター（およびCIジョブ）の仕様を定義します。
