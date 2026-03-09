@@ -1,7 +1,7 @@
 ---
-name: harness-architecture
-description: システムレベルのドメイン・パッケージ階層図とアーキテクチャの基本原則。
-summary: 6層のプロダクトコード所有権モデルと、パスセマンティクスによるディレクトリ責務の分割ルールを定義する。
+name: architecture
+description: プロジェクトの主要なアーキテクチャ原則（所有権モデル、VSA、i18n等）の要約。
+summary: 6層の所有権モデル、ハーネスエンジニアリング、境界設計、i18n、垂直スライスアーキテクチャの基本原則を定義する
 read_when:
   - コンポーネントやフィーチャーの配置場所（ディレクトリ）を決定する時
   - サイト全体の所有権モデルや境界ルールについて確認する時
@@ -10,116 +10,103 @@ skip_when:
 user-invocable: false
 ---
 
-# Architecture (ARCHITECTURE)
+# Architecture
 
-この文書は LLM 向けの要約である。
-配置ルールの正本は `docs/design-docs/structure-rules.md`、運用 guard の要約は `docs/GUARDRAILS.md` を使う。
+この設計思想の目的は変更を局所化し、実装に必要な文脈範囲を縮小することです。
 
-## 1. Core Model (所有権モデル)
+## 垂直スライスアーキテクチャ
 
-この repo の target shape は、次の 6 層で理解する。
+レイヤーによる水平分割ではなく、機能による垂直分割を基本とする。
+`_features` サブディレクトリ: Next.js のルートディレクトリ内に UI、Logic、Data を一つのスライスとして閉じ込める。
+Small Features Stay Flat: 小規模な機能はフォルダを深く掘らず、フラットな配置を維持して探索性を高める。
 
-1. `route-local feature`
-2. `shared feature`
-3. `site shell`
-4. `site-ui component`
-5. `pure shared logic`
-6. `authored content`
+## 依存性逆転パターン
 
-対応する主な置き場所は以下。
+mount point に惑わされず、どこがロジックと状態と知識を所有するかを明確に分離する。
 
-- `src/app/[locale]/.../<route>/_features/*`
-  - 1 route 専用の feature
-  - 必要なときだけ feature subdir や `lib` / `data` を足す
-- `src/features/<domain>`
-  - 複数 route で再利用される feature
-- `src/components/shell`
-  - Header, Footer, BreadcrumbNav, Container などサイト骨格
-- `src/components/site-ui`
-  - shell ではないが site 全体で共有される presentation component
-  - 例: `PageHeader`, `SectionHeader`, `Content`, `ExternalLink`
-- `src/components/ui`
-  - shadcn primitives
-  - vendor-like source としてここに固定する
-- `src/config`
-  - site-wide shared config, env parse, feature flag, policy, limit
-- `src/lib`
-  - cross-route の pure shared logic / API helper / parser
-- `src/content`
-  - MDX など人が管理する authored content
+- `*.domain.ts` 純粋な型とルール
+- `*.app.ts` ユースケース / アプリケーションフロー
+- `*.ports.ts` 抽象 アプリケーションロジックに使われる
+- `*.contract.ts` 具体的な外部実装
 
-この 6 層は product code の owner を表す。
-test と contract は主層を増やすものではなく、既存 owner に付随する補助層として扱う。
+## ハーネス (Harness Engineering)
 
-- test
-  - owner を持つ code の近くに置く
-  - feature や shared logic を鏡写しに検証する補助物
-- contract
-  - 境界で受け取る data shape を定義し、normalize / validate する補助物
-  - 再利用前でも単一の定義が必要なら早めに置いてよい
-  - external URL, search params, embed input, frontmatter も contract に含む
-- ops
-  - webhook / cron / queue / batch のような non-route runtime
-  - 現在 repo に常設しないなら、受け皿を premature に作らず gap として保留する
+「ハーネス」は、AI エージェントがリポジトリを自律的に理解し、運用するための「ドキュメント駆動型インフラ」である。
 
-## 2. Path Semantics (パスのセマンティクス)
+### Core Policies (Golden Principles)
+| Path | Responsibility |
+| :--- | :--- |
+| `docs/ARCHITECTURE.md` | 6層の所有権モデル、垂直スライスアーキテクチャ。 |
+| `docs/DESIGN.md` | トークンファースト、a11y、ダイナミックなUX。 |
+| `docs/FRONTEND.md` | `local-first, promote-later`、ディレクトリ規律。 |
+| `docs/PRODUCT_SENSE.md` | Identity, Memory, Curation の価値基準。 |
+| `docs/QUALITY_SCORE.md` | Dirty Code 禁止、型安全、境界バリデーション。 |
+| `docs/RELIABILITY.md` | 障害耐性、Isolated Error Boundaries。 |
+| `docs/SECURITY.md` | 環境変数管理、境界防御、ゼロトラスト。 |
 
-`components`, `hooks`, `lib`, `data` は top-level の分類軸ではない。
-feature を先に決めたあと、その内部を整理するために使う。
+### Design Specs
+- **`docs/design-docs/core-beliefs.md`**: 判断優先順位（Ownership > Attribute > Workflow）。
+- **`docs/design-docs/guardrails.md`**: 安全制約、実行ガード、出力品質。
+- **`docs/design-docs/structure-rules.md`**: ファイル配置と所有権の正本。
+- **`docs/design-docs/tools-boundary.md`**: ツールの責務境界（Intlayer, shadcn等）。
+- **`docs/design-docs/memory-management.md`**: 記憶の寿命（Session, Repo, Structural, Durable）。
 
-ただし `src/components/shell`, `src/components/site-ui`, `src/config`, `src/lib/editorial` は sanctioned exception である。
+### Operational Model (Orchestration)
+- **Roles**:
+  - **Orchestrator**: 計画、委譲、レビュー、統合。自身は実装しない。
+  - **Worker**: 許可されたスコープ内での実装、検証、報告。
+- **Execution Contract**:
+  - `docs/exec-plans/active/*.md` が唯一の Source of Truth。
+  - `execution-ready: true` のプランのみが委譲可能。
+- **Workflows**:
+  - `docs/workflows/plan-authoring-workflow.md`: 計画の下書きと昇格。
+  - `docs/workflows/agent-orchestration-workflow.md`: 委譲から完了までのステートマシン。
 
-## 3. Directory Semantics (主要ディレクトリの意味)
+### Technical Infrastructure
+- **Environment**: `nix develop -c <command>` による実行環境の固定。
+- **Validation**: `scripts/lint-docs.ts` によるリンク切れ・メタデータ欠落の検知。
+- **Case Memory**: `docs/exec-plans/completed/*.md` に成功・失敗の証拠を永続化。
 
-迷った時は、次を第一候補として読む。
+### Known Gaps (Tech Debt)
+- **`docs/exec-plans/tech-debt-tracker.md`**: 既知の未定義事項の追跡。
 
-- `docs/design-docs/*`
-  - repo 全体で再利用する rule と原則の正本を置く
-  - task 固有の進捗や一時判断は置かない
-  - rule 化したい時の第一候補
-- `docs/product-specs/*`
-  - route や product area 固有の要件を置く
-  - 全体 rule や外部ツール手順は置かない
-  - route / feature の期待値に迷った時の第一候補
-- `docs/exec-plans/active/*`
-  - この repo の `PLANS.md` / ExecPlan に相当する作業 artifact を置く
-  - backlog と進行中 task の source of truth を常に更新して次セッションへ引き継ぐ
-  - 共通 rule や完了済み履歴は置かない
-- `docs/exec-plans/completed/*`
-  - 完了した task の pure work log を置く
-  - 新規委譲用の contract や reusable rule の正本は置かない
-  - 過去の実装判断を辿りたい時の第一候補
-- `docs/workflows/*`
-  - 繰り返し使う運用手順を置く
-  - task 本体や外部製品の参考資料は置かない
-  - 「どう進めるか」に迷った時の第一候補
-- `docs/references/*`
-  - 外部ツールや外部環境との接続手順だけを置く
-  - repo 内の ownership rule や task plan は置かない
-  - 外部連携の確認が必要な時の第一候補
-- `src/app/*`
-  - route entry と route-private world を置く
-  - cross-route shared feature は置かない
-  - 1 route で閉じる実装の第一候補
-- `src/features/*`
-  - 複数 route で再利用される domain feature を置く
-  - site shell や vendor primitive は置かない
-  - route をまたいで再利用が実在した時の第一候補
-- `src/components/shell`
+
+## 所有権モデル (Ownership Model)
+
+本プロジェクトは、コードの「役割」や「技術スタック」ではなく、「誰がそのコードの責任を持つか」に基づく 6 層の所有権モデルを採用している。
+
+1. "local feature"
+  1. `src/app/[locale]/.../<route>/_features/`
+  - 特定のルート専用の機能
+2. "promoted feature"
+  1. `src/features/`
+  - 複数のルートで再利用される feature
+  - 横断的関心事になったときに promote する
+3. "shared shell components"
+  1. `src/components/shell`
   - site shell そのものを置く
   - domain workflow や route content は置かない
-- `src/components/site-ui`
-  - site 全体で共有する presentation component を置く
-  - domain knowledge を持つ UI は置かない
-- `src/components/ui`
-  - shadcn primitives を置く
-  - app 固有の意味や workflow rule は持たせない
-- `src/lib`
-  - cross-route の pure shared logic を置く
-  - feature owner が明確な code は置かない
-- `src/config`
-  - env parse、policy、limit、site-wide config を置く
-  - feature-local constant や route-local option は置かない
-- `src/content`
-  - authored content を置く
-  - runtime helper や identifiers data は置かない
+  2. `src/components/site-ui/`
+  - Header, Footer, BreadcrumbNav, Container などサイト骨格
+4. "shared site-ui components"
+  1. `src/components/primitives/`
+  - shadcn primitives
+  - vendor-like source としてここに固定する
+5. "top-level"
+  1. `src/lib`
+  - cross-route の pure shared logic
+  2. `src/config`
+  - API helper / parser / site-wide shared config, env parse, feature flag, policy, limit
+6. "authored content"
+  1. `src/content/`
+  - MDX 等の人間が管理するコンテンツ
+
+**原則:** 「再利用の事実」がない限り、コードは最も狭いスコープ（route-local）に留める。
+
+## 5. i18n
+
+国際化は単なるテキストの置き換えではなく、**「意味（Meaning）」と「データ（Identifiers）」の分離**として定義される。
+
+- **`*.source.ts`**: 識別子、URL、ID 等の安定した「データ」。
+- **`*.content.ts`**: Intlayer を通じたローカライズされた「意味（文言、説明）」。
+- **`*.assemble.ts`**: データと意味を結合し、UI やメタデータが必要とする形状に「組み立てる」役割。
