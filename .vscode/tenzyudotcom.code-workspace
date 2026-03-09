@@ -1,18 +1,15 @@
 {
 	"folders": [
 		{
-			"path": "../src/app/[locale]/(admin)"
+			"name": "harness",
+			"path": "../docs",
 		},
 		{
-			"path": "../docs"
+			"name": "routes",
+			"path": "../src/app/[locale]/",
 		},
 		{
-			"path": "../src/app/[locale]/(main)"
-		},
-		{
-			"path": "../src"
-		},
-		{
+			"name": "root",
 			"path": ".."
 		},
 	],
