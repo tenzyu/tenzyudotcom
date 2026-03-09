@@ -19,11 +19,12 @@ user-invocable: false
 - メインエージェントが司令塔として task routing と優先順位付けを担当する
 - 新しい作業依頼を受けたら、必要に応じて対応する exec-plan の作成や追記を補助する
 - サブエージェントは該当 exec-plan を参照し、自身のワークスペースで実装、検証、ブランチ作成、`develop` 向け PR 作成まで行う
-- 実装を通じて再利用可能な規律が見つかった場合は、`docs/references/*.md` などのハーネスへ還元する
+- 実装を通じて再利用可能な規律が見つかった場合は、`docs/workflows/*.md` などのハーネスへ還元する
 
 ## Deliverables
 
 - `prompts/*` への依存を削除する
 - ハーネス文書に orchestrator / sub-agent / exec-plan の責務分担を追加する
+- execution-ready な exec-plan contract を追加する
 - doc lint や到達性チェックを新しい導線に合わせて更新する
 - 実際に少なくとも1件、サブエージェントへ作業を委譲して流れを検証する

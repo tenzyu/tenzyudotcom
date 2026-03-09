@@ -21,18 +21,33 @@
 - 各ルートごとの固有の方針、構造の要件。作業時は以下から関連する領域を見にいくこと。
   - `/docs/product-specs/*.md`
 
-## 3. 実行計画と過去のケーススタディ (Execution Plans)
-- `/docs/exec-plans/active/*.md` : 進行中の個別の実行計画、TODO、短期的なタスク（1タスク＝1ファイル）
-- `/docs/exec-plans/completed/*.md` : 過去の意思決定ログ（バグ解決の理由、メタデータ仕様策定経緯など）
-- `/docs/exec-plans/tech-debt-tracker.md` : 現在の未定義ギャップ、将来実装予定の技術的負債
+## 3. 実行計画とハーネス運用 (Execution Plans & Workflows)
+- `/docs/exec-plans/active/*.md` : 進行中 task の source of truth。委譲する task はここに揃える
+- `/docs/exec-plans/completed/*.md` : 完了済みケースの意思決定ログ
+- `/docs/exec-plans/tech-debt-tracker.md` : まだ rule に昇格していない gap の保留場所
+- [agent-orchestration-workflow](./docs/workflows/agent-orchestration-workflow.md) : 新規依頼から active plan 作成、サブエージェント委譲までの標準フロー
+- [exec-plan-contract](./docs/workflows/exec-plan-contract.md) : `execution-ready` な active plan の最小契約
 
-## 4. Workflows & Orchestration (Harness Core)
-エージェントの動作規定。新しい依頼を受けたら、まず必要なら `exec-plan` の作成を補助し、その後は `docs/exec-plans/active/*.md` を起点にサブエージェントへ作業を委譲する。
-- [subagent-orchestration-workflow](./docs/references/agent-orchestration-workflow.md) : メインエージェントの役割、`exec-plan` 作成補助、サブエージェント委譲、ハーネス改善ループの標準フロー
-- [github-pr-workflow](./docs/references/github-pr-workflow.md) : サブエージェントが `develop` 向け PR を作成するための標準フロー
+## 4. External References
+- `/docs/references/*.md` : 外部ツールや外部実行環境とこの project を繋ぐ手順だけを置く
+- [github-pr-workflow](./docs/references/github-pr-workflow.md) : GitHub CLI と develop 運用を繋ぐ PR フロー
+- [error-analysis](./docs/references/error-analysis.md) : Vercel logs や runtime error 調査を project の再発防止へ繋ぐ手順
+- [ui-verification](./docs/references/ui-verification.md) : browser automation を UI 検証フローへ繋ぐ手順
 
-## 5. Skills & References
+## 5. Routing
+- 新しい依頼を受けた直後:
+  - まずこの `AGENTS.md` を起点に該当領域を選ぶ
+- サブエージェントへ委譲したい時:
+  - `./docs/workflows/agent-orchestration-workflow.md`
+  - `./docs/workflows/exec-plan-contract.md`
+  - `./docs/exec-plans/active/*.md`
+- file placement に迷った時:
+  - `./docs/design-docs/structure-rules.md`
+- route / product の文脈に迷った時:
+  - `./docs/product-specs/*.md`
+- 外部ツール連携の確認が必要な時:
+  - `./docs/references/*.md`
+
+## 6. Skills
 - 詳細なIntlayerコマンド、Shadcn等の使い方は特定のスキルフォルダを参照:
   - `.agents/skills/` 内の各SKILL.md
-- 詳細なエラー分析やGitHub CLI等の使い方は特定のリファレンスフォルダを参照:
-  - `/docs/references/*.md`

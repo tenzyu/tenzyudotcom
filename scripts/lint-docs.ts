@@ -13,7 +13,25 @@ const FrontmatterSchema = z.object({
   read_when: z.array(z.string().refine(isJapanese, "read_when items must contain Japanese")),
   skip_when: z.array(z.string().refine(isJapanese, "skip_when items must contain Japanese")).optional(),
   "user-invocable": z.boolean().optional(),
+  "execution-ready": z.boolean().optional(),
 });
+
+const EXECUTION_READY_REQUIRED_SECTIONS = [
+  "Goal",
+  "Scope",
+  "Deliverables",
+  "Task Breakdown",
+  "Subagent Contract",
+  "Verification",
+  "Completion Signal",
+] as const;
+
+const EXECUTION_READY_LIST_SECTIONS = [
+  "Deliverables",
+  "Subagent Contract",
+  "Verification",
+  "Completion Signal",
+] as const;
 
 async function* walk(dir: string): AsyncGenerator<string> {
   const entries = await fs.readdir(dir, { withFileTypes: true });
@@ -53,6 +71,67 @@ async function validateFrontmatter(filepath: string): Promise<boolean> {
     return false;
   }
   return true;
+}
+
+function getSectionBody(content: string, heading: string): string | null {
+  const lines = content.split("\n");
+  const startIndex = lines.findIndex((line) => line.trim() === `## ${heading}`);
+
+  if (startIndex === -1) {
+    return null;
+  }
+
+  const bodyLines: string[] = [];
+  for (let index = startIndex + 1; index < lines.length; index += 1) {
+    const line = lines[index];
+    if (line.startsWith("## ")) {
+      break;
+    }
+    bodyLines.push(line);
+  }
+
+  return bodyLines.join("\n").trim();
+}
+
+async function validateExecutionReadyPlan(filepath: string, content: string): Promise<boolean> {
+  if (!filepath.includes(`${path.sep}docs${path.sep}exec-plans${path.sep}active${path.sep}`)) {
+    return true;
+  }
+
+  const { data } = matter(content);
+  if (data["execution-ready"] !== true) {
+    return true;
+  }
+
+  let isValid = true;
+
+  for (const heading of EXECUTION_READY_REQUIRED_SECTIONS) {
+    const body = getSectionBody(content, heading);
+    if (!body) {
+      console.error(
+        `\x1b[31m[ERROR]\x1b[0m execution-ready plan is missing '## ${heading}' in ${path.relative(process.cwd(), filepath)}`,
+      );
+      isValid = false;
+    }
+  }
+
+  for (const heading of EXECUTION_READY_LIST_SECTIONS) {
+    const body = getSectionBody(content, heading);
+    if (!body) continue;
+
+    const hasBullet = body
+      .split("\n")
+      .some((line) => line.trim().startsWith("- ") || line.trim().startsWith("* "));
+
+    if (!hasBullet) {
+      console.error(
+        `\x1b[31m[ERROR]\x1b[0m execution-ready section '## ${heading}' must contain at least one bullet in ${path.relative(process.cwd(), filepath)}`,
+      );
+      isValid = false;
+    }
+  }
+
+  return isValid;
 }
 
 async function checkFreshness(filepath: string): Promise<void> {
@@ -273,6 +352,11 @@ async function run() {
     const content = await fs.readFile(filepath, "utf-8");
     const contentOk = await lintMarkdownContent(filepath, content);
     if (contentOk) hasErrors = true; // lintMarkdownContent returns true if errors found
+
+    if (!isAgents) {
+      const executionReadyOk = await validateExecutionReadyPlan(filepath, content);
+      if (!executionReadyOk) hasErrors = true;
+    }
   }
 
   console.log("Linting reachability and orphan detection...");

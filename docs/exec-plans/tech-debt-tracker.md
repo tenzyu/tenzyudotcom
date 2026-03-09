@@ -92,6 +92,16 @@ user-invocable: false
   まだ path-based revalidation 中心である
 - tag-based taxonomy を導入するかは保留
 
+### Active plan migration
+
+- `docs/exec-plans/active/*.md` には、軽量メモ型の follow-up と
+  サブエージェントへそのまま渡す execution-ready plan がまだ混在している
+- 現状は `execution-ready: true` が付いた plan だけを厳格 lint 対象にしている
+- legacy plan を即座に全面移行するのではなく、
+  実際に委譲対象になった時点で `docs/workflows/exec-plan-contract.md` に従って昇格する
+- 同じ lightweight plan に対して handoff 情報を会話で補うのが 2 回以上発生したら、
+  individual fix ではなく plan 自体を execution-ready 化する
+
 ## Deferred By Default
 
 この repo では、必要条件が現れるまでは次を常設しない。

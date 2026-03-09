@@ -56,3 +56,21 @@ user-invocable: false
 - `read_when` (必須): LLMエージェントが「どのようなタスクの時にこのドキュメントを読むべきか」の具体的なトリガー条件のリスト（日本語）。
 - `skip_when` (任意): 逆にファイルを読まなくてよい・無関係な状況のリスト（日本語）。
 - `user-invocable` (任意): ユーザーが直接呼び出すスキルかどうかの真偽値（boolean）。
+- `execution-ready` (任意): `docs/exec-plans/active/*.md` がサブエージェント委譲可能な実行契約を満たす時だけ `true` を付与する。
+
+## 5. Execution-Ready Plan Checker
+
+**目的**: `execution-ready: true` の active plan が、会話に依存せずサブエージェントへ渡せる最小情報を持つか検証します。
+
+### 検証要件
+- 対象は `docs/exec-plans/active/*.md` かつ frontmatter に `execution-ready: true` を持つファイルのみ。
+- 次の見出しが存在しなければエラー:
+  - `## Goal`
+  - `## Scope`
+  - `## Deliverables`
+  - `## Task Breakdown`
+  - `## Subagent Contract`
+  - `## Verification`
+  - `## Completion Signal`
+- `Deliverables`、`Subagent Contract`、`Verification`、`Completion Signal` 直下に少なくとも1つの bullet が存在しなければエラー。
+- 厳密な意味解析までは行わず、まず委譲に必要な欠落を機械的に止める。
