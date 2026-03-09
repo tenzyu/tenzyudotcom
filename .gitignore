@@ -1,5 +1,13 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+# repo-specific
+.agent/
+.agents/
+.claude
+.intlayer
+.ai-studio/
+.cursor/
+
 # dependencies
 **/node_modules
 /.pnp
@@ -40,15 +48,3 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-
-# AI
-.ai-studio/
-.cursor/
-todo.md
-.agent/
-.agents/
-AGENTS.md
-.claude
-
-# i18n
-.intlayer
