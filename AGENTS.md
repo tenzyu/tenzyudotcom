@@ -25,10 +25,8 @@
   - `/docs/product-specs/portfolio-product-spec.md`
 
 ## 3. 実行計画と過去のケーススタディ (Execution Plans)
-- `/docs/exec-plans/active/` : 進行中の実行計画、TODO、短期的なタスク
-  - `/docs/exec-plans/active/todo.md` : アプリケーションのタスクリスト
-  - `/docs/exec-plans/active/root-todo.md` : ルートのタスクリスト
-- `/docs/exec-plans/completed/` : 過去の意思決定ログ（バグの理由、メタデータ解決事例など）
+- `/docs/exec-plans/active/` : 進行中の個別の実行計画、TODO、短期的なタスク（1タスク＝1ファイル）
+- `/docs/exec-plans/completed/` : 過去の意思決定ログ（バグ解決の理由、メタデータ仕様策定経緯など）
   - `/docs/exec-plans/completed/nextjs-metadata-i18n.md`
   - `/docs/exec-plans/completed/table-of-contents-refactoring.md`
 - `/docs/exec-plans/tech-debt-tracker.md` : 現在の未定義ギャップ、将来実装予定の技術的負債
