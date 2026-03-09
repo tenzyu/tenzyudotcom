@@ -126,11 +126,10 @@ async function lintMarkdownContent(filepath: string, content: string): Promise<b
 async function validateReachability() {
   const agentsMd = path.resolve(process.cwd(), "AGENTS.md");
   const docsDir = path.resolve(process.cwd(), "docs");
-  const promptsDir = path.resolve(process.cwd(), "prompts");
   
   const allMdFiles = new Set<string>();
   allMdFiles.add(agentsMd);
-  for (const dir of [docsDir, promptsDir]) {
+  for (const dir of [docsDir]) {
     try {
       for await (const filepath of walk(dir)) {
         if (filepath.endsWith(".md")) {
@@ -160,8 +159,8 @@ async function validateReachability() {
       continue;
     }
 
-    // Extract links: [text](link) or `/docs/...` or `/prompts/...` in backticks
-    const linkRegex = /\[.*?\]\((?!http)(.*?)\)|`(\/(?:docs|prompts)\/.*?)`/g;
+    // Extract links: [text](link) or `/docs/...` in backticks
+    const linkRegex = /\[.*?\]\((?!http)(.*?)\)|`(\/docs\/.*?)`/g;
     let match;
     while ((match = linkRegex.exec(content)) !== null) {
       let linkPath = match[1] || match[2];
@@ -244,12 +243,11 @@ async function validateReachability() {
 
 async function run() {
   const docsDir = path.resolve(process.cwd(), "docs");
-  const promptsDir = path.resolve(process.cwd(), "prompts");
   const agentsMd = path.resolve(process.cwd(), "AGENTS.md");
   let hasErrors = false;
 
   const filesToLint = [];
-  for (const dir of [docsDir, promptsDir]) {
+  for (const dir of [docsDir]) {
     try {
       for await (const filepath of walk(dir)) {
         if (filepath.endsWith(".md")) filesToLint.push(filepath);
@@ -264,7 +262,7 @@ async function run() {
   for (const filepath of filesToLint) {
     const isAgents = filepath === agentsMd;
 
-    // Frontmatter is mandatory only for docs/ and prompts/ (Agents.md doesn't have it by convention)
+    // Frontmatter is mandatory for docs/ markdowns. AGENTS.md is exempt by convention.
     if (!isAgents) {
       const fmOk = await validateFrontmatter(filepath);
       if (!fmOk) hasErrors = true;

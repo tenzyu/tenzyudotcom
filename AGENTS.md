@@ -26,10 +26,10 @@
 - `/docs/exec-plans/completed/*.md` : 過去の意思決定ログ（バグ解決の理由、メタデータ仕様策定経緯など）
 - `/docs/exec-plans/tech-debt-tracker.md` : 現在の未定義ギャップ、将来実装予定の技術的負債
 
-## 4. Prompts & Workflows (Harness Core)
-エージェントの動作規定。`docs/exec-plans/**` の作業時は、必要に応じてこれらのハーネスも自動更新すること。
-- [autonomous-agent](./prompts/autonomous-agent.md) : **[最優先]** 自立駆動してタスクを完遂するためのメインプロンプト
-- `/prompts/*.md` : その他、特定の検証やテスト用プロンプト
+## 4. Workflows & Orchestration (Harness Core)
+エージェントの動作規定。新しい依頼を受けたら、まず必要なら `exec-plan` の作成を補助し、その後は `docs/exec-plans/active/*.md` を起点にサブエージェントへ作業を委譲する。
+- [subagent-orchestration-workflow](./docs/references/agent-orchestration-workflow.md) : メインエージェントの役割、`exec-plan` 作成補助、サブエージェント委譲、ハーネス改善ループの標準フロー
+- [github-pr-workflow](./docs/references/github-pr-workflow.md) : サブエージェントが `develop` 向け PR を作成するための標準フロー
 
 ## 5. Skills & References
 - 詳細なIntlayerコマンド、Shadcn等の使い方は特定のスキルフォルダを参照:
