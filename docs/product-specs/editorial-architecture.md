@@ -28,7 +28,7 @@ user-invocable: false
 
 ## Boundary Baseline
 
-editorial の一般語彙は `docs/harness/references/tools.md` を正とする。
+editorial の一般語彙は `docs/design-docs/tools-boundary.md` を正とする。
 この文書では、この repo 固有の運用前提だけを追加する。
 
 ## Ownership

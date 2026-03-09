@@ -33,6 +33,14 @@ const EXECUTION_READY_LIST_SECTIONS = [
   "Completion Signal",
 ] as const;
 
+const STALE_TAXONOMY_PATTERNS = [
+  { label: "docs/harness", pattern: /docs\/harness\b/ },
+  { label: "context.md", pattern: /\bcontext\.md\b/ },
+  { label: "structure.md", pattern: /\bstructure\.md\b/ },
+  { label: "guard.md", pattern: /\bguard\.md\b/ },
+  { label: "tools.md", pattern: /\btools\.md\b/ },
+] as const;
+
 async function* walk(dir: string): AsyncGenerator<string> {
   const entries = await fs.readdir(dir, { withFileTypes: true });
   for (const entry of entries) {
@@ -140,6 +148,35 @@ async function checkFreshness(filepath: string): Promise<void> {
   if (stats.mtimeMs < sixMonthsAgo) {
     console.warn(`\x1b[33m[WARN]\x1b[0m Stale document (> 6 months): ${path.relative(process.cwd(), filepath)}`);
   }
+}
+
+function shouldLintTaxonomy(filepath: string): boolean {
+  const relative = path.relative(process.cwd(), filepath);
+  return (
+    relative === "AGENTS.md" ||
+    relative === "docs/ARCHITECTURE.md" ||
+    relative === "docs/GUARDRAILS.md" ||
+    relative.startsWith(`docs${path.sep}workflows${path.sep}`)
+  );
+}
+
+async function validateTaxonomyVocabulary(filepath: string, content: string): Promise<boolean> {
+  if (!shouldLintTaxonomy(filepath)) {
+    return true;
+  }
+
+  let isValid = true;
+
+  for (const { label, pattern } of STALE_TAXONOMY_PATTERNS) {
+    if (pattern.test(content)) {
+      console.error(
+        `\x1b[31m[ERROR]\x1b[0m stale taxonomy reference '${label}' found in ${path.relative(process.cwd(), filepath)}`,
+      );
+      isValid = false;
+    }
+  }
+
+  return isValid;
 }
 
 async function lintMarkdownContent(filepath: string, content: string): Promise<boolean> {
@@ -352,6 +389,9 @@ async function run() {
     const content = await fs.readFile(filepath, "utf-8");
     const contentOk = await lintMarkdownContent(filepath, content);
     if (contentOk) hasErrors = true; // lintMarkdownContent returns true if errors found
+
+    const taxonomyOk = await validateTaxonomyVocabulary(filepath, content);
+    if (!taxonomyOk) hasErrors = true;
 
     if (!isAgents) {
       const executionReadyOk = await validateExecutionReadyPlan(filepath, content);

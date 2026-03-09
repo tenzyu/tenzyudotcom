@@ -1,12 +1,12 @@
 ---
 name: subagent-orchestration-workflow
-description: 進行中のタスク：prompt依存の運用を廃止し、exec-plan起点のサブエージェント実行フローへ統合する。
-summary: メインエージェントが司令塔として計画を整え、サブエージェントが各自のワークスペースで実装し develop 向けPRを作成する標準運用を定義する。
+description: 完了済みタスク：prompt依存の運用を廃止し、exec-plan起点のサブエージェント実行フローへ統合したケース記録。
+summary: メインエージェントが司令塔として計画を整え、execution-ready plan を起点に委譲する標準運用へ移行した結果を残す。
 read_when:
-  - 新しいユーザー依頼を exec-plan に落としてから実装フローへ乗せたい時
-  - 複数のサブエージェントへ作業を委譲するハーネスを整備する時
+  - オーケストレーション運用を active plan 起点へ移した経緯を確認したい時
+  - orchestrator / sub-agent / exec-plan の責務分担が固まった背景を振り返る時
 skip_when:
-  - 単発の質問応答のみで実装やPR作成を伴わない時
+  - 現在の委譲ルールそのものを参照したい時
 user-invocable: false
 ---
 
@@ -28,3 +28,9 @@ user-invocable: false
 - execution-ready な exec-plan contract を追加する
 - doc lint や到達性チェックを新しい導線に合わせて更新する
 - 実際に少なくとも1件、サブエージェントへ作業を委譲して流れを検証する
+
+## Outcome
+
+- `docs/workflows/agent-orchestration-workflow.md` と `docs/workflows/exec-plan-contract.md` が導線になり、prompt ではなく durable doc を起点に委譲できるようになった
+- `scripts/lint-docs.ts` が `execution-ready: true` の plan に必須 section を強制し、委譲前の欠落を止められる状態になった
+- `docs/exec-plans/completed/harness-orchestration-readiness.md` に実際の委譲ログが残り、運用検証まで完了した状態を履歴として辿れる

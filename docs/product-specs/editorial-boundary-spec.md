@@ -16,7 +16,7 @@ user-invocable: false
 ## Scope
 
 `source / content / contract / assemble / storage` の一般語彙は
-`docs/harness/references/tools.md` を正とする。
+`docs/design-docs/tools-boundary.md` を正とする。
 
 この文書には、この repo の editorial subsystem に固有な
 failure policy だけを残す。

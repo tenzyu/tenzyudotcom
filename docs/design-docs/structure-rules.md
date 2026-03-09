@@ -10,8 +10,37 @@ user-invocable: false
 
 ## Purpose
 
-Structure は、この repo が収束すべき target filesystem と ownership model を定義する。
-主題は「どこに置くか」であり、原理の衝突は `context.md` で先に解く。
+Structure は、この repo が収束すべき target filesystem と ownership model の正本を定義する。
+主題は「どこに置くか」であり、原理の優先順位は `docs/design-docs/core-beliefs.md` で先に解く。
+
+## Directory Semantics
+
+主要ディレクトリは次の意味で固定する。
+
+- `docs/design-docs/*`
+  - repo-wide rule を置く
+  - task 固有 plan は置かない
+  - reusable rule を書く時の第一候補
+- `docs/product-specs/*`
+  - route / product area 固有の要求を置く
+  - global rule や外部連携手順は置かない
+  - route 文脈に迷った時の第一候補
+- `docs/exec-plans/active/*`
+  - 進行中 task の `PLANS.md` / ExecPlan を置く
+  - rule index や完了済み履歴は置かない
+  - 作業中 task の source of truth の第一候補
+- `docs/exec-plans/completed/*`
+  - 完了した task の意思決定ログを置く
+  - 新規 handoff の入力には使わない
+  - 過去判断の参照先の第一候補
+- `docs/workflows/*`
+  - 繰り返し使う進め方を置く
+  - task 本体や外部 reference は置かない
+  - process に迷った時の第一候補
+- `docs/references/*`
+  - 外部ツール、外部サービス、外部実行環境との接続手順を置く
+  - repo 内 ownership rule は置かない
+  - external integration の確認時の第一候補
 
 ## When to Apply
 
@@ -95,6 +124,22 @@ feature を先に決めたあと、その内部を整理するために使う。
 - `src/lib/editorial`
   - public assemble と admin が共有する editorial storage / registry の置き場
   - route-private admin helper の置き場ではない
+
+- `src/app`
+  - route entry と route-private world の置き場
+  - cross-route shared owner の第一候補ではない
+- `src/features`
+  - 複数 route で再利用される domain feature の置き場
+  - shell や vendor primitive の置き場ではない
+- `src/lib`
+  - cross-route pure logic の置き場
+  - page-local transform や feature-private helper の第一候補ではない
+- `src/config`
+  - site-wide policy と env parse の置き場
+  - route-local data の置き場ではない
+- `src/content`
+  - authored content の置き場
+  - runtime helper や shared config の置き場ではない
 
 - `components`
   - feature 配下の section UI
@@ -188,6 +233,13 @@ route-local code の置き場は、次の順で狭く考える。
 
 `_features/lib` は route 内 shared のための最小 bucket であり、
 「file 数が少ないが一旦整理したい」ための置き場ではない。
+
+迷った時の第一候補は次の順で狭く取る。
+
+1. `src/app/[locale]/.../<route>/_features/<feature>*`
+2. `src/app/[locale]/.../<route>/_features/lib/*`
+3. `src/features/<domain>/*`
+4. `src/lib/*`
 
 ## Route Entry Files
 

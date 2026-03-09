@@ -12,13 +12,27 @@ user-invocable: false
 
 # Exec-Plan Contract
 
+この repo では `docs/exec-plans/active/*.md` が `PLANS.md` / ExecPlan の実体である。
+active plan は backlog を含む作業用 artifact であり、違う LLM や違うセッションへ渡っても同じ作業を再開できるよう継続更新する。
+この文書はその中でも、`execution-ready: true` を付けて委譲する plan の最小契約だけを定義する。
+
+## Role Split
+
+- [plan-authoring-workflow](./plan-authoring-workflow.md): plan の下書きと型の選択
+- この文書: `execution-ready` plan の必須項目
+- [agent-orchestration-workflow](./agent-orchestration-workflow.md): 委譲、review、completed への移動
+
+## Plan Shapes
+
 active plan には 2 種類ある。
 
 - 軽量メモ型
-  - follow-up、debt、運用メモを短く残す plan
+  - follow-up、debt、継続更新する backlog メモを残す plan
 - execution-ready 型
   - サブエージェントへそのまま渡せる plan
   - frontmatter に `execution-ready: true` を持つ
+
+active plan 全体が委譲可能なのではなく、委譲可能なのは execution-ready 型だけである。
 
 ## Required Sections
 
@@ -60,6 +74,8 @@ execution-ready plan には次を揃える。
 ## Writing Rules
 
 - 1 task = 1 file を守る
+- active plan は session memory を兼ねるため、進捗、判断、次の着手点を継続更新する
 - handoff 情報を会話だけに閉じ込めない
 - shared rule に昇格すべき判断は docs へ還元する
 - 軽量メモ型 plan を無理に execution-ready 化しない
+- `docs/exec-plans/completed/*.md` は pure work log であり、rule の正本として扱わない

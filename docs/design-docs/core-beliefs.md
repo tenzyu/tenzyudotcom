@@ -12,9 +12,10 @@ user-invocable: false
 ## Purpose
 
 Context は判断順序と設計思想を定義する。
-具体的な file placement は `structure.md`、
-安全制約は `guard.md`、
-道具の使い方は `tools.md` が担当する。
+具体的な file placement の正本は `docs/design-docs/structure-rules.md`、
+LLM 向け要約は `docs/ARCHITECTURE.md`、
+安全制約の正本は `docs/design-docs/guardrails.md`、
+道具の使い方は `docs/design-docs/tools-boundary.md` が担当する。
 
 ここで保持するのは exhaustive spec ではなく、
 「どの判断を repo の標準にするか」という軽量な宣言である。
@@ -156,4 +157,4 @@ Context は次の誤りを防ぐために存在する。
 - ルールは path と責務に紐付ける
 - モデル固有のプロンプト技巧に依存しない
 - repo 構造そのものに意味を持たせる
-- 判断宣言は短くし、具体例や失敗談は `docs/harness/cases` に逃がす
+- 判断宣言は短くし、個別 task の具体例や失敗談は `docs/exec-plans/completed/*.md` に残す

@@ -29,7 +29,7 @@ tool 選定では次の順で判断する。
 1. その責務は product tool か harness tool か
 2. 既存の tool boundary を壊していないか
 3. replaceability を落とす依存を増やしていないか
-4. placement の話なら `structure.md` を参照する
+4. placement の話なら `docs/design-docs/structure-rules.md` を正本として参照する
 
 ### Framework
 

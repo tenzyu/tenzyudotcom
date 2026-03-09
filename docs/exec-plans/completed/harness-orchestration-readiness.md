@@ -1,14 +1,13 @@
 ---
 name: harness-orchestration-readiness
-description: 進行中のタスク：サブエージェント委譲を実運用できるようハーネスを強化する。
-summary: exec-plan の実行契約、doc lint の強制、実際の委譲検証を同じループで揃える。
+description: 完了済みタスク：サブエージェント委譲を実運用できるようハーネスを強化したケース記録。
+summary: exec-plan の実行契約、doc lint の強制、実際の委譲検証を同じループで揃えた結果を残す。
 read_when:
-  - ハーネス自体を改善し、実際にサブエージェントへ作業を委譲したい時
-  - active plan を execution-ready に昇格させたい時
+  - ハーネスの委譲運用がどの条件で実用段階に達したかを振り返る時
+  - execution-ready plan と doc lint の導入経緯を確認したい時
 skip_when:
-  - 単発の軽量メモを active plan として残すだけの時
+  - まだ未着手の active plan をこれから execution-ready 化する時
 user-invocable: false
-execution-ready: true
 ---
 
 # Harness Orchestration Readiness
@@ -59,7 +58,7 @@ execution-ready: true
 
 ## Subagent Contract
 
-- plan path: `docs/exec-plans/active/harness-orchestration-readiness.md`
+- original plan path: `docs/exec-plans/active/harness-orchestration-readiness.md`
 - allowed file scope:
   - `docs/workflows/*.md`
   - `docs/exec-plans/*.md`
@@ -95,3 +94,7 @@ execution-ready: true
   - task: verification command が repo dev shell 前提でも handoff だけで実行できるよう、contract と workflow の明文化を追加
   - result: `docs/workflows/exec-plan-contract.md` と `docs/workflows/agent-orchestration-workflow.md` に dev shell wrapper を含んだ verification command を plan に明記する rule を追加
   - impact: 実委譲で `nix develop -c bun run lint:docs` を実行でき、返り値形式と verification の前提が会話に依存しないことを確認
+- 2026-03-09 main-agent
+  - task: active plan の完了判定を repo 状態と照合し、完了済み plan を completed へ移す運用を durable rule に昇格
+  - result: workflow に completion sweep を追加し、この plan 自体も completed へ移行できる状態だと確認
+  - impact: active plan の棚卸しと完了アーカイブを AI が同じ依頼の中で閉じられるようになった
