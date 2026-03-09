@@ -9,6 +9,10 @@
 			"path": "../src/app/[locale]/",
 		},
 		{
+			"name": "promoted-features",
+			"path": "../src/features/",
+		},
+		{
 			"name": "root",
 			"path": ".."
 		},
