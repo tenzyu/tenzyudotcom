@@ -126,12 +126,19 @@ async function lintMarkdownContent(filepath: string, content: string): Promise<b
 async function validateReachability() {
   const agentsMd = path.resolve(process.cwd(), "AGENTS.md");
   const docsDir = path.resolve(process.cwd(), "docs");
+  const promptsDir = path.resolve(process.cwd(), "prompts");
   
   const allMdFiles = new Set<string>();
   allMdFiles.add(agentsMd);
-  for await (const filepath of walk(docsDir)) {
-    if (filepath.endsWith(".md")) {
-      allMdFiles.add(filepath);
+  for (const dir of [docsDir, promptsDir]) {
+    try {
+      for await (const filepath of walk(dir)) {
+        if (filepath.endsWith(".md")) {
+          allMdFiles.add(filepath);
+        }
+      }
+    } catch {
+      // directory might not exist
     }
   }
 
@@ -153,8 +160,8 @@ async function validateReachability() {
       continue;
     }
 
-    // Extract links: [text](link) or `/docs/...` in backticks
-    const linkRegex = /\[.*?\]\((?!http)(.*?)\)|`(\/docs\/.*?)`/g;
+    // Extract links: [text](link) or `/docs/...` or `/prompts/...` in backticks
+    const linkRegex = /\[.*?\]\((?!http)(.*?)\)|`(\/(?:docs|prompts)\/.*?)`/g;
     let match;
     while ((match = linkRegex.exec(content)) !== null) {
       let linkPath = match[1] || match[2];
@@ -209,8 +216,6 @@ async function validateReachability() {
           for await (const subFile of walk(absolutePath)) {
             if (subFile.endsWith(".md")) {
               reachedFiles.add(subFile);
-              // Also add to queue to traverse links from these files?
-              // The spec says "再帰的にリンク先ドキュメントを検証します"
               queue.push(subFile);
             }
           }
@@ -239,12 +244,19 @@ async function validateReachability() {
 
 async function run() {
   const docsDir = path.resolve(process.cwd(), "docs");
+  const promptsDir = path.resolve(process.cwd(), "prompts");
   const agentsMd = path.resolve(process.cwd(), "AGENTS.md");
   let hasErrors = false;
 
   const filesToLint = [];
-  for await (const filepath of walk(docsDir)) {
-    if (filepath.endsWith(".md")) filesToLint.push(filepath);
+  for (const dir of [docsDir, promptsDir]) {
+    try {
+      for await (const filepath of walk(dir)) {
+        if (filepath.endsWith(".md")) filesToLint.push(filepath);
+      }
+    } catch {
+      // directory might not exist
+    }
   }
   filesToLint.push(agentsMd);
 
@@ -252,7 +264,7 @@ async function run() {
   for (const filepath of filesToLint) {
     const isAgents = filepath === agentsMd;
 
-    // Frontmatter is mandatory only for docs/ (Agents.md doesn't have it by convention)
+    // Frontmatter is mandatory only for docs/ and prompts/ (Agents.md doesn't have it by convention)
     if (!isAgents) {
       const fmOk = await validateFrontmatter(filepath);
       if (!fmOk) hasErrors = true;

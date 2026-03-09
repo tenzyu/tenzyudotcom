@@ -19,6 +19,7 @@ user-invocable: true
 
 ## 1. タスクの認識と計画 (Research & Strategy)
 - `docs/exec-plans/active/` などのディレクトリを確認し、現在進行中または次に着手すべきタスクのMarkdownファイルを読み込んでください。
+- **重要**: `docs/exec-plans/**` の作業を行う際は、その知見に基づいて `prompts/*.md` や `docs/references/*.md` などのハーネス（エージェント用規律）を自動的に更新・改善してください。
 - 作業内容を理解したら、現状のコードベースを `codebase_investigator` などのサブエージェントを活用して調査し、実装計画を立ててください。
 
 ## 2. ブランチの作成 (Branching)

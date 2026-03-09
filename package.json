@@ -61,6 +61,7 @@
     "@tailwindcss/postcss": "^4.2.1",
     "@tailwindcss/typography": "^0.5.19",
     "@types/mdx": "^2.0.13",
+    "@types/picomatch": "^4.0.2",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
     "critters": "^0.0.25",

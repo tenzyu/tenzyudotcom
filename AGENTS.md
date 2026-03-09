@@ -26,11 +26,13 @@
 - `/docs/exec-plans/completed/*.md` : 過去の意思決定ログ（バグ解決の理由、メタデータ仕様策定経緯など）
 - `/docs/exec-plans/tech-debt-tracker.md` : 現在の未定義ギャップ、将来実装予定の技術的負債
 
-## 4. Skills (エージェントツール/フレームワーク仕様)
-- 詳細なIntlayerコマンド、Shadcn等の使い方は特定のスキルフォルダを参照:
-  - `.agents/skills/` 内の各SKILL.md（Intlayer, shadcn, Vercelのプラクティスなど）
+## 4. Prompts & Workflows (Harness Core)
+エージェントの動作規定。`docs/exec-plans/**` の作業時は、必要に応じてこれらのハーネスも自動更新すること。
+- [autonomous-agent](./prompts/autonomous-agent.md) : **[最優先]** 自立駆動してタスクを完遂するためのメインプロンプト
+- `/prompts/*.md` : その他、特定の検証やテスト用プロンプト
 
-## 5. References & Workflows
-- 詳細なエラー発生時の根本分析やGitHub CLI等の使い方は特定のリファレンスフォルダを参照:
+## 5. Skills & References
+- 詳細なIntlayerコマンド、Shadcn等の使い方は特定のスキルフォルダを参照:
+  - `.agents/skills/` 内の各SKILL.md
+- 詳細なエラー分析やGitHub CLI等の使い方は特定のリファレンスフォルダを参照:
   - `/docs/references/*.md`
-  - `/docs/prompts/*.md`
