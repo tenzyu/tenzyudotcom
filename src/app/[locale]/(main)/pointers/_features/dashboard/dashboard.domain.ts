@@ -22,6 +22,17 @@ export type DashboardSourceCategory = {
   links: readonly DashboardSourceLink[]
 }
 
+export type DashboardLink = {
+  id: string
+  url: string
+  isApp?: boolean
+}
+
+export type DashboardCategory = {
+  id: string
+  links: readonly DashboardLink[]
+}
+
 export const DASHBOARD_SOURCE_CATEGORIES: readonly DashboardSourceCategory[] = [
   {
     id: 'ai-assistants',

@@ -11,7 +11,7 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import type { LinkCategory, MyLink } from '@/features/links/links.contract'
+import type { LinkCategory, MyLink } from '@/features/links/links.domain'
 import { saveEditorialCollectionAction } from './actions'
 import { moveItem } from './editor-utils'
 

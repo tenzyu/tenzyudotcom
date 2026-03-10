@@ -121,10 +121,6 @@ function compile() {
     }
   });
 
-  output += "## References\n\n";
-  output += "1. [Root AGENTS.md](../../AGENTS.md)\n";
-  output += "2. [Project Design Docs](../design-docs/)\n";
-
   writeFileSync(OUTPUT_PATH, output);
   console.log(`Generated: ${OUTPUT_PATH}`);
 }

@@ -1,16 +1,8 @@
 import { normalizeExternalUrl } from '@/lib/url/external-url.contract'
 import { z } from 'zod'
-
-export type LinkCategory = 'Watch' | 'Social' | 'Build' | 'Legacy'
-
-export type MyLink = {
-  name: string
-  id: string
-  url: string
-  shortenUrl: string
-  icon: string
-  category: LinkCategory
-}
+import { editorialRepository } from '@/lib/editorial/editorial.contract'
+import type { MyLink } from './links.domain'
+import type { LinksRepository } from './links.port'
 
 const LinkSourceEntrySchema = z.object({
   name: z.string().trim().min(1),
@@ -58,3 +50,12 @@ export function parseLinkSourceEntries(raw: unknown) {
   const links = z.array(LinkSourceEntrySchema).parse(raw)
   return defineLinks(links)
 }
+
+export class EditorialLinksRepository implements LinksRepository {
+  async loadAll(): Promise<readonly MyLink[]> {
+    const { collection } = await editorialRepository.loadState('links')
+    return collection
+  }
+}
+
+export const linksRepository = new EditorialLinksRepository()

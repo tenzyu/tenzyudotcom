@@ -948,7 +948,3 @@ nix develop -c mv src/app/[locale]/(main)/hoge/_features/fuga.domain.ts src/lib/
 nix develop -c mv "src/app/[locale]/(main)/hoge/_features/fuga.domain.ts" "src/lib/hoge/fuga.domain.ts"
 ```
 
-## References
-
-1. [Root AGENTS.md](../../AGENTS.md)
-2. [Project Design Docs](../design-docs/)

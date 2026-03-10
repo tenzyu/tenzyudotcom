@@ -23,6 +23,29 @@ export type RecommendationSourceEntry =
   | RecommendationSourceVideoEntry
   | RecommendationSourceChannelEntry
 
+export type RecommendationTabId = 'music' | 'channels'
+
+export type RecommendationChannel = {
+  title: string
+  handle: string
+  url: string
+}
+
+export type RecommendationVideo = {
+  id: string
+}
+
+export type RecommendationTab = {
+  id: RecommendationTabId
+  disabled?: boolean
+}
+
+export function isRecommendationTabId(
+  value: string | null,
+): value is RecommendationTabId {
+  return value === 'music' || value === 'channels'
+}
+
 export const RECOMMENDATION_SOURCE_ENTRIES: readonly RecommendationSourceEntry[] = [
   {
     kind: 'youtube-video',

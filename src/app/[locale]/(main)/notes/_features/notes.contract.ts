@@ -1,5 +1,8 @@
 import { normalizeExternalUrl } from '@/lib/url/external-url.contract'
 import { z } from 'zod'
+import { editorialRepository } from '@/lib/editorial/editorial.contract'
+import type { NotesRepository } from './notes.port'
+import type { NoteSourceEntry } from './notes.domain'
 
 const LocalizedTextSchema = z.object({
   ja: z.string().trim().min(1),
@@ -24,3 +27,12 @@ export function parseNoteSourceEntries(raw: unknown) {
 
   return entries
 }
+
+export class EditorialNotesRepository implements NotesRepository {
+  async loadAll(): Promise<readonly NoteSourceEntry[]> {
+    const { collection } = await editorialRepository.loadState('notes')
+    return collection
+  }
+}
+
+export const notesRepository = new EditorialNotesRepository()

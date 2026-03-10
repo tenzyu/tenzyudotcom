@@ -10,7 +10,7 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination'
 import { BlogTile } from './blog-tile'
-import type { BlogListItem } from './lib/get-paginated-blog-posts'
+import type { BlogListItem } from './blog.assemble'
 
 type BlogPageContentProps = {
   currentPage: number

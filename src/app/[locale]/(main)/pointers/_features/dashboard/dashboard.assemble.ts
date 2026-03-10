@@ -1,6 +1,13 @@
-import type { DashboardCategoryId, DashboardLinkId } from './dashboard.source'
-import { defineDashboardCategories } from './dashboard.contract'
-import { loadEditorialCollection } from '@/lib/editorial/storage'
+import type {
+  DashboardCategory,
+  DashboardCategoryId,
+  DashboardLinkId,
+} from './dashboard.domain'
+import {
+  defineDashboardCategories,
+  pointersRepository,
+} from './dashboard.contract'
+import type { PointersRepository } from './dashboard.port'
 
 type EditorialLocale = 'ja' | 'en'
 
@@ -8,26 +15,33 @@ function resolveEditorialLocale(locale: string): EditorialLocale {
   return locale === 'ja' ? 'ja' : 'en'
 }
 
+export class LoadPointersUseCase {
+  constructor(private repository: PointersRepository) {}
+
+  async execute(): Promise<readonly DashboardCategory[]> {
+    const sourceCategories = await this.repository.loadAll()
+    return defineDashboardCategories(
+      sourceCategories.map((category) => ({
+        id: category.id,
+        links: category.links.map((link) => ({
+          id: link.id,
+          url: link.url,
+          isApp: link.isApp,
+        })),
+      })),
+    )
+  }
+}
+
+export function makeLoadPointersUseCase() {
+  return new LoadPointersUseCase(pointersRepository)
+}
+
 export async function assembleDashboardContent(locale: string) {
   const editorialLocale = resolveEditorialLocale(locale)
-  const sourceCategories = await loadEditorialCollection('pointers')
-  const categories = defineDashboardCategories(
-    sourceCategories.map((category) => ({
-      id: category.id,
-      links: category.links.map((link) => ({
-        id: link.id,
-        url: link.url,
-        isApp: link.isApp,
-      })),
-    })),
-  ) satisfies ReadonlyArray<{
-    id: DashboardCategoryId
-    links: ReadonlyArray<{
-      id: DashboardLinkId
-      url: string
-      isApp?: boolean
-    }>
-  }>
+  const useCase = makeLoadPointersUseCase()
+  const sourceCategories = await pointersRepository.loadAll()
+  const categories = await useCase.execute()
 
   const categoryContent = Object.fromEntries(
     sourceCategories.map((category) => [

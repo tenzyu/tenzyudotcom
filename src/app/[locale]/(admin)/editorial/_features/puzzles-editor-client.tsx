@@ -6,7 +6,7 @@ import type {
   Platform,
   PuzzleCategory,
   PuzzleLink,
-} from '@/app/[locale]/(main)/puzzles/_features/puzzles.source'
+} from '@/app/[locale]/(main)/puzzles/_features/puzzles.domain'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'

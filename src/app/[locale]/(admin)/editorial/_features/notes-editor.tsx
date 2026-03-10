@@ -1,5 +1,5 @@
 import { useIntlayer } from 'next-intlayer/server'
-import type { NoteSourceEntry } from '@/app/[locale]/(main)/notes/_features/notes.source'
+import type { NoteSourceEntry } from '@/app/[locale]/(main)/notes/_features/notes.domain'
 import { EDITORIAL_ADMIN_LOCALE } from './constants'
 import { NotesEditorClient } from './notes-editor-client'
 

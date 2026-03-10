@@ -8,7 +8,7 @@ import {
   parseRecommendationTabParam,
   RECOMMENDATION_TAB_PARAM,
 } from './recommendation-search-params.contract'
-import type { RecommendationTabId } from './recommendations.contract'
+import type { RecommendationTabId } from './recommendations.domain'
 
 type RecommendationTabsProps = {
   tabs: ReadonlyArray<{

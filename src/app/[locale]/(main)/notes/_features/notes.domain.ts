@@ -1,4 +1,4 @@
-type LocalizedText = {
+export type LocalizedText = {
   ja: string
   en: string
 }
@@ -8,6 +8,10 @@ export type NoteSourceEntry = {
   createdAt: string
   externalUrl?: string
   published?: boolean
+}
+
+export type NoteTimestampedEntry = {
+  createdAt: string
 }
 
 export const NOTE_SOURCE_ENTRIES: readonly NoteSourceEntry[] = [
@@ -20,3 +24,10 @@ export const NOTE_SOURCE_ENTRIES: readonly NoteSourceEntry[] = [
     published: true,
   },
 ] as const
+
+export function compareNotesByCreatedAtDesc(
+  a: NoteTimestampedEntry,
+  b: NoteTimestampedEntry,
+) {
+  return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+}

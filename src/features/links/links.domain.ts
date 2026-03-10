@@ -1,6 +1,20 @@
-import type { LinkCategory, MyLink } from './links.contract'
+export type LinkCategory = 'Watch' | 'Social' | 'Build' | 'Legacy'
 
-export type { LinkCategory, MyLink } from './links.contract'
+export type MyLink = {
+  name: string
+  id: string
+  url: string
+  shortenUrl: string
+  icon: string
+  category: LinkCategory
+}
+
+export const LINK_CATEGORY_ORDER = [
+  'Watch',
+  'Social',
+  'Build',
+  'Legacy',
+] as const satisfies readonly LinkCategory[]
 
 export const LINK_SOURCE_ENTRIES = [
   {
@@ -124,10 +138,3 @@ export const LINK_SOURCE_ENTRIES = [
     category: 'Legacy',
   },
 ] as const satisfies readonly MyLink[]
-
-export const LINK_CATEGORY_ORDER = [
-  'Watch',
-  'Social',
-  'Build',
-  'Legacy',
-] as const satisfies readonly LinkCategory[]

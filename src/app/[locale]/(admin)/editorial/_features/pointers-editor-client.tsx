@@ -5,7 +5,7 @@ import { useState } from 'react'
 import type {
   DashboardSourceCategory,
   DashboardSourceLink,
-} from '@/app/[locale]/(main)/pointers/_features/dashboard/dashboard.source'
+} from '@/app/[locale]/(main)/pointers/_features/dashboard/dashboard.domain'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'

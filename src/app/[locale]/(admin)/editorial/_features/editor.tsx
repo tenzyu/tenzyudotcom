@@ -9,7 +9,7 @@ import {
   type EditorialCollectionId,
   getEditorialCollectionDescriptor,
 } from '@/lib/editorial/registry'
-import { loadEditorialCollectionState } from '@/lib/editorial/storage'
+import { makeLoadEditorialCollectionUseCase } from './editorial.assemble'
 import { saveEditorialCollectionAction } from './actions'
 import { EDITORIAL_ADMIN_LOCALE } from './constants'
 import { LinksEditor } from './links-editor'
@@ -31,9 +31,10 @@ export async function EditorialCollectionEditor({
 }) {
   const content = useIntlayer('editorialAdmin', EDITORIAL_ADMIN_LOCALE)
   const descriptor = getEditorialCollectionDescriptor(collectionId)
+  const loadUseCase = makeLoadEditorialCollectionUseCase()
 
   if (collectionId === 'recommendations') {
-    const state = await loadEditorialCollectionState('recommendations')
+    const state = await loadUseCase.execute('recommendations')
 
     return (
       <Content size="4xl" className="space-y-8">
@@ -72,7 +73,7 @@ export async function EditorialCollectionEditor({
   }
 
   if (collectionId === 'links') {
-    const state = await loadEditorialCollectionState('links')
+    const state = await loadUseCase.execute('links')
 
     return (
       <Content size="4xl" className="space-y-8">
@@ -111,7 +112,7 @@ export async function EditorialCollectionEditor({
   }
 
   if (collectionId === 'notes') {
-    const state = await loadEditorialCollectionState('notes')
+    const state = await loadUseCase.execute('notes')
 
     return (
       <Content size="4xl" className="space-y-8">
@@ -150,7 +151,7 @@ export async function EditorialCollectionEditor({
   }
 
   if (collectionId === 'pointers') {
-    const state = await loadEditorialCollectionState('pointers')
+    const state = await loadUseCase.execute('pointers')
 
     return (
       <Content size="4xl" className="space-y-8">
@@ -189,7 +190,7 @@ export async function EditorialCollectionEditor({
   }
 
   if (collectionId === 'puzzles') {
-    const state = await loadEditorialCollectionState('puzzles')
+    const state = await loadUseCase.execute('puzzles')
 
     return (
       <Content size="4xl" className="space-y-8">
@@ -227,7 +228,7 @@ export async function EditorialCollectionEditor({
     )
   }
 
-  const state = await loadEditorialCollectionState(collectionId)
+  const state = await loadUseCase.execute(collectionId)
   return (
     <Content size="4xl" className="space-y-8">
       <PageHeader

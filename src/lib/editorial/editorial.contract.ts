@@ -3,6 +3,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { get, put } from '@vercel/blob'
 import { env, isEditorialBlobStorage } from '@/config/env.contract'
+import type { EditorialRepository, EditorialState } from './editorial.port'
 import {
   type EditorialCollectionData,
   type EditorialCollectionId,
@@ -91,95 +92,78 @@ async function readLocalCollection(collectionId: EditorialCollectionId) {
   }
 }
 
-export async function loadEditorialCollectionState<
-  K extends EditorialCollectionId,
->(
-  collectionId: K,
-): Promise<{
-  collection: EditorialCollectionData[K]
-  serialized: string
-  version: string
-}> {
-  const descriptor = getEditorialCollectionDescriptor(collectionId)
+export class DefaultEditorialRepository implements EditorialRepository {
+  async loadState<K extends EditorialCollectionId>(
+    collectionId: K,
+  ): Promise<EditorialState<K>> {
+    const descriptor = getEditorialCollectionDescriptor(collectionId)
 
-  try {
-    const result = isEditorialBlobStorage
-      ? await readBlobCollection(collectionId)
-      : await readLocalCollection(collectionId)
+    try {
+      const result = isEditorialBlobStorage
+        ? await readBlobCollection(collectionId)
+        : await readLocalCollection(collectionId)
 
-    return {
-      collection: result.collection as EditorialCollectionData[K],
-      serialized: result.serialized,
-      version: result.version,
-    }
-  } catch (error) {
-    if (!(error instanceof EditorialStorageNotFoundError)) {
-      throw error
-    }
+      return {
+        collection: result.collection as EditorialCollectionData[K],
+        serialized: result.serialized,
+        version: result.version,
+      }
+    } catch (error) {
+      if (!(error instanceof EditorialStorageNotFoundError)) {
+        throw error
+      }
 
-    const collection =
-      descriptor.getDefaultValue() as EditorialCollectionData[K]
-    const serialized = JSON.stringify(collection, null, 2)
+      const collection =
+        descriptor.getDefaultValue() as EditorialCollectionData[K]
+      const serialized = JSON.stringify(collection, null, 2)
 
-    return {
-      collection,
-      serialized,
-      version: createVersion(serialized),
+      return {
+        collection,
+        serialized,
+        version: createVersion(serialized),
+      }
     }
   }
-}
 
-export async function loadEditorialCollection<K extends EditorialCollectionId>(
-  collectionId: K,
-): Promise<EditorialCollectionData[K]> {
-  const state = await loadEditorialCollectionState(collectionId)
-  return state.collection
-}
+  async save(
+    collectionId: EditorialCollectionId,
+    rawJson: string,
+    expectedVersion?: string,
+  ): Promise<{ version: string }> {
+    const descriptor = getEditorialCollectionDescriptor(collectionId)
+    const parsed = descriptor.parse(JSON.parse(rawJson))
+    const serialized = JSON.stringify(parsed, null, 2)
+    const nextVersion = createVersion(serialized)
+    const currentState = await this.loadState(collectionId)
 
-export async function getEditorialCollectionJson(
-  collectionId: EditorialCollectionId,
-) {
-  const state = await loadEditorialCollectionState(collectionId)
-  return state.serialized
-}
+    if (expectedVersion && currentState.version !== expectedVersion) {
+      throw new EditorialVersionConflictError(
+        `Editorial collection ${collectionId} has changed since it was loaded.`,
+      )
+    }
 
-export async function saveEditorialCollection<K extends EditorialCollectionId>(
-  collectionId: K,
-  rawJson: string,
-  expectedVersion?: string,
-) {
-  const descriptor = getEditorialCollectionDescriptor(collectionId)
-  const parsed = descriptor.parse(JSON.parse(rawJson))
-  const serialized = JSON.stringify(parsed, null, 2)
-  const nextVersion = createVersion(serialized)
-  const currentState = await loadEditorialCollectionState(collectionId)
+    if (isEditorialBlobStorage) {
+      await put(getBlobPath(collectionId), serialized, {
+        access: 'private',
+        addRandomSuffix: false,
+        allowOverwrite: true,
+        cacheControlMaxAge: 60,
+        contentType: 'application/json',
+      })
 
-  if (expectedVersion && currentState.version !== expectedVersion) {
-    throw new EditorialVersionConflictError(
-      `Editorial collection ${collectionId} has changed since it was loaded.`,
-    )
-  }
+      return {
+        version: nextVersion,
+      }
+    }
 
-  if (isEditorialBlobStorage) {
-    await put(getBlobPath(collectionId), serialized, {
-      access: 'private',
-      addRandomSuffix: false,
-      allowOverwrite: true,
-      cacheControlMaxAge: 60,
-      contentType: 'application/json',
-    })
+    await mkdir(LOCAL_EDITORIAL_DIR, { recursive: true })
+    await writeFile(getLocalPath(collectionId), `${serialized}\n`, 'utf8')
 
     return {
-      collection: parsed,
       version: nextVersion,
     }
   }
-
-  await mkdir(LOCAL_EDITORIAL_DIR, { recursive: true })
-  await writeFile(getLocalPath(collectionId), `${serialized}\n`, 'utf8')
-
-  return {
-    collection: parsed,
-    version: nextVersion,
-  }
 }
+
+// For convenience / singleton usage
+export const editorialRepository = new DefaultEditorialRepository()
