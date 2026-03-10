@@ -17,8 +17,10 @@ import {
   buildBlogPostUrl,
   compareBlogPostsByPublishedAtDesc,
 } from './blog.domain'
-import { isEditorialBlobStorage } from '@/config/env.contract'
+import { isEditorBlobStorage } from '@/config/env.contract'
 import { list, get } from '@vercel/blob'
+
+import { createVersion } from '@/app/[locale]/(admin)/editor/_features/editor-utils'
 
 const PAGE_SIZE = 6
 
@@ -41,6 +43,8 @@ async function readMDXFile(filePath: string): Promise<MDXData> {
     metadata,
     slug: path.basename(filePath, path.extname(filePath)),
     rawContent: content,
+    fullRawContent: rawContent,
+    version: createVersion(rawContent),
   }
 }
 
@@ -65,6 +69,8 @@ async function readMDXFromBlob(blobUrl: string, slug: string): Promise<MDXData> 
     metadata,
     slug,
     rawContent: content,
+    fullRawContent: rawContent,
+    version: createVersion(rawContent),
   }
 }
 
@@ -84,7 +90,7 @@ async function getMDXDataFromBlob(): Promise<MDXData[]> {
 }
 
 export const loadBlogPosts = cache(async () => {
-  if (isEditorialBlobStorage) {
+  if (isEditorBlobStorage) {
     return (await getMDXDataFromBlob()).sort(compareBlogPostsByPublishedAtDesc)
   }
 

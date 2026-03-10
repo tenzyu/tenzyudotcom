@@ -52,7 +52,7 @@ record editor の primary store としては窮屈。
 
 ## Current local fallback
 
-local development では `storage/editorial/*.json` を使う。
+local development では `storage/editor/*.json` を使う。
 存在しないときは `*.source.ts` にフォールバックする。
 
 ## Sources

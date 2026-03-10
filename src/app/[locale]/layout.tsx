@@ -17,7 +17,7 @@ import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { env, isDevelopment } from '@/config/env.contract'
 import { ThemeProvider } from '@/features/site-controls/theme-provider'
-import { EditorialAdminTrigger } from './(admin)/editorial/_features/admin-trigger'
+import { EditorAdminTrigger } from './(admin)/editor/_features/admin-trigger'
 import { buildSiteMetadata } from './_features/site-metadata'
 import { buildSiteStructuredData } from './_features/site-structured-data'
 
@@ -112,7 +112,7 @@ const LocaleLayout: NextLayoutIntlayer = async ({ children, params }) => {
                 </main>
                 <Toaster />
                 <Footer locale={locale} />
-                <EditorialAdminTrigger locale={locale} />
+                <EditorAdminTrigger locale={locale} />
                 <Analytics />
                 <SpeedInsights />
               </TooltipProvider>

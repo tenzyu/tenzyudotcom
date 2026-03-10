@@ -1,6 +1,6 @@
 import { normalizeExternalUrl } from '@/lib/url/external-url.contract'
 import { z } from 'zod'
-import { editorialRepository } from '@/lib/editorial/editorial.contract'
+import { editorRepository } from '@/lib/editor/editor.contract'
 import type {
   DashboardCategory,
   DashboardSourceCategory,
@@ -98,11 +98,11 @@ export function parseDashboardSourceCategories(raw: unknown) {
   return categories
 }
 
-export class EditorialPointersRepository implements PointersRepository {
+export class EditorPointersRepository implements PointersRepository {
   async loadAll(): Promise<readonly DashboardSourceCategory[]> {
-    const { collection } = await editorialRepository.loadState('pointers')
+    const { collection } = await editorRepository.loadState('pointers')
     return collection
   }
 }
 
-export const pointersRepository = new EditorialPointersRepository()
+export const pointersRepository = new EditorPointersRepository()

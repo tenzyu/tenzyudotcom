@@ -19,9 +19,9 @@ import type {
   YouTubePlaylistItem,
 } from './lib/types'
 
-type EditorialLocale = 'ja' | 'en'
+type EditorLocale = 'ja' | 'en'
 
-function resolveEditorialLocale(locale: string): EditorialLocale {
+function resolveEditorLocale(locale: string): EditorLocale {
   return locale === 'ja' ? 'ja' : 'en'
 }
 
@@ -83,8 +83,8 @@ function resolveLocalizedText(
     | RecommendationSourceChannelEntry['note'],
   locale: string,
 ) {
-  const editorialLocale = resolveEditorialLocale(locale)
-  return note[editorialLocale] || note.ja
+  const editorLocale = resolveEditorLocale(locale)
+  return note[editorLocale] || note.ja
 }
 
 export async function assembleRecommendationsPageData(

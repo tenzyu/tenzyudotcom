@@ -1,6 +1,6 @@
 import { normalizeExternalUrl } from '@/lib/url/external-url.contract'
 import { z } from 'zod'
-import { editorialRepository } from '@/lib/editorial/editorial.contract'
+import { editorRepository } from '@/lib/editor/editor.contract'
 import type { MyLink } from './links.domain'
 import type { LinksRepository } from './links.port'
 
@@ -51,11 +51,11 @@ export function parseLinkSourceEntries(raw: unknown) {
   return defineLinks(links)
 }
 
-export class EditorialLinksRepository implements LinksRepository {
+export class EditorLinksRepository implements LinksRepository {
   async loadAll(): Promise<readonly MyLink[]> {
-    const { collection } = await editorialRepository.loadState('links')
+    const { collection } = await editorRepository.loadState('links')
     return collection
   }
 }
 
-export const linksRepository = new EditorialLinksRepository()
+export const linksRepository = new EditorLinksRepository()

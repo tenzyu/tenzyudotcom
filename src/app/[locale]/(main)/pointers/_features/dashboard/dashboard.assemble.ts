@@ -9,9 +9,9 @@ import {
 } from './dashboard.contract'
 import type { PointersRepository } from './dashboard.port'
 
-type EditorialLocale = 'ja' | 'en'
+type EditorLocale = 'ja' | 'en'
 
-function resolveEditorialLocale(locale: string): EditorialLocale {
+function resolveEditorLocale(locale: string): EditorLocale {
   return locale === 'ja' ? 'ja' : 'en'
 }
 
@@ -38,7 +38,7 @@ export function makeLoadPointersUseCase() {
 }
 
 export async function assembleDashboardContent(locale: string) {
-  const editorialLocale = resolveEditorialLocale(locale)
+  const editorLocale = resolveEditorLocale(locale)
   const useCase = makeLoadPointersUseCase()
   const sourceCategories = await pointersRepository.loadAll()
   const categories = await useCase.execute()
@@ -47,8 +47,8 @@ export async function assembleDashboardContent(locale: string) {
     sourceCategories.map((category) => [
       category.id,
       {
-        title: category.title[editorialLocale],
-        description: category.description[editorialLocale],
+        title: category.title[editorLocale],
+        description: category.description[editorLocale],
       },
     ]),
   ) as Record<DashboardCategoryId, { title: string; description: string }>
@@ -58,8 +58,8 @@ export async function assembleDashboardContent(locale: string) {
       category.links.map((link) => [
         link.id,
         {
-          title: link.title[editorialLocale],
-          description: link.description[editorialLocale],
+          title: link.title[editorLocale],
+          description: link.description[editorLocale],
         },
       ]),
     ),

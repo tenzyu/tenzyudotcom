@@ -1,6 +1,6 @@
 import { normalizeExternalUrl } from '@/lib/url/external-url.contract'
 import { z } from 'zod'
-import { editorialRepository } from '@/lib/editorial/editorial.contract'
+import { editorRepository } from '@/lib/editor/editor.contract'
 import type { PuzzleCategory } from './puzzles.domain'
 import type { PuzzlesRepository } from './puzzles.port'
 
@@ -69,11 +69,11 @@ export function parsePuzzleSourceCategories(raw: unknown) {
   return definePuzzleCategories(categories)
 }
 
-export class EditorialPuzzlesRepository implements PuzzlesRepository {
+export class EditorPuzzlesRepository implements PuzzlesRepository {
   async loadAll(): Promise<readonly PuzzleCategory[]> {
-    const { collection } = await editorialRepository.loadState('puzzles')
+    const { collection } = await editorRepository.loadState('puzzles')
     return collection
   }
 }
 
-export const puzzlesRepository = new EditorialPuzzlesRepository()
+export const puzzlesRepository = new EditorPuzzlesRepository()

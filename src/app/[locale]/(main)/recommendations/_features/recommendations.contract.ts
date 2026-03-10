@@ -4,7 +4,7 @@ import {
 } from '@/features/youtube/youtube.contract'
 import { normalizeExternalUrl } from '@/lib/url/external-url.contract'
 import { z } from 'zod'
-import { editorialRepository } from '@/lib/editorial/editorial.contract'
+import { editorRepository } from '@/lib/editor/editor.contract'
 import type {
   RecommendationChannel,
   RecommendationSourceEntry,
@@ -176,11 +176,11 @@ export function parseRecommendationSourceEntries(raw: unknown) {
   return entries
 }
 
-export class EditorialRecommendationsRepository implements RecommendationsRepository {
+export class EditorRecommendationsRepository implements RecommendationsRepository {
   async loadAll(): Promise<readonly RecommendationSourceEntry[]> {
-    const { collection } = await editorialRepository.loadState('recommendations')
+    const { collection } = await editorRepository.loadState('recommendations')
     return collection
   }
 }
 
-export const recommendationsRepository = new EditorialRecommendationsRepository()
+export const recommendationsRepository = new EditorRecommendationsRepository()

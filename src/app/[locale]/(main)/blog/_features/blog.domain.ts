@@ -25,6 +25,8 @@ export type MDXData = {
   metadata: BlogFrontmatter
   slug: string
   rawContent: string
+  fullRawContent: string
+  version: string
 }
 
 export function compareBlogPostsByPublishedAtDesc(a: MDXData, b: MDXData) {
