@@ -1,1 +1,1 @@
-[Ref @docs/AGENTS.md](./docs/AGENTS.md)
+[READ ./docs/AGENTS.md](./docs/AGENTS.md)
