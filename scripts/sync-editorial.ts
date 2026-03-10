@@ -61,7 +61,10 @@ async function pull() {
     if (!filename || !filename.endsWith('.json')) continue;
 
     console.log(`  Downloading ${blob.pathname} -> ${filename}...`);
-    const response = await get(blob.url, { token: TOKEN });
+    const response = await get(blob.url, {
+      access: 'public',
+      token: TOKEN,
+    });
     const content = await response.text();
     
     // Format JSON with 2 spaces to keep it clean

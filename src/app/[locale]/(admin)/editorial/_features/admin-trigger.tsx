@@ -1,0 +1,35 @@
+import { getLocalizedUrl } from 'intlayer'
+import { Pencil } from 'lucide-react'
+import { headers } from 'next/headers'
+import Link from 'next/link'
+import { Button } from '@/components/ui/button'
+import { matchCollectionIdByPath } from '@/lib/editorial/editorial.contract'
+import { hasEditorialAdminSession } from './session'
+
+export async function EditorialAdminTrigger({ locale }: { locale: string }) {
+  const isAdmin = await hasEditorialAdminSession()
+  if (!isAdmin) return null
+
+  const headersList = await headers()
+  const pathname = headersList.get('x-pathname') || ''
+  const collectionId = matchCollectionIdByPath(pathname)
+
+  if (!collectionId) return null
+
+  return (
+    <div className="fixed right-6 bottom-24 z-50">
+      <Button
+        asChild
+        size="icon"
+        variant="outline"
+        className="size-12 rounded-full shadow-lg ring-1 ring-border transition-all hover:scale-105"
+        title={`Edit ${collectionId}`}
+      >
+        <Link href={getLocalizedUrl(`/editorial/${collectionId}`, locale)}>
+          <Pencil className="size-5" />
+          <span className="sr-only">Edit this page</span>
+        </Link>
+      </Button>
+    </div>
+  )
+}

@@ -265,5 +265,16 @@ export class DefaultEditorialRepository implements EditorialRepository {
   }
 }
 
+export function matchCollectionIdByPath(
+  pathname: string,
+): EditorialCollectionId | null {
+  if (pathname.includes('/recommendations')) return 'recommendations'
+  if (pathname.includes('/notes')) return 'notes'
+  if (pathname.includes('/puzzles')) return 'puzzles'
+  if (pathname.includes('/pointers')) return 'pointers'
+  if (pathname.includes('/links')) return 'links'
+  return null
+}
+
 // For convenience / singleton usage
 export const editorialRepository = new DefaultEditorialRepository()

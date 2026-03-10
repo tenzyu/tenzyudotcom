@@ -34,7 +34,8 @@ export function PuzzlesPageContent({ categories }: PuzzlesPageContentProps) {
       ) : (
         <div className="flex flex-col gap-10">
           {categories.map((category) => {
-            const categoryCopy = content.categories[category.id]
+            const categoryId = category.id as keyof typeof content.categories
+            const categoryCopy = content.categories[categoryId]
             if (!categoryCopy) return null
 
             return (
