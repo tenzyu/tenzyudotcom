@@ -10,6 +10,7 @@ import { getEditorialCollectionDescriptor } from '@/lib/editorial/editorial.cont
 import { makeLoadEditorialCollectionUseCase } from './editorial.assemble'
 import { saveEditorialCollectionAction } from './actions'
 import { EDITORIAL_ADMIN_LOCALE } from './constants'
+import { BlogEditor } from './blog-editor'
 import { LinksEditor } from './links-editor'
 import { NotesEditor } from './notes-editor'
 import { PointersEditor } from './pointers-editor'
@@ -21,11 +22,13 @@ export async function EditorialCollectionEditor({
   collectionId,
   saved,
   error,
+  slug,
 }: {
   locale: string
   collectionId: EditorialCollectionId
   saved?: boolean
   error?: string
+  slug?: string | null
 }) {
   const content = useIntlayer('editorialAdmin', EDITORIAL_ADMIN_LOCALE)
   const descriptor = getEditorialCollectionDescriptor(collectionId)
@@ -216,6 +219,39 @@ export async function EditorialCollectionEditor({
           locale={locale}
           entries={[...state.collection]}
           expectedVersion={state.version}
+        />
+      </Content>
+    )
+  }
+
+  if (collectionId === 'blog') {
+    const state = await loadUseCase.execute('blog')
+
+    return (
+      <Content size="4xl" className="space-y-8">
+        <PageHeader
+          title={`${content.dashboard.title.value}: ${descriptor.label}`}
+        />
+        <Link
+          href={getLocalizedUrl('/editorial', locale)}
+          className="inline-flex text-sm underline underline-offset-4"
+        >
+          {content.dashboard.backLabel.value}
+        </Link>
+        {saved ? (
+          <p className="text-sm font-medium">
+            {content.dashboard.savedMessage.value}
+          </p>
+        ) : null}
+        {error === 'save' ? (
+          <p className="text-sm font-medium">
+            {content.dashboard.saveErrorMessage.value}
+          </p>
+        ) : null}
+        <BlogEditor
+          locale={locale}
+          posts={[...state.collection]}
+          slug={slug}
         />
       </Content>
     )

@@ -17,6 +17,8 @@ import {
   buildBlogPostUrl,
   compareBlogPostsByPublishedAtDesc,
 } from './blog.domain'
+import { isEditorialBlobStorage } from '@/config/env.contract'
+import { list, get } from '@vercel/blob'
 
 const PAGE_SIZE = 6
 
@@ -47,10 +49,46 @@ async function getMDXData(dir: string): Promise<MDXData[]> {
   return Promise.all(files.map((file) => readMDXFile(path.join(dir, file))))
 }
 
-export const loadBlogPosts = cache(async () => {
-  const posts = await getMDXData(
-    path.join(process.cwd(), 'src', 'content', 'blog'),
+async function readMDXFromBlob(blobUrl: string, slug: string): Promise<MDXData> {
+  const response = await get(blobUrl, {
+    access: 'public',
+    useCache: false,
+  })
+  if (!response) {
+    throw new Error(`Failed to fetch blog post from blob: ${blobUrl}`)
+  }
+  const rawContent = await new Response(response.stream).text()
+  const { data, content } = matter(rawContent)
+  const metadata = parseBlogFrontmatter(data, slug)
+
+  return {
+    metadata,
+    slug,
+    rawContent: content,
+  }
+}
+
+async function getMDXDataFromBlob(): Promise<MDXData[]> {
+  const { blobs } = await list({
+    prefix: 'blog/',
+  })
+
+  const mdxBlobs = blobs.filter((b) => b.pathname.endsWith('.mdx'))
+
+  return Promise.all(
+    mdxBlobs.map((blob) => {
+      const slug = path.basename(blob.pathname, '.mdx')
+      return readMDXFromBlob(blob.url, slug)
+    }),
   )
+}
+
+export const loadBlogPosts = cache(async () => {
+  if (isEditorialBlobStorage) {
+    return (await getMDXDataFromBlob()).sort(compareBlogPostsByPublishedAtDesc)
+  }
+
+  const posts = await getMDXData(path.join(process.cwd(), 'storage', 'blog'))
   return [...posts].sort(compareBlogPostsByPublishedAtDesc)
 })
 

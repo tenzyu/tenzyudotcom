@@ -16,6 +16,13 @@ export async function EditorialAdminTrigger({ locale }: { locale: string }) {
 
   if (!collectionId) return null
 
+  const isBlog = collectionId === 'blog'
+  const slug = isBlog ? pathname.split('/').pop() : undefined
+  const href = getLocalizedUrl(
+    `/editorial/${collectionId}${slug ? `?slug=${slug}` : ''}`,
+    locale,
+  )
+
   return (
     <div className="fixed right-6 bottom-24 z-50">
       <Button
@@ -25,7 +32,7 @@ export async function EditorialAdminTrigger({ locale }: { locale: string }) {
         className="size-12 rounded-full shadow-lg ring-1 ring-border transition-all hover:scale-105"
         title={`Edit ${collectionId}`}
       >
-        <Link href={getLocalizedUrl(`/editorial/${collectionId}`, locale)}>
+        <Link href={href}>
           <Pencil className="size-5" />
           <span className="sr-only">Edit this page</span>
         </Link>

@@ -10,6 +10,7 @@ import {
 } from '@/config/env.contract'
 import {
   EditorialVersionConflictError,
+  editorialRepository,
 } from '@/lib/editorial/editorial.contract'
 import {
   makeSaveEditorialCollectionUseCase,
@@ -34,9 +35,21 @@ const SaveCollectionSchema = z.object({
     'puzzles',
     'pointers',
     'links',
+    'blog',
   ]),
   sourceJson: z.string().trim().min(2),
   expectedVersion: z.string().trim().min(1).optional(),
+})
+
+const SaveBlogPostSchema = z.object({
+  locale: z.string().trim().min(2),
+  slug: z.string().trim().min(1),
+  title: z.string().trim().min(1),
+  summary: z.string().trim().min(1),
+  publishedAt: z.string().trim().min(1),
+  updatedAt: z.string().trim().optional(),
+  tags: z.string().trim().optional(),
+  body: z.string(),
 })
 
 export async function loginEditorialAdminAction(formData: FormData) {
@@ -123,4 +136,55 @@ export async function saveEditorialCollectionAction(formData: FormData) {
       parsed.data.locale,
     ),
   )
+}
+
+export async function saveBlogPostAction(formData: FormData) {
+  const parsed = SaveBlogPostSchema.safeParse({
+    locale: formData.get('locale'),
+    slug: formData.get('slug'),
+    title: formData.get('title'),
+    summary: formData.get('summary'),
+    publishedAt: formData.get('publishedAt'),
+    updatedAt: formData.get('updatedAt') || undefined,
+    tags: formData.get('tags'),
+    body: formData.get('body'),
+  })
+
+  if (!parsed.success) {
+    redirect(getLocalizedUrl('/editorial?error=invalid', 'ja'))
+  }
+
+  await requireEditorialAdminSession(parsed.data.locale)
+
+  const tags = parsed.data.tags
+    ? parsed.data.tags
+        .split(',')
+        .map((t) => t.trim())
+        .filter(Boolean)
+    : []
+
+  const frontmatter = {
+    title: parsed.data.title,
+    summary: parsed.data.summary,
+    publishedAt: new Date(parsed.data.publishedAt),
+    updatedAt: parsed.data.updatedAt ? new Date(parsed.data.updatedAt) : undefined,
+    tags,
+  }
+
+  try {
+    await editorialRepository.saveBlogPost(
+      parsed.data.slug,
+      frontmatter,
+      parsed.data.body,
+    )
+
+    revalidatePath(getLocalizedUrl('/blog', parsed.data.locale))
+    revalidatePath(getLocalizedUrl(`/blog/${parsed.data.slug}`, parsed.data.locale))
+    revalidatePath(getLocalizedUrl(`/editorial/blog`, parsed.data.locale))
+  } catch (error) {
+    console.error('Failed to save blog post:', error)
+    redirect(getLocalizedUrl(`/editorial/blog?error=save`, parsed.data.locale))
+  }
+
+  redirect(getLocalizedUrl(`/editorial/blog?saved=1`, parsed.data.locale))
 }

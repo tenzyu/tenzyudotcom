@@ -8,6 +8,9 @@ import { parseRecommendationSourceEntries } from '@/app/[locale]/(main)/recommen
 import { env, isEditorialBlobStorage } from '@/config/env.contract'
 import { parseLinkSourceEntries } from '@/features/links/links.contract'
 import { get, list, put } from '@vercel/blob'
+import matter from 'gray-matter'
+import { loadBlogPosts } from '@/app/[locale]/(main)/blog/_features/blog.assemble'
+import type { BlogFrontmatter, MDXData } from '@/app/[locale]/(main)/blog/_features/blog.domain'
 import type {
   EditorialCollectionData,
   EditorialCollectionId,
@@ -83,6 +86,14 @@ export const EDITORIAL_COLLECTIONS: {
     ],
     getDefaultValue: () => [],
     parse: parseLinkSourceEntries,
+  },
+  blog: {
+    id: 'blog',
+    label: 'Blog',
+    storagePath: 'blog',
+    publicPaths: withLocales('/blog'),
+    getDefaultValue: () => [],
+    parse: (raw: unknown) => raw as MDXData[], // Not used for full array saving
   },
 }
 
@@ -198,6 +209,16 @@ export class DefaultEditorialRepository implements EditorialRepository {
   ): Promise<EditorialState<K>> {
     const descriptor = getEditorialCollectionDescriptor(collectionId)
 
+    if (collectionId === 'blog') {
+      const posts = await loadBlogPosts()
+      const serialized = JSON.stringify(posts, null, 2)
+      return {
+        collection: posts as unknown as EditorialCollectionData[K],
+        serialized,
+        version: createVersion(serialized),
+      }
+    }
+
     try {
       const result = isEditorialBlobStorage
         ? await readBlobCollection(collectionId)
@@ -263,11 +284,35 @@ export class DefaultEditorialRepository implements EditorialRepository {
       version: nextVersion,
     }
   }
+
+  async saveBlogPost(
+    slug: string,
+    frontmatter: BlogFrontmatter,
+    body: string,
+  ): Promise<void> {
+    const content = matter.stringify(body, frontmatter)
+    const filename = `${slug}.mdx`
+
+    if (isEditorialBlobStorage) {
+      await put(`blog/${filename}`, content, {
+        access: 'public',
+        addRandomSuffix: false,
+        allowOverwrite: true,
+        contentType: 'text/markdown',
+      })
+      return
+    }
+
+    const localPath = join(process.cwd(), 'storage', 'blog', filename)
+    await mkdir(join(localPath, '..'), { recursive: true })
+    await writeFile(localPath, content, 'utf8')
+  }
 }
 
 export function matchCollectionIdByPath(
   pathname: string,
 ): EditorialCollectionId | null {
+  if (pathname.includes('/blog')) return 'blog'
   if (pathname.includes('/recommendations')) return 'recommendations'
   if (pathname.includes('/notes')) return 'notes'
   if (pathname.includes('/puzzles')) return 'puzzles'

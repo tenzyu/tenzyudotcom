@@ -4,12 +4,18 @@ import type { PuzzleCategory } from '@/app/[locale]/(main)/puzzles/_features/puz
 import type { RecommendationSourceEntry } from '@/app/[locale]/(main)/recommendations/_features/recommendations.domain'
 import type { MyLink } from '@/features/links/links.domain'
 
+import type {
+  BlogFrontmatter,
+  MDXData,
+} from '@/app/[locale]/(main)/blog/_features/blog.domain'
+
 export type EditorialCollectionId =
   | 'recommendations'
   | 'notes'
   | 'puzzles'
   | 'pointers'
   | 'links'
+  | 'blog'
 
 export type EditorialCollectionData = {
   recommendations: readonly RecommendationSourceEntry[]
@@ -17,6 +23,7 @@ export type EditorialCollectionData = {
   puzzles: readonly PuzzleCategory[]
   pointers: readonly DashboardSourceCategory[]
   links: readonly MyLink[]
+  blog: readonly MDXData[]
 }
 
 export type EditorialState<K extends EditorialCollectionId> = {
@@ -42,4 +49,6 @@ export interface EditorialRepository {
   ): Promise<{
     version: string
   }>
+
+  saveBlogPost(slug: string, frontmatter: BlogFrontmatter, body: string): Promise<void>
 }

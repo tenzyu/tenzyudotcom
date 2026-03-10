@@ -24,7 +24,8 @@ function isEditorialCollectionId(
     value === 'notes' ||
     value === 'puzzles' ||
     value === 'pointers' ||
-    value === 'links'
+    value === 'links' ||
+    value === 'blog'
   )
 }
 
@@ -33,7 +34,7 @@ export default async function EditorialCollectionPage({
   searchParams,
 }: {
   params: Promise<{ locale: string; collection: string }>
-  searchParams: Promise<{ saved?: string; error?: string }>
+  searchParams: Promise<{ saved?: string; error?: string; slug?: string }>
 }) {
   const awaitedParams = await params
   const locale = await resolvePageLocale(
@@ -53,6 +54,7 @@ export default async function EditorialCollectionPage({
       collectionId={awaitedParams.collection}
       saved={search.saved === '1'}
       error={search.error}
+      slug={search.slug}
     />
   )
 }
