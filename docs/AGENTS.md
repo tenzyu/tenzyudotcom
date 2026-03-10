@@ -45,22 +45,6 @@ Read the smallest next document that can unblock the task.
 - [Rules: Reliability Fault Tolerance](./design-docs/rules/reliability-fault-tolerance.md)
 - [Rules: Reliability Metadata Safety](./design-docs/rules/reliability-metadata-safety.md)
 
-## Archives (Pre-decomposition)
-- [ARCHITECTURE (Archived)](./design-docs/archive/architecture.md)
-- [CORE BELIEFS (Archived)](./design-docs/archive/core-beliefs.md)
-- [FRONTEND (Archived)](./design-docs/archive/frontend.md)
-- [DESIGN (Archived)](./design-docs/archive/design.md)
-- [GUARDRAILS (Archived)](./design-docs/archive/guardrails.md)
-- [GUARDRAIL v1 (Archived)](./design-docs/archive/guardrail.md)
-- [QUALITY SCORE (Archived)](./design-docs/archive/quality-score.md)
-- [RELIABILITY (Archived)](./design-docs/archive/reliability.md)
-- [SECURITY (Archived)](./design-docs/archive/security.md)
-- [TOOLS BOUNDARY (Archived)](./design-docs/archive/tools-boundary.md)
-- [MEMORY MGMT (Archived)](./design-docs/archive/memory-management.md)
-- [SITE GOALS (Archived)](./design-docs/archive/personal-site-goals.md)
-- [PRODUCT SENSE (Archived)](./design-docs/archive/product-sense.md)
-- [STRUCTURE RULES (Archived)](./design-docs/archive/structure-rules.md)
-
 ## Product Specs
 - `/docs/product-specs/**/*.md`: route-specific or product-area-specific requirements
 
