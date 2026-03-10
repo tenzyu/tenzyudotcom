@@ -1,80 +1,80 @@
 ---
 name: harness-subagent-orchestration-workflow
-description: メインエージェントが exec-plan を起点にサブエージェントへ作業を委譲する標準運用。
-summary: 運用判断の同一性を担保するため、依頼の受付から委譲・レビュー・完了までの厳格なステートマシンを定義する。
+description: Standard orchestration flow for delegating ready plans to subagents.
+summary: Defines intake, delegation, review, and archive rules so different sessions make the same operational decisions.
 read_when:
-  - 新しい依頼を受けて task routing を決める時
-  - active plan をサブエージェントへ委譲する時
-  - サブエージェントの結果を review / integrate する時
+  - When routing a new task
+  - When delegating a ready plan
+  - When reviewing and integrating subagent output
 skip_when:
-  - 既に対象 plan と担当 agent が確定しており、個別実装だけを進める時
+  - When the plan and assignee are already fixed and only implementation remains
 user-invocable: false
 ---
 
 # Subagent Orchestration Workflow
 
-この repo では、メインエージェント（Orchestrator）が司令塔になり、作業単位は `docs/exec-plans/active/*.md` に揃える。
-active plan は backlog を含む作業用 artifact であり、委譲可能なのはその中で `execution-ready: true` を満たした plan だけである。
-この文書の目的は、**「違う LLM / 違うセッションでも同じ運用判断（Decision Consistency）に至る」**ための厳格なプロトコルを定義することである。
+The orchestrator is the control plane.
+Use `docs/exec-plans/active/*.md` as the active workspace.
+Treat `execution-ready: true` as the signal that a plan can be delegated.
+The goal is decision consistency across different sessions and models.
 
 ## Core Principles
 
-- **Managerial Orchestrator**: メインエージェントは自身でコードを書かず、戦略、計画、委譲、レビュー、統合、アーカイブに専念する。
-- **Plan-First Execution**: 実行は常に `active plan` を起点にする。会話や prompt の指示だけでアドホックに実装を開始しない。
-- **Backlog Continuity**: active plan は session memory を兼ねる。意味のある進捗、判断、次の着手点は毎回 plan に戻す。
-- **Progressive Disclosure**: `AGENTS.md` をルートとし、必要に応じて詳細な design-docs や product-specs へ潜る。
+- **Managerial Orchestrator**: prioritize planning, delegation, review, integration, and archive.
+- **Plan-First Execution**: do not start significant work from chat alone.
+- **Backlog Continuity**: write progress and next steps back into the plan.
+- **Progressive Disclosure**: start from `AGENTS.md` and only open the next needed document.
 
 ## Document Split
 
-- [plan-authoring-workflow](./plan-authoring-workflow.md): plan の下書きや昇格を補助する
-- [exec-plan-contract](./exec-plan-contract.md): `execution-ready` plan の必須項目を定義する
-- この文書: orchestrator が plan を委譲、review、archive する
+- [plan-authoring-workflow](./plan-authoring-workflow.md): draft or promote plans
+- [exec-plan-contract](./exec-plan-contract.md): ready-plan contract
+- This document: delegate, review, archive
 
 ## 1. Intake Protocol (受付)
 
-依頼を受けた直後、メインエージェントは以下の順序で判断する。
+When a request arrives, decide in this order:
 
-1.  **Context Discovery**: `AGENTS.md` を読み、関連する domain/workflow を特定する。
-2.  **Plan Collision Check**: `docs/exec-plans/active/*.md` をスキャンし、重複・関連する進行中 task がないか確認する。
-    - 関連があれば、その plan を update するか、依存関係を定義する。
-3.  **Inquiry vs. Directive**:
-    - **Inquiry (調査・提案)**: `active plan` は作らず、調査結果と提案を返す。
-    - **Directive (実行指示)**: [plan-authoring-workflow](./plan-authoring-workflow.md) に従い、`active plan` を作成または昇格させる。
-4.  **Continuity Update**: 実装に着手しない場合でも、active plan が存在するなら進捗、判断、次の着手点を更新してセッションを閉じる。
+1. **Context Discovery**: open `AGENTS.md` and identify the domain or workflow.
+2. **Plan Collision Check**: scan `active/*.md` for overlapping work.
+3. **Inquiry vs. Directive**:
+   - **Inquiry**: return findings and recommendations without creating a ready plan.
+   - **Directive**: create or promote a plan using [plan-authoring-workflow](./plan-authoring-workflow.md).
+4. **Continuity Update**: if a relevant active plan exists, update progress and next steps before ending the session.
 
 ## 2. Delegation Protocol (委譲)
 
-サブエージェントへ作業を渡す際は、[exec-plan-contract](./exec-plan-contract.md) を満たした `execution-ready: true` の plan を path 指定で渡す。
+Only delegate plans from `docs/exec-plans/active/*.md` that satisfy [exec-plan-contract](./exec-plan-contract.md) and have `execution-ready: true`.
 
-- **1 Task = 1 Plan**: 原則として 1 つの PR / commit 単位に 1 つの plan を割り当てる。
-- **Strict Scope**: `allowed file scope` を明示し、サブエージェントが範囲外を「ついでに直す」ことを防ぐ。
-- **Verification First**: 成功判定に必要な `nix develop -c ...` コマンドを plan 内に確定させてから渡す。
+- **1 Task = 1 Plan**: one plan should map to one bounded work item.
+- **Strict Scope**: make `allowed file scope` explicit.
+- **Verification First**: define the exact verification command before handoff.
 
 ## 3. Review & Integration Checklist (レビューと統合)
 
-メインエージェントは、サブエージェントからの成果物を以下の観点でチェックする。
+Review subagent output against these checks:
 
-- [ ] **Plan Alignment**: `active plan` の `Goal` と `Deliverables` をすべて満たしているか。
-- [ ] **Architecture Check**: [ARCHITECTURE](../ARCHITECTURE.md) および [structure-rules](../design-docs/structure-rules.md) の配置・所有権ルールを守っているか。
-- [ ] **Quality Check**: [QUALITY_SCORE](../QUALITY_SCORE.md) の「Dirty Code 禁止」や「境界バリデーション」がなされているか。
-- [ ] **Design Check**: UI 変更がある場合、[DESIGN](../DESIGN.md) のトークン利用や a11y 要件を満たしているか。
-- [ ] **Verification Result**: `required verification` がすべて Pass し、ログが提示されているか。
-- [ ] **Doc-Gardening**: コード変更に伴い、関連する `docs/` や `AGENTS.md` の更新が必要な場合、それも含まれているか。
+- [ ] **Plan Alignment**: `Goal` and `Deliverables` are satisfied.
+- [ ] **Architecture Check**: placement follows [Rules Index](../design-docs/rules/*.md).
+- [ ] **Quality Check**: boundary validation and quality rules are respected.
+- [ ] **Design Check**: UI changes follow [Rules: Token-first Styling](../design-docs/rules/design-token-first.md).
+- [ ] **Verification Result**: required commands passed and logs are available.
+- [ ] **Doc Gardening**: durable docs were updated when code changes required it.
 
 ## 4. Completion & Archive Protocol (完了と記録)
 
-`Completion Signal` を満たしたら、以下の手順でタスクを閉じる。
+When `Completion Signal` is satisfied:
 
-1.  **Fact Recording**: plan 末尾に、何を確認して完了としたかの事実（テスト結果、PR番号など）を追記する。
-2.  **Metadata Update**: frontmatter の `description` と `summary` を「現在進行形」から「完了済みの歴史的記録」へ書き換える。
-3.  **Move to Completed**: `docs/exec-plans/active/` から `docs/exec-plans/completed/` へファイルを移動する。
-4.  **Promote Gaps**: 実装中に発見した新たな課題や保留事項があれば、`docs/exec-plans/tech-debt-tracker.md` へ追記する。
+1. **Fact Recording**: append what was verified and why the task is done.
+2. **Metadata Update**: rewrite frontmatter into completed-tense history.
+3. **Move to Completed**: move the file from `active/` to `completed/`.
+4. **Promote Gaps**: add newly discovered open issues to `tech-debt-tracker.md`.
 
-`docs/exec-plans/completed/*.md` は pure work log であり、rule の正本として扱わない。
+`docs/exec-plans/completed/*.md` is a work-log area, not the canonical rule source.
 
 ## Failure Handling (不一致の解消)
 
-もしサブエージェントの結果が Review Checklist を満たさない場合、メインエージェントは以下を行う。
+If the result does not satisfy the checklist:
 
-1.  修正すべき点と、その根拠となる `docs/` の path を提示して再送する。
-2.  もし plan 自体に不備（scope 不足など）があった場合は、まず plan を修正してから再委譲する。
+1. resend with the missing requirements and the supporting doc paths
+2. if the plan itself was incomplete, fix the plan before re-delegating

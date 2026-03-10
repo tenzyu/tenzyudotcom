@@ -17,40 +17,37 @@ Structure は、この repo が収束すべき target filesystem と ownership m
 
 主要ディレクトリは次の意味で固定する。
 
-- `docs/design-docs/*`
-  - repo-wide rule を置く
-  - task 固有 plan は置かない
-  - reusable rule を書く時の第一候補
-- `docs/product-specs/*`
-  - route / product area 固有の要求を置く
-  - global rule や外部連携手順は置かない
-  - route 文脈に迷った時の第一候補
-- `docs/exec-plans/active/*`
-  - 進行中 task の `PLANS.md` / ExecPlan を置く
-  - rule index や完了済み履歴は置かない
-  - 作業中 task の source of truth の第一候補
-- `docs/exec-plans/completed/*`
-  - 完了した task の意思決定ログを置く
-  - 新規 handoff の入力には使わない
-  - 過去判断の参照先の第一候補
-- `docs/workflows/*`
-  - 繰り返し使う進め方を置く
-  - task 本体や外部 reference は置かない
-  - process に迷った時の第一候補
-- `docs/references/*`
-  - 外部ツール、外部サービス、外部実行環境との接続手順を置く
-  - repo 内 ownership rule は置かない
-  - external integration の確認時の第一候補
+`docs/design-docs/*`
+開発手順や設計上の判断軸を設置する。
+コードを読むだけではわからないものを明文化して、暗黙知を減らすことが目的。
 
-## When to Apply
+`docs/product-specs/*`
+route / product area 固有の要求を置く
+route 配下の文脈に迷ったときの第一候補
 
-この文書を読むのは次のとき。
+`docs/exec-plans/active/*`
+進行中 task の `*.plan.md` / ExecPlan を置く
+実行計画ドキュメント自体を第一級アーティファクトとして扱い、進捗と意思決定のログを残す
+作業中 task の source of truth の第一候補
 
-- file を新規作成する
-- file を移動、rename、promote、demote する
-- shared と local の境界を決める
-- Intlayer に入れるか `data` に置くか迷う
-- `components`, `hooks`, `lib`, `data` の切り方を決める
+`docs/exec-plans/completed/*`
+完了した task の意思決定ログを置く
+新規 handoff の入力には使わない
+過去判断の参照先の第一候補
+
+`docs/generated`
+AIの生成物を置く
+調査やセッションを通しての報告書など
+
+`docs/workflows/*`
+繰り返し使う進め方を置く
+task 本体や外部 reference は置かない
+process に迷った時の第一候補
+
+`docs/references/*`
+外部ツール、外部サービス、外部実行環境との接続手順を置く
+repo 内 ownership rule は置かない
+external integration の確認時の第一候補
 
 ## Core Model
 

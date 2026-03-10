@@ -1,58 +1,59 @@
 ---
 name: harness-exec-plan-contract
-description: サブエージェントへ委譲できる execution-ready な exec-plan の最小契約。
-summary: 軽量メモ型 plan と execution-ready plan の違い、および委譲に必要な section を定義する。
+description: Minimum contract for a plan that can be handed directly to a subagent.
+summary: Separates backlog notes from execution-ready plans and defines the required ready-plan sections.
 read_when:
-  - 新しい exec-plan を作る時
-  - active plan をサブエージェントへ渡せる粒度に整える時
+  - When creating a ready plan
+  - When preparing a plan for delegation
 skip_when:
-  - completed plan の履歴だけを読む時
+  - When only reading historical completed logs
 user-invocable: false
 ---
 
 # Exec-Plan Contract
 
-この repo では `docs/exec-plans/active/*.md` が `PLANS.md` / ExecPlan の実体である。
-active plan は backlog を含む作業用 artifact であり、違う LLM や違うセッションへ渡っても同じ作業を再開できるよう継続更新する。
-この文書はその中でも、`execution-ready: true` を付けて委譲する plan の最小契約だけを定義する。
+This repo uses plan files as the working equivalent of `PLANS.md`.
+`docs/exec-plans/active/*.md` holds both notes and delegation-ready plans.
+Readiness is a plan state expressed by `execution-ready: true`.
+This document defines only the minimum contract for ready plans.
 
 ## Role Split
 
-- [plan-authoring-workflow](./plan-authoring-workflow.md): plan の下書きと型の選択
-- この文書: `execution-ready` plan の必須項目
-- [agent-orchestration-workflow](./agent-orchestration-workflow.md): 委譲、review、completed への移動
+- [plan-authoring-workflow](./plan-authoring-workflow.md): choose the plan shape and draft it
+- This document: required sections for ready plans
+- [agent-orchestration-workflow](./agent-orchestration-workflow.md): delegate, review, archive
 
 ## Plan Shapes
 
-active plan には 2 種類ある。
+There are two active plan shapes.
 
-- 軽量メモ型
-  - follow-up、debt、継続更新する backlog メモを残す plan
-- execution-ready 型
-  - サブエージェントへそのまま渡せる plan
-  - frontmatter に `execution-ready: true` を持つ
+- backlog note
+  - keeps a follow-up, debt item, or resumable note
+- ready plan
+  - can be handed directly to a subagent
+  - has `execution-ready: true` in frontmatter
 
-active plan 全体が委譲可能なのではなく、委譲可能なのは execution-ready 型だけである。
+Only ready plans are delegation-ready.
 
 ## Required Sections
 
-execution-ready plan には次を揃える。
+A ready plan must contain the sections below.
 
 ## Goal
 
-- done の条件を outcome で書く
+- Write the done condition as an outcome.
 
 ## Scope
 
-- 触れてよい file scope か subsystem scope を書く
+- Define the allowed file scope or subsystem boundary.
 
 ## Deliverables
 
-- 完了時に揃う成果物を bullet で書く
+- List the required outputs.
 
 ## Task Breakdown
 
-- main steps を bullet か小見出しで書く
+- List the main steps.
 
 ## Subagent Contract
 
@@ -63,19 +64,19 @@ execution-ready plan には次を揃える。
 
 ## Verification
 
-- 実行すべき command を列挙する
-- repo toolchain が global install 前提でない場合は、`nix develop -c ...` のように wrapper を含めて書く
-- 実行不能なら blocked 条件を書く
+- List the commands that must run.
+- If the repo depends on a dev shell, include the wrapper such as `nix develop -c ...`.
+- If execution is blocked, write the blocking condition explicitly.
 
 ## Completion Signal
 
-- メインエージェントが統合判断できる done 条件を書く
+- State what lets the orchestrator close the task.
 
 ## Writing Rules
 
-- 1 task = 1 file を守る
-- active plan は session memory を兼ねるため、進捗、判断、次の着手点を継続更新する
-- handoff 情報を会話だけに閉じ込めない
-- shared rule に昇格すべき判断は docs へ還元する
-- 軽量メモ型 plan を無理に execution-ready 化しない
-- `docs/exec-plans/completed/*.md` は pure work log であり、rule の正本として扱わない
+- Keep `1 task = 1 file`.
+- Keep active plans current enough to resume in another session.
+- Do not bury handoff details only in chat.
+- Promote reusable decisions into durable docs.
+- Do not force a backlog note into ready shape too early.
+- Treat `docs/exec-plans/completed/*.md` as work logs, not canonical rules.

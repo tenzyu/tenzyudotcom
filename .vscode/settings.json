@@ -10,4 +10,5 @@
   "[jsonc]": {
     "editor.defaultFormatter": "vscode.json-language-features"
   },
+  "markdown.updateLinksOnFileMove.enabled": "always"
 }

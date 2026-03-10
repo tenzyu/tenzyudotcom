@@ -28,6 +28,7 @@
 		},
 		"files.associations": {
 			"*.css": "tailwindcss"
-		}
+		},
+		"markdown.updateLinksOnFileMove.enabled": "always"
 	}
 }

@@ -13,6 +13,8 @@
     "lint": "./scripts/biome lint .",
     "lint:fix": "./scripts/biome lint --fix .",
     "lint:docs": "bun scripts/lint-docs.ts",
+    "docs-rename": "bun scripts/docs-rename.ts",
+    "build:docs-map": "bun scripts/compile-agents-md.ts",
     "format": "./scripts/biome format --write .",
     "test": "bun test",
     "test:contracts": "bun test 'src/app/[locale]/_features/site-structured-data.test.ts' 'src/app/[locale]/(main)/recommendations/_features/recommendation-search-params.contract.test.ts' 'src/app/[locale]/(main)/recommendations/_features/recommendations.contract.test.ts' 'src/features/links/links.contract.test.ts' 'src/lib/blog/blog-frontmatter.contract.test.ts' 'src/lib/url/external-url.contract.test.ts' 'src/features/youtube/youtube.contract.test.ts'",

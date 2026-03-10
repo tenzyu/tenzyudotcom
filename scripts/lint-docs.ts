@@ -1,20 +1,30 @@
-import { promises as fs } from "node:fs";
+import { promises as fs, existsSync } from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
 import { z } from "zod";
 import pm from "picomatch";
 
-const isJapanese = (text: string) => /[\u3040-\u309f\u30a0-\u30ff\u4e00-\u9faf]/.test(text);
+const hasMeaningfulText = (text: string) => text.trim().length > 0;
 
-const FrontmatterSchema = z.object({
-  name: z.string().min(1, "name is required"),
-  description: z.string().refine(isJapanese, "description must contain Japanese"),
-  summary: z.string().refine(isJapanese, "summary must contain Japanese").optional(),
-  read_when: z.array(z.string().refine(isJapanese, "read_when items must contain Japanese")),
-  skip_when: z.array(z.string().refine(isJapanese, "skip_when items must contain Japanese")).optional(),
-  "user-invocable": z.boolean().optional(),
-  "execution-ready": z.boolean().optional(),
-});
+const FrontmatterSchema = z.union([
+  // Harness format
+  z.object({
+    name: z.string().min(1, "name is required"),
+    description: z.string().refine(hasMeaningfulText, "description is required"),
+    summary: z.string().refine(hasMeaningfulText, "summary is required").optional(),
+    read_when: z.array(z.string().refine(hasMeaningfulText, "read_when items must be non-empty")),
+    skip_when: z.array(z.string().refine(hasMeaningfulText, "skip_when items must be non-empty")).optional(),
+    "user-invocable": z.boolean().optional(),
+    "execution-ready": z.boolean().optional(),
+  }),
+  // Rule format
+  z.object({
+    title: z.string().min(1, "title is required"),
+    impact: z.enum(["LOW", "MEDIUM", "HIGH", "CRITICAL"]),
+    impactDescription: z.string().optional(),
+    tags: z.string().optional(),
+  })
+]);
 
 const EXECUTION_READY_REQUIRED_SECTIONS = [
   "Goal",
@@ -293,19 +303,50 @@ async function validateReachability() {
         absolutePath = path.resolve(process.cwd(), linkPath.slice(1));
       } else {
         absolutePath = path.resolve(path.dirname(current), linkPath);
+        
+        // Smart Path Resolution: if the resolved path doesn't exist, but it starts with ./docs/
+        // OR if it's already in docs/ and the link looks root-relative (e.g., /docs/...)
+        // though /docs/... would have been caught by the linkPath.startsWith("/") check above.
+        if (!existsSync(linkPath.includes("*") ? path.dirname(absolutePath) : absolutePath)) {
+            if (linkPath.startsWith("./docs/")) {
+                const rootRel = path.resolve(process.cwd(), linkPath.slice(2));
+                if (existsSync(linkPath.includes("*") ? path.dirname(rootRel) : rootRel)) {
+                    absolutePath = rootRel;
+                }
+            }
+        }
       }
+
+      // Handle the case where someone writes [link](/docs/...) inside a doc.
+      // Above logic already handles it by stripping the first char if it starts with /.
+      // Wait, if linkPath is /docs/product-specs/*.md, it goes to the first 'if'.
+      // path.resolve(process.cwd(), "docs/product-specs/*.md") should work.
 
       // Wildcard check
       if (linkPath.includes("*")) {
-        const dir = path.dirname(absolutePath);
-        const pattern = path.basename(absolutePath);
+        const isRecursive = linkPath.includes("**");
+        const baseDir = isRecursive 
+            ? absolutePath.split("**")[0].replace(/\/$/, "")
+            : path.dirname(absolutePath);
+        const pattern = isRecursive
+            ? linkPath.split("**").slice(1).join("**").replace(/^\//, "**") || "**/*.md"
+            : path.basename(absolutePath);
+
+        if (!existsSync(baseDir)) {
+            console.error(`\x1b[31m[ERROR]\x1b[0m Directory not found for wildcard in ${path.relative(process.cwd(), current)} -> ${linkPath}`);
+            hasErrors = true;
+            continue;
+        }
+
         try {
-          const isMatch = pm(pattern);
-          const entries = await fs.readdir(dir);
+          const isMatch = pm(isRecursive ? `**/${pattern.replace(/^\*\*\//, "")}` : pattern);
+          
           let matchedAny = false;
-          for (const entry of entries) {
-            if (isMatch(entry)) {
-              const fullPath = path.resolve(dir, entry);
+          const filesToCheck = isRecursive ? walk(baseDir) : (await fs.readdir(baseDir)).map(e => path.resolve(baseDir, e));
+
+          for await (const fullPath of (isRecursive ? filesToCheck : (filesToCheck as string[]))) {
+            const relToSubRoot = path.relative(baseDir, fullPath);
+            if (isMatch(relToSubRoot)) {
               if (fullPath.endsWith(".md")) {
                 queue.push(fullPath);
                 reachedFiles.add(fullPath);
@@ -313,12 +354,13 @@ async function validateReachability() {
               }
             }
           }
+
           if (!matchedAny) {
             console.error(`\x1b[31m[ERROR]\x1b[0m No files matched wildcard in ${path.relative(process.cwd(), current)} -> ${linkPath}`);
             hasErrors = true;
           }
-        } catch {
-          console.error(`\x1b[31m[ERROR]\x1b[0m Directory not found for wildcard in ${path.relative(process.cwd(), current)} -> ${linkPath}`);
+        } catch (e: any) {
+          console.error(`\x1b[31m[ERROR]\x1b[0m Wildcard error in ${path.relative(process.cwd(), current)} -> ${linkPath}: ${e.message}`);
           hasErrors = true;
         }
         continue;
@@ -348,6 +390,9 @@ async function validateReachability() {
 
   // Orphan Detection
   for (const file of allMdFiles) {
+    const filename = path.basename(file);
+    if (filename === "README.md" || filename === "_template.md") continue;
+
     if (!reachedFiles.has(file)) {
       console.error(`\x1b[31m[ERROR]\x1b[0m Orphaned document (unreachable from AGENTS.md): ${path.relative(process.cwd(), file)}`);
       hasErrors = true;
@@ -376,7 +421,11 @@ async function run() {
 
   console.log("Linting docs frontmatter, freshness and basic content rules...");
   for (const filepath of filesToLint) {
-    const isAgents = filepath === agentsMd;
+    const filename = path.basename(filepath);
+    const isAgents = filename === "AGENTS.md";
+    const isExempt = filename === "README.md" || filename === "_template.md";
+
+    if (isExempt) continue;
 
     // Frontmatter is mandatory for docs/ markdowns. AGENTS.md is exempt by convention.
     if (!isAgents) {
