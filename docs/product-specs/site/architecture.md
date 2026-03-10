@@ -1,14 +1,6 @@
 ---
 name: editorial-architecture
 description: 著者主導のeditorialコレクションのための、リポジトリ固有のアーキテクチャノート。
-summary: リポジトリのeditorialモデル、所有権、ストレージ方針、およびコレクション固有の編集方針を定義する。一般的な境界の語彙はharnessの参照に存在する。
-read_when:
-  - editorialサブシステムのアーキテクチャを変更する時
-  - source、admin、storage、およびassemble層間の所有権を決定する時
-  - キュレーションされたコレクションやその編集モデルを拡張する時
-skip_when:
-  - source/content/contract/assembleに関する一般的な命名規則だけが必要な時
-user-invocable: false
 ---
 
 # Editorial Architecture

@@ -1,9 +1,6 @@
 ---
-name: docs-rename
+title: docs-rename
 description: ドキュメントの移動と参照の自動更新を行うスクリプトの仕様。
-read_when:
-  - ドキュメントを大量に移動またはリネームしたい時
-  - リンク切れを一括修正したい時
 ---
 
 # Docs Rename Spec

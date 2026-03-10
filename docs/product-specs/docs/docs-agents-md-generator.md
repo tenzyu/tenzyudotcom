@@ -1,9 +1,6 @@
 ---
-name: agents-md-generator-spec
+title: agents-md-generator-spec
 description: docs/design-docs/rules/** から AGENTS.md を自動生成するコンパイラの仕様。
-read_when:
-  - AGENTS.md の生成ロジックを変更する時
-  - ルールファイルのフォーマット定義を更新する時
 ---
 
 # AGENTS.md Generator Spec
