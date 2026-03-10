@@ -56,6 +56,8 @@ boundaries, and automated verification to maintain high technical integrity.
 6. [Reliability](#6-reliability)
    - 6.1 [Reliability: Metadata & i18n Safety](#61-reliability-metadata-i18n-safety)
    - 6.2 [Reliability: Fault Tolerance & Isolated Boundaries](#62-reliability-fault-tolerance-isolated-boundaries)
+7. [CLI](#7-cli)
+   - 7.1 [Quote the Path when you Use Commands](#71-quote-the-path-when-you-use-commands)
 
 ---
 
@@ -208,29 +210,66 @@ src/app/.../_features/
 
 > ロジックを外部実装（API, DB）から保護し、テストの容易性と交換可能性を高める。
 
-mount point や外部ツールに惑わされず、どこがロジックと状態と知識を所有するかを明確に分離する。
-
-- `*.domain.ts`: 純粋な型とドメインルール。
-- `*.port.ts`: 抽象化インターフェース。
-- `*.contract.ts`: 境界（外部実装との接続点）の定義とバリデーション。infrastructure
-- `*.assemble.ts`: 複数のデータソースを結合し、UI に適した形状に組み立てる。application
+UI や mount point、外部ツールの都合に引きずられず、どこがロジックと状態と知識を所有するかを明確に分離する。
 
 **Incorrect:**
 
 ```tsx
-// UI コンポーネントの中で直接 API のレスポンス形状に依存している
-export default function Component() {
-  const data = await fetch('/api/raw-data');
-  return <div>{data.raw_field_name}</div>;
+// UI コンポーネントの中で直接取得・保存・バリデーション等を行う
+async function Component() {
+  const data = await db.fetch({id:1}).then((res) => schema.parse(res))
+  return <div>{data.name}</div>;
 }
 ```
 
 **Correct:**
 
+- `*.domain.ts`: 純粋な型とドメインルール。
+- `*.port.ts`: application が依存する抽象化インターフェース。
+- `*.contract.ts`: infrastructure外部システムとの境界実装。port を実装し、外部 I/O の取得・保存・境界バリデーションを担う。
+- `*.assemble.ts`: application 層。複数の contract / source を組み合わせ、UI や use case に適した形へ整える。
+
+UI や application は具体実装ではなく `*.port.ts` に依存し、`*.contract.ts` がそれを実装する。
+
 ```tsx
-// 境界（Contract）でパースし、ドメインモデルへ変換してから UI に渡す
-const data = MyContract.parse(await fetch('/api/raw-data'));
-return <Presentation item={data} />;
+// *.domain.ts
+export type User = {
+  id: string;
+  name: string;
+}
+
+// *.port.ts
+export interface UserRepository {
+  save(user: User): Promise<User>;
+}
+
+// *.contract.ts
+export class PostgresUserRepository implements UserRepository {
+  async save(user: User) { /* 外部DB保存 */ }
+}
+
+// *.assemble.ts
+class SaveUserUseCase {
+  constructor(repository: UserRepository) {}
+  async execute(raw_user): Promise<User> {
+    // アプリケーションルール
+    return this.repository.save(user)
+  }
+}
+
+export function makeSaveUserUseCase() {
+  return new SaveUserUseCase(new PostgresUserRepository())
+}
+```
+
+**Usage:**
+
+```tsx
+export async function Component(){
+  const saveUseCase = makeSaveUserUseCase()
+  const user = await saveUseCase.execute({id:1,name:'tenzyu'})
+  return <div>{user.name}</div>
+}
 ```
 
 ### 1.7 Vertical Slice Architecture (VSA) <a id="17-vertical-slice-architecture-vsa-"></a>
@@ -881,6 +920,32 @@ export default function Page() {
     </Layout>
   );
 }
+```
+
+---
+
+## 7. CLI <a id="7-cli"></a>
+
+### 7.1 Quote the Path when you Use Commands <a id="71-quote-the-path-when-you-use-commands"></a>
+
+**Impact: Low**
+
+> brief description of impact
+
+## Quote the Path on Commands
+
+bash でシンタックスエラーを出さないことを徹底する。
+
+**Incorrect:**
+
+```tsx
+nix develop -c mv src/app/[locale]/(main)/hoge/_features/fuga.domain.ts src/lib/hoge/fuga.domain.ts
+```
+
+**Correct:**
+
+```tsx
+nix develop -c mv "src/app/[locale]/(main)/hoge/_features/fuga.domain.ts" "src/lib/hoge/fuga.domain.ts"
 ```
 
 ## References
