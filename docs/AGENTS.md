@@ -6,45 +6,6 @@ Read the smallest next document that can unblock the task.
 ## Rules: Granular Architecture
 - [Rules Index](./design-docs/AGENTS.md): searchable rule collection
 
-### Foundations
-- [Rules: Vertical Slices (VSA)](./design-docs/rules/vsa-vertical-slices.md)
-- [Rules: 6-Layer Ownership](./design-docs/rules/ownership-model-layers.md)
-- [Rules: Local-first](./design-docs/rules/local-first-promote-later.md)
-- [Rules: Directory Strictness](./design-docs/rules/directory-strictness.md)
-- [Rules: Path & Feature Semantics](./design-docs/rules/path-feature-semantics.md)
-- [Rules: Dependency Inversion](./design-docs/rules/dependency-inversion.md)
-
-### Security & Safety
-- [Rules: Security Env Parsing](./design-docs/rules/security-env-parsing.md)
-- [Rules: Security Outbound Boundary](./design-docs/rules/security-outbound-boundary.md)
-- [Rules: Structural & Mutation Guards](./design-docs/rules/guard-structural-mutation.md)
-- [Rules: Verification Guard](./design-docs/rules/guard-verification.md)
-
-### Implementation & Quality
-- [Rules: No Dirty Code](./design-docs/rules/no-dirty-code.md)
-- [Rules: Contract & Boundary Validation](./design-docs/rules/contract-boundary-validation.md)
-- [Rules: Composition Patterns](./design-docs/rules/composition-patterns.md)
-- [Rules: Performance Optimization](./design-docs/rules/performance-optimization.md)
-- [Rules: Bundle & Discovery Hygiene](./design-docs/rules/tool-bundle-hygiene.md)
-- [Rules: Separation of Logic/Presentation](./design-docs/rules/logic-presentation-separation.md)
-
-### UI & UX
-- [Rules: Token-first Styling](./design-docs/rules/design-token-first.md)
-- [Rules: Accessibility by Default](./design-docs/rules/design-a11y-default.md)
-
-### Product & Intelligence
-- [Rules: Product Core Values](./design-docs/rules/product-core-values.md)
-- [Rules: i18n Meaning vs Data](./design-docs/rules/i18n-meaning-vs-data.md)
-- [Rules: Harness Engineering](./design-docs/rules/harness-engineering.md)
-- [Rules: Memory Layers](./design-docs/rules/memory-layers.md)
-- [Rules: Decision Priority](./design-docs/rules/decision-priority-order.md)
-- [Rules: Editorial Role Separation](./design-docs/rules/editorial-role-separation.md)
-- [Rules: Target over Current](./design-docs/rules/normative-target-over-current.md)
-
-### Reliability
-- [Rules: Reliability Fault Tolerance](./design-docs/rules/reliability-fault-tolerance.md)
-- [Rules: Reliability Metadata Safety](./design-docs/rules/reliability-metadata-safety.md)
-
 ## Product Specs
 - `/docs/product-specs/**/*.md`: route-specific or product-area-specific requirements
 
