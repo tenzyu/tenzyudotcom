@@ -2,11 +2,8 @@ import { useIntlayer } from 'next-intlayer/server'
 import { Content } from '@/components/site-ui/content'
 import { SectionHeader } from '@/components/site-ui/section-header'
 import { ItemGroup } from '@/components/ui/item'
-import {
-  LINK_CATEGORY_ORDER,
-  loadLinks,
-  type LinkCategory,
-} from '@/features/links/links.assemble'
+import { loadLinks } from '@/features/links/links.assemble'
+import { LINK_CATEGORY_ORDER, type LinkCategory } from './links.domain'
 import { LinkTile } from './link-tile'
 
 const CATEGORY_KEYS: Record<

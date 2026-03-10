@@ -22,6 +22,7 @@
         };
         shellHook = ''
           export BIOME_BIN="${pkgs.biome}/bin/biome"
+          source ./scripts/completion.sh
         '';
       };
       

@@ -1,5 +1,5 @@
 import { useIntlayer } from 'next-intlayer/server'
-import type { MyLink } from '@/features/links/links.contract'
+import type { MyLink } from '@/features/links/links.domain'
 import { EDITORIAL_ADMIN_LOCALE } from './constants'
 import { LinksEditorClient } from './links-editor-client'
 

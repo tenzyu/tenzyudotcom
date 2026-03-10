@@ -1,4 +1,5 @@
 import { parseFrontmatterBase } from './frontmatter.contract'
+import type { BlogFrontmatter } from './blog.domain'
 
 function parseTags(value: unknown, filePath: string) {
   if (value == null) {
@@ -22,7 +23,10 @@ function parseTags(value: unknown, filePath: string) {
   return [...new Set(tags)]
 }
 
-export function parseBlogFrontmatter(value: unknown, filePath: string) {
+export function parseBlogFrontmatter(
+  value: unknown,
+  filePath: string,
+): BlogFrontmatter {
   const metadata = parseFrontmatterBase(value, filePath)
 
   if (

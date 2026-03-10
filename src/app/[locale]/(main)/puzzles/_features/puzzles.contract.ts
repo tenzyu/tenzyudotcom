@@ -1,6 +1,8 @@
 import { normalizeExternalUrl } from '@/lib/url/external-url.contract'
-import type { PuzzleCategory } from './puzzles.source'
 import { z } from 'zod'
+import { editorialRepository } from '@/lib/editorial/editorial.contract'
+import type { PuzzleCategory } from './puzzles.domain'
+import type { PuzzlesRepository } from './puzzles.port'
 
 const PuzzleLinkSchema = z.object({
   platform: z.enum(['web', 'ios', 'android', 'steam', 'switch', 'other']),
@@ -66,3 +68,12 @@ export function parsePuzzleSourceCategories(raw: unknown) {
   const categories = z.array(PuzzleCategorySchema).parse(raw)
   return definePuzzleCategories(categories)
 }
+
+export class EditorialPuzzlesRepository implements PuzzlesRepository {
+  async loadAll(): Promise<readonly PuzzleCategory[]> {
+    const { collection } = await editorialRepository.loadState('puzzles')
+    return collection
+  }
+}
+
+export const puzzlesRepository = new EditorialPuzzlesRepository()

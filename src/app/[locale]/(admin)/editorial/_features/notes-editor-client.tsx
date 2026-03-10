@@ -2,7 +2,7 @@
 
 import { ArrowDown, ArrowUp, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
-import type { NoteSourceEntry } from '@/app/[locale]/(main)/notes/_features/notes.source'
+import type { NoteSourceEntry } from '@/app/[locale]/(main)/notes/_features/notes.domain'
 import { Button } from '@/components/ui/button'
 import {
   Card,

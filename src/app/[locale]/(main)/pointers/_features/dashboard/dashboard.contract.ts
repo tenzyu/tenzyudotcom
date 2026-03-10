@@ -1,16 +1,12 @@
 import { normalizeExternalUrl } from '@/lib/url/external-url.contract'
 import { z } from 'zod'
-
-export type DashboardLink = {
-  id: string
-  url: string
-  isApp?: boolean
-}
-
-export type DashboardCategory = {
-  id: string
-  links: readonly DashboardLink[]
-}
+import { editorialRepository } from '@/lib/editorial/editorial.contract'
+import type {
+  DashboardCategory,
+  DashboardLink,
+  DashboardSourceCategory,
+} from './dashboard.domain'
+import type { PointersRepository } from './dashboard.port'
 
 const LocalizedTextSchema = z.object({
   ja: z.string().trim().min(1),
@@ -102,3 +98,12 @@ export function parseDashboardSourceCategories(raw: unknown) {
 
   return categories
 }
+
+export class EditorialPointersRepository implements PointersRepository {
+  async loadAll(): Promise<readonly DashboardSourceCategory[]> {
+    const { collection } = await editorialRepository.loadState('pointers')
+    return collection
+  }
+}
+
+export const pointersRepository = new EditorialPointersRepository()

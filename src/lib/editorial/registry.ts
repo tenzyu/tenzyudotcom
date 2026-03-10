@@ -1,18 +1,18 @@
 import { parseNoteSourceEntries } from '@/app/[locale]/(main)/notes/_features/notes.contract'
-import type { NoteSourceEntry } from '@/app/[locale]/(main)/notes/_features/notes.source'
-import { NOTE_SOURCE_ENTRIES } from '@/app/[locale]/(main)/notes/_features/notes.source'
+import type { NoteSourceEntry } from '@/app/[locale]/(main)/notes/_features/notes.domain'
+import { NOTE_SOURCE_ENTRIES } from '@/app/[locale]/(main)/notes/_features/notes.domain'
 import { parseDashboardSourceCategories } from '@/app/[locale]/(main)/pointers/_features/dashboard/dashboard.contract'
-import type { DashboardSourceCategory } from '@/app/[locale]/(main)/pointers/_features/dashboard/dashboard.source'
-import { DASHBOARD_SOURCE_CATEGORIES } from '@/app/[locale]/(main)/pointers/_features/dashboard/dashboard.source'
+import type { DashboardSourceCategory } from '@/app/[locale]/(main)/pointers/_features/dashboard/dashboard.domain'
+import { DASHBOARD_SOURCE_CATEGORIES } from '@/app/[locale]/(main)/pointers/_features/dashboard/dashboard.domain'
 import { parsePuzzleSourceCategories } from '@/app/[locale]/(main)/puzzles/_features/puzzles.contract'
-import type { PuzzleCategory } from '@/app/[locale]/(main)/puzzles/_features/puzzles.source'
-import { PUZZLE_SOURCE_CATEGORIES } from '@/app/[locale]/(main)/puzzles/_features/puzzles.source'
+import type { PuzzleCategory } from '@/app/[locale]/(main)/puzzles/_features/puzzles.domain'
+import { PUZZLE_SOURCE_CATEGORIES } from '@/app/[locale]/(main)/puzzles/_features/puzzles.domain'
 import { parseRecommendationSourceEntries } from '@/app/[locale]/(main)/recommendations/_features/recommendations.contract'
-import type { RecommendationSourceEntry } from '@/app/[locale]/(main)/recommendations/_features/recommendations.source'
-import { RECOMMENDATION_SOURCE_ENTRIES } from '@/app/[locale]/(main)/recommendations/_features/recommendations.source'
-import type { MyLink } from '@/features/links/links.contract'
+import type { RecommendationSourceEntry } from '@/app/[locale]/(main)/recommendations/_features/recommendations.domain'
+import { RECOMMENDATION_SOURCE_ENTRIES } from '@/app/[locale]/(main)/recommendations/_features/recommendations.domain'
+import type { MyLink } from '@/features/links/links.domain'
 import { parseLinkSourceEntries } from '@/features/links/links.contract'
-import { LINK_SOURCE_ENTRIES } from '@/features/links/links.source'
+import { LINK_SOURCE_ENTRIES } from '@/features/links/links.domain'
 
 export type EditorialCollectionId =
   | 'recommendations'
@@ -57,7 +57,7 @@ export const EDITORIAL_COLLECTIONS = {
     id: 'recommendations',
     label: 'Recommendations',
     canonicalPath:
-      'src/app/[locale]/(main)/recommendations/_features/recommendations.source.ts',
+      'src/app/[locale]/(main)/recommendations/_features/recommendations.domain.ts',
     storagePath: 'recommendations.json',
     publicPaths: withLocales('/recommendations'),
     getDefaultValue: () => structuredClone(RECOMMENDATION_SOURCE_ENTRIES),
@@ -66,7 +66,7 @@ export const EDITORIAL_COLLECTIONS = {
   notes: {
     id: 'notes',
     label: 'Notes',
-    canonicalPath: 'src/app/[locale]/(main)/notes/_features/notes.source.ts',
+    canonicalPath: 'src/app/[locale]/(main)/notes/_features/notes.domain.ts',
     storagePath: 'notes.json',
     publicPaths: withLocales('/notes'),
     getDefaultValue: () => structuredClone(NOTE_SOURCE_ENTRIES),
@@ -76,7 +76,7 @@ export const EDITORIAL_COLLECTIONS = {
     id: 'puzzles',
     label: 'Puzzles',
     canonicalPath:
-      'src/app/[locale]/(main)/puzzles/_features/puzzles.source.ts',
+      'src/app/[locale]/(main)/puzzles/_features/puzzles.domain.ts',
     storagePath: 'puzzles.json',
     publicPaths: withLocales('/puzzles'),
     getDefaultValue: () => structuredClone(PUZZLE_SOURCE_CATEGORIES),
@@ -86,7 +86,7 @@ export const EDITORIAL_COLLECTIONS = {
     id: 'pointers',
     label: 'Pointers',
     canonicalPath:
-      'src/app/[locale]/(main)/pointers/_features/dashboard/dashboard.source.ts',
+      'src/app/[locale]/(main)/pointers/_features/dashboard/dashboard.domain.ts',
     storagePath: 'pointers.json',
     publicPaths: withLocales('/pointers'),
     getDefaultValue: () => structuredClone(DASHBOARD_SOURCE_CATEGORIES),
@@ -95,7 +95,7 @@ export const EDITORIAL_COLLECTIONS = {
   links: {
     id: 'links',
     label: 'Links',
-    canonicalPath: 'src/features/links/links.source.ts',
+    canonicalPath: 'src/features/links/links.domain.ts',
     storagePath: 'links.json',
     publicPaths: [
       ...withLocales('/links'),

@@ -1,17 +1,23 @@
+import { cache } from 'react'
 import {
   defineRecommendationChannels,
   defineRecommendationTabs,
   defineRecommendationVideos,
   normalizeRecommendationVideoSource,
+  recommendationsRepository,
 } from './recommendations.contract'
 import type {
   RecommendationSourceChannelEntry,
+  RecommendationSourceEntry,
   RecommendationSourceVideoEntry,
-} from './recommendations.source'
+} from './recommendations.domain'
+import type { RecommendationsRepository } from './recommendations.port'
 import { fetchYouTubeVideoMeta } from './lib/youtube'
-import type { RecommendationsPageData, YouTubeChannelItem, YouTubePlaylistItem } from './lib/types'
-import { loadEditorialCollection } from '@/lib/editorial/storage'
-import { cache } from 'react'
+import type {
+  RecommendationsPageData,
+  YouTubeChannelItem,
+  YouTubePlaylistItem,
+} from './lib/types'
 
 type EditorialLocale = 'ja' | 'en'
 
@@ -24,15 +30,41 @@ function isPublished(entry: { published?: boolean }) {
 }
 
 function isRecommendationChannelEntry(
-  entry: RecommendationSourceChannelEntry | RecommendationSourceVideoEntry,
+  entry: RecommendationSourceEntry,
 ): entry is RecommendationSourceChannelEntry {
   return entry.kind === 'youtube-channel'
 }
 
 function isRecommendationVideoEntry(
-  entry: RecommendationSourceChannelEntry | RecommendationSourceVideoEntry,
+  entry: RecommendationSourceEntry,
 ): entry is RecommendationSourceVideoEntry {
   return entry.kind === 'youtube-video'
+}
+
+export class LoadRecommendationsUseCase {
+  constructor(private repository: RecommendationsRepository) {}
+
+  async execute(): Promise<{
+    channels: readonly RecommendationSourceChannelEntry[]
+    videos: readonly RecommendationSourceVideoEntry[]
+  }> {
+    const entries = await this.repository.loadAll()
+    const channels = entries
+      .filter(isRecommendationChannelEntry)
+      .filter(isPublished)
+    const videos = entries
+      .filter(isRecommendationVideoEntry)
+      .filter(isPublished)
+
+    return {
+      channels,
+      videos,
+    }
+  }
+}
+
+export function makeLoadRecommendationsUseCase() {
+  return new LoadRecommendationsUseCase(recommendationsRepository)
 }
 
 export const RECOMMENDATION_TABS = defineRecommendationTabs([
@@ -41,18 +73,14 @@ export const RECOMMENDATION_TABS = defineRecommendationTabs([
 ])
 
 const loadRecommendationSourceEntries = cache(async () => {
-  const entries = await loadEditorialCollection('recommendations')
-  const channels = entries.filter(isRecommendationChannelEntry).filter(isPublished)
-  const videos = entries.filter(isRecommendationVideoEntry).filter(isPublished)
-
-  return {
-    channels,
-    videos,
-  }
+  const useCase = makeLoadRecommendationsUseCase()
+  return useCase.execute()
 })
 
 function resolveLocalizedText(
-  note: RecommendationSourceVideoEntry['note'] | RecommendationSourceChannelEntry['note'],
+  note:
+    | RecommendationSourceVideoEntry['note']
+    | RecommendationSourceChannelEntry['note'],
   locale: string,
 ) {
   const editorialLocale = resolveEditorialLocale(locale)

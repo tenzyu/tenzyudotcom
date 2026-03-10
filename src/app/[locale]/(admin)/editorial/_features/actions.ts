@@ -12,8 +12,10 @@ import type { RevalidatePathTarget } from '@/lib/editorial/registry'
 import { getEditorialCollectionDescriptor } from '@/lib/editorial/registry'
 import {
   EditorialVersionConflictError,
-  saveEditorialCollection,
-} from '@/lib/editorial/storage'
+} from '@/lib/editorial/editorial.contract'
+import {
+  makeSaveEditorialCollectionUseCase,
+} from './editorial.assemble'
 import {
   clearEditorialAdminSession,
   createEditorialAdminSession,
@@ -83,7 +85,8 @@ export async function saveEditorialCollectionAction(formData: FormData) {
 
   await requireEditorialAdminSession(parsed.data.locale)
   try {
-    await saveEditorialCollection(
+    const saveUseCase = makeSaveEditorialCollectionUseCase()
+    await saveUseCase.execute(
       parsed.data.collectionId,
       parsed.data.sourceJson,
       parsed.data.expectedVersion,
@@ -104,19 +107,6 @@ export async function saveEditorialCollectionAction(formData: FormData) {
         parsed.data.locale,
       ),
     )
-  }
-
-  const descriptor = getEditorialCollectionDescriptor(parsed.data.collectionId)
-
-  for (const path of descriptor.publicPaths) {
-    const target = path as RevalidatePathTarget
-    const revalidateType = target.type
-    if (revalidateType) {
-      revalidatePath(target.path, revalidateType)
-      continue
-    }
-
-    revalidatePath(target.path)
   }
 
   revalidatePath(getLocalizedUrl('/editorial', parsed.data.locale))

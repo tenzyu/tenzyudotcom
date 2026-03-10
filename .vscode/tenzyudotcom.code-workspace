@@ -9,6 +9,10 @@
 			"path": "../src/app/[locale]/",
 		},
 		{
+			"name": "promoted-features",
+			"path": "../src/features/",
+		},
+		{
 			"name": "root",
 			"path": ".."
 		},
@@ -24,6 +28,7 @@
 		},
 		"files.associations": {
 			"*.css": "tailwindcss"
-		}
+		},
+		"markdown.updateLinksOnFileMove.enabled": "always"
 	}
 }

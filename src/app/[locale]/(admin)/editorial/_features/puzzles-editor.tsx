@@ -1,5 +1,5 @@
 import { useIntlayer } from 'next-intlayer/server'
-import type { PuzzleCategory } from '@/app/[locale]/(main)/puzzles/_features/puzzles.source'
+import type { PuzzleCategory } from '@/app/[locale]/(main)/puzzles/_features/puzzles.domain'
 import { EDITORIAL_ADMIN_LOCALE } from './constants'
 import { PuzzlesEditorClient } from './puzzles-editor-client'
 

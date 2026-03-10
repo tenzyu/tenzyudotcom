@@ -1,5 +1,5 @@
 import { useIntlayer } from 'next-intlayer/server'
-import type { DashboardSourceCategory } from '@/app/[locale]/(main)/pointers/_features/dashboard/dashboard.source'
+import type { DashboardSourceCategory } from '@/app/[locale]/(main)/pointers/_features/dashboard/dashboard.domain'
 import { EDITORIAL_ADMIN_LOCALE } from './constants'
 import { PointersEditorClient } from './pointers-editor-client'
 

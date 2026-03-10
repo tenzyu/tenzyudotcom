@@ -1,7 +1,7 @@
 import { useIntlayer } from 'next-intlayer/server'
 import { fetchYouTubeVideoMeta } from '@/app/[locale]/(main)/recommendations/_features/lib/youtube'
 import { normalizeRecommendationVideoSource } from '@/app/[locale]/(main)/recommendations/_features/recommendations.contract'
-import type { RecommendationSourceEntry } from '@/app/[locale]/(main)/recommendations/_features/recommendations.source'
+import type { RecommendationSourceEntry } from '@/app/[locale]/(main)/recommendations/_features/recommendations.domain'
 import { EDITORIAL_ADMIN_LOCALE } from './constants'
 import { RecommendationsEditorClient } from './recommendations-editor-client'
 
