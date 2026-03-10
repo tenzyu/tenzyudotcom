@@ -1,9 +1,9 @@
 import { revalidatePath } from 'next/cache'
-import {
-  type EditorialCollectionId,
-  type RevalidatePathTarget,
-  getEditorialCollectionDescriptor,
-} from '@/lib/editorial/registry'
+import type {
+  EditorialCollectionId,
+  RevalidatePathTarget,
+} from '@/lib/editorial/editorial.port'
+import { getEditorialCollectionDescriptor } from '@/lib/editorial/editorial.contract'
 import type {
   EditorialRepository,
   EditorialState,

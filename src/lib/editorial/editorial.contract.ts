@@ -1,16 +1,100 @@
 import { createHash } from 'node:crypto'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
-import { get, put } from '@vercel/blob'
+import { parseNoteSourceEntries } from '@/app/[locale]/(main)/notes/_features/notes.contract'
+import { parseDashboardSourceCategories } from '@/app/[locale]/(main)/pointers/_features/dashboard/dashboard.contract'
+import { parsePuzzleSourceCategories } from '@/app/[locale]/(main)/puzzles/_features/puzzles.contract'
+import { parseRecommendationSourceEntries } from '@/app/[locale]/(main)/recommendations/_features/recommendations.contract'
 import { env, isEditorialBlobStorage } from '@/config/env.contract'
-import type { EditorialRepository, EditorialState } from './editorial.port'
-import {
-  type EditorialCollectionData,
-  type EditorialCollectionId,
-  getEditorialCollectionDescriptor,
-} from './registry'
+import { parseLinkSourceEntries } from '@/features/links/links.contract'
+import { get, put } from '@vercel/blob'
+import type {
+  EditorialCollectionData,
+  EditorialCollectionId,
+  EditorialRepository,
+  EditorialState,
+  RevalidatePathTarget,
+} from './editorial.port'
 
 const LOCAL_EDITORIAL_DIR = join(process.cwd(), 'storage', 'editorial')
+
+export type EditorialCollectionDescriptor<K extends EditorialCollectionId> = {
+  id: K
+  label: string
+  storagePath: string
+  publicPaths: readonly RevalidatePathTarget[]
+  getDefaultValue: () => EditorialCollectionData[K]
+  parse: (raw: unknown) => EditorialCollectionData[K]
+}
+
+const LOCALE_PREFIXES = ['/ja', '/en'] as const
+
+function withLocales(pathname: string) {
+  return LOCALE_PREFIXES.map((locale) => ({
+    path: `${locale}${pathname}`,
+  })) satisfies readonly RevalidatePathTarget[]
+}
+
+export const EDITORIAL_COLLECTIONS: {
+  [K in EditorialCollectionId]: EditorialCollectionDescriptor<K>
+} = {
+  recommendations: {
+    id: 'recommendations',
+    label: 'Recommendations',
+    storagePath: 'recommendations.json',
+    publicPaths: withLocales('/recommendations'),
+    getDefaultValue: () => [],
+    parse: parseRecommendationSourceEntries,
+  },
+  notes: {
+    id: 'notes',
+    label: 'Notes',
+    storagePath: 'notes.json',
+    publicPaths: withLocales('/notes'),
+    getDefaultValue: () => [],
+    parse: parseNoteSourceEntries,
+  },
+  puzzles: {
+    id: 'puzzles',
+    label: 'Puzzles',
+    storagePath: 'puzzles.json',
+    publicPaths: withLocales('/puzzles'),
+    getDefaultValue: () => [],
+    parse: parsePuzzleSourceCategories,
+  },
+  pointers: {
+    id: 'pointers',
+    label: 'Pointers',
+    storagePath: 'pointers.json',
+    publicPaths: withLocales('/pointers'),
+    getDefaultValue: () => [],
+    parse: parseDashboardSourceCategories,
+  },
+  links: {
+    id: 'links',
+    label: 'Links',
+    storagePath: 'links.json',
+    publicPaths: [
+      ...withLocales('/links'),
+      ...LOCALE_PREFIXES.map((locale) => ({
+        path: `${locale}/links/[shortUrl]`,
+        type: 'page' as const,
+      })),
+    ],
+    getDefaultValue: () => [],
+    parse: parseLinkSourceEntries,
+  },
+}
+
+export function getEditorialCollectionDescriptor<
+  K extends EditorialCollectionId,
+>(id: K): EditorialCollectionDescriptor<K> {
+  return EDITORIAL_COLLECTIONS[id]
+}
+
+export function listEditorialCollectionDescriptors() {
+  return Object.values(EDITORIAL_COLLECTIONS)
+}
 
 export class EditorialStorageError extends Error {}
 export class EditorialStorageNotFoundError extends EditorialStorageError {}

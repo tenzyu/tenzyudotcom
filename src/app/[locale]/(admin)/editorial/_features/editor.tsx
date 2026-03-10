@@ -5,10 +5,8 @@ import { Content } from '@/components/site-ui/content'
 import { PageHeader } from '@/components/site-ui/page-header'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import {
-  type EditorialCollectionId,
-  getEditorialCollectionDescriptor,
-} from '@/lib/editorial/registry'
+import { type EditorialCollectionId } from '@/lib/editorial/editorial.port'
+import { getEditorialCollectionDescriptor } from '@/lib/editorial/editorial.contract'
 import { makeLoadEditorialCollectionUseCase } from './editorial.assemble'
 import { saveEditorialCollectionAction } from './actions'
 import { EDITORIAL_ADMIN_LOCALE } from './constants'
@@ -40,7 +38,6 @@ export async function EditorialCollectionEditor({
       <Content size="4xl" className="space-y-8">
         <PageHeader
           title={`${content.dashboard.title.value}: ${descriptor.label}`}
-          description={descriptor.canonicalPath}
         />
         <Link
           href={getLocalizedUrl('/editorial', locale)}
@@ -79,7 +76,6 @@ export async function EditorialCollectionEditor({
       <Content size="4xl" className="space-y-8">
         <PageHeader
           title={`${content.dashboard.title.value}: ${descriptor.label}`}
-          description={descriptor.canonicalPath}
         />
         <Link
           href={getLocalizedUrl('/editorial', locale)}
@@ -118,7 +114,6 @@ export async function EditorialCollectionEditor({
       <Content size="4xl" className="space-y-8">
         <PageHeader
           title={`${content.dashboard.title.value}: ${descriptor.label}`}
-          description={descriptor.canonicalPath}
         />
         <Link
           href={getLocalizedUrl('/editorial', locale)}
@@ -157,7 +152,6 @@ export async function EditorialCollectionEditor({
       <Content size="4xl" className="space-y-8">
         <PageHeader
           title={`${content.dashboard.title.value}: ${descriptor.label}`}
-          description={descriptor.canonicalPath}
         />
         <Link
           href={getLocalizedUrl('/editorial', locale)}
@@ -196,7 +190,6 @@ export async function EditorialCollectionEditor({
       <Content size="4xl" className="space-y-8">
         <PageHeader
           title={`${content.dashboard.title.value}: ${descriptor.label}`}
-          description={descriptor.canonicalPath}
         />
         <Link
           href={getLocalizedUrl('/editorial', locale)}
@@ -233,7 +226,6 @@ export async function EditorialCollectionEditor({
     <Content size="4xl" className="space-y-8">
       <PageHeader
         title={`${content.dashboard.title.value}: ${descriptor.label}`}
-        description={descriptor.canonicalPath}
       />
       <Link
         href={getLocalizedUrl('/editorial', locale)}

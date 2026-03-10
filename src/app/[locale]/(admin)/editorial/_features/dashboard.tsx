@@ -6,12 +6,11 @@ import { PageHeader } from '@/components/site-ui/page-header'
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
 import { env, isEditorialBlobStorage } from '@/config/env.contract'
-import { listEditorialCollectionDescriptors } from '@/lib/editorial/registry'
+import { listEditorialCollectionDescriptors } from '@/lib/editorial/editorial.contract'
 import { logoutEditorialAdminAction } from './actions'
 import { EDITORIAL_ADMIN_LOCALE } from './constants'
 
@@ -38,7 +37,6 @@ export function EditorialDashboard({ locale }: { locale: string }) {
           <Card key={collection.id}>
             <CardHeader className="space-y-2">
               <CardTitle>{collection.label}</CardTitle>
-              <CardDescription>{collection.canonicalPath}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3 text-sm">
               <p>

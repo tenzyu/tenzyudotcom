@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation'
-import type { EditorialCollectionId } from '@/lib/editorial/registry'
+import type { EditorialCollectionId } from '@/lib/editorial/editorial.port'
 import { resolvePageLocale } from '@/lib/intlayer/page'
 import { EditorialCollectionEditor } from '../_features/editor'
 import { requireEditorialAdminSession } from '../_features/session'
