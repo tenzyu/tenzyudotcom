@@ -10,9 +10,10 @@ chapter: Foundations
 
 mount point や外部ツールに惑わされず、どこがロジックと状態と知識を所有するかを明確に分離する。
 
-- `*.domain.ts`: 純粋な型とビジネスルール。
-- `*.contract.ts`: 境界（外部実装との接続点）の定義とバリデーション。
-- `*.assemble.ts`: 複数のデータソースを結合し、UI に適した形状に組み立てる。
+- `*.domain.ts`: 純粋な型とドメインルール。
+- `*.port.ts`: 抽象化インターフェース。
+- `*.contract.ts`: 境界（外部実装との接続点）の定義とバリデーション。infrastructure
+- `*.assemble.ts`: 複数のデータソースを結合し、UI に適した形状に組み立てる。application
 
 **Incorrect:**
 

@@ -26,6 +26,6 @@ src/types/feature-a.ts
 // 機能で閉じている（機能 A のスライス内で完結する）
 src/app/[locale]/.../route/_features/
   ├── feature-a.tsx
-  ├── feature-a.model.ts
-  └── feature-a.hook.ts
+  ├── feature-a-hooks.tsx
+  └── feature-a-types.ts
 ```
