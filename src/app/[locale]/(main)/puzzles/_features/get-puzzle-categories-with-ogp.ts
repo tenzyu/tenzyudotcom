@@ -1,4 +1,4 @@
-import { loadPuzzleCategories } from '../puzzles.assemble'
+import { loadPuzzleCategories } from './puzzles.assemble'
 import { fetchOgp } from './ogp'
 import type { PuzzleCategoryWithOgp } from './types'
 

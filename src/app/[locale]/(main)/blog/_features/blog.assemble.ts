@@ -2,21 +2,21 @@ import fs from 'node:fs'
 import path from 'node:path'
 import matter from 'gray-matter'
 import { cache } from 'react'
-import { parseBlogFrontmatter } from '@/lib/blog/blog-frontmatter.contract'
+import { parseBlogFrontmatter } from './blog-frontmatter.contract'
 import {
   SITE_AUTHOR_NAME,
   SITE_LOGO_PATH,
   SITE_PUBLISHER_NAME,
   getAbsoluteUrl,
 } from '@/config/site'
-import { getLocalizedUrl, locales } from 'intlayer'
+import { locales } from 'intlayer'
 import {
   type BlogPostingJsonLd,
   type MDXData,
   buildBlogPostImageUrl,
   buildBlogPostUrl,
   compareBlogPostsByPublishedAtDesc,
-} from '@/lib/blog/blog.domain'
+} from './blog.domain'
 
 const PAGE_SIZE = 6
 

@@ -65,6 +65,7 @@ const readNodeEnv = (): NodeEnv => {
 
 export const env = {
   nodeEnv: readNodeEnv(),
+  siteUrl: readOptionalString('SITE_URL') ?? 'https://tenzyu.com',
   enableReactGrabOverlay: readBooleanFlag('ENABLE_REACT_GRAB_OVERLAY'),
   reactEditor: readOptionalString('REACT_EDITOR'),
   youtubeDataApiKey: readOptionalString('YOUTUBE_DATA_API_KEY'),

@@ -1,11 +1,8 @@
-import { getLocalizedUrl, locales } from 'intlayer'
+import { getLocalizedUrl } from 'intlayer'
 import {
   BASE_URL,
   buildOgTitleImageUrl,
   getAbsoluteUrl,
-  SITE_AUTHOR_NAME,
-  SITE_LOGO_PATH,
-  SITE_PUBLISHER_NAME,
 } from '@/config/site'
 
 export type FrontmatterBase = {

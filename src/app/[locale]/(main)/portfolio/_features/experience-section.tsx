@@ -2,7 +2,7 @@ import { useIntlayer } from 'next-intlayer/server'
 import { SectionHeader } from '@/components/site-ui/section-header'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { PORTFOLIO_EXPERIENCES } from '../_data/portfolio'
+import { PORTFOLIO_EXPERIENCES } from './portfolio.source'
 
 export function ExperienceSection() {
   const content = useIntlayer('page-portfolio')

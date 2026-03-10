@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/carousel'
 import { Skeleton } from '@/components/ui/skeleton'
 
-import type { TweetData } from '../data/twitter'
+import type { TweetData } from '../twitter.source'
 
 const Tweet = lazy(async () => {
   const module = await import('react-tweet')

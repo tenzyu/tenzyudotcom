@@ -1,12 +1,12 @@
 ---
 title: "Quote the Path when you Use Commands"
-impact: Low
+impact: LOW
 impactDescription: brief description of impact
 tags: composition, components
 chapter: CLI
 ---
 
-## Quote the Path on Commands
+# Quote the Path on Commands
 
 bash でシンタックスエラーを出さないことを徹底する。
 

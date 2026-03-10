@@ -3,7 +3,6 @@ import { z } from 'zod'
 import { editorialRepository } from '@/lib/editorial/editorial.contract'
 import type {
   DashboardCategory,
-  DashboardLink,
   DashboardSourceCategory,
 } from './dashboard.domain'
 import type { PointersRepository } from './dashboard.port'

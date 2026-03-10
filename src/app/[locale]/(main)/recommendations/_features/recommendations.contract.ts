@@ -9,7 +9,6 @@ import type {
   RecommendationChannel,
   RecommendationSourceEntry,
   RecommendationTab,
-  RecommendationTabId,
   RecommendationVideo,
 } from './recommendations.domain'
 import type { RecommendationsRepository } from './recommendations.port'

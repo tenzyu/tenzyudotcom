@@ -10,7 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import type { PuzzleWithOgp } from './lib/types'
+import type { PuzzleWithOgp } from './types'
 import type { Platform, PuzzleLink } from './puzzles.assemble'
 
 const PLATFORM_ICONS: Record<Platform, string> = {

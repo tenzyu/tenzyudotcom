@@ -8,8 +8,6 @@ import {
   env,
   getRequiredEditorialAdminCredentials,
 } from '@/config/env.contract'
-import type { RevalidatePathTarget } from '@/lib/editorial/registry'
-import { getEditorialCollectionDescriptor } from '@/lib/editorial/registry'
 import {
   EditorialVersionConflictError,
 } from '@/lib/editorial/editorial.contract'

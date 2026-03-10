@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/accordion'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
-import { PORTFOLIO_ENVIRONMENTS } from '../_data/portfolio'
+import { PORTFOLIO_ENVIRONMENTS } from './portfolio.source'
 
 export function DevEnvironmentSection() {
   const content = useIntlayer('page-portfolio')
