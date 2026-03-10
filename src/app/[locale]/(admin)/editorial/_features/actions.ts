@@ -51,6 +51,8 @@ export async function loginEditorialAdminAction(formData: FormData) {
 
   const { password } = getRequiredEditorialAdminCredentials()
   if (!isValidEditorialAdminPassword(parsed.data.password, password)) {
+    // Artificial delay to deter brute force
+    await new Promise((resolve) => setTimeout(resolve, 1000))
     redirect(
       getLocalizedUrl('/editorial/login?error=invalid', parsed.data.locale),
     )

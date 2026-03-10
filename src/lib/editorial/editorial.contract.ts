@@ -7,7 +7,7 @@ import { parsePuzzleSourceCategories } from '@/app/[locale]/(main)/puzzles/_feat
 import { parseRecommendationSourceEntries } from '@/app/[locale]/(main)/recommendations/_features/recommendations.contract'
 import { env, isEditorialBlobStorage } from '@/config/env.contract'
 import { parseLinkSourceEntries } from '@/features/links/links.contract'
-import { get, put } from '@vercel/blob'
+import { get, list, put } from '@vercel/blob'
 import type {
   EditorialCollectionData,
   EditorialCollectionId,
@@ -120,8 +120,24 @@ async function readJsonFromStream(stream: ReadableStream<Uint8Array>) {
 
 async function readBlobCollection(collectionId: EditorialCollectionId) {
   const descriptor = getEditorialCollectionDescriptor(collectionId)
-  const blob = await get(getBlobPath(collectionId), {
-    access: 'private',
+  const path = getBlobPath(collectionId)
+
+  // Find the blob by prefix to get the full URL
+  const { blobs } = await list({
+    prefix: path,
+    limit: 1,
+  })
+
+  const targetBlob = blobs.find((b) => b.pathname === path)
+
+  if (!targetBlob) {
+    throw new EditorialStorageNotFoundError(
+      `Editorial blob not found for ${collectionId} at path ${path}`,
+    )
+  }
+
+  const blob = await get(targetBlob.url, {
+    access: 'public',
     useCache: false,
   })
 
@@ -228,7 +244,7 @@ export class DefaultEditorialRepository implements EditorialRepository {
 
     if (isEditorialBlobStorage) {
       await put(getBlobPath(collectionId), serialized, {
-        access: 'private',
+        access: 'public',
         addRandomSuffix: false,
         allowOverwrite: true,
         cacheControlMaxAge: 60,

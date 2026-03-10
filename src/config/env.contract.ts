@@ -77,11 +77,13 @@ export const env = {
     readOptionalEnum('EDITORIAL_STORAGE_DRIVER', ['local', 'blob'] as const) ??
     'local',
   editorialBlobPrefix: readOptionalString('EDITORIAL_BLOB_PREFIX') ?? 'editorial',
+  blobReadWriteToken: readOptionalString('BLOB_READ_WRITE_TOKEN'),
 } as const
 
 export const isDevelopment = env.nodeEnv === 'development'
 export const isProduction = env.nodeEnv === 'production'
-export const isEditorialBlobStorage = env.editorialStorageDriver === 'blob'
+export const isEditorialBlobStorage =
+  env.editorialStorageDriver === 'blob' && !!env.blobReadWriteToken
 
 export const getRequiredOsuApiCredentials = () => {
   if (!env.osuClientId || !env.osuClientSecret) {

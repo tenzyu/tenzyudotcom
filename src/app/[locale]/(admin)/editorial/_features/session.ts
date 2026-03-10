@@ -70,6 +70,13 @@ function parseSession(
 
 export async function createEditorialAdminSession() {
   const { sessionSecret } = getRequiredEditorialAdminCredentials()
+
+  if (sessionSecret.length < 32 && isProduction) {
+    throw new Error(
+      'EDITORIAL_SESSION_SECRET must be at least 32 characters in production.',
+    )
+  }
+
   const payload: EditorialSessionPayload = {
     sub: 'editorial-admin',
     exp: Date.now() + EDITORIAL_SESSION_TTL_SECONDS * 1000,
@@ -85,6 +92,7 @@ export async function createEditorialAdminSession() {
       secure: isProduction,
       path: '/',
       maxAge: EDITORIAL_SESSION_TTL_SECONDS,
+      priority: 'high',
     },
   )
 }
