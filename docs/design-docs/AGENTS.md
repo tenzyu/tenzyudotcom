@@ -41,14 +41,16 @@ boundaries, and automated verification to maintain high technical integrity.
 3. [Implementation](#3-implementation)
    - 3.1 [Separation of Logic and Presentation](#31-separation-of-logic-and-presentation)
    - 3.2 [Use Proxy Instead of Middleware](#32-use-proxy-instead-of-middleware)
-   - 3.3 [No Dirty Code Policy](#33-no-dirty-code-policy)
-   - 3.4 [Bundle & Discovery Hygiene](#34-bundle-discovery-hygiene)
-   - 3.5 [Performance Optimization](#35-performance-optimization)
-   - 3.6 [Contract & Boundary Validation](#36-contract-boundary-validation)
-   - 3.7 [Composition Patterns](#37-composition-patterns)
-   - 3.8 [AdminGate (Deferred Admin UI) Pattern](#38-admingate-deferred-admin-ui-pattern)
-   - 3.9 [Next.js Routing Conventions](#39-next-js-routing-conventions)
-   - 3.10 [Next.js 16 Proxy Convention](#310-next-js-16-proxy-convention)
+   - 3.3 [Editor Collection Registration Contract](#33-editor-collection-registration-contract)
+   - 3.4 [No Dirty Code Policy](#34-no-dirty-code-policy)
+   - 3.5 [Bundle & Discovery Hygiene](#35-bundle-discovery-hygiene)
+   - 3.6 [Performance Optimization](#36-performance-optimization)
+   - 3.7 [Contract & Boundary Validation](#37-contract-boundary-validation)
+   - 3.8 [Composition Patterns](#38-composition-patterns)
+   - 3.9 [AdminGate (Deferred Admin UI) Pattern](#39-admingate-deferred-admin-ui-pattern)
+   - 3.10 [Next Intlayer Entrypoint Contract](#310-next-intlayer-entrypoint-contract)
+   - 3.11 [Next.js Routing Conventions](#311-next-js-routing-conventions)
+   - 3.12 [Next.js 16 Proxy Convention](#312-next-js-16-proxy-convention)
 4. [UI & UX](#4-ui-ux)
    - 4.1 [Token-first Styling](#41-token-first-styling)
    - 4.2 [Accessibility by Default](#42-accessibility-by-default)
@@ -670,7 +672,35 @@ References
 - [Next.js 16 Proxy](https://nextjs.org/docs/app/getting-started/proxy)
 - [Intlayer multipleProxy](https://intlayer.org/doc/environment/nextjs#optional-step-7-configure-proxy-for-locale-detection)
 
-### 3.3 No Dirty Code Policy <a id="33-no-dirty-code-policy"></a>
+### 3.3 Editor Collection Registration Contract <a id="33-editor-collection-registration-contract"></a>
+
+**Impact: HIGH**
+
+> editor collection の追加漏れは admin editor の読込と再検証を壊す
+
+## Editor Collection Registration Contract
+
+新しい editor collection を追加するときは、schema や UI だけで終わらせず、descriptor と registry と path contract まで揃える。collection 追加は単一ファイル作成では完結しない。
+
+**Incorrect:**
+
+```tsx
+// descriptor を作っただけで registry や publicPaths を更新しない
+export const TOOLS_COLLECTION_DESCRIPTOR = {
+  id: 'tools',
+}
+```
+
+**Correct:**
+
+```tsx
+// collection 追加時は descriptor, registry, publicPaths, path mapping を揃える
+export const EDITOR_COLLECTIONS = {
+  tools: TOOLS_COLLECTION_DESCRIPTOR,
+}
+```
+
+### 3.4 No Dirty Code Policy <a id="34-no-dirty-code-policy"></a>
 
 **Impact: MEDIUM**
 
@@ -699,7 +729,7 @@ export default function CleanComponent() {
 }
 ```
 
-### 3.4 Bundle & Discovery Hygiene <a id="34-bundle-discovery-hygiene"></a>
+### 3.5 Bundle & Discovery Hygiene <a id="35-bundle-discovery-hygiene"></a>
 
 **Impact: HIGH**
 
@@ -724,7 +754,7 @@ import { a, b, c } from "@/features/notes"; // 全ての依存が読み込まれ
 import { a } from "@/features/notes/components/a";
 ```
 
-### 3.5 Performance Optimization <a id="35-performance-optimization"></a>
+### 3.6 Performance Optimization <a id="36-performance-optimization"></a>
 
 **Impact: HIGH**
 
@@ -751,7 +781,7 @@ const b = await getB();
 const [a, b] = await Promise.all([getA(), getB()]);
 ```
 
-### 3.6 Contract & Boundary Validation <a id="36-contract-boundary-validation"></a>
+### 3.7 Contract & Boundary Validation <a id="37-contract-boundary-validation"></a>
 
 **Impact: HIGH**
 
@@ -775,7 +805,7 @@ const data = await res.json() as UnsafeType;
 const data = MySchema.parse(await res.json());
 ```
 
-### 3.7 Composition Patterns <a id="37-composition-patterns"></a>
+### 3.8 Composition Patterns <a id="38-composition-patterns"></a>
 
 **Impact: HIGH**
 
@@ -800,7 +830,7 @@ Server Components でデータを取得し、Client Components にはシリア�
 </ClientParent>
 ```
 
-### 3.8 AdminGate (Deferred Admin UI) Pattern <a id="38-admingate-deferred-admin-ui-pattern"></a>
+### 3.9 AdminGate (Deferred Admin UI) Pattern <a id="39-admingate-deferred-admin-ui-pattern"></a>
 
 **Impact: CRITICAL**
 
@@ -836,7 +866,7 @@ export default function Page() {
   return (
     <main>
       <AdminGate>
-        <DeferredEditor /> {/* 管理者判定後に API からデータを取って表示 */}
+        <DeffredAdminUI /> {/* 管理者判定後に API からデータを取って表示 */}
       </AdminGate>
       <PublicContent />
     </main>
@@ -844,7 +874,45 @@ export default function Page() {
 }
 ```
 
-### 3.9 Next.js Routing Conventions <a id="39-next-js-routing-conventions"></a>
+### 3.10 Next Intlayer Entrypoint Contract <a id="310-next-intlayer-entrypoint-contract"></a>
+
+**Impact: HIGH**
+
+> route entrypoint の共通契約を外すと静的化や locale context が崩れる
+
+## Next Intlayer Entrypoint Contract
+
+`app/[locale]` 配下の route entrypoint は、薄いだけでなく、静的化と locale context の共通契約を満たす。新規 page や layout は既存の entrypoint パターンを踏襲する。
+
+**Incorrect:**
+
+```tsx
+// locale 解決や provider を省略した page
+export default async function Page() {
+  return <MyPage />
+}
+```
+
+**Correct:**
+
+```tsx
+export const dynamic = 'force-static'
+export const generateMetadata = createPageMetadata('foo', {
+  pathname: '/foo',
+})
+const FooPage: NextPageIntlayer = async ({ params }) => {
+  const locale = await resolvePageLocale(params)
+
+  return (
+    <IntlayerServerProvider locale={locale}>
+      <FooPageConent />
+    </IntlayerServerProvider>
+  )
+}
+export default FooPage
+```
+
+### 3.11 Next.js Routing Conventions <a id="311-next-js-routing-conventions"></a>
 
 **Impact: MEDIUM**
 
@@ -876,7 +944,7 @@ export default async function Page({ params }) {
 }
 ```
 
-### 3.10 Next.js 16 Proxy Convention <a id="310-next-js-16-proxy-convention"></a>
+### 3.12 Next.js 16 Proxy Convention <a id="312-next-js-16-proxy-convention"></a>
 
 **Impact: MEDIUM**
 

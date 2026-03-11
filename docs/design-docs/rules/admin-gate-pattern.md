@@ -36,7 +36,7 @@ export default function Page() {
   return (
     <main>
       <AdminGate>
-        <DeferredEditor /> {/* 管理者判定後に API からデータを取って表示 */}
+        <DeffredAdminUI /> {/* 管理者判定後に API からデータを取って表示 */}
       </AdminGate>
       <PublicContent />
     </main>
