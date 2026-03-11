@@ -29,6 +29,17 @@ module.exports = {
         numberOfDependentsLessThan: 2,
       },
     },
+    {
+      severity: 'error',
+      name:
+        'Shared features in src/features/ must not depend on route-local src/app/.../_features modules. Move the dependency down to the route or promote the shared logic instead.',
+      from: {
+        path: '^src/features/',
+      },
+      to: {
+        path: '^src/app/.*/_features/',
+      },
+    },
     
     // dependency invesion
     {
