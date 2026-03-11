@@ -23,14 +23,14 @@ We need to add `dependency-cruiser` to the `bun run lint` pipeline to ensure the
 - [x] Implement `dependency-inversion` rules:
   - UI components (`*.tsx` etc.) must not depend directly on infrastructure implementations (`*.contract.ts`).
   - Domain layer (`*.domain.ts`) and Ports (`*.port.ts`) must not depend on outer layers (`*.contract.ts`, `*.assemble.ts`).
-- [ ] Update `package.json` to run `dependency-cruiser` as part of `bun run lint`.
-- [ ] Run the linter and add any existing violations to exceptions or fix them.
+- [x] Update `package.json` to run `dependency-cruiser` as part of `bun run lint`.
+- [x] Run the linter and add any existing violations to exceptions or fix them.
 
 ## Verification
 
-- [ ] **Verify Build**
+- [x] **Verify Build**
   - Run `bun run build` to ensure no broken imports.
-- [ ] **Verify Linting**
+- [x] **Verify Linting**
   - Run `bun run lint` to ensure consistency.
 
 ## Success Criteria
