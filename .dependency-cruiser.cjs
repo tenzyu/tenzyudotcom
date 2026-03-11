@@ -17,7 +17,7 @@ module.exports = {
         path: '^src/',
       },
       module: {
-        path: '^src/features/',
+        path: '^src/(lib|features)/',
         pathNot: [
           '\\.test\\.(?:ts|tsx)$',
           '\\.content\\.ts$',
