@@ -23,43 +23,47 @@ boundaries, and automated verification to maintain high technical integrity.
 
 1. [Foundations](#1-foundations)
    - 1.1 [6-Layer Ownership Model](#11-6-layer-ownership-model)
-   - 1.2 [Tool Boundary & Ownership](#12-tool-boundary-ownership)
-   - 1.3 [Path & Feature Semantics](#13-path-feature-semantics)
-   - 1.4 [Local-first, Promote-later](#14-local-first-promote-later)
-   - 1.5 [Directory Strictness](#15-directory-strictness)
-   - 1.6 [Dependency Inversion Pattern](#16-dependency-inversion-pattern)
-   - 1.7 [Authored Content Management](#17-authored-content-management)
-   - 1.8 [Vertical Slice Architecture (VSA)](#18-vertical-slice-architecture-vsa-)
+   - 1.2 [actions.ts Must Depend On Assemble And Session Only](#12-actions-ts-must-depend-on-assemble-and-session-only)
+   - 1.3 [Tool Boundary & Ownership](#13-tool-boundary-ownership)
+   - 1.4 [Path & Feature Semantics](#14-path-feature-semantics)
+   - 1.5 [Local-first, Promote-later](#15-local-first-promote-later)
+   - 1.6 [Directory Strictness](#16-directory-strictness)
+   - 1.7 [Dependency Inversion Pattern](#17-dependency-inversion-pattern)
+   - 1.8 [Authored Content Management](#18-authored-content-management)
+   - 1.9 [Vertical Slice Architecture (VSA)](#19-vertical-slice-architecture-vsa-)
 2. [Security & Safety](#2-security-safety)
-   - 2.1 [Security: Private Admin Editor](#21-security-private-admin-editor)
-   - 2.2 [Verification Guard](#22-verification-guard)
-   - 2.3 [Robust MDX Overwrite Protection](#23-robust-mdx-overwrite-protection)
-   - 2.4 [Structural & Mutation Guards](#24-structural-mutation-guards)
-   - 2.5 [Security: Explicit Env Parsing & Centralization](#25-security-explicit-env-parsing-centralization)
-   - 2.6 [Security: Outbound Boundary & Zero Trust](#26-security-outbound-boundary-zero-trust)
-   - 2.7 [Security: Thin Proxy Pattern](#27-security-thin-proxy-pattern)
+   - 2.1 [Editor Auth Credentials Should Have A Single Owner](#21-editor-auth-credentials-should-have-a-single-owner)
+   - 2.2 [Security: Private Admin Editor](#22-security-private-admin-editor)
+   - 2.3 [Verification Guard](#23-verification-guard)
+   - 2.4 [Server Actions Require Auth Even For Helper Actions](#24-server-actions-require-auth-even-for-helper-actions)
+   - 2.5 [Robust MDX Overwrite Protection](#25-robust-mdx-overwrite-protection)
+   - 2.6 [Structural & Mutation Guards](#26-structural-mutation-guards)
+   - 2.7 [Security: Explicit Env Parsing & Centralization](#27-security-explicit-env-parsing-centralization)
+   - 2.8 [Security: Outbound Boundary & Zero Trust](#28-security-outbound-boundary-zero-trust)
+   - 2.9 [Security: Thin Proxy Pattern](#29-security-thin-proxy-pattern)
 3. [Implementation](#3-implementation)
    - 3.1 [No Page-Level Admin Collection Component](#31-no-page-level-admin-collection-component)
    - 3.2 [Separation of Logic and Presentation](#32-separation-of-logic-and-presentation)
    - 3.3 [Preserve Public UI Before Admin Convenience](#33-preserve-public-ui-before-admin-convenience)
    - 3.4 [Use Proxy Instead of Middleware](#34-use-proxy-instead-of-middleware)
    - 3.5 [AdminGate Is Stable Contract](#35-admingate-is-stable-contract)
-   - 3.6 [Editor Collection Registration Contract](#36-editor-collection-registration-contract)
-   - 3.7 [No Dirty Code Policy](#37-no-dirty-code-policy)
-   - 3.8 [Avoid Route POST And Hard Reload For Inline Admin](#38-avoid-route-post-and-hard-reload-for-inline-admin)
-   - 3.9 [Bundle & Discovery Hygiene](#39-bundle-discovery-hygiene)
-   - 3.10 [Performance Optimization](#310-performance-optimization)
-   - 3.11 [Contract & Boundary Validation](#311-contract-boundary-validation)
-   - 3.12 [Locale Switcher Single Flow](#312-locale-switcher-single-flow)
-   - 3.13 [Composition Patterns](#313-composition-patterns)
-   - 3.14 [AdminGate (Deferred Admin UI) Pattern](#314-admingate-deferred-admin-ui-pattern)
-   - 3.15 [No Page-Level Collection Wrapper](#315-no-page-level-collection-wrapper)
-   - 3.16 [Next Intlayer Entrypoint Contract](#316-next-intlayer-entrypoint-contract)
-   - 3.17 [Next.js Routing Conventions](#317-next-js-routing-conventions)
-   - 3.18 [Next.js 16 Proxy Convention](#318-next-js-16-proxy-convention)
-   - 3.19 [Apply Dependency Inversion Before UI Assembly](#319-apply-dependency-inversion-before-ui-assembly)
-   - 3.20 [Do Not Change AdminGate Without Explicit Approval](#320-do-not-change-admingate-without-explicit-approval)
-   - 3.21 [Leaf Admin Affordance Is Better Than Large Admin Scope](#321-leaf-admin-affordance-is-better-than-large-admin-scope)
+   - 3.6 [Editor Errors And Blog Saving Should Cross Boundaries Via Port](#36-editor-errors-and-blog-saving-should-cross-boundaries-via-port)
+   - 3.7 [Editor Collection Registration Contract](#37-editor-collection-registration-contract)
+   - 3.8 [No Dirty Code Policy](#38-no-dirty-code-policy)
+   - 3.9 [Avoid Route POST And Hard Reload For Inline Admin](#39-avoid-route-post-and-hard-reload-for-inline-admin)
+   - 3.10 [Bundle & Discovery Hygiene](#310-bundle-discovery-hygiene)
+   - 3.11 [Performance Optimization](#311-performance-optimization)
+   - 3.12 [Contract & Boundary Validation](#312-contract-boundary-validation)
+   - 3.13 [Locale Switcher Single Flow](#313-locale-switcher-single-flow)
+   - 3.14 [Composition Patterns](#314-composition-patterns)
+   - 3.15 [AdminGate (Deferred Admin UI) Pattern](#315-admingate-deferred-admin-ui-pattern)
+   - 3.16 [No Page-Level Collection Wrapper](#316-no-page-level-collection-wrapper)
+   - 3.17 [Next Intlayer Entrypoint Contract](#317-next-intlayer-entrypoint-contract)
+   - 3.18 [Next.js Routing Conventions](#318-next-js-routing-conventions)
+   - 3.19 [Next.js 16 Proxy Convention](#319-next-js-16-proxy-convention)
+   - 3.20 [Apply Dependency Inversion Before UI Assembly](#320-apply-dependency-inversion-before-ui-assembly)
+   - 3.21 [Do Not Change AdminGate Without Explicit Approval](#321-do-not-change-admingate-without-explicit-approval)
+   - 3.22 [Leaf Admin Affordance Is Better Than Large Admin Scope](#322-leaf-admin-affordance-is-better-than-large-admin-scope)
 4. [UI & UX](#4-ui-ux)
    - 4.1 [Token-first Styling](#41-token-first-styling)
    - 4.2 [Accessibility by Default](#42-accessibility-by-default)
@@ -110,7 +114,37 @@ src/components/SpecificButton.tsx
 src/app/[locale]/.../_features/specific-button.tsx
 ```
 
-### 1.2 Tool Boundary & Ownership <a id="12-tool-boundary-ownership"></a>
+### 1.2 actions.ts Must Depend On Assemble And Session Only <a id="12-actions-ts-must-depend-on-assemble-and-session-only"></a>
+
+**Impact: HIGH**
+
+> mount point である `actions.ts` が `*.contract.ts` に直接依存すると、dependency inversion の境界が崩れ、UI/application から infrastructure 実装が漏れ出す。
+
+`src/app/.../_features/actions.ts` は Server Action の mount point であり、入力検証、認可、画面遷移だけを担当するのがよいです。  
+取得・保存の実処理は `*.assemble.ts` の use case に委譲し、認証情報やセッション処理は `session.ts` に寄せます。`actions.ts` から `*.contract.ts` を直接 import しないのが実運用上の前提です。
+
+**Incorrect:**
+
+```tsx
+import { editorRepository } from '@/lib/editor/editor.contract'
+
+export async function saveBlogPostAction(formData: FormData) {
+  await editorRepository.saveBlogPost(slug, frontmatter, body, version)
+}
+```
+
+**Correct:**
+
+```tsx
+import { makeSaveBlogPostUseCase } from './editor.assemble'
+
+export async function saveBlogPostAction(formData: FormData) {
+  const saveUseCase = makeSaveBlogPostUseCase()
+  await saveUseCase.execute(slug, frontmatter, body, version)
+}
+```
+
+### 1.3 Tool Boundary & Ownership <a id="13-tool-boundary-ownership"></a>
 
 **Impact: HIGH**
 
@@ -139,7 +173,7 @@ src/app/[locale]/.../_features/specific-button.tsx
 // shadcn はプリミティブとして使い、Feature 側でラップしてビジネスロジックを載せる
 ```
 
-### 1.3 Path & Feature Semantics <a id="13-path-feature-semantics"></a>
+### 1.4 Path & Feature Semantics <a id="14-path-feature-semantics"></a>
 
 **Impact: HIGH**
 
@@ -171,7 +205,7 @@ src/app/.../_features/
   └── utils.ts
 ```
 
-### 1.4 Local-first, Promote-later <a id="14-local-first-promote-later"></a>
+### 1.5 Local-first, Promote-later <a id="15-local-first-promote-later"></a>
 
 **Impact: HIGH**
 
@@ -194,7 +228,7 @@ src/app/.../_features/
 // src/app/[locale]/(main)/notes/_features/note-action-button.tsx
 ```
 
-### 1.5 Directory Strictness <a id="15-directory-strictness"></a>
+### 1.6 Directory Strictness <a id="16-directory-strictness"></a>
 
 **Impact: HIGH**
 
@@ -222,7 +256,7 @@ src/app/.../_features/
 // src/features/blog/components/blog-tag.tsx
 ```
 
-### 1.6 Dependency Inversion Pattern <a id="16-dependency-inversion-pattern"></a>
+### 1.7 Dependency Inversion Pattern <a id="17-dependency-inversion-pattern"></a>
 
 **Impact: MEDIUM**
 
@@ -290,7 +324,7 @@ export async function Component(){
 }
 ```
 
-### 1.7 Authored Content Management <a id="17-authored-content-management"></a>
+### 1.8 Authored Content Management <a id="18-authored-content-management"></a>
 
 **Impact: HIGH**
 
@@ -323,7 +357,7 @@ export type MyLink = { name: string; url: string }
 const { collection } = await editorRepository.loadState('links')
 ```
 
-### 1.8 Vertical Slice Architecture (VSA) <a id="18-vertical-slice-architecture-vsa-"></a>
+### 1.9 Vertical Slice Architecture (VSA) <a id="19-vertical-slice-architecture-vsa-"></a>
 
 **Impact: HIGH**
 
@@ -355,7 +389,38 @@ src/app/[locale]/.../route/_features/
 
 ## 2. Security & Safety <a id="2-security-safety"></a>
 
-### 2.1 Security: Private Admin Editor <a id="21-security-private-admin-editor"></a>
+### 2.1 Editor Auth Credentials Should Have A Single Owner <a id="21-editor-auth-credentials-should-have-a-single-owner"></a>
+
+**Impact: MEDIUM**
+
+> admin password や session secret の参照が複数ファイルへ広がると、認証ロジックの境界が曖昧になり、変更時の見落としが増える。
+
+`EDITOR_ADMIN_PASSWORD` や `EDITOR_SESSION_SECRET` は、どこからでも `env.contract.ts` を読んでよい値ではありません。  
+admin 認証の owner を `src/features/admin/session.ts` に寄せ、`actions.ts` などの mount point は `verifyEditorAdminPassword()` や `requireEditorAdminSession()` のような helper だけを呼ぶ形にすると、責務と変更点が安定します。
+
+**Incorrect:**
+
+```tsx
+import { env, getRequiredEditorAdminCredentials } from '@/config/env.contract'
+
+export async function loginEditorAdminAction(formData: FormData) {
+  if (!env.editorAdminPassword) return
+  const { password } = getRequiredEditorAdminCredentials()
+  return isValidEditorAdminPassword(input, password)
+}
+```
+
+**Correct:**
+
+```tsx
+import { verifyEditorAdminPassword } from '@/features/admin/session'
+
+export async function loginEditorAdminAction(formData: FormData) {
+  if (!verifyEditorAdminPassword(input)) return
+}
+```
+
+### 2.2 Security: Private Admin Editor <a id="22-security-private-admin-editor"></a>
 
 **Impact: HIGH**
 
@@ -412,7 +477,7 @@ export async function saveAction(unsafeId: string, content: string, expectedVers
 }
 ```
 
-### 2.2 Verification Guard <a id="22-verification-guard"></a>
+### 2.3 Verification Guard <a id="23-verification-guard"></a>
 
 **Impact: CRITICAL**
 
@@ -438,7 +503,44 @@ export async function saveAction(unsafeId: string, content: string, expectedVers
 // 新しいロジックには必ず regression test を追加し、成功を証明する
 ```
 
-### 2.3 Robust MDX Overwrite Protection <a id="23-robust-mdx-overwrite-protection"></a>
+### 2.4 Server Actions Require Auth Even For Helper Actions <a id="24-server-actions-require-auth-even-for-helper-actions"></a>
+
+**Impact: HIGH**
+
+> 補助用途の Server Action を無認可のまま公開すると、管理 UI 専用の機能が外部から直接実行できてしまう。
+
+`use server` で公開された関数は、フォーム保存や本体更新だけでなく、URL メタデータ取得のような補助 action でも公開エンドポイントです。  
+「editor 内からしか呼ばれない想定」は認可の代わりにならないため、admin 専用 action は最上部で必ず admin セッションを確認する必要があります。
+
+**Incorrect:**
+
+```tsx
+'use server'
+
+export async function fetchUrlMetadataAction(url: string) {
+  const response = await fetch(url)
+  return { title: await response.text() }
+}
+```
+
+**Correct:**
+
+```tsx
+'use server'
+
+import { hasEditorAdminSession } from '@/features/admin/session'
+
+export async function fetchUrlMetadataAction(url: string) {
+  if (!(await hasEditorAdminSession())) {
+    return { error: 'Unauthorized' }
+  }
+
+  const response = await fetch(url)
+  return { title: await response.text() }
+}
+```
+
+### 2.5 Robust MDX Overwrite Protection <a id="25-robust-mdx-overwrite-protection"></a>
 
 **Impact: HIGH**
 
@@ -478,7 +580,7 @@ export async function saveBlogPost(slug, body, expectedVersion) {
 
 Reference: [Security: Private Admin Editor (rules)](/docs/design-docs/rules/admin-editor-security.md)
 
-### 2.4 Structural & Mutation Guards <a id="24-structural-mutation-guards"></a>
+### 2.6 Structural & Mutation Guards <a id="26-structural-mutation-guards"></a>
 
 **Impact: HIGH**
 
@@ -503,7 +605,7 @@ Reference: [Security: Private Admin Editor (rules)](/docs/design-docs/rules/admi
 // 修正対象のスコープにのみ集中して surgical な変更を行う
 ```
 
-### 2.5 Security: Explicit Env Parsing & Centralization <a id="25-security-explicit-env-parsing-centralization"></a>
+### 2.7 Security: Explicit Env Parsing & Centralization <a id="27-security-explicit-env-parsing-centralization"></a>
 
 **Impact: CRITICAL**
 
@@ -530,7 +632,7 @@ const apiKey = process.env.API_KEY;
 import { env } from "@/config/env.contract";
 ```
 
-### 2.6 Security: Outbound Boundary & Zero Trust <a id="26-security-outbound-boundary-zero-trust"></a>
+### 2.8 Security: Outbound Boundary & Zero Trust <a id="28-security-outbound-boundary-zero-trust"></a>
 
 **Impact: CRITICAL**
 
@@ -561,7 +663,7 @@ export async function myAction(unsafeId: string) {
 }
 ```
 
-### 2.7 Security: Thin Proxy Pattern <a id="27-security-thin-proxy-pattern"></a>
+### 2.9 Security: Thin Proxy Pattern <a id="29-security-thin-proxy-pattern"></a>
 
 **Impact: HIGH**
 
@@ -768,7 +870,37 @@ References
 - page-level の都合で auth status cache を持ち込む
 - 認可責務と UI 便利機能を混ぜる
 
-### 3.6 Editor Collection Registration Contract <a id="36-editor-collection-registration-contract"></a>
+### 3.6 Editor Errors And Blog Saving Should Cross Boundaries Via Port <a id="36-editor-errors-and-blog-saving-should-cross-boundaries-via-port"></a>
+
+**Impact: MEDIUM**
+
+> application 層が contract 定義の例外型や特別保存処理に直接依存すると、JSON collection と blog の差分処理が infrastructure に引きずられる。
+
+`blog` は editor collection の中でも特別で、JSON の一括保存ではなく MDX/frontmatter の保存経路を通ります。  
+それでも application 層は `contract` 直参照ではなく、`port/domain` に公開された repository interface とエラー型を通して扱うのが安全です。`EditorVersionConflictError` のような UI/application が捕捉する型も `port/domain` 側に置くと境界が崩れません。
+
+**Incorrect:**
+
+```tsx
+import {
+  editorRepository,
+  EditorVersionConflictError,
+} from '@/lib/editor/editor.contract'
+
+await editorRepository.saveBlogPost(slug, frontmatter, body, version)
+```
+
+**Correct:**
+
+```tsx
+import { EditorVersionConflictError } from '@/lib/editor/editor.port'
+import { makeSaveBlogPostUseCase } from './editor.assemble'
+
+const saveUseCase = makeSaveBlogPostUseCase()
+await saveUseCase.execute(slug, frontmatter, body, version)
+```
+
+### 3.7 Editor Collection Registration Contract <a id="37-editor-collection-registration-contract"></a>
 
 **Impact: HIGH**
 
@@ -796,7 +928,7 @@ export const EDITOR_COLLECTIONS = {
 }
 ```
 
-### 3.7 No Dirty Code Policy <a id="37-no-dirty-code-policy"></a>
+### 3.8 No Dirty Code Policy <a id="38-no-dirty-code-policy"></a>
 
 **Impact: MEDIUM**
 
@@ -825,7 +957,7 @@ export default function CleanComponent() {
 }
 ```
 
-### 3.8 Avoid Route POST And Hard Reload For Inline Admin <a id="38-avoid-route-post-and-hard-reload-for-inline-admin"></a>
+### 3.9 Avoid Route POST And Hard Reload For Inline Admin <a id="39-avoid-route-post-and-hard-reload-for-inline-admin"></a>
 
 **Impact: MEDIUM**
 
@@ -851,7 +983,7 @@ if (result.ok) {
 }
 ```
 
-### 3.9 Bundle & Discovery Hygiene <a id="39-bundle-discovery-hygiene"></a>
+### 3.10 Bundle & Discovery Hygiene <a id="310-bundle-discovery-hygiene"></a>
 
 **Impact: HIGH**
 
@@ -876,7 +1008,7 @@ import { a, b, c } from "@/features/notes"; // 全ての依存が読み込まれ
 import { a } from "@/features/notes/components/a";
 ```
 
-### 3.10 Performance Optimization <a id="310-performance-optimization"></a>
+### 3.11 Performance Optimization <a id="311-performance-optimization"></a>
 
 **Impact: HIGH**
 
@@ -903,7 +1035,7 @@ const b = await getB();
 const [a, b] = await Promise.all([getA(), getB()]);
 ```
 
-### 3.11 Contract & Boundary Validation <a id="311-contract-boundary-validation"></a>
+### 3.12 Contract & Boundary Validation <a id="312-contract-boundary-validation"></a>
 
 **Impact: HIGH**
 
@@ -927,7 +1059,7 @@ const data = await res.json() as UnsafeType;
 const data = MySchema.parse(await res.json());
 ```
 
-### 3.12 Locale Switcher Single Flow <a id="312-locale-switcher-single-flow"></a>
+### 3.13 Locale Switcher Single Flow <a id="313-locale-switcher-single-flow"></a>
 
 **Impact: HIGH**
 
@@ -964,7 +1096,7 @@ const data = MySchema.parse(await res.json());
 
 `proxy.ts` 側にもこの優先順位をコメントで残し、回帰テストで固定する。
 
-### 3.13 Composition Patterns <a id="313-composition-patterns"></a>
+### 3.14 Composition Patterns <a id="314-composition-patterns"></a>
 
 **Impact: HIGH**
 
@@ -989,7 +1121,7 @@ Server Components でデータを取得し、Client Components にはシリア�
 </ClientParent>
 ```
 
-### 3.14 AdminGate (Deferred Admin UI) Pattern <a id="314-admingate-deferred-admin-ui-pattern"></a>
+### 3.15 AdminGate (Deferred Admin UI) Pattern <a id="315-admingate-deferred-admin-ui-pattern"></a>
 
 **Impact: CRITICAL**
 
@@ -1033,7 +1165,7 @@ export default function Page() {
 }
 ```
 
-### 3.15 No Page-Level Collection Wrapper <a id="315-no-page-level-collection-wrapper"></a>
+### 3.16 No Page-Level Collection Wrapper <a id="316-no-page-level-collection-wrapper"></a>
 
 **Impact: HIGH**
 
@@ -1060,7 +1192,7 @@ export function LinksPageCollection() {
 Read: [Use Dependency Inversion](/design-docs/rules/dependency-inversion.md)
 ```
 
-### 3.16 Next Intlayer Entrypoint Contract <a id="316-next-intlayer-entrypoint-contract"></a>
+### 3.17 Next Intlayer Entrypoint Contract <a id="317-next-intlayer-entrypoint-contract"></a>
 
 **Impact: HIGH**
 
@@ -1098,7 +1230,7 @@ const FooPage: NextPageIntlayer = async ({ params }) => {
 export default FooPage
 ```
 
-### 3.17 Next.js Routing Conventions <a id="317-next-js-routing-conventions"></a>
+### 3.18 Next.js Routing Conventions <a id="318-next-js-routing-conventions"></a>
 
 **Impact: MEDIUM**
 
@@ -1130,7 +1262,7 @@ export default async function Page({ params }) {
 }
 ```
 
-### 3.18 Next.js 16 Proxy Convention <a id="318-next-js-16-proxy-convention"></a>
+### 3.19 Next.js 16 Proxy Convention <a id="319-next-js-16-proxy-convention"></a>
 
 **Impact: MEDIUM**
 
@@ -1171,7 +1303,7 @@ export default proxy;
 
 Reference: [Next.js Documentation - Proxy](https://nextjs.org/docs/app/getting-started/proxy)
 
-### 3.19 Apply Dependency Inversion Before UI Assembly <a id="319-apply-dependency-inversion-before-ui-assembly"></a>
+### 3.20 Apply Dependency Inversion Before UI Assembly <a id="320-apply-dependency-inversion-before-ui-assembly"></a>
 
 **Impact: HIGH**
 
@@ -1200,7 +1332,7 @@ function LeafAdminMenu() {
 // UI は leaf affordance として最小限の入力状態だけを持つ
 ```
 
-### 3.20 Do Not Change AdminGate Without Explicit Approval <a id="320-do-not-change-admingate-without-explicit-approval"></a>
+### 3.21 Do Not Change AdminGate Without Explicit Approval <a id="321-do-not-change-admingate-without-explicit-approval"></a>
 
 **Impact: HIGH**
 
@@ -1228,7 +1360,7 @@ export function AdminGate() {
 </AdminGate>
 ```
 
-### 3.21 Leaf Admin Affordance Is Better Than Large Admin Scope <a id="321-leaf-admin-affordance-is-better-than-large-admin-scope"></a>
+### 3.22 Leaf Admin Affordance Is Better Than Large Admin Scope <a id="322-leaf-admin-affordance-is-better-than-large-admin-scope"></a>
 
 **Impact: HIGH**
 
