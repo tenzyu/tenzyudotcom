@@ -21,7 +21,7 @@ import { isEditorBlobStorage, env } from '@/config/env.contract'
 import { list, get } from '@vercel/blob'
 import { BLOG_COLLECTION_DESCRIPTOR } from './blog.contract'
 
-import { createVersion } from '@/app/[locale]/(admin)/editor/_features/editor-utils'
+import { createVersion } from '@/lib/editor/editor-version'
 
 const PAGE_SIZE = 6
 

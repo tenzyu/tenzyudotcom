@@ -1,9 +1,9 @@
-import { NOTES_COLLECTION_DESCRIPTOR } from '@/app/[locale]/(main)/notes/_features/notes.contract'
-import { POINTERS_COLLECTION_DESCRIPTOR } from '@/app/[locale]/(main)/pointers/_features/dashboard/dashboard.contract'
-import { PUZZLES_COLLECTION_DESCRIPTOR } from '@/app/[locale]/(main)/puzzles/_features/puzzles.contract'
-import { RECOMMENDATIONS_COLLECTION_DESCRIPTOR } from '@/app/[locale]/(main)/recommendations/_features/recommendations.contract'
+import { BLOG_COLLECTION_DESCRIPTOR } from '@/features/editor-collections/blog'
+import { NOTES_COLLECTION_DESCRIPTOR } from '@/features/editor-collections/notes'
+import { POINTERS_COLLECTION_DESCRIPTOR } from '@/features/editor-collections/pointers'
+import { PUZZLES_COLLECTION_DESCRIPTOR } from '@/features/editor-collections/puzzles'
+import { RECOMMENDATIONS_COLLECTION_DESCRIPTOR } from '@/features/editor-collections/recommendations'
 import { LINKS_COLLECTION_DESCRIPTOR } from '@/features/links/links.contract'
-import { BLOG_COLLECTION_DESCRIPTOR } from '@/app/[locale]/(main)/blog/_features/blog.contract'
 import type {
   EditorCollectionDescriptor,
 } from '@/lib/editor/editor.port'

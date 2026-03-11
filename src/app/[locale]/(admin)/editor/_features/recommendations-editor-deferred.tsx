@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import type { RecommendationSourceEntry } from '@/app/[locale]/(main)/recommendations/_features/recommendations.domain'
+import type { RecommendationSourceEntry } from '@/features/recommendations/recommendations.domain'
 import { RecommendationsEditorClient } from './recommendations-editor-client'
 import { Loader2 } from 'lucide-react'
 

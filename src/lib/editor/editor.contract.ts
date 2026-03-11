@@ -5,7 +5,7 @@ import { get, list, put } from '@vercel/blob'
 import matter from 'gray-matter'
 import { loadBlogPosts } from '@/app/[locale]/(main)/blog/_features/blog.assemble'
 import type { BlogFrontmatter } from '@/app/[locale]/(main)/blog/_features/blog.domain'
-import { createVersion } from '@/app/[locale]/(admin)/editor/_features/editor-utils'
+import { createVersion } from './editor-version'
 import type {
   EditorCollectionId,
   EditorRepository,

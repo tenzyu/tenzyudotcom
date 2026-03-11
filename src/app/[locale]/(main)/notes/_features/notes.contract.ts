@@ -1,42 +1,11 @@
-import { normalizeExternalUrl } from '@/lib/url/external-url.contract'
-import { z } from 'zod'
 import { editorRepository } from '@/lib/editor/editor.contract'
-import { withLocales, type EditorCollectionDescriptor } from '@/lib/editor/editor.port'
 import type { NotesRepository } from './notes.port'
 import type { NoteSourceEntry } from './notes.domain'
-
-const LocalizedTextSchema = z.object({
-  ja: z.string().trim().min(1),
-  en: z.string().trim().optional().default(''),
-})
-
-const NoteSourceEntrySchema = z.object({
-  body: LocalizedTextSchema,
-  createdAt: z.string().datetime({ offset: true }),
-  externalUrl: z.string().trim().min(1).optional(),
-  published: z.boolean().optional(),
-})
-
-export function parseNoteSourceEntries(raw: unknown) {
-  const entries = z.array(NoteSourceEntrySchema).parse(raw)
-
-  for (const entry of entries) {
-    if (entry.externalUrl) {
-      normalizeExternalUrl(entry.externalUrl, `note external url (${entry.createdAt})`)
-    }
-  }
-
-  return entries
-}
-
-export const NOTES_COLLECTION_DESCRIPTOR: EditorCollectionDescriptor<'notes'> = {
-  id: 'notes',
-  label: 'Notes',
-  storagePath: 'editor/notes.json',
-  publicPaths: withLocales('/notes'),
-  getDefaultValue: () => [],
-  parse: parseNoteSourceEntries,
-}
+import { NOTES_COLLECTION_DESCRIPTOR } from '@/features/editor-collections/notes'
+export {
+  NOTES_COLLECTION_DESCRIPTOR,
+  parseNoteSourceEntries,
+} from '@/features/editor-collections/notes'
 
 export class EditorNotesRepository implements NotesRepository {
   async loadAll(): Promise<readonly NoteSourceEntry[]> {

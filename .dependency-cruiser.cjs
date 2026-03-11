@@ -1,14 +1,55 @@
+const ROUTE_FEATURE_ROOTS = [
+  { root: 'src/app/[locale]/_features' },
+  { root: 'src/app/[locale]/(admin)/editor/_features' },
+  { root: 'src/app/[locale]/(main)/(home)/_features' },
+  { root: 'src/app/[locale]/(main)/archives/_features' },
+  { root: 'src/app/[locale]/(main)/archives/osu-profile/_features' },
+  {
+    root: 'src/app/[locale]/(main)/blog/_features',
+    allowWithinDomain: ['src/app/[locale]/(main)/blog/[slug]/_features'],
+  },
+  {
+    root: 'src/app/[locale]/(main)/blog/[slug]/_features',
+    allowWithinDomain: ['src/app/[locale]/(main)/blog/_features'],
+  },
+  { root: 'src/app/[locale]/(main)/links/_features' },
+  { root: 'src/app/[locale]/(main)/links/[shortUrl]/_features' },
+  { root: 'src/app/[locale]/(main)/notes/_features' },
+  { root: 'src/app/[locale]/(main)/pointers/_features' },
+  { root: 'src/app/[locale]/(main)/portfolio/_features' },
+  { root: 'src/app/[locale]/(main)/puzzles/_features' },
+  { root: 'src/app/[locale]/(main)/recommendations/_features' },
+  { root: 'src/app/[locale]/(main)/tools/_features' },
+  { root: 'src/app/[locale]/(main)/tools/dot-type/_features' },
+]
+
+function escapeRegex(value) {
+  return value.replace(/[|\\{}()[\]^$+*?.-]/g, '\\$&')
+}
+
+const crossRouteFeatureRules = ROUTE_FEATURE_ROOTS.map(
+  ({ root, allowWithinDomain = [] }) => {
+    const allowedRoots = [root, ...allowWithinDomain]
+    const escapedRoot = escapeRegex(root)
+
+    return {
+      name: `Route-local _features under ${root} must not depend on another route-local _features slice.`,
+      severity: 'error',
+      from: {
+        path: `^${escapedRoot}/`,
+      },
+      to: {
+        path: '^src/app/.+/_features/',
+        pathNot: allowedRoots.map((allowedRoot) => `^${escapeRegex(allowedRoot)}/`),
+      },
+    }
+  },
+)
+
 /** @type {import('dependency-cruiser').IConfiguration} */
 module.exports = {
   forbidden: [
-    // local-first, promote-later
-    {
-      name:
-        "One feature should not depend on another feature (in a separate folder). Move these features under src/features",
-      severity: "error",
-      from: { path: "(^_features/)([^/]+)/" },
-      to: { path: "^$1", pathNot: "$1$2" },
-    },
+    ...crossRouteFeatureRules,
     {
       severity: 'error',
       name:
@@ -32,22 +73,24 @@ module.exports = {
     {
       severity: 'error',
       name:
-        'Shared features in src/features/ must not depend on route-local src/app/.../_features modules. Move the dependency down to the route or promote the shared logic instead.',
+        'Shared features in src/features/ must not depend on route-local src/app/.../_features modules.',
       from: {
         path: '^src/features/',
       },
       to: {
-        path: '^src/app/.*/_features/',
+        path: '^src/app/.+/_features/',
       },
     },
-    
-    // dependency invesion
     {
       name:
-        'UI-facing .tsx modules should not depend directly on infrastructure contracts. Move helpers out of *.contract.ts or depend on domain/assemble layers instead.',
+        'UI-facing modules and server entrypoints must not depend directly on infrastructure contracts.',
       severity: 'error',
       from: {
-        path: '^(src/app|src/components|src/features)/.*\\.tsx$',
+        path: [
+          '^src/(app|components|features)/.*\\.tsx$',
+          '^src/app/.*/route\\.ts$',
+          '^src/app/.*/actions\\.ts$',
+        ],
       },
       to: {
         path: '^src/.*\\.contract\\.ts$',

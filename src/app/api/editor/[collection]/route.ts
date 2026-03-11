@@ -4,8 +4,10 @@ import {
   makeLoadEditorCollectionUseCase,
   makeSaveEditorCollectionUseCase,
 } from '@/app/[locale]/(admin)/editor/_features/editor.assemble'
-import { EditorVersionConflictError } from '@/lib/editor/editor.contract'
-import type { EditorCollectionId } from '@/lib/editor/editor.port'
+import {
+  EditorVersionConflictError,
+  type EditorCollectionId,
+} from '@/lib/editor/editor.port'
 
 export async function GET(
   _request: NextRequest,
