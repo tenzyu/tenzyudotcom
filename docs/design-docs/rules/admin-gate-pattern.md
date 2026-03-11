@@ -1,6 +1,6 @@
 ---
 title: AdminGate (Deferred Admin UI) Pattern
-impact: HIGH
+impact: CRITICAL
 impactDescription: SSG のパフォーマンスを損なうことなく、静的な公開ページに管理機能を統合する。
 tags: architecture, ssg, auth, hydration
 chapter: Implementation

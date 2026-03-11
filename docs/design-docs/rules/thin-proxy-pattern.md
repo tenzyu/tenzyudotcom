@@ -12,7 +12,7 @@ Next.js の `proxy.ts` (旧 Middleware) と Server Components 間の役割分担
 
 ## Principles
 
-1.  **Thin Proxy (Middleware層)**: 
+1.  **Thin Proxy (Proxy)**: 
     *   **役割**: 高速な交通整理とコンテキストの付与。
     *   **処理**: Cookie の「存在確認」や `x-pathname` の付与など、外部 I/O や重い計算（HMAC検証等）を伴わない軽量な処理のみを行う。
     *   **理由**: エッジでの実行速度を最大化し、すべてのリクエストに対するオーバーヘッドを最小限に抑えるため。
@@ -40,18 +40,19 @@ export function proxy(request: NextRequest) {
 **Correct:**
 
 ```tsx
-// proxy.ts (Middleware)
+// proxy.ts
 export function proxy(request: NextRequest) {
-  const response = NextResponse.next();
-  response.headers.set('x-pathname', request.nextUrl.pathname);
+  const { pathname } = request.nextUrl;
   // Cookieの有無だけ見て、詳細は SC に任せる
-  return response;
+  const sessionCookie = request.cookies.get("session_token")
+  const isAuthenticated = !!sessionCookie;
+  // ...
 }
 
 // Server Component / Logic
 export async function hasValidSession() {
   const h = await headers(); // Dynamic Rendering を強制
-  const token = (await cookies()).get('session');
+  const token = (await cookies()).get('session_token');
   return verifyHmac(token, SECRET); // ここで厳密に検証
 }
 ```
