@@ -23,7 +23,7 @@ export function PointersEditorDeferred({ locale }: PointersEditorDeferredProps) 
           entries: data.collection,
           version: data.version
         })
-      } catch (e) {
+      } catch (_e) {
         setError('Failed to load Pointers collection')
       }
     }

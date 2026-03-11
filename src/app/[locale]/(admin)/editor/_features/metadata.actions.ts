@@ -1,7 +1,5 @@
 'use server'
 
-import { requireEditorAdminSession } from './session'
-
 export async function fetchUrlMetadataAction(url: string) {
   try {
     // Basic validation

@@ -23,7 +23,7 @@ export function LinksEditorDeferred({ locale }: LinksEditorDeferredProps) {
           entries: data.collection,
           version: data.version
         })
-      } catch (e) {
+      } catch (_e) {
         setError('Failed to load Link collection')
       }
     }

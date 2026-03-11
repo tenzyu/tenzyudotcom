@@ -3,7 +3,7 @@ import { Content } from '@/components/site-ui/content'
 import { SectionHeader } from '@/components/site-ui/section-header'
 import { ItemGroup } from '@/components/ui/item'
 import { loadLinks } from '@/features/links/links.assemble'
-import { LINK_CATEGORY_ORDER, type LinkCategory } from './links.domain'
+import { LINK_CATEGORY_ORDER, type LinkCategory, type MyLink } from './links.domain'
 import { LinkTile } from './link-tile'
 import { AdminGate } from '@/app/[locale]/(admin)/editor/_features/admin-gate'
 import { LinksEditorDeferred } from '@/app/[locale]/(admin)/editor/_features/links-editor-deferred'
@@ -46,7 +46,10 @@ export async function LinkList() {
   )
 }
 
-function LinkListContent({ content, links }: { content: any, links: any[] }) {
+function LinkListContent({
+  content,
+  links,
+}: { content: any; links: readonly MyLink[] }) {
   const groupedLinks = LINK_CATEGORY_ORDER.map((category) => ({
     value: category,
     label: content.categories[CATEGORY_KEYS[category]],

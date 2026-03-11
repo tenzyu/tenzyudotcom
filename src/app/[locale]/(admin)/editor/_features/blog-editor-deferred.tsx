@@ -22,7 +22,7 @@ export function BlogEditorDeferred({ locale }: BlogEditorDeferredProps) {
         setState({
           posts: data.collection,
         })
-      } catch (e) {
+      } catch (_e) {
         setError('Failed to load Blog collection')
       }
     }

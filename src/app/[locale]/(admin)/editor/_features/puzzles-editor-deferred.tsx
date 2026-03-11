@@ -23,7 +23,7 @@ export function PuzzlesEditorDeferred({ locale }: PuzzlesEditorDeferredProps) {
           entries: data.collection,
           version: data.version
         })
-      } catch (e) {
+      } catch (_e) {
         setError('Failed to load Puzzles collection')
       }
     }

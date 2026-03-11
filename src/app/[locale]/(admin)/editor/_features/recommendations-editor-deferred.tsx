@@ -23,7 +23,7 @@ export function RecommendationsEditorDeferred({ locale }: RecommendationsEditorD
           entries: data.collection,
           version: data.version
         })
-      } catch (e) {
+      } catch (_e) {
         setError('Failed to load Recommendations collection')
       }
     }

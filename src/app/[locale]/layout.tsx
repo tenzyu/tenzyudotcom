@@ -17,7 +17,6 @@ import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { env, isDevelopment } from '@/config/env.contract'
 import { ThemeProvider } from '@/features/site-controls/theme-provider'
-import { EditorAdminTrigger } from './(admin)/editor/_features/admin-trigger'
 import { buildSiteMetadata } from './_features/site-metadata'
 import { buildSiteStructuredData } from './_features/site-structured-data'
 

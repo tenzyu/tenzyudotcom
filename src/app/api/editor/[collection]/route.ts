@@ -4,7 +4,7 @@ import { makeLoadEditorCollectionUseCase } from '@/app/[locale]/(admin)/editor/_
 import type { EditorCollectionId } from '@/lib/editor/editor.port'
 
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ collection: string }> }
 ) {
   const isAdmin = await hasEditorAdminSession()

@@ -18,7 +18,7 @@
     "format": "./scripts/biome format --write .",
     "test": "bun test",
     "test:contract": "bun test --test-name-pattern contract",
-    "verify:quick": "bun run lint && bun run lint:docs && bun run test:contracts",
+    "verify:quick": "bun run lint && bun run lint:docs && bun run test:contract",
     "verify": "bun run verify:quick && bun run build",
     "analyze": "next experimental-analyze"
   },

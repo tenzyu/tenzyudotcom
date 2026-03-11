@@ -36,7 +36,7 @@ type RecommendationsEditorClientProps = {
   initialEntries: RecommendationSourceEntry[]
   expectedVersion: string
   locale: string
-  previews: RecommendationPreview[]
+  previews?: RecommendationPreview[]
   labels: {
     addVideo: string
     addChannel: string
@@ -86,12 +86,12 @@ function createEmptyChannel(): RecommendationSourceChannelEntry {
 
 function buildInitialRows(
   initialEntries: RecommendationSourceEntry[],
-  previews: RecommendationPreview[],
+  previews?: RecommendationPreview[],
 ): RecommendationEditorRow[] {
   return initialEntries.map((entry, index) => ({
     id: `recommendation-row-${index}`,
     entry,
-    preview: previews[index],
+    preview: previews?.[index],
   }))
 }
 
