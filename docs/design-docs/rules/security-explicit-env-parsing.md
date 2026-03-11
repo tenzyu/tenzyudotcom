@@ -1,14 +1,15 @@
 ---
-title: "Security: Env Parsing & Centralization"
+title: "Security: Explicit Env Parsing & Centralization"
 impact: CRITICAL
 impactDescription: ブラウザへの機密情報の漏洩を防ぎ、すべての環境変数の型安全性を確保する。
 tags: security, environment, env-contract
 chapter: Security & Safety
 ---
 
-# Security: Env Parsing & Centralization
+# Security: Explicit Env Parsing & Centralization
 
-環境変数は `src/config/` 内の `env.contract.ts` などで一括してパース・検証を行う。
+外部ライブラリ（Vercel Blob, YouTube API 等）を呼び出す際、ライブラリ内部の暗黙的な環境変数参照（`process.env`）に頼らず、Infrastructure 層（`contract`）において `src/config/env.contract.ts` からパース済みの値を明示的に渡す。
+
 `process.env` を複数ファイルから直接参照することを禁止し、機密情報の露出を最小化する。
 
 - **接頭辞 `NEXT_PUBLIC_`**: クライアント側（ブラウザ）に露出しても安全なもの。
