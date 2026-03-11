@@ -1,7 +1,10 @@
 import { useIntlayer } from 'next-intlayer/server'
 import { CustomMDX } from '../../_features/custom-mdx'
 import { formatDate } from '../../_features/format-date'
-import { type BlogPost, buildBlogPostStructuredData } from './lib/blog-post'
+import {
+  type BlogPost,
+  buildBlogPostStructuredData,
+} from '../../_features/blog.assemble'
 
 type BlogPostPageContentProps = {
   locale: string

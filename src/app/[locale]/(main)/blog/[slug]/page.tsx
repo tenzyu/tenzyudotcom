@@ -5,7 +5,7 @@ import {
   buildBlogPostMetadata,
   getBlogPostBySlug,
   getBlogStaticParams,
-} from './_features/lib/blog-post'
+} from '../_features/blog.assemble'
 
 export const dynamicParams = false
 

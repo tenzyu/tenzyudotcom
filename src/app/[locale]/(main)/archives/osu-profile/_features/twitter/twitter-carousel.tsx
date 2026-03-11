@@ -1,6 +1,6 @@
 import { useIntlayer } from 'next-intlayer/server'
 import { Content } from '@/components/site-ui/content'
-import type { TweetData } from '../data/twitter'
+import type { TweetData } from '../twitter.source'
 import { TwitterCarouselClient } from './twitter-carousel-client'
 
 type TwitterCarouselProps = {

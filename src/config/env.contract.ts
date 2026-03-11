@@ -65,22 +65,24 @@ const readNodeEnv = (): NodeEnv => {
 
 export const env = {
   nodeEnv: readNodeEnv(),
+  siteUrl: readOptionalString('SITE_URL') ?? 'https://tenzyu.com',
   enableReactGrabOverlay: readBooleanFlag('ENABLE_REACT_GRAB_OVERLAY'),
   reactEditor: readOptionalString('REACT_EDITOR'),
   youtubeDataApiKey: readOptionalString('YOUTUBE_DATA_API_KEY'),
   osuClientId: readOptionalInteger('OSU_CLIENT_ID'),
   osuClientSecret: readOptionalString('OSU_CLIENT_SECRET'),
-  editorialAdminPassword: readOptionalString('EDITORIAL_ADMIN_PASSWORD'),
-  editorialSessionSecret: readOptionalString('EDITORIAL_SESSION_SECRET'),
-  editorialStorageDriver:
-    readOptionalEnum('EDITORIAL_STORAGE_DRIVER', ['local', 'blob'] as const) ??
+  editorAdminPassword: readOptionalString('EDITOR_ADMIN_PASSWORD'),
+  editorSessionSecret: readOptionalString('EDITOR_SESSION_SECRET'),
+  editorStorageDriver:
+    readOptionalEnum('EDITOR_STORAGE_DRIVER', ['local', 'blob'] as const) ??
     'local',
-  editorialBlobPrefix: readOptionalString('EDITORIAL_BLOB_PREFIX') ?? 'editorial',
+  blobReadWriteToken: readOptionalString('BLOB_READ_WRITE_TOKEN'),
 } as const
 
 export const isDevelopment = env.nodeEnv === 'development'
 export const isProduction = env.nodeEnv === 'production'
-export const isEditorialBlobStorage = env.editorialStorageDriver === 'blob'
+export const isEditorBlobStorage =
+  env.editorStorageDriver === 'blob' && !!env.blobReadWriteToken
 
 export const getRequiredOsuApiCredentials = () => {
   if (!env.osuClientId || !env.osuClientSecret) {
@@ -95,15 +97,15 @@ export const getRequiredOsuApiCredentials = () => {
   }
 }
 
-export const getRequiredEditorialAdminCredentials = () => {
-  if (!env.editorialAdminPassword || !env.editorialSessionSecret) {
+export const getRequiredEditorAdminCredentials = () => {
+  if (!env.editorAdminPassword || !env.editorSessionSecret) {
     throw new Error(
-      'Editorial admin credentials are missing. Please set EDITORIAL_ADMIN_PASSWORD and EDITORIAL_SESSION_SECRET.',
+      'Editor admin credentials are missing. Please set EDITOR_ADMIN_PASSWORD and EDITOR_SESSION_SECRET.',
     )
   }
 
   return {
-    password: env.editorialAdminPassword,
-    sessionSecret: env.editorialSessionSecret,
+    password: env.editorAdminPassword,
+    sessionSecret: env.editorSessionSecret,
   }
 }

@@ -2,7 +2,7 @@ import type { LocalPromiseParams } from 'next-intlayer'
 import { IntlayerServerProvider } from 'next-intlayer/server'
 import { createPageMetadata, resolvePageLocale } from '@/lib/intlayer/page'
 import { BlogPageContent } from './_features/blog-page-content'
-import { getPaginatedBlogPosts } from './_features/lib/get-paginated-blog-posts'
+import { assemblePaginatedBlogPosts } from './_features/blog.assemble'
 
 export const dynamic = 'force-static'
 
@@ -18,7 +18,7 @@ type PageProps = LocalPromiseParams & {
 
 export default async function Page({ params, searchParams }: PageProps) {
   const locale = await resolvePageLocale(params)
-  const { currentPage, pageItems, totalPages } = await getPaginatedBlogPosts(
+  const { currentPage, pageItems, totalPages } = await assemblePaginatedBlogPosts(
     searchParams?.page,
   )
 

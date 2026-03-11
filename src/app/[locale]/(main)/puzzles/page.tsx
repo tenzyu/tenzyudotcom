@@ -1,7 +1,7 @@
 import type { NextPageIntlayer } from 'next-intlayer'
 import { IntlayerServerProvider } from 'next-intlayer/server'
 import { createPageMetadata, resolvePageLocale } from '@/lib/intlayer/page'
-import { getPuzzleCategoriesWithOgp } from './_features/lib/get-puzzle-categories-with-ogp'
+import { getPuzzleCategoriesWithOgp } from './_features/get-puzzle-categories-with-ogp'
 import { PuzzlesPageContent } from './_features/puzzles-page-content'
 
 export const dynamic = 'force-static'

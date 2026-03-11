@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test'
-import { compareNotesByCreatedAtDesc } from './notes.assemble'
+import { compareNotesByCreatedAtDesc } from './notes.domain'
 
 describe('compareNotesByCreatedAtDesc', () => {
   test('sorts by parsed timestamps instead of raw ISO strings', () => {

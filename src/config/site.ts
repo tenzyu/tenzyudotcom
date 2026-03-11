@@ -1,4 +1,6 @@
-export const BASE_URL = 'https://tenzyu.com' as const
+import { env } from '@/config/env.contract'
+
+export const BASE_URL = env.siteUrl
 export const SITE_NAME = 'tenzyu.com' as const
 export const SITE_AUTHOR_NAME = 'tenzyu' as const
 export const SITE_PUBLISHER_NAME = 'tenzyu.com' as const

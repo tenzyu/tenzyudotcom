@@ -4,23 +4,19 @@ import {
 } from '@/features/youtube/youtube.contract'
 import { normalizeExternalUrl } from '@/lib/url/external-url.contract'
 import { z } from 'zod'
-
-export type RecommendationTabId = 'music' | 'channels'
-
-type RecommendationChannel = {
-  title: string
-  handle: string
-  url: string
-}
-
-type RecommendationVideo = {
-  id: string
-}
-
-type RecommendationTab = {
-  id: RecommendationTabId
-  disabled?: boolean
-}
+import { editorRepository } from '@/lib/editor/editor.contract'
+import {
+  withLocales,
+  type EditorCollectionDescriptor,
+} from '@/lib/editor/editor.port'
+import type {
+  RecommendationChannel,
+  RecommendationSourceEntry,
+  RecommendationTab,
+  RecommendationVideo,
+} from './recommendations.domain'
+import type { RecommendationsRepository } from './recommendations.port'
+export { isRecommendationTabId } from './recommendations.domain'
 
 const LocalizedTextSchema = z.object({
   ja: z.string().trim().min(1),
@@ -184,8 +180,22 @@ export function parseRecommendationSourceEntries(raw: unknown) {
   return entries
 }
 
-export function isRecommendationTabId(
-  value: string | null,
-): value is RecommendationTabId {
-  return value === 'music' || value === 'channels'
+export const RECOMMENDATIONS_COLLECTION_DESCRIPTOR: EditorCollectionDescriptor<'recommendations'> = {
+  id: 'recommendations',
+  label: 'Recommendations',
+  storagePath: 'editor/recommendations.json',
+  publicPaths: withLocales('/recommendations'),
+  getDefaultValue: () => [],
+  parse: parseRecommendationSourceEntries,
 }
+
+export class EditorRecommendationsRepository implements RecommendationsRepository {
+  async loadAll(): Promise<readonly RecommendationSourceEntry[]> {
+    const { collection } = await editorRepository.loadState(
+      RECOMMENDATIONS_COLLECTION_DESCRIPTOR,
+    )
+    return collection
+  }
+}
+
+export const recommendationsRepository = new EditorRecommendationsRepository()

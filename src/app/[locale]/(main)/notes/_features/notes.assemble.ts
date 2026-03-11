@@ -1,5 +1,8 @@
 import { cache } from 'react'
-import { loadEditorialCollection } from '@/lib/editorial/storage'
+import { compareNotesByCreatedAtDesc } from './notes.domain'
+import type { NoteSourceEntry } from './notes.domain'
+import type { NotesRepository } from './notes.port'
+import { notesRepository } from './notes.contract'
 
 type NotePageItem = {
   body: string
@@ -7,21 +10,23 @@ type NotePageItem = {
   externalUrl?: string
 }
 
-type NoteTimestampedEntry = {
-  createdAt: string
+export class LoadNotesUseCase {
+  constructor(private repository: NotesRepository) {}
+
+  async execute(): Promise<readonly NoteSourceEntry[]> {
+    const entries = await this.repository.loadAll()
+    return entries.filter((entry) => entry.published !== false)
+  }
+}
+
+export function makeLoadNotesUseCase() {
+  return new LoadNotesUseCase(notesRepository)
 }
 
 const loadNoteSourceEntries = cache(async () => {
-  const entries = await loadEditorialCollection('notes')
-  return entries.filter((entry) => entry.published !== false)
+  const useCase = makeLoadNotesUseCase()
+  return useCase.execute()
 })
-
-export function compareNotesByCreatedAtDesc(
-  a: NoteTimestampedEntry,
-  b: NoteTimestampedEntry,
-) {
-  return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-}
 
 export async function assembleNotesPageData(
   locale: string,

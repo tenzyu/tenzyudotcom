@@ -4,7 +4,7 @@ import { SectionHeader } from '@/components/site-ui/section-header'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { PORTFOLIO_PROJECTS } from '../_data/portfolio'
+import { PORTFOLIO_PROJECTS } from './portfolio.source'
 
 export function ProjectsSection() {
   const content = useIntlayer('page-portfolio')

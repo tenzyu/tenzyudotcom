@@ -1,16 +1,13 @@
 import { normalizeExternalUrl } from '@/lib/url/external-url.contract'
 import { z } from 'zod'
-
-export type LinkCategory = 'Watch' | 'Social' | 'Build' | 'Legacy'
-
-export type MyLink = {
-  name: string
-  id: string
-  url: string
-  shortenUrl: string
-  icon: string
-  category: LinkCategory
-}
+import { editorRepository } from '@/lib/editor/editor.contract'
+import {
+  LOCALE_PREFIXES,
+  withLocales,
+  type EditorCollectionDescriptor,
+} from '@/lib/editor/editor.port'
+import type { MyLink } from './links.domain'
+import type { LinksRepository } from './links.port'
 
 const LinkSourceEntrySchema = z.object({
   name: z.string().trim().min(1),
@@ -58,3 +55,29 @@ export function parseLinkSourceEntries(raw: unknown) {
   const links = z.array(LinkSourceEntrySchema).parse(raw)
   return defineLinks(links)
 }
+
+export const LINKS_COLLECTION_DESCRIPTOR: EditorCollectionDescriptor<'links'> = {
+  id: 'links',
+  label: 'Links',
+  storagePath: 'editor/links.json',
+  publicPaths: [
+    ...withLocales('/links'),
+    ...LOCALE_PREFIXES.map((locale) => ({
+      path: `${locale}/links/[shortUrl]`,
+      type: 'page' as const,
+    })),
+  ],
+  getDefaultValue: () => [],
+  parse: parseLinkSourceEntries,
+}
+
+export class EditorLinksRepository implements LinksRepository {
+  async loadAll(): Promise<readonly MyLink[]> {
+    const { collection } = await editorRepository.loadState(
+      LINKS_COLLECTION_DESCRIPTOR,
+    )
+    return collection
+  }
+}
+
+export const linksRepository = new EditorLinksRepository()

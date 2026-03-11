@@ -3,8 +3,9 @@
 
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/master";
   inputs.flake-utils.url = "github:numtide/flake-utils";
+  inputs.serena.url = "github:oraios/serena";
 
-  outputs = { self, nixpkgs, flake-utils }:
+  outputs = { self, nixpkgs, flake-utils, serena }:
     flake-utils.lib.eachDefaultSystem (system: let
       pkgs = nixpkgs.legacyPackages.${system};
       inherit (pkgs) importNpmLock;
@@ -16,12 +17,14 @@
           importNpmLock.hooks.linkNodeModulesHook
           pkgs.biome
           pkgs.bun
+          serena.packages.${system}.serena
         ];
         npmDeps = importNpmLock.buildNodeModules {
           inherit npmRoot nodejs;
         };
         shellHook = ''
           export BIOME_BIN="${pkgs.biome}/bin/biome"
+          source ./scripts/completion.sh
         '';
       };
       

@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 
-import { ID_OSU } from './data/osu'
+import { ID_OSU } from './osu.source'
 import { getUser } from './lib/getUser'
 
 const LoadingComponent = () => {

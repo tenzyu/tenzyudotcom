@@ -7,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import {
   PORTFOLIO_ABOUT_LINKS,
   PORTFOLIO_PROFILE_IMAGE_PATH,
-} from '../_data/portfolio'
+} from './portfolio.source'
 
 export function AboutMeSection() {
   const content = useIntlayer('page-portfolio')
