@@ -12,13 +12,14 @@ import type {
   EditorState,
   EditorCollectionDescriptor,
 } from './editor.port'
-import type { EditorCollectionData } from './editor.domain'
+import {
+  EditorStorageError,
+  EditorStorageNotFoundError,
+  EditorVersionConflictError,
+  type EditorCollectionData,
+} from './editor.domain'
 
 const LOCAL_STORAGE_DIR = join(process.cwd(), 'storage')
-
-export class EditorStorageError extends Error {}
-export class EditorStorageNotFoundError extends EditorStorageError {}
-export class EditorVersionConflictError extends EditorStorageError {}
 
 function getBlobPath<K extends EditorCollectionId>(descriptor: EditorCollectionDescriptor<K>) {
   return descriptor.storagePath

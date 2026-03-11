@@ -33,3 +33,7 @@ export type RevalidatePathTarget = {
   path: string
   type?: 'page' | 'layout'
 }
+
+export class EditorStorageError extends Error {}
+export class EditorStorageNotFoundError extends EditorStorageError {}
+export class EditorVersionConflictError extends EditorStorageError {}

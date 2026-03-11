@@ -5,22 +5,18 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
 import {
-  env,
-  getRequiredEditorAdminCredentials,
-} from '@/config/env.contract'
-import {
   EditorVersionConflictError,
-  editorRepository,
-} from '@/lib/editor/editor.contract'
+} from '@/lib/editor/editor.port'
 import {
+  makeSaveBlogPostUseCase,
   makeSaveEditorCollectionUseCase,
 } from './editor.assemble'
 import {
   clearEditorAdminSession,
   createEditorAdminSession,
   hasEditorAdminSession,
-  isValidEditorAdminPassword,
   requireEditorAdminSession,
+  verifyEditorAdminPassword,
 } from '@/features/admin/session'
 
 const LoginSchema = z.object({
@@ -60,12 +56,11 @@ export async function loginEditorAdminAction(formData: FormData) {
     password: formData.get('password'),
   })
 
-  if (!parsed.success || !env.editorAdminPassword) {
+  if (!parsed.success) {
     redirect(getLocalizedUrl('/editor/login?error=invalid', 'ja'))
   }
 
-  const { password } = getRequiredEditorAdminCredentials()
-  if (!isValidEditorAdminPassword(parsed.data.password, password)) {
+  if (!verifyEditorAdminPassword(parsed.data.password)) {
     // Artificial delay to deter brute force
     await new Promise((resolve) => setTimeout(resolve, 1000))
     redirect(
@@ -224,7 +219,8 @@ export async function saveBlogPostAction(formData: FormData) {
   }
 
   try {
-    await editorRepository.saveBlogPost(
+    const saveUseCase = makeSaveBlogPostUseCase()
+    await saveUseCase.execute(
       parsed.data.slug,
       frontmatter,
       parsed.data.body,

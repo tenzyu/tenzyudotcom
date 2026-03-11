@@ -129,6 +129,15 @@ export function isValidEditorAdminPassword(input: string, expected: string) {
   return timingSafeEqual(inputBuffer, expectedBuffer)
 }
 
+export function verifyEditorAdminPassword(input: string) {
+  try {
+    const { password } = getRequiredEditorAdminCredentials()
+    return isValidEditorAdminPassword(input, password)
+  } catch {
+    return false
+  }
+}
+
 export async function requireEditorAdminSession(locale: string) {
   if (!(await hasEditorAdminSession())) {
     redirect(getLocalizedUrl('/editor/login', locale))

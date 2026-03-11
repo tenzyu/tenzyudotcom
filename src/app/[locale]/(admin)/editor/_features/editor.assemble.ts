@@ -5,6 +5,7 @@ import type {
   EditorRepository,
   EditorState,
 } from '@/lib/editor/editor.port'
+import type { BlogFrontmatter } from '@/app/[locale]/(main)/blog/_features/blog.domain'
 import { getEditorCollectionDescriptor } from './editor.collections'
 import { editorRepository } from '@/lib/editor/editor.contract'
 
@@ -48,6 +49,24 @@ export class SaveEditorCollectionUseCase {
   }
 }
 
+export class SaveBlogPostUseCase {
+  constructor(private repository: EditorRepository) {}
+
+  async execute(
+    slug: string,
+    frontmatter: BlogFrontmatter,
+    body: string,
+    expectedVersion?: string,
+  ) {
+    await this.repository.saveBlogPost(
+      slug,
+      frontmatter,
+      body,
+      expectedVersion,
+    )
+  }
+}
+
 // Factories
 export function makeLoadEditorCollectionUseCase() {
   return new LoadEditorCollectionUseCase(editorRepository)
@@ -55,4 +74,8 @@ export function makeLoadEditorCollectionUseCase() {
 
 export function makeSaveEditorCollectionUseCase() {
   return new SaveEditorCollectionUseCase(editorRepository)
+}
+
+export function makeSaveBlogPostUseCase() {
+  return new SaveBlogPostUseCase(editorRepository)
 }

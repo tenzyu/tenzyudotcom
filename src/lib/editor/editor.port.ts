@@ -12,6 +12,7 @@ export type {
   EditorState,
   RevalidatePathTarget,
 } from './editor.domain'
+export { EditorVersionConflictError } from './editor.domain'
 
 export type EditorCollectionDescriptor<K extends EditorCollectionId> = {
   id: K
