@@ -9,7 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { EDITOR_ADMIN_LOCALE } from '@/features/admin/constants'
+import { EDITOR_ADMIN_LOCALE } from './editor-admin.constants'
 import {
   getEditorStorageDriver,
   usesEditorBlobStorage,

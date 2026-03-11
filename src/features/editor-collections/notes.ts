@@ -14,7 +14,7 @@ const NoteSourceEntrySchema = z.object({
   published: z.boolean().optional(),
 })
 
-export function parseNoteSourceEntries(raw: unknown) {
+function parseNoteSourceEntries(raw: unknown) {
   const entries = z.array(NoteSourceEntrySchema).parse(raw)
 
   for (const entry of entries) {

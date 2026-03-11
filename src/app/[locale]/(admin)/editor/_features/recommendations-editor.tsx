@@ -1,5 +1,5 @@
 import { useIntlayer } from 'next-intlayer/server'
-import { EDITOR_ADMIN_LOCALE } from '@/features/admin/constants'
+import { EDITOR_ADMIN_LOCALE } from './editor-admin.constants'
 import { normalizeRecommendationVideoSource } from '@/features/recommendations/recommendation-source.domain'
 import type { RecommendationSourceEntry } from '@/features/recommendations/recommendations.domain'
 import { fetchYouTubeVideoMeta } from '@/features/recommendations/youtube'

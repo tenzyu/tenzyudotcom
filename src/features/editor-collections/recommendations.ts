@@ -53,7 +53,7 @@ function assertUniqueStrings(
   }
 }
 
-export function defineRecommendationChannels<
+function defineRecommendationChannels<
   const T extends { title: string; handle: string; url: string },
 >(
   channels: readonly T[],
@@ -79,7 +79,7 @@ export function defineRecommendationChannels<
   return channels
 }
 
-export function defineRecommendationVideos<const T extends { id: string }>(
+function defineRecommendationVideos<const T extends { id: string }>(
   videos: readonly T[],
 ): readonly T[] {
   assertUniqueStrings(
@@ -94,18 +94,29 @@ export function defineRecommendationVideos<const T extends { id: string }>(
   return videos
 }
 
-export function defineRecommendationTabs<const T extends { id: string }>(
-  tabs: readonly T[],
-): readonly T[] {
-  assertUniqueStrings(
-    tabs.map((tab) => tab.id),
-    'recommendation tab id',
-  )
-  return tabs
-}
-
-export function parseRecommendationSourceEntries(raw: unknown) {
+function parseRecommendationSourceEntries(raw: unknown) {
   const entries = z.array(RecommendationSourceEntrySchema).parse(raw)
+
+  defineRecommendationChannels(
+    entries
+      .filter((entry) => entry.kind === 'youtube-channel')
+      .map((entry) => ({
+        title: entry.title,
+        handle: entry.handle,
+        url: entry.url,
+      })),
+  )
+
+  defineRecommendationVideos(
+    entries
+      .filter((entry) => entry.kind === 'youtube-video')
+      .map((entry) => ({
+        id: normalizeRecommendationVideoSource(
+          entry.sourceUrl,
+          `recommendation video source (${entry.sourceUrl})`,
+        ),
+      })),
+  )
 
   for (const entry of entries) {
     if (entry.kind === 'youtube-video') {

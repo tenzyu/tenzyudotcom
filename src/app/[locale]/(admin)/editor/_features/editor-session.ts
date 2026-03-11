@@ -118,7 +118,7 @@ export async function hasEditorAdminSession() {
   }
 }
 
-export function isValidEditorAdminPassword(input: string, expected: string) {
+function isValidEditorAdminPassword(input: string, expected: string) {
   const inputBuffer = Buffer.from(input)
   const expectedBuffer = Buffer.from(expected)
 

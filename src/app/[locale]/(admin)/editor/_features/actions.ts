@@ -17,7 +17,7 @@ import {
   hasEditorAdminSession,
   requireEditorAdminSession,
   verifyEditorAdminPassword,
-} from '@/features/admin/session'
+} from './editor-session'
 
 const LoginSchema = z.object({
   locale: z.string().trim().min(2),

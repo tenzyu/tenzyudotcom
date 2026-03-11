@@ -48,7 +48,7 @@ function assertDashboardUrl(
   normalizeExternalUrl(url, label)
 }
 
-export function defineDashboardCategories<const T extends {
+function defineDashboardCategories<const T extends {
   id: string
   links: readonly { id: string; url: string; isApp?: boolean }[]
 }>(
@@ -83,20 +83,9 @@ export function defineDashboardCategories<const T extends {
   return categories
 }
 
-export function parseDashboardSourceCategories(raw: unknown) {
+function parseDashboardSourceCategories(raw: unknown) {
   const categories = z.array(DashboardSourceCategorySchema).parse(raw)
-
-  for (const category of categories) {
-    for (const link of category.links) {
-      assertDashboardUrl(
-        link.url,
-        link.isApp,
-        `dashboard source url for ${category.id}/${link.id}`,
-      )
-    }
-  }
-
-  return categories
+  return defineDashboardCategories(categories)
 }
 
 export const POINTERS_COLLECTION_DESCRIPTOR: EditorCollectionDescriptor<'pointers'> = {

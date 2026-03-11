@@ -2,7 +2,7 @@ import { useIntlayer } from 'next-intlayer/server'
 import { Content } from '@/components/site-ui/content'
 import { PageHeader } from '@/components/site-ui/page-header'
 import { Button } from '@/components/ui/button'
-import { EDITOR_ADMIN_LOCALE } from '@/features/admin/constants'
+import { EDITOR_ADMIN_LOCALE } from './editor-admin.constants'
 import { loginEditorAdminAction } from './actions'
 import { isEditorLoginConfigured } from './editor-config.assemble'
 

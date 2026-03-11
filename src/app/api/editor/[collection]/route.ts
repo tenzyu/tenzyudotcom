@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from 'next/server'
-import { hasEditorAdminSession } from '@/features/admin/session'
+import { hasEditorAdminSession } from '@/app/[locale]/(admin)/editor/_features/editor-session'
 import {
   makeLoadEditorCollectionUseCase,
   makeSaveEditorCollectionUseCase,

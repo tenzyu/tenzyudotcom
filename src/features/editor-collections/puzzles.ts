@@ -27,7 +27,7 @@ function assertNonEmpty(value: string, label: string) {
   }
 }
 
-export function definePuzzleCategories<const T extends {
+function definePuzzleCategories<const T extends {
   id: string
   puzzles: readonly {
     title: string
@@ -72,7 +72,7 @@ export function definePuzzleCategories<const T extends {
   return categories
 }
 
-export function parsePuzzleSourceCategories(raw: unknown) {
+function parsePuzzleSourceCategories(raw: unknown) {
   const categories = z.array(PuzzleCategorySchema).parse(raw)
   return definePuzzleCategories(categories)
 }
