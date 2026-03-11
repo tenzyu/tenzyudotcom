@@ -7,7 +7,6 @@ import { LINK_CATEGORY_ORDER, type LinkCategory, type MyLink } from './links.dom
 import { LinkTile } from './link-tile'
 import { AdminGate } from '@/features/admin/admin-gate'
 import { LinksEditorDeferred } from '@/app/[locale]/(admin)/editor/_features/links-editor-deferred'
-import { EditorAdminTrigger } from '@/features/admin/admin-trigger'
 
 const CATEGORY_KEYS: Record<
   LinkCategory,
@@ -38,10 +37,6 @@ export async function LinkList() {
       </AdminGate>
 
       <LinkListContent content={content} links={links} />
-
-      <AdminGate>
-        <EditorAdminTrigger locale={locale || 'ja'} collectionId="links" />
-      </AdminGate>
     </>
   )
 }

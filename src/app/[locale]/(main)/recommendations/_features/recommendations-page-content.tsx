@@ -10,7 +10,6 @@ import { YouTubePlaylist } from './youtube-playlist'
 import { AdminGate } from '@/features/admin/admin-gate'
 import { RecommendationsEditorDeferred } from '@/app/[locale]/(admin)/editor/_features/recommendations-editor-deferred'
 import { Content } from '@/components/site-ui/content'
-import { EditorAdminTrigger } from '@/features/admin/admin-trigger'
 
 type RecommendationsPageContentProps = RecommendationsPageData
 
@@ -71,10 +70,6 @@ export async function RecommendationsPageContent({
           />
         </TabsContent>
       </RecommendationTabs>
-
-      <AdminGate>
-        <EditorAdminTrigger locale={locale || 'ja'} collectionId="recommendations" />
-      </AdminGate>
     </>
   )
 }

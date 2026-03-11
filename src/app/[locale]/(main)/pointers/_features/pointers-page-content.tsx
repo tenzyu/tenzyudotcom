@@ -7,7 +7,6 @@ import { assembleDashboardContent } from './dashboard/dashboard.assemble'
 import { AdminGate } from '@/features/admin/admin-gate'
 import { PointersEditorDeferred } from '@/app/[locale]/(admin)/editor/_features/pointers-editor-deferred'
 import { Content } from '@/components/site-ui/content'
-import { EditorAdminTrigger } from '@/features/admin/admin-trigger'
 
 export async function PointersPageContent() {
   const pageContent = useIntlayer('page-pointers')
@@ -57,10 +56,6 @@ export async function PointersPageContent() {
           </section>
         ))}
       </div>
-
-      <AdminGate>
-        <EditorAdminTrigger locale={locale || 'ja'} collectionId="pointers" />
-      </AdminGate>
     </>
   )
 }

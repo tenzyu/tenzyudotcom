@@ -14,7 +14,6 @@ import type { BlogListItem } from './blog.assemble'
 import { AdminGate } from '@/features/admin/admin-gate'
 import { BlogEditorDeferred } from '@/app/[locale]/(admin)/editor/_features/blog-editor-deferred'
 import { Content } from '@/components/site-ui/content'
-import { EditorAdminTrigger } from '@/features/admin/admin-trigger'
 
 type BlogPageContentProps = {
   currentPage: number
@@ -65,10 +64,6 @@ export async function BlogPageContent({
           />
         ))}
       </div>
-
-      <AdminGate>
-        <EditorAdminTrigger locale={locale} collectionId="blog" />
-      </AdminGate>
 
       {totalPages > 1 ? (
         <Pagination

@@ -5,7 +5,6 @@ import { Card, CardContent } from '@/components/ui/card'
 import { AdminGate } from '@/features/admin/admin-gate'
 import { NotesEditorDeferred } from '@/app/[locale]/(admin)/editor/_features/notes-editor-deferred'
 import { Content } from '@/components/site-ui/content'
-import { EditorAdminTrigger } from '@/features/admin/admin-trigger'
 
 type NotesPageContentProps = {
   notes: {
@@ -67,10 +66,6 @@ export async function NotesPageContent({ notes }: NotesPageContentProps) {
           </Card>
         ))}
       </div>
-
-      <AdminGate>
-        <EditorAdminTrigger locale={locale || 'ja'} collectionId="notes" />
-      </AdminGate>
     </>
   )
 }
