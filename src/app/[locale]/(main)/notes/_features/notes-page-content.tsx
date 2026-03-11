@@ -2,10 +2,10 @@ import { useIntlayer, useLocale } from 'next-intlayer/server'
 import { ExternalLink } from '@/components/site-ui/external-link'
 import { PageHeader } from '@/components/site-ui/page-header'
 import { Card, CardContent } from '@/components/ui/card'
-import { AdminGate } from '@/app/[locale]/(admin)/editor/_features/admin-gate'
+import { AdminGate } from '@/features/admin/admin-gate'
 import { NotesEditorDeferred } from '@/app/[locale]/(admin)/editor/_features/notes-editor-deferred'
 import { Content } from '@/components/site-ui/content'
-import { EditorAdminTrigger } from '@/app/[locale]/(admin)/editor/_features/admin-trigger'
+import { EditorAdminTrigger } from '@/features/admin/admin-trigger'
 
 type NotesPageContentProps = {
   notes: {

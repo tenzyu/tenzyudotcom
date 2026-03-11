@@ -1,6 +1,6 @@
 import { useIntlayer } from 'next-intlayer/server'
 import type { MyLink } from '@/features/links/links.domain'
-import { EDITOR_ADMIN_LOCALE } from './constants'
+import { EDITOR_ADMIN_LOCALE } from '@/features/admin/constants'
 import { LinksEditorClient } from './links-editor-client'
 
 export function LinksEditor({

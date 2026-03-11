@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation'
 import type { EditorCollectionId } from '@/lib/editor/editor.port'
 import { resolvePageLocale } from '@/lib/intlayer/page'
 import { EditorCollectionEditor } from '../_features/editor'
-import { requireEditorAdminSession } from '../_features/session'
+import { requireEditorAdminSession } from '@/features/admin/session'
 
 export const dynamic = 'force-dynamic'
 

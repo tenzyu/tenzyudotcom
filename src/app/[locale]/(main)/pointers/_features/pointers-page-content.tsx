@@ -4,10 +4,10 @@ import { PageHeader } from '@/components/site-ui/page-header'
 import { SectionHeader } from '@/components/site-ui/section-header'
 import { ActionLinkTile } from './dashboard/action-link-tile'
 import { assembleDashboardContent } from './dashboard/dashboard.assemble'
-import { AdminGate } from '@/app/[locale]/(admin)/editor/_features/admin-gate'
+import { AdminGate } from '@/features/admin/admin-gate'
 import { PointersEditorDeferred } from '@/app/[locale]/(admin)/editor/_features/pointers-editor-deferred'
 import { Content } from '@/components/site-ui/content'
-import { EditorAdminTrigger } from '@/app/[locale]/(admin)/editor/_features/admin-trigger'
+import { EditorAdminTrigger } from '@/features/admin/admin-trigger'
 
 export async function PointersPageContent() {
   const pageContent = useIntlayer('page-pointers')

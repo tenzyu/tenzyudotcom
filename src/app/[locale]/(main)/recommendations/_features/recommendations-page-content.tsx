@@ -7,10 +7,10 @@ import { RecommendationTabs } from './recommendation-tabs'
 import { RECOMMENDATION_TABS } from './recommendations.assemble'
 import { YouTubeChannelList } from './youtube-channel-list'
 import { YouTubePlaylist } from './youtube-playlist'
-import { AdminGate } from '@/app/[locale]/(admin)/editor/_features/admin-gate'
+import { AdminGate } from '@/features/admin/admin-gate'
 import { RecommendationsEditorDeferred } from '@/app/[locale]/(admin)/editor/_features/recommendations-editor-deferred'
 import { Content } from '@/components/site-ui/content'
-import { EditorAdminTrigger } from '@/app/[locale]/(admin)/editor/_features/admin-trigger'
+import { EditorAdminTrigger } from '@/features/admin/admin-trigger'
 
 type RecommendationsPageContentProps = RecommendationsPageData
 

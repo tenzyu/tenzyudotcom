@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { hasEditorAdminSession } from '@/app/[locale]/(admin)/editor/_features/session'
+import { hasEditorAdminSession } from '@/features/admin/session'
 
 export async function GET() {
   const isAdmin = await hasEditorAdminSession()

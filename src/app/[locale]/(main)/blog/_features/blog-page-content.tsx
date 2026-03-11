@@ -11,10 +11,10 @@ import {
 } from '@/components/ui/pagination'
 import { BlogTile } from './blog-tile'
 import type { BlogListItem } from './blog.assemble'
-import { AdminGate } from '@/app/[locale]/(admin)/editor/_features/admin-gate'
+import { AdminGate } from '@/features/admin/admin-gate'
 import { BlogEditorDeferred } from '@/app/[locale]/(admin)/editor/_features/blog-editor-deferred'
 import { Content } from '@/components/site-ui/content'
-import { EditorAdminTrigger } from '@/app/[locale]/(admin)/editor/_features/admin-trigger'
+import { EditorAdminTrigger } from '@/features/admin/admin-trigger'
 
 type BlogPageContentProps = {
   currentPage: number

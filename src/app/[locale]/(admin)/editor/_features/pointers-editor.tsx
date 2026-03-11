@@ -1,6 +1,6 @@
 import { useIntlayer } from 'next-intlayer/server'
 import type { DashboardSourceCategory } from '@/app/[locale]/(main)/pointers/_features/dashboard/dashboard.domain'
-import { EDITOR_ADMIN_LOCALE } from './constants'
+import { EDITOR_ADMIN_LOCALE } from '@/features/admin/constants'
 import { PointersEditorClient } from './pointers-editor-client'
 
 export function PointersEditor({

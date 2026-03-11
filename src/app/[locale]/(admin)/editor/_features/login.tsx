@@ -4,7 +4,7 @@ import { PageHeader } from '@/components/site-ui/page-header'
 import { Button } from '@/components/ui/button'
 import { env } from '@/config/env.contract'
 import { loginEditorAdminAction } from './actions'
-import { EDITOR_ADMIN_LOCALE } from './constants'
+import { EDITOR_ADMIN_LOCALE } from '@/features/admin/constants'
 
 export function EditorLogin({
   locale,

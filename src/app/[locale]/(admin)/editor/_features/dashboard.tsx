@@ -12,7 +12,7 @@ import {
 import { env, isEditorBlobStorage } from '@/config/env.contract'
 import { listEditorCollectionDescriptors } from '@/lib/editor/editor.contract'
 import { logoutEditorAdminAction } from './actions'
-import { EDITOR_ADMIN_LOCALE } from './constants'
+import { EDITOR_ADMIN_LOCALE } from '@/features/admin/constants'
 
 export function EditorDashboard({ locale }: { locale: string }) {
   const content = useIntlayer('editorAdmin', EDITOR_ADMIN_LOCALE)

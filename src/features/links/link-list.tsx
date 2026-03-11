@@ -5,9 +5,9 @@ import { ItemGroup } from '@/components/ui/item'
 import { loadLinks } from '@/features/links/links.assemble'
 import { LINK_CATEGORY_ORDER, type LinkCategory, type MyLink } from './links.domain'
 import { LinkTile } from './link-tile'
-import { AdminGate } from '@/app/[locale]/(admin)/editor/_features/admin-gate'
+import { AdminGate } from '@/features/admin/admin-gate'
 import { LinksEditorDeferred } from '@/app/[locale]/(admin)/editor/_features/links-editor-deferred'
-import { EditorAdminTrigger } from '@/app/[locale]/(admin)/editor/_features/admin-trigger'
+import { EditorAdminTrigger } from '@/features/admin/admin-trigger'
 
 const CATEGORY_KEYS: Record<
   LinkCategory,

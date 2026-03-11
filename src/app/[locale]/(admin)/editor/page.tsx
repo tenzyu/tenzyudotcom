@@ -1,5 +1,5 @@
 import { EditorDashboard } from './_features/dashboard'
-import { requireEditorAdminSession } from './_features/session'
+import { requireEditorAdminSession } from '@/features/admin/session'
 import { resolvePageLocale } from '@/lib/intlayer/page'
 
 export const dynamic = 'force-dynamic'
@@ -14,9 +14,7 @@ export async function generateMetadata() {
   }
 }
 
-export default async function EditorDashboardPage({
-  params,
-}: {
+export default async function EditorDashboardPage({ params }: {
   params: Promise<{ locale: string }>
 }) {
   const locale = await resolvePageLocale(params)

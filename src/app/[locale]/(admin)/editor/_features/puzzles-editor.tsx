@@ -1,6 +1,6 @@
 import { useIntlayer } from 'next-intlayer/server'
 import type { PuzzleCategory } from '@/app/[locale]/(main)/puzzles/_features/puzzles.domain'
-import { EDITOR_ADMIN_LOCALE } from './constants'
+import { EDITOR_ADMIN_LOCALE } from '@/features/admin/constants'
 import { PuzzlesEditorClient } from './puzzles-editor-client'
 
 export function PuzzlesEditor({
