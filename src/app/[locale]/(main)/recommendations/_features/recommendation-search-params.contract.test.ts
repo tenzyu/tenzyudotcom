@@ -4,7 +4,7 @@ import {
   DEFAULT_RECOMMENDATION_TAB,
   parseRecommendationTabParam,
   RECOMMENDATION_TAB_PARAM,
-} from './recommendation-search-params.contract'
+} from './recommendation-search-params.domain'
 
 describe('recommendation search params contract', () => {
   test('falls back to the default tab for unknown values', () => {

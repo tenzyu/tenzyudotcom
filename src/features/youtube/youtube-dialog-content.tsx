@@ -1,7 +1,7 @@
 import { VisuallyHidden } from 'radix-ui'
 import { DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { cn } from '@/lib/utils/common'
-import { buildYouTubeEmbedUrl } from './youtube.contract'
+import { buildYouTubeEmbedUrl } from './youtube.domain'
 
 type YouTubeDialogContentProps = {
   videoId: string

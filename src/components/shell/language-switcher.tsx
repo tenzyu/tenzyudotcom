@@ -4,7 +4,6 @@ import { getLocaleName, getLocalizedUrl } from 'intlayer'
 import { ChevronDown, Globe } from 'lucide-react'
 import Link from 'next/link'
 import { useIntlayer, useLocale } from 'next-intlayer'
-
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,

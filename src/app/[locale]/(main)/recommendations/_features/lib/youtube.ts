@@ -4,7 +4,7 @@ import 'server-only'
 
 import { cache } from 'react'
 import { env } from '@/config/env.contract'
-import { normalizeYouTubeVideoId } from '@/features/youtube/youtube.contract'
+import { normalizeYouTubeVideoId } from '@/features/youtube/youtube.domain'
 import { RECOMMENDATIONS_REVALIDATE_SECONDS } from './recommendations.cache-policy'
 import { parseYouTubeVideoApiResponse } from './youtube.contract'
 

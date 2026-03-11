@@ -7,7 +7,7 @@ import {
   applyRecommendationTabParam,
   parseRecommendationTabParam,
   RECOMMENDATION_TAB_PARAM,
-} from './recommendation-search-params.contract'
+} from './recommendation-search-params.domain'
 import type { RecommendationTabId } from './recommendations.domain'
 
 type RecommendationTabsProps = {

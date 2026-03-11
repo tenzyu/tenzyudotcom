@@ -3,7 +3,7 @@ import {
   buildYouTubeEmbedUrl,
   buildYouTubeThumbnailUrl,
   normalizeYouTubeVideoId,
-} from './youtube.contract'
+} from './youtube.domain'
 
 describe('youtube.contract', () => {
   const videoId = 'dQw4w9WgXcQ'

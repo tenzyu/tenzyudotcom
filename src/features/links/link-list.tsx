@@ -1,12 +1,19 @@
+import { getLocalizedUrl } from 'intlayer'
+import Image from 'next/image'
+import Link from 'next/link'
 import { useIntlayer, useLocale } from 'next-intlayer/server'
 import { Content } from '@/components/site-ui/content'
 import { SectionHeader } from '@/components/site-ui/section-header'
-import { ItemGroup } from '@/components/ui/item'
+import {
+  Item,
+  ItemContent,
+  ItemDescription,
+  ItemGroup,
+  ItemMedia,
+  ItemTitle,
+} from '@/components/ui/item'
 import { loadLinks } from '@/features/links/links.assemble'
 import { LINK_CATEGORY_ORDER, type LinkCategory, type MyLink } from './links.domain'
-import { LinkTile } from './link-tile'
-import { AdminGate } from '@/features/admin/admin-gate'
-import { LinksEditorDeferred } from '@/app/[locale]/(admin)/editor/_features/links-editor-deferred'
 
 const CATEGORY_KEYS: Record<
   LinkCategory,
@@ -19,32 +26,7 @@ const CATEGORY_KEYS: Record<
 }
 export async function LinkList() {
   const content = useIntlayer('linksFeature')
-  const { locale } = useLocale()
   const links = await loadLinks()
-
-  return (
-    <>
-      <AdminGate>
-        <Content size="4xl" className="mb-12">
-          <div className="rounded-lg border-2 border-dashed p-4">
-            <p className="mb-4 text-center text-sm font-bold text-muted-foreground uppercase tracking-widest">
-              Admin View: Links
-            </p>
-            <LinksEditorDeferred locale={locale || 'ja'} />
-          </div>
-          <hr className="my-8" />
-        </Content>
-      </AdminGate>
-
-      <LinkListContent content={content} links={links} />
-    </>
-  )
-}
-
-function LinkListContent({
-  content,
-  links,
-}: { content: any; links: readonly MyLink[] }) {
   const groupedLinks = LINK_CATEGORY_ORDER.map((category) => ({
     value: category,
     label: content.categories[CATEGORY_KEYS[category]],
@@ -75,5 +57,48 @@ function LinkListContent({
           ),
       )}
     </Content>
+  )
+}
+
+function LinkIcon({ icon, alt }: { icon: string; alt: string }) {
+  return (
+    <Image
+      src={`/icons/${icon}.svg`}
+      width={28}
+      height={28}
+      alt={alt}
+      loading="lazy"
+      quality={75}
+    />
+  )
+}
+
+function LinkTile({ link }: { link: MyLink }) {
+  const content = useIntlayer('linksFeature')
+  const { locale } = useLocale()
+
+  return (
+    <Item asChild variant="card" className="w-full">
+      <Link
+        href={getLocalizedUrl(`/links/${link.shortenUrl}`, locale)}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={`${content.aria.visitPrefix.value} ${link.name} (${link.id})`}
+      >
+        <ItemMedia variant="avatar" className="dark:bg-secondary-foreground">
+          <LinkIcon
+            icon={link.icon}
+            alt={`${link.name} ${content.aria.iconSuffix.value}`}
+          />
+        </ItemMedia>
+
+        <ItemContent className="min-w-0 text-left">
+          <ItemTitle className="truncate text-sm">{link.name}</ItemTitle>
+          <ItemDescription className="truncate text-xs">
+            {link.id}
+          </ItemDescription>
+        </ItemContent>
+      </Link>
+    </Item>
   )
 }
