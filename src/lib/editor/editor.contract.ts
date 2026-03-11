@@ -1,123 +1,30 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
-import { parseNoteSourceEntries } from '@/app/[locale]/(main)/notes/_features/notes.contract'
-import { parseDashboardSourceCategories } from '@/app/[locale]/(main)/pointers/_features/dashboard/dashboard.contract'
-import { parsePuzzleSourceCategories } from '@/app/[locale]/(main)/puzzles/_features/puzzles.contract'
-import { parseRecommendationSourceEntries } from '@/app/[locale]/(main)/recommendations/_features/recommendations.contract'
-import { isEditorBlobStorage } from '@/config/env.contract'
-import { parseLinkSourceEntries } from '@/features/links/links.contract'
+import { isEditorBlobStorage, env } from '@/config/env.contract'
 import { get, list, put } from '@vercel/blob'
 import matter from 'gray-matter'
 import { loadBlogPosts } from '@/app/[locale]/(main)/blog/_features/blog.assemble'
-import type { BlogFrontmatter, MDXData } from '@/app/[locale]/(main)/blog/_features/blog.domain'
+import type { BlogFrontmatter } from '@/app/[locale]/(main)/blog/_features/blog.domain'
 import { createVersion } from '@/app/[locale]/(admin)/editor/_features/editor-utils'
 import type {
-  EditorCollectionData,
   EditorCollectionId,
   EditorRepository,
   EditorState,
-  RevalidatePathTarget,
+  EditorCollectionDescriptor,
 } from './editor.port'
+import type { EditorCollectionData } from './editor.domain'
 
 const LOCAL_STORAGE_DIR = join(process.cwd(), 'storage')
-
-export type EditorCollectionDescriptor<K extends EditorCollectionId> = {
-  id: K
-  label: string
-  storagePath: string
-  publicPaths: readonly RevalidatePathTarget[]
-  getDefaultValue: () => EditorCollectionData[K]
-  parse: (raw: unknown) => EditorCollectionData[K]
-}
-
-const LOCALE_PREFIXES = ['/ja', '/en'] as const
-
-function withLocales(pathname: string) {
-  return LOCALE_PREFIXES.map((locale) => ({
-    path: `${locale}${pathname}`,
-  })) satisfies readonly RevalidatePathTarget[]
-}
-
-export const EDITOR_COLLECTIONS: {
-  [K in EditorCollectionId]: EditorCollectionDescriptor<K>
-} = {
-  recommendations: {
-    id: 'recommendations',
-    label: 'Recommendations',
-    storagePath: 'editor/recommendations.json',
-    publicPaths: withLocales('/recommendations'),
-    getDefaultValue: () => [],
-    parse: parseRecommendationSourceEntries,
-  },
-  notes: {
-    id: 'notes',
-    label: 'Notes',
-    storagePath: 'editor/notes.json',
-    publicPaths: withLocales('/notes'),
-    getDefaultValue: () => [],
-    parse: parseNoteSourceEntries,
-  },
-  puzzles: {
-    id: 'puzzles',
-    label: 'Puzzles',
-    storagePath: 'editor/puzzles.json',
-    publicPaths: withLocales('/puzzles'),
-    getDefaultValue: () => [],
-    parse: parsePuzzleSourceCategories,
-  },
-  pointers: {
-    id: 'pointers',
-    label: 'Pointers',
-    storagePath: 'editor/pointers.json',
-    publicPaths: withLocales('/pointers'),
-    getDefaultValue: () => [],
-    parse: parseDashboardSourceCategories,
-  },
-  links: {
-    id: 'links',
-    label: 'Links',
-    storagePath: 'editor/links.json',
-    publicPaths: [
-      ...withLocales('/links'),
-      ...LOCALE_PREFIXES.map((locale) => ({
-        path: `${locale}/links/[shortUrl]`,
-        type: 'page' as const,
-      })),
-    ],
-    getDefaultValue: () => [],
-    parse: parseLinkSourceEntries,
-  },
-  blog: {
-    id: 'blog',
-    label: 'Blog',
-    storagePath: 'blog',
-    publicPaths: withLocales('/blog'),
-    getDefaultValue: () => [],
-    parse: (raw: unknown) => raw as MDXData[], // Not used for full array saving
-  },
-}
-
-export function getEditorCollectionDescriptor<
-  K extends EditorCollectionId,
->(id: K): EditorCollectionDescriptor<K> {
-  return EDITOR_COLLECTIONS[id]
-}
-
-export function listEditorCollectionDescriptors() {
-  return Object.values(EDITOR_COLLECTIONS)
-}
 
 export class EditorStorageError extends Error {}
 export class EditorStorageNotFoundError extends EditorStorageError {}
 export class EditorVersionConflictError extends EditorStorageError {}
 
-function getBlobPath(collectionId: EditorCollectionId) {
-  const descriptor = getEditorCollectionDescriptor(collectionId)
+function getBlobPath<K extends EditorCollectionId>(descriptor: EditorCollectionDescriptor<K>) {
   return descriptor.storagePath
 }
 
-function getLocalPath(collectionId: EditorCollectionId) {
-  const descriptor = getEditorCollectionDescriptor(collectionId)
+function getLocalPath<K extends EditorCollectionId>(descriptor: EditorCollectionDescriptor<K>) {
   return join(LOCAL_STORAGE_DIR, descriptor.storagePath)
 }
 
@@ -125,38 +32,40 @@ async function readJsonFromStream(stream: ReadableStream<Uint8Array>) {
   return new Response(stream).json()
 }
 
-async function readBlobCollection(collectionId: EditorCollectionId) {
-  const descriptor = getEditorCollectionDescriptor(collectionId)
-  const path = getBlobPath(collectionId)
+async function readBlobCollection<K extends EditorCollectionId>(
+  descriptor: EditorCollectionDescriptor<K>,
+) {
+  const path = getBlobPath(descriptor)
 
   // Find the blob by prefix to get the full URL
   const { blobs } = await list({
     prefix: path,
     limit: 1,
+    token: env.blobReadWriteToken,
   })
 
   const targetBlob = blobs.find((b) => b.pathname === path)
 
   if (!targetBlob) {
     throw new EditorStorageNotFoundError(
-      `Editor blob not found for ${collectionId} at path ${path}`,
+      `Editor blob not found for ${descriptor.id} at path ${path}`,
     )
   }
 
   const blob = await get(targetBlob.url, {
     access: 'public',
-    useCache: false,
+    token: env.blobReadWriteToken,
   })
 
   if (!blob) {
     throw new EditorStorageNotFoundError(
-      `Editor blob not found for ${collectionId}`,
+      `Editor blob not found for ${descriptor.id}`,
     )
   }
 
   if (blob.statusCode !== 200) {
     throw new EditorStorageError(
-      `Unexpected blob status for ${collectionId}: ${blob.statusCode}`,
+      `Unexpected blob status for ${descriptor.id}: ${blob.statusCode}`,
     )
   }
 
@@ -171,11 +80,11 @@ async function readBlobCollection(collectionId: EditorCollectionId) {
   }
 }
 
-async function readLocalCollection(collectionId: EditorCollectionId) {
-  const descriptor = getEditorCollectionDescriptor(collectionId)
-
+async function readLocalCollection<K extends EditorCollectionId>(
+  descriptor: EditorCollectionDescriptor<K>,
+) {
   try {
-    const serialized = await readFile(getLocalPath(collectionId), 'utf8')
+    const serialized = await readFile(getLocalPath(descriptor), 'utf8')
     const collection = descriptor.parse(JSON.parse(serialized))
 
     return {
@@ -191,7 +100,7 @@ async function readLocalCollection(collectionId: EditorCollectionId) {
       error.code === 'ENOENT'
     ) {
       throw new EditorStorageNotFoundError(
-        `Editor local file not found for ${collectionId}`,
+        `Editor local file not found for ${descriptor.id}`,
       )
     }
 
@@ -201,15 +110,13 @@ async function readLocalCollection(collectionId: EditorCollectionId) {
 
 export class DefaultEditorRepository implements EditorRepository {
   async loadState<K extends EditorCollectionId>(
-    collectionId: K,
+    descriptor: EditorCollectionDescriptor<K>,
   ): Promise<EditorState<K>> {
-    const descriptor = getEditorCollectionDescriptor(collectionId)
-
-    if (collectionId === 'blog') {
+    if (descriptor.id === 'blog') {
       const posts = await loadBlogPosts()
       // For blog, the 'version' of the whole collection is less useful than individual post versions,
       // but we provide a hash of the combined content for the collection state.
-      const combinedContent = posts.map(p => p.fullRawContent).join('')
+      const combinedContent = posts.map((p) => p.fullRawContent).join('')
       const version = createVersion(combinedContent)
       return {
         collection: posts as unknown as EditorCollectionData[K],
@@ -220,8 +127,8 @@ export class DefaultEditorRepository implements EditorRepository {
 
     try {
       const result = isEditorBlobStorage
-        ? await readBlobCollection(collectionId)
-        : await readLocalCollection(collectionId)
+        ? await readBlobCollection(descriptor)
+        : await readLocalCollection(descriptor)
 
       return {
         collection: result.collection as EditorCollectionData[K],
@@ -245,30 +152,30 @@ export class DefaultEditorRepository implements EditorRepository {
     }
   }
 
-  async save(
-    collectionId: EditorCollectionId,
+  async save<K extends EditorCollectionId>(
+    descriptor: EditorCollectionDescriptor<K>,
     rawJson: string,
     expectedVersion?: string,
   ): Promise<{ version: string }> {
-    const descriptor = getEditorCollectionDescriptor(collectionId)
     const parsed = descriptor.parse(JSON.parse(rawJson))
     const serialized = JSON.stringify(parsed, null, 2)
     const nextVersion = createVersion(serialized)
-    const currentState = await this.loadState(collectionId)
+    const currentState = await this.loadState(descriptor)
 
     if (expectedVersion && currentState.version !== expectedVersion) {
       throw new EditorVersionConflictError(
-        `Editor collection ${collectionId} has changed since it was loaded.`,
+        `Editor collection ${descriptor.id} has changed since it was loaded.`,
       )
     }
 
     if (isEditorBlobStorage) {
-      await put(getBlobPath(collectionId), serialized, {
+      await put(getBlobPath(descriptor), serialized, {
         access: 'public',
         addRandomSuffix: false,
         allowOverwrite: true,
         cacheControlMaxAge: 60,
         contentType: 'application/json',
+        token: env.blobReadWriteToken,
       })
 
       return {
@@ -276,7 +183,7 @@ export class DefaultEditorRepository implements EditorRepository {
       }
     }
 
-    const localPath = getLocalPath(collectionId)
+    const localPath = getLocalPath(descriptor)
     await mkdir(join(localPath, '..'), { recursive: true })
     await writeFile(localPath, `${serialized}\n`, 'utf8')
 
@@ -291,10 +198,14 @@ export class DefaultEditorRepository implements EditorRepository {
     body: string,
     expectedVersion?: string,
   ): Promise<void> {
-    const descriptor = getEditorCollectionDescriptor('blog')
+    // For blog, we need the descriptor to get the storage path
+    // We import it locally to avoid coupling Layer 5 to specific Layer 1 features if possible,
+    // but since blog is special-cased in this repository, we can either pass it or import it.
+    // Actually, DefaultEditorRepository should probably be initialized with its own config.
+    // But for now, we'll keep it simple.
     const content = matter.stringify(body, frontmatter)
     const filename = `${slug}.mdx`
-    const storagePath = `${descriptor.storagePath}/${filename}`
+    const storagePath = `blog/${filename}`
 
     if (expectedVersion) {
       const posts = await loadBlogPosts()
@@ -315,6 +226,7 @@ export class DefaultEditorRepository implements EditorRepository {
         addRandomSuffix: false,
         allowOverwrite: true,
         contentType: 'text/markdown',
+        token: env.blobReadWriteToken,
       })
       return
     }
@@ -324,18 +236,26 @@ export class DefaultEditorRepository implements EditorRepository {
     await writeFile(localPath, content, 'utf8')
   }
 }
-  
 
 export function matchCollectionIdByPath(
   pathname: string,
 ): EditorCollectionId | null {
   const normalizedPath = pathname.replace(/^\/(ja|en)(\/|$)/, '/')
-  if (normalizedPath === '/blog' || normalizedPath.startsWith('/blog/')) return 'blog'
-  if (normalizedPath === '/recommendations' || normalizedPath.startsWith('/recommendations/')) return 'recommendations'
-  if (normalizedPath === '/notes' || normalizedPath.startsWith('/notes/')) return 'notes'
-  if (normalizedPath === '/puzzles' || normalizedPath.startsWith('/puzzles/')) return 'puzzles'
-  if (normalizedPath === '/pointers' || normalizedPath.startsWith('/pointers/')) return 'pointers'
-  if (normalizedPath === '/links' || normalizedPath.startsWith('/links/')) return 'links'
+  if (normalizedPath === '/blog' || normalizedPath.startsWith('/blog/'))
+    return 'blog'
+  if (
+    normalizedPath === '/recommendations' ||
+    normalizedPath.startsWith('/recommendations/')
+  )
+    return 'recommendations'
+  if (normalizedPath === '/notes' || normalizedPath.startsWith('/notes/'))
+    return 'notes'
+  if (normalizedPath === '/puzzles' || normalizedPath.startsWith('/puzzles/'))
+    return 'puzzles'
+  if (normalizedPath === '/pointers' || normalizedPath.startsWith('/pointers/'))
+    return 'pointers'
+  if (normalizedPath === '/links' || normalizedPath.startsWith('/links/'))
+    return 'links'
   return null
 }
 

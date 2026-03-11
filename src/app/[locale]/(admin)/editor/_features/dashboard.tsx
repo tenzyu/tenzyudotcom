@@ -10,7 +10,7 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { env, isEditorBlobStorage } from '@/config/env.contract'
-import { listEditorCollectionDescriptors } from '@/lib/editor/editor.contract'
+import { listEditorCollectionDescriptors } from './editor.collections'
 import { logoutEditorAdminAction } from './actions'
 import { EDITOR_ADMIN_LOCALE } from '@/features/admin/constants'
 

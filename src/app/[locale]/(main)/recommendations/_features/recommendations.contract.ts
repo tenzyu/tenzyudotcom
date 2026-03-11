@@ -5,6 +5,10 @@ import {
 import { normalizeExternalUrl } from '@/lib/url/external-url.contract'
 import { z } from 'zod'
 import { editorRepository } from '@/lib/editor/editor.contract'
+import {
+  withLocales,
+  type EditorCollectionDescriptor,
+} from '@/lib/editor/editor.port'
 import type {
   RecommendationChannel,
   RecommendationSourceEntry,
@@ -176,9 +180,20 @@ export function parseRecommendationSourceEntries(raw: unknown) {
   return entries
 }
 
+export const RECOMMENDATIONS_COLLECTION_DESCRIPTOR: EditorCollectionDescriptor<'recommendations'> = {
+  id: 'recommendations',
+  label: 'Recommendations',
+  storagePath: 'editor/recommendations.json',
+  publicPaths: withLocales('/recommendations'),
+  getDefaultValue: () => [],
+  parse: parseRecommendationSourceEntries,
+}
+
 export class EditorRecommendationsRepository implements RecommendationsRepository {
   async loadAll(): Promise<readonly RecommendationSourceEntry[]> {
-    const { collection } = await editorRepository.loadState('recommendations')
+    const { collection } = await editorRepository.loadState(
+      RECOMMENDATIONS_COLLECTION_DESCRIPTOR,
+    )
     return collection
   }
 }

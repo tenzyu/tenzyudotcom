@@ -20,6 +20,14 @@ notes や recommends は Vercel の Blob で `/editor/*.json` があるからい
     - [x] Update `getBlobPath` to use `descriptor.storagePath` directly.
     - [x] Update `getLocalPath` to use a base `storage` directory and `descriptor.storagePath`.
     - [x] Ensure `saveBlogPost` uses consistent path logic.
+  - [x] Refactor common types and descriptors to `src/lib/editor/editor.collections.ts` to avoid circular dependencies.
+  - [x] Decompose `editor.collections.ts` into granular layers according to `AGENTS.md`:
+    - [x] `src/lib/editor/editor.domain.ts` for pure types.
+    - [x] `src/lib/editor/editor.port.ts` for interfaces and descriptor types.
+    - [x] Moved `*_COLLECTION_DESCRIPTOR` to respective feature contract files (Ownership Model).
+    - [x] Created `src/app/[locale]/(admin)/editor/_features/editor.collections.ts` as a registry for Admin UI.
+  - [x] Update `src/app/[locale]/(main)/blog/_features/blog.assemble.ts` and `src/app/[locale]/(admin)/editor/_features/dashboard.tsx` to use the new centralized configuration.
+  - [x] Pass `env.blobReadWriteToken` explicitly to `@vercel/blob` calls for better build reliability.
 - [x] **Verification**
   - [x] **Verify Build**
     - Run `bun run build` to ensure no broken imports.
@@ -30,3 +38,5 @@ notes や recommends は Vercel の Blob で `/editor/*.json` があるからい
     - Check if blog posts can still be loaded and saved.
 
 ## Success Criteria
+
+- Vercel 上でのビルドに成功する。

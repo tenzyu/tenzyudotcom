@@ -1,6 +1,10 @@
 import { normalizeExternalUrl } from '@/lib/url/external-url.contract'
 import { z } from 'zod'
 import { editorRepository } from '@/lib/editor/editor.contract'
+import {
+  withLocales,
+  type EditorCollectionDescriptor,
+} from '@/lib/editor/editor.port'
 import type {
   DashboardCategory,
   DashboardSourceCategory,
@@ -98,9 +102,20 @@ export function parseDashboardSourceCategories(raw: unknown) {
   return categories
 }
 
+export const POINTERS_COLLECTION_DESCRIPTOR: EditorCollectionDescriptor<'pointers'> = {
+  id: 'pointers',
+  label: 'Pointers',
+  storagePath: 'editor/pointers.json',
+  publicPaths: withLocales('/pointers'),
+  getDefaultValue: () => [],
+  parse: parseDashboardSourceCategories,
+}
+
 export class EditorPointersRepository implements PointersRepository {
   async loadAll(): Promise<readonly DashboardSourceCategory[]> {
-    const { collection } = await editorRepository.loadState('pointers')
+    const { collection } = await editorRepository.loadState(
+      POINTERS_COLLECTION_DESCRIPTOR,
+    )
     return collection
   }
 }

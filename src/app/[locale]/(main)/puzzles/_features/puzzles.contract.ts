@@ -1,6 +1,10 @@
 import { normalizeExternalUrl } from '@/lib/url/external-url.contract'
 import { z } from 'zod'
 import { editorRepository } from '@/lib/editor/editor.contract'
+import {
+  withLocales,
+  type EditorCollectionDescriptor,
+} from '@/lib/editor/editor.port'
 import type { PuzzleCategory } from './puzzles.domain'
 import type { PuzzlesRepository } from './puzzles.port'
 
@@ -69,9 +73,20 @@ export function parsePuzzleSourceCategories(raw: unknown) {
   return definePuzzleCategories(categories)
 }
 
+export const PUZZLES_COLLECTION_DESCRIPTOR: EditorCollectionDescriptor<'puzzles'> = {
+  id: 'puzzles',
+  label: 'Puzzles',
+  storagePath: 'editor/puzzles.json',
+  publicPaths: withLocales('/puzzles'),
+  getDefaultValue: () => [],
+  parse: parsePuzzleSourceCategories,
+}
+
 export class EditorPuzzlesRepository implements PuzzlesRepository {
   async loadAll(): Promise<readonly PuzzleCategory[]> {
-    const { collection } = await editorRepository.loadState('puzzles')
+    const { collection } = await editorRepository.loadState(
+      PUZZLES_COLLECTION_DESCRIPTOR,
+    )
     return collection
   }
 }

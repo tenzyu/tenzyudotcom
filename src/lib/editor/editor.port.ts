@@ -1,49 +1,42 @@
-import type { NoteSourceEntry } from '@/app/[locale]/(main)/notes/_features/notes.domain'
-import type { DashboardSourceCategory } from '@/app/[locale]/(main)/pointers/_features/dashboard/dashboard.domain'
-import type { PuzzleCategory } from '@/app/[locale]/(main)/puzzles/_features/puzzles.domain'
-import type { RecommendationSourceEntry } from '@/app/[locale]/(main)/recommendations/_features/recommendations.domain'
-import type { MyLink } from '@/features/links/links.domain'
-
+import type { BlogFrontmatter } from '@/app/[locale]/(main)/blog/_features/blog.domain'
 import type {
-  BlogFrontmatter,
-  MDXData,
-} from '@/app/[locale]/(main)/blog/_features/blog.domain'
+  EditorCollectionData,
+  EditorCollectionId,
+  EditorState,
+  RevalidatePathTarget,
+} from './editor.domain'
 
-export type EditorCollectionId =
-  | 'recommendations'
-  | 'notes'
-  | 'puzzles'
-  | 'pointers'
-  | 'links'
-  | 'blog'
+export type {
+  EditorCollectionData,
+  EditorCollectionId,
+  EditorState,
+  RevalidatePathTarget,
+} from './editor.domain'
 
-export type EditorCollectionData = {
-  recommendations: readonly RecommendationSourceEntry[]
-  notes: readonly NoteSourceEntry[]
-  puzzles: readonly PuzzleCategory[]
-  pointers: readonly DashboardSourceCategory[]
-  links: readonly MyLink[]
-  blog: readonly MDXData[]
+export type EditorCollectionDescriptor<K extends EditorCollectionId> = {
+  id: K
+  label: string
+  storagePath: string
+  publicPaths: readonly RevalidatePathTarget[]
+  getDefaultValue: () => EditorCollectionData[K]
+  parse: (raw: unknown) => EditorCollectionData[K]
 }
 
-export type EditorState<K extends EditorCollectionId> = {
-  collection: EditorCollectionData[K]
-  serialized: string
-  version: string
-}
+export const LOCALE_PREFIXES = ['/ja', '/en'] as const
 
-export type RevalidatePathTarget = {
-  path: string
-  type?: 'page' | 'layout'
+export function withLocales(pathname: string) {
+  return LOCALE_PREFIXES.map((locale) => ({
+    path: `${locale}${pathname}`,
+  })) satisfies readonly RevalidatePathTarget[]
 }
 
 export interface EditorRepository {
   loadState<K extends EditorCollectionId>(
-    collectionId: K,
+    descriptor: EditorCollectionDescriptor<K>,
   ): Promise<EditorState<K>>
 
-  save(
-    collectionId: EditorCollectionId,
+  save<K extends EditorCollectionId>(
+    descriptor: EditorCollectionDescriptor<K>,
     rawJson: string,
     expectedVersion?: string,
   ): Promise<{

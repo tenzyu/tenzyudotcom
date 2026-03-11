@@ -17,8 +17,9 @@ import {
   buildBlogPostUrl,
   compareBlogPostsByPublishedAtDesc,
 } from './blog.domain'
-import { isEditorBlobStorage } from '@/config/env.contract'
+import { isEditorBlobStorage, env } from '@/config/env.contract'
 import { list, get } from '@vercel/blob'
+import { BLOG_COLLECTION_DESCRIPTOR } from './blog.contract'
 
 import { createVersion } from '@/app/[locale]/(admin)/editor/_features/editor-utils'
 
@@ -56,7 +57,7 @@ async function getMDXData(dir: string): Promise<MDXData[]> {
 async function readMDXFromBlob(blobUrl: string, slug: string): Promise<MDXData> {
   const response = await get(blobUrl, {
     access: 'public',
-    useCache: false,
+    token: env.blobReadWriteToken,
   })
   if (!response) {
     throw new Error(`Failed to fetch blog post from blob: ${blobUrl}`)
@@ -75,8 +76,10 @@ async function readMDXFromBlob(blobUrl: string, slug: string): Promise<MDXData> 
 }
 
 async function getMDXDataFromBlob(): Promise<MDXData[]> {
+  const descriptor = BLOG_COLLECTION_DESCRIPTOR
   const { blobs } = await list({
-    prefix: 'blog/',
+    prefix: `${descriptor.storagePath}/`,
+    token: env.blobReadWriteToken,
   })
 
   const mdxBlobs = blobs.filter((b) => b.pathname.endsWith('.mdx'))

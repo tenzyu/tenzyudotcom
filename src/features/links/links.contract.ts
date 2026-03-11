@@ -1,6 +1,11 @@
 import { normalizeExternalUrl } from '@/lib/url/external-url.contract'
 import { z } from 'zod'
 import { editorRepository } from '@/lib/editor/editor.contract'
+import {
+  LOCALE_PREFIXES,
+  withLocales,
+  type EditorCollectionDescriptor,
+} from '@/lib/editor/editor.port'
 import type { MyLink } from './links.domain'
 import type { LinksRepository } from './links.port'
 
@@ -51,9 +56,26 @@ export function parseLinkSourceEntries(raw: unknown) {
   return defineLinks(links)
 }
 
+export const LINKS_COLLECTION_DESCRIPTOR: EditorCollectionDescriptor<'links'> = {
+  id: 'links',
+  label: 'Links',
+  storagePath: 'editor/links.json',
+  publicPaths: [
+    ...withLocales('/links'),
+    ...LOCALE_PREFIXES.map((locale) => ({
+      path: `${locale}/links/[shortUrl]`,
+      type: 'page' as const,
+    })),
+  ],
+  getDefaultValue: () => [],
+  parse: parseLinkSourceEntries,
+}
+
 export class EditorLinksRepository implements LinksRepository {
   async loadAll(): Promise<readonly MyLink[]> {
-    const { collection } = await editorRepository.loadState('links')
+    const { collection } = await editorRepository.loadState(
+      LINKS_COLLECTION_DESCRIPTOR,
+    )
     return collection
   }
 }

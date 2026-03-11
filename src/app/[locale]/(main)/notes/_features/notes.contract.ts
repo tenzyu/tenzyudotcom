@@ -1,6 +1,7 @@
 import { normalizeExternalUrl } from '@/lib/url/external-url.contract'
 import { z } from 'zod'
 import { editorRepository } from '@/lib/editor/editor.contract'
+import { withLocales, type EditorCollectionDescriptor } from '@/lib/editor/editor.port'
 import type { NotesRepository } from './notes.port'
 import type { NoteSourceEntry } from './notes.domain'
 
@@ -28,9 +29,20 @@ export function parseNoteSourceEntries(raw: unknown) {
   return entries
 }
 
+export const NOTES_COLLECTION_DESCRIPTOR: EditorCollectionDescriptor<'notes'> = {
+  id: 'notes',
+  label: 'Notes',
+  storagePath: 'editor/notes.json',
+  publicPaths: withLocales('/notes'),
+  getDefaultValue: () => [],
+  parse: parseNoteSourceEntries,
+}
+
 export class EditorNotesRepository implements NotesRepository {
   async loadAll(): Promise<readonly NoteSourceEntry[]> {
-    const { collection } = await editorRepository.loadState('notes')
+    const { collection } = await editorRepository.loadState(
+      NOTES_COLLECTION_DESCRIPTOR,
+    )
     return collection
   }
 }

@@ -2,12 +2,10 @@ import { revalidatePath } from 'next/cache'
 import type {
   EditorCollectionId,
   RevalidatePathTarget,
-} from '@/lib/editor/editor.port'
-import { getEditorCollectionDescriptor } from '@/lib/editor/editor.contract'
-import type {
   EditorRepository,
   EditorState,
 } from '@/lib/editor/editor.port'
+import { getEditorCollectionDescriptor } from './editor.collections'
 import { editorRepository } from '@/lib/editor/editor.contract'
 
 export class LoadEditorCollectionUseCase {
@@ -16,7 +14,8 @@ export class LoadEditorCollectionUseCase {
   async execute<K extends EditorCollectionId>(
     collectionId: K,
   ): Promise<EditorState<K>> {
-    return this.repository.loadState(collectionId)
+    const descriptor = getEditorCollectionDescriptor(collectionId)
+    return this.repository.loadState(descriptor)
   }
 }
 
@@ -28,14 +27,14 @@ export class SaveEditorCollectionUseCase {
     rawJson: string,
     expectedVersion?: string,
   ): Promise<{ version: string }> {
+    const descriptor = getEditorCollectionDescriptor(collectionId)
     const result = await this.repository.save(
-      collectionId,
+      descriptor,
       rawJson,
       expectedVersion,
     )
 
     // Revalidate paths
-    const descriptor = getEditorCollectionDescriptor(collectionId)
     for (const path of descriptor.publicPaths) {
       const target = path as RevalidatePathTarget
       if (target.type) {
