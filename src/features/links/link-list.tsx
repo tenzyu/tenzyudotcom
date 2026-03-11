@@ -1,10 +1,13 @@
-import { useIntlayer } from 'next-intlayer/server'
+import { useIntlayer, useLocale } from 'next-intlayer/server'
 import { Content } from '@/components/site-ui/content'
 import { SectionHeader } from '@/components/site-ui/section-header'
 import { ItemGroup } from '@/components/ui/item'
 import { loadLinks } from '@/features/links/links.assemble'
 import { LINK_CATEGORY_ORDER, type LinkCategory } from './links.domain'
 import { LinkTile } from './link-tile'
+import { AdminGate } from '@/app/[locale]/(admin)/editor/_features/admin-gate'
+import { LinksEditorDeferred } from '@/app/[locale]/(admin)/editor/_features/links-editor-deferred'
+import { EditorAdminTrigger } from '@/app/[locale]/(admin)/editor/_features/admin-trigger'
 
 const CATEGORY_KEYS: Record<
   LinkCategory,
@@ -17,7 +20,33 @@ const CATEGORY_KEYS: Record<
 }
 export async function LinkList() {
   const content = useIntlayer('linksFeature')
+  const { locale } = useLocale()
   const links = await loadLinks()
+
+  return (
+    <>
+      <AdminGate>
+        <Content size="4xl" className="mb-12">
+          <div className="rounded-lg border-2 border-dashed p-4">
+            <p className="mb-4 text-center text-sm font-bold text-muted-foreground uppercase tracking-widest">
+              Admin View: Links
+            </p>
+            <LinksEditorDeferred locale={locale || 'ja'} />
+          </div>
+          <hr className="my-8" />
+        </Content>
+      </AdminGate>
+
+      <LinkListContent content={content} links={links} />
+
+      <AdminGate>
+        <EditorAdminTrigger locale={locale || 'ja'} collectionId="links" />
+      </AdminGate>
+    </>
+  )
+}
+
+function LinkListContent({ content, links }: { content: any, links: any[] }) {
   const groupedLinks = LINK_CATEGORY_ORDER.map((category) => ({
     value: category,
     label: content.categories[CATEGORY_KEYS[category]],

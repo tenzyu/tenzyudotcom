@@ -8,10 +8,11 @@ import {
 } from '@/config/env.contract'
 
 const EDITOR_SESSION_COOKIE = 'editor_admin_session'
+const LEGACY_EDITORIAL_SESSION_COOKIE = 'editorial_admin_session'
 const EDITOR_SESSION_TTL_SECONDS = 60 * 60 * 24 * 14
 
 type EditorSessionPayload = {
-  sub: 'editor-admin'
+  sub: 'editor-admin' | 'editorial-admin'
   exp: number
 }
 
@@ -58,7 +59,10 @@ function parseSession(
       decodeBase64Url(encodedPayload),
     ) as EditorSessionPayload
 
-    if (payload.sub !== 'editor-admin' || payload.exp <= Date.now()) {
+    if (
+      (payload.sub !== 'editor-admin' && payload.sub !== 'editorial-admin') ||
+      payload.exp <= Date.now()
+    ) {
       return null
     }
 
@@ -100,13 +104,16 @@ export async function createEditorAdminSession() {
 export async function clearEditorAdminSession() {
   const cookieStore = await cookies()
   cookieStore.delete(EDITOR_SESSION_COOKIE)
+  cookieStore.delete(LEGACY_EDITORIAL_SESSION_COOKIE)
 }
 
 export async function hasEditorAdminSession() {
   try {
     const { sessionSecret } = getRequiredEditorAdminCredentials()
     const cookieStore = await cookies()
-    const token = cookieStore.get(EDITOR_SESSION_COOKIE)?.value
+    const token =
+      cookieStore.get(EDITOR_SESSION_COOKIE)?.value ||
+      cookieStore.get(LEGACY_EDITORIAL_SESSION_COOKIE)?.value
 
     if (!token) {
       return false

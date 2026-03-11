@@ -11,6 +11,10 @@ import {
 } from '@/components/ui/pagination'
 import { BlogTile } from './blog-tile'
 import type { BlogListItem } from './blog.assemble'
+import { AdminGate } from '@/app/[locale]/(admin)/editor/_features/admin-gate'
+import { BlogEditorDeferred } from '@/app/[locale]/(admin)/editor/_features/blog-editor-deferred'
+import { Content } from '@/components/site-ui/content'
+import { EditorAdminTrigger } from '@/app/[locale]/(admin)/editor/_features/admin-trigger'
 
 type BlogPageContentProps = {
   currentPage: number
@@ -19,7 +23,7 @@ type BlogPageContentProps = {
   totalPages: number
 }
 
-export function BlogPageContent({
+export async function BlogPageContent({
   currentPage,
   locale,
   pageItems,
@@ -38,6 +42,19 @@ export function BlogPageContent({
         title={content.metadata.title.value}
         description={content.metadata.description.value}
       />
+
+      <AdminGate>
+        <Content size="4xl" className="mb-12">
+          <div className="rounded-lg border-2 border-dashed p-4">
+            <p className="mb-4 text-center text-sm font-bold text-muted-foreground uppercase tracking-widest">
+              Admin View: Blog
+            </p>
+            <BlogEditorDeferred locale={locale} />
+          </div>
+          <hr className="mt-12" />
+        </Content>
+      </AdminGate>
+
       <div className="flex flex-col gap-y-4">
         {pageItems.map((post) => (
           <BlogTile
@@ -48,6 +65,10 @@ export function BlogPageContent({
           />
         ))}
       </div>
+
+      <AdminGate>
+        <EditorAdminTrigger locale={locale} collectionId="blog" />
+      </AdminGate>
 
       {totalPages > 1 ? (
         <Pagination

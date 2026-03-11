@@ -326,13 +326,13 @@ export class DefaultEditorRepository implements EditorRepository {
 export function matchCollectionIdByPath(
   pathname: string,
 ): EditorCollectionId | null {
-  const normalizedPath = pathname.replace(/^\/(ja|en)\//, '/')
-  if (normalizedPath.startsWith('/blog')) return 'blog'
-  if (normalizedPath.startsWith('/recommendations')) return 'recommendations'
-  if (normalizedPath.startsWith('/notes')) return 'notes'
-  if (normalizedPath.startsWith('/puzzles')) return 'puzzles'
-  if (normalizedPath.startsWith('/pointers')) return 'pointers'
-  if (normalizedPath.startsWith('/links')) return 'links'
+  const normalizedPath = pathname.replace(/^\/(ja|en)(\/|$)/, '/')
+  if (normalizedPath === '/blog' || normalizedPath.startsWith('/blog/')) return 'blog'
+  if (normalizedPath === '/recommendations' || normalizedPath.startsWith('/recommendations/')) return 'recommendations'
+  if (normalizedPath === '/notes' || normalizedPath.startsWith('/notes/')) return 'notes'
+  if (normalizedPath === '/puzzles' || normalizedPath.startsWith('/puzzles/')) return 'puzzles'
+  if (normalizedPath === '/pointers' || normalizedPath.startsWith('/pointers/')) return 'pointers'
+  if (normalizedPath === '/links' || normalizedPath.startsWith('/links/')) return 'links'
   return null
 }
 

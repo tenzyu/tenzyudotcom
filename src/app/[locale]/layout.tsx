@@ -112,7 +112,6 @@ const LocaleLayout: NextLayoutIntlayer = async ({ children, params }) => {
                 </main>
                 <Toaster />
                 <Footer locale={locale} />
-                <EditorAdminTrigger locale={locale} />
                 <Analytics />
                 <SpeedInsights />
               </TooltipProvider>

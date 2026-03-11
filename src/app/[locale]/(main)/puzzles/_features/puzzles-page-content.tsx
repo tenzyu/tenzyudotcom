@@ -1,4 +1,4 @@
-import { useIntlayer } from 'next-intlayer/server'
+import { useIntlayer, useLocale } from 'next-intlayer/server'
 import { PageHeader } from '@/components/site-ui/page-header'
 import { SectionHeader } from '@/components/site-ui/section-header'
 import {
@@ -9,13 +9,18 @@ import {
 } from '@/components/ui/empty'
 import type { PuzzleCategoryWithOgp } from './types'
 import { PuzzleTile } from './puzzle-tile'
+import { AdminGate } from '@/app/[locale]/(admin)/editor/_features/admin-gate'
+import { PuzzlesEditorDeferred } from '@/app/[locale]/(admin)/editor/_features/puzzles-editor-deferred'
+import { Content } from '@/components/site-ui/content'
+import { EditorAdminTrigger } from '@/app/[locale]/(admin)/editor/_features/admin-trigger'
 
 type PuzzlesPageContentProps = {
   categories: PuzzleCategoryWithOgp[]
 }
 
-export function PuzzlesPageContent({ categories }: PuzzlesPageContentProps) {
+export async function PuzzlesPageContent({ categories }: PuzzlesPageContentProps) {
   const content = useIntlayer('page-puzzles')
+  const { locale } = useLocale()
 
   return (
     <>
@@ -23,6 +28,18 @@ export function PuzzlesPageContent({ categories }: PuzzlesPageContentProps) {
         title={content.metadata.title.value}
         description={content.metadata.description.value}
       />
+
+      <AdminGate>
+        <Content size="4xl" className="mb-12">
+          <div className="rounded-lg border-2 border-dashed p-4">
+            <p className="mb-4 text-center text-sm font-bold text-muted-foreground uppercase tracking-widest">
+              Admin View: Puzzles
+            </p>
+            <PuzzlesEditorDeferred locale={locale || 'ja'} />
+          </div>
+          <hr className="mt-12" />
+        </Content>
+      </AdminGate>
 
       {categories.length === 0 ? (
         <Empty>
@@ -54,6 +71,10 @@ export function PuzzlesPageContent({ categories }: PuzzlesPageContentProps) {
           })}
         </div>
       )}
+
+      <AdminGate>
+        <EditorAdminTrigger locale={locale || 'ja'} collectionId="puzzles" />
+      </AdminGate>
     </>
   )
 }
