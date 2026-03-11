@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import { buildYouTubeThumbnailUrl } from './youtube.contract'
+import { buildYouTubeThumbnailUrl } from './youtube.domain'
 
 type YouTubeThumbnailImageProps = {
   videoId: string

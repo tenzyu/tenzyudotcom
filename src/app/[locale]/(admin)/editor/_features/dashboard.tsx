@@ -9,14 +9,17 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { env, isEditorBlobStorage } from '@/config/env.contract'
+import { EDITOR_ADMIN_LOCALE } from '@/features/admin/constants'
+import {
+  getEditorStorageDriver,
+  usesEditorBlobStorage,
+} from './editor-config.assemble'
 import { listEditorCollectionDescriptors } from './editor.collections'
 import { logoutEditorAdminAction } from './actions'
-import { EDITOR_ADMIN_LOCALE } from '@/features/admin/constants'
 
 export function EditorDashboard({ locale }: { locale: string }) {
   const content = useIntlayer('editorAdmin', EDITOR_ADMIN_LOCALE)
-  const storageLabel = isEditorBlobStorage
+  const storageLabel = usesEditorBlobStorage()
     ? content.dashboard.blobStorage.value
     : content.dashboard.localStorage.value
 
@@ -62,7 +65,7 @@ export function EditorDashboard({ locale }: { locale: string }) {
         ))}
       </div>
       <p className="text-muted-foreground text-xs">
-        EDITOR_STORAGE_DRIVER={env.editorStorageDriver}
+        EDITOR_STORAGE_DRIVER={getEditorStorageDriver()}
       </p>
     </Content>
   )

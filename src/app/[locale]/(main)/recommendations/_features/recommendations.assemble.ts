@@ -3,9 +3,9 @@ import {
   defineRecommendationChannels,
   defineRecommendationTabs,
   defineRecommendationVideos,
-  normalizeRecommendationVideoSource,
   recommendationsRepository,
 } from './recommendations.contract'
+import { normalizeRecommendationVideoSource } from './recommendation-source.domain'
 import type {
   RecommendationSourceChannelEntry,
   RecommendationSourceEntry,

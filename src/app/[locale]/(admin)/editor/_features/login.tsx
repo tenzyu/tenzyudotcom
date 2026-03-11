@@ -2,9 +2,9 @@ import { useIntlayer } from 'next-intlayer/server'
 import { Content } from '@/components/site-ui/content'
 import { PageHeader } from '@/components/site-ui/page-header'
 import { Button } from '@/components/ui/button'
-import { env } from '@/config/env.contract'
-import { loginEditorAdminAction } from './actions'
 import { EDITOR_ADMIN_LOCALE } from '@/features/admin/constants'
+import { loginEditorAdminAction } from './actions'
+import { isEditorLoginConfigured } from './editor-config.assemble'
 
 export function EditorLogin({
   locale,
@@ -14,8 +14,7 @@ export function EditorLogin({
   error?: string
 }) {
   const content = useIntlayer('editorAdmin', EDITOR_ADMIN_LOCALE)
-  const isConfigured =
-    !!env.editorAdminPassword && !!env.editorSessionSecret
+  const isConfigured = isEditorLoginConfigured()
 
   return (
     <Content size="sm" className="space-y-8 py-12">

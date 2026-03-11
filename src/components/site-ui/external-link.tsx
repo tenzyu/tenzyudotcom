@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { cn } from '@/lib/utils/common'
-import { normalizeExternalUrl } from '@/lib/url/external-url.contract'
+import { normalizeExternalUrl } from '@/lib/url/external-url.domain'
 
 type ExternalLinkProps = Omit<React.ComponentPropsWithoutRef<'a'>, 'href'> & {
   href: string

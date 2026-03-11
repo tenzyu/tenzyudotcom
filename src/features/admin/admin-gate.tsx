@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, type ReactNode } from 'react'
+import { type ReactNode, useEffect, useState } from 'react'
 
 type AuthState =
   | { ready: false; isAdmin: false }
@@ -51,9 +51,9 @@ export function AdminGate({ children, fallback = null }: AdminGateProps) {
   }, [])
 
   // Initial state matches server HTML (null) to avoid hydration mismatch
-  if (!auth.ready) return fallback as any
+  if (!auth.ready) return fallback
 
-  if (!auth.isAdmin) return fallback as any
+  if (!auth.isAdmin) return fallback
 
   return <>{children}</>
 }

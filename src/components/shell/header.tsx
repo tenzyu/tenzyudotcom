@@ -1,14 +1,14 @@
 import { getLocalizedUrl } from 'intlayer'
 import Link from 'next/link'
 import { useIntlayer } from 'next-intlayer/server'
-import { LanguageSwitcher } from '@/features/site-controls/language-switcher'
-import { ThemeSwitcher } from '@/features/site-controls/theme-switcher'
 import {
   PRIMARY_NAV_ROUTE_IDS,
   PUBLIC_ROUTES,
 } from '@/features/site-navigation/public-routes.data'
 import { cn } from '@/lib/utils/common'
 import { Container } from './container'
+import { LanguageSwitcher } from './language-switcher'
+import { ThemeSwitcher } from './theme-switcher'
 
 const navLinkStyles = 'hover:text-primary transition-colors'
 

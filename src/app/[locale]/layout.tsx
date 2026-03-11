@@ -13,10 +13,10 @@ import { BreadcrumbNav } from '@/components/shell/breadcrumb-nav'
 import { Container } from '@/components/shell/container'
 import { Footer } from '@/components/shell/footer'
 import { Header } from '@/components/shell/header'
+import { ThemeProvider } from '@/components/shell/theme-provider'
 import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
-import { env, isDevelopment } from '@/config/env.contract'
-import { ThemeProvider } from '@/features/site-controls/theme-provider'
+import { shouldLoadReactGrabOverlay } from '@/config/env.assemble'
 import { buildSiteMetadata } from './_features/site-metadata'
 import { buildSiteStructuredData } from './_features/site-structured-data'
 
@@ -49,19 +49,18 @@ const LocaleLayout: NextLayoutIntlayer = async ({ children, params }) => {
   const { locale } = await params
   const shellContent = getIntlayer('shell', locale)
   const siteStructuredData = buildSiteStructuredData(locale)
-  const shouldLoadReactGrabOverlay = isDevelopment && env.enableReactGrabOverlay
 
   return (
     <html lang={locale} dir={getHTMLTextDir(locale)} suppressHydrationWarning>
       <head>
-        {shouldLoadReactGrabOverlay && (
+        {shouldLoadReactGrabOverlay() && (
           <Script
             src="//unpkg.com/react-grab/dist/index.global.js"
             crossOrigin="anonymous"
             strategy="beforeInteractive"
           />
         )}
-        {shouldLoadReactGrabOverlay && (
+        {shouldLoadReactGrabOverlay() && (
           <Script
             src="//unpkg.com/@react-grab/codex/dist/client.global.js"
             strategy="lazyOnload"

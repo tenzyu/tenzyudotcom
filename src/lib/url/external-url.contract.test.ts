@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test'
 import {
   normalizeExternalUrl,
   parseExternalUrl,
-} from './external-url.contract'
+} from './external-url.domain'
 
 describe('external-url.contract', () => {
   test('accepts http(s) urls', () => {
