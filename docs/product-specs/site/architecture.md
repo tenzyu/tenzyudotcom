@@ -43,6 +43,15 @@ required capabilities:
 - save + public route revalidation
 - version conflict detection
 
+公開ページ側の基本操作モデル:
+
+- 通常ユーザーには公開 UI だけを返す
+- 管理者だけ item 近傍に三点リーダーを出す
+- dropdown から `編集` と `削除` を開く
+- 削除は確認 UI を必須にする
+- 巨大な admin form をページ下部へ常設しない
+- 専用 editor route は bulk edit と長文 authoring のために残す
+
 ## Storage
 
 - 当面は Vercel Blob を primary storage にする
@@ -60,6 +69,8 @@ required capabilities:
   - order
   - 例外的 override
 - API や OGP から取れる値は極力自動補完する
+- notes のような短文系は、公開 list 上でそのまま直せる軽量操作を優先する
+- 長文系の blog は、専用 editor の authoring comfort を優先する
 
 ## Collection-specific Rules
 
@@ -68,3 +79,14 @@ required capabilities:
 - video は `URL + note + published` を最小入力とする
 - channel も最終的には `URL + note + published` を最小入力に寄せる
 - title / handle / thumbnail / videoId は極力自動補完する
+
+### Notes
+
+- 投稿は tweet-like に軽く行えること
+- `createdAt` と `updatedAt` は自動管理すること
+- `en` 未入力時は `ja` fallback 表示を許容すること
+
+### Blog
+
+- 専用 editor の input 幅と textarea 高さは十分に広く取ること
+- MDX 本文は初期状態で大きく読める高さを確保すること

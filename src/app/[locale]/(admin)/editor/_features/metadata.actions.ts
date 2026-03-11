@@ -1,6 +1,12 @@
 'use server'
 
+import { hasEditorAdminSession } from '@/features/admin/session'
+
 export async function fetchUrlMetadataAction(url: string) {
+  if (!(await hasEditorAdminSession())) {
+    return { error: 'Unauthorized' }
+  }
+
   try {
     // Basic validation
     new URL(url)

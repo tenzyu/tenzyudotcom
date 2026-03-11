@@ -3,9 +3,10 @@
     "kind": "youtube-video",
     "sourceUrl": "https://youtu.be/tOWeLMJNYz4",
     "note": {
-      "ja": "1:33 好きすぎる。集中力なくなって一日終わりだと思ったら聞いてます。",
+      "ja": "1:33 好きすぎる。集中力なくなって一日終わりだと思ったら聞いてます",
       "en": "Love the 1:33 mark. I listen when my focus is gone and I feel like the day is over."
-    }
+    },
+    "published": true
   },
   {
     "kind": "youtube-video",

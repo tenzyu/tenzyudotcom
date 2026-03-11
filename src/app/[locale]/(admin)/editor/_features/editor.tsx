@@ -23,12 +23,14 @@ export async function EditorCollectionEditor({
   saved,
   error,
   slug,
+  create,
 }: {
   locale: string
   collectionId: EditorCollectionId
   saved?: boolean
   error?: string
   slug?: string | null
+  create?: boolean
 }) {
   const content = useIntlayer('editorAdmin', EDITOR_ADMIN_LOCALE)
   const descriptor = getEditorCollectionDescriptor(collectionId)
@@ -228,7 +230,7 @@ export async function EditorCollectionEditor({
     const state = await loadUseCase.execute('blog')
 
     return (
-      <Content size="4xl" className="space-y-8">
+      <Content size="7xl" className="space-y-8">
         <PageHeader
           title={`${content.dashboard.title.value}: ${descriptor.label}`}
         />
@@ -252,6 +254,7 @@ export async function EditorCollectionEditor({
           locale={locale}
           posts={[...state.collection]}
           slug={slug}
+          startCreating={create}
         />
       </Content>
     )

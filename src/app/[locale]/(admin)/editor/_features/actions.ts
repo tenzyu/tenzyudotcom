@@ -18,6 +18,7 @@ import {
 import {
   clearEditorAdminSession,
   createEditorAdminSession,
+  hasEditorAdminSession,
   isValidEditorAdminPassword,
   requireEditorAdminSession,
 } from '@/features/admin/session'
@@ -137,6 +138,55 @@ export async function saveEditorCollectionAction(formData: FormData) {
       parsed.data.locale,
     ),
   )
+}
+
+export async function saveInlineEditorCollectionAction(input: {
+  locale: string
+  collectionId: 'recommendations' | 'notes' | 'puzzles' | 'pointers' | 'links'
+  sourceJson: string
+  expectedVersion?: string
+}) {
+  const parsed = SaveCollectionSchema.safeParse(input)
+
+  if (!parsed.success) {
+    return {
+      ok: false as const,
+      error: 'invalid' as const,
+    }
+  }
+
+  if (!(await hasEditorAdminSession())) {
+    return {
+      ok: false as const,
+      error: 'unauthorized' as const,
+    }
+  }
+
+  try {
+    const saveUseCase = makeSaveEditorCollectionUseCase()
+    const result = await saveUseCase.execute(
+      parsed.data.collectionId,
+      parsed.data.sourceJson,
+      parsed.data.expectedVersion,
+    )
+
+    return {
+      ok: true as const,
+      version: result.version,
+    }
+  } catch (error) {
+    if (error instanceof EditorVersionConflictError) {
+      return {
+        ok: false as const,
+        error: 'conflict' as const,
+      }
+    }
+
+    return {
+      ok: false as const,
+      error: 'save' as const,
+    }
+  }
 }
 
 export async function saveBlogPostAction(formData: FormData) {

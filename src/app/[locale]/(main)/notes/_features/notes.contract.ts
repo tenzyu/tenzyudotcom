@@ -7,7 +7,7 @@ import type { NoteSourceEntry } from './notes.domain'
 
 const LocalizedTextSchema = z.object({
   ja: z.string().trim().min(1),
-  en: z.string().trim().min(1),
+  en: z.string().trim().optional().default(''),
 })
 
 const NoteSourceEntrySchema = z.object({

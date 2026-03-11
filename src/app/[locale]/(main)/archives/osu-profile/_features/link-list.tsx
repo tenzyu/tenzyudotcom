@@ -13,7 +13,7 @@ import {
   ItemTitle,
 } from '@/components/ui/item'
 import { loadLinks } from '@/features/links/links.assemble'
-import { LINK_CATEGORY_ORDER, type LinkCategory, type MyLink } from './links.domain'
+import { LINK_CATEGORY_ORDER, type LinkCategory, type MyLink } from '@/features/links/links.domain'
 
 const CATEGORY_KEYS: Record<
   LinkCategory,
@@ -24,6 +24,7 @@ const CATEGORY_KEYS: Record<
   Build: 'build',
   Legacy: 'legacy',
 }
+
 export async function LinkList() {
   const content = useIntlayer('linksFeature')
   const links = await loadLinks()

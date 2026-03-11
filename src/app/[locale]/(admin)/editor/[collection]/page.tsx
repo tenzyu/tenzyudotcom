@@ -34,7 +34,12 @@ export default async function EditorCollectionPage({
   searchParams,
 }: {
   params: Promise<{ locale: string; collection: string }>
-  searchParams: Promise<{ saved?: string; error?: string; slug?: string }>
+  searchParams: Promise<{
+    saved?: string
+    error?: string
+    slug?: string
+    create?: string
+  }>
 }) {
   const awaitedParams = await params
   const locale = await resolvePageLocale(
@@ -55,6 +60,7 @@ export default async function EditorCollectionPage({
       saved={search.saved === '1'}
       error={search.error}
       slug={search.slug}
+      create={search.create === '1'}
     />
   )
 }

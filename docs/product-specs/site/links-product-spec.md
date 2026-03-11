@@ -29,7 +29,18 @@ user-invocable: false
 - **Presentation**: リンク先が何であるかを端的に伝える description を付与する。
 - **No Heavy Interactions**: リンクの一覧表示はシンプルさを優先する。複雑なフィルタリングやソートよりも、静的で読みやすいカテゴリ分けを優先する。
 
-## 4. Guardrails (LLMs)
+## 4. Admin Interaction
+
+- 公開ページでは通常のリンク一覧をそのまま表示する
+- 管理者時のみ item 近傍に三点リーダーを表示する
+- dropdown から `編集` と `削除` を行う
+- 削除は確認 UI を必須にする
+- 大きな admin form をページ下部に常設しない
+- 新規追加はページ上部またはセクション上部の primary CTA から行う
+
+この操作モデルは、同じ curated list 系である `pointers` `puzzles` `recommendations` にも準用する。
+
+## 5. Guardrails (LLMs)
 
 - **Do NOT** change the fundamental data source or rendering strategy without explicit product owner consent.
 - **Do NOT** introduce unnecessary heavy client-side state for simple lists. Ensure server-side pre-rendering is maximally utilized.

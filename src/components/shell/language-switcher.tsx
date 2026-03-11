@@ -1,9 +1,9 @@
 'use client'
 
-import { getLocaleName, getLocalizedUrl } from 'intlayer'
+import { getLocaleName } from 'intlayer'
 import { ChevronDown, Globe } from 'lucide-react'
-import Link from 'next/link'
 import { useIntlayer, useLocale } from 'next-intlayer'
+import { startTransition } from 'react'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -14,7 +14,9 @@ import {
 
 export function LanguageSwitcher() {
   const content = useIntlayer('languageSwitcher')
-  const { locale, availableLocales, setLocale, pathWithoutLocale } = useLocale()
+  const { locale, availableLocales, setLocale } = useLocale({
+    onChange: 'replace',
+  })
 
   return (
     <DropdownMenu>
@@ -33,17 +35,22 @@ export function LanguageSwitcher() {
         {availableLocales.map((localeItem) => (
           <DropdownMenuItem
             key={localeItem}
-            asChild
+            disabled={localeItem === locale}
             className={localeItem === locale ? 'bg-muted' : ''}
+            aria-current={localeItem === locale ? 'page' : undefined}
+            onSelect={(event) => {
+              event.preventDefault()
+
+              if (localeItem === locale) {
+                return
+              }
+
+              startTransition(() => {
+                setLocale(localeItem)
+              })
+            }}
           >
-            <Link
-              href={getLocalizedUrl(pathWithoutLocale || '/', localeItem)}
-              onClick={() => setLocale(localeItem)}
-              aria-current={localeItem === locale ? 'page' : undefined}
-              replace
-            >
-              {getLocaleName(localeItem)}
-            </Link>
+            {getLocaleName(localeItem)}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

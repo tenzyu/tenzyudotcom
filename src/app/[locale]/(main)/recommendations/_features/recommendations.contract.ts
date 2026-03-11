@@ -18,7 +18,7 @@ export { isRecommendationTabId } from './recommendations.domain'
 
 const LocalizedTextSchema = z.object({
   ja: z.string().trim().min(1),
-  en: z.string().trim().min(1),
+  en: z.string().trim().optional().default(''),
 })
 
 const RecommendationSourceVideoEntrySchema = z.object({

@@ -1,3 +1,4 @@
+// NOTE: これは認証　かならずサーバーサイドで認可して。
 'use client'
 
 import { type ReactNode, useEffect, useState } from 'react'
@@ -11,40 +12,62 @@ type AdminGateProps = {
   fallback?: ReactNode
 }
 
+let cachedAuthState: AuthState | null = null
+let authStatePromise: Promise<AuthState> | null = null
+
+async function loadAdminAuthState(): Promise<AuthState> {
+  if (cachedAuthState) {
+    return cachedAuthState
+  }
+
+  if (!authStatePromise) {
+    authStatePromise = fetch('/api/auth/me', {
+      cache: 'no-store',
+    })
+      .then(async (res) => {
+        const data = res.ok ? await res.json() : { isAdmin: false }
+
+        return {
+          ready: true,
+          isAdmin: Boolean(data.isAdmin),
+        } satisfies AuthState
+      })
+      .catch(
+        () =>
+          ({
+            ready: true,
+            isAdmin: false,
+          }) satisfies AuthState,
+      )
+      .finally(() => {
+        authStatePromise = null
+      })
+  }
+
+  cachedAuthState = await authStatePromise
+  return cachedAuthState
+}
+
 export function AdminGate({ children, fallback = null }: AdminGateProps) {
-  const [auth, setAuth] = useState<AuthState>({
-    ready: false,
-    isAdmin: false,
-  })
+  const [auth, setAuth] = useState<AuthState>(
+    cachedAuthState ?? {
+      ready: false,
+      isAdmin: false,
+    },
+  )
 
   useEffect(() => {
     let cancelled = false
 
     async function checkAdmin() {
-      try {
-        const res = await fetch('/api/auth/me', {
-          cache: 'no-store',
-        })
+      const nextAuth = await loadAdminAuthState()
 
-        const data = res.ok ? await res.json() : { isAdmin: false }
-
-        if (!cancelled) {
-          setAuth({
-            ready: true,
-            isAdmin: Boolean(data.isAdmin),
-          })
-        }
-      } catch {
-        if (!cancelled) {
-          setAuth({
-            ready: true,
-            isAdmin: false,
-          })
-        }
+      if (!cancelled) {
+        setAuth(nextAuth)
       }
     }
 
-    checkAdmin()
+    void checkAdmin()
     return () => {
       cancelled = true
     }

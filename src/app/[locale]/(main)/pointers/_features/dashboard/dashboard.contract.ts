@@ -13,7 +13,7 @@ import type { PointersRepository } from './dashboard.port'
 
 const LocalizedTextSchema = z.object({
   ja: z.string().trim().min(1),
-  en: z.string().trim().min(1),
+  en: z.string().trim().optional().default(''),
 })
 
 const DashboardSourceLinkSchema = z.object({
