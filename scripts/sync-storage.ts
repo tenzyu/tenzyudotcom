@@ -3,7 +3,7 @@ import { join, relative } from 'node:path';
 import { put, list, get } from '@vercel/blob';
 
 /**
- * Storage sync script for Vercel Blob (Editorial & Blog).
+ * Storage sync script for Vercel Blob (Editor & Blog).
  * 
  * Usage:
  *   PUSH (Local -> Blob):

@@ -18,7 +18,7 @@ user-invocable: false
 `/blog` は、技術記事、思考プロセスの記録、または定期的な更新を公開する主要なパブリッシング機能である。
 長文のコンテンツ、コードスニペット、画像などの豊かな表現力（MDXなど）をサポートすることが求められる。
 
-## 2. Editorial Structure & Authoring
+## 2. Editor Structure & Authoring
 
 - **Separation of Authoring and Rendering**: 記事のコンテンツ（Markdown/MDX）ソースとレンダリングコンポーネントは明確に分離される。
 - **Categories**: カテゴリは一貫して適用され、ブログトップページやナビゲーションで明確に区別される。

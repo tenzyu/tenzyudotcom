@@ -15,4 +15,4 @@ Tenzyu.com is a personal portfolio and site for "tenzyu", featuring a blog, note
 3. **site shell**: `src/components/shell`
 4. **site-ui component**: `src/components/site-ui` (presentation primitives)
 5. **pure shared logic**: `src/lib`, `src/config`
-6. **authored content**: `src/content`, `storage/editorial`
+6. **authored content**: `src/content`, `storage/editor`

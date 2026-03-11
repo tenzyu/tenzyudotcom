@@ -71,13 +71,12 @@ export const env = {
   youtubeDataApiKey: readOptionalString('YOUTUBE_DATA_API_KEY'),
   osuClientId: readOptionalInteger('OSU_CLIENT_ID'),
   osuClientSecret: readOptionalString('OSU_CLIENT_SECRET'),
-  editorAdminPassword: readOptionalString('EDITOR_ADMIN_PASSWORD') ?? readOptionalString('EDITORIAL_ADMIN_PASSWORD'),
-  editorSessionSecret: readOptionalString('EDITOR_SESSION_SECRET') ?? readOptionalString('EDITORIAL_SESSION_SECRET'),
+  editorAdminPassword: readOptionalString('EDITOR_ADMIN_PASSWORD'),
+  editorSessionSecret: readOptionalString('EDITOR_SESSION_SECRET'),
   editorStorageDriver:
     readOptionalEnum('EDITOR_STORAGE_DRIVER', ['local', 'blob'] as const) ??
-    readOptionalEnum('EDITORIAL_STORAGE_DRIVER', ['local', 'blob'] as const) ??
     'local',
-  editorBlobPrefix: readOptionalString('EDITOR_BLOB_PREFIX') ?? readOptionalString('EDITORIAL_BLOB_PREFIX') ?? 'editor',
+  editorBlobPrefix: readOptionalString('EDITOR_BLOB_PREFIX') ?? 'editor',
   blobReadWriteToken: readOptionalString('BLOB_READ_WRITE_TOKEN'),
 } as const
 

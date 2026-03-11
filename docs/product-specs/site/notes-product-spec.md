@@ -38,7 +38,7 @@ user-invocable: false
 ## Route
 
 - public: `/:locale/notes`
-- admin: `/:locale/editorial/notes`
+- admin: `/:locale/editor/notes`
 
 ## Source Shape
 

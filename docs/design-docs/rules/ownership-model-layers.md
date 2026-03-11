@@ -15,7 +15,7 @@ chapter: Foundations
 3. **site shell**: `src/components/shell/` (サイトの骨格)
 4. **site-ui component**: `src/components/site-ui/` (汎用プレゼンテーション部品)
 5. **pure shared logic**: `src/lib/`, `src/config/` (クロスルートの純粋ロジック・設定)
-6. **authored content**: `storage/` 配下（`blog/*.mdx`, `editorial/*.json` 等）の人間が管理し Vercel Blob と同期するデータ
+6. **authored content**: `storage/` 配下（`blog/*.mdx`, `editor/*.json` 等）の人間が管理し Vercel Blob と同期するデータ
 
 **Incorrect:**
 

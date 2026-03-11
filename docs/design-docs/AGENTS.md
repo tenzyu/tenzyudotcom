@@ -56,7 +56,7 @@ boundaries, and automated verification to maintain high technical integrity.
    - 5.1 [Harness Engineering](#51-harness-engineering)
    - 5.2 [i18n: Meaning vs Data Separation](#52-i18n-meaning-vs-data-separation)
    - 5.3 [Memory Layers & Persistence](#53-memory-layers-persistence)
-   - 5.4 [Editorial Role Separation](#54-editorial-role-separation)
+   - 5.4 [Editor Role Separation](#54-editor-role-separation)
    - 5.5 [Decision Priority Order](#55-decision-priority-order)
    - 5.6 [Product Core Values](#56-product-core-values)
    - 5.7 [Normative: Target over Current](#57-normative-target-over-current)
@@ -83,7 +83,7 @@ boundaries, and automated verification to maintain high technical integrity.
 3. **site shell**: `src/components/shell/` (サイトの骨格)
 4. **site-ui component**: `src/components/site-ui/` (汎用プレゼンテーション部品)
 5. **pure shared logic**: `src/lib/`, `src/config/` (クロスルートの純粋ロジック・設定)
-6. **authored content**: `storage/` 配下（`blog/*.mdx`, `editorial/*.json` 等）の人間が管理し Vercel Blob と同期するデータ
+6. **authored content**: `storage/` 配下（`blog/*.mdx`, `editor/*.json` 等）の人間が管理し Vercel Blob と同期するデータ
 
 **Incorrect:**
 
@@ -309,7 +309,7 @@ export const MY_LINKS = [
 export type MyLink = { name: string; url: string }
 
 // データはストレージから動的に読み込む
-const { collection } = await editorialRepository.loadState('links')
+const { collection } = await editorRepository.loadState('links')
 ```
 
 ### 1.8 Vertical Slice Architecture (VSA) <a id="18-vertical-slice-architecture-vsa-"></a>
@@ -1054,7 +1054,7 @@ export const content = {
 // 今回のタスクで得た具体的な教訓は completed ログに残す
 ```
 
-### 5.4 Editorial Role Separation <a id="54-editorial-role-separation"></a>
+### 5.4 Editor Role Separation <a id="54-editor-role-separation"></a>
 
 **Impact: MEDIUM**
 

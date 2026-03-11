@@ -13,7 +13,7 @@
   - `site shell`: `src/components/shell`
   - `site-ui component`: `src/components/site-ui` (no domain knowledge)
   - `pure shared logic`: `src/lib`, `src/config`
-  - `authored content`: `src/content`, `storage/editorial`
+  - `authored content`: `src/content`, `storage/editor`
 
 ## General Coding Rules
 - **Local-first**: Keep code local to its usage. Promote to shared only after reuse is real.

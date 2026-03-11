@@ -1,12 +1,12 @@
 ---
-title: "Editorial Role Separation"
+title: "Editor Role Separation"
 impact: MEDIUM
 impactDescription: 文言の役割（メタデータ、見出し、本文、ナビ）を分離し、UX と SEO を両立させる。
-tags: content, editorial, seo
+tags: content, editor, seo
 chapter: Intelligence
 ---
 
-# Editorial Role Separation
+# Editor Role Separation
 
 全ての文言を一律に扱わず、その露出場所と目的に応じて役割を分離する。
 
