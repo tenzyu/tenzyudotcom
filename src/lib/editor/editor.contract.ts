@@ -4,7 +4,7 @@ import { parseNoteSourceEntries } from '@/app/[locale]/(main)/notes/_features/no
 import { parseDashboardSourceCategories } from '@/app/[locale]/(main)/pointers/_features/dashboard/dashboard.contract'
 import { parsePuzzleSourceCategories } from '@/app/[locale]/(main)/puzzles/_features/puzzles.contract'
 import { parseRecommendationSourceEntries } from '@/app/[locale]/(main)/recommendations/_features/recommendations.contract'
-import { env, isEditorBlobStorage } from '@/config/env.contract'
+import { isEditorBlobStorage } from '@/config/env.contract'
 import { parseLinkSourceEntries } from '@/features/links/links.contract'
 import { get, list, put } from '@vercel/blob'
 import matter from 'gray-matter'
@@ -19,7 +19,7 @@ import type {
   RevalidatePathTarget,
 } from './editor.port'
 
-const LOCAL_EDITOR_DIR = join(process.cwd(), 'storage', 'editor')
+const LOCAL_STORAGE_DIR = join(process.cwd(), 'storage')
 
 export type EditorCollectionDescriptor<K extends EditorCollectionId> = {
   id: K
@@ -44,7 +44,7 @@ export const EDITOR_COLLECTIONS: {
   recommendations: {
     id: 'recommendations',
     label: 'Recommendations',
-    storagePath: 'recommendations.json',
+    storagePath: 'editor/recommendations.json',
     publicPaths: withLocales('/recommendations'),
     getDefaultValue: () => [],
     parse: parseRecommendationSourceEntries,
@@ -52,7 +52,7 @@ export const EDITOR_COLLECTIONS: {
   notes: {
     id: 'notes',
     label: 'Notes',
-    storagePath: 'notes.json',
+    storagePath: 'editor/notes.json',
     publicPaths: withLocales('/notes'),
     getDefaultValue: () => [],
     parse: parseNoteSourceEntries,
@@ -60,7 +60,7 @@ export const EDITOR_COLLECTIONS: {
   puzzles: {
     id: 'puzzles',
     label: 'Puzzles',
-    storagePath: 'puzzles.json',
+    storagePath: 'editor/puzzles.json',
     publicPaths: withLocales('/puzzles'),
     getDefaultValue: () => [],
     parse: parsePuzzleSourceCategories,
@@ -68,7 +68,7 @@ export const EDITOR_COLLECTIONS: {
   pointers: {
     id: 'pointers',
     label: 'Pointers',
-    storagePath: 'pointers.json',
+    storagePath: 'editor/pointers.json',
     publicPaths: withLocales('/pointers'),
     getDefaultValue: () => [],
     parse: parseDashboardSourceCategories,
@@ -76,7 +76,7 @@ export const EDITOR_COLLECTIONS: {
   links: {
     id: 'links',
     label: 'Links',
-    storagePath: 'links.json',
+    storagePath: 'editor/links.json',
     publicPaths: [
       ...withLocales('/links'),
       ...LOCALE_PREFIXES.map((locale) => ({
@@ -113,12 +113,12 @@ export class EditorVersionConflictError extends EditorStorageError {}
 
 function getBlobPath(collectionId: EditorCollectionId) {
   const descriptor = getEditorCollectionDescriptor(collectionId)
-  return `${env.editorBlobPrefix}/${descriptor.storagePath}`
+  return descriptor.storagePath
 }
 
 function getLocalPath(collectionId: EditorCollectionId) {
   const descriptor = getEditorCollectionDescriptor(collectionId)
-  return join(LOCAL_EDITOR_DIR, descriptor.storagePath)
+  return join(LOCAL_STORAGE_DIR, descriptor.storagePath)
 }
 
 async function readJsonFromStream(stream: ReadableStream<Uint8Array>) {
@@ -276,8 +276,9 @@ export class DefaultEditorRepository implements EditorRepository {
       }
     }
 
-    await mkdir(LOCAL_EDITOR_DIR, { recursive: true })
-    await writeFile(getLocalPath(collectionId), `${serialized}\n`, 'utf8')
+    const localPath = getLocalPath(collectionId)
+    await mkdir(join(localPath, '..'), { recursive: true })
+    await writeFile(localPath, `${serialized}\n`, 'utf8')
 
     return {
       version: nextVersion,
@@ -290,8 +291,10 @@ export class DefaultEditorRepository implements EditorRepository {
     body: string,
     expectedVersion?: string,
   ): Promise<void> {
+    const descriptor = getEditorCollectionDescriptor('blog')
     const content = matter.stringify(body, frontmatter)
     const filename = `${slug}.mdx`
+    const storagePath = `${descriptor.storagePath}/${filename}`
 
     if (expectedVersion) {
       const posts = await loadBlogPosts()
@@ -307,7 +310,7 @@ export class DefaultEditorRepository implements EditorRepository {
     }
 
     if (isEditorBlobStorage) {
-      await put(`blog/${filename}`, content, {
+      await put(storagePath, content, {
         access: 'public',
         addRandomSuffix: false,
         allowOverwrite: true,
@@ -316,7 +319,7 @@ export class DefaultEditorRepository implements EditorRepository {
       return
     }
 
-    const localPath = join(process.cwd(), 'storage', 'blog', filename)
+    const localPath = join(LOCAL_STORAGE_DIR, storagePath)
     await mkdir(join(localPath, '..'), { recursive: true })
     await writeFile(localPath, content, 'utf8')
   }

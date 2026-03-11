@@ -76,7 +76,6 @@ export const env = {
   editorStorageDriver:
     readOptionalEnum('EDITOR_STORAGE_DRIVER', ['local', 'blob'] as const) ??
     'local',
-  editorBlobPrefix: readOptionalString('EDITOR_BLOB_PREFIX') ?? 'editor',
   blobReadWriteToken: readOptionalString('BLOB_READ_WRITE_TOKEN'),
 } as const
 
