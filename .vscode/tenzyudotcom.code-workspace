@@ -20,15 +20,13 @@
 	"settings": {
 		"editor.formatOnSave": true,
 		"editor.defaultFormatter": "biomejs.biome",
-		"biome.lsp.bin": "${workspaceFolder:tenzyudotcom}/scripts/biome",
 		"editor.codeActionsOnSave": {
 			"source.fixAll.biome": "explicit",
 			"source.organizeImports": "never",
 			"source.organizeImports.biome": "explicit"
 		},
-		"files.associations": {
-			"*.css": "tailwindcss"
-		},
-		"markdown.updateLinksOnFileMove.enabled": "always"
+		"[jsonc]": {
+			"editor.defaultFormatter": "vscode.json-language-features"
+		}
 	}
 }
