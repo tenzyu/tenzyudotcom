@@ -2,7 +2,6 @@ import { getLocalizedUrl } from 'intlayer'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useIntlayer, useLocale } from 'next-intlayer/server'
-import { LinksEditorDeferred } from '@/app/[locale]/(admin)/editor/_features/links-editor-deferred'
 import { Content } from '@/components/site-ui/content'
 import { SectionHeader } from '@/components/site-ui/section-header'
 import {
@@ -13,7 +12,6 @@ import {
   ItemMedia,
   ItemTitle,
 } from '@/components/ui/item'
-import { AdminGate } from '@/features/admin/admin-gate'
 import { loadLinks } from '@/features/links/links.assemble'
 import { LINK_CATEGORY_ORDER, type LinkCategory, type MyLink } from './links.domain'
 
@@ -28,7 +26,6 @@ const CATEGORY_KEYS: Record<
 }
 export async function LinkList() {
   const content = useIntlayer('linksFeature')
-  const { locale } = useLocale()
   const links = await loadLinks()
   const groupedLinks = LINK_CATEGORY_ORDER.map((category) => ({
     value: category,
@@ -37,43 +34,29 @@ export async function LinkList() {
   }))
 
   return (
-    <>
-      <AdminGate>
-        <Content size="4xl" className="mb-12">
-          <div className="rounded-lg border-2 border-dashed p-4">
-            <p className="mb-4 text-center text-sm font-bold text-muted-foreground uppercase tracking-widest">
-              Admin View: Links
-            </p>
-            <LinksEditorDeferred locale={locale || 'ja'} />
-          </div>
-          <hr className="my-8" />
-        </Content>
-      </AdminGate>
-
-      <Content size="4xl" className="space-y-6">
-        {groupedLinks.map(
-          (group) =>
-            group.links.length > 0 && (
-              <section key={group.value} className="space-y-4">
-                <SectionHeader
-                  title={group.label.value}
-                  titleClassName="text-xl"
-                  className="space-y-1"
-                />
-                <nav
-                  aria-label={`${group.label.value} ${content.aria.groupLabelSuffix.value}`}
-                >
-                  <ItemGroup className="xs:grid-cols-2 grid grid-cols-1 gap-4 p-0 sm:grid-cols-3">
-                    {group.links.map((link) => (
-                      <LinkTile key={link.shortenUrl} link={link} />
-                    ))}
-                  </ItemGroup>
-                </nav>
-              </section>
-            ),
-        )}
-      </Content>
-    </>
+    <Content size="4xl" className="space-y-6">
+      {groupedLinks.map(
+        (group) =>
+          group.links.length > 0 && (
+            <section key={group.value} className="space-y-4">
+              <SectionHeader
+                title={group.label.value}
+                titleClassName="text-xl"
+                className="space-y-1"
+              />
+              <nav
+                aria-label={`${group.label.value} ${content.aria.groupLabelSuffix.value}`}
+              >
+                <ItemGroup className="xs:grid-cols-2 grid grid-cols-1 gap-4 p-0 sm:grid-cols-3">
+                  {group.links.map((link) => (
+                    <LinkTile key={link.shortenUrl} link={link} />
+                  ))}
+                </ItemGroup>
+              </nav>
+            </section>
+          ),
+      )}
+    </Content>
   )
 }
 
