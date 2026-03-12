@@ -1,14 +1,6 @@
 [
   {
     "body": {
-      "ja": "あ",
-      "en": ""
-    },
-    "createdAt": "2026-03-11T09:22:02.453Z",
-    "published": true
-  },
-  {
-    "body": {
       "ja": "短文の記録置き場。Twitter や Bluesky みたいな感覚で使う予定です。",
       "en": "A place for short notes. I plan to use it more like Twitter or Bluesky."
     },
@@ -21,6 +13,14 @@
       "en": "When I casually gave the LLM some instructions, and it properly read the docs and presented the right interpretation and process, I was so thrilled I'm spoiling it like a boyfriend. The LLM is a girl."
     },
     "createdAt": "2026-03-10T19:42:02.131Z",
+    "published": true
+  },
+  {
+    "body": {
+      "ja": "リプライ作りたいけどリレーションを JSON でやるのはなぁ……",
+      "en": "I want a reply function but I'm sure relations with JSON is not good as well."
+    },
+    "createdAt": "2026-03-11T02:27:03.107Z",
     "published": true
   }
 ]
