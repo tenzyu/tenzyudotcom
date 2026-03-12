@@ -1,4 +1,5 @@
 import { type EvaluateOptions, evaluate } from '@mdx-js/mdx'
+import type { MDXComponents } from 'mdx/types'
 import * as runtime from 'react/jsx-runtime'
 import rehypePrettyCode from 'rehype-pretty-code'
 import remarkGfm from 'remark-gfm'
@@ -6,17 +7,14 @@ import remarkGfm from 'remark-gfm'
 import { components } from './mdx-components'
 
 type MDXProps = {
-  components?: Record<string, React.ComponentType<Record<string, unknown>>>
+  components?: MDXComponents
 }
 
 type MDXComponent = React.ComponentType<MDXProps>
 
 type CustomMDXProps = {
   source: string
-  additionalComponents?: Record<
-    string,
-    React.ComponentType<Record<string, unknown>>
-  >
+  additionalComponents?: MDXComponents
 }
 
 const rehypePrettyCodeOptions = {
