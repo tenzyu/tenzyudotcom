@@ -61,6 +61,7 @@ module.exports = {
       module: {
         path: '^src/(lib|features)/',
         pathNot: [
+          '^src/features/editor-collections/',
           '\\.test\\.(?:ts|tsx)$',
           '\\.content\\.ts$',
           '\\.infra\\.ts$',
@@ -84,17 +85,20 @@ module.exports = {
     },
     {
       name:
-        'UI-facing modules and server entrypoints must not depend directly on infrastructure implementations.',
+        'Only assemble and infra modules may depend on general infrastructure implementations.',
       severity: 'error',
       from: {
-        path: [
-          '^src/(app|components|features)/.*\\.tsx$',
-          '^src/app/.*/actions\\.ts$', // server actions
-          '^src/app/.*/[^/]+\\.actions\\.ts$',
+        path: '^src/',
+        pathNot: [
+          '^src/.*\\.assemble\\.ts$',
+          '^src/.*\\.infra\\.ts$',
+          '^src/config/site\\.ts$',
+          '^src/app/.*/editor-session\\.ts$',
+          '^src/app/.*/createApi\\.ts$',
         ],
       },
       to: {
-        path: '^src/.*\\.infra\\.ts$',
+        path: '^src/(?!config/env\\.infra\\.ts$).*\\.infra\\.ts$',
       },
     },
     {
@@ -106,6 +110,23 @@ module.exports = {
       },
       to: {
         path: '^src/.*\\.(infra|assemble)\\.ts$',
+      },
+    },
+    {
+      name:
+        'Route entrypoints must not depend directly on infrastructure implementations.',
+      severity: 'error',
+      from: {
+        path: [
+          '^src/app/.*/page\\.tsx$',
+          '^src/app/.*/layout\\.tsx$',
+          '^src/app/.*/route\\.ts$',
+          '^src/app/.*/actions\\.ts$',
+          '^src/app/.*/[^/]+\\.actions\\.ts$',
+        ],
+      },
+      to: {
+        path: '^src/.*\\.infra\\.ts$',
       },
     },
   ],

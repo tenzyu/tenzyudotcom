@@ -39,7 +39,11 @@ function isSourceFile(relativePath: string) {
 }
 
 function isAnalyzedImplementationFile(relativePath: string) {
-  return !/\.(infra|domain|port|assemble|data)\.ts$/.test(relativePath)
+  return (
+    !/\.(infra|domain|port|assemble|data)\.ts$/.test(relativePath) &&
+    !relativePath.startsWith('src/features/editor-collections/') &&
+    relativePath !== 'src/lib/editor/editor-version.ts'
+  )
 }
 
 function getRouteOwner(relativePath: string) {

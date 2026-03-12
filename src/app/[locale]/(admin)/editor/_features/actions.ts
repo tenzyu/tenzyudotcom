@@ -3,7 +3,6 @@
 import { getLocalizedUrl } from 'intlayer'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
-import { z } from 'zod'
 import {
   EditorVersionConflictError,
 } from '@/lib/editor/editor.port'
@@ -12,6 +11,11 @@ import {
   makeSaveEditorCollectionUseCase,
 } from './editor.assemble'
 import {
+  parseEditorBlogSaveInput,
+  parseEditorCollectionSaveInput,
+  parseEditorLoginInput,
+} from './editor-input.assemble'
+import {
   clearEditorAdminSession,
   createEditorAdminSession,
   hasEditorAdminSession,
@@ -19,39 +23,8 @@ import {
   verifyEditorAdminPassword,
 } from './editor-session'
 
-const LoginSchema = z.object({
-  locale: z.string().trim().min(2),
-  password: z.string().min(1),
-})
-
-const SaveCollectionSchema = z.object({
-  locale: z.string().trim().min(2),
-  collectionId: z.enum([
-    'recommendations',
-    'notes',
-    'puzzles',
-    'pointers',
-    'links',
-    'blog',
-  ]),
-  sourceJson: z.string().trim().min(2),
-  expectedVersion: z.string().trim().min(1).optional(),
-})
-
-const SaveBlogPostSchema = z.object({
-  locale: z.string().trim().min(2),
-  slug: z.string().trim().min(1),
-  title: z.string().trim().min(1),
-  summary: z.string().trim().min(1),
-  publishedAt: z.string().trim().min(1),
-  updatedAt: z.string().trim().optional(),
-  tags: z.string().trim().optional(),
-  body: z.string(),
-  expectedVersion: z.string().trim().min(1).optional(),
-})
-
 export async function loginEditorAdminAction(formData: FormData) {
-  const parsed = LoginSchema.safeParse({
+  const parsed = parseEditorLoginInput({
     locale: formData.get('locale'),
     password: formData.get('password'),
   })
@@ -82,7 +55,7 @@ export async function logoutEditorAdminAction(formData: FormData) {
 }
 
 export async function saveEditorCollectionAction(formData: FormData) {
-  const parsed = SaveCollectionSchema.safeParse({
+  const parsed = parseEditorCollectionSaveInput({
     locale: formData.get('locale'),
     collectionId: formData.get('collectionId'),
     sourceJson: formData.get('sourceJson'),
@@ -141,7 +114,7 @@ export async function saveInlineEditorCollectionAction(input: {
   sourceJson: string
   expectedVersion?: string
 }) {
-  const parsed = SaveCollectionSchema.safeParse(input)
+  const parsed = parseEditorCollectionSaveInput(input)
 
   if (!parsed.success) {
     return {
@@ -185,7 +158,7 @@ export async function saveInlineEditorCollectionAction(input: {
 }
 
 export async function saveBlogPostAction(formData: FormData) {
-  const parsed = SaveBlogPostSchema.safeParse({
+  const parsed = parseEditorBlogSaveInput({
     locale: formData.get('locale'),
     slug: formData.get('slug'),
     title: formData.get('title'),

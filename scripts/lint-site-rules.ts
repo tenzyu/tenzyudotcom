@@ -19,6 +19,26 @@ export type SiteRuleIssue =
       filePath: string
       message: string
     }
+  | {
+      kind: 'descriptor-owner'
+      filePath: string
+      message: string
+    }
+  | {
+      kind: 'storage-owner'
+      filePath: string
+      message: string
+    }
+  | {
+      kind: 'zod-owner'
+      filePath: string
+      message: string
+    }
+  | {
+      kind: 'next-server-api-owner'
+      filePath: string
+      message: string
+    }
 
 type AnalyzeOptions = {
   projectRoot?: string
@@ -34,6 +54,13 @@ const SERVER_ACTION_ROOT = 'src/app/[locale]/(admin)/editor/_features'
 const EDITOR_COLLECTION_DOMAIN_FILE = 'src/lib/editor/editor.domain.ts'
 const EDITOR_COLLECTION_REGISTRY_FILE =
   'src/app/[locale]/(admin)/editor/_features/editor.collections.ts'
+const DESCRIPTOR_OWNER_ROOT = 'src/features/editor-collections/'
+const STORAGE_OWNER_ROOT = 'src/lib/editor/'
+const NEXT_SERVER_APIS = new Set([
+  'next/cache',
+  'next/headers',
+  'next/navigation',
+])
 
 function normalizePath(filePath: string) {
   return filePath.split(path.sep).join('/')
@@ -85,6 +112,34 @@ function isUseServerFile(sourceFile: ts.SourceFile) {
     ts.isExpressionStatement(firstStatement) &&
     ts.isStringLiteral(firstStatement.expression) &&
     firstStatement.expression.text === 'use server'
+  )
+}
+
+function collectProjectSourceFiles(projectRoot: string) {
+  return collectFiles(
+    path.join(projectRoot, 'src'),
+    (relativePath) =>
+      /\.(ts|tsx)$/.test(relativePath) &&
+      !relativePath.endsWith('.test.ts') &&
+      !relativePath.endsWith('.spec.ts'),
+  ).map((relativePath) => normalizePath(path.join('src', relativePath)))
+}
+
+function sourceFileHasImport(sourceFile: ts.SourceFile, moduleName: string) {
+  return sourceFile.statements.some(
+    (statement) =>
+      ts.isImportDeclaration(statement) &&
+      ts.isStringLiteral(statement.moduleSpecifier) &&
+      statement.moduleSpecifier.text === moduleName,
+  )
+}
+
+function isEditorCollectionDescriptorReference(node: ts.TypeNode | undefined) {
+  return (
+    node !== undefined &&
+    ts.isTypeReferenceNode(node) &&
+    ts.isIdentifier(node.typeName) &&
+    node.typeName.text === 'EditorCollectionDescriptor'
   )
 }
 
@@ -356,6 +411,136 @@ function collectMiddlewareConventionIssues(projectRoot: string) {
   return issues
 }
 
+function collectDescriptorOwnerIssues(projectRoot: string) {
+  const issues: SiteRuleIssue[] = []
+
+  for (const filePath of collectProjectSourceFiles(projectRoot)) {
+    if (
+      filePath === 'src/lib/editor/editor.port.ts' ||
+      filePath.startsWith(DESCRIPTOR_OWNER_ROOT)
+    ) {
+      continue
+    }
+
+    const sourceFile = readSourceFile(projectRoot, filePath)
+    const ownsDescriptor = sourceFile.statements.some(
+      (statement) =>
+        ts.isVariableStatement(statement) &&
+        statement.modifiers?.some(
+          (modifier) => modifier.kind === ts.SyntaxKind.ExportKeyword,
+        ) &&
+        statement.declarationList.declarations.some((declaration) =>
+          isEditorCollectionDescriptorReference(declaration.type),
+        ),
+    )
+
+    if (!ownsDescriptor) {
+      continue
+    }
+
+    issues.push({
+      kind: 'descriptor-owner',
+      filePath,
+      message:
+        'EditorCollectionDescriptor owners must live under src/features/editor-collections/',
+    })
+  }
+
+  return issues
+}
+
+function collectStorageOwnerIssues(projectRoot: string) {
+  const issues: SiteRuleIssue[] = []
+
+  for (const filePath of collectProjectSourceFiles(projectRoot)) {
+    if (filePath.startsWith(STORAGE_OWNER_ROOT)) {
+      continue
+    }
+
+    const sourceFile = readSourceFile(projectRoot, filePath)
+    const sourceText = sourceFile.getFullText()
+
+    if (
+      sourceFileHasImport(sourceFile, 'node:fs') ||
+      sourceFileHasImport(sourceFile, 'node:fs/promises') ||
+      sourceText.includes("join(process.cwd(), 'storage'") ||
+      sourceText.includes('join(process.cwd(), "storage"') ||
+      sourceText.includes("process.cwd(), 'storage'") ||
+      sourceText.includes('process.cwd(), "storage"') ||
+      sourceText.includes("'storage/") ||
+      sourceText.includes('"storage/')
+    ) {
+      issues.push({
+        kind: 'storage-owner',
+        filePath,
+        message:
+          'storage access must be owned by src/lib/editor/ infrastructure modules',
+      })
+    }
+  }
+
+  return issues
+}
+
+function collectZodOwnerIssues(projectRoot: string) {
+  const issues: SiteRuleIssue[] = []
+
+  for (const filePath of collectProjectSourceFiles(projectRoot)) {
+    const allowed =
+      filePath.endsWith('.assemble.ts') ||
+      filePath.startsWith(DESCRIPTOR_OWNER_ROOT)
+
+    if (allowed) {
+      continue
+    }
+
+    const sourceFile = readSourceFile(projectRoot, filePath)
+    if (!sourceFileHasImport(sourceFile, 'zod')) {
+      continue
+    }
+
+    issues.push({
+      kind: 'zod-owner',
+      filePath,
+      message:
+        'zod usage must be owned by *.assemble.ts or src/features/editor-collections/',
+    })
+  }
+
+  return issues
+}
+
+function collectNextServerApiOwnerIssues(projectRoot: string) {
+  const issues: SiteRuleIssue[] = []
+
+  for (const filePath of collectProjectSourceFiles(projectRoot)) {
+    const allowed =
+      filePath.startsWith('src/app/') || filePath.endsWith('.assemble.ts')
+
+    if (allowed) {
+      continue
+    }
+
+    const sourceFile = readSourceFile(projectRoot, filePath)
+    const hasNextServerImport = [...NEXT_SERVER_APIS].some((moduleName) =>
+      sourceFileHasImport(sourceFile, moduleName),
+    )
+
+    if (!hasNextServerImport) {
+      continue
+    }
+
+    issues.push({
+      kind: 'next-server-api-owner',
+      filePath,
+      message:
+        'Next server APIs must be owned by src/app/ entrypoints or *.assemble.ts',
+    })
+  }
+
+  return issues
+}
+
 export function analyzeSiteRules(options: AnalyzeOptions = {}) {
   const projectRoot = options.projectRoot ?? process.cwd()
 
@@ -363,6 +548,10 @@ export function analyzeSiteRules(options: AnalyzeOptions = {}) {
     ...collectMiddlewareConventionIssues(projectRoot),
     ...collectExportedFunctionIssues(projectRoot),
     ...collectEditorCollectionRegistryIssues(projectRoot),
+    ...collectDescriptorOwnerIssues(projectRoot),
+    ...collectStorageOwnerIssues(projectRoot),
+    ...collectZodOwnerIssues(projectRoot),
+    ...collectNextServerApiOwnerIssues(projectRoot),
   ].sort((left, right) =>
     left.filePath === right.filePath
       ? left.message.localeCompare(right.message)

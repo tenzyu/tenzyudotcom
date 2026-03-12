@@ -90,6 +90,52 @@ export const BLOG_COLLECTION_DESCRIPTOR: EditorCollectionDescriptor<'blog'> = {
     )
 
     await writeProjectFile(tempDir, 'src/middleware.ts', 'export function middleware() {}')
+
+    await writeProjectFile(
+      tempDir,
+      'src/features/misplaced/descriptor.ts',
+      `
+import type { EditorCollectionDescriptor } from '@/lib/editor/editor.port'
+
+export const BAD_DESCRIPTOR: EditorCollectionDescriptor<'blog'> = {
+  id: 'blog',
+}
+      `.trim(),
+    )
+
+    await writeProjectFile(
+      tempDir,
+      'src/features/misplaced/storage.ts',
+      `
+import { readFile } from 'node:fs/promises'
+
+export async function loadStorage() {
+  return readFile('storage/editor/notes.json', 'utf8')
+}
+      `.trim(),
+    )
+
+    await writeProjectFile(
+      tempDir,
+      'src/features/misplaced/schema.ts',
+      `
+import { z } from 'zod'
+
+export const Schema = z.object({ id: z.string() })
+      `.trim(),
+    )
+
+    await writeProjectFile(
+      tempDir,
+      'src/features/misplaced/server-api.ts',
+      `
+import { cookies } from 'next/headers'
+
+export async function readCookies() {
+  return cookies()
+}
+      `.trim(),
+    )
   })
 
   afterAll(async () => {
@@ -138,6 +184,35 @@ export const BLOG_COLLECTION_DESCRIPTOR: EditorCollectionDescriptor<'blog'> = {
       filePath: 'src/app/[locale]/(admin)/editor/_features/editor.collections.ts',
       message:
         "collection 'blog' exists in EditorCollectionId but is missing from EDITOR_COLLECTIONS",
+    })
+  })
+
+  test('reports descriptor owner, storage owner, zod owner, and next server api owner drift', () => {
+    const issues = analyzeSiteRules({ projectRoot: tempDir })
+
+    expect(issues).toContainEqual({
+      kind: 'descriptor-owner',
+      filePath: 'src/features/misplaced/descriptor.ts',
+      message:
+        'EditorCollectionDescriptor owners must live under src/features/editor-collections/',
+    })
+    expect(issues).toContainEqual({
+      kind: 'storage-owner',
+      filePath: 'src/features/misplaced/storage.ts',
+      message:
+        'storage access must be owned by src/lib/editor/ infrastructure modules',
+    })
+    expect(issues).toContainEqual({
+      kind: 'zod-owner',
+      filePath: 'src/features/misplaced/schema.ts',
+      message:
+        'zod usage must be owned by *.assemble.ts or src/features/editor-collections/',
+    })
+    expect(issues).toContainEqual({
+      kind: 'next-server-api-owner',
+      filePath: 'src/features/misplaced/server-api.ts',
+      message:
+        'Next server APIs must be owned by src/app/ entrypoints or *.assemble.ts',
     })
   })
 })
