@@ -36,6 +36,8 @@ export interface EditorRepository {
     descriptor: EditorCollectionDescriptor<K>,
   ): Promise<EditorState<K>>
 
+  loadBlogCollectionState(): Promise<EditorState<'blog'>>
+
   save<K extends EditorCollectionId>(
     descriptor: EditorCollectionDescriptor<K>,
     rawJson: string,

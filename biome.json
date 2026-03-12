@@ -39,7 +39,7 @@
   },
   "overrides": [
     {
-      "includes": ["src/config/env.contract.ts"],
+      "includes": ["src/config/env.infra.ts"],
       "linter": {
         "rules": {
           "style": {

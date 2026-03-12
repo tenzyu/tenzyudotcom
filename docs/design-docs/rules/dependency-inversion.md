@@ -24,10 +24,10 @@ async function Component() {
 
 - `*.domain.ts`: 純粋な型とドメインルール。
 - `*.port.ts`: application が依存する抽象化インターフェース。
-- `*.contract.ts`: infrastructure外部システムとの境界実装。port を実装し、外部 I/O の取得・保存・境界バリデーションを担う。
-- `*.assemble.ts`: application 層。複数の contract / source を組み合わせ、UI や use case に適した形へ整える。
+- `*.infra.ts`: infrastructure外部システムとの境界実装。port を実装し、外部 I/O の取得・保存を担う。
+- `*.assemble.ts`: application 層。入力検証を行い、複数の infra / source を組み合わせ、UI や use case に適した形へ整える。
 
-UI や application は具体実装ではなく `*.port.ts` に依存し、`*.contract.ts` がそれを実装する。
+UI や application は具体実装ではなく `*.port.ts` に依存し、`*.infra.ts` がそれを実装する。
 
 ```tsx
 // *.domain.ts
@@ -41,7 +41,7 @@ export interface UserRepository {
   save(user: User): Promise<User>;
 }
 
-// *.contract.ts
+// *.infra.ts
 export class PostgresUserRepository implements UserRepository {
   async save(user: User) { /* 外部DB保存 */ }
 }

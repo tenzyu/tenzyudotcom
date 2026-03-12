@@ -46,6 +46,7 @@ const crossRouteFeatureRules = ROUTE_FEATURE_ROOTS.map(
   },
 )
 
+// NOTE: name には LLMs が修正できるようにルールを貼ってあげると良いかも
 /** @type {import('dependency-cruiser').IConfiguration} */
 module.exports = {
   forbidden: [
@@ -62,7 +63,7 @@ module.exports = {
         pathNot: [
           '\\.test\\.(?:ts|tsx)$',
           '\\.content\\.ts$',
-          '\\.contract\\.ts$',
+          '\\.infra\\.ts$',
           '\\.port\\.ts$',
           '\\.domain\\.ts$',
           '\\.assemble\\.ts$',
@@ -83,7 +84,7 @@ module.exports = {
     },
     {
       name:
-        'UI-facing modules and server entrypoints must not depend directly on infrastructure contracts.',
+        'UI-facing modules and server entrypoints must not depend directly on infrastructure implementations.',
       severity: 'error',
       from: {
         path: [
@@ -93,18 +94,18 @@ module.exports = {
         ],
       },
       to: {
-        path: '^src/.*\\.contract\\.ts$',
+        path: '^src/.*\\.infra\\.ts$',
       },
     },
     {
       name:
-        'Domain and port modules must not depend on outer implementation layers like contract or assemble.',
+        'Domain and port modules must not depend on outer implementation layers like infra or assemble.',
       severity: 'error',
       from: {
         path: '^src/.*\\.(domain|port)\\.ts$',
       },
       to: {
-        path: '^src/.*\\.(contract|assemble)\\.ts$',
+        path: '^src/.*\\.(infra|assemble)\\.ts$',
       },
     },
   ],

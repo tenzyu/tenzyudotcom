@@ -1,4 +1,4 @@
-import { env } from '@/config/env.contract'
+import { env } from '@/config/env.infra'
 
 export const BASE_URL = env.siteUrl
 export const SITE_NAME = 'tenzyu.com' as const

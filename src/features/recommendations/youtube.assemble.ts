@@ -1,3 +1,5 @@
+import { fetchYouTubeVideoApiResponse } from './youtube.infra'
+
 type YouTubeVideoData = {
   title: string
   viewCount?: number
@@ -52,5 +54,22 @@ export function parseYouTubeVideoApiResponse(raw: unknown): YouTubeVideoData | n
   return {
     title,
     viewCount: Number.isFinite(viewCount) ? viewCount : undefined,
+  }
+}
+
+function formatViewCount(count: number | undefined, locale: string) {
+  if (!count || !Number.isFinite(count)) return '—'
+  return new Intl.NumberFormat(locale).format(count)
+}
+
+export async function fetchYouTubeVideoMeta(
+  videoId: string,
+  locale: string = 'en-US',
+): Promise<{ title: string; views: string }> {
+  const raw = await fetchYouTubeVideoApiResponse(videoId)
+  const data = parseYouTubeVideoApiResponse(raw)
+  return {
+    title: data?.title ?? 'Unknown',
+    views: formatViewCount(data?.viewCount, locale),
   }
 }

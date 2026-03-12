@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test'
-import { parseBlogFrontmatter } from './blog-frontmatter.contract'
+import { parseBlogFrontmatter } from './blog-frontmatter.assemble'
 
 describe('parseBlogFrontmatter', () => {
   test('normalizes and deduplicates tags', () => {

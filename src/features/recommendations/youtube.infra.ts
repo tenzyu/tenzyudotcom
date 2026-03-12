@@ -1,13 +1,12 @@
 import 'server-only'
 
 import { cache } from 'react'
-import { env } from '@/config/env.contract'
+import { env } from '@/config/env.infra'
 import { normalizeYouTubeVideoId } from '@/features/youtube/youtube.domain'
-import { parseYouTubeVideoApiResponse } from './youtube.contract'
 
 const RECOMMENDATIONS_REVALIDATE_SECONDS = 60 * 60 * 24
 
-const fetchYouTubeVideoData = cache(
+export const fetchYouTubeVideoApiResponse = cache(
   async (videoId: string) => {
     const apiKey = env.youtubeDataApiKey
     if (!apiKey) return null
@@ -27,25 +26,9 @@ const fetchYouTubeVideoData = cache(
       })
       if (!res.ok) return null
 
-      return parseYouTubeVideoApiResponse(await res.json())
+      return await res.json()
     } catch {
       return null
     }
   },
 )
-
-function formatViewCount(count: number | undefined, locale: string) {
-  if (!count || !Number.isFinite(count)) return '—'
-  return new Intl.NumberFormat(locale).format(count)
-}
-
-export async function fetchYouTubeVideoMeta(
-  videoId: string,
-  locale: string = 'en-US',
-): Promise<{ title: string; views: string }> {
-  const data = await fetchYouTubeVideoData(videoId)
-  return {
-    title: data?.title ?? 'Unknown',
-    views: formatViewCount(data?.viewCount, locale),
-  }
-}

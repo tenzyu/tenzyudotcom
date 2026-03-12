@@ -6,7 +6,7 @@ import {
   RECOMMENDATION_TAB_PARAM,
 } from './recommendation-search-params.domain'
 
-describe('recommendation search params contract', () => {
+describe('recommendation search params domain', () => {
   test('falls back to the default tab for unknown values', () => {
     expect(parseRecommendationTabParam(null)).toBe(DEFAULT_RECOMMENDATION_TAB)
     expect(parseRecommendationTabParam('unknown')).toBe(

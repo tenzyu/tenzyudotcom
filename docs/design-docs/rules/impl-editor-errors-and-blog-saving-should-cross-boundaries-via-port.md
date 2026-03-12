@@ -1,7 +1,7 @@
 ---
 title: Editor Errors And Blog Saving Should Cross Boundaries Via Port
 impact: MEDIUM
-impactDescription: application 層が contract 定義の例外型や特別保存処理に直接依存すると、JSON collection と blog の差分処理が infrastructure に引きずられる。
+impactDescription: application 層が infra 定義の例外型や特別保存処理に直接依存すると、JSON collection と blog の差分処理が infrastructure に引きずられる。
 tags: dependency-inversion, blog, editor
 chapter: Implementation
 ---
@@ -9,17 +9,17 @@ chapter: Implementation
 # Editor Errors And Blog Saving Should Cross Boundaries Via Port
 
 `blog` は editor collection の中でも特別で、JSON の一括保存ではなく MDX/frontmatter の保存経路を通ります。  
-それでも application 層は `contract` 直参照ではなく、`port/domain` に公開された repository interface とエラー型を通して扱うのが安全です。`EditorVersionConflictError` のような UI/application が捕捉する型も `port/domain` 側に置くと境界が崩れません。
+それでも application 層は `infra` 直参照ではなく、`port/domain` に公開された repository interface とエラー型を通して扱うのが安全です。`EditorVersionConflictError` のような UI/application が捕捉する型も `port/domain` 側に置くと境界が崩れません。
 
 **Incorrect:**
 
 ```tsx
 import {
-  editorRepository,
+  makeEditorRepository,
   EditorVersionConflictError,
-} from '@/lib/editor/editor.contract'
+} from '@/lib/editor/editor.assemble'
 
-await editorRepository.saveBlogPost(slug, frontmatter, body, version)
+await makeEditorRepository().saveBlogPost(slug, frontmatter, body, version)
 ```
 
 **Correct:**

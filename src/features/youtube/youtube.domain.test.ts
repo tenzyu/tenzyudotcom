@@ -5,7 +5,7 @@ import {
   normalizeYouTubeVideoId,
 } from './youtube.domain'
 
-describe('youtube.contract', () => {
+describe('youtube.domain', () => {
   const videoId = 'dQw4w9WgXcQ'
 
   test('builds youtube-nocookie embed urls', () => {

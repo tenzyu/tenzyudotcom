@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test'
-import { defineLinks } from './links.contract'
+import { defineLinks } from './links.domain'
 
 describe('defineLinks', () => {
   test('rejects duplicate short urls', () => {

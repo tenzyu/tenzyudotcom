@@ -2,7 +2,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import matter from 'gray-matter'
 import { cache } from 'react'
-import { parseBlogFrontmatter } from './blog-frontmatter.contract'
+import { parseBlogFrontmatter } from './blog-frontmatter.assemble'
 import {
   SITE_AUTHOR_NAME,
   SITE_LOGO_PATH,
@@ -17,7 +17,7 @@ import {
   buildBlogPostUrl,
   compareBlogPostsByPublishedAtDesc,
 } from './blog.domain'
-import { isEditorBlobStorage, env } from '@/config/env.contract'
+import { isEditorBlobStorage, env } from '@/config/env.infra'
 import { list, get } from '@vercel/blob'
 import { BLOG_COLLECTION_DESCRIPTOR } from '@/features/editor-collections/blog'
 

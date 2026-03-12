@@ -1,9 +1,10 @@
 import {
   definePuzzleCategories,
-  puzzlesRepository,
-} from './puzzles.contract'
+} from './puzzles.domain'
 import type { PuzzleCategory } from './puzzles.domain'
 import type { PuzzlesRepository } from './puzzles.port'
+import { EditorPuzzlesRepository } from './puzzles.infra'
+import { makeEditorRepository } from '@/lib/editor/editor.assemble'
 
 export type {
   Platform,
@@ -21,7 +22,9 @@ export class LoadPuzzlesUseCase {
 }
 
 export function makeLoadPuzzlesUseCase() {
-  return new LoadPuzzlesUseCase(puzzlesRepository)
+  return new LoadPuzzlesUseCase(
+    new EditorPuzzlesRepository(makeEditorRepository()),
+  )
 }
 
 export async function loadPuzzleCategories() {

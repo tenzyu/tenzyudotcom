@@ -39,7 +39,7 @@ function isSourceFile(relativePath: string) {
 }
 
 function isAnalyzedImplementationFile(relativePath: string) {
-  return !/\.(contract|domain|port|assemble|data)\.ts$/.test(relativePath)
+  return !/\.(infra|domain|port|assemble|data)\.ts$/.test(relativePath)
 }
 
 function getRouteOwner(relativePath: string) {

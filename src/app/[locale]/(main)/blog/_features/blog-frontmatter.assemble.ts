@@ -1,4 +1,4 @@
-import { parseFrontmatterBase } from './frontmatter.contract'
+import { parseFrontmatterBase } from './frontmatter.assemble'
 import type { BlogFrontmatter } from './blog.domain'
 
 function parseTags(value: unknown, filePath: string) {

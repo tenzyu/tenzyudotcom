@@ -1,9 +1,9 @@
 import { BLOG_COLLECTION_DESCRIPTOR } from '@/features/editor-collections/blog'
+import { LINKS_COLLECTION_DESCRIPTOR } from '@/features/editor-collections/links'
 import { NOTES_COLLECTION_DESCRIPTOR } from '@/features/editor-collections/notes'
 import { POINTERS_COLLECTION_DESCRIPTOR } from '@/features/editor-collections/pointers'
 import { PUZZLES_COLLECTION_DESCRIPTOR } from '@/features/editor-collections/puzzles'
 import { RECOMMENDATIONS_COLLECTION_DESCRIPTOR } from '@/features/editor-collections/recommendations'
-import { LINKS_COLLECTION_DESCRIPTOR } from '@/features/links/links.contract'
 import type {
   EditorCollectionDescriptor,
 } from '@/lib/editor/editor.port'

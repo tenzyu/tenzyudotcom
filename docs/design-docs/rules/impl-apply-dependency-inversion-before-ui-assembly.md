@@ -25,6 +25,6 @@ function LeafAdminMenu() {
 **Correct:**
 
 ```tsx
-// domain / port / contract / assemble で取得と保存の責務を整理し、
+// domain / port / infra / assemble で取得と保存の責務を整理し、
 // UI は leaf affordance として最小限の入力状態だけを持つ
 ```

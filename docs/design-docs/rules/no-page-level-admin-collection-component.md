@@ -20,7 +20,7 @@ inline admin を実装するとき、`*-collection.tsx` のような page-level 
 - 三点リーダー component を leaf として差し込む
 - tweet button のような追加導線も leaf component として差し込む
 - `AdminGate` は差し込みたい最小範囲だけを囲う
-- 取得・保存・整形は `domain / port / contract / assemble` へ押し下げる
+- 取得・保存・整形は `domain / port / infra / assemble` へ押し下げる
 
 **Incorrect:**
 

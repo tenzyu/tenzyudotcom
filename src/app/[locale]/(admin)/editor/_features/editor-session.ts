@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation'
 import {
   getRequiredEditorAdminCredentials,
   isProduction,
-} from '@/config/env.contract'
+} from '@/config/env.infra'
 
 const EDITOR_SESSION_COOKIE = 'editor_admin_session'
 const EDITOR_SESSION_TTL_SECONDS = 60 * 60 * 24 * 14

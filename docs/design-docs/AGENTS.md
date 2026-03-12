@@ -118,18 +118,18 @@ src/app/[locale]/.../_features/specific-button.tsx
 
 **Impact: HIGH**
 
-> mount point である `actions.ts` が `*.contract.ts` に直接依存すると、dependency inversion の境界が崩れ、UI/application から infrastructure 実装が漏れ出す。
+> mount point である `actions.ts` が `*.infra.ts` に直接依存すると、dependency inversion の境界が崩れ、UI/application から infrastructure 実装が漏れ出す。
 
 `src/app/.../_features/actions.ts` は Server Action の mount point であり、入力検証、認可、画面遷移だけを担当するのがよいです。  
-取得・保存の実処理は `*.assemble.ts` の use case に委譲し、認証情報やセッション処理は `session.ts` に寄せます。`actions.ts` から `*.contract.ts` を直接 import しないのが実運用上の前提です。
+取得・保存の実処理は `*.assemble.ts` の use case に委譲し、認証情報やセッション処理は `session.ts` に寄せます。`actions.ts` から `*.infra.ts` を直接 import しないのが実運用上の前提です。
 
 **Incorrect:**
 
 ```tsx
-import { editorRepository } from '@/lib/editor/editor.contract'
+import { makeEditorRepository } from '@/lib/editor/editor.assemble'
 
 export async function saveBlogPostAction(formData: FormData) {
-  await editorRepository.saveBlogPost(slug, frontmatter, body, version)
+  await makeEditorRepository().saveBlogPost(slug, frontmatter, body, version)
 }
 ```
 
@@ -278,10 +278,10 @@ async function Component() {
 
 - `*.domain.ts`: 純粋な型とドメインルール。
 - `*.port.ts`: application が依存する抽象化インターフェース。
-- `*.contract.ts`: infrastructure外部システムとの境界実装。port を実装し、外部 I/O の取得・保存・境界バリデーションを担う。
-- `*.assemble.ts`: application 層。複数の contract / source を組み合わせ、UI や use case に適した形へ整える。
+- `*.infra.ts`: infrastructure外部システムとの境界実装。port を実装し、外部 I/O の取得・保存を担う。
+- `*.assemble.ts`: application 層。入力検証を行い、複数の infra / source を組み合わせ、UI や use case に適した形へ整える。
 
-UI や application は具体実装ではなく `*.port.ts` に依存し、`*.contract.ts` がそれを実装する。
+UI や application は具体実装ではなく `*.port.ts` に依存し、`*.infra.ts` がそれを実装する。
 
 ```tsx
 // *.domain.ts
@@ -295,7 +295,7 @@ export interface UserRepository {
   save(user: User): Promise<User>;
 }
 
-// *.contract.ts
+// *.infra.ts
 export class PostgresUserRepository implements UserRepository {
   async save(user: User) { /* 外部DB保存 */ }
 }
@@ -333,7 +333,7 @@ export async function Component(){
 プログラムのソースコード（`src/`）の中に、人間が随時更新するコンテンツ定数（`*_SOURCE_ENTRIES` 等）を直接保持しない。これらは物理的に分離し、適切なストレージ層で管理する。
 
 - **Storage Separation**: コンテンツは `storage/` 配下（`editor/*.json`, `blog/*.mdx` 等）に集約する。
-- **Contract First**: データの構造は `src/app/.../_features/*.contract.ts` 等で Zod を用いて厳格に定義し（JSON）、または MDX フロントマターのバリデーターを通じて、読み込み時に必ず整合性を確認する。
+- **Validation In Assemble**: データの構造は `*.assemble.ts` や frontmatter parser で厳格に定義し、読み込み時に必ず整合性を確認する。
 - **Environment Transparency**: 開発時はローカルのファイルを、本番時はクラウドストレージ（Vercel Blob）を透過的に利用する。
 - **Synchronicity**: クラウドとローカルのデータは、専用の同期スクリプト（`scripts/sync-storage.ts`）を介して手動で同期可能にする。
 
@@ -395,13 +395,13 @@ src/app/[locale]/.../route/_features/
 
 > admin password や session secret の参照が複数ファイルへ広がると、認証ロジックの境界が曖昧になり、変更時の見落としが増える。
 
-`EDITOR_ADMIN_PASSWORD` や `EDITOR_SESSION_SECRET` は、どこからでも `env.contract.ts` を読んでよい値ではありません。  
+`EDITOR_ADMIN_PASSWORD` や `EDITOR_SESSION_SECRET` は、どこからでも `env.infra.ts` を読んでよい値ではありません。  
 admin 認証の owner を `src/features/admin/session.ts` に寄せ、`actions.ts` などの mount point は `verifyEditorAdminPassword()` や `requireEditorAdminSession()` のような helper だけを呼ぶ形にすると、責務と変更点が安定します。
 
 **Incorrect:**
 
 ```tsx
-import { env, getRequiredEditorAdminCredentials } from '@/config/env.contract'
+import { env, getRequiredEditorAdminCredentials } from '@/config/env.infra'
 
 export async function loginEditorAdminAction(formData: FormData) {
   if (!env.editorAdminPassword) return
@@ -611,7 +611,7 @@ Reference: [Security: Private Admin Editor (rules)](/docs/design-docs/rules/admi
 
 > ブラウザへの機密情報の漏洩を防ぎ、すべての環境変数の型安全性を確保する。
 
-外部ライブラリ（Vercel Blob, YouTube API 等）を呼び出す際、ライブラリ内部の暗黙的な環境変数参照（`process.env`）に頼らず、Infrastructure 層（`contract`）において `src/config/env.contract.ts` からパース済みの値を明示的に渡す。
+外部ライブラリ（Vercel Blob, YouTube API 等）を呼び出す際、ライブラリ内部の暗黙的な環境変数参照（`process.env`）に頼らず、Infrastructure 層（`infra`）において `src/config/env.infra.ts` からパース済みの値を明示的に渡す。
 
 `process.env` を複数ファイルから直接参照することを禁止し、機密情報の露出を最小化する。
 
@@ -628,8 +628,8 @@ const apiKey = process.env.API_KEY;
 **Correct:**
 
 ```tsx
-// env.contract.ts で一括管理し、型安全なオブジェクトをインポートする
-import { env } from "@/config/env.contract";
+// env.infra.ts で一括管理し、型安全なオブジェクトをインポートする
+import { env } from "@/config/env.infra";
 ```
 
 ### 2.8 Security: Outbound Boundary & Zero Trust <a id="28-security-outbound-boundary-zero-trust"></a>
@@ -742,7 +742,7 @@ inline admin を実装するとき、`*-collection.tsx` のような page-level 
 - 三点リーダー component を leaf として差し込む
 - tweet button のような追加導線も leaf component として差し込む
 - `AdminGate` は差し込みたい最小範囲だけを囲う
-- 取得・保存・整形は `domain / port / contract / assemble` へ押し下げる
+- 取得・保存・整形は `domain / port / infra / assemble` へ押し下げる
 
 **Incorrect:**
 
@@ -874,20 +874,20 @@ References
 
 **Impact: MEDIUM**
 
-> application 層が contract 定義の例外型や特別保存処理に直接依存すると、JSON collection と blog の差分処理が infrastructure に引きずられる。
+> application 層が infra 定義の例外型や特別保存処理に直接依存すると、JSON collection と blog の差分処理が infrastructure に引きずられる。
 
 `blog` は editor collection の中でも特別で、JSON の一括保存ではなく MDX/frontmatter の保存経路を通ります。  
-それでも application 層は `contract` 直参照ではなく、`port/domain` に公開された repository interface とエラー型を通して扱うのが安全です。`EditorVersionConflictError` のような UI/application が捕捉する型も `port/domain` 側に置くと境界が崩れません。
+それでも application 層は `infra` 直参照ではなく、`port/domain` に公開された repository interface とエラー型を通して扱うのが安全です。`EditorVersionConflictError` のような UI/application が捕捉する型も `port/domain` 側に置くと境界が崩れません。
 
 **Incorrect:**
 
 ```tsx
 import {
-  editorRepository,
+  makeEditorRepository,
   EditorVersionConflictError,
-} from '@/lib/editor/editor.contract'
+} from '@/lib/editor/editor.assemble'
 
-await editorRepository.saveBlogPost(slug, frontmatter, body, version)
+await makeEditorRepository().saveBlogPost(slug, frontmatter, body, version)
 ```
 
 **Correct:**
@@ -1328,7 +1328,7 @@ function LeafAdminMenu() {
 **Correct:**
 
 ```tsx
-// domain / port / contract / assemble で取得と保存の責務を整理し、
+// domain / port / infra / assemble で取得と保存の責務を整理し、
 // UI は leaf affordance として最小限の入力状態だけを持つ
 ```
 

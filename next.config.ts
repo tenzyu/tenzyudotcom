@@ -2,7 +2,7 @@ import { withIntlayer } from 'next-intlayer/server'
 import createMDX from '@next/mdx'
 
 import type { NextConfig } from 'next'
-import { isProduction } from './src/config/env.contract'
+import { isProduction } from './src/config/env.infra'
 
 const nextConfig: NextConfig = {
   images: {

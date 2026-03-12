@@ -8,13 +8,13 @@ chapter: Security & Safety
 
 # Editor Auth Credentials Should Have A Single Owner
 
-`EDITOR_ADMIN_PASSWORD` や `EDITOR_SESSION_SECRET` は、どこからでも `env.contract.ts` を読んでよい値ではありません。  
+`EDITOR_ADMIN_PASSWORD` や `EDITOR_SESSION_SECRET` は、どこからでも `env.infra.ts` を読んでよい値ではありません。  
 admin 認証の owner を `src/features/admin/session.ts` に寄せ、`actions.ts` などの mount point は `verifyEditorAdminPassword()` や `requireEditorAdminSession()` のような helper だけを呼ぶ形にすると、責務と変更点が安定します。
 
 **Incorrect:**
 
 ```tsx
-import { env, getRequiredEditorAdminCredentials } from '@/config/env.contract'
+import { env, getRequiredEditorAdminCredentials } from '@/config/env.infra'
 
 export async function loginEditorAdminAction(formData: FormData) {
   if (!env.editorAdminPassword) return

@@ -1,13 +1,12 @@
-import type {
-  DashboardCategory,
-  DashboardCategoryId,
-  DashboardLinkId,
-} from './dashboard.domain'
 import {
   defineDashboardCategories,
-  pointersRepository,
-} from './dashboard.contract'
+  type DashboardCategory,
+  type DashboardCategoryId,
+  type DashboardLinkId,
+} from './dashboard.domain'
+import { EditorPointersRepository } from './dashboard.infra'
 import type { PointersRepository } from './dashboard.port'
+import { makeEditorRepository } from '@/lib/editor/editor.assemble'
 
 type EditorLocale = 'ja' | 'en'
 
@@ -34,13 +33,17 @@ export class LoadPointersUseCase {
 }
 
 export function makeLoadPointersUseCase() {
-  return new LoadPointersUseCase(pointersRepository)
+  return new LoadPointersUseCase(
+    new EditorPointersRepository(makeEditorRepository()),
+  )
 }
 
 export async function assembleDashboardContent(locale: string) {
   const editorLocale = resolveEditorLocale(locale)
   const useCase = makeLoadPointersUseCase()
-  const sourceCategories = await pointersRepository.loadAll()
+  const sourceCategories = await new EditorPointersRepository(
+    makeEditorRepository(),
+  ).loadAll()
   const categories = await useCase.execute()
 
   const categoryContent = Object.fromEntries(
