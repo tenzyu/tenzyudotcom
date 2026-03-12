@@ -431,14 +431,14 @@ export async function fetchUrlMetadataAction(url: string) {
 - **Structural Guard**: ファイル配置は `structure-rules.md` を正本とする。現状がターゲットとズレている場合、変更のついでにターゲットへ寄せる。
 - **Mutation Guard**: 無関係な変更（Unrelated changes）を巻き戻さない。ユーザーが行った手動変更を勝手に消さない。
 
-**Avoid:**
+**Incorrect:**
 
 ```text
 // 既存の正しい構造を、自分の都合に合わせて勝手に崩す
 // バグ修正のついでに、全く関係のないファイルのフォーマットを書き換える
 ```
 
-**Prefer:**
+**Correct:**
 
 ```text
 // 既存のパターンを尊重しつつ、ターゲットアーキテクチャに一歩近づける
