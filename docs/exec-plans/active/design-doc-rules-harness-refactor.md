@@ -125,33 +125,30 @@ execution-ready: true
   - `impl-admin-gate-contract.md`
   - `impl-inline-admin-composition.md`
   - `impl-avoid-route-post-and-hard-reload-for-inline-admin.md`
-  - `logic-presentation-separation.md`
+  - `impl-component-separation.md`
   - `impl-parse-dont-validate-boundaries.md`
-  - `editor-collection-registration-contract.md`
+  - `impl-editor-collection-registration-contract.md`
   - `impl-editor-errors-and-blog-saving-should-cross-boundaries-via-port.md`
-  - `routing-conventions.md`
-  - `next-intlayer-entrypoint-contract.md`
+  - `impl-route-entrypoint-contracts.md`
 - design cluster
   - `design-token-first.md`
   - `design-a11y-default.md`
-  - `composition-patterns.md`
-  - `locale-switcher-single-flow.md`
-  - `performance-optimization.md`
+  - `design-composition-patterns.md`
+  - `design-locale-switcher-single-flow.md`
+  - `design-performance-optimization.md`
 - intelligence / product / guard cluster
-  - `harness-engineering.md`
-  - `memory-layers.md`
-  - `decision-priority-order.md`
-  - `editor-role-separation.md`
+  - `intelligence-harness-memory-model.md`
+  - `intelligence-decision-policy.md`
+  - `product-content-role-separation.md`
   - `product-core-values.md`
-  - `normative-target-over-current.md`
-  - `authored-content-management.md`
+  - `foundation-authored-content-management.md`
   - `guard-structural-mutation.md`
   - `guard-verification.md`
-  - `i18n-meaning-vs-data.md`
-  - `quote-path-command.md`
+  - `intelligence-meaning-vs-data.md`
+  - `cli-quote-path-command.md`
   - `reliability-metadata-safety.md`
   - `reliability-fault-tolerance.md`
-  - `no-dirty-code.md`
+  - `impl-component-separation.md`
 
 ### Initial Consolidation Candidates
 
@@ -163,7 +160,7 @@ execution-ready: true
 - inline editor flow pack
   - source candidates:
     - `impl-avoid-route-post-and-hard-reload-for-inline-admin.md`
-    - `editor-collection-registration-contract.md`
+    - `impl-editor-collection-registration-contract.md`
 - proxy boundary pack
   - source candidates:
     - `security-proxy-boundary.md`
@@ -176,7 +173,7 @@ execution-ready: true
     - `impl-apply-di-before-ui-assembly.md`
     - `impl-actions-mount-through-assemble.md`
     - `impl-editor-errors-and-blog-saving-should-cross-boundaries-via-port.md`
-    - `logic-presentation-separation.md`
+    - `impl-component-separation.md`
 - ownership pack
   - source candidates:
     - `foundation-owner-placement-layers.md`
@@ -229,7 +226,7 @@ execution-ready: true
 
 ### Deliberately Deferred
 
-- `logic-presentation-separation.md`
+- `impl-component-separation.md`
   - implementation cluster との重なりはあるが、slice 3 で editor / admin 実装群と一緒に扱う
 - `docs/product-specs/**` と `docs/workflows/**` の古い rule link
   - 現在の guardrail では作業スコープ外なのでこの slice では更新していない
@@ -239,6 +236,71 @@ execution-ready: true
 - foundation cluster の file 名に prefix が付いている
 - ownership / feature slice / dependency inversion の rule が短く読み分けられる
 - dependency inversion の思想説明と file role contract が別 rule になっている
+
+## Slice 2 Retry Working Notes
+
+### Current Status
+
+- completed
+- initially left behind だった design / intelligence / product の未 prefix rule を補完した
+- この再試行では統合より prefix 整備を優先し、rename 中心で揃えた
+
+### Applied Renames
+
+- `composition-patterns.md`
+  - `design-composition-patterns.md`
+- `locale-switcher-single-flow.md`
+  - `design-locale-switcher-single-flow.md`
+- `performance-optimization.md`
+  - `design-performance-optimization.md`
+- `harness-engineering.md`
+  - merged into `intelligence-harness-memory-model.md`
+- `memory-layers.md`
+  - merged into `intelligence-harness-memory-model.md`
+- `decision-priority-order.md`
+  - merged into `intelligence-decision-policy.md`
+- `editor-role-separation.md`
+  - `product-content-role-separation.md`
+- `normative-target-over-current.md`
+  - merged into `intelligence-decision-policy.md`
+- `i18n-meaning-vs-data.md`
+  - `intelligence-meaning-vs-data.md`
+
+### Deliberately Deferred
+
+- `product-core-values.md`
+  - 既に prefix 済みなので rename しない
+- `design-token-first.md`, `design-a11y-default.md`, `design-composition-patterns.md`, `design-performance-optimization.md`, `design-locale-switcher-single-flow.md`
+  - design 側は読み筋がまだ独立しており、現時点では無理に統合しない
+- `guard-structural-mutation.md`, `guard-verification.md`
+  - guard prefix が既に付いているのでこの retry では変更しない
+- `reliability-*`, `cli-quote-path-command.md`, `impl-component-separation.md`
+  - 今回の retry request の主題外
+
+### Verification Notes
+
+- `bun run build:docs-map`
+  - passed
+- `docs/design-docs/AGENTS.md`
+  - design / intelligence 節の index が新 filename 群へ追随して再生成されることを確認
+
+### Slice 2 Retry Exit Criteria
+
+- design cluster の未 prefix rule が残っていない
+- intelligence / product cluster の未 prefix rule が残っていない
+- 無理に merge すべきでない design rule を残す判断が明文化されている
+
+### Slice 2 Retry Consolidation Addendum
+
+- intelligence merges
+  - `intelligence-harness-memory-model.md`
+    - from `intelligence-harness-engineering.md`
+    - from `intelligence-memory-layers.md`
+  - `intelligence-decision-policy.md`
+    - from `intelligence-decision-priority-order.md`
+    - from `intelligence-target-over-current.md`
+- no-merge decision
+  - design cluster は token / a11y / locale / composition / performance の関心がまだ独立しているため、この時点では統合しない
 
 ## Slice 3 Working Notes
 
@@ -284,7 +346,7 @@ execution-ready: true
   - proxy と関連は強いが、zero-trust input 全般へ効くため今回は統合しない
 - `security-server-actions-require-auth-even-for-helper-actions.md`
   - editor 固有 rule に閉じないため、session / write safety へ混ぜない
-- `editor-collection-registration-contract.md`
+- `impl-editor-collection-registration-contract.md`
   - inline admin と近いが、登録 contract と composition constraint はまだ別に読めたほうが良い
 
 ### Verification Notes
