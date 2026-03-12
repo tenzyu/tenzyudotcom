@@ -1,10 +1,10 @@
 import { useIntlayer } from 'next-intlayer/server'
 import { useLocale } from 'next-intlayer/server'
-import { PageHeader } from '@/components/site-ui/page-header'
-import { SectionHeader } from '@/components/site-ui/section-header'
+import { PageHeader } from '@/app/[locale]/_features/page-header'
+import { SectionHeader } from '@/app/[locale]/(main)/_features/section-header'
 import { assembleDashboardContent } from './dashboard/dashboard.assemble'
 import { ActionLinkTile } from './dashboard/action-link-tile'
-import { AdminGate } from '@/features/admin/admin-gate'
+import { AdminGate } from '@/app/[locale]/(main)/_features/admin/admin-gate'
 import { PointerAddButton } from './pointer-add-button'
 import { PointerAdminMenu } from './pointer-admin-menu'
 

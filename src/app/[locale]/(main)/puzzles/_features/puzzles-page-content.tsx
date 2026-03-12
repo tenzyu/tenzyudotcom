@@ -1,6 +1,6 @@
 import { useIntlayer, useLocale } from 'next-intlayer/server'
-import { PageHeader } from '@/components/site-ui/page-header'
-import { SectionHeader } from '@/components/site-ui/section-header'
+import { PageHeader } from '@/app/[locale]/_features/page-header'
+import { SectionHeader } from '@/app/[locale]/(main)/_features/section-header'
 import {
   Empty,
   EmptyDescription,
@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/empty'
 import type { PuzzleCategoryWithOgp } from './types'
 import { PuzzleTile } from './puzzle-tile'
-import { AdminGate } from '@/features/admin/admin-gate'
+import { AdminGate } from '@/app/[locale]/(main)/_features/admin/admin-gate'
 import { PuzzleAddButton } from './puzzle-add-button'
 import { PuzzleAdminMenu } from './puzzle-admin-menu'
 

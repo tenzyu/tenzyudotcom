@@ -1,8 +1,8 @@
 import { useIntlayer } from 'next-intlayer/server'
 import type { PropsWithChildren } from 'react'
-import { Content } from '@/components/site-ui/content'
-import { Section } from '@/components/site-ui/section'
-import { SectionHeader } from '@/components/site-ui/section-header'
+import { Content } from '@/app/[locale]/_features/content'
+import { Section } from './section'
+import { SectionHeader } from '@/app/[locale]/(main)/_features/section-header'
 import { TWEETS } from './twitter.source'
 import {
   FEATURED_VIDEO_IDS,

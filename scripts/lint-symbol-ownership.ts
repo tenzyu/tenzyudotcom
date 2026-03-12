@@ -7,6 +7,7 @@ export type OwnershipIssue = {
   declarationFile: string
   declarationOwner: string
   referenceOwners: string[]
+  targetOwner: string
 }
 
 type ExportRecord = {
@@ -14,13 +15,15 @@ type ExportRecord = {
   symbolName: string
   declarationFile: string
   declarationOwner: string
-  layer: 'shared' | 'route-local'
+  layer: 'app-owner' | 'shared-owner'
 }
 
 type AnalyzeOptions = {
   projectRoot?: string
   tsconfigPath?: string
 }
+
+const OWNERSHIP_DEBT_ALLOWLIST = new Set<string>()
 
 function normalizePath(filePath: string) {
   return filePath.split(path.sep).join('/')
@@ -46,65 +49,67 @@ function isAnalyzedImplementationFile(relativePath: string) {
   )
 }
 
-function getRouteOwner(relativePath: string) {
-  if (relativePath.startsWith('src/app/[locale]/(admin)/editor/')) {
-    return 'route/editor'
-  }
+function getTopLevelOwnedDirectory(relativePath: string, prefix: string) {
+  const remainder = relativePath.slice(prefix.length)
+  const segment = remainder.split('/')[0]
+  return segment ? `${prefix}${segment}` : prefix.slice(0, -1)
+}
 
-  if (relativePath.startsWith('src/app/[locale]/_features/')) {
-    return 'route/root'
-  }
-
-  const mainPrefix = 'src/app/[locale]/(main)/'
-  if (!relativePath.startsWith(mainPrefix)) {
+function getAppOwner(relativePath: string) {
+  if (!relativePath.startsWith('src/app/')) {
     return null
   }
 
-  const remainder = relativePath.slice(mainPrefix.length)
+  const parts = relativePath.split('/')
+  const featureIndex = parts.indexOf('_features')
+  if (featureIndex > 0) {
+    return parts.slice(0, featureIndex).join('/')
+  }
 
-  if (remainder.startsWith('(home)/')) return 'route/home'
-  if (remainder.startsWith('archives/')) return 'route/archives'
-  if (remainder.startsWith('blog/')) return 'route/blog'
-  if (remainder.startsWith('links/')) return 'route/links'
-  if (remainder.startsWith('tools/')) return 'route/tools'
-
-  const firstSegment = remainder.split('/')[0]
-  if (!firstSegment) return null
-  return `route/${firstSegment}`
+  return normalizePath(path.dirname(relativePath))
 }
 
 function getOwner(relativePath: string) {
-  if (relativePath.startsWith('src/app/api/auth/')) {
-    return 'route/editor'
-  }
-
-  if (relativePath.startsWith('src/app/api/editor/')) {
-    return 'route/editor'
+  if (relativePath.startsWith('src/app/')) {
+    return getAppOwner(relativePath)
   }
 
   if (relativePath.startsWith('src/features/')) {
-    const domain = relativePath.split('/')[2]
-    return domain ? `features/${domain}` : 'features'
+    return getTopLevelOwnedDirectory(relativePath, 'src/features/')
+  }
+
+  if (relativePath.startsWith('src/components/')) {
+    return getTopLevelOwnedDirectory(relativePath, 'src/components/')
   }
 
   if (relativePath.startsWith('src/lib/')) {
-    const domain = relativePath.split('/')[2]
-    return domain ? `lib/${domain}` : 'lib'
+    return getTopLevelOwnedDirectory(relativePath, 'src/lib/')
   }
 
   if (relativePath.startsWith('src/config/')) {
-    return 'config'
+    return 'src/config'
   }
 
-  return getRouteOwner(relativePath)
+  return null
 }
 
-function isRouteLocalFeature(relativePath: string) {
-  return /src\/app\/\[locale\]\/.*\/_features\//.test(relativePath)
+function getLayer(relativePath: string): ExportRecord['layer'] | null {
+  if (relativePath.startsWith('src/app/')) {
+    return 'app-owner'
+  }
+
+  if (
+    relativePath.startsWith('src/features/') ||
+    relativePath.startsWith('src/components/')
+  ) {
+    return 'shared-owner'
+  }
+
+  return null
 }
 
-function isSharedFile(relativePath: string) {
-  return relativePath.startsWith('src/features/') || relativePath.startsWith('src/lib/')
+function isAppOwner(owner: string) {
+  return owner.startsWith('src/app/')
 }
 
 function hasExportModifier(node: ts.Node) {
@@ -231,6 +236,27 @@ function loadTsConfig(tsconfigPath: string) {
   return config
 }
 
+function getLeastCommonOwner(owners: readonly string[]) {
+  if (owners.length === 0) {
+    return null
+  }
+
+  const segments = owners.map((owner) => owner.split('/'))
+  const minLength = Math.min(...segments.map((parts) => parts.length))
+  const common: string[] = []
+
+  for (let index = 0; index < minLength; index += 1) {
+    const candidate = segments[0][index]
+    if (segments.every((parts) => parts[index] === candidate)) {
+      common.push(candidate)
+      continue
+    }
+    break
+  }
+
+  return common.length > 0 ? common.join('/') : null
+}
+
 export function analyzeSymbolOwnership(options: AnalyzeOptions = {}) {
   const projectRoot = options.projectRoot ?? process.cwd()
   const tsconfigPath = options.tsconfigPath ?? path.join(projectRoot, 'tsconfig.json')
@@ -248,15 +274,8 @@ export function analyzeSymbolOwnership(options: AnalyzeOptions = {}) {
     if (!isSourceFile(relativePath) || !isAnalyzedImplementationFile(relativePath)) continue
 
     const declarationOwner = getOwner(relativePath)
-    if (!declarationOwner) continue
-
-    const layer = isSharedFile(relativePath)
-      ? 'shared'
-      : isRouteLocalFeature(relativePath)
-        ? 'route-local'
-        : null
-
-    if (!layer) continue
+    const layer = getLayer(relativePath)
+    if (!declarationOwner || !layer) continue
 
     for (const declaration of collectNamedExportDeclarations(sourceFile)) {
       const nameNode = getDeclarationNameNode(declaration)
@@ -279,8 +298,7 @@ export function analyzeSymbolOwnership(options: AnalyzeOptions = {}) {
 
   for (const sourceFile of program.getSourceFiles()) {
     const relativePath = normalizePath(path.relative(projectRoot, sourceFile.fileName))
-    if (!isSourceFile(relativePath)) continue
-    if (isTestFile(relativePath)) continue
+    if (!isSourceFile(relativePath) || isTestFile(relativePath)) continue
 
     const referenceOwner = getOwner(relativePath)
     if (!referenceOwner) continue
@@ -301,43 +319,78 @@ export function analyzeSymbolOwnership(options: AnalyzeOptions = {}) {
   for (const record of exportRecords.values()) {
     const referenceOwners = [...(ownerRefs.get(record.symbol) ?? new Set<string>())].sort()
 
-    if (record.layer === 'shared' && referenceOwners.length <= 1) {
+    if (record.layer === 'shared-owner') {
+      if (referenceOwners.length === 0) {
+        continue
+      }
+
+      const appOwners = referenceOwners.filter(isAppOwner)
+      if (appOwners.length === 0 || appOwners.length !== referenceOwners.length) {
+        continue
+      }
+
+      const targetOwner =
+        appOwners.length === 1
+          ? appOwners[0]
+          : getLeastCommonOwner(appOwners)
+
+      if (!targetOwner || targetOwner === 'src/app') {
+        continue
+      }
+
       issues.push({
         kind: 'demote',
         symbolName: record.symbolName,
         declarationFile: record.declarationFile,
         declarationOwner: record.declarationOwner,
         referenceOwners,
+        targetOwner,
       })
       continue
     }
 
-    if (
-      record.layer === 'route-local' &&
-      referenceOwners.some((owner) => owner !== record.declarationOwner)
-    ) {
-      issues.push({
-        kind: 'promote',
-        symbolName: record.symbolName,
-        declarationFile: record.declarationFile,
-        declarationOwner: record.declarationOwner,
-        referenceOwners,
-      })
+    if (record.layer === 'app-owner') {
+      const effectiveOwners = [...new Set([record.declarationOwner, ...referenceOwners])]
+      const targetOwner = getLeastCommonOwner(
+        effectiveOwners.filter(isAppOwner),
+      )
+
+      if (
+        targetOwner &&
+        targetOwner !== record.declarationOwner &&
+        targetOwner.startsWith('src/app/')
+      ) {
+        issues.push({
+          kind: 'promote',
+          symbolName: record.symbolName,
+          declarationFile: record.declarationFile,
+          declarationOwner: record.declarationOwner,
+          referenceOwners,
+          targetOwner,
+        })
+      }
     }
   }
 
-  return issues.sort((left, right) =>
+  return issues
+    .filter(
+      (issue) =>
+        !OWNERSHIP_DEBT_ALLOWLIST.has(
+          `${issue.declarationFile}#${issue.symbolName}`,
+        ),
+    )
+    .sort((left, right) =>
     left.declarationFile === right.declarationFile
       ? left.symbolName.localeCompare(right.symbolName)
       : left.declarationFile.localeCompare(right.declarationFile),
-  )
+    )
 }
 
 function formatIssue(issue: OwnershipIssue) {
   const refs = issue.referenceOwners.length > 0
     ? issue.referenceOwners.join(', ')
     : '(no external owners)'
-  return `${issue.kind} ${issue.declarationFile}#${issue.symbolName} owner=${issue.declarationOwner} refs=${refs}`
+  return `${issue.kind} ${issue.declarationFile}#${issue.symbolName} owner=${issue.declarationOwner} target=${issue.targetOwner} refs=${refs}`
 }
 
 if (import.meta.main) {

@@ -19,11 +19,11 @@ import {
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
-import { AdminItemMenu } from '@/features/admin/admin-item-menu'
+import { AdminItemMenu } from '@/app/[locale]/(main)/_features/admin/admin-item-menu'
 import {
   loadEditorCollection,
   saveEditorCollection,
-} from '@/features/admin/editor-collection-client'
+} from '@/app/[locale]/(main)/_features/admin/editor-collection-client'
 
 type PointerAdminMenuProps = {
   locale: string

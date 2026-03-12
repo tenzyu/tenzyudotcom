@@ -1,7 +1,7 @@
 import { getLocalizedUrl } from 'intlayer'
 import { useIntlayer } from 'next-intlayer/server'
 import Link from 'next/link'
-import { PageHeader } from '@/components/site-ui/page-header'
+import { PageHeader } from '@/app/[locale]/_features/page-header'
 import {
   Pagination,
   PaginationContent,
@@ -12,8 +12,8 @@ import {
 } from '@/components/ui/pagination'
 import { BlogTile } from './blog-tile'
 import type { BlogListItem } from './blog.assemble'
-import { AdminGate } from '@/features/admin/admin-gate'
-import { Content } from '@/components/site-ui/content'
+import { AdminGate } from '@/app/[locale]/(main)/_features/admin/admin-gate'
+import { Content } from '@/app/[locale]/_features/content'
 import { Button } from '@/components/ui/button'
 
 type BlogPageContentProps = {

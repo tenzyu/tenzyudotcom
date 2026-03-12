@@ -1,10 +1,10 @@
 ---
 name: lint-rule-rollout-log
 description: 追加するプロジェクト lint ルール 1-7 の実装ログと到達状態。
-summary: depcruise 3件、lint-site-rules 4件を順に導入し、必要なコード寄せと例外条件を記録する。
+summary: import boundary lint 3件、lint-site-rules 4件を順に導入し、必要なコード寄せと例外条件を記録する。
 read_when:
   - lint ルール 1-7 の進捗を確認したいとき
-  - depcruise と lint-site-rules の責務分担を確認したいとき
+  - import boundary lint と lint-site-rules の責務分担を確認したいとき
   - lint 追加に伴うコード寄せの理由を追いたいとき
 user-invocable: false
 ---
@@ -30,9 +30,9 @@ user-invocable: false
 
 ## Checklist
 
-- [x] Rule 1: depcruise
-- [x] Rule 2: depcruise
-- [x] Rule 3: depcruise
+- [x] Rule 1: custom import boundary lint
+- [x] Rule 2: custom import boundary lint
+- [x] Rule 3: custom import boundary lint
 - [x] Rule 4: lint-site-rules
 - [x] Rule 5: lint-site-rules
 - [x] Rule 6: lint-site-rules
@@ -75,3 +75,18 @@ user-invocable: false
 ### Rule 7
 
 - `next/cache`, `next/headers`, `next/navigation` は `src/app/` または `*.assemble.ts` に限定
+
+## Ownership Follow-up
+
+- owner tree spec は `docs/.ai-reports/app-ownership-tree-spec.md` に記録済み
+- `src/components/shell/*`
+- `src/components/site-ui/page-header.tsx`
+- `src/components/site-ui/section-header.tsx`
+- `src/components/site-ui/otaku-aside.tsx`
+- `src/components/site-ui/section.tsx`
+- `src/components/site-ui/content.tsx`
+- `src/components/site-ui/external-link.tsx`
+- `src/features/admin/*`
+- `src/features/youtube/*`
+
+上記は実際に demote し、現在は allowlist なしで `bun run lint-symbol-ownership` が pass している

@@ -4,7 +4,7 @@ import { startTransition, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import type { MyLink } from '@/features/links/links.domain'
-import { AdminItemMenu } from '@/features/admin/admin-item-menu'
+import { AdminItemMenu } from '@/app/[locale]/(main)/_features/admin/admin-item-menu'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -18,7 +18,7 @@ import { Input } from '@/components/ui/input'
 import {
   loadEditorCollection,
   saveEditorCollection,
-} from '@/features/admin/editor-collection-client'
+} from '@/app/[locale]/(main)/_features/admin/editor-collection-client'
 
 type LinksAdminState = {
   collection: MyLink[]

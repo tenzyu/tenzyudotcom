@@ -2,9 +2,9 @@ import { getLocalizedUrl } from 'intlayer'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useIntlayer, useLocale } from 'next-intlayer/server'
-import { Content } from '@/components/site-ui/content'
-import { PageHeader } from '@/components/site-ui/page-header'
-import { SectionHeader } from '@/components/site-ui/section-header'
+import { Content } from '@/app/[locale]/_features/content'
+import { PageHeader } from '@/app/[locale]/_features/page-header'
+import { SectionHeader } from '@/app/[locale]/(main)/_features/section-header'
 import {
   Item,
   ItemContent,
@@ -13,7 +13,7 @@ import {
   ItemMedia,
   ItemTitle,
 } from '@/components/ui/item'
-import { AdminGate } from '@/features/admin/admin-gate'
+import { AdminGate } from '@/app/[locale]/(main)/_features/admin/admin-gate'
 import { loadLinks } from '@/features/links/links.assemble'
 import { LINK_CATEGORY_ORDER, type MyLink } from '@/features/links/links.domain'
 import { LinkAddButton } from './link-add-button'

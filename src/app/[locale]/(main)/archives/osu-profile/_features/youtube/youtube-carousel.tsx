@@ -1,5 +1,5 @@
 import { useIntlayer } from 'next-intlayer/server'
-import { Content } from '@/components/site-ui/content'
+import { Content } from '@/app/[locale]/_features/content'
 import {
   Carousel,
   CarouselContent,
@@ -8,8 +8,8 @@ import {
   CarouselPrevious,
 } from '@/components/ui/carousel'
 import { Dialog, DialogTrigger } from '@/components/ui/dialog'
-import { YouTubeDialogContent } from '@/features/youtube/youtube-dialog-content'
-import { YouTubeThumbnailImage } from '@/features/youtube/youtube-thumbnail-image'
+import { YouTubeDialogContent } from '@/app/[locale]/(main)/_features/youtube/youtube-dialog-content'
+import { YouTubeThumbnailImage } from '@/app/[locale]/(main)/_features/youtube/youtube-thumbnail-image'
 import { cn } from '@/lib/utils/common'
 
 type YouTubeVideo = {

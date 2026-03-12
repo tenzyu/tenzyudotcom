@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Content } from '@/components/site-ui/content'
+import { Content } from '@/app/[locale]/_features/content'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 export type TocSection = {

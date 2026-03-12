@@ -19,7 +19,7 @@ import { Textarea } from '@/components/ui/textarea'
 import {
   loadEditorCollection,
   saveEditorCollection,
-} from '@/features/admin/editor-collection-client'
+} from '@/app/[locale]/(main)/_features/admin/editor-collection-client'
 
 type PointerAddButtonProps = {
   locale: string

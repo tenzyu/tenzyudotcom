@@ -40,7 +40,7 @@ describe('lint-symbol-ownership', () => {
       'src/features/shared/math.ts',
       `
 export const add = (a: number, b: number) => a + b
-export const sharedAcrossRoutes = (value: number) => value * 2
+export const sharedAcrossMain = (value: number) => value * 2
 export type SharedType = { id: string }
       `.trim(),
     )
@@ -49,9 +49,9 @@ export type SharedType = { id: string }
       tempDir,
       'src/app/[locale]/(main)/notes/_features/use-add.ts',
       `
-import { add, sharedAcrossRoutes } from '@/features/shared/math'
+import { add, sharedAcrossMain } from '@/features/shared/math'
 
-export const useAdd = () => add(1, 2) + sharedAcrossRoutes(3)
+export const useAdd = () => add(1, 2) + sharedAcrossMain(3)
       `.trim(),
     )
 
@@ -59,9 +59,9 @@ export const useAdd = () => add(1, 2) + sharedAcrossRoutes(3)
       tempDir,
       'src/app/[locale]/(main)/pointers/_features/use-shared.ts',
       `
-import { sharedAcrossRoutes } from '@/features/shared/math'
+import { sharedAcrossMain } from '@/features/shared/math'
 
-export const useShared = () => sharedAcrossRoutes(3)
+export const useShared = () => sharedAcrossMain(3)
       `.trim(),
     )
 
@@ -87,11 +87,31 @@ export const consumeNoteAction = () => localAction()
 
     await writeProjectFile(
       tempDir,
+      'src/app/[locale]/(main)/blog/[slug]/_features/slug-page-data.ts',
+      `
+export function buildSlugPageData() {
+  return 'slug'
+}
+      `.trim(),
+    )
+
+    await writeProjectFile(
+      tempDir,
+      'src/app/[locale]/(main)/blog/_features/blog-list-data.ts',
+      `
+import { buildSlugPageData } from '@/app/[locale]/(main)/blog/[slug]/_features/slug-page-data'
+
+export const listData = () => buildSlugPageData()
+      `.trim(),
+    )
+
+    await writeProjectFile(
+      tempDir,
       'src/app/[locale]/(main)/notes/_features/type-only.ts',
       `
 import type { SharedType } from '@/features/shared/math'
 
-        export type Local = SharedType
+export type Local = SharedType
       `.trim(),
     )
 
@@ -105,33 +125,51 @@ import type { SharedType } from '@/features/shared/math'
     await rm(tempDir, { recursive: true, force: true })
   })
 
-  test('reports demote candidates in shared layers when only one owner imports them', () => {
+  test('reports demote candidates in shared layers when only one app owner imports them', () => {
     expect(issues).toContainEqual({
       kind: 'demote',
       symbolName: 'add',
       declarationFile: 'src/features/shared/math.ts',
-      declarationOwner: 'features/shared',
-      referenceOwners: ['route/notes'],
+      declarationOwner: 'src/features/shared',
+      referenceOwners: ['src/app/[locale]/(main)/notes'],
+      targetOwner: 'src/app/[locale]/(main)/notes',
     })
   })
 
-  test('does not report shared symbols that are used by multiple owners', () => {
-    expect(
-      issues.find(
-        (issue) =>
-          issue.declarationFile === 'src/features/shared/math.ts' &&
-          issue.symbolName === 'sharedAcrossRoutes',
-      ),
-    ).toBeUndefined()
+  test('reports demote candidates in shared layers to the least common app owner', () => {
+    expect(issues).toContainEqual({
+      kind: 'demote',
+      symbolName: 'sharedAcrossMain',
+      declarationFile: 'src/features/shared/math.ts',
+      declarationOwner: 'src/features/shared',
+      referenceOwners: [
+        'src/app/[locale]/(main)/notes',
+        'src/app/[locale]/(main)/pointers',
+      ],
+      targetOwner: 'src/app/[locale]/(main)',
+    })
   })
 
-  test('reports promote candidates when route-local exports are imported by another owner', () => {
+  test('reports promote candidates when app-owned exports are imported by sibling owners', () => {
     expect(issues).toContainEqual({
       kind: 'promote',
       symbolName: 'localAction',
       declarationFile: 'src/app/[locale]/(main)/notes/_features/note-actions.ts',
-      declarationOwner: 'route/notes',
-      referenceOwners: ['route/pointers'],
+      declarationOwner: 'src/app/[locale]/(main)/notes',
+      referenceOwners: ['src/app/[locale]/(main)/pointers'],
+      targetOwner: 'src/app/[locale]/(main)',
+    })
+  })
+
+  test('reports promote candidates to a nested least common owner when possible', () => {
+    expect(issues).toContainEqual({
+      kind: 'promote',
+      symbolName: 'buildSlugPageData',
+      declarationFile:
+        'src/app/[locale]/(main)/blog/[slug]/_features/slug-page-data.ts',
+      declarationOwner: 'src/app/[locale]/(main)/blog/[slug]',
+      referenceOwners: ['src/app/[locale]/(main)/blog'],
+      targetOwner: 'src/app/[locale]/(main)/blog',
     })
   })
 

@@ -7,7 +7,7 @@ import type {
   RecommendationSourceChannelEntry,
   RecommendationSourceEntry,
 } from '@/features/recommendations/recommendations.domain'
-import { AdminItemMenu } from '@/features/admin/admin-item-menu'
+import { AdminItemMenu } from '@/app/[locale]/(main)/_features/admin/admin-item-menu'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -23,7 +23,7 @@ import { Textarea } from '@/components/ui/textarea'
 import {
   loadEditorCollection,
   saveEditorCollection,
-} from '@/features/admin/editor-collection-client'
+} from '@/app/[locale]/(main)/_features/admin/editor-collection-client'
 
 type RecommendationsAdminState = {
   collection: RecommendationSourceEntry[]

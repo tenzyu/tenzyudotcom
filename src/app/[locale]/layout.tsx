@@ -9,11 +9,11 @@ import {
   type LocalPromiseParams,
   type NextLayoutIntlayer,
 } from 'next-intlayer'
-import { BreadcrumbNav } from '@/components/shell/breadcrumb-nav'
-import { Container } from '@/components/shell/container'
-import { Footer } from '@/components/shell/footer'
-import { Header } from '@/components/shell/header'
-import { ThemeProvider } from '@/components/shell/theme-provider'
+import { BreadcrumbNav } from '@/app/[locale]/_features/shell/breadcrumb-nav'
+import { Container } from '@/app/[locale]/_features/shell/container'
+import { Footer } from '@/app/[locale]/_features/shell/footer'
+import { Header } from '@/app/[locale]/_features/shell/header'
+import { ThemeProvider } from '@/app/[locale]/_features/shell/theme-provider'
 import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { shouldLoadReactGrabOverlay } from '@/config/env.assemble'

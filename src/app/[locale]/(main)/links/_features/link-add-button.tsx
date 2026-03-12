@@ -17,7 +17,7 @@ import { Input } from '@/components/ui/input'
 import {
   loadEditorCollection,
   saveEditorCollection,
-} from '@/features/admin/editor-collection-client'
+} from '@/app/[locale]/(main)/_features/admin/editor-collection-client'
 
 type LinksAdminState = {
   collection: MyLink[]

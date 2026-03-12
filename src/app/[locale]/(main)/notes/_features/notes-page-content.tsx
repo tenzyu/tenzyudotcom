@@ -1,7 +1,7 @@
 import { useIntlayer, useLocale } from 'next-intlayer/server'
-import { PageHeader } from '@/components/site-ui/page-header'
+import { PageHeader } from '@/app/[locale]/_features/page-header'
 import { Card, CardContent } from '@/components/ui/card'
-import { AdminGate } from '@/features/admin/admin-gate'
+import { AdminGate } from '@/app/[locale]/(main)/_features/admin/admin-gate'
 import { NoteAdminMenu } from './note-admin-menu'
 import { NoteTweetButton } from './note-tweet-button'
 

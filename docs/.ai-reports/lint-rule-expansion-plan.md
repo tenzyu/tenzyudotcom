@@ -1,11 +1,11 @@
 ---
 name: lint-rule-expansion-plan
 description: lint で自動検知すべきルール候補を、実装手段ごとに優先順位付きで整理する。
-summary: まず Biome と dependency-cruiser で取れる静的境界違反を先に実装し、取り切れない認可や registry 整合性は専用スクリプトで補完する方針をまとめる。
+summary: まず Biome と custom import boundary lint で取れる静的境界違反を先に実装し、取り切れない認可や registry 整合性は専用スクリプトで補完する方針をまとめる。
 read_when:
   - lint を追加するとき
   - 設計ルールを自動検知へ落とし込みたいとき
-  - Biome と depcruise と専用スクリプトの責務分担を見直すとき
+  - Biome と custom lint と専用スクリプトの責務分担を見直すとき
 user-invocable: false
 ---
 
@@ -18,7 +18,7 @@ user-invocable: false
 ## Priority Order
 
 1. `Biome`
-2. `dependency-cruiser`
+2. custom import boundary lint
 3. 既存のその他 lint 手段
 4. 専用スクリプト
 
@@ -49,7 +49,7 @@ user-invocable: false
 - 理想:
   - `actions.ts` は `assemble` と `session` を中心に依存する
 - 実装手段:
-  - `dependency-cruiser`
+  - custom import boundary lint
 
 ### 3. route-local `_features` cross-route import ban
 
@@ -58,7 +58,7 @@ user-invocable: false
 - 禁止:
   - 別 route slice の `_features` への依存
 - 実装手段:
-  - `dependency-cruiser`
+  - custom import boundary lint
 
 ### 4. admin Server Action auth guard
 
@@ -97,7 +97,7 @@ user-invocable: false
 
 - `Biome`
   - `process.env` direct access ban
-- `dependency-cruiser`
+- custom import boundary lint
   - `actions.ts` / `route.ts` からの contract 直依存禁止
   - route-local `_features` の cross-route 依存禁止
 - 専用スクリプト

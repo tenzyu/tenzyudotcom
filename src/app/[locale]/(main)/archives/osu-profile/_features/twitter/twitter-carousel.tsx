@@ -1,5 +1,5 @@
 import { useIntlayer } from 'next-intlayer/server'
-import { Content } from '@/components/site-ui/content'
+import { Content } from '@/app/[locale]/_features/content'
 import type { TweetData } from '../twitter.source'
 import { TwitterCarouselClient } from './twitter-carousel-client'
 

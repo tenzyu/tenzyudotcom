@@ -5,7 +5,7 @@ summary: env と editor storage は infra + assemble + port に分け、schema/p
 read_when:
   - contract 命名を廃止するとき
   - DIP と storage 切替の責務を整理するとき
-  - depcruise と docs を新命名に合わせて更新するとき
+  - import boundary lint と docs を新命名に合わせて更新するとき
 user-invocable: false
 ---
 
@@ -78,11 +78,11 @@ user-invocable: false
 ## Guardrails
 
 - 今回は命名規則と責務の整理であり、仕様は変えない
-- lint / depcruise は新 suffix に合わせて追随するが、守りたい境界自体は弱めない
+- lint / import boundary lint は新 suffix に合わせて追随するが、守りたい境界自体は弱めない
 - `contract` を `infra` へ単純 rename するだけでなく、validation と composition は `assemble` へ戻す
 
 ## Expected Outcome
 
 - `contract` suffix の意味の混線が消える
-- depcruise を `infra/domain/port/assemble` 前提で素直に書ける
+- import boundary lint を `infra/domain/port/assemble` 前提で素直に書ける
 - editor storage の Blob / local 切替が compose point 一箇所に寄る

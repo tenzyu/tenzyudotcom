@@ -16,7 +16,7 @@ import {
 import Link from 'next/link'
 import { useIntlayer, useLocale } from 'next-intlayer/server'
 import type { ReactNode } from 'react'
-import { Content } from '@/components/site-ui/content'
+import { Content } from '@/app/[locale]/_features/content'
 import {
   Item,
   ItemActions,
