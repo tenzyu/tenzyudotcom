@@ -25,7 +25,7 @@ description: exported symbol が本当に shared かどうかを owner 単位の
   - `const`
   - `function`
 - 初期版では以下の layer 定義ファイルを対象外にする
-  - `*.contract.ts`
+  - `*.infra.ts`
   - `*.domain.ts`
   - `*.port.ts`
   - `*.assemble.ts`
@@ -63,5 +63,5 @@ description: exported symbol が本当に shared かどうかを owner 単位の
 
 - route owner の判定を regex 1 本で雑に済ませない
 - file 依存ではなく symbol references を使う
-- `dependency-cruiser` の代替ではなく補完として実装する
+- import boundary lint の代替ではなく補完として実装する
 - false positive を減らすため、最初は value symbol を優先し、type-only import は無視する

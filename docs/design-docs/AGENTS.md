@@ -22,7 +22,7 @@ boundaries, and automated verification to maintain high technical integrity.
 ## Table of Contents
 
 1. [Foundations](#1-foundations)
-   - 1.1 [6-Layer Ownership Model](#11-6-layer-ownership-model)
+   - 1.1 [Ownership Model Layers](#11-ownership-model-layers)
    - 1.2 [actions.ts Must Depend On Assemble And Session Only](#12-actions-ts-must-depend-on-assemble-and-session-only)
    - 1.3 [Tool Boundary & Ownership](#13-tool-boundary-ownership)
    - 1.4 [Path & Feature Semantics](#14-path-feature-semantics)
@@ -85,34 +85,37 @@ boundaries, and automated verification to maintain high technical integrity.
 
 ## 1. Foundations <a id="1-foundations"></a>
 
-### 1.1 6-Layer Ownership Model <a id="11-6-layer-ownership-model"></a>
+### 1.1 Ownership Model Layers <a id="11-ownership-model-layers"></a>
 
 **Impact: HIGH**
 
-> 全てのコードに一意の所有者を定義し、配置迷子（Dumping Ground）を根絶する。
+> コード配置を src/app の owner tree と少数の例外層へ収束させ、 dumping ground を防ぐ。
 
-コードの「役割」や「構文」ではなく、「誰がその責任を持つか」に基づいて配置を決定する。
+配置は構文ではなく ownership で決める。  
+この repo では `src/app` の directory tree を ownership の正本とし、shared 層は例外扱いにする。
 
-1. **local feature**: `src/app/.../_features/` (特定のルート専用)
-2. **promoted feature**: `src/features/` (複数ルートで再利用されるドメイン機能)
-3. **site shell**: `src/components/shell/` (サイトの骨格)
-4. **site-ui component**: `src/components/site-ui/` (汎用プレゼンテーション部品)
-5. **pure shared logic**: `src/lib/`, `src/config/` (クロスルートの純粋ロジック・設定)
-6. **authored content**: `storage/` 配下（`blog/*.mdx`, `editor/*.json` 等）の人間が管理し Vercel Blob と同期するデータ
+## Canonical Layers
 
-**Incorrect:**
+1. `src/app/**/_features`
+2. ancestor owner の `src/app/**/_features`
+3. `src/components/ui`
+4. `src/components` の presentation primitive
+5. `src/config`, `src/lib`
+6. `src/features` は app owner tree で自然に表現できない cross-branch shared のみ
+7. `storage/` は authored content
 
-```text
-// 1箇所でしか使わないのに、最初から src/components/ に置いてしまう
-src/components/SpecificButton.tsx
-```
+## Repo-specific Placement Rules
 
-**Correct:**
+- `src/app` 配下で閉じる関心事は、まず owner tree 内に置く
+- `src/features` は default promote 先ではない
+- `src/components` は他サイトへ持ち運べる presentation primitive を優先する
+- `src/config` は site-wide policy、`src/lib` は low-level helper / infra substrate を置く
 
-```text
-// 使う場所の隣から始め、再利用の事実が出たら昇格（Promote）させる
-src/app/[locale]/.../_features/specific-button.tsx
-```
+## See Also
+
+- `local-first-promote-later.md`
+- `directory-strictness.md`
+- `decision-priority-order.md`
 
 ### 1.2 actions.ts Must Depend On Assemble And Session Only <a id="12-actions-ts-must-depend-on-assemble-and-session-only"></a>
 
@@ -120,8 +123,8 @@ src/app/[locale]/.../_features/specific-button.tsx
 
 > mount point である `actions.ts` が `*.infra.ts` に直接依存すると、dependency inversion の境界が崩れ、UI/application から infrastructure 実装が漏れ出す。
 
-`src/app/.../_features/actions.ts` は Server Action の mount point であり、入力検証、認可、画面遷移だけを担当するのがよいです。  
-取得・保存の実処理は `*.assemble.ts` の use case に委譲し、認証情報やセッション処理は `session.ts` に寄せます。`actions.ts` から `*.infra.ts` を直接 import しないのが実運用上の前提です。
+`src/app/.../_features/actions.ts` は Server Action の mount point であり、薄く保つ。  
+入力検証は近傍の `*.assemble.ts`、認可は `session.ts`、保存や取得は use case に委譲し、`actions.ts` から `*.infra.ts` や repository factory を直接叩かない。
 
 **Incorrect:**
 
@@ -136,9 +139,11 @@ export async function saveBlogPostAction(formData: FormData) {
 **Correct:**
 
 ```tsx
+import { parseEditorBlogSaveInput } from './editor-input.assemble'
 import { makeSaveBlogPostUseCase } from './editor.assemble'
 
 export async function saveBlogPostAction(formData: FormData) {
+  const parsed = parseEditorBlogSaveInput(...)
   const saveUseCase = makeSaveBlogPostUseCase()
   await saveUseCase.execute(slug, frontmatter, body, version)
 }
@@ -156,21 +161,26 @@ export async function saveBlogPostAction(formData: FormData) {
 | :--- | :--- | :--- |
 | Localized meaning | Intlayer | fetch input registry / database |
 | Base UI | shadcn/ui | domain-aware features |
-| Presentation | `site-ui` | domain logic / workflow store |
-| Domain logic | `features/` | generic presentation library |
+| Presentation primitive | `src/components` | app-owned workflow / data logic |
+| App-owned feature | `src/app/**/_features` | generic presentation library |
+| Cross-branch shared | `src/features` | default dumping ground |
 
-**Incorrect:**
+## Repo-specific Notes
 
-```typescript
-// Intlayer の辞書ファイルに、外部 API の ID や URL を直接書き込む
-// shadcn の Button.tsx の中に、ブログ記事取得のロジックを書く
+- `src/components` は owner tree を持つ app logic を持たない
+- `src/features` は app owner tree で置けない shared のみ
+- `src/config` と `src/lib` は feature owner を持たない global / low-level concern を扱う
+
+## Incorrect
+
+```text
+presentation primitive に app-owned interest を混ぜる
 ```
 
-**Correct:**
+## Correct
 
-```typescript
-// 識別子は source.ts に置き、Intlayer と結合する
-// shadcn はプリミティブとして使い、Feature 側でラップしてビジネスロジックを載せる
+```text
+primitive は primitive のまま残し、app-owned interest は owner tree へ置く
 ```
 
 ### 1.4 Path & Feature Semantics <a id="14-path-feature-semantics"></a>
@@ -211,21 +221,25 @@ src/app/.../_features/
 
 > 早期の抽象化を防ぎ、機能の独立性を高めることで変更の波及を抑える。
 
-再利用の「可能性」ではなく、実際の「再利用の事実」に基づいて共有化（Promote）を行う。
-まずは利用箇所の最も近く（route-local な `_features` 配下）に配置し、2箇所以上のルートで必要になった段階で `src/features` 等へ昇格させる。
+再利用の「可能性」ではなく、実際の import 事実に基づいて promote する。  
+まずは最も近い owner に置き、複数 owner から参照されたら least common owner に上げる。
 
-**Incorrect:**
+## Repo-specific Rule
 
-```tsx
-// 再利用されるかもしれないという理由で、最初から共通ディレクトリに置く
-// src/components/site-ui/SpecificFeatureButton.tsx
+- default promote 先は `src/features` ではなく `src/app` の ancestor owner
+- `src/features` は app tree で自然に置けない cross-branch shared のみ
+- `lint-symbol-ownership` の `targetOwner` を promote / demote の基準にする
+
+## Incorrect
+
+```text
+再利用されるかもしれない、という理由だけで最初から src/features や src/components に置く
 ```
 
-**Correct:**
+## Correct
 
-```tsx
-// まずは使う場所（ルート内）の近くに置く
-// src/app/[locale]/(main)/notes/_features/note-action-button.tsx
+```text
+まず owner tree の最も近い位置に置き、shared になった時だけ least common owner へ promote する
 ```
 
 ### 1.6 Directory Strictness <a id="16-directory-strictness"></a>
@@ -234,26 +248,28 @@ src/app/.../_features/
 
 > 構造を「技術分類」ではなく「変更責務（所有権）」で分けることで、影響範囲を自明にする。
 
-コンポーネントの配置先は、Next.js の構文（components/hooks等）よりも、変更責務の所有者を優先して決定する。
+配置先は技術分類より ownership を優先する。  
+このルールは top-level directory の意味だけを定義し、promote/demote の判断自体は `ownership-model-layers` と `local-first-promote-later` に委譲する。
 
-1. **Route-local feature**: そのルート専用。 `_features/*` 配下に置く。
-2. **Shared feature**: 複数ルート。 `src/features/<domain>` に置く。
-3. **Site shell**: サイト全体の骨格。 `src/components/shell` に置く。
-4. **Site-ui component**: ドメイン知識を持たない汎用部品。 `src/components/site-ui` に置く。
-5. **Vendor UI**: デザインシステム本体。 `src/components/ui` に置く。
+## Top-level Meanings
 
-**Incorrect:**
+1. `src/app`: app owner tree の正本
+2. `src/components/ui`: vendor UI
+3. `src/components`: presentation primitive
+4. `src/config`: site-wide config
+5. `src/lib`: low-level helper / infra substrate
+6. `src/features`: app owner tree で自然に置けない shared のみ
 
-```tsx
-// ドメイン知識（例: ブログのタグ）を持ったコンポーネントを site-ui に置く
-// src/components/site-ui/BlogTag.tsx
+## Incorrect
+
+```text
+app owner を持つコードを、慣性で src/features や src/components へ置く
 ```
 
-**Correct:**
+## Correct
 
-```tsx
-// ドメイン知識を持つなら Feature 配下に置く
-// src/features/blog/components/blog-tag.tsx
+```text
+まず src/app owner tree に置き、presentation primitive や global helper だけを top-level shared へ出す
 ```
 
 ### 1.7 Dependency Inversion Pattern <a id="17-dependency-inversion-pattern"></a>
@@ -396,7 +412,7 @@ src/app/[locale]/.../route/_features/
 > admin password や session secret の参照が複数ファイルへ広がると、認証ロジックの境界が曖昧になり、変更時の見落としが増える。
 
 `EDITOR_ADMIN_PASSWORD` や `EDITOR_SESSION_SECRET` は、どこからでも `env.infra.ts` を読んでよい値ではありません。  
-admin 認証の owner を `src/features/admin/session.ts` に寄せ、`actions.ts` などの mount point は `verifyEditorAdminPassword()` や `requireEditorAdminSession()` のような helper だけを呼ぶ形にすると、責務と変更点が安定します。
+admin 認証の owner は `src/app/[locale]/(admin)/editor/_features/editor-session.ts` に寄せ、`actions.ts` などの mount point は `verifyEditorAdminPassword()` や `requireEditorAdminSession()` のような helper だけを呼ぶ。
 
 **Incorrect:**
 
@@ -413,7 +429,7 @@ export async function loginEditorAdminAction(formData: FormData) {
 **Correct:**
 
 ```tsx
-import { verifyEditorAdminPassword } from '@/features/admin/session'
+import { verifyEditorAdminPassword } from './editor-session'
 
 export async function loginEditorAdminAction(formData: FormData) {
   if (!verifyEditorAdminPassword(input)) return
@@ -823,9 +839,10 @@ export default function Component() {
 
 > Middleware は、Next.js 16 で推奨されていない。代わりに、Proxy を使用する。
 
-## Rule Title Here
+## Use Proxy Instead of Middleware
 
-Brief explanation of the rule and why it matters.
+このルールは `nextjs-16-proxy.md` の短縮版。  
+repo 固有の詳細はそちらを正本とし、ここでは禁止事項だけを明記する。
 
 **Incorrect:**
 
@@ -836,15 +853,11 @@ export function middleware() { }
 **Correct:**
 
 ```tsx
-import { multipleProxies, intlayerProxy } from "next-intlayer/proxy";
-import { customProxy } from "@utils/customProxy";
-
-export const proxy = multipleProxies([intlayerProxy, customProxy]);
+// src/proxy.ts を使う
 ```
 
 References
-- [Next.js 16 Proxy](https://nextjs.org/docs/app/getting-started/proxy)
-- [Intlayer multipleProxy](https://intlayer.org/doc/environment/nextjs#optional-step-7-configure-proxy-for-locale-detection)
+- [nextjs-16-proxy.md](./nextjs-16-proxy.md)
 
 ### 3.5 AdminGate Is Stable Contract <a id="35-admingate-is-stable-contract"></a>
 
@@ -852,7 +865,7 @@ References
 
 > 認可 UI の基準コンポーネントをタスク都合で変更すると、security と hydration の前提が崩れる。
 
-`src/features/admin/admin-gate.tsx` は security-sensitive な基準コンポーネントとして扱い、明示依頼なしに挙動を変更しない。
+`src/app/[locale]/(main)/_features/admin/admin-gate.tsx` は security-sensitive な基準コンポーネントとして扱い、明示依頼なしに挙動を変更しない。
 
 ### Why it matters
 
@@ -1340,7 +1353,7 @@ function LeafAdminMenu() {
 
 ## Do Not Change AdminGate Without Explicit Approval
 
-今回の作業で最も悪かった判断の 1 つは、`src/features/admin/admin-gate.tsx` をタスク都合で勝手に書き換えたことだった。これは UI 便利機能の調整ではなく、認可境界の変更にあたる。
+`src/app/[locale]/(main)/_features/admin/admin-gate.tsx` をタスク都合で勝手に書き換えてはいけない。これは UI 便利機能の調整ではなく、認可境界の変更にあたる。
 
 **Incorrect:**
 
@@ -1538,11 +1551,11 @@ export const content = {
 
 設計判断では以下の優先順位を遵守する。
 
-1. **Ownership**: そのコードの所有者は誰か（Local か Shared か）。
-2. **Attribute**: 最上位属性は何か（Feature, Shell, Site-UI, Logic, Content）。
-3. **Workflow & Proximity**: 作業動線と近接性を優先し、認知負荷を下げる。
-4. **Pattern**: 構文的な整理（Pattern 分割）は最後に行う。
-5. **Promote**: 実際の再利用が発生した後に共通化する。
+1. **Owner Tree**: `src/app` のどの owner が持つべきか
+2. **Import Facts**: 実際にどの owner から参照されているか
+3. **Shared Class**: primitive / config / lib / cross-branch shared のどれか
+4. **Workflow & Proximity**: 一緒に直すものを近くへ置く
+5. **Pattern**: components/hooks/lib 等の構文整理
 
 **Incorrect:**
 
@@ -1554,8 +1567,7 @@ export const content = {
 **Correct:**
 
 ```text
-// 修正時に同時に触るファイルを近くに置く（Proximity）
-// 2箇所以上で使われるまでは、特定のルート内に閉じ込める
+owner tree と import facts を先に決め、その後で shared 層や構文整理を選ぶ
 ```
 
 ### 5.5 Editor Role Separation <a id="55-editor-role-separation"></a>

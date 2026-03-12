@@ -2,13 +2,13 @@
 title: AdminGate Is Stable Contract
 impact: HIGH
 impactDescription: 認可 UI の基準コンポーネントをタスク都合で変更すると、security と hydration の前提が崩れる。
-tags: admin, security, auth, contract
+tags: admin, security, auth, stable-boundary
 chapter: Implementation
 ---
 
 # AdminGate Is Stable Contract
 
-`src/features/admin/admin-gate.tsx` は security-sensitive な基準コンポーネントとして扱い、明示依頼なしに挙動を変更しない。
+`src/app/[locale]/(main)/_features/admin/admin-gate.tsx` は security-sensitive な基準コンポーネントとして扱い、明示依頼なしに挙動を変更しない。
 
 ### Why it matters
 

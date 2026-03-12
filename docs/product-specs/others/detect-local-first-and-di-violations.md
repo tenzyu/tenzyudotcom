@@ -19,20 +19,20 @@ dependency-inversion 違反を検知できるようにする
 ## Requirements
 
 - `bun run lint` で local-first, promote-later, dependency-inversion 違反を検知できるようにする。
-- 依存関係の解析およびルール評価のツールとして `dependency-cruiser` を採用する。
-- 例外設定（`*.test.ts` などの検査除外や特定の意図的な違反）は、コード内のインラインコメントではなく `dependency-cruiser` の設定ファイル内で管理する。
+- 依存関係の解析およびルール評価のツールとして custom import boundary lint を採用する。
+- 例外設定（`*.test.ts` などの検査除外や特定の意図的な違反）は、コード内のインラインコメントではなく lint スクリプト内で管理する。
 
 ## Implementation Details
 
-- **Tooling**: `dependency-cruiser` を使用し、依存関係グラフの構築とルール違反の検知を行う。
-- **Integration**: `package.json` の `lint` スクリプトに `dependency-cruiser` の実行を含めるか、一緒に実行されるように修正する。
-- **Rule Definitions (.dependency-cruiser.js)**:
+- **Tooling**: custom import boundary lint を使用し、依存関係グラフの構築とルール違反の検知を行う。
+- **Integration**: `package.json` の `lint` スクリプトに custom lint の実行を含める。
+- **Rule Definitions (`scripts/lint-import-boundaries.ts`)**:
   - **Local-first, Promote-later**:
     - `src/features/` 配下のモジュールが1つのルート/機能からしか参照されていない場合（昇格の条件を満たしていない）に警告するルール。
     - `src/app/.../_features/` 配下のモジュールが他のルートから参照されている場合（共通化すべき状態）に警告するルール。
   - **Dependency Inversion**:
-    - UI層（`*.tsx`等）がインフラ層の実装（`*.contract.ts`）に直接依存することを禁止する。
-    - ドメイン層（`*.domain.ts`）やポート（`*.port.ts`）が、外側の層（`*.contract.ts`, `*.assemble.ts`）に依存することを禁止する。
+    - UI層（`*.tsx`等）がインフラ層の実装（`*.infra.ts`）に直接依存することを禁止する。
+    - ドメイン層（`*.domain.ts`）やポート（`*.port.ts`）が、外側の層（`*.infra.ts`, `*.assemble.ts`）に依存することを禁止する。
 
 ## Non-goals
 

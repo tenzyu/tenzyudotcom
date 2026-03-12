@@ -8,24 +8,26 @@ chapter: Foundations
 
 # Directory Strictness
 
-コンポーネントの配置先は、Next.js の構文（components/hooks等）よりも、変更責務の所有者を優先して決定する。
+配置先は技術分類より ownership を優先する。  
+このルールは top-level directory の意味だけを定義し、promote/demote の判断自体は `ownership-model-layers` と `local-first-promote-later` に委譲する。
 
-1. **Route-local feature**: そのルート専用。 `_features/*` 配下に置く。
-2. **Shared feature**: 複数ルート。 `src/features/<domain>` に置く。
-3. **Site shell**: サイト全体の骨格。 `src/components/shell` に置く。
-4. **Site-ui component**: ドメイン知識を持たない汎用部品。 `src/components/site-ui` に置く。
-5. **Vendor UI**: デザインシステム本体。 `src/components/ui` に置く。
+## Top-level Meanings
 
-**Incorrect:**
+1. `src/app`: app owner tree の正本
+2. `src/components/ui`: vendor UI
+3. `src/components`: presentation primitive
+4. `src/config`: site-wide config
+5. `src/lib`: low-level helper / infra substrate
+6. `src/features`: app owner tree で自然に置けない shared のみ
 
-```tsx
-// ドメイン知識（例: ブログのタグ）を持ったコンポーネントを site-ui に置く
-// src/components/site-ui/BlogTag.tsx
+## Incorrect
+
+```text
+app owner を持つコードを、慣性で src/features や src/components へ置く
 ```
 
-**Correct:**
+## Correct
 
-```tsx
-// ドメイン知識を持つなら Feature 配下に置く
-// src/features/blog/components/blog-tag.tsx
+```text
+まず src/app owner tree に置き、presentation primitive や global helper だけを top-level shared へ出す
 ```

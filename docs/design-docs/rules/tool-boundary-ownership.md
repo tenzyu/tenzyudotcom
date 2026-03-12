@@ -14,19 +14,24 @@ chapter: Foundations
 | :--- | :--- | :--- |
 | Localized meaning | Intlayer | fetch input registry / database |
 | Base UI | shadcn/ui | domain-aware features |
-| Presentation | `site-ui` | domain logic / workflow store |
-| Domain logic | `features/` | generic presentation library |
+| Presentation primitive | `src/components` | app-owned workflow / data logic |
+| App-owned feature | `src/app/**/_features` | generic presentation library |
+| Cross-branch shared | `src/features` | default dumping ground |
 
-**Incorrect:**
+## Repo-specific Notes
 
-```typescript
-// Intlayer の辞書ファイルに、外部 API の ID や URL を直接書き込む
-// shadcn の Button.tsx の中に、ブログ記事取得のロジックを書く
+- `src/components` は owner tree を持つ app logic を持たない
+- `src/features` は app owner tree で置けない shared のみ
+- `src/config` と `src/lib` は feature owner を持たない global / low-level concern を扱う
+
+## Incorrect
+
+```text
+presentation primitive に app-owned interest を混ぜる
 ```
 
-**Correct:**
+## Correct
 
-```typescript
-// 識別子は source.ts に置き、Intlayer と結合する
-// shadcn はプリミティブとして使い、Feature 側でラップしてビジネスロジックを載せる
+```text
+primitive は primitive のまま残し、app-owned interest は owner tree へ置く
 ```

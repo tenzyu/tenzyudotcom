@@ -9,7 +9,7 @@ chapter: Security & Safety
 # Editor Auth Credentials Should Have A Single Owner
 
 `EDITOR_ADMIN_PASSWORD` や `EDITOR_SESSION_SECRET` は、どこからでも `env.infra.ts` を読んでよい値ではありません。  
-admin 認証の owner を `src/features/admin/session.ts` に寄せ、`actions.ts` などの mount point は `verifyEditorAdminPassword()` や `requireEditorAdminSession()` のような helper だけを呼ぶ形にすると、責務と変更点が安定します。
+admin 認証の owner は `src/app/[locale]/(admin)/editor/_features/editor-session.ts` に寄せ、`actions.ts` などの mount point は `verifyEditorAdminPassword()` や `requireEditorAdminSession()` のような helper だけを呼ぶ。
 
 **Incorrect:**
 
@@ -26,7 +26,7 @@ export async function loginEditorAdminAction(formData: FormData) {
 **Correct:**
 
 ```tsx
-import { verifyEditorAdminPassword } from '@/features/admin/session'
+import { verifyEditorAdminPassword } from './editor-session'
 
 export async function loginEditorAdminAction(formData: FormData) {
   if (!verifyEditorAdminPassword(input)) return

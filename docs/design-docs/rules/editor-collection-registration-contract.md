@@ -8,7 +8,7 @@ chapter: Implementation
 
 ## Editor Collection Registration Contract
 
-新しい editor collection を追加するときは、schema や UI だけで終わらせず、descriptor と registry と path contract まで揃える。collection 追加は単一ファイル作成では完結しない。
+新しい editor collection を追加するときは、schema や UI だけで終わらせず、descriptor と registry と path mapping まで揃える。collection 追加は単一ファイル作成では完結しない。
 
 **Incorrect:**
 

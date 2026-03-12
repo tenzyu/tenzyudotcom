@@ -1,32 +1,35 @@
 ---
-title: "6-Layer Ownership Model"
+title: "Ownership Model Layers"
 impact: HIGH
-impactDescription: 全てのコードに一意の所有者を定義し、配置迷子（Dumping Ground）を根絶する。
+impactDescription: コード配置を src/app の owner tree と少数の例外層へ収束させ、 dumping ground を防ぐ。
 tags: architecture, ownership, organization
 chapter: Foundations
 ---
 
-# 6-Layer Ownership Model
+# Ownership Model Layers
 
-コードの「役割」や「構文」ではなく、「誰がその責任を持つか」に基づいて配置を決定する。
+配置は構文ではなく ownership で決める。  
+この repo では `src/app` の directory tree を ownership の正本とし、shared 層は例外扱いにする。
 
-1. **local feature**: `src/app/.../_features/` (特定のルート専用)
-2. **promoted feature**: `src/features/` (複数ルートで再利用されるドメイン機能)
-3. **site shell**: `src/components/shell/` (サイトの骨格)
-4. **site-ui component**: `src/components/site-ui/` (汎用プレゼンテーション部品)
-5. **pure shared logic**: `src/lib/`, `src/config/` (クロスルートの純粋ロジック・設定)
-6. **authored content**: `storage/` 配下（`blog/*.mdx`, `editor/*.json` 等）の人間が管理し Vercel Blob と同期するデータ
+## Canonical Layers
 
-**Incorrect:**
+1. `src/app/**/_features`
+2. ancestor owner の `src/app/**/_features`
+3. `src/components/ui`
+4. `src/components` の presentation primitive
+5. `src/config`, `src/lib`
+6. `src/features` は app owner tree で自然に表現できない cross-branch shared のみ
+7. `storage/` は authored content
 
-```text
-// 1箇所でしか使わないのに、最初から src/components/ に置いてしまう
-src/components/SpecificButton.tsx
-```
+## Repo-specific Placement Rules
 
-**Correct:**
+- `src/app` 配下で閉じる関心事は、まず owner tree 内に置く
+- `src/features` は default promote 先ではない
+- `src/components` は他サイトへ持ち運べる presentation primitive を優先する
+- `src/config` は site-wide policy、`src/lib` は low-level helper / infra substrate を置く
 
-```text
-// 使う場所の隣から始め、再利用の事実が出たら昇格（Promote）させる
-src/app/[locale]/.../_features/specific-button.tsx
-```
+## See Also
+
+- `local-first-promote-later.md`
+- `directory-strictness.md`
+- `decision-priority-order.md`

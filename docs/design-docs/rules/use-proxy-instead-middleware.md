@@ -6,9 +6,10 @@ tags: middleware, proxy
 chapter: Implementation
 ---
 
-## Rule Title Here
+## Use Proxy Instead of Middleware
 
-Brief explanation of the rule and why it matters.
+このルールは `nextjs-16-proxy.md` の短縮版。  
+repo 固有の詳細はそちらを正本とし、ここでは禁止事項だけを明記する。
 
 **Incorrect:**
 
@@ -19,12 +20,8 @@ export function middleware() { }
 **Correct:**
 
 ```tsx
-import { multipleProxies, intlayerProxy } from "next-intlayer/proxy";
-import { customProxy } from "@utils/customProxy";
-
-export const proxy = multipleProxies([intlayerProxy, customProxy]);
+// src/proxy.ts を使う
 ```
 
 References
-- [Next.js 16 Proxy](https://nextjs.org/docs/app/getting-started/proxy)
-- [Intlayer multipleProxy](https://intlayer.org/doc/environment/nextjs#optional-step-7-configure-proxy-for-locale-detection)
+- [nextjs-16-proxy.md](./nextjs-16-proxy.md)

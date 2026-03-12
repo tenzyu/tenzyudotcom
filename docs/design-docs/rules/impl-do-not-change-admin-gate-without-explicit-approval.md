@@ -8,7 +8,7 @@ chapter: Implementation
 
 ## Do Not Change AdminGate Without Explicit Approval
 
-今回の作業で最も悪かった判断の 1 つは、`src/features/admin/admin-gate.tsx` をタスク都合で勝手に書き換えたことだった。これは UI 便利機能の調整ではなく、認可境界の変更にあたる。
+`src/app/[locale]/(main)/_features/admin/admin-gate.tsx` をタスク都合で勝手に書き換えてはいけない。これは UI 便利機能の調整ではなく、認可境界の変更にあたる。
 
 **Incorrect:**
 

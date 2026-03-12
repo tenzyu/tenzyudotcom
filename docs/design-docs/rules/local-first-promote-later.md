@@ -8,19 +8,23 @@ chapter: Foundations
 
 # Local-first, Promote-later
 
-再利用の「可能性」ではなく、実際の「再利用の事実」に基づいて共有化（Promote）を行う。
-まずは利用箇所の最も近く（route-local な `_features` 配下）に配置し、2箇所以上のルートで必要になった段階で `src/features` 等へ昇格させる。
+再利用の「可能性」ではなく、実際の import 事実に基づいて promote する。  
+まずは最も近い owner に置き、複数 owner から参照されたら least common owner に上げる。
 
-**Incorrect:**
+## Repo-specific Rule
 
-```tsx
-// 再利用されるかもしれないという理由で、最初から共通ディレクトリに置く
-// src/components/site-ui/SpecificFeatureButton.tsx
+- default promote 先は `src/features` ではなく `src/app` の ancestor owner
+- `src/features` は app tree で自然に置けない cross-branch shared のみ
+- `lint-symbol-ownership` の `targetOwner` を promote / demote の基準にする
+
+## Incorrect
+
+```text
+再利用されるかもしれない、という理由だけで最初から src/features や src/components に置く
 ```
 
-**Correct:**
+## Correct
 
-```tsx
-// まずは使う場所（ルート内）の近くに置く
-// src/app/[locale]/(main)/notes/_features/note-action-button.tsx
+```text
+まず owner tree の最も近い位置に置き、shared になった時だけ least common owner へ promote する
 ```

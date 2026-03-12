@@ -10,11 +10,11 @@ chapter: Intelligence
 
 設計判断では以下の優先順位を遵守する。
 
-1. **Ownership**: そのコードの所有者は誰か（Local か Shared か）。
-2. **Attribute**: 最上位属性は何か（Feature, Shell, Site-UI, Logic, Content）。
-3. **Workflow & Proximity**: 作業動線と近接性を優先し、認知負荷を下げる。
-4. **Pattern**: 構文的な整理（Pattern 分割）は最後に行う。
-5. **Promote**: 実際の再利用が発生した後に共通化する。
+1. **Owner Tree**: `src/app` のどの owner が持つべきか
+2. **Import Facts**: 実際にどの owner から参照されているか
+3. **Shared Class**: primitive / config / lib / cross-branch shared のどれか
+4. **Workflow & Proximity**: 一緒に直すものを近くへ置く
+5. **Pattern**: components/hooks/lib 等の構文整理
 
 **Incorrect:**
 
@@ -26,6 +26,5 @@ chapter: Intelligence
 **Correct:**
 
 ```text
-// 修正時に同時に触るファイルを近くに置く（Proximity）
-// 2箇所以上で使われるまでは、特定のルート内に閉じ込める
+owner tree と import facts を先に決め、その後で shared 層や構文整理を選ぶ
 ```

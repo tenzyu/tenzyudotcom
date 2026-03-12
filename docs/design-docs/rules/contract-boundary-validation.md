@@ -2,7 +2,7 @@
 title: "Contract & Boundary Validation"
 impact: HIGH
 impactDescription: 外部からの不明なデータによるランタイムエラーを防ぎ、型安全性を確保する。
-tags: validation, contract, zod
+tags: validation, boundary, zod
 chapter: Implementation
 ---
 

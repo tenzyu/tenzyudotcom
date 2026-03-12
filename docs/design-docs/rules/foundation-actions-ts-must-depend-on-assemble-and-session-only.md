@@ -8,8 +8,8 @@ chapter: Foundations
 
 # actions.ts Must Depend On Assemble And Session Only
 
-`src/app/.../_features/actions.ts` は Server Action の mount point であり、入力検証、認可、画面遷移だけを担当するのがよいです。  
-取得・保存の実処理は `*.assemble.ts` の use case に委譲し、認証情報やセッション処理は `session.ts` に寄せます。`actions.ts` から `*.infra.ts` を直接 import しないのが実運用上の前提です。
+`src/app/.../_features/actions.ts` は Server Action の mount point であり、薄く保つ。  
+入力検証は近傍の `*.assemble.ts`、認可は `session.ts`、保存や取得は use case に委譲し、`actions.ts` から `*.infra.ts` や repository factory を直接叩かない。
 
 **Incorrect:**
 
@@ -24,9 +24,11 @@ export async function saveBlogPostAction(formData: FormData) {
 **Correct:**
 
 ```tsx
+import { parseEditorBlogSaveInput } from './editor-input.assemble'
 import { makeSaveBlogPostUseCase } from './editor.assemble'
 
 export async function saveBlogPostAction(formData: FormData) {
+  const parsed = parseEditorBlogSaveInput(...)
   const saveUseCase = makeSaveBlogPostUseCase()
   await saveUseCase.execute(slug, frontmatter, body, version)
 }
