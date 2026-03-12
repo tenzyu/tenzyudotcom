@@ -115,28 +115,20 @@ execution-ready: true
   - `impl-actions-mount-through-assemble.md`
   - `impl-apply-di-before-ui-assembly.md`
 - security cluster
-  - `admin-editor-security.md`
-  - `security-editor-auth-credentials-should-have-a-single-owner.md`
+  - `security-editor-session-boundary.md`
+  - `security-editor-write-safety.md`
   - `security-server-actions-require-auth-even-for-helper-actions.md`
   - `security-explicit-env-parsing.md`
   - `security-outbound-boundary.md`
-  - `thin-proxy-pattern.md`
-  - `mdx-overwrite-protection.md`
+  - `security-proxy-boundary.md`
 - implementation cluster
-  - `admin-gate-pattern.md`
-  - `admin-gate-is-stable-contract.md`
-  - `impl-do-not-change-admin-gate-without-explicit-approval.md`
-  - `impl-preserve-public-ui-before-admin-convenience.md`
+  - `impl-admin-gate-contract.md`
+  - `impl-inline-admin-composition.md`
   - `impl-avoid-route-post-and-hard-reload-for-inline-admin.md`
-  - `impl-leaf-admin-affordance-is-better-than-large-admin-scope.md`
-  - `impl-no-page-level-collection-wrapper.md`
-  - `no-page-level-admin-collection-component.md`
   - `logic-presentation-separation.md`
-  - `contract-boundary-validation.md`
+  - `impl-parse-dont-validate-boundaries.md`
   - `editor-collection-registration-contract.md`
   - `impl-editor-errors-and-blog-saving-should-cross-boundaries-via-port.md`
-  - `nextjs-16-proxy.md`
-  - `use-proxy-instead-middleware.md`
   - `routing-conventions.md`
   - `next-intlayer-entrypoint-contract.md`
 - design cluster
@@ -166,24 +158,17 @@ execution-ready: true
 - admin gate pack
   - merge target: `impl/admin gate` の読む順でまとまる単位
   - source candidates:
-    - `admin-gate-pattern.md`
-    - `admin-gate-is-stable-contract.md`
-    - `impl-do-not-change-admin-gate-without-explicit-approval.md`
-    - `impl-preserve-public-ui-before-admin-convenience.md`
-    - `impl-leaf-admin-affordance-is-better-than-large-admin-scope.md`
+    - `impl-admin-gate-contract.md`
+    - `impl-inline-admin-composition.md`
 - inline editor flow pack
   - source candidates:
     - `impl-avoid-route-post-and-hard-reload-for-inline-admin.md`
-    - `impl-no-page-level-collection-wrapper.md`
-    - `no-page-level-admin-collection-component.md`
     - `editor-collection-registration-contract.md`
 - proxy boundary pack
   - source candidates:
-    - `thin-proxy-pattern.md`
-    - `use-proxy-instead-middleware.md`
-    - `nextjs-16-proxy.md`
+    - `security-proxy-boundary.md`
     - `security-outbound-boundary.md`
-    - `contract-boundary-validation.md`
+    - `impl-parse-dont-validate-boundaries.md`
 - dependency inversion pack
   - source candidates:
     - `foundation-dependency-inversion.md`
@@ -200,9 +185,6 @@ execution-ready: true
 
 ### Split Candidates
 
-- `admin-editor-security.md`
-  - 問題: session, validation, overwrite protection が一枚に同居している
-  - 候補: `security-editor-session`, `security-editor-input-boundary`, `security-editor-overwrite-protection`
 - `foundation-dependency-inversion.md`
   - 問題: 実装規約へ寄せすぎると思想 rule が again 長くなる
   - 対応: `impl-file-role-contract.md` に suffix contract を分離する
@@ -257,6 +239,67 @@ execution-ready: true
 - foundation cluster の file 名に prefix が付いている
 - ownership / feature slice / dependency inversion の rule が短く読み分けられる
 - dependency inversion の思想説明と file role contract が別 rule になっている
+
+## Slice 3 Working Notes
+
+### Current Status
+
+- completed
+- admin-gate / proxy / editor security 周辺だけを再編した
+- cluster 単位では `14 -> 6` まで圧縮したが、全文書総数では過統合域には入っていない
+
+### Applied Merges
+
+- admin gate contract pack
+  - `admin-gate-pattern.md`
+  - `admin-gate-is-stable-contract.md`
+  - `impl-do-not-change-admin-gate-without-explicit-approval.md`
+  - merged into `impl-admin-gate-contract.md`
+- inline admin composition pack
+  - `impl-preserve-public-ui-before-admin-convenience.md`
+  - `impl-leaf-admin-affordance-is-better-than-large-admin-scope.md`
+  - `no-page-level-admin-collection-component.md`
+  - `impl-no-page-level-collection-wrapper.md`
+  - merged into `impl-inline-admin-composition.md`
+- proxy pack
+  - `thin-proxy-pattern.md`
+  - `use-proxy-instead-middleware.md`
+  - `nextjs-16-proxy.md`
+  - merged into `security-proxy-boundary.md`
+
+### Applied Splits
+
+- `admin-editor-security.md`
+  - `security-editor-session-boundary.md`
+  - `security-editor-write-safety.md`
+
+### Applied Renames
+
+- `contract-boundary-validation.md`
+  - `impl-parse-dont-validate-boundaries.md`
+
+### Deliberately Deferred
+
+- `security-outbound-boundary.md`
+  - proxy と関連は強いが、zero-trust input 全般へ効くため今回は統合しない
+- `security-server-actions-require-auth-even-for-helper-actions.md`
+  - editor 固有 rule に閉じないため、session / write safety へ混ぜない
+- `editor-collection-registration-contract.md`
+  - inline admin と近いが、登録 contract と composition constraint はまだ別に読めたほうが良い
+
+### Verification Notes
+
+- `bun run build:docs-map`
+  - passed
+- `bun run lint:docs`
+  - still fails on pre-existing frontmatter / reachability 問題
+  - rules 配下では `_template.md` と MD001 の相性が悪く、現行 lint 側の責務整理がまだ必要
+
+### Slice 3 Exit Criteria
+
+- admin / proxy / editor security の rule 名に prefix が付いている
+- `admin-editor-security.md` のような多関心 rule が解体されている
+- admin gate と inline admin composition の読み分けができる
 
 ## Guardrails
 
