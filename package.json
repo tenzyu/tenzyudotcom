@@ -10,7 +10,7 @@
     "build:prod": "bun run clean && NODE_ENV=production bun --env-file .env.prod next build",
     "start": "bun run clean && bun run build && next start",
     "start:intlayer": "intlayer-editor start",
-    "lint": "./scripts/biome lint . && depcruise --config .dependency-cruiser.cjs src/",
+    "lint": "./scripts/biome lint . && bun scripts/lint-no-reexport.ts && depcruise --config .dependency-cruiser.cjs src/",
     "lint-symbol-ownership": "bun scripts/lint-symbol-ownership.ts",
     "lint:fix": "./scripts/biome lint --fix .",
     "lint:docs": "bun scripts/lint-docs.ts",

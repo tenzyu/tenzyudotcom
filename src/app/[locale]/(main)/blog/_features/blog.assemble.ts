@@ -19,7 +19,7 @@ import {
 } from './blog.domain'
 import { isEditorBlobStorage, env } from '@/config/env.contract'
 import { list, get } from '@vercel/blob'
-import { BLOG_COLLECTION_DESCRIPTOR } from './blog.contract'
+import { BLOG_COLLECTION_DESCRIPTOR } from '@/features/editor-collections/blog'
 
 import { createVersion } from '@/lib/editor/editor-version'
 

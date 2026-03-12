@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test'
-import { normalizeRecommendationVideoSource } from './recommendation-source.domain'
+import { normalizeRecommendationVideoSource } from '@/features/recommendations/recommendation-source.domain'
 
 describe('normalizeRecommendationVideoSource', () => {
   test('accepts youtu.be URLs', () => {

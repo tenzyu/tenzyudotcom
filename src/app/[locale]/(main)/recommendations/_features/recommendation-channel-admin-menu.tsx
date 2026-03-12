@@ -3,7 +3,10 @@
 import { startTransition, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import type { RecommendationSourceChannelEntry, RecommendationSourceEntry } from './recommendations.domain'
+import type {
+  RecommendationSourceChannelEntry,
+  RecommendationSourceEntry,
+} from '@/features/recommendations/recommendations.domain'
 import { AdminItemMenu } from '@/features/admin/admin-item-menu'
 import { Button } from '@/components/ui/button'
 import {

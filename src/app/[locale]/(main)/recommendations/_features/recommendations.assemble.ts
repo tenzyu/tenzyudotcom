@@ -5,14 +5,14 @@ import {
   defineRecommendationVideos,
   recommendationsRepository,
 } from './recommendations.contract'
-import { normalizeRecommendationVideoSource } from './recommendation-source.domain'
+import { normalizeRecommendationVideoSource } from '@/features/recommendations/recommendation-source.domain'
 import type {
   RecommendationSourceChannelEntry,
   RecommendationSourceEntry,
   RecommendationSourceVideoEntry,
-} from './recommendations.domain'
+} from '@/features/recommendations/recommendations.domain'
 import type { RecommendationsRepository } from './recommendations.port'
-import { fetchYouTubeVideoMeta } from './lib/youtube'
+import { fetchYouTubeVideoMeta } from '@/features/recommendations/youtube'
 import type {
   RecommendationsPageData,
   YouTubeChannelItem,

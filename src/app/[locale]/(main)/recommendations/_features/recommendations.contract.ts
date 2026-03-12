@@ -7,12 +7,12 @@ import type {
   RecommendationSourceEntry,
   RecommendationTab,
   RecommendationVideo,
-} from './recommendations.domain'
+} from '@/features/recommendations/recommendations.domain'
 import type { RecommendationsRepository } from './recommendations.port'
 import { RECOMMENDATIONS_COLLECTION_DESCRIPTOR } from '@/features/editor-collections/recommendations'
-export { isRecommendationTabId } from './recommendations.domain'
+export { isRecommendationTabId } from '@/features/recommendations/recommendations.domain'
 export { RECOMMENDATIONS_COLLECTION_DESCRIPTOR } from '@/features/editor-collections/recommendations'
-import { normalizeRecommendationVideoSource } from './recommendation-source.domain'
+import { normalizeRecommendationVideoSource } from '@/features/recommendations/recommendation-source.domain'
 
 const LocalizedTextSchema = z.object({
   ja: z.string().trim().min(1),

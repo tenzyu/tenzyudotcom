@@ -3,8 +3,11 @@
 import { startTransition, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import type { RecommendationSourceEntry, RecommendationSourceVideoEntry } from './recommendations.domain'
-import { normalizeRecommendationVideoSource } from './recommendation-source.domain'
+import type {
+  RecommendationSourceEntry,
+  RecommendationSourceVideoEntry,
+} from '@/features/recommendations/recommendations.domain'
+import { normalizeRecommendationVideoSource } from '@/features/recommendations/recommendation-source.domain'
 import { AdminItemMenu } from '@/features/admin/admin-item-menu'
 import { Button } from '@/components/ui/button'
 import {

@@ -1,4 +1,4 @@
-import { normalizeExternalUrl } from '@/lib/url/external-url.contract'
+import { normalizeExternalUrl } from '@/lib/url/external-url.domain'
 import { z } from 'zod'
 import { withLocales, type EditorCollectionDescriptor } from '@/lib/editor/editor.port'
 
