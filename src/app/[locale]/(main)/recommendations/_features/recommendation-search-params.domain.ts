@@ -1,4 +1,4 @@
-import type { RecommendationTabId } from './recommendations.domain'
+import type { RecommendationTabId } from '@/features/recommendations/recommendations.domain'
 
 export const RECOMMENDATION_TAB_PARAM = 'tab'
 export const DEFAULT_RECOMMENDATION_TAB: RecommendationTabId = 'music'

@@ -3,21 +3,22 @@ import {
   defineRecommendationChannels,
   defineRecommendationTabs,
   defineRecommendationVideos,
-  recommendationsRepository,
-} from './recommendations.contract'
-import { normalizeRecommendationVideoSource } from './recommendation-source.domain'
+} from '@/features/recommendations/recommendations.domain'
+import { normalizeRecommendationVideoSource } from '@/features/recommendations/recommendation-source.domain'
 import type {
   RecommendationSourceChannelEntry,
   RecommendationSourceEntry,
   RecommendationSourceVideoEntry,
-} from './recommendations.domain'
+} from '@/features/recommendations/recommendations.domain'
 import type { RecommendationsRepository } from './recommendations.port'
-import { fetchYouTubeVideoMeta } from './lib/youtube'
+import { fetchYouTubeVideoMeta } from '@/features/recommendations/youtube.assemble'
 import type {
   RecommendationsPageData,
   YouTubeChannelItem,
   YouTubePlaylistItem,
 } from './lib/types'
+import { EditorRecommendationsRepository } from './recommendations.infra'
+import { makeEditorRepository } from '@/lib/editor/editor.assemble'
 
 type EditorLocale = 'ja' | 'en'
 
@@ -64,7 +65,9 @@ export class LoadRecommendationsUseCase {
 }
 
 export function makeLoadRecommendationsUseCase() {
-  return new LoadRecommendationsUseCase(recommendationsRepository)
+  return new LoadRecommendationsUseCase(
+    new EditorRecommendationsRepository(makeEditorRepository()),
+  )
 }
 
 export const RECOMMENDATION_TABS = defineRecommendationTabs([

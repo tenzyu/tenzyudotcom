@@ -11,13 +11,20 @@ type BlogEditorProps = {
   posts: MDXData[]
   slug?: string | null
   error?: string
+  startCreating?: boolean
 }
 
-export function BlogEditor({ locale, posts, slug, error }: BlogEditorProps) {
+export function BlogEditor({
+  locale,
+  posts,
+  slug,
+  error,
+  startCreating = false,
+}: BlogEditorProps) {
   const [editingPost, setEditingPost] = useState<MDXData | null>(
     slug ? posts.find((p) => p.slug === slug) || null : null
   )
-  const [isCreating, setIsCreating] = useState(false)
+  const [isCreating, setIsCreating] = useState(startCreating)
 
   if (editingPost || isCreating) {
     const post = editingPost
@@ -35,10 +42,10 @@ export function BlogEditor({ locale, posts, slug, error }: BlogEditorProps) {
               Version conflict: This post has been modified by another session. Please reload or backup your changes.
             </div>
           )}
-          <form action={saveBlogPostAction} className="space-y-4">
+          <form action={saveBlogPostAction} className="space-y-6">
             <input type="hidden" name="locale" value={locale} />
             {post && <input type="hidden" name="expectedVersion" value={post.version} />}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(22rem,1fr)]">
               <div className="space-y-2">
                 <label htmlFor="slug" className="text-sm font-medium">Slug</label>
                 <input
@@ -46,7 +53,7 @@ export function BlogEditor({ locale, posts, slug, error }: BlogEditorProps) {
                   name="slug"
                   defaultValue={post?.slug}
                   readOnly={!isCreating}
-                  className="w-full rounded-md border p-2 text-sm bg-muted"
+                  className="bg-muted w-full rounded-md border p-3 text-sm"
                   required
                 />
               </div>
@@ -56,7 +63,7 @@ export function BlogEditor({ locale, posts, slug, error }: BlogEditorProps) {
                   id="title"
                   name="title"
                   defaultValue={post?.metadata.title}
-                  className="w-full rounded-md border p-2 text-sm"
+                  className="w-full rounded-md border p-3 text-sm"
                   required
                 />
               </div>
@@ -68,12 +75,12 @@ export function BlogEditor({ locale, posts, slug, error }: BlogEditorProps) {
                 id="summary"
                 name="summary"
                 defaultValue={post?.metadata.summary}
-                className="w-full rounded-md border p-2 text-sm min-h-20"
+                className="min-h-32 w-full rounded-md border p-3 text-sm leading-relaxed"
                 required
               />
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid gap-4 xl:grid-cols-3">
               <div className="space-y-2">
                 <label htmlFor="publishedAt" className="text-sm font-medium">Published At</label>
                 <input
@@ -85,7 +92,7 @@ export function BlogEditor({ locale, posts, slug, error }: BlogEditorProps) {
                       ? new Date(post.metadata.publishedAt.getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)
                       : new Date().toISOString().slice(0, 16)
                   }
-                  className="w-full rounded-md border p-2 text-sm"
+                  className="w-full rounded-md border p-3 text-sm"
                   required
                 />
               </div>
@@ -100,7 +107,7 @@ export function BlogEditor({ locale, posts, slug, error }: BlogEditorProps) {
                       ? new Date(post.metadata.updatedAt.getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)
                       : ''
                   }
-                  className="w-full rounded-md border p-2 text-sm"
+                  className="w-full rounded-md border p-3 text-sm"
                 />
               </div>
               <div className="space-y-2">
@@ -110,7 +117,7 @@ export function BlogEditor({ locale, posts, slug, error }: BlogEditorProps) {
                   name="tags"
                   defaultValue={post?.metadata.tags?.join(', ')}
                   placeholder="nextjs, tutorial, tips"
-                  className="w-full rounded-md border p-2 text-sm"
+                  className="w-full rounded-md border p-3 text-sm"
                 />
               </div>
             </div>
@@ -121,7 +128,7 @@ export function BlogEditor({ locale, posts, slug, error }: BlogEditorProps) {
                 id="body"
                 name="body"
                 defaultValue={post?.rawContent}
-                className="w-full rounded-md border p-2 text-sm font-mono min-h-[500px]"
+                className="min-h-[70vh] w-full rounded-md border p-4 font-mono text-sm leading-6"
                 spellCheck={false}
                 required
               />

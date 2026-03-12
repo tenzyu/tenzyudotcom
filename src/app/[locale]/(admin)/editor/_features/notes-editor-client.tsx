@@ -21,6 +21,7 @@ type NotesEditorClientProps = {
   initialEntries: NoteSourceEntry[]
   expectedVersion: string
   locale: string
+  variant?: 'default' | 'inline'
   labels: {
     add: string
     save: string
@@ -47,10 +48,13 @@ export function NotesEditorClient({
   initialEntries,
   expectedVersion,
   locale,
+  variant = 'default',
   labels,
 }: NotesEditorClientProps) {
   const [entries, setEntries] = useState<NoteSourceEntry[]>(initialEntries)
   const sourceJson = JSON.stringify(entries, null, 2)
+  const titleKey = locale === 'ja' ? 'ja' : 'en'
+  const isInline = variant === 'inline'
 
   return (
     <form action={saveEditorCollectionAction} className="space-y-6">
@@ -59,22 +63,35 @@ export function NotesEditorClient({
       <input type="hidden" name="sourceJson" value={sourceJson} />
       <input type="hidden" name="expectedVersion" value={expectedVersion} />
 
-      <Button
-        type="button"
-        variant="outline"
-        onClick={() => setEntries((current) => [...current, createEmptyNote()])}
+      <div
+        className={
+          isInline
+            ? 'bg-background/95 sticky top-3 z-10 flex flex-wrap gap-3 rounded-2xl border p-3 backdrop-blur'
+            : 'flex flex-wrap gap-3'
+        }
       >
-        <Plus />
-        {labels.add}
-      </Button>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() =>
+            setEntries((current) => [createEmptyNote(), ...current])
+          }
+        >
+          <Plus />
+          {labels.add}
+        </Button>
+        <Button type="submit">{labels.save}</Button>
+      </div>
 
       <div className="space-y-4">
         {entries.map((entry, index) => (
-          <Card key={`${entry.createdAt}`}>
+          <Card key={`${entry.createdAt}-${index}`}>
             <CardHeader className="space-y-2">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <CardTitle>{entry.body.ja || 'Note'}</CardTitle>
+                  <CardTitle>
+                    {entry.body[titleKey] || entry.body.ja || entry.body.en || 'Note'}
+                  </CardTitle>
                   <CardDescription>{entry.createdAt}</CardDescription>
                 </div>
                 <div className="flex items-center gap-2">
@@ -222,7 +239,7 @@ export function NotesEditorClient({
         ))}
       </div>
 
-      <Button type="submit">{labels.save}</Button>
+      {!isInline ? <Button type="submit">{labels.save}</Button> : null}
     </form>
   )
 }

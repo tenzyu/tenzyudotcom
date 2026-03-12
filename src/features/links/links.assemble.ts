@@ -1,11 +1,27 @@
-import { defineLinks } from './links.contract'
+import { z } from 'zod'
 import {
   LINK_CATEGORY_ORDER,
+  defineLinks,
   type LinkCategory,
   type MyLink,
 } from './links.domain'
 import type { LinksRepository } from './links.port'
-import { linksRepository } from './links.contract'
+import { EditorLinksRepository } from './links.infra'
+import { makeEditorRepository } from '@/lib/editor/editor.assemble'
+
+const LinkSourceEntrySchema = z.object({
+  name: z.string().trim().min(1),
+  id: z.string().trim().min(1),
+  url: z.string().trim().min(1),
+  shortenUrl: z.string().trim().min(1),
+  icon: z.string().trim().min(1),
+  category: z.enum(['Watch', 'Social', 'Build', 'Legacy']),
+})
+
+export function parseLinkSourceEntries(raw: unknown) {
+  const links = z.array(LinkSourceEntrySchema).parse(raw)
+  return defineLinks(links)
+}
 
 export class LoadLinksUseCase {
   constructor(private repository: LinksRepository) {}
@@ -16,7 +32,9 @@ export class LoadLinksUseCase {
 }
 
 export function makeLoadLinksUseCase() {
-  return new LoadLinksUseCase(linksRepository)
+  return new LoadLinksUseCase(
+    new EditorLinksRepository(makeEditorRepository()),
+  )
 }
 
 export async function loadLinks() {

@@ -3,68 +3,37 @@
 import { getLocalizedUrl } from 'intlayer'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
-import { z } from 'zod'
-import {
-  env,
-  getRequiredEditorAdminCredentials,
-} from '@/config/env.contract'
 import {
   EditorVersionConflictError,
-  editorRepository,
-} from '@/lib/editor/editor.contract'
+} from '@/lib/editor/editor.port'
 import {
+  makeSaveBlogPostUseCase,
   makeSaveEditorCollectionUseCase,
 } from './editor.assemble'
 import {
+  parseEditorBlogSaveInput,
+  parseEditorCollectionSaveInput,
+  parseEditorLoginInput,
+} from './editor-input.assemble'
+import {
   clearEditorAdminSession,
   createEditorAdminSession,
-  isValidEditorAdminPassword,
+  hasEditorAdminSession,
   requireEditorAdminSession,
-} from '@/features/admin/session'
-
-const LoginSchema = z.object({
-  locale: z.string().trim().min(2),
-  password: z.string().min(1),
-})
-
-const SaveCollectionSchema = z.object({
-  locale: z.string().trim().min(2),
-  collectionId: z.enum([
-    'recommendations',
-    'notes',
-    'puzzles',
-    'pointers',
-    'links',
-    'blog',
-  ]),
-  sourceJson: z.string().trim().min(2),
-  expectedVersion: z.string().trim().min(1).optional(),
-})
-
-const SaveBlogPostSchema = z.object({
-  locale: z.string().trim().min(2),
-  slug: z.string().trim().min(1),
-  title: z.string().trim().min(1),
-  summary: z.string().trim().min(1),
-  publishedAt: z.string().trim().min(1),
-  updatedAt: z.string().trim().optional(),
-  tags: z.string().trim().optional(),
-  body: z.string(),
-  expectedVersion: z.string().trim().min(1).optional(),
-})
+  verifyEditorAdminPassword,
+} from './editor-session'
 
 export async function loginEditorAdminAction(formData: FormData) {
-  const parsed = LoginSchema.safeParse({
+  const parsed = parseEditorLoginInput({
     locale: formData.get('locale'),
     password: formData.get('password'),
   })
 
-  if (!parsed.success || !env.editorAdminPassword) {
+  if (!parsed.success) {
     redirect(getLocalizedUrl('/editor/login?error=invalid', 'ja'))
   }
 
-  const { password } = getRequiredEditorAdminCredentials()
-  if (!isValidEditorAdminPassword(parsed.data.password, password)) {
+  if (!verifyEditorAdminPassword(parsed.data.password)) {
     // Artificial delay to deter brute force
     await new Promise((resolve) => setTimeout(resolve, 1000))
     redirect(
@@ -86,7 +55,7 @@ export async function logoutEditorAdminAction(formData: FormData) {
 }
 
 export async function saveEditorCollectionAction(formData: FormData) {
-  const parsed = SaveCollectionSchema.safeParse({
+  const parsed = parseEditorCollectionSaveInput({
     locale: formData.get('locale'),
     collectionId: formData.get('collectionId'),
     sourceJson: formData.get('sourceJson'),
@@ -139,8 +108,57 @@ export async function saveEditorCollectionAction(formData: FormData) {
   )
 }
 
+export async function saveInlineEditorCollectionAction(input: {
+  locale: string
+  collectionId: 'recommendations' | 'notes' | 'puzzles' | 'pointers' | 'links'
+  sourceJson: string
+  expectedVersion?: string
+}) {
+  const parsed = parseEditorCollectionSaveInput(input)
+
+  if (!parsed.success) {
+    return {
+      ok: false as const,
+      error: 'invalid' as const,
+    }
+  }
+
+  if (!(await hasEditorAdminSession())) {
+    return {
+      ok: false as const,
+      error: 'unauthorized' as const,
+    }
+  }
+
+  try {
+    const saveUseCase = makeSaveEditorCollectionUseCase()
+    const result = await saveUseCase.execute(
+      parsed.data.collectionId,
+      parsed.data.sourceJson,
+      parsed.data.expectedVersion,
+    )
+
+    return {
+      ok: true as const,
+      version: result.version,
+    }
+  } catch (error) {
+    if (error instanceof EditorVersionConflictError) {
+      return {
+        ok: false as const,
+        error: 'conflict' as const,
+      }
+    }
+
+    return {
+      ok: false as const,
+      error: 'save' as const,
+    }
+  }
+}
+
 export async function saveBlogPostAction(formData: FormData) {
-  const parsed = SaveBlogPostSchema.safeParse({
+  const parsed = parseEditorBlogSaveInput({
     locale: formData.get('locale'),
     slug: formData.get('slug'),
     title: formData.get('title'),
@@ -174,7 +192,8 @@ export async function saveBlogPostAction(formData: FormData) {
   }
 
   try {
-    await editorRepository.saveBlogPost(
+    const saveUseCase = makeSaveBlogPostUseCase()
+    await saveUseCase.execute(
       parsed.data.slug,
       frontmatter,
       parsed.data.body,

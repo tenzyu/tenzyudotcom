@@ -1,7 +1,7 @@
-import { OtakuAside } from '@/components/site-ui/otaku-aside'
+import { OtakuAside } from '@/app/[locale]/(main)/_features/otaku-aside'
 import { Dialog, DialogTrigger } from '@/components/ui/dialog'
-import { YouTubeDialogContent } from '@/features/youtube/youtube-dialog-content'
-import { YouTubeThumbnailImage } from '@/features/youtube/youtube-thumbnail-image'
+import { YouTubeDialogContent } from '@/app/[locale]/(main)/_features/youtube/youtube-dialog-content'
+import { YouTubeThumbnailImage } from '@/app/[locale]/(main)/_features/youtube/youtube-thumbnail-image'
 import { cn } from '@/lib/utils/common'
 import type { YouTubePlaylistItem } from './lib/types'
 

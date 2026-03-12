@@ -6,7 +6,7 @@ import type {
   RecommendationSourceChannelEntry,
   RecommendationSourceEntry,
   RecommendationSourceVideoEntry,
-} from '@/app/[locale]/(main)/recommendations/_features/recommendations.domain'
+} from '@/features/recommendations/recommendations.domain'
 import { Button } from '@/components/ui/button'
 import {
   Card,

@@ -12,6 +12,7 @@ export type {
   EditorState,
   RevalidatePathTarget,
 } from './editor.domain'
+export { EditorVersionConflictError } from './editor.domain'
 
 export type EditorCollectionDescriptor<K extends EditorCollectionId> = {
   id: K
@@ -34,6 +35,8 @@ export interface EditorRepository {
   loadState<K extends EditorCollectionId>(
     descriptor: EditorCollectionDescriptor<K>,
   ): Promise<EditorState<K>>
+
+  loadBlogCollectionState(): Promise<EditorState<'blog'>>
 
   save<K extends EditorCollectionId>(
     descriptor: EditorCollectionDescriptor<K>,

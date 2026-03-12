@@ -2,7 +2,8 @@ import { cache } from 'react'
 import { compareNotesByCreatedAtDesc } from './notes.domain'
 import type { NoteSourceEntry } from './notes.domain'
 import type { NotesRepository } from './notes.port'
-import { notesRepository } from './notes.contract'
+import { EditorNotesRepository } from './notes.infra'
+import { makeEditorRepository } from '@/lib/editor/editor.assemble'
 
 type NotePageItem = {
   body: string
@@ -20,7 +21,9 @@ export class LoadNotesUseCase {
 }
 
 export function makeLoadNotesUseCase() {
-  return new LoadNotesUseCase(notesRepository)
+  return new LoadNotesUseCase(
+    new EditorNotesRepository(makeEditorRepository()),
+  )
 }
 
 const loadNoteSourceEntries = cache(async () => {

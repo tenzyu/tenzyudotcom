@@ -1,8 +1,4 @@
-import fs from 'node:fs'
-import path from 'node:path'
-import matter from 'gray-matter'
 import { cache } from 'react'
-import { parseBlogFrontmatter } from './blog-frontmatter.contract'
 import {
   SITE_AUTHOR_NAME,
   SITE_LOGO_PATH,
@@ -10,6 +6,7 @@ import {
   getAbsoluteUrl,
 } from '@/config/site'
 import { locales } from 'intlayer'
+import { makeEditorRepository } from '@/lib/editor/editor.assemble'
 import {
   type BlogPostingJsonLd,
   type MDXData,
@@ -17,88 +14,12 @@ import {
   buildBlogPostUrl,
   compareBlogPostsByPublishedAtDesc,
 } from './blog.domain'
-import { isEditorBlobStorage, env } from '@/config/env.contract'
-import { list, get } from '@vercel/blob'
-import { BLOG_COLLECTION_DESCRIPTOR } from './blog.contract'
-
-import { createVersion } from '@/app/[locale]/(admin)/editor/_features/editor-utils'
 
 const PAGE_SIZE = 6
 
-async function getMDXFiles(dir: string): Promise<string[]> {
-  try {
-    return (await fs.promises.readdir(dir)).filter(
-      (file) => path.extname(file) === '.mdx',
-    )
-  } catch {
-    return []
-  }
-}
-
-async function readMDXFile(filePath: string): Promise<MDXData> {
-  const rawContent = await fs.promises.readFile(filePath, 'utf-8')
-  const { data, content } = matter(rawContent)
-  const metadata = parseBlogFrontmatter(data, filePath)
-
-  return {
-    metadata,
-    slug: path.basename(filePath, path.extname(filePath)),
-    rawContent: content,
-    fullRawContent: rawContent,
-    version: createVersion(rawContent),
-  }
-}
-
-async function getMDXData(dir: string): Promise<MDXData[]> {
-  const files = await getMDXFiles(dir)
-  return Promise.all(files.map((file) => readMDXFile(path.join(dir, file))))
-}
-
-async function readMDXFromBlob(blobUrl: string, slug: string): Promise<MDXData> {
-  const response = await get(blobUrl, {
-    access: 'public',
-    token: env.blobReadWriteToken,
-  })
-  if (!response) {
-    throw new Error(`Failed to fetch blog post from blob: ${blobUrl}`)
-  }
-  const rawContent = await new Response(response.stream).text()
-  const { data, content } = matter(rawContent)
-  const metadata = parseBlogFrontmatter(data, slug)
-
-  return {
-    metadata,
-    slug,
-    rawContent: content,
-    fullRawContent: rawContent,
-    version: createVersion(rawContent),
-  }
-}
-
-async function getMDXDataFromBlob(): Promise<MDXData[]> {
-  const descriptor = BLOG_COLLECTION_DESCRIPTOR
-  const { blobs } = await list({
-    prefix: `${descriptor.storagePath}/`,
-    token: env.blobReadWriteToken,
-  })
-
-  const mdxBlobs = blobs.filter((b) => b.pathname.endsWith('.mdx'))
-
-  return Promise.all(
-    mdxBlobs.map((blob) => {
-      const slug = path.basename(blob.pathname, '.mdx')
-      return readMDXFromBlob(blob.url, slug)
-    }),
-  )
-}
-
 export const loadBlogPosts = cache(async () => {
-  if (isEditorBlobStorage) {
-    return (await getMDXDataFromBlob()).sort(compareBlogPostsByPublishedAtDesc)
-  }
-
-  const posts = await getMDXData(path.join(process.cwd(), 'storage', 'blog'))
-  return [...posts].sort(compareBlogPostsByPublishedAtDesc)
+  const { collection } = await makeEditorRepository().loadBlogCollectionState()
+  return [...collection].sort(compareBlogPostsByPublishedAtDesc)
 })
 
 export type BlogListItem = MDXData

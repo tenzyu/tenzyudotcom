@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import { useIntlayer } from 'next-intlayer/server'
 
-import { ExternalLink } from '@/components/site-ui/external-link'
+import { ExternalLink } from '@/app/[locale]/_features/external-link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import {

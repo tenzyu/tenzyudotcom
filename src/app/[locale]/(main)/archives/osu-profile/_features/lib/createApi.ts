@@ -2,7 +2,7 @@ import 'server-only'
 
 import * as osu from 'osu-api-v2-js'
 import { cache } from 'react'
-import { getRequiredOsuApiCredentials } from '@/config/env.contract'
+import { getRequiredOsuApiCredentials } from '@/config/env.infra'
 
 import { OsuAPIError } from './utils'
 

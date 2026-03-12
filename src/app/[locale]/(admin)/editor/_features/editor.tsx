@@ -1,15 +1,15 @@
 import { getLocalizedUrl } from 'intlayer'
 import Link from 'next/link'
 import { useIntlayer } from 'next-intlayer/server'
-import { Content } from '@/components/site-ui/content'
-import { PageHeader } from '@/components/site-ui/page-header'
+import { Content } from '@/app/[locale]/_features/content'
+import { PageHeader } from '@/app/[locale]/_features/page-header'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import type { EditorCollectionId } from '@/lib/editor/editor.port'
 import { getEditorCollectionDescriptor } from './editor.collections'
 import { makeLoadEditorCollectionUseCase } from './editor.assemble'
 import { saveEditorCollectionAction } from './actions'
-import { EDITOR_ADMIN_LOCALE } from '@/features/admin/constants'
+import { EDITOR_ADMIN_LOCALE } from './editor-admin.constants'
 import { BlogEditor } from './blog-editor'
 import { LinksEditor } from './links-editor'
 import { NotesEditor } from './notes-editor'
@@ -23,12 +23,14 @@ export async function EditorCollectionEditor({
   saved,
   error,
   slug,
+  create,
 }: {
   locale: string
   collectionId: EditorCollectionId
   saved?: boolean
   error?: string
   slug?: string | null
+  create?: boolean
 }) {
   const content = useIntlayer('editorAdmin', EDITOR_ADMIN_LOCALE)
   const descriptor = getEditorCollectionDescriptor(collectionId)
@@ -228,7 +230,7 @@ export async function EditorCollectionEditor({
     const state = await loadUseCase.execute('blog')
 
     return (
-      <Content size="4xl" className="space-y-8">
+      <Content size="7xl" className="space-y-8">
         <PageHeader
           title={`${content.dashboard.title.value}: ${descriptor.label}`}
         />
@@ -252,6 +254,7 @@ export async function EditorCollectionEditor({
           locale={locale}
           posts={[...state.collection]}
           slug={slug}
+          startCreating={create}
         />
       </Content>
     )

@@ -1,9 +1,10 @@
-import { readdirSync, readFileSync, writeFileSync } from "node:fs";
-import { join, resolve, basename } from "node:path";
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 import matter from "gray-matter";
 
 const ROOT = process.cwd();
 const RULES_DIR = join(ROOT, "docs/design-docs/rules");
+const REFERENCES_DIR = join(ROOT, "docs/design-docs/references");
 const OUTPUT_PATH = join(ROOT, "docs/design-docs/AGENTS.md");
 
 interface RuleMetadata {
@@ -20,6 +21,11 @@ interface Rule {
   content: string;
 }
 
+type ReferenceEntry = {
+  title: string;
+  filename: string;
+}
+
 const CHAPTER_ORDER = [
   "Foundations",
   "Security & Safety",
@@ -29,9 +35,28 @@ const CHAPTER_ORDER = [
   "Reliability",
 ];
 
+function listMarkdownFiles(dirPath: string, label: string, { optional = false }: { optional?: boolean } = {}) {
+  if (!existsSync(dirPath)) {
+    if (optional) return [];
+
+    throw new Error(
+      [
+        `Missing ${label} directory: ${dirPath}`,
+        "Expected project structure:",
+        `- ${RULES_DIR} for rule documents`,
+        `- ${REFERENCES_DIR} for optional repair references`,
+      ].join("\n"),
+    );
+  }
+
+  return readdirSync(dirPath).filter((f) => f.endsWith(".md"));
+}
+
 function compile() {
-  const files = readdirSync(RULES_DIR).filter((f) => f.endsWith(".md"));
+  const files = listMarkdownFiles(RULES_DIR, "rules");
   const rules: Rule[] = [];
+  const referenceFiles = listMarkdownFiles(REFERENCES_DIR, "references", { optional: true });
+  const references: ReferenceEntry[] = [];
 
   for (const file of files) {
     const filePath = join(RULES_DIR, file);
@@ -50,6 +75,19 @@ function compile() {
         filename: file,
       },
       content: content.trim(),
+    });
+  }
+
+  for (const file of referenceFiles) {
+    const filePath = join(REFERENCES_DIR, file);
+    const rawContent = readFileSync(filePath, "utf-8");
+    const { data } = matter(rawContent);
+
+    if (!data.title) continue;
+
+    references.push({
+      title: data.title,
+      filename: file,
     });
   }
 
@@ -121,6 +159,18 @@ function compile() {
     }
   });
 
+  if (references.length > 0) {
+    output += "\n---\n\n";
+    output += "## Repair References\n\n";
+    output += "Use these short guides when a linter points you at a specific repair path.\n\n";
+    references
+      .sort((a, b) => a.title.localeCompare(b.title))
+      .forEach((reference) => {
+        output += `- [${reference.title}](./references/${reference.filename})\n`;
+      });
+  }
+
+  mkdirSync(join(ROOT, "docs/design-docs"), { recursive: true });
   writeFileSync(OUTPUT_PATH, output);
   console.log(`Generated: ${OUTPUT_PATH}`);
 }

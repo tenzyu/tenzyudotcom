@@ -1,6 +1,6 @@
 import { useIntlayer } from 'next-intlayer/server'
 
-import { Content } from '@/components/site-ui/content'
+import { Content } from '@/app/[locale]/_features/content'
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table'
 import { cn } from '@/lib/utils/common'
 

@@ -1,0 +1,98 @@
+import { normalizeExternalUrl } from '@/lib/url/external-url.domain'
+import { z } from 'zod'
+import {
+  withLocales,
+  type EditorCollectionDescriptor,
+} from '@/lib/editor/editor.port'
+
+const LocalizedTextSchema = z.object({
+  ja: z.string().trim().min(1),
+  en: z.string().trim().optional().default(''),
+})
+
+const DashboardSourceLinkSchema = z.object({
+  id: z.string().trim().min(1),
+  title: LocalizedTextSchema,
+  description: LocalizedTextSchema,
+  url: z.string().trim().min(1),
+  isApp: z.boolean().optional(),
+})
+
+const DashboardSourceCategorySchema = z.object({
+  id: z.string().trim().min(1),
+  title: LocalizedTextSchema,
+  description: LocalizedTextSchema,
+  links: z.array(DashboardSourceLinkSchema),
+})
+
+function assertNonEmpty(value: string, label: string) {
+  if (!value.trim()) {
+    throw new Error(`${label} must not be empty`)
+  }
+}
+
+function assertDashboardUrl(
+  url: string,
+  isApp: boolean | undefined,
+  label: string,
+) {
+  if (isApp) {
+    const parsed = new URL(url)
+    if (parsed.protocol === 'https:' || parsed.protocol === 'http:') {
+      throw new Error(`${label} is marked as app but uses http(s)`)
+    }
+
+    return
+  }
+
+  normalizeExternalUrl(url, label)
+}
+
+function defineDashboardCategories<const T extends {
+  id: string
+  links: readonly { id: string; url: string; isApp?: boolean }[]
+}>(
+  categories: readonly T[],
+): readonly T[] {
+  const categoryIds = new Set<string>()
+  const linkIds = new Set<string>()
+
+  for (const category of categories) {
+    assertNonEmpty(category.id, 'dashboard category id')
+
+    if (categoryIds.has(category.id)) {
+      throw new Error(`Duplicate dashboard category id: ${category.id}`)
+    }
+    categoryIds.add(category.id)
+
+    for (const link of category.links) {
+      assertNonEmpty(link.id, `dashboard link id in ${category.id}`)
+      assertDashboardUrl(
+        link.url,
+        link.isApp,
+        `dashboard link url for ${category.id}/${link.id}`,
+      )
+
+      if (linkIds.has(link.id)) {
+        throw new Error(`Duplicate dashboard link id: ${link.id}`)
+      }
+      linkIds.add(link.id)
+    }
+  }
+
+  return categories
+}
+
+function parseDashboardSourceCategories(raw: unknown) {
+  const categories = z.array(DashboardSourceCategorySchema).parse(raw)
+  return defineDashboardCategories(categories)
+}
+
+export const POINTERS_COLLECTION_DESCRIPTOR: EditorCollectionDescriptor<'pointers'> = {
+  id: 'pointers',
+  label: 'Pointers',
+  storagePath: 'editor/pointers.json',
+  publicPaths: withLocales('/pointers'),
+  getDefaultValue: () => [],
+  parse: parseDashboardSourceCategories,
+}

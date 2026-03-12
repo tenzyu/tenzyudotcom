@@ -5,8 +5,9 @@ import type {
   EditorRepository,
   EditorState,
 } from '@/lib/editor/editor.port'
+import type { BlogFrontmatter } from '@/app/[locale]/(main)/blog/_features/blog.domain'
+import { makeEditorRepository } from '@/lib/editor/editor.assemble'
 import { getEditorCollectionDescriptor } from './editor.collections'
-import { editorRepository } from '@/lib/editor/editor.contract'
 
 export class LoadEditorCollectionUseCase {
   constructor(private repository: EditorRepository) {}
@@ -14,6 +15,10 @@ export class LoadEditorCollectionUseCase {
   async execute<K extends EditorCollectionId>(
     collectionId: K,
   ): Promise<EditorState<K>> {
+    if (collectionId === 'blog') {
+      return this.repository.loadBlogCollectionState() as Promise<EditorState<K>>
+    }
+
     const descriptor = getEditorCollectionDescriptor(collectionId)
     return this.repository.loadState(descriptor)
   }
@@ -48,11 +53,33 @@ export class SaveEditorCollectionUseCase {
   }
 }
 
+export class SaveBlogPostUseCase {
+  constructor(private repository: EditorRepository) {}
+
+  async execute(
+    slug: string,
+    frontmatter: BlogFrontmatter,
+    body: string,
+    expectedVersion?: string,
+  ) {
+    await this.repository.saveBlogPost(
+      slug,
+      frontmatter,
+      body,
+      expectedVersion,
+    )
+  }
+}
+
 // Factories
 export function makeLoadEditorCollectionUseCase() {
-  return new LoadEditorCollectionUseCase(editorRepository)
+  return new LoadEditorCollectionUseCase(makeEditorRepository())
 }
 
 export function makeSaveEditorCollectionUseCase() {
-  return new SaveEditorCollectionUseCase(editorRepository)
+  return new SaveEditorCollectionUseCase(makeEditorRepository())
+}
+
+export function makeSaveBlogPostUseCase() {
+  return new SaveBlogPostUseCase(makeEditorRepository())
 }

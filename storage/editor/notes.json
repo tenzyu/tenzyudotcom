@@ -14,5 +14,13 @@
     },
     "createdAt": "2026-03-10T19:42:02.131Z",
     "published": true
+  },
+  {
+    "body": {
+      "ja": "リプライ作りたいけどリレーションを JSON でやるのはなぁ……",
+      "en": "I want a reply function but I'm sure relations with JSON is not good as well."
+    },
+    "createdAt": "2026-03-11T02:27:03.107Z",
+    "published": true
   }
 ]

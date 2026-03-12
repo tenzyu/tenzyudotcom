@@ -1,5 +1,5 @@
 import { type Dictionary, t } from 'intlayer'
-import type { RecommendationTabId } from './_features/recommendations.domain'
+import type { RecommendationTabId } from '@/features/recommendations/recommendations.domain'
 
 const recommendationsPageContent = {
   key: 'page-recommendations',

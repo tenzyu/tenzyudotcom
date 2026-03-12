@@ -1,25 +1,23 @@
 import { useIntlayer, useLocale } from 'next-intlayer/server'
-import { ExternalLink } from '@/components/site-ui/external-link'
-import { PageHeader } from '@/components/site-ui/page-header'
+import { PageHeader } from '@/app/[locale]/_features/page-header'
 import { Card, CardContent } from '@/components/ui/card'
-import { AdminGate } from '@/features/admin/admin-gate'
-import { NotesEditorDeferred } from '@/app/[locale]/(admin)/editor/_features/notes-editor-deferred'
-import { Content } from '@/components/site-ui/content'
+import { AdminGate } from '@/app/[locale]/(main)/_features/admin/admin-gate'
+import { NoteAdminMenu } from './note-admin-menu'
+import { NoteTweetButton } from './note-tweet-button'
 
 type NotesPageContentProps = {
   notes: {
     body: string
     createdAt: string
-    externalUrl?: string
   }[]
 }
 
 export async function NotesPageContent({ notes }: NotesPageContentProps) {
   const content = useIntlayer('page-notes')
   const { locale } = useLocale()
-
+  const activeLocale = locale || 'ja'
   const dateFormatter = new Intl.DateTimeFormat(
-    locale === 'ja' ? 'ja-JP' : 'en-US',
+    activeLocale === 'ja' ? 'ja-JP' : 'en-US',
     {
       dateStyle: 'medium',
       timeStyle: 'short',
@@ -34,34 +32,32 @@ export async function NotesPageContent({ notes }: NotesPageContentProps) {
         className="flex flex-col gap-4"
       />
 
-      <AdminGate>
-        <Content size="4xl" className="mb-12">
-          <div className="rounded-lg border-2 border-dashed p-4">
-            <p className="mb-4 text-center text-sm font-bold text-muted-foreground uppercase tracking-widest">
-              Admin View: Notes
-            </p>
-            <NotesEditorDeferred locale={locale || 'ja'} />
-          </div>
-          <hr className="mt-12" />
-        </Content>
-      </AdminGate>
-
       <div className="space-y-4">
+        <div className="flex justify-end">
+          <AdminGate>
+            <NoteTweetButton />
+          </AdminGate>
+        </div>
+
         {notes.map((note) => (
           <Card key={`${note.createdAt}-${note.body.slice(0, 20)}`}>
             <CardContent className="space-y-3 pt-6">
-              <time
-                className="text-muted-foreground text-xs"
-                dateTime={note.createdAt}
-              >
-                {dateFormatter.format(new Date(note.createdAt))}
-              </time>
+              <div className="flex items-start justify-between gap-4">
+                <time
+                  className="text-muted-foreground text-xs"
+                  dateTime={note.createdAt}
+                >
+                  {dateFormatter.format(new Date(note.createdAt))}
+                </time>
+
+                <AdminGate>
+                  <NoteAdminMenu
+                    locale={activeLocale}
+                    createdAt={note.createdAt}
+                  />
+                </AdminGate>
+              </div>
               <p className="leading-relaxed whitespace-pre-wrap">{note.body}</p>
-              {note.externalUrl ? (
-                <ExternalLink href={note.externalUrl}>
-                  {content.openExternal.value}
-                </ExternalLink>
-              ) : null}
             </CardContent>
           </Card>
         ))}

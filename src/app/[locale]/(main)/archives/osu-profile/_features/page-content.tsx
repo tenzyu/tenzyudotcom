@@ -1,14 +1,14 @@
 import { useIntlayer } from 'next-intlayer/server'
 import type { PropsWithChildren } from 'react'
-import { Content } from '@/components/site-ui/content'
-import { Section } from '@/components/site-ui/section'
-import { SectionHeader } from '@/components/site-ui/section-header'
-import { LinkList } from '@/features/links/link-list'
+import { Content } from '@/app/[locale]/_features/content'
+import { Section } from './section'
+import { SectionHeader } from '@/app/[locale]/(main)/_features/section-header'
 import { TWEETS } from './twitter.source'
 import {
   FEATURED_VIDEO_IDS,
   PERSONAL_BEST_HISTORY_VIDEO_IDS,
 } from './youtube.source'
+import { LinkList } from './link-list'
 import { KeyboardSettings } from './osu/keyboard-settings'
 import { MonitorSettings } from './osu/monitor-settings'
 import { OsuBestScores } from './osu/osu-best-scores'

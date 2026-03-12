@@ -1,7 +1,7 @@
 import 'server-only'
 
 import { cache } from 'react'
-import { normalizeExternalUrl } from '@/lib/url/external-url.contract'
+import { normalizeExternalUrl } from '@/lib/url/external-url.domain'
 import {
   PUZZLES_OGP_FETCH_TIMEOUT_MS,
   PUZZLES_OGP_REVALIDATE_SECONDS,

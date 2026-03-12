@@ -1,4 +1,4 @@
-import { env, isEditorBlobStorage } from '@/config/env.contract'
+import { env, isEditorBlobStorage } from '@/config/env.infra'
 
 export function isEditorLoginConfigured() {
   return !!env.editorAdminPassword && !!env.editorSessionSecret

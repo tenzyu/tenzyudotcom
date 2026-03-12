@@ -1,6 +1,6 @@
 import { useIntlayer, useLocale } from 'next-intlayer/server'
-import { PageHeader } from '@/components/site-ui/page-header'
-import { SectionHeader } from '@/components/site-ui/section-header'
+import { PageHeader } from '@/app/[locale]/_features/page-header'
+import { SectionHeader } from '@/app/[locale]/(main)/_features/section-header'
 import {
   Empty,
   EmptyDescription,
@@ -9,9 +9,9 @@ import {
 } from '@/components/ui/empty'
 import type { PuzzleCategoryWithOgp } from './types'
 import { PuzzleTile } from './puzzle-tile'
-import { AdminGate } from '@/features/admin/admin-gate'
-import { PuzzlesEditorDeferred } from '@/app/[locale]/(admin)/editor/_features/puzzles-editor-deferred'
-import { Content } from '@/components/site-ui/content'
+import { AdminGate } from '@/app/[locale]/(main)/_features/admin/admin-gate'
+import { PuzzleAddButton } from './puzzle-add-button'
+import { PuzzleAdminMenu } from './puzzle-admin-menu'
 
 type PuzzlesPageContentProps = {
   categories: PuzzleCategoryWithOgp[]
@@ -20,6 +20,7 @@ type PuzzlesPageContentProps = {
 export async function PuzzlesPageContent({ categories }: PuzzlesPageContentProps) {
   const content = useIntlayer('page-puzzles')
   const { locale } = useLocale()
+  const resolvedLocale = locale || 'ja'
 
   return (
     <>
@@ -27,18 +28,6 @@ export async function PuzzlesPageContent({ categories }: PuzzlesPageContentProps
         title={content.metadata.title.value}
         description={content.metadata.description.value}
       />
-
-      <AdminGate>
-        <Content size="4xl" className="mb-12">
-          <div className="rounded-lg border-2 border-dashed p-4">
-            <p className="mb-4 text-center text-sm font-bold text-muted-foreground uppercase tracking-widest">
-              Admin View: Puzzles
-            </p>
-            <PuzzlesEditorDeferred locale={locale || 'ja'} />
-          </div>
-          <hr className="mt-12" />
-        </Content>
-      </AdminGate>
 
       {categories.length === 0 ? (
         <Empty>
@@ -56,13 +45,32 @@ export async function PuzzlesPageContent({ categories }: PuzzlesPageContentProps
 
             return (
               <section key={category.id} className="flex flex-col gap-4">
-                <SectionHeader
-                  title={categoryCopy.name.value}
-                  description={categoryCopy.description.value}
-                />
+                <div className="space-y-3">
+                  <SectionHeader
+                    title={categoryCopy.name.value}
+                    description={categoryCopy.description.value}
+                  />
+                  <AdminGate>
+                    <div className="flex justify-end">
+                      <PuzzleAddButton locale={resolvedLocale} categoryId={category.id} />
+                    </div>
+                  </AdminGate>
+                </div>
                 <div className="grid gap-4">
-                  {category.puzzles.map((puzzle) => (
-                    <PuzzleTile key={puzzle.title} puzzle={puzzle} />
+                  {category.puzzles.map((puzzle, index) => (
+                    <div key={puzzle.title} className="relative">
+                      <AdminGate>
+                        <div className="absolute top-3 right-3 z-10">
+                          <PuzzleAdminMenu
+                            locale={resolvedLocale}
+                            categoryId={category.id}
+                            puzzleIndex={index}
+                            label={puzzle.title}
+                          />
+                        </div>
+                      </AdminGate>
+                      <PuzzleTile puzzle={puzzle} />
+                    </div>
                   ))}
                 </div>
               </section>

@@ -10,16 +10,14 @@ chapter: Implementation
 
 Brief explanation of the rule and why it matters.
 
-**Incorrect:**
+**Avoid:**
 
 ```tsx
 // Bad code example
 ```
 
-**Correct:**
+**Prefer:**
 
 ```tsx
 // Good code example
 ```
-
-Reference: [Link](https://example.com)

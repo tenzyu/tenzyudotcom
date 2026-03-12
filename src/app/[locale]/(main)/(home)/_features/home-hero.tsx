@@ -1,6 +1,6 @@
 import { ArrowUpRight } from 'lucide-react'
 import { useIntlayer } from 'next-intlayer/server'
-import { ExternalLink } from '@/components/site-ui/external-link'
+import { ExternalLink } from '@/app/[locale]/_features/external-link'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { ButtonGroup } from '@/components/ui/button-group'
