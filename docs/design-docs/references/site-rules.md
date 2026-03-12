@@ -6,19 +6,9 @@ tags: reference, lint, site-rules
 chapter: References
 ---
 
-## Site Rules Repair Guide
-
-`lint-site-rules` は repo 固有の owner 境界を見ている。違反 kind ごとに読む rule を固定する。
-
-**Map:**
-
-```text
-middleware-file -> security-proxy-boundary.md
-server-action-auth -> security-server-actions-require-auth-even-for-helper-actions.md
-editor-collection-registry -> editor-collection-registration-contract.md
-descriptor-owner -> security-editor-session-boundary.md
-storage-owner -> security-editor-write-safety.md
-zod-owner -> impl-parse-dont-validate-boundaries.md
-next-server-api-owner -> security-proxy-boundary.md
-```
-
+- [](/docs/design-docs/rules/security-proxy-boundary.md)
+- [](/docs/design-docs/rules/security-server-actions-require-auth-even-for-helper-actions.md)
+- [](/docs/design-docs/rules/impl-editor-collection-registration-contract.md)
+- [](/docs/design-docs/rules/security-editor-session-boundary.md)
+- [](/docs/design-docs/rules/security-editor-write-safety.md)
+- [](/docs/design-docs/rules/impl-parse-dont-validate-boundaries.md)
