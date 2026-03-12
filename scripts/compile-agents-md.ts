@@ -1,5 +1,5 @@
-import { readdirSync, readFileSync, writeFileSync } from "node:fs";
-import { join, resolve, basename } from "node:path";
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 import matter from "gray-matter";
 
 const ROOT = process.cwd();
@@ -35,10 +35,27 @@ const CHAPTER_ORDER = [
   "Reliability",
 ];
 
+function listMarkdownFiles(dirPath: string, label: string, { optional = false }: { optional?: boolean } = {}) {
+  if (!existsSync(dirPath)) {
+    if (optional) return [];
+
+    throw new Error(
+      [
+        `Missing ${label} directory: ${dirPath}`,
+        "Expected project structure:",
+        `- ${RULES_DIR} for rule documents`,
+        `- ${REFERENCES_DIR} for optional repair references`,
+      ].join("\n"),
+    );
+  }
+
+  return readdirSync(dirPath).filter((f) => f.endsWith(".md"));
+}
+
 function compile() {
-  const files = readdirSync(RULES_DIR).filter((f) => f.endsWith(".md"));
+  const files = listMarkdownFiles(RULES_DIR, "rules");
   const rules: Rule[] = [];
-  const referenceFiles = readdirSync(REFERENCES_DIR).filter((f) => f.endsWith(".md"));
+  const referenceFiles = listMarkdownFiles(REFERENCES_DIR, "references", { optional: true });
   const references: ReferenceEntry[] = [];
 
   for (const file of files) {
@@ -153,6 +170,7 @@ function compile() {
       });
   }
 
+  mkdirSync(join(ROOT, "docs/design-docs"), { recursive: true });
   writeFileSync(OUTPUT_PATH, output);
   console.log(`Generated: ${OUTPUT_PATH}`);
 }

@@ -323,23 +323,16 @@ export async function loginEditorAdminAction(formData: FormData) {
 
 全ての変更は、実行可能な検証（Verification）を最低 1 つは通さなければならない。
 
-- **Build/Lint**: ランタイムやデータフローを触ったら `build`、構文や config を触ったら `lint` を通す。
-- **Tests**: 影響範囲に応じたテストを実行する。特に正規化や複雑なロジックを触った場合はテスト追加を優先する。
-- **Nix Entry**: `nix develop -c <command>` を標準の検証入り口として使用し、環境差異を排除する。
-
 **Avoid:**
 
-```text
-// 「コードを書いたので完了です」と報告し、一度もビルドやテストを走らせない
-// エラーが出ているが「手元の環境では動く」として無視する
-```
+- 「コードを書いたので完了です」と報告し、一度もビルドやテストを走らせない
+- エラーが出ているが「手元の環境では動く」として無視する
 
 **Prefer:**
 
-```text
-// 変更後、nix develop 下で lint と build が通ることを確認してから完了とする
-// 新しいロジックには必ず regression test を追加し、成功を証明する
-```
+- **Build/Lint**: ランタイムやデータフローを触ったら `build`、構文や config を触ったら `lint` を通す。
+- **Tests**: 影響範囲に応じたテストを実行する。特に正規化や複雑なロジックを触った場合はテスト追加を優先する。
+- **Nix Entry**: `nix develop -c <command>` を標準の検証入り口として使用し、環境差異を排除する。
 
 ### 2.4 Proxy Boundary <a id="24-proxy-boundary"></a>
 
@@ -428,22 +421,17 @@ export async function fetchUrlMetadataAction(url: string) {
 
 実行中にリポジトリの構造と状態を守るための制約を適用する。
 
-- **Structural Guard**: ファイル配置は `structure-rules.md` を正本とする。現状がターゲットとズレている場合、変更のついでにターゲットへ寄せる。
-- **Mutation Guard**: 無関係な変更（Unrelated changes）を巻き戻さない。ユーザーが行った手動変更を勝手に消さない。
-
-**Incorrect:**
+**Avoid:**
 
 ```text
 // 既存の正しい構造を、自分の都合に合わせて勝手に崩す
 // バグ修正のついでに、全く関係のないファイルのフォーマットを書き換える
 ```
 
-**Correct:**
+**Prefer:**
 
-```text
-// 既存のパターンを尊重しつつ、ターゲットアーキテクチャに一歩近づける
-// 修正対象のスコープにのみ集中して surgical な変更を行う
-```
+- **Structural Guard**: ファイル配置は `structure-rules.md` を正本とする。現状がターゲットとズレている場合、変更のついでにターゲットへ寄せる。
+- **Mutation Guard**: 無関係な変更（Unrelated changes）を巻き戻さない。ユーザーが行った手動変更を勝手に消さない。
 
 ### 2.7 Security: Explicit Env Parsing & Centralization <a id="27-security-explicit-env-parsing-centralization"></a>
 
@@ -958,9 +946,6 @@ const [a, b] = await Promise.all([getA(), getB()])
 
 Semantic HTML を遵守し、WAI-ARIA ガイドラインに従う。見た目のためだけの `div` 多用を避け、スクリーンリーダーやキーボード操作に対応させる。
 
-- **Semantic Elements**: `header`, `nav`, `main`, `article`, `section`, `footer` を適切に使い分ける。
-- **Unique IDs**: インタラクティブ要素にはブラウザテストのための説明的な ID を付与する。
-
 **Avoid:**
 
 ```tsx
@@ -969,6 +954,8 @@ Semantic HTML を遵守し、WAI-ARIA ガイドラインに従う。見た目の
 ```
 
 **Prefer:**
+- **Semantic Elements**: `header`, `nav`, `main`, `article`, `section`, `footer` を適切に使い分ける。
+- **Unique IDs**: インタラクティブ要素にはブラウザテストのための説明的な ID を付与する。
 
 ```tsx
 // セマンティックな HTML。ボタン要素を使い、アクセシビリティを確保

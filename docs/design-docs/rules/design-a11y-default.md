@@ -20,6 +20,7 @@ Semantic HTML を遵守し、WAI-ARIA ガイドラインに従う。見た目の
 **Prefer:**
 - **Semantic Elements**: `header`, `nav`, `main`, `article`, `section`, `footer` を適切に使い分ける。
 - **Unique IDs**: インタラクティブ要素にはブラウザテストのための説明的な ID を付与する。
+
 ```tsx
 // セマンティックな HTML。ボタン要素を使い、アクセシビリティを確保
 <button id="submit-button" onClick={...}>Submit</button>
