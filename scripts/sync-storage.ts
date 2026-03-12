@@ -44,6 +44,7 @@ async function push() {
       addRandomSuffix: false,
       contentType: relativePath.endsWith('.json') ? 'application/json' : 'text/markdown',
       token: TOKEN,
+      allowOverwrite: true,
     });
   }
   console.log('Push complete.');
