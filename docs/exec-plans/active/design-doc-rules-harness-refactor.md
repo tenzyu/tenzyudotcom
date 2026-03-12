@@ -301,6 +301,45 @@ execution-ready: true
 - `admin-editor-security.md` のような多関心 rule が解体されている
 - admin gate と inline admin composition の読み分けができる
 
+## Slice 4 Working Notes
+
+### Current Status
+
+- completed
+- `docs/design-docs/references/*.md` を追加した
+- `docs/design-docs/AGENTS.md` の末尾に repair references 導線を生成するようにした
+
+### Added References
+
+- `references/import-boundaries.md`
+- `references/no-reexport.md`
+- `references/site-rules.md`
+- `references/symbol-ownership.md`
+
+### Script Change
+
+- `scripts/compile-agents-md.ts`
+  - `docs/design-docs/references/*.md` を読み、`AGENTS.md` の末尾に `Repair References` section を追加する
+
+### Deliberately Deferred
+
+- linter の error message 自体への reference link 差し込み
+  - slice 5 で `lint-docs -> lint-rules` 改名と一緒に入れる
+- reference markdown の追加拡張
+  - まずは既存 custom lint 4 本に限定する
+
+### Verification Notes
+
+- `bun run build:docs-map`
+  - passed
+- `docs/design-docs/AGENTS.md`
+  - `Repair References` section が生成されることを確認
+
+### Slice 4 Exit Criteria
+
+- `AGENTS.md` から repair reference へ到達できる
+- custom lint 主要 4 本に対応する reference markdown が存在する
+
 ## Guardrails
 
 - `lint-docs` 以外の既存 linter は、error message 変更以外のルールロジックを変えない

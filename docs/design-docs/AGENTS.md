@@ -1372,3 +1372,14 @@ nix develop -c mv src/app/[locale]/(main)/hoge/_features/fuga.domain.ts src/lib/
 nix develop -c mv "src/app/[locale]/(main)/hoge/_features/fuga.domain.ts" "src/lib/hoge/fuga.domain.ts"
 ```
 
+
+---
+
+## Repair References
+
+Use these short guides when a linter points you at a specific repair path.
+
+- [Import Boundaries Repair Guide](./references/import-boundaries.md)
+- [No Re-export Repair Guide](./references/no-reexport.md)
+- [Site Rules Repair Guide](./references/site-rules.md)
+- [Symbol Ownership Repair Guide](./references/symbol-ownership.md)
