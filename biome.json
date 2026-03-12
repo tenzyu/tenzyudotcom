@@ -25,6 +25,9 @@
     "enabled": true,
     "rules": {
       "recommended": true,
+      "style": {
+        "noProcessEnv": "error"
+      },
       "suspicious": {
         "noUnknownAtRules": "off"
       }
@@ -34,6 +37,18 @@
       "react": "recommended"
     }
   },
+  "overrides": [
+    {
+      "includes": ["src/config/env.contract.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noProcessEnv": "off"
+          }
+        }
+      }
+    }
+  ],
   "assist": {
     "enabled": true,
     "actions": {

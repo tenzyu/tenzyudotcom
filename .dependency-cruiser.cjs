@@ -88,8 +88,8 @@ module.exports = {
       from: {
         path: [
           '^src/(app|components|features)/.*\\.tsx$',
-          '^src/app/.*/route\\.ts$',
-          '^src/app/.*/actions\\.ts$',
+          '^src/app/.*/actions\\.ts$', // server actions
+          '^src/app/.*/[^/]+\\.actions\\.ts$',
         ],
       },
       to: {
