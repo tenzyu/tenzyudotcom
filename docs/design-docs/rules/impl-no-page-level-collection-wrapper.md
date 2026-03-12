@@ -24,5 +24,5 @@ export function LinksPageCollection() {
 **Correct:**
 
 ```text
-Read: [Use Dependency Inversion](/design-docs/rules/dependency-inversion.md)
+Read: [Use Dependency Inversion](/design-docs/rules/foundation-dependency-inversion.md)
 ```
