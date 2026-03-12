@@ -10,14 +10,14 @@ chapter: Implementation
 
 `/links` で起きた一瞬のエラーページ表示は、client から server action を直接呼んだことで `POST /links` が発生していたのが原因だった。`window.location.reload()` も体験を悪くしていた。
 
-**Incorrect:**
+**Avoid:**
 
 ```tsx
 await saveInlineEditorCollectionAction(...)
 window.location.reload()
 ```
 
-**Correct:**
+**Prefer:**
 
 ```tsx
 const result = await saveEditorCollection('links', sourceJson, version)

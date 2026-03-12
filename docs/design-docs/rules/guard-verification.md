@@ -14,14 +14,14 @@ chapter: Security & Safety
 - **Tests**: 影響範囲に応じたテストを実行する。特に正規化や複雑なロジックを触った場合はテスト追加を優先する。
 - **Nix Entry**: `nix develop -c <command>` を標準の検証入り口として使用し、環境差異を排除する。
 
-**Incorrect:**
+**Avoid:**
 
 ```text
 // 「コードを書いたので完了です」と報告し、一度もビルドやテストを走らせない
 // エラーが出ているが「手元の環境では動く」として無視する
 ```
 
-**Correct:**
+**Prefer:**
 
 ```text
 // 変更後、nix develop 下で lint と build が通ることを確認してから完了とする

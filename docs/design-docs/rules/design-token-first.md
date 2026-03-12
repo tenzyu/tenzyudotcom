@@ -13,14 +13,14 @@ chapter: UI & UX
 - **HSLベース**: 調和の取れたカラーパレットを使用する。
 - **shadcn/ui**: 基盤コンポーネントのバリアントを再利用する。
 
-**Incorrect:**
+**Avoid:**
 
 ```tsx
 // マジックナンバーやハードコードされた色
 <div style={{ padding: '13px', color: '#ff0000' }}>
 ```
 
-**Correct:**
+**Prefer:**
 
 ```tsx
 // トークン（Tailwind クラス）を使用

@@ -14,7 +14,7 @@ chapter: Reliability
 - **Fail-Open**: データの取得失敗時（Not Found）は、UI 側で空状態やフォールバックコンポーネントを表示することを許容する。
 - **Fail-Closed**: スキーマ検証エラーやバックエンド API のダウン時等、誤動作や不正な保存を防ぐため、安全に Reject し再試行を促す。
 
-**Incorrect:**
+**Avoid:**
 
 ```tsx
 // サブコンポーネントのエラーがページ全体の白紙化を引き起こす
@@ -27,7 +27,7 @@ export default function Page() {
 }
 ```
 
-**Correct:**
+**Prefer:**
 
 ```tsx
 // ErrorBoundary で被害範囲を局所化する

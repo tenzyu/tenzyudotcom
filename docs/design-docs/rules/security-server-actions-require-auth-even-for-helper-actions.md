@@ -11,7 +11,7 @@ chapter: Security & Safety
 `use server` で公開された関数は、フォーム保存や本体更新だけでなく、URL メタデータ取得のような補助 action でも公開エンドポイントです。  
 「editor 内からしか呼ばれない想定」は認可の代わりにならないため、admin 専用 action は最上部で必ず admin セッションを確認する必要があります。
 
-**Incorrect:**
+**Avoid:**
 
 ```tsx
 'use server'
@@ -22,7 +22,7 @@ export async function fetchUrlMetadataAction(url: string) {
 }
 ```
 
-**Correct:**
+**Prefer:**
 
 ```tsx
 'use server'

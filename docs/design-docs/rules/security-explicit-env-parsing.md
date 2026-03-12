@@ -15,14 +15,14 @@ chapter: Security & Safety
 - **接頭辞 `NEXT_PUBLIC_`**: クライアント側（ブラウザ）に露出しても安全なもの。
 - **それ以外**: サーバーサイドでのみ使用する機密情報。
 
-**Incorrect:**
+**Avoid:**
 
 ```tsx
 // 複数のファイルで process.env を直接呼び出し、型も不明
 const apiKey = process.env.API_KEY;
 ```
 
-**Correct:**
+**Prefer:**
 
 ```tsx
 // env.infra.ts で一括管理し、型安全なオブジェクトをインポートする

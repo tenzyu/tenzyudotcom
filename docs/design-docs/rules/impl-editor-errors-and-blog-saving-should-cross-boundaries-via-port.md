@@ -11,7 +11,7 @@ chapter: Implementation
 `blog` は editor collection の中でも特別で、JSON の一括保存ではなく MDX/frontmatter の保存経路を通ります。  
 それでも application 層は `infra` 直参照ではなく、`port/domain` に公開された repository interface とエラー型を通して扱うのが安全です。`EditorVersionConflictError` のような UI/application が捕捉する型も `port/domain` 側に置くと境界が崩れません。
 
-**Incorrect:**
+**Avoid:**
 
 ```tsx
 import {
@@ -22,7 +22,7 @@ import {
 await makeEditorRepository().saveBlogPost(slug, frontmatter, body, version)
 ```
 
-**Correct:**
+**Prefer:**
 
 ```tsx
 import { EditorVersionConflictError } from '@/lib/editor/editor.port'

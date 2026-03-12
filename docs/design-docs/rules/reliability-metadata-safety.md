@@ -12,14 +12,14 @@ chapter: Reliability
 
 - **i18n Metadata**: すべてのサポートロケールリストを明示的にループし、`alternates` 等がすべての言語間で漏れなく生成されることをビルド時または実行時に保証する。
 
-**Incorrect:**
+**Avoid:**
 
 ```tsx
 // 相対パスや Host ヘッダーに依存した URL 生成
 const url = `https://${headers().get('host')}/sitemap.xml`;
 ```
 
-**Correct:**
+**Prefer:**
 
 ```tsx
 // 環境変数から得られた絶対パスを使用する

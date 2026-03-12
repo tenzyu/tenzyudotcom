@@ -34,7 +34,7 @@ describe('compile-agents-md script', () => {
 
   test('should compile rules into AGENTS.md', () => {
     setupProject({
-      'rule1.md': '---\ntitle: "Rule 1"\nimpact: HIGH\nchapter: Foundations\n---\n# Rule 1\nBody 1\n\n**Incorrect:**\n\n```text\nbad\n```',
+      'rule1.md': '---\ntitle: "Rule 1"\nimpact: HIGH\nchapter: Foundations\n---\n# Rule 1\nBody 1\n\n**Avoid:**\n\n```text\nbad\n```',
       'rule2.md': '---\ntitle: "Rule 2"\nimpact: MEDIUM\nchapter: Security\n---\n# Rule 2\nBody 2',
     })
 
@@ -52,6 +52,6 @@ describe('compile-agents-md script', () => {
     // If provided as "Security", it might be sorted alphabetically after the order list
     expect(content).toContain('### 1.1 Rule 1')
     expect(content).toContain('Body 1')
-    expect(content).toContain('**Incorrect:**')
+    expect(content).toContain('**Avoid:**')
   })
 })
