@@ -561,10 +561,10 @@ export function analyzeSiteRules(options: AnalyzeOptions = {}) {
 
 function formatIssue(issue: SiteRuleIssue) {
   if (issue.kind === 'server-action-auth') {
-    return `${issue.filePath}#${issue.symbolName}: ${issue.message}`
+    return `${issue.filePath}#${issue.symbolName}: ${issue.message}. Read: /docs/design-docs/references/site-rules.md`
   }
 
-  return `${issue.filePath}: ${issue.message}`
+  return `${issue.filePath}: ${issue.message}. Read: /docs/design-docs/references/site-rules.md`
 }
 
 function main() {

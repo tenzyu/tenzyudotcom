@@ -325,7 +325,7 @@ function main() {
   }
 
   for (const issue of issues) {
-    console.error(`${issue.ruleName}: ${issue.from} -> ${issue.to}`)
+    console.error(`${issue.ruleName}: ${issue.from} -> ${issue.to}. Read: /docs/design-docs/references/import-boundaries.md`)
   }
 
   process.exitCode = 1

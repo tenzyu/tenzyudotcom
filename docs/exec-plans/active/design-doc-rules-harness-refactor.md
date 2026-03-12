@@ -1,7 +1,7 @@
 ---
 name: design-doc-rules-harness-refactor
 description: docs/design-docs のルール再編と docs lint の再設計を、番号ごとのレビューゲート付きで進める
-summary: rule の分解、境界整理、prefix 付与、密結合ルールの統合、reference markdown 導入、lint-docs から lint-rules への改名を段階実行する
+summary: rule の分解、境界整理、prefix 付与、密結合ルールの統合、reference markdown 導入、lint-rules への改名を段階実行する
 read_when:
   - docs/design-docs/rules を template 準拠で再編するとき
   - docs lint の責務を rules 配下へ絞りたいとき
@@ -19,8 +19,8 @@ execution-ready: true
 
 - `docs/design-docs/**`
 - `docs/exec-plans/active/design-doc-rules-harness-refactor.md`
-- `scripts/lint-docs.ts`
-- `scripts/lint-docs.test.ts`
+- `scripts/lint-rules.ts`
+- `scripts/lint-rules.test.ts`
 - `scripts/lint-site-rules.ts`
 - `scripts/lint-symbol-ownership.ts`
 - `scripts/lint-import-boundaries.ts`
@@ -45,8 +45,8 @@ execution-ready: true
 4. 密結合前提でまとめて読ませるべき rule を統合する
 5. `docs/design-docs/AGENTS.md` を新しい prefix / grouping 前提で再編する
 6. `docs/design-docs/references/*.md` を追加し、各 linter のエラーから読むべき参照先を定義する
-7. `scripts/lint-docs.ts` を rules 専用に絞って `scripts/lint-rules.ts` へ改名し、関連 test と `package.json` scripts を更新する
-8. `lint:docs` 相当の検証を再実行し、常時グリーン化に必要な docs/rules 修正を完了させる
+7. `scripts/lint-rules.ts` へ改名し、責務を rules 配下に限定し、関連 test と `package.json` scripts を更新する
+8. `lint:rules` を再実行し、常時グリーン化に必要な docs/rules 修正を完了させる
 
 ## Execution Slices
 
@@ -74,7 +74,7 @@ execution-ready: true
 
 ### Slice 5
 
-- `lint-docs.ts` を `lint-rules.ts` に改名する
+- `lint-rules.ts` へ改名する
 - 責務を rules 配下に限定し、test と package scripts を更新する
 - 最終 verification を通す
 
@@ -353,7 +353,7 @@ execution-ready: true
 
 - `bun run build:docs-map`
   - passed
-- `bun run lint:docs`
+- `bun run lint:rules`
   - still fails on pre-existing frontmatter / reachability 問題
   - rules 配下では `_template.md` と MD001 の相性が悪く、現行 lint 側の責務整理がまだ必要
 
@@ -386,7 +386,7 @@ execution-ready: true
 ### Deliberately Deferred
 
 - linter の error message 自体への reference link 差し込み
-  - slice 5 で `lint-docs -> lint-rules` 改名と一緒に入れる
+  - slice 5 で `lint-rules` 改名と一緒に入れる
 - reference markdown の追加拡張
   - まずは既存 custom lint 4 本に限定する
 
@@ -402,9 +402,55 @@ execution-ready: true
 - `AGENTS.md` から repair reference へ到達できる
 - custom lint 主要 4 本に対応する reference markdown が存在する
 
+## Slice 5 Working Notes
+
+### Current Status
+
+- completed
+- `scripts/lint-docs.ts` を `scripts/lint-rules.ts` に置き換えた
+- `lint-rules` の責務を `docs/design-docs/**` の lint に限定した
+- custom lint 4 本の error message に reference markdown 誘導を追加した
+
+### Applied Changes
+
+- rename
+  - `scripts/lint-docs.ts` -> `scripts/lint-rules.ts`
+  - `scripts/lint-docs.test.ts` -> `scripts/lint-rules.test.ts`
+- package scripts
+  - `lint:docs` -> `lint:rules`
+  - `verify:quick` も `lint:rules` 前提へ更新
+- lint-rules behavior
+  - 対象を `docs/design-docs/**` と `docs/design-docs/AGENTS.md` のみに限定
+  - first heading が `##` から始まる `_template.md` 準拠 rule を MD001 違反扱いしない
+  - orphan detection も design-docs subtree に限定
+- custom linter messages
+  - `lint-import-boundaries` -> `references/import-boundaries.md`
+  - `lint-no-reexport` -> `references/no-reexport.md`
+  - `lint-site-rules` -> `references/site-rules.md`
+  - `lint-symbol-ownership` -> `references/symbol-ownership.md`
+
+### Verification Notes
+
+- `bun test scripts/lint-rules.test.ts`
+  - passed
+- `bun run lint:rules`
+  - passed
+- `bun run lint`
+  - passed
+
+### Remaining Out Of Scope
+
+- `docs/references/github-pr-workflow.md`
+  - `lint:docs` 表記が残るが、今回の guardrail では作業スコープ外
+
+### Slice 5 Exit Criteria
+
+- `lint-rules` が design-docs subtree に対して green になる
+- custom lint 4 本の error message から repair references を辿れる
+
 ## Guardrails
 
-- `lint-docs` 以外の既存 linter は、error message 変更以外のルールロジックを変えない
+- `lint-rules` 以外の既存 linter は、error message 変更以外のルールロジックを変えない
 - `docs/design-docs/_template.md` の書式は変えない
 - 作業スコープを `docs/design-docs/` と `scripts/` から外さない
 - rule の削除は行わず、削除が必要なら根拠を示してユーザー確認を取る
@@ -418,16 +464,16 @@ execution-ready: true
 - allowed file scope:
   - `docs/design-docs/**`
   - `docs/exec-plans/active/design-doc-rules-harness-refactor.md`
-  - `scripts/lint-docs.ts`
-  - `scripts/lint-docs.test.ts`
+  - `scripts/lint-rules.ts`
+  - `scripts/lint-rules.test.ts`
   - `scripts/lint-site-rules.ts`
   - `scripts/lint-symbol-ownership.ts`
   - `scripts/lint-import-boundaries.ts`
   - `scripts/lint-no-reexport.ts`
   - `package.json`
 - required verification:
-  - `bun test scripts/lint-docs.test.ts`
-  - `bun run lint:docs`
+  - `bun test scripts/lint-rules.test.ts`
+  - `bun run lint:rules`
   - `bun run lint`
 - expected return format:
   - changed files
@@ -438,8 +484,8 @@ execution-ready: true
 
 ## Verification
 
-- `bun test scripts/lint-docs.test.ts`
-- `bun run lint:docs`
+- `bun test scripts/lint-rules.test.ts`
+- `bun run lint:rules`
 - `bun run lint`
 - rename 後は `bun test` の関連 case が green であること
 

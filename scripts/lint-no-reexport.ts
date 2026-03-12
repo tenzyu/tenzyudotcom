@@ -87,7 +87,7 @@ function main() {
 
   for (const issue of issues) {
     console.error(
-      `${issue.filePath}: pure re-export files are prohibited; import the source module directly instead.`,
+      `${issue.filePath}: pure re-export files are prohibited; import the source module directly instead. Read: /docs/design-docs/references/no-reexport.md`,
     )
   }
 
