@@ -35,6 +35,9 @@ export function AboutMeSection() {
             </h2>
           </div>
           <p className="text-sm leading-7">{content.about.description}</p>
+          <p className="text-muted-foreground text-sm leading-6">
+            {content.about.routingNote}
+          </p>
           <div className="flex flex-wrap gap-4 pt-1 text-sm font-medium">
             {PORTFOLIO_ABOUT_LINKS.map((link) => {
               const linkContent = content.about.links[link.id]

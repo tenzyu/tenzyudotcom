@@ -3,6 +3,7 @@
 import { startTransition, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
+import { AdminGate } from '@/app/[locale]/(main)/_features/admin/admin-gate'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
@@ -34,7 +35,6 @@ function resolveEditableLocaleKey(entry: NoteSourceEntry, locale: string) {
 export function NoteFeedItem({
   locale,
   note,
-  isAdmin,
   authorName,
   authorHandle,
 }: {
@@ -44,7 +44,6 @@ export function NoteFeedItem({
     createdAt: string
     externalUrl?: string
   }
-  isAdmin: boolean
   authorName: string
   authorHandle: string
 }) {
@@ -107,7 +106,7 @@ export function NoteFeedItem({
               </div>
             </div>
 
-            {isAdmin ? (
+            <AdminGate>
               <AdminItemMenu
                 label="note"
                 onEdit={async () => {
@@ -146,7 +145,7 @@ export function NoteFeedItem({
                   }
                 }}
               />
-            ) : null}
+            </AdminGate>
           </div>
 
           <p className="text-[15px] leading-7 whitespace-pre-wrap">{note.body}</p>

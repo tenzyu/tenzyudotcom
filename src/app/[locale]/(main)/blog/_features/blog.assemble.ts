@@ -76,7 +76,7 @@ export async function assembleBlogPostPageData(slug: string) {
   }
 
   const postTags = post.metadata.tags ?? []
-  const relatedPosts = posts
+  const rankedByTags = posts
     .filter((entry) => entry.slug !== slug)
     .map((entry) => {
       const overlapCount = (entry.metadata.tags ?? []).filter((tag) =>
@@ -96,8 +96,21 @@ export async function assembleBlogPostPageData(slug: string) {
 
       return compareBlogPostsByPublishedAtDesc(a.entry, b.entry)
     })
-    .slice(0, 3)
     .map(({ entry }) => entry)
+  const fallbackRecentPosts = posts.filter((entry) => entry.slug !== slug)
+  const relatedPosts = [...rankedByTags]
+
+  for (const entry of fallbackRecentPosts) {
+    if (relatedPosts.length >= 3) {
+      break
+    }
+
+    if (relatedPosts.some((relatedEntry) => relatedEntry.slug === entry.slug)) {
+      continue
+    }
+
+    relatedPosts.push(entry)
+  }
 
   return {
     post,

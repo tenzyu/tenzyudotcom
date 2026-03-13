@@ -23,6 +23,48 @@ const toolsPageContent = {
         en: 'Open tool',
       }),
     },
+    overview: {
+      title: t({
+        ja: '道具置き場',
+        en: 'Tool shelf',
+      }),
+      description: t({
+        ja: '日々の試行錯誤から生まれた、小さな実用品を置く棚です。数はまだ少ないですが、用途がはっきりしたものだけを置いていきます。',
+        en: 'This is where small practical tools born from daily experiments will accumulate.',
+      }),
+      futureTitle: t({
+        ja: '次に置きたいもの',
+        en: 'Planned next',
+      }),
+      futureItems: [
+        t({
+          ja: 'テキスト整形や生成の小道具',
+          en: 'Small text formatting and generation tools',
+        }),
+        t({
+          ja: 'AI運用で使っている補助ツール',
+          en: 'Support tools for AI workflows',
+        }),
+        t({
+          ja: '個人的に使っている私家版ユーティリティ',
+          en: 'Personal utilities I actually use',
+        }),
+      ],
+    },
+    support: {
+      description: t({
+        ja: 'この棚はゆっくり増やしています。役に立ったら、Blog を読むか、気が向いたときに支援してもらえると次を出しやすいです。',
+        en: 'This shelf grows slowly. Support or feedback makes it easier to ship the next tool.',
+      }),
+      supportLabel: t({
+        ja: 'Ko-fi で支援',
+        en: 'Support on Ko-fi',
+      }),
+      readBlogLabel: t({
+        ja: 'ブログも見る',
+        en: 'Read the blog',
+      }),
+    },
     tools: [
       {
         title: t({

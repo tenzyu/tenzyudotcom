@@ -53,8 +53,8 @@ const blogPageContent = {
         en: 'Related posts',
       }),
       relatedDescription: t({
-        ja: '同じタグの話題から拾いました。',
-        en: 'Picked from posts that share tags.',
+        ja: '同じタグを優先しつつ、近い流れの記事も混ぜています。',
+        en: 'Prefers shared tags, then fills with nearby recent posts.',
       }),
       supportTitle: t({
         ja: 'この記録が役に立ったら',

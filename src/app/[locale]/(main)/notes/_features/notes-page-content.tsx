@@ -1,6 +1,6 @@
 import { useIntlayer } from 'next-intlayer/server'
 import { PageHeader } from '@/app/[locale]/_features/page-header'
-import { hasEditorAdminSession } from '@/app/[locale]/(admin)/editor/_features/editor-session'
+import { AdminGate } from '@/app/[locale]/(main)/_features/admin/admin-gate'
 import { NoteComposerInline } from './note-composer-inline'
 import { NoteFeedItem } from './note-feed-item'
 
@@ -18,7 +18,6 @@ export async function NotesPageContent({
   notes,
 }: NotesPageContentProps) {
   const content = useIntlayer('page-notes')
-  const isAdmin = await hasEditorAdminSession()
 
   return (
     <>
@@ -29,7 +28,9 @@ export async function NotesPageContent({
       />
 
       <div className="space-y-5">
-        {isAdmin ? <NoteComposerInline /> : null}
+        <AdminGate>
+          <NoteComposerInline />
+        </AdminGate>
 
         <div>
           {notes.map((note) => (
@@ -37,7 +38,6 @@ export async function NotesPageContent({
               key={`${note.createdAt}-${note.body.slice(0, 20)}`}
               locale={locale}
               note={note}
-              isAdmin={isAdmin}
               authorName="夢"
               authorHandle="@tenzyu.com"
             />

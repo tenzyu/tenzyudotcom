@@ -214,6 +214,51 @@ const homeContent = {
       ja: '各ページの役割を短く整理しました。',
       en: 'A quick role guide for each page.',
     }),
+    fragmentsTitle: t({
+      ja: 'いま住んでいる断片',
+      en: 'Fragments of right now',
+    }),
+    fragmentsSubtitle: t({
+      ja: '最近のノート、直近の記事、いま育てているもの。',
+      en: 'Recent notes, the latest post, and one thing in progress.',
+    }),
+    fragmentsNotesTitle: t({
+      ja: '最近のノート',
+      en: 'Recent notes',
+    }),
+    fragmentsNotesDescription: t({
+      ja: 'いちばん体温が残っている断片。',
+      en: 'The fastest surface of what is on my mind.',
+    }),
+    fragmentsNotesLinkLabel: t({
+      ja: 'ノートをもっと見る',
+      en: 'See more notes',
+    }),
+    fragmentsBlogTitle: t({
+      ja: '最近のブログ',
+      en: 'Latest blog post',
+    }),
+    fragmentsBlogDescription: t({
+      ja: 'まとまった形で残した記録。',
+      en: 'A more settled record.',
+    }),
+    fragmentsThingTitle: t({
+      ja: 'いま育てている thing',
+      en: 'One thing I am growing',
+    }),
+    fragmentsThingDescription: t({
+      ja: '次に厚くしたい棚。',
+      en: 'The next shelf I want to thicken.',
+    }),
+    fragmentsThingBody: t({
+      ja: 'いまは tools を増やしたいです。AI運用の補助具や、日常で実際に使う小さな道具を、雑に作っては整える段階です。',
+      en: 'Right now I want to grow tools: small utilities for AI workflows and daily use.',
+    }),
+    fragmentsThingHref: '/tools',
+    fragmentsThingLinkLabel: t({
+      ja: '道具置き場を見る',
+      en: 'Visit the tools shelf',
+    }),
     timeline: t({
       ja: '自撮り',
       en: 'Selfies',
