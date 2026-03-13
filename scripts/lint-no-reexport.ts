@@ -4,6 +4,7 @@ import ts from 'typescript'
 
 export type PureReexportIssue = {
   filePath: string
+  reason: 'pure-reexport-file' | 'port-export-from'
 }
 
 type AnalyzeOptions = {
@@ -51,6 +52,15 @@ function isPureReexportFile(sourceFile: ts.SourceFile) {
   )
 }
 
+function hasExportFromStatement(sourceFile: ts.SourceFile) {
+  return sourceFile.statements.some(
+    (statement) =>
+      ts.isExportDeclaration(statement) &&
+      statement.moduleSpecifier !== undefined &&
+      statement.attributes === undefined,
+  )
+}
+
 export function analyzePureReexports(options: AnalyzeOptions = {}) {
   const projectRoot = options.projectRoot ?? process.cwd()
   const relativePaths: string[] = []
@@ -61,7 +71,7 @@ export function analyzePureReexports(options: AnalyzeOptions = {}) {
   }
 
   return relativePaths
-    .filter((relativePath) => {
+    .flatMap((relativePath) => {
       const absolutePath = path.join(projectRoot, relativePath)
       const sourceText = readFileSync(absolutePath, 'utf8')
       const sourceFile = ts.createSourceFile(
@@ -71,10 +81,29 @@ export function analyzePureReexports(options: AnalyzeOptions = {}) {
         true,
       )
 
-      return isPureReexportFile(sourceFile)
+      const issues: PureReexportIssue[] = []
+
+      if (isPureReexportFile(sourceFile)) {
+        issues.push({
+          filePath: relativePath,
+          reason: 'pure-reexport-file',
+        })
+      }
+
+      if (relativePath.endsWith('.port.ts') && hasExportFromStatement(sourceFile)) {
+        issues.push({
+          filePath: relativePath,
+          reason: 'port-export-from',
+        })
+      }
+
+      return issues
     })
-    .sort()
-    .map((filePath) => ({ filePath }) satisfies PureReexportIssue)
+    .sort((left, right) =>
+      left.filePath === right.filePath
+        ? left.reason.localeCompare(right.reason)
+        : left.filePath.localeCompare(right.filePath),
+    )
 }
 
 function main() {
@@ -86,9 +115,11 @@ function main() {
   }
 
   for (const issue of issues) {
-    console.error(
-      `${issue.filePath}: pure re-export files are prohibited; import the source module directly instead. Read: /docs/design-docs/references/no-reexport.md`,
-    )
+    const message =
+      issue.reason === 'port-export-from'
+        ? 'port modules must not re-export from other modules; import the source module directly instead.'
+        : 'pure re-export files are prohibited; import the source module directly instead.'
+    console.error(`${issue.filePath}: ${message} Read: /docs/design-docs/references/no-reexport.md`)
   }
 
   process.exitCode = 1

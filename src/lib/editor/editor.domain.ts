@@ -34,6 +34,14 @@ export type RevalidatePathTarget = {
   type?: 'page' | 'layout'
 }
 
+export const LOCALE_PREFIXES = ['/ja', '/en'] as const
+
+export function withLocales(pathname: string) {
+  return LOCALE_PREFIXES.map((locale) => ({
+    path: `${locale}${pathname}`,
+  })) satisfies readonly RevalidatePathTarget[]
+}
+
 export class EditorStorageError extends Error {}
 export class EditorStorageNotFoundError extends EditorStorageError {}
 export class EditorVersionConflictError extends EditorStorageError {}

@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import {
   EditorVersionConflictError,
-} from '@/lib/editor/editor.port'
+} from '@/lib/editor/editor.domain'
 import {
   makeSaveBlogPostUseCase,
   makeSaveEditorCollectionUseCase,

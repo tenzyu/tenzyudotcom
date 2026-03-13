@@ -1,5 +1,6 @@
 import { isEditorBlobStorage } from '@/config/env.infra'
-import type { EditorCollectionId, EditorRepository } from './editor.port'
+import type { EditorCollectionId } from './editor.domain'
+import type { EditorRepository } from './editor.port'
 import { BlobEditorRepository } from './editor-blob.infra'
 import { LocalEditorRepository } from './editor-local.infra'
 

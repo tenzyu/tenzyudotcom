@@ -14,10 +14,9 @@ import {
 import { createVersion } from './editor-version'
 import type {
   EditorCollectionDescriptor,
-  EditorCollectionId,
   EditorRepository,
-  EditorState,
 } from './editor.port'
+import type { EditorCollectionId, EditorState } from './editor.domain'
 
 const LOCAL_STORAGE_DIR = join(process.cwd(), 'storage')
 const LOCAL_BLOG_DIR = join(LOCAL_STORAGE_DIR, 'blog')
