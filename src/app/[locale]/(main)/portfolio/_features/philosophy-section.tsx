@@ -1,6 +1,5 @@
 import { useIntlayer } from 'next-intlayer/server'
 import { SectionHeader } from '@/app/[locale]/(main)/_features/section-header'
-import { Card, CardContent } from '@/components/ui/card'
 
 export function PhilosophySection() {
   const content = useIntlayer('page-portfolio')
@@ -11,13 +10,11 @@ export function PhilosophySection() {
         title={content.philosophy.sectionTitle.value}
         variant="underline"
       />
-      <Card variant="soft">
-        <CardContent className="text-muted-foreground space-y-4 pt-6 text-sm leading-relaxed">
-          {content.philosophy.paragraphs.map((paragraph) => (
-            <p key={paragraph.value}>{paragraph}</p>
-          ))}
-        </CardContent>
-      </Card>
+      <div className="text-muted-foreground space-y-5 text-sm leading-7">
+        {content.philosophy.paragraphs.map((paragraph) => (
+          <p key={paragraph.value}>{paragraph}</p>
+        ))}
+      </div>
     </div>
   )
 }

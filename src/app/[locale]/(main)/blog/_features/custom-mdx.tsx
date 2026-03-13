@@ -4,7 +4,7 @@ import * as runtime from 'react/jsx-runtime'
 import rehypePrettyCode from 'rehype-pretty-code'
 import remarkGfm from 'remark-gfm'
 
-import { components } from './mdx-components'
+import { createMdxComponents } from './mdx-components'
 
 type MDXProps = {
   components?: MDXComponents
@@ -47,7 +47,7 @@ export async function CustomMDX({
     }
 
     const mergedComponents = {
-      ...components,
+      ...createMdxComponents(),
       ...(additionalComponents ?? {}),
     }
 

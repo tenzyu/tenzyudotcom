@@ -34,8 +34,8 @@ const toolsPageContent = {
           en: 'Generate dot-style ASCII art from text.',
         }),
         note: t({
-          ja: '配信用の見た目を即席で変えたいときに、入力→調整→出力を最短で回すための道具。',
-          en: 'Built to sprint through input → tweak → output when I need a quick visual shift.',
+          ja: '縦長と横長の大きい文字を素早く作るための道具。ちょっとした遊びに使えます。',
+          en: 'A utility for quickly making large text in vertical or horizontal layouts.',
         }),
         href: '/tools/dot-type',
         icon: 'type',

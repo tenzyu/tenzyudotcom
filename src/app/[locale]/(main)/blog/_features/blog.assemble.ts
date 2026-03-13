@@ -8,11 +8,13 @@ import {
 import { locales } from 'intlayer'
 import { makeEditorRepository } from '@/lib/editor/editor.assemble'
 import {
+  extractBlogHeadings,
   type BlogPostingJsonLd,
   type MDXData,
   buildBlogPostImageUrl,
   buildBlogPostUrl,
   compareBlogPostsByPublishedAtDesc,
+  isAiGeneratedPost,
 } from './blog.domain'
 
 const PAGE_SIZE = 6
@@ -63,6 +65,46 @@ export async function getBlogPostBySlug(slug: string) {
   const posts = await loadBlogPosts()
 
   return posts.find((post) => post.slug === slug)
+}
+
+export async function assembleBlogPostPageData(slug: string) {
+  const posts = await loadBlogPosts()
+  const post = posts.find((entry) => entry.slug === slug)
+
+  if (!post) {
+    return undefined
+  }
+
+  const postTags = post.metadata.tags ?? []
+  const relatedPosts = posts
+    .filter((entry) => entry.slug !== slug)
+    .map((entry) => {
+      const overlapCount = (entry.metadata.tags ?? []).filter((tag) =>
+        postTags.includes(tag),
+      ).length
+
+      return {
+        entry,
+        overlapCount,
+      }
+    })
+    .filter(({ overlapCount }) => overlapCount > 0)
+    .sort((a, b) => {
+      if (b.overlapCount !== a.overlapCount) {
+        return b.overlapCount - a.overlapCount
+      }
+
+      return compareBlogPostsByPublishedAtDesc(a.entry, b.entry)
+    })
+    .slice(0, 3)
+    .map(({ entry }) => entry)
+
+  return {
+    post,
+    headings: extractBlogHeadings(post.rawContent),
+    relatedPosts,
+    isAiGenerated: isAiGeneratedPost(post.metadata.tags),
+  }
 }
 
 export function buildBlogPostMetadata(post: BlogPost, locale: string) {

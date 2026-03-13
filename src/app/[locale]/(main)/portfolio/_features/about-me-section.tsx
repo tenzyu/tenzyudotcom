@@ -14,19 +14,19 @@ export function AboutMeSection() {
 
   return (
     <Card variant="soft" className="p-0">
-      <CardContent className="flex flex-col items-start gap-6 pt-6 md:flex-row">
+      <CardContent className="flex flex-col items-start gap-5 py-6 md:flex-row md:items-center">
         <div className="shrink-0">
           <Image
             src={PORTFOLIO_PROFILE_IMAGE_PATH}
             alt={content.about.imageAlt.value}
-            width={120}
-            height={120}
+            width={112}
+            height={112}
             className="border-border/60 rounded-2xl border shadow-sm"
             priority
           />
         </div>
-        <div className="flex flex-1 flex-col space-y-3">
-          <div>
+        <div className="flex flex-1 flex-col space-y-2.5">
+          <div className="space-y-1">
             <h1 className="text-3xl font-bold tracking-tight">
               {content.about.name}
             </h1>
@@ -34,8 +34,8 @@ export function AboutMeSection() {
               {content.about.role}
             </h2>
           </div>
-          <p className="text-sm leading-relaxed">{content.about.description}</p>
-          <div className="flex flex-wrap gap-4 pt-2 text-sm font-medium">
+          <p className="text-sm leading-7">{content.about.description}</p>
+          <div className="flex flex-wrap gap-4 pt-1 text-sm font-medium">
             {PORTFOLIO_ABOUT_LINKS.map((link) => {
               const linkContent = content.about.links[link.id]
 

@@ -14,8 +14,8 @@ const notesPageContent = {
       }),
     },
     lead: t({
-      ja: '短く書き残したいことを流していくページです。',
-      en: 'A running page for short things I want to write down.',
+      ja: 'Twitter / Bluesky の代わりに、短く書き残したいことを時系列で流していくページです。',
+      en: 'A reverse-chronological short log that plays the role of my Twitter / Bluesky alternative.',
     }),
     navLabel: t({
       ja: 'ノート',
@@ -28,6 +28,10 @@ const notesPageContent = {
     openExternal: t({
       ja: 'リンクを開く',
       en: 'Open link',
+    }),
+    dayCountSuffix: t({
+      ja: '件',
+      en: 'entries',
     }),
   },
 } satisfies Dictionary

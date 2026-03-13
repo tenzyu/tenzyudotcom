@@ -254,6 +254,7 @@ export async function EditorCollectionEditor({
           locale={locale}
           posts={[...state.collection]}
           slug={slug}
+          error={error}
           startCreating={create}
         />
       </Content>

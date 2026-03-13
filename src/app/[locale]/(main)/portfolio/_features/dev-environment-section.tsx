@@ -7,7 +7,7 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion'
 import { Badge } from '@/components/ui/badge'
-import { Card, CardContent } from '@/components/ui/card'
+import { Card, CardContent, CardFooter } from '@/components/ui/card'
 import { PORTFOLIO_ENVIRONMENTS } from './portfolio.source'
 
 export function DevEnvironmentSection() {
@@ -26,33 +26,33 @@ export function DevEnvironmentSection() {
           <AccordionTrigger className="text-sm font-semibold hover:no-underline">
             {content.environments.detailsTrigger}
           </AccordionTrigger>
-          <AccordionContent className="space-y-6 pt-4">
-            <div className="space-y-6">
+          <AccordionContent className="space-y-3 pt-3">
+            <div className="space-y-4">
               {PORTFOLIO_ENVIRONMENTS.map((environment) => {
                 const env = content.environments.items[environment.id]
 
                 return (
-                  <Card key={environment.id} variant="soft">
-                    <CardContent className="space-y-2 pt-6">
+                  <Card key={environment.id} variant="soft" className="gap-0">
+                    <CardContent className="space-y-2 pt-4 pb-2">
                       <h3 className="text-lg font-semibold">
                         {environment.title}
                       </h3>
                       <p className="text-sm font-medium">{env.subtitle}</p>
-                      <p className="text-muted-foreground text-sm leading-relaxed">
+                      <p className="text-muted-foreground text-sm leading-6">
                         {env.description}
                       </p>
-                      <div className="flex flex-wrap gap-2 pt-1">
-                        <Badge variant="secondary">{environment.os}</Badge>
-                        <Badge variant="secondary">{environment.role}</Badge>
-                      </div>
                     </CardContent>
+                    <CardFooter className="flex flex-wrap gap-2 pt-0 pb-4">
+                      <Badge variant="secondary">{environment.os}</Badge>
+                      <Badge variant="secondary">{environment.role}</Badge>
+                    </CardFooter>
                   </Card>
                 )
               })}
             </div>
 
-            <Card variant="soft">
-              <CardContent className="space-y-3 pt-6">
+            <Card variant="soft" className="gap-0">
+              <CardContent className="space-y-3 pt-5 pb-5">
                 <h3 className="text-sm font-semibold">
                   {content.environments.networkTitle}
                 </h3>

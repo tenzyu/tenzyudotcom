@@ -213,7 +213,12 @@ export async function saveBlogPostAction(formData: FormData) {
       )
     }
     console.error('Failed to save blog post:', error)
-    redirect(getLocalizedUrl(`/editor/blog?error=save`, parsed.data.locale))
+    redirect(
+      getLocalizedUrl(
+        `/editor/blog?slug=${parsed.data.slug}&error=save`,
+        parsed.data.locale,
+      ),
+    )
   }
 
   redirect(getLocalizedUrl(`/editor/blog?saved=1`, parsed.data.locale))
