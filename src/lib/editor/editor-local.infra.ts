@@ -14,10 +14,9 @@ import {
 import { createVersion } from './editor-version'
 import type {
   EditorCollectionDescriptor,
-  EditorCollectionId,
   EditorRepository,
-  EditorState,
 } from './editor.port'
+import type { EditorCollectionId, EditorState } from './editor.domain'
 
 const LOCAL_STORAGE_DIR = join(process.cwd(), 'storage')
 const LOCAL_BLOG_DIR = join(LOCAL_STORAGE_DIR, 'blog')
@@ -124,7 +123,20 @@ export class LocalEditorRepository implements EditorRepository {
     body: string,
     expectedVersion?: string,
   ): Promise<void> {
-    const content = matter.stringify(body, frontmatter)
+    const sanitizedFrontmatter = Object.fromEntries(
+      Object.entries(frontmatter).filter(([, value]) => {
+        if (value === undefined) {
+          return false
+        }
+
+        if (Array.isArray(value) && value.length === 0) {
+          return false
+        }
+
+        return true
+      }),
+    )
+    const content = matter.stringify(body, sanitizedFrontmatter)
     const localPath = join(LOCAL_STORAGE_DIR, 'blog', `${slug}.mdx`)
 
     if (expectedVersion) {

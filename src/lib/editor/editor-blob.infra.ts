@@ -12,13 +12,13 @@ import {
   EditorStorageError,
   EditorStorageNotFoundError,
   EditorVersionConflictError,
+  type EditorCollectionId,
+  type EditorState,
 } from './editor.domain'
 import { createVersion } from './editor-version'
 import type {
   EditorCollectionDescriptor,
-  EditorCollectionId,
   EditorRepository,
-  EditorState,
 } from './editor.port'
 
 function getBlobPath<K extends EditorCollectionId>(

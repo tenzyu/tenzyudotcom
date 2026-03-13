@@ -7,7 +7,7 @@ import {
 import {
   EditorVersionConflictError,
   type EditorCollectionId,
-} from '@/lib/editor/editor.port'
+} from '@/lib/editor/editor.domain'
 
 export async function GET(
   _request: NextRequest,

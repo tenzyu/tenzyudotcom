@@ -25,9 +25,9 @@ const shellContent = {
         ja: 'ツール',
         en: 'Tools',
       }),
-      recommendations: t({
-        ja: 'お気に入り',
-        en: 'Favorites',
+      links: t({
+        ja: 'リンク',
+        en: 'Links',
       }),
       portfolio: t({
         ja: 'ポートフォリオ',

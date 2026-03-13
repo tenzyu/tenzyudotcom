@@ -2,8 +2,8 @@ import { normalizeExternalUrl } from '@/lib/url/external-url.domain'
 import { z } from 'zod'
 import {
   withLocales,
-  type EditorCollectionDescriptor,
-} from '@/lib/editor/editor.port'
+} from '@/lib/editor/editor.domain'
+import type { EditorCollectionDescriptor } from '@/lib/editor/editor.port'
 
 const LocalizedTextSchema = z.object({
   ja: z.string().trim().min(1),

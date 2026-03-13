@@ -1,28 +1,23 @@
-import { useIntlayer, useLocale } from 'next-intlayer/server'
+import { useIntlayer } from 'next-intlayer/server'
 import { PageHeader } from '@/app/[locale]/_features/page-header'
-import { Card, CardContent } from '@/components/ui/card'
 import { AdminGate } from '@/app/[locale]/(main)/_features/admin/admin-gate'
-import { NoteAdminMenu } from './note-admin-menu'
-import { NoteTweetButton } from './note-tweet-button'
+import { NoteComposerInline } from './note-composer-inline'
+import { NoteFeedItem } from './note-feed-item'
 
 type NotesPageContentProps = {
+  locale: string
   notes: {
     body: string
     createdAt: string
+    externalUrl?: string
   }[]
 }
 
-export async function NotesPageContent({ notes }: NotesPageContentProps) {
+export async function NotesPageContent({
+  locale,
+  notes,
+}: NotesPageContentProps) {
   const content = useIntlayer('page-notes')
-  const { locale } = useLocale()
-  const activeLocale = locale || 'ja'
-  const dateFormatter = new Intl.DateTimeFormat(
-    activeLocale === 'ja' ? 'ja-JP' : 'en-US',
-    {
-      dateStyle: 'medium',
-      timeStyle: 'short',
-    },
-  )
 
   return (
     <>
@@ -32,35 +27,22 @@ export async function NotesPageContent({ notes }: NotesPageContentProps) {
         className="flex flex-col gap-4"
       />
 
-      <div className="space-y-4">
-        <div className="flex justify-end">
-          <AdminGate>
-            <NoteTweetButton />
-          </AdminGate>
+      <div className="space-y-5">
+        <AdminGate>
+          <NoteComposerInline />
+        </AdminGate>
+
+        <div>
+          {notes.map((note) => (
+            <NoteFeedItem
+              key={`${note.createdAt}-${note.body.slice(0, 20)}`}
+              locale={locale}
+              note={note}
+              authorName="夢"
+              authorHandle="@tenzyu.com"
+            />
+          ))}
         </div>
-
-        {notes.map((note) => (
-          <Card key={`${note.createdAt}-${note.body.slice(0, 20)}`}>
-            <CardContent className="space-y-3 pt-6">
-              <div className="flex items-start justify-between gap-4">
-                <time
-                  className="text-muted-foreground text-xs"
-                  dateTime={note.createdAt}
-                >
-                  {dateFormatter.format(new Date(note.createdAt))}
-                </time>
-
-                <AdminGate>
-                  <NoteAdminMenu
-                    locale={activeLocale}
-                    createdAt={note.createdAt}
-                  />
-                </AdminGate>
-              </div>
-              <p className="leading-relaxed whitespace-pre-wrap">{note.body}</p>
-            </CardContent>
-          </Card>
-        ))}
       </div>
     </>
   )

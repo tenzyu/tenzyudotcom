@@ -16,7 +16,7 @@ const NotesPage: NextPageIntlayer = async ({ params }) => {
 
   return (
     <IntlayerServerProvider locale={locale}>
-      <NotesPageContent notes={notes} />
+      <NotesPageContent locale={locale} notes={notes} />
     </IntlayerServerProvider>
   )
 }

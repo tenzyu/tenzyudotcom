@@ -1,8 +1,8 @@
 import {
   LOCALE_PREFIXES,
   withLocales,
-  type EditorCollectionDescriptor,
-} from '@/lib/editor/editor.port'
+} from '@/lib/editor/editor.domain'
+import type { EditorCollectionDescriptor } from '@/lib/editor/editor.port'
 import { parseLinkSourceEntries } from '@/features/links/links.assemble'
 
 export const LINKS_COLLECTION_DESCRIPTOR: EditorCollectionDescriptor<'links'> = {

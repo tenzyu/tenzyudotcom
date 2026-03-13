@@ -1,7 +1,6 @@
 import { getLocalizedUrl } from 'intlayer'
 import {
   ChevronRight,
-  Disc,
   FileText,
   FolderArchive,
   Hammer,
@@ -11,7 +10,8 @@ import {
   Pointer,
   Puzzle,
   Sparkles,
-  User,
+  BriefcaseBusiness,
+  LibraryBig,
 } from 'lucide-react'
 import Link from 'next/link'
 import { useIntlayer, useLocale } from 'next-intlayer/server'
@@ -34,15 +34,15 @@ import {
 } from '@/features/site-navigation/public-routes.data'
 
 const NAVIGATION_GROUP_ICONS = {
-  outputs: User,
-  externals: Sparkles,
+  core: LibraryBig,
+  around: Sparkles,
 } as const
 
 const NAVIGATION_ITEM_ICONS = {
   tools: Hammer,
   blog: FileText,
   notes: MessageSquareText,
-  portfolio: Disc,
+  portfolio: BriefcaseBusiness,
   archives: FolderArchive,
   links: LinkIcon,
   puzzles: Puzzle,
@@ -57,10 +57,20 @@ type NavigationItemContent = {
 
 export function NavigationTiles() {
   const navigation = useIntlayer('navigationTiles')
+  const home = useIntlayer('page-home')
   const { locale } = useLocale()
 
   return (
     <Content size="5xl" className="space-y-12">
+      <div className="space-y-2">
+        <h2 className="text-2xl font-bold tracking-tight">
+          {home.siteIndexTitle}
+        </h2>
+        <p className="text-muted-foreground text-sm font-medium">
+          {home.siteIndexSubtitle}
+        </p>
+      </div>
+
       {PUBLIC_ROUTE_GROUPS.map((group) => {
         const groupContent = navigation.groups[group.id]
         const GroupIcon = NAVIGATION_GROUP_ICONS[group.id]

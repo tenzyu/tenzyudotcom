@@ -1,8 +1,15 @@
 'use client'
 
 import { useState } from 'react'
+import { Search, Pencil } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from '@/components/ui/card'
 import type { MDXData } from '@/app/[locale]/(main)/blog/_features/blog.domain'
 import { saveBlogPostAction } from './actions'
 
@@ -21,10 +28,30 @@ export function BlogEditor({
   error,
   startCreating = false,
 }: BlogEditorProps) {
+  const allTags = [...new Set(posts.flatMap((entry) => entry.metadata.tags ?? []))]
+    .sort((a, b) => a.localeCompare(b))
   const [editingPost, setEditingPost] = useState<MDXData | null>(
-    slug ? posts.find((p) => p.slug === slug) || null : null
+    slug ? posts.find((p) => p.slug === slug) || null : null,
   )
   const [isCreating, setIsCreating] = useState(startCreating)
+  const [query, setQuery] = useState('')
+
+  const filteredPosts = posts.filter((post) => {
+    const normalizedQuery = query.trim().toLowerCase()
+
+    if (normalizedQuery.length === 0) {
+      return true
+    }
+
+    return (
+      post.slug.toLowerCase().includes(normalizedQuery) ||
+      post.metadata.title.toLowerCase().includes(normalizedQuery) ||
+      post.metadata.summary.toLowerCase().includes(normalizedQuery) ||
+      (post.metadata.tags ?? []).some((tag) =>
+        tag.toLowerCase().includes(normalizedQuery),
+      )
+    )
+  })
 
   if (editingPost || isCreating) {
     const post = editingPost
@@ -42,10 +69,15 @@ export function BlogEditor({
               Version conflict: This post has been modified by another session. Please reload or backup your changes.
             </div>
           )}
+          {error === 'save' && (
+            <div className="mb-4 rounded-md bg-destructive/15 p-3 text-sm text-destructive">
+              Save failed. Check optional fields like updatedAt and try again.
+            </div>
+          )}
           <form action={saveBlogPostAction} className="space-y-6">
             <input type="hidden" name="locale" value={locale} />
             {post && <input type="hidden" name="expectedVersion" value={post.version} />}
-            <div className="grid gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(22rem,1fr)]">
+            <div className="space-y-4">
               <div className="space-y-2">
                 <label htmlFor="slug" className="text-sm font-medium">Slug</label>
                 <input
@@ -80,7 +112,7 @@ export function BlogEditor({
               />
             </div>
 
-            <div className="grid gap-4 xl:grid-cols-3">
+            <div className="space-y-4">
               <div className="space-y-2">
                 <label htmlFor="publishedAt" className="text-sm font-medium">Published At</label>
                 <input
@@ -115,10 +147,16 @@ export function BlogEditor({
                 <input
                   id="tags"
                   name="tags"
+                  list="blog-tag-suggestions"
                   defaultValue={post?.metadata.tags?.join(', ')}
                   placeholder="nextjs, tutorial, tips"
                   className="w-full rounded-md border p-3 text-sm"
                 />
+                <datalist id="blog-tag-suggestions">
+                  {allTags.map((tag) => (
+                    <option key={tag} value={tag} />
+                  ))}
+                </datalist>
               </div>
             </div>
 
@@ -145,21 +183,53 @@ export function BlogEditor({
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-end">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="relative w-full max-w-md">
+          <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+          <input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Search posts, tags, slug"
+            className="bg-background w-full rounded-md border py-2 pr-3 pl-9 text-sm"
+          />
+        </div>
         <Button onClick={() => setIsCreating(true)}>Create New Post</Button>
       </div>
       <div className="grid gap-4">
-        {posts.map((post) => (
-          <Card key={post.slug} className="flex flex-row items-center justify-between p-4">
-            <div>
-              <h3 className="font-semibold">{post.metadata.title}</h3>
-              <p className="text-xs text-muted-foreground">{post.slug}.mdx</p>
-            </div>
-            <Button variant="outline" size="sm" onClick={() => setEditingPost(post)}>
-              Edit
-            </Button>
+        {filteredPosts.map((post) => (
+          <Card key={post.slug}>
+            <CardHeader className="gap-2">
+              <div className="flex items-start justify-between gap-3">
+                <div className="space-y-1">
+                  <CardTitle className="text-base">{post.metadata.title}</CardTitle>
+                  <CardDescription>{post.slug}.mdx</CardDescription>
+                </div>
+                <Button variant="outline" size="icon-sm" onClick={() => setEditingPost(post)}>
+                  <Pencil />
+                  <span className="sr-only">Edit {post.slug}</span>
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {(post.metadata.tags ?? []).length > 0 ? (
+                <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+                  {post.metadata.tags?.map((tag) => (
+                    <span key={tag} className="rounded-full border border-border/60 px-2 py-0.5">
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+              ) : null}
+            </CardContent>
           </Card>
         ))}
+        {filteredPosts.length === 0 ? (
+          <Card>
+            <CardContent className="py-6 text-sm text-muted-foreground">
+              No posts matched your search.
+            </CardContent>
+          </Card>
+        ) : null}
       </div>
     </div>
   )

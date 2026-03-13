@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import {
   EditorVersionConflictError,
-} from '@/lib/editor/editor.port'
+} from '@/lib/editor/editor.domain'
 import {
   makeSaveBlogPostUseCase,
   makeSaveEditorCollectionUseCase,
@@ -213,7 +213,12 @@ export async function saveBlogPostAction(formData: FormData) {
       )
     }
     console.error('Failed to save blog post:', error)
-    redirect(getLocalizedUrl(`/editor/blog?error=save`, parsed.data.locale))
+    redirect(
+      getLocalizedUrl(
+        `/editor/blog?slug=${parsed.data.slug}&error=save`,
+        parsed.data.locale,
+      ),
+    )
   }
 
   redirect(getLocalizedUrl(`/editor/blog?saved=1`, parsed.data.locale))

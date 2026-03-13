@@ -6,14 +6,6 @@ import type {
   RevalidatePathTarget,
 } from './editor.domain'
 
-export type {
-  EditorCollectionData,
-  EditorCollectionId,
-  EditorState,
-  RevalidatePathTarget,
-} from './editor.domain'
-export { EditorVersionConflictError } from './editor.domain'
-
 export type EditorCollectionDescriptor<K extends EditorCollectionId> = {
   id: K
   label: string
@@ -21,14 +13,6 @@ export type EditorCollectionDescriptor<K extends EditorCollectionId> = {
   publicPaths: readonly RevalidatePathTarget[]
   getDefaultValue: () => EditorCollectionData[K]
   parse: (raw: unknown) => EditorCollectionData[K]
-}
-
-export const LOCALE_PREFIXES = ['/ja', '/en'] as const
-
-export function withLocales(pathname: string) {
-  return LOCALE_PREFIXES.map((locale) => ({
-    path: `${locale}${pathname}`,
-  })) satisfies readonly RevalidatePathTarget[]
 }
 
 export interface EditorRepository {

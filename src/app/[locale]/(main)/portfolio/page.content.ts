@@ -26,6 +26,10 @@ const portfolioContent = {
         ja: '東京都在住のフロントエンドエンジニア。React / Next.js / TypeScript を用いたWebアプリケーション開発を専門としています。',
         en: 'Frontend engineer based in Tokyo, specializing in web applications built with React, Next.js, and TypeScript.',
       }),
+      routingNote: t({
+        ja: '連絡先は Links、考え方や実装の雰囲気は Blog を見てもらうのが早いです。',
+        en: 'Links is the quickest contact hub. Blog is the quickest way to see how I think and build.',
+      }),
       imageAlt: t({
         ja: 'プロフィール画像',
         en: 'Profile image',

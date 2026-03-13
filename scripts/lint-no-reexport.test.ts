@@ -52,6 +52,20 @@ export const localValue = value
 
     await writeProjectFile(
       tempDir,
+      'src/lib/editor/editor.port.ts',
+      `
+import type { Value } from './source'
+
+export type { Value } from './source'
+
+export interface ExamplePort {
+  read(): Promise<Value>
+}
+      `.trim(),
+    )
+
+    await writeProjectFile(
+      tempDir,
       'src/features/ignored.test.ts',
       `export * from './source'`,
     )
@@ -63,9 +77,10 @@ export const localValue = value
 
   test('reports files composed only of export-from statements', () => {
     expect(analyzePureReexports({ projectRoot: tempDir })).toEqual([
-      { filePath: 'src/features/named.ts' },
-      { filePath: 'src/features/pure.ts' },
-      { filePath: 'src/features/type-only.ts' },
+      { filePath: 'src/features/named.ts', reason: 'pure-reexport-file' },
+      { filePath: 'src/features/pure.ts', reason: 'pure-reexport-file' },
+      { filePath: 'src/features/type-only.ts', reason: 'pure-reexport-file' },
+      { filePath: 'src/lib/editor/editor.port.ts', reason: 'port-export-from' },
     ])
   })
 

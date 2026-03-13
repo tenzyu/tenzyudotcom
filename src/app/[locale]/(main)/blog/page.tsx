@@ -4,22 +4,23 @@ import { createPageMetadata, resolvePageLocale } from '@/lib/intlayer/page'
 import { BlogPageContent } from './_features/blog-page-content'
 import { assemblePaginatedBlogPosts } from './_features/blog.assemble'
 
-export const dynamic = 'force-static'
+export const dynamic = 'force-dynamic'
 
 export const generateMetadata = createPageMetadata('page-blog', {
   pathname: '/blog',
 })
 
 type PageProps = LocalPromiseParams & {
-  searchParams?: {
+  searchParams?: Promise<{
     page?: string
-  }
+  }>
 }
 
 export default async function Page({ params, searchParams }: PageProps) {
   const locale = await resolvePageLocale(params)
+  const resolvedSearchParams = await searchParams
   const { currentPage, pageItems, totalPages } = await assemblePaginatedBlogPosts(
-    searchParams?.page,
+    resolvedSearchParams?.page,
   )
 
   return (

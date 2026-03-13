@@ -1,6 +1,6 @@
 'use client'
 
-import type { EditorCollectionData, EditorCollectionId } from '@/lib/editor/editor.port'
+import type { EditorCollectionData, EditorCollectionId } from '@/lib/editor/editor.domain'
 
 type CollectionState<K extends EditorCollectionId> = {
   collection: EditorCollectionData[K]

@@ -1,4 +1,5 @@
 import { getLocalizedUrl } from 'intlayer'
+import { Pencil } from 'lucide-react'
 import { useIntlayer } from 'next-intlayer/server'
 import Link from 'next/link'
 import { PageHeader } from '@/app/[locale]/_features/page-header'
@@ -73,17 +74,18 @@ export async function BlogPageContent({
 
       <div className="flex flex-col gap-y-4">
         {pageItems.map((post) => (
-          <div key={post.slug} className="space-y-2">
+          <div key={post.slug} className="relative">
             <AdminGate>
-              <div className="flex justify-end">
-                <Button asChild size="sm" variant="outline">
+              <div className="absolute top-3 right-3 z-10">
+                <Button asChild size="icon-sm" variant="outline">
                   <Link
                     href={getLocalizedUrl(
                       `/editor/blog?slug=${post.slug}`,
                       locale,
                     )}
                   >
-                    Edit {post.slug}
+                    <Pencil />
+                    <span className="sr-only">Edit {post.slug}</span>
                   </Link>
                 </Button>
               </div>

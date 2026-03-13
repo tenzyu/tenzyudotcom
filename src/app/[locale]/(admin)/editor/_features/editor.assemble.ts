@@ -2,9 +2,9 @@ import { revalidatePath } from 'next/cache'
 import type {
   EditorCollectionId,
   RevalidatePathTarget,
-  EditorRepository,
   EditorState,
-} from '@/lib/editor/editor.port'
+} from '@/lib/editor/editor.domain'
+import type { EditorRepository } from '@/lib/editor/editor.port'
 import type { BlogFrontmatter } from '@/app/[locale]/(main)/blog/_features/blog.domain'
 import { makeEditorRepository } from '@/lib/editor/editor.assemble'
 import { getEditorCollectionDescriptor } from './editor.collections'
