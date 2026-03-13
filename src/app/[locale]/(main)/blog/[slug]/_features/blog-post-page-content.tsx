@@ -1,14 +1,14 @@
 import { useIntlayer } from 'next-intlayer/server'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
-import { CustomMDX } from '../../_features/custom-mdx'
-import { formatDate } from '../../_features/format-date'
 import {
   type BlogPost,
-  type BlogHeading,
   buildBlogPostStructuredData,
 } from '../../_features/blog.assemble'
+import type { BlogHeading } from '../../_features/blog.domain'
 import { stripLeadingBlogTitle } from '../../_features/blog.domain'
+import { CustomMDX } from '../../_features/custom-mdx'
+import { formatDate } from '../../_features/format-date'
 import { BlogPostTableOfContents } from './blog-post-table-of-contents'
 import { BlogRelatedPosts } from './blog-related-posts'
 import { BlogSupportCard } from './blog-support-card'

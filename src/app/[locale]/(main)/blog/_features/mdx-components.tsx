@@ -1,11 +1,10 @@
-import Link from 'next/link'
 import type { MDXComponents } from 'mdx/types'
-import { createElement, type ReactNode } from 'react'
-import { cn } from '@/lib/utils/common'
-import { slugifyBlogHeading } from './blog.domain'
-
+import Link from 'next/link'
+import { createElement, isValidElement, type ReactNode } from 'react'
 import { KoFiLink } from '@/app/[locale]/_features/shell/kofi-link'
+import { cn } from '@/lib/utils/common'
 import { OtakuAside } from '../../_features/otaku-aside'
+import { slugifyBlogHeading } from './blog.domain'
 import { CautionAlert } from './caution-alert'
 
 const extractHeadingText = (node: ReactNode): string => {
@@ -17,7 +16,7 @@ const extractHeadingText = (node: ReactNode): string => {
     return node.map(extractHeadingText).join('')
   }
 
-  if (node && typeof node === 'object' && 'props' in node) {
+  if (isValidElement<{ children?: ReactNode }>(node)) {
     return extractHeadingText(node.props.children as ReactNode)
   }
 
@@ -80,7 +79,9 @@ function MdxLink({
     )
   }
 
-  return <Link href={href} className={cn('break-words', className)} {...props} />
+  return (
+    <Link href={href} className={cn('break-words', className)} {...props} />
+  )
 }
 
 function ResponsiveIframe(props: React.ComponentPropsWithoutRef<'iframe'>) {
