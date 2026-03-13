@@ -1,4 +1,4 @@
-export type PublicRouteGroupId = 'outputs' | 'externals'
+export type PublicRouteGroupId = 'core' | 'around'
 
 export type PublicRouteId =
   | 'tools'
@@ -24,50 +24,50 @@ type PublicRouteGroup = {
 export const PUBLIC_ROUTES = {
   tools: {
     href: '/tools',
-    groupId: 'outputs',
+    groupId: 'core',
   },
   blog: {
     href: '/blog',
-    groupId: 'outputs',
+    groupId: 'core',
   },
   notes: {
     href: '/notes',
-    groupId: 'outputs',
+    groupId: 'core',
   },
   portfolio: {
     href: '/portfolio',
-    groupId: 'outputs',
+    groupId: 'core',
   },
   archives: {
     href: '/archives',
-    groupId: 'outputs',
+    groupId: 'around',
   },
   links: {
     href: '/links',
-    groupId: 'externals',
+    groupId: 'core',
   },
   puzzles: {
     href: '/puzzles',
-    groupId: 'externals',
+    groupId: 'around',
   },
   recommendations: {
     href: '/recommendations',
-    groupId: 'externals',
+    groupId: 'around',
   },
   pointers: {
     href: '/pointers',
-    groupId: 'externals',
+    groupId: 'around',
   },
 } as const satisfies Record<PublicRouteId, PublicRoute>
 
 export const PUBLIC_ROUTE_GROUPS = [
   {
-    id: 'outputs',
-    routeIds: ['tools', 'blog', 'notes', 'portfolio', 'archives'],
+    id: 'core',
+    routeIds: ['blog', 'notes', 'tools', 'portfolio', 'links'],
   },
   {
-    id: 'externals',
-    routeIds: ['links', 'puzzles', 'recommendations', 'pointers'],
+    id: 'around',
+    routeIds: ['recommendations', 'pointers', 'puzzles', 'archives'],
   },
 ] as const satisfies readonly PublicRouteGroup[]
 
@@ -75,7 +75,7 @@ export const PRIMARY_NAV_ROUTE_IDS = [
   'blog',
   'notes',
   'tools',
-  'recommendations',
+  'links',
   'portfolio',
 ] as const satisfies readonly PublicRouteId[]
 
