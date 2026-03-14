@@ -71,7 +71,7 @@ function MdxLink({
     return (
       <a
         href={href}
-        className={cn('break-words', className)}
+        className={cn('wrap-break-word', className)}
         target="_blank"
         rel="noreferrer"
         {...props}
@@ -80,7 +80,7 @@ function MdxLink({
   }
 
   return (
-    <Link href={href} className={cn('break-words', className)} {...props} />
+    <Link href={href} className={cn('wrap-break-word', className)} {...props} />
   )
 }
 
