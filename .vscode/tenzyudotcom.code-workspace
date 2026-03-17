@@ -13,10 +13,6 @@
 			"path": "../packages/linter",
 		},
 		{
-			"name": "blob-local",
-			"path": "../packages/blob-local",
-		},
-		{
 			"name": "root",
 			"path": ".."
 		},
