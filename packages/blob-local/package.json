@@ -1,0 +1,23 @@
+{
+  "name": "@tenzyu/blob-local",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "rm -rf dist && bun build ./src/index.ts --outdir dist --target bun && bun x tsc ./src/index.ts --declaration --emitDeclarationOnly --outDir ./dist --module esnext --target es2022 --moduleResolution bundler --skipLibCheck",
+    "test": "bun test"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.3.10",
+    "typescript": "^5.9.3"
+  }
+}
