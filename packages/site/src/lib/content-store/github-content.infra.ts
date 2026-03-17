@@ -168,7 +168,7 @@ export async function saveGitHubTextFile(
   } = {},
 ) {
   const current = await loadGitHubTextFileFresh(pathname)
-  const currentVersion = createContentVersion(current?.content ?? '')
+  const currentVersion = createContentVersion((current?.content ?? '').trimEnd())
 
   if (
     typeof options.expectedVersion === 'string' &&

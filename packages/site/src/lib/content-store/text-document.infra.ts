@@ -3,6 +3,7 @@ import { createContentVersion } from './content-version.infra'
 import {
   loadGitHubBlogIndex,
   loadGitHubTextFile,
+  loadGitHubTextFileFresh,
   saveGitHubTextFile,
 } from './github-content.infra'
 
@@ -28,7 +29,7 @@ export async function saveTextDocument(
   },
 ) {
   if (options.expectedVersion) {
-    const currentContent = (await loadGitHubTextFile(pathname))?.content ?? null
+    const currentContent = (await loadGitHubTextFileFresh(pathname))?.content ?? null
     const current = currentContent
       ? {
           content: currentContent,

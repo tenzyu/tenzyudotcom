@@ -3,6 +3,7 @@ import { StorageVersionConflictError } from './content-store.domain'
 import { createContentVersion } from './content-version.infra'
 import {
   loadGitHubTextFile,
+  loadGitHubTextFileFresh,
   saveGitHubTextFile,
 } from './github-content.infra'
 
@@ -44,7 +45,9 @@ export async function saveJsonCollection<T>(
   const nextVersion = createContentVersion(serialized)
 
   if (expectedVersion) {
-    const currentSerialized = ((await loadGitHubTextFile(pathname))?.content ?? '').trimEnd()
+    const currentSerialized = (
+      (await loadGitHubTextFileFresh(pathname))?.content ?? ''
+    ).trimEnd()
     const currentVersion = createContentVersion(currentSerialized)
 
     if (currentVersion !== expectedVersion) {
