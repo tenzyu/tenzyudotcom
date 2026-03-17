@@ -24,7 +24,7 @@ Read the smallest next document that can unblock the task.
 - [error-analysis](./references/error-analysis.md): runtime error investigation flow
 - [ui-verification](./references/ui-verification.md): browser automation and UI checks
 
-## Generated Reports
+## GeneratedReports
 - `/docs/.ai-reports/*.md`: opt-in reports and audits, not default reading
 
 ## Routing

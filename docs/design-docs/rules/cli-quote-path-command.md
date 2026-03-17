@@ -14,11 +14,13 @@ shell で path を渡すときは quote する。
 
 ```bash
 nix develop -c mv src/app/[locale]/(main)/hoge/_features/fuga.domain.ts src/lib/hoge/fuga.domain.ts
+sed -n '1,260p' packages/site/src/app/[locale]/(main)/puzzles/_features/puzzles.infra.ts
 ```
 
 **Prefer:**
 
 ```bash
 nix develop -c mv "src/app/[locale]/(main)/hoge/_features/fuga.domain.ts" "src/lib/hoge/fuga.domain.ts"
+sed -n '1,260p' 'packages/site/src/app/[locale]/(main)/puzzles/_features/puzzles.infra.ts'
 ```
 
