@@ -1,0 +1,48 @@
+{
+  "architecture": {
+    "appRoots": ["src/app"],
+    "featureMarker": "_features",
+    "promotionRoots": ["src/features", "src/lib"],
+    "routeFeatureAllowances": {
+      "src/app/[locale]/(admin)/editor/_features": [
+        "src/app/[locale]/(main)/blog/_features",
+        "src/app/[locale]/(main)/notes/_features",
+        "src/app/[locale]/(main)/pointers/_features",
+        "src/app/[locale]/(main)/puzzles/_features",
+        "src/app/[locale]/(main)/recommendations/_features"
+      ]
+    },
+    "sharedRoots": ["src/features", "src/components"],
+    "utilityRoots": ["src/lib", "src/config"]
+  },
+  "forbiddenFiles": [
+    "middleware.ts",
+    "src/middleware.ts"
+  ],
+  "serverActionGuards": {
+    "authGuardIdentifiers": [
+      "hasEditorAdminSession",
+      "requireEditorAdminSession"
+    ],
+    "serverActionExceptions": [
+      "loginEditorAdminAction",
+      "logoutEditorAdminAction"
+    ],
+    "serverActionRoots": [
+      "src/app/[locale]/(admin)/editor/_features"
+    ]
+  },
+  "restrictedImportUsage": {
+    "nextServerApiAllowedPrefixes": [
+      "src/app/"
+    ],
+    "storageOwnerRoots": [
+      "src/lib/content-store/"
+    ],
+    "zodAllowedPrefixes": [],
+    "zodAllowedSuffixes": [
+      ".assemble.ts",
+      ".infra.ts"
+    ]
+  }
+}
