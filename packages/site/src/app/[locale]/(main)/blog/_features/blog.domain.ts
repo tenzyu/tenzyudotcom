@@ -35,6 +35,11 @@ export type MDXData = {
   version: string
 }
 
+export type BlogPostSummary = {
+  metadata: BlogFrontmatter
+  slug: string
+}
+
 export function compareBlogPostsByPublishedAtDesc(a: MDXData, b: MDXData) {
   return (
     new Date(b.metadata.publishedAt).getTime() -

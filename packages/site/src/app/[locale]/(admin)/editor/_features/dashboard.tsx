@@ -12,16 +12,16 @@ import {
 import { EDITOR_ADMIN_LOCALE } from './editor-admin.constants'
 import {
   getEditorStorageDriver,
-  usesEditorBlobStorage,
+  usesEditorGithubStorage,
 } from './editor-config.assemble'
 import { listEditorCollectionMeta } from './editor-collections'
 import { logoutEditorAdminAction } from './actions'
 
 export function EditorDashboard({ locale }: { locale: string }) {
   const content = useIntlayer('editorAdmin', EDITOR_ADMIN_LOCALE)
-  const storageLabel = usesEditorBlobStorage()
-    ? content.dashboard.blobStorage.value
-    : content.dashboard.localStorage.value
+  const storageLabel = usesEditorGithubStorage()
+    ? content.dashboard.githubStorage.value
+    : content.dashboard.unconfiguredStorage.value
 
   return (
     <Content size="4xl" className="space-y-8">

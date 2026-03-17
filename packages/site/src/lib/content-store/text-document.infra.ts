@@ -1,14 +1,17 @@
 import { StorageVersionConflictError } from './content-store.domain'
 import { createContentVersion } from './content-version.infra'
-import { makeContentBlobStore } from './blob-store.infra'
+import {
+  loadGitHubBlogIndex,
+  loadGitHubTextFile,
+  saveGitHubTextFile,
+} from './github-content.infra'
 
 export async function loadTextDocument(pathname: string) {
-  const blob = await makeContentBlobStore().get(pathname)
-  if (!blob) {
+  const content = (await loadGitHubTextFile(pathname))?.content ?? null
+
+  if (!content) {
     return null
   }
-
-  const content = await blob.text()
 
   return {
     content,
@@ -25,7 +28,13 @@ export async function saveTextDocument(
   },
 ) {
   if (options.expectedVersion) {
-    const current = await loadTextDocument(pathname)
+    const currentContent = (await loadGitHubTextFile(pathname))?.content ?? null
+    const current = currentContent
+      ? {
+          content: currentContent,
+          version: createContentVersion(currentContent),
+        }
+      : null
 
     if (current && current.version !== options.expectedVersion) {
       throw new StorageVersionConflictError(
@@ -34,9 +43,9 @@ export async function saveTextDocument(
     }
   }
 
-  await makeContentBlobStore().put(pathname, content, {
-    allowOverwrite: true,
-    contentType: options.contentType,
+  await saveGitHubTextFile(pathname, content, {
+    expectedVersion: options.expectedVersion,
+    message: `Update ${pathname}`,
   })
 
   return {
@@ -45,5 +54,17 @@ export async function saveTextDocument(
 }
 
 export async function listTextDocuments(prefix: string) {
-  return makeContentBlobStore().list({ prefix })
+  if (prefix !== 'blog/') {
+    throw new Error(`Unsupported text document prefix: ${prefix}`)
+  }
+
+  const entries = await loadGitHubBlogIndex()
+  return {
+    blobs: entries.map((entry) => ({
+      pathname: entry.pathname,
+      size: 0,
+      uploadedAt: new Date(entry.metadata.updatedAt ?? entry.metadata.publishedAt),
+      url: entry.pathname,
+    })),
+  }
 }

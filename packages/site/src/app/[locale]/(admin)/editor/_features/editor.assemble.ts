@@ -1,4 +1,4 @@
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import type { BlogFrontmatter } from '@/app/[locale]/(main)/blog/_features/blog.domain'
 import { loadBlogPostsState, saveBlogPostState } from '@/app/[locale]/(main)/blog/_features/blog.infra'
 import { loadNotesState, saveNotesState } from '@/app/[locale]/(main)/notes/_features/notes.infra'
@@ -11,6 +11,11 @@ import {
   type EditorCollectionId,
   type EditorCollectionState,
 } from './editor-collections'
+import {
+  BLOG_INDEX_CONTENT_TAG,
+  getBlogPostContentTag,
+  getEditorCollectionContentTag,
+} from '@/lib/content-store/content-tags.infra'
 
 export class LoadEditorCollectionUseCase {
   async execute<K extends EditorCollectionId>(
@@ -58,6 +63,8 @@ export class SaveEditorCollectionUseCase {
               : await saveLinksState(rawJson, expectedVersion)
     const collection = getEditorCollectionMeta(collectionId)
 
+    revalidateTag(getEditorCollectionContentTag(collectionId))
+
     for (const path of collection.publicPaths) {
       if (path.type) {
         revalidatePath(path.path, path.type)
@@ -78,6 +85,8 @@ export class SaveBlogPostUseCase {
     expectedVersion?: string,
   ) {
     await saveBlogPostState(slug, frontmatter, body, expectedVersion)
+    revalidateTag(BLOG_INDEX_CONTENT_TAG)
+    revalidateTag(getBlogPostContentTag(slug))
   }
 }
 

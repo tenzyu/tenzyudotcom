@@ -54,13 +54,13 @@ const editorAdminContent = {
         ja: 'storage',
         en: 'Storage',
       }),
-      localStorage: t({
-        ja: 'ローカル JSON fallback',
-        en: 'Local JSON fallback',
+      githubStorage: t({
+        ja: 'GitHub content repo',
+        en: 'GitHub content repo',
       }),
-      blobStorage: t({
-        ja: 'Vercel Blob override',
-        en: 'Vercel Blob override',
+      unconfiguredStorage: t({
+        ja: '未設定',
+        en: 'Unconfigured',
       }),
       saveLabel: t({
         ja: '保存して再検証',

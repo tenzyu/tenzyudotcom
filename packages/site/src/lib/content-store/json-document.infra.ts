@@ -1,27 +1,29 @@
 import type { StoredCollectionState } from './content-store.domain'
 import { StorageVersionConflictError } from './content-store.domain'
 import { createContentVersion } from './content-version.infra'
-import { makeContentBlobStore } from './blob-store.infra'
+import {
+  loadGitHubTextFile,
+  saveGitHubTextFile,
+} from './github-content.infra'
 
 export async function loadJsonCollection<T>(
   pathname: string,
   parse: (raw: unknown) => T,
   getDefaultValue: () => T,
 ): Promise<StoredCollectionState<T>> {
-  const blob = await makeContentBlobStore().get(pathname)
+  const serialized = (await loadGitHubTextFile(pathname))?.content ?? null
 
-  if (!blob) {
+  if (!serialized) {
     const collection = getDefaultValue()
-    const serialized = JSON.stringify(collection, null, 2)
+    const fallbackSerialized = JSON.stringify(collection, null, 2)
 
     return {
       collection,
-      serialized,
-      version: createContentVersion(serialized),
+      serialized: fallbackSerialized,
+      version: createContentVersion(fallbackSerialized),
     }
   }
 
-  const serialized = await blob.text()
   const normalized = serialized.trimEnd()
 
   return {
@@ -42,8 +44,7 @@ export async function saveJsonCollection<T>(
   const nextVersion = createContentVersion(serialized)
 
   if (expectedVersion) {
-    const current = await makeContentBlobStore().get(pathname)
-    const currentSerialized = current ? (await current.text()).trimEnd() : ''
+    const currentSerialized = ((await loadGitHubTextFile(pathname))?.content ?? '').trimEnd()
     const currentVersion = createContentVersion(currentSerialized)
 
     if (currentVersion !== expectedVersion) {
@@ -53,9 +54,9 @@ export async function saveJsonCollection<T>(
     }
   }
 
-  await makeContentBlobStore().put(pathname, `${serialized}\n`, {
-    allowOverwrite: true,
-    contentType: 'application/json',
+  await saveGitHubTextFile(pathname, `${serialized}\n`, {
+    expectedVersion,
+    message: `Update ${pathname}`,
   })
 
   return {

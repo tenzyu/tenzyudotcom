@@ -6,9 +6,10 @@ import {
   getAbsoluteUrl,
 } from '@/config/site'
 import { locales } from 'intlayer'
-import { loadBlogPostsState } from './blog.infra'
+import { loadBlogPostBySlug, loadBlogPostSummariesState } from './blog.infra'
 import {
   extractBlogHeadings,
+  type BlogPostSummary,
   type BlogPostingJsonLd,
   type MDXData,
   buildBlogPostImageUrl,
@@ -20,11 +21,11 @@ import {
 const PAGE_SIZE = 6
 
 export const loadBlogPosts = cache(async () => {
-  const { collection } = await loadBlogPostsState()
+  const { collection } = await loadBlogPostSummariesState()
   return [...collection].sort(compareBlogPostsByPublishedAtDesc)
 })
 
-export type BlogListItem = MDXData
+export type BlogListItem = BlogPostSummary
 
 export type PaginatedBlogPosts = {
   currentPage: number
@@ -62,14 +63,16 @@ export async function getBlogStaticParams() {
 }
 
 export async function getBlogPostBySlug(slug: string) {
-  const posts = await loadBlogPosts()
-
-  return posts.find((post) => post.slug === slug)
+  try {
+    return await loadBlogPostBySlug(slug)
+  } catch {
+    return undefined
+  }
 }
 
 export async function assembleBlogPostPageData(slug: string) {
   const posts = await loadBlogPosts()
-  const post = posts.find((entry) => entry.slug === slug)
+  const post = await getBlogPostBySlug(slug)
 
   if (!post) {
     return undefined

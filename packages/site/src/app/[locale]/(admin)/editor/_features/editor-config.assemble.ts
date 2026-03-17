@@ -1,13 +1,13 @@
-import { env, isEditorBlobStorage } from '@/config/env.infra'
+import { env, isEditorGithubStorage } from '@/config/env.infra'
 
 export function isEditorLoginConfigured() {
   return !!env.editorAdminPassword && !!env.editorSessionSecret
 }
 
 export function getEditorStorageDriver() {
-  return env.editorStorageDriver
+  return isEditorGithubStorage ? 'github' : 'unconfigured'
 }
 
-export function usesEditorBlobStorage() {
-  return isEditorBlobStorage
+export function usesEditorGithubStorage() {
+  return isEditorGithubStorage
 }

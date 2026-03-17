@@ -34,7 +34,8 @@
   },
   "restrictedImportUsage": {
     "nextServerApiAllowedPrefixes": [
-      "src/app/"
+      "src/app/",
+      "src/lib/content-store/"
     ],
     "storageOwnerRoots": [
       "src/lib/content-store/"

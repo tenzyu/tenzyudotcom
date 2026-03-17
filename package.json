@@ -18,7 +18,7 @@
     "docs-rename": "bun scripts/docs-rename.ts",
     "build:docs-map": "bun scripts/compile-agents-md.ts",
     "format": "bun run --filter site format",
-    "test": "bun run --filter site test && bun run --filter @tenzyu/linter test && bun run --filter @tenzyu/blob-local test && bun test scripts/compile-agents-md.test.ts scripts/docs-rename.test.ts",
+    "test": "bun run --filter site test && bun run --filter @tenzyu/linter test && bun test scripts/compile-agents-md.test.ts scripts/docs-rename.test.ts",
     "verify:quick": "bun run lint && bun run lint:rules && bun run test",
     "verify": "bun run verify:quick && bun run build",
     "analyze": "bun run --filter site analyze"

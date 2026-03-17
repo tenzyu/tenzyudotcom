@@ -5,7 +5,6 @@ import type { NextConfig } from 'next'
 import { isProduction } from './src/config/env.infra'
 
 const nextConfig: NextConfig = {
-  transpilePackages: ['blob-local'],
   images: {
     remotePatterns: [
       {

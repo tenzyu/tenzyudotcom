@@ -20,22 +20,6 @@ const readOptionalInteger = (name: string) => {
   return parsed
 }
 
-const readOptionalEnum = <T extends readonly string[]>(
-  name: string,
-  values: T,
-): T[number] | undefined => {
-  const value = readOptionalString(name)
-  if (!value) {
-    return undefined
-  }
-
-  if ((values as readonly string[]).includes(value)) {
-    return value as T[number]
-  }
-
-  throw new Error(`${name} must be one of: ${values.join(', ')}`)
-}
-
 const readBooleanFlag = (name: string) => {
   const value = readOptionalString(name)
 
@@ -73,17 +57,19 @@ export const env = {
   osuClientSecret: readOptionalString('OSU_CLIENT_SECRET'),
   editorAdminPassword: readOptionalString('EDITOR_ADMIN_PASSWORD'),
   editorSessionSecret: readOptionalString('EDITOR_SESSION_SECRET'),
-  editorStorageDriver:
-    readOptionalEnum('EDITOR_STORAGE_DRIVER', ['local', 'blob'] as const) ??
-    'local',
-  blobReadWriteToken: readOptionalString('BLOB_READ_WRITE_TOKEN'),
-  tenzyuStorageRoot: readOptionalString('TENZYU_STORAGE_ROOT'),
+  githubContentToken: readOptionalString('GITHUB_CONTENT_TOKEN'),
+  githubContentOwner: readOptionalString('GITHUB_CONTENT_OWNER'),
+  githubContentRepo: readOptionalString('GITHUB_CONTENT_REPO'),
+  githubContentBranch: readOptionalString('GITHUB_CONTENT_BRANCH'),
+  githubContentRoot: readOptionalString('GITHUB_CONTENT_ROOT'),
 } as const
 
 export const isDevelopment = env.nodeEnv === 'development'
 export const isProduction = env.nodeEnv === 'production'
-export const isEditorBlobStorage =
-  env.editorStorageDriver === 'blob' && !!env.blobReadWriteToken
+export const isEditorGithubStorage =
+  !!env.githubContentOwner &&
+  !!env.githubContentRepo &&
+  !!env.githubContentBranch
 
 export const getRequiredOsuApiCredentials = () => {
   if (!env.osuClientId || !env.osuClientSecret) {
