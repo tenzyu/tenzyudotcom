@@ -4,8 +4,42 @@
   "workspaces": {
     "": {
       "name": "tenzyudotcom",
+      "devDependencies": {
+        "gray-matter": "^4.0.3",
+      },
+    },
+    "packages/blob-local": {
+      "name": "@tenzyu/blob-local",
+      "version": "0.1.0",
+      "devDependencies": {
+        "@types/bun": "^1.3.10",
+        "typescript": "^5.9.3",
+      },
+    },
+    "packages/linter": {
+      "name": "@tenzyu/linter",
+      "version": "0.1.0",
+      "bin": {
+        "vsa": "./dist/cli.js",
+        "tenzyu-linter": "./dist/cli.js",
+      },
+      "dependencies": {
+        "gray-matter": "^4.0.3",
+        "picomatch": "^4.0.3",
+        "typescript": "^5.9.3",
+        "zod": "^4.3.6",
+      },
+      "devDependencies": {
+        "@types/bun": "^1.3.10",
+        "@types/picomatch": "^4.0.2",
+      },
+    },
+    "packages/site": {
+      "name": "site",
+      "version": "0.1.0",
       "dependencies": {
         "@base-ui/react": "^1.2.0",
+        "@tenzyu/blob-local": "workspace:*",
         "@vercel/analytics": "^1.6.1",
         "@vercel/blob": "^2.3.1",
         "@vercel/speed-insights": "^1.3.1",
@@ -13,6 +47,7 @@
         "clsx": "^2.1.1",
         "cmdk": "^1.1.1",
         "embla-carousel-react": "^8.6.0",
+        "gray-matter": "^4.0.3",
         "input-otp": "^1.4.2",
         "intlayer": "^8.2.2",
         "intlayer-editor": "^8.2.2",
@@ -44,14 +79,12 @@
         "@next/mdx": "16.1.6",
         "@tailwindcss/postcss": "^4.2.1",
         "@tailwindcss/typography": "^0.5.19",
+        "@tenzyu/linter": "workspace:*",
         "@types/bun": "^1.3.10",
         "@types/mdx": "^2.0.13",
-        "@types/picomatch": "^4.0.2",
         "@types/react": "19.2.14",
         "@types/react-dom": "19.2.3",
         "critters": "^0.0.25",
-        "gray-matter": "^4.0.3",
-        "picomatch": "^4.0.3",
         "rehype-autolink-headings": "^7.1.0",
         "rehype-pretty-code": "^0.14.3",
         "rehype-slug": "^6.0.0",
@@ -568,6 +601,10 @@
     "@tailwindcss/postcss": ["@tailwindcss/postcss@4.2.1", "", { "dependencies": { "@alloc/quick-lru": "^5.2.0", "@tailwindcss/node": "4.2.1", "@tailwindcss/oxide": "4.2.1", "postcss": "^8.5.6", "tailwindcss": "4.2.1" } }, "sha512-OEwGIBnXnj7zJeonOh6ZG9woofIjGrd2BORfvE5p9USYKDCZoQmfqLcfNiRWoJlRWLdNPn2IgVZuWAOM4iTYMw=="],
 
     "@tailwindcss/typography": ["@tailwindcss/typography@0.5.19", "", { "dependencies": { "postcss-selector-parser": "6.0.10" }, "peerDependencies": { "tailwindcss": ">=3.0.0 || insiders || >=4.0.0-alpha.20 || >=4.0.0-beta.1" } }, "sha512-w31dd8HOx3k9vPtcQh5QHP9GwKcgbMp87j58qi6xgiBnFFtKEAgCWnDw4qUT8aHwkCp8bKvb/KGKWWHedP0AAg=="],
+
+    "@tenzyu/blob-local": ["@tenzyu/blob-local@workspace:packages/blob-local"],
+
+    "@tenzyu/linter": ["@tenzyu/linter@workspace:packages/linter"],
 
     "@toon-format/toon": ["@toon-format/toon@2.1.0", "", {}, "sha512-JwWptdF5eOA0HaQxbKAzkpQtR4wSWTEfDlEy/y3/4okmOAX1qwnpLZMmtEWr+ncAhTTY1raCKH0kteHhSXnQqg=="],
 
@@ -1642,6 +1679,8 @@
     "simple-git": ["simple-git@3.32.3", "", { "dependencies": { "@kwsites/file-exists": "^1.1.1", "@kwsites/promise-deferred": "^1.1.1", "debug": "^4.4.0" } }, "sha512-56a5oxFdWlsGygOXHWrG+xjj5w9ZIt2uQbzqiIGdR/6i5iococ7WQ/bNPzWxCJdEUGUCmyMH0t9zMpRJTaKxmw=="],
 
     "sisteransi": ["sisteransi@1.0.5", "", {}, "sha512-bLGGlR1QxBcynn2d5YmDX4MGjlZvy2MRBDRNHLJ8VI6l6+9FUiyTFNJ0IveOSP0bcXgVDPRcfGqA0pjaqUpfVg=="],
+
+    "site": ["site@workspace:packages/site"],
 
     "sockjs": ["sockjs@0.3.24", "", { "dependencies": { "faye-websocket": "^0.11.3", "uuid": "^8.3.2", "websocket-driver": "^0.7.4" } }, "sha512-GJgLTZ7vYb/JtPSSZ10hsOYIvEYsjbNU+zPdIHcUaWVNUEPivzxku31865sSSud0Da0W4lEeOPlmw93zLQchuQ=="],
 

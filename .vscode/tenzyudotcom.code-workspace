@@ -5,12 +5,16 @@
 			"path": "../docs",
 		},
 		{
-			"name": "routes",
-			"path": "../src/app/[locale]/",
+			"name": "site",
+			"path": "../packages/site",
 		},
 		{
-			"name": "promoted-features",
-			"path": "../src/features/",
+			"name": "linter",
+			"path": "../packages/linter",
+		},
+		{
+			"name": "blob-local",
+			"path": "../packages/blob-local",
 		},
 		{
 			"name": "root",

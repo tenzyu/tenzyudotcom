@@ -7,6 +7,8 @@
 .intlayer
 .ai-studio/
 .cursor/
+dist/
+storage/.sync-state/
 
 # dependencies
 **/node_modules
@@ -22,7 +24,7 @@
 /coverage
 
 # next.js
-/.next/
+**/.next/
 /out/
 
 # production
@@ -41,10 +43,11 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 !.env-sample
+!**/.env-sample
 
 # vercel
 .vercel
 
 # typescript
 *.tsbuildinfo
-next-env.d.ts
+**/next-env.d.ts
