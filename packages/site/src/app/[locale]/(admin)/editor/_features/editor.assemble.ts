@@ -63,7 +63,7 @@ export class SaveEditorCollectionUseCase {
               : await saveLinksState(rawJson, expectedVersion)
     const collection = getEditorCollectionMeta(collectionId)
 
-    revalidateTag(getEditorCollectionContentTag(collectionId))
+    revalidateTag(getEditorCollectionContentTag(collectionId), 'max')
 
     for (const path of collection.publicPaths) {
       if (path.type) {
@@ -85,8 +85,8 @@ export class SaveBlogPostUseCase {
     expectedVersion?: string,
   ) {
     await saveBlogPostState(slug, frontmatter, body, expectedVersion)
-    revalidateTag(BLOG_INDEX_CONTENT_TAG)
-    revalidateTag(getBlogPostContentTag(slug))
+    revalidateTag(BLOG_INDEX_CONTENT_TAG, 'max')
+    revalidateTag(getBlogPostContentTag(slug), 'max')
   }
 }
 

@@ -40,7 +40,15 @@ export type BlogPostSummary = {
   slug: string
 }
 
-export function compareBlogPostsByPublishedAtDesc(a: MDXData, b: MDXData) {
+type BlogPostLike = {
+  metadata: Pick<BlogFrontmatter, 'publishedAt'>
+  slug: string
+}
+
+export function compareBlogPostsByPublishedAtDesc(
+  a: BlogPostLike,
+  b: BlogPostLike,
+) {
   return (
     new Date(b.metadata.publishedAt).getTime() -
     new Date(a.metadata.publishedAt).getTime()

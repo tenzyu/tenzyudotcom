@@ -1,12 +1,12 @@
 import { useIntlayer } from 'next-intlayer/server'
 import { BlogTile } from '../../_features/blog-tile'
-import type { BlogPost } from '../../_features/blog.assemble'
+import type { BlogListItem } from '../../_features/blog.assemble'
 
 export function BlogRelatedPosts({
   posts,
   locale,
 }: {
-  posts: BlogPost[]
+  posts: BlogListItem[]
   locale: string
 }) {
   const content = useIntlayer('page-blog')

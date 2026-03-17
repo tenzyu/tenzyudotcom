@@ -2,6 +2,7 @@ import { useIntlayer } from 'next-intlayer/server'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import {
+  type BlogListItem,
   type BlogPost,
   buildBlogPostStructuredData,
 } from '../../_features/blog.assemble'
@@ -17,7 +18,7 @@ type BlogPostPageContentProps = {
   locale: string
   post: BlogPost
   headings: BlogHeading[]
-  relatedPosts: BlogPost[]
+  relatedPosts: BlogListItem[]
   isAiGenerated: boolean
 }
 
