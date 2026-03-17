@@ -15,8 +15,9 @@
     "lint:custom": "tenzyu-linter --project-root .",
     "lint:fix": "../../scripts/biome lint --fix .",
     "format": "../../scripts/biome format --write .",
+    "typecheck": "tsc --noEmit",
     "test": "bun test",
-    "verify:quick": "bun run lint && bun run test",
+    "verify:quick": "bun run lint && bun run typecheck && bun run test",
     "verify": "bun run verify:quick && bun run build",
     "analyze": "next experimental-analyze"
   },
