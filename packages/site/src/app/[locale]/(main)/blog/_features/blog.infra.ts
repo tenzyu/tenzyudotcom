@@ -14,6 +14,19 @@ import { isEditorGithubStorage } from '@/config/env.infra'
 
 const BLOG_STORAGE_PREFIX = 'blog/'
 
+function toSerializableBlogFrontmatter(frontmatter: BlogFrontmatter) {
+  return {
+    title: frontmatter.title,
+    summary: frontmatter.summary,
+    ...(frontmatter.image ? { image: frontmatter.image } : {}),
+    publishedAt: frontmatter.publishedAt,
+    ...(frontmatter.updatedAt ? { updatedAt: frontmatter.updatedAt } : {}),
+    ...(frontmatter.tags && frontmatter.tags.length > 0
+      ? { tags: frontmatter.tags }
+      : {}),
+  }
+}
+
 async function readBlogPost(pathname: string): Promise<MDXData> {
   const document = await loadTextDocument(pathname)
   if (!document) {
@@ -97,7 +110,10 @@ export async function saveBlogPostState(
   body: string,
   expectedVersion?: string,
 ) {
-  const content = matter.stringify(body, frontmatter)
+  const content = matter.stringify(
+    body,
+    toSerializableBlogFrontmatter(frontmatter),
+  )
 
   const pathname = `${BLOG_STORAGE_PREFIX}${slug}.mdx`
   const result = await saveTextDocument(pathname, content, {
