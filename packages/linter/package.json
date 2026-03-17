@@ -1,0 +1,33 @@
+{
+  "name": "@tenzyu/linter",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "bin": {
+    "tenzyu-linter": "./src/cli.ts"
+  },
+  "scripts": {
+    "build": "rm -rf dist && bun build ./src/index.ts ./src/cli.ts --outdir dist --target bun && bun x tsc -p tsconfig.build.json",
+    "test": "bun test",
+    "lint": "bun run ./src/cli.ts"
+  },
+  "dependencies": {
+    "gray-matter": "^4.0.3",
+    "picomatch": "^4.0.3",
+    "typescript": "^5.9.3",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.3.10",
+    "@types/picomatch": "^4.0.2"
+  }
+}
