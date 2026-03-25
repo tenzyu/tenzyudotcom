@@ -1,6 +1,7 @@
 'use client'
 
 import { MessageCircle } from 'lucide-react'
+import { useIntlayer } from 'next-intlayer'
 import { startTransition, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
@@ -63,48 +64,6 @@ function resolveEditableLocaleKey(entry: NoteSourceEntry, locale: string) {
   return 'ja'
 }
 
-function getUiText(locale: string) {
-  if (locale === 'ja') {
-    return {
-      body: '本文',
-      parent: '親ノート',
-      published: '公開',
-      cancel: 'キャンセル',
-      save: '保存',
-      continueThread: 'スレッドを続ける',
-      topLevel: 'トップレベル',
-      replyPlaceholder: 'このスレッドに続ける内容を書く',
-      noteUpdated: 'ノートを更新しました',
-      noteDeleted: 'ノートを削除しました',
-      notePosted: 'ノートを投稿しました',
-      loadError: 'ノートの読込みに失敗しました。',
-      deleteError: 'ノートの削除に失敗しました。',
-      saveError: 'ノートの保存に失敗しました。',
-      postError: 'ノートの投稿に失敗しました。',
-      replyAction: 'スレッドを続ける',
-    }
-  }
-
-  return {
-    body: 'Body',
-    parent: 'Parent note',
-    published: 'Published',
-    cancel: 'Cancel',
-    save: 'Save',
-    continueThread: 'Continue thread',
-    topLevel: 'Top level',
-    replyPlaceholder: 'Write a follow-up note',
-    noteUpdated: 'Note updated',
-    noteDeleted: 'Note deleted',
-    notePosted: 'Note posted',
-    loadError: 'Failed to load note.',
-    deleteError: 'Failed to delete note.',
-    saveError: 'Failed to save note.',
-    postError: 'Failed to post note.',
-    replyAction: 'Continue thread',
-  }
-}
-
 function formatParentOptionLabel(entry: NoteSourceEntry, locale: string) {
   const body = (locale === 'ja' ? entry.body.ja : entry.body.en || entry.body.ja)
     .replace(/\s+/g, ' ')
@@ -145,7 +104,8 @@ export function NoteFeedItem({
   authorHandle: string
   variant?: 'list' | 'detail-focus' | 'detail-thread'
 }) {
-  const text = getUiText(locale)
+  const content = useIntlayer('page-notes')
+  const text = content.noteFeed
   const router = useRouter()
   const [isEditing, setIsEditing] = useState(false)
   const [draftBody, setDraftBody] = useState(note.body)
@@ -265,7 +225,7 @@ export function NoteFeedItem({
                   variant="ghost"
                   size="icon"
                   className="hover:text-foreground"
-                  aria-label={text.replyAction}
+                  aria-label={text.replyAction.value}
                   onClick={() => setIsReplying((current) => !current)}
                 >
                   <MessageCircle className="size-4" />
@@ -287,7 +247,7 @@ export function NoteFeedItem({
                       await loadTargetEntry()
                       setIsEditing(true)
                     } catch {
-                      toast.error(text.loadError)
+                      toast.error(text.loadError.value)
                     }
                   }}
                   onDelete={async () => {
@@ -310,12 +270,12 @@ export function NoteFeedItem({
                         throw new Error(result.error)
                       }
 
-                      toast.success(text.noteDeleted)
+                      toast.success(text.noteDeleted.value)
                       startTransition(() => {
                         router.refresh()
                       })
                     } catch {
-                      toast.error(text.deleteError)
+                      toast.error(text.deleteError.value)
                     }
                   }}
                 />
@@ -329,7 +289,7 @@ export function NoteFeedItem({
                 value={replyBody}
                 onChange={(event) => setReplyBody(event.target.value)}
                 className="min-h-28"
-                placeholder={text.replyPlaceholder}
+                placeholder={text.replyPlaceholder.value}
               />
 
               <div className="flex justify-end gap-2">
@@ -341,7 +301,7 @@ export function NoteFeedItem({
                     setReplyBody('')
                   }}
                 >
-                  {text.cancel}
+                  {text.cancel.value}
                 </Button>
                 <Button
                   type="button"
@@ -374,20 +334,20 @@ export function NoteFeedItem({
                         throw new Error(result.error)
                       }
 
-                      toast.success(text.notePosted)
+                      toast.success(text.notePosted.value)
                       setReplyBody('')
                       setIsReplying(false)
                       startTransition(() => {
                         router.refresh()
                       })
                     } catch {
-                      toast.error(text.postError)
+                      toast.error(text.postError.value)
                     } finally {
                       setIsReplySaving(false)
                     }
                   }}
                 >
-                  {text.save}
+                  {text.save.value}
                 </Button>
               </div>
             </div>
@@ -400,7 +360,7 @@ export function NoteFeedItem({
                   <tbody>
                     <tr className="border-b border-border/60">
                       <th className="bg-muted/40 w-28 px-3 py-3 text-left font-medium">
-                        {text.body}
+                        {text.body.value}
                       </th>
                       <td className="px-3 py-3">
                         <Textarea
@@ -412,7 +372,7 @@ export function NoteFeedItem({
                     </tr>
                     <tr className="border-b border-border/60">
                       <th className="bg-muted/40 w-28 px-3 py-3 text-left font-medium">
-                        {text.parent}
+                        {text.parent.value}
                       </th>
                       <td className="px-3 py-3">
                         <Select
@@ -420,11 +380,11 @@ export function NoteFeedItem({
                           onValueChange={setDraftParentValue}
                         >
                           <SelectTrigger className="w-full">
-                            <SelectValue placeholder={text.topLevel} />
+                            <SelectValue placeholder={text.topLevel.value} />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value={ROOT_PARENT}>
-                              {text.topLevel}
+                              {text.topLevel.value}
                             </SelectItem>
                             {parentOptions.map((entry) => (
                               <SelectItem key={entry.id} value={entry.id}>
@@ -437,7 +397,7 @@ export function NoteFeedItem({
                     </tr>
                     <tr>
                       <th className="bg-muted/40 w-28 px-3 py-3 text-left font-medium">
-                        {text.published}
+                        {text.published.value}
                       </th>
                       <td className="px-3 py-3">
                         <Switch
@@ -456,7 +416,7 @@ export function NoteFeedItem({
                   variant="outline"
                   onClick={() => setIsEditing(false)}
                 >
-                  {text.cancel}
+                  {text.cancel.value}
                 </Button>
                 <Button
                   type="button"
@@ -498,19 +458,19 @@ export function NoteFeedItem({
                         throw new Error(result.error)
                       }
 
-                      toast.success(text.noteUpdated)
+                      toast.success(text.noteUpdated.value)
                       setIsEditing(false)
                       startTransition(() => {
                         router.refresh()
                       })
                     } catch {
-                      toast.error(text.saveError)
+                      toast.error(text.saveError.value)
                     } finally {
                       setIsSaving(false)
                     }
                   }}
                 >
-                  {text.save}
+                  {text.save.value}
                 </Button>
               </div>
             </div>
