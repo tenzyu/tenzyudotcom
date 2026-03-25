@@ -50,8 +50,8 @@ function createEmptyPuzzleLink(): PuzzleLink {
 function createEmptyPuzzle() {
   return {
     title: '',
-    url: '',
-    links: [createEmptyPuzzleLink()],
+    url: undefined,
+    links: [],
   }
 }
 
@@ -87,8 +87,8 @@ export function PuzzlesEditorClient({
                           ? {
                               ...currentCategory,
                               puzzles: [
-                                ...currentCategory.puzzles,
                                 createEmptyPuzzle(),
+                                ...currentCategory.puzzles,
                               ],
                             }
                           : currentCategory,

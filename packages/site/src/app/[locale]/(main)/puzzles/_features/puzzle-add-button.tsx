@@ -155,7 +155,7 @@ export function PuzzleAddButton({
                   entry.id === categoryId
                     ? {
                         ...entry,
-                        puzzles: [...entry.puzzles, nextPuzzle],
+                        puzzles: [nextPuzzle, ...entry.puzzles],
                       }
                     : entry,
                 )

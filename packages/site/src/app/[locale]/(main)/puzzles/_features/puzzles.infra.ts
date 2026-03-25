@@ -4,7 +4,11 @@ import {
   saveJsonCollection,
 } from '@/lib/content-store/json-document.infra'
 import { normalizeExternalUrl } from '@/lib/url/external-url.domain'
-import type { PuzzleCategory } from './puzzles.domain'
+import {
+  PUZZLE_CATEGORY_IDS,
+  type PuzzleCategory,
+  type PuzzleCategoryId,
+} from './puzzles.domain'
 import type { PuzzlesRepository } from './puzzles.port'
 const PUZZLES_STORAGE_PATH = 'editor/puzzles.json'
 
@@ -20,7 +24,7 @@ const PuzzleSchema = z.object({
 })
 
 const PuzzleCategorySchema = z.object({
-  id: z.enum(['web', 'mobile', 'other']),
+  id: z.enum(PUZZLE_CATEGORY_IDS),
   puzzles: z.array(PuzzleSchema),
 })
 
@@ -33,6 +37,7 @@ function assertNonEmpty(value: string, label: string) {
 export function parsePuzzleSourceCategories(raw: unknown) {
   const categories = z.array(PuzzleCategorySchema).parse(raw)
   const categoryIds = new Set<string>()
+  const categoryById = new Map<PuzzleCategoryId, PuzzleCategory>()
 
   for (const category of categories) {
     assertNonEmpty(category.id, 'puzzle category id')
@@ -41,6 +46,7 @@ export function parsePuzzleSourceCategories(raw: unknown) {
       throw new Error(`Duplicate puzzle category id: ${category.id}`)
     }
     categoryIds.add(category.id)
+    categoryById.set(category.id, category)
 
     for (const puzzle of category.puzzles) {
       assertNonEmpty(puzzle.title, `puzzle title in category ${category.id}`)
@@ -61,7 +67,13 @@ export function parsePuzzleSourceCategories(raw: unknown) {
     }
   }
 
-  return categories
+  return PUZZLE_CATEGORY_IDS.map(
+    (categoryId) =>
+      categoryById.get(categoryId) ?? {
+        id: categoryId,
+        puzzles: [],
+      },
+  )
 }
 
 export async function loadPuzzlesState() {
