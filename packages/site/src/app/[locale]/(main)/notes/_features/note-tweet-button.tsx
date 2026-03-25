@@ -3,7 +3,10 @@
 import { startTransition, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import type { NoteSourceEntry } from './notes.domain'
+import {
+  createNoteId,
+  type NoteSourceEntry,
+} from './notes.domain'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -69,6 +72,7 @@ export function NoteTweetButton() {
                   const state = await loadNotesAdminState()
                   const nextEntries: NoteSourceEntry[] = [
                     {
+                      id: createNoteId(),
                       body: {
                         ja: body.trim(),
                         en: '',

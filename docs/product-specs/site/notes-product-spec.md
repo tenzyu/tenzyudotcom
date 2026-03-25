@@ -44,8 +44,10 @@ user-invocable: false
 
 最小 shape:
 
+- `id`
 - `body`
 - `createdAt`
+- `parentId?`
 - `externalUrl?`
 - `imageUrl?`
 - `published`
@@ -59,7 +61,10 @@ page lead は「短文ログ」「Twitter の代替」であることが分か�
 
 表示は:
 
-- reverse chronological list
+ - reverse chronological list
+ - top-level note を reverse chronological に並べる
+ - thread 内は親の直後に子 note を古い順で表示する
+ - 子 note はインデントで階層を示す
 - timestamp
 - body
 - `en` が未入力なら `ja` をそのまま表示してよい
@@ -88,10 +93,12 @@ page lead は「短文ログ」「Twitter の代替」であることが分か�
 - 新規入力は `body` のみでよい
 - `createdAt` と `updatedAt` は自動で入れる
 - externalUrl は notes の標準投稿フローでは要求しない
+- 管理者は note 単位で「この note に続ける」投稿ができる
+- 既存 note は editor とインライン編集から親 note を選び直せる
+- 親削除時は子 note を祖先側へ繰り上げる
 
 ## Non-goals for now
 
-- replies / threading
 - likes
 - comments
 - multi-user auth

@@ -3,7 +3,10 @@
 import { startTransition, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import type { NoteSourceEntry } from './notes.domain'
+import {
+  reparentChildrenAfterNoteDelete,
+  type NoteSourceEntry,
+} from './notes.domain'
 import { AdminItemMenu } from '@/app/[locale]/(main)/_features/admin/admin-item-menu'
 import { Button } from '@/components/ui/button'
 import {
@@ -23,7 +26,7 @@ import {
 
 type NoteAdminMenuProps = {
   locale: string
-  createdAt: string
+  id: string
 }
 
 type NotesAdminState = {
@@ -45,7 +48,7 @@ function resolveEditableLocaleKey(entry: NoteSourceEntry, locale: string) {
 
 export function NoteAdminMenu({
   locale,
-  createdAt,
+  id,
 }: NoteAdminMenuProps) {
   const router = useRouter()
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -56,7 +59,7 @@ export function NoteAdminMenu({
 
   async function loadTargetEntry() {
     const state = await loadNotesAdminState()
-    const target = state.collection.find((entry) => entry.createdAt === createdAt)
+    const target = state.collection.find((entry) => entry.id === id)
 
     if (!target) {
       throw new Error('Note not found')
@@ -86,7 +89,7 @@ export function NoteAdminMenu({
             const result = await saveEditorCollection(
               'notes',
               JSON.stringify(
-                state.collection.filter((entry) => entry.createdAt !== createdAt),
+                reparentChildrenAfterNoteDelete(state.collection, id),
                 null,
                 2,
               ),
@@ -154,7 +157,7 @@ export function NoteAdminMenu({
                 setIsSaving(true)
                 try {
                   const nextEntries = loadedState.collection.map((entry) => {
-                    if (entry.createdAt !== createdAt) {
+                    if (entry.id !== id) {
                       return entry
                     }
 

@@ -4,16 +4,31 @@ import { startTransition, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { AdminGate } from '@/app/[locale]/(main)/_features/admin/admin-gate'
+import { AdminItemMenu } from '@/app/[locale]/(main)/_features/admin/admin-item-menu'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
-import type { NoteSourceEntry } from './notes.domain'
-import { AdminItemMenu } from '@/app/[locale]/(main)/_features/admin/admin-item-menu'
 import {
   loadEditorCollection,
   saveEditorCollection,
 } from '@/app/[locale]/(main)/_features/admin/editor-collection-client'
+import {
+  compareNotesByCreatedAtDesc,
+  createNoteId,
+  listAvailableParentNotes,
+  reparentChildrenAfterNoteDelete,
+  type NoteSourceEntry,
+} from './notes.domain'
+
+const ROOT_PARENT = '__root__'
 
 type NotesAdminState = {
   collection: NoteSourceEntry[]
@@ -32,6 +47,58 @@ function resolveEditableLocaleKey(entry: NoteSourceEntry, locale: string) {
   return 'ja'
 }
 
+function getUiText(locale: string) {
+  if (locale === 'ja') {
+    return {
+      body: '本文',
+      parent: '親ノート',
+      published: '公開',
+      cancel: 'キャンセル',
+      save: '保存',
+      continueThread: 'このノートに続ける',
+      topLevel: 'トップレベル',
+      replyPlaceholder: 'このスレッドに続ける内容を書く',
+      noteUpdated: 'ノートを更新しました',
+      noteDeleted: 'ノートを削除しました',
+      notePosted: 'ノートを投稿しました',
+      loadError: 'ノートの読込みに失敗しました。',
+      deleteError: 'ノートの削除に失敗しました。',
+      saveError: 'ノートの保存に失敗しました。',
+      postError: 'ノートの投稿に失敗しました。',
+    }
+  }
+
+  return {
+    body: 'Body',
+    parent: 'Parent note',
+    published: 'Published',
+    cancel: 'Cancel',
+    save: 'Save',
+    continueThread: 'Continue thread',
+    topLevel: 'Top level',
+    replyPlaceholder: 'Write a follow-up note',
+    noteUpdated: 'Note updated',
+    noteDeleted: 'Note deleted',
+    notePosted: 'Note posted',
+    loadError: 'Failed to load note.',
+    deleteError: 'Failed to delete note.',
+    saveError: 'Failed to save note.',
+    postError: 'Failed to post note.',
+  }
+}
+
+function formatParentOptionLabel(entry: NoteSourceEntry, locale: string) {
+  const body = (locale === 'ja' ? entry.body.ja : entry.body.en || entry.body.ja)
+    .replace(/\s+/g, ' ')
+    .trim()
+  const preview = body.slice(0, 36) || entry.id
+
+  return `${new Intl.DateTimeFormat(locale === 'ja' ? 'ja-JP' : 'en-US', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  }).format(new Date(entry.createdAt))} · ${preview}`
+}
+
 export function NoteFeedItem({
   locale,
   note,
@@ -40,25 +107,37 @@ export function NoteFeedItem({
 }: {
   locale: string
   note: {
+    id: string
     body: string
     createdAt: string
+    depth: number
     externalUrl?: string
+    parentId?: string
   }
   authorName: string
   authorHandle: string
 }) {
+  const text = getUiText(locale)
   const router = useRouter()
   const [isEditing, setIsEditing] = useState(false)
   const [draftBody, setDraftBody] = useState(note.body)
+  const [draftParentValue, setDraftParentValue] = useState(ROOT_PARENT)
   const [draftPublished, setDraftPublished] = useState(true)
   const [loadedState, setLoadedState] = useState<NotesAdminState | null>(null)
   const [isSaving, setIsSaving] = useState(false)
+  const [isReplying, setIsReplying] = useState(false)
+  const [replyBody, setReplyBody] = useState('')
+  const [isReplySaving, setIsReplySaving] = useState(false)
+
+  const parentOptions = loadedState
+    ? [...listAvailableParentNotes(loadedState.collection, note.id)].sort(
+        compareNotesByCreatedAtDesc,
+      )
+    : []
 
   async function loadTargetEntry() {
     const state = await loadNotesAdminState()
-    const target = state.collection.find(
-      (entry) => entry.createdAt === note.createdAt,
-    )
+    const target = state.collection.find((entry) => entry.id === note.id)
 
     if (!target) {
       throw new Error('Note not found')
@@ -68,16 +147,23 @@ export function NoteFeedItem({
     setLoadedState(state)
     setDraftBody(target.body[localeKey])
     setDraftPublished(target.published !== false)
+    setDraftParentValue(target.parentId ?? ROOT_PARENT)
   }
 
   return (
-    <article className="border-b border-border/50 py-4 last:border-b-0">
+    <article
+      className="border-b border-border/50 py-4 last:border-b-0"
+      style={{ marginLeft: `${Math.min(note.depth, 6) * 20}px` }}
+    >
       <div className="grid grid-cols-[auto_minmax(0,1fr)] gap-3">
         <div className="flex flex-col items-center">
           <Avatar className="size-11 border border-border/60">
             <AvatarImage src="/images/ltvgbz.jpg" alt="tenzyu" />
             <AvatarFallback>TN</AvatarFallback>
           </Avatar>
+          {/* {note.depth > 0 ? (
+            <div className="bg-border/60 mt-2 h-full w-px" aria-hidden="true" />
+          ) : null} */}
         </div>
 
         <div className="min-w-0 space-y-3">
@@ -106,49 +192,133 @@ export function NoteFeedItem({
               </div>
             </div>
 
-            <AdminGate>
-              <AdminItemMenu
-                label="note"
-                onEdit={async () => {
-                  try {
-                    await loadTargetEntry()
-                    setIsEditing(true)
-                  } catch {
-                    toast.error('Failed to load note.')
-                  }
-                }}
-                onDelete={async () => {
-                  try {
-                    const state = await loadNotesAdminState()
-                    const result = await saveEditorCollection(
-                      'notes',
-                      JSON.stringify(
-                        state.collection.filter(
-                          (entry) => entry.createdAt !== note.createdAt,
-                        ),
-                        null,
-                        2,
-                      ),
-                      state.version,
-                    )
+            <div className="flex items-center gap-2">
+              <AdminGate>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsReplying((current) => !current)}
+                >
+                  {text.continueThread}
+                </Button>
+              </AdminGate>
 
-                    if (!result.ok) {
-                      throw new Error(result.error)
+              <AdminGate>
+                <AdminItemMenu
+                  label="note"
+                  onEdit={async () => {
+                    try {
+                      await loadTargetEntry()
+                      setIsEditing(true)
+                    } catch {
+                      toast.error(text.loadError)
                     }
+                  }}
+                  onDelete={async () => {
+                    try {
+                      const state = await loadNotesAdminState()
+                      const result = await saveEditorCollection(
+                        'notes',
+                        JSON.stringify(
+                          reparentChildrenAfterNoteDelete(
+                            state.collection,
+                            note.id,
+                          ),
+                          null,
+                          2,
+                        ),
+                        state.version,
+                      )
 
-                    toast.success('Note deleted')
-                    startTransition(() => {
-                      router.refresh()
-                    })
-                  } catch {
-                    toast.error('Failed to delete note.')
-                  }
-                }}
-              />
-            </AdminGate>
+                      if (!result.ok) {
+                        throw new Error(result.error)
+                      }
+
+                      toast.success(text.noteDeleted)
+                      startTransition(() => {
+                        router.refresh()
+                      })
+                    } catch {
+                      toast.error(text.deleteError)
+                    }
+                  }}
+                />
+              </AdminGate>
+            </div>
           </div>
 
           <p className="text-[15px] leading-7 whitespace-pre-wrap">{note.body}</p>
+
+          {isReplying ? (
+            <div className="bg-muted/30 space-y-3 rounded-2xl border border-border/60 p-4">
+              <Textarea
+                value={replyBody}
+                onChange={(event) => setReplyBody(event.target.value)}
+                className="min-h-28"
+                placeholder={text.replyPlaceholder}
+              />
+
+              <div className="flex justify-end gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setIsReplying(false)
+                    setReplyBody('')
+                  }}
+                >
+                  {text.cancel}
+                </Button>
+                <Button
+                  type="button"
+                  disabled={!replyBody.trim() || isReplySaving}
+                  onClick={async () => {
+                    setIsReplySaving(true)
+                    try {
+                      const state = await loadNotesAdminState()
+                      const nextEntries: NoteSourceEntry[] = [
+                        {
+                          id: createNoteId(),
+                          body: {
+                            ja: replyBody.trim(),
+                            en: '',
+                          },
+                          createdAt: new Date().toISOString(),
+                          parentId: note.id,
+                          published: true,
+                        },
+                        ...state.collection,
+                      ]
+
+                      const result = await saveEditorCollection(
+                        'notes',
+                        JSON.stringify(nextEntries, null, 2),
+                        state.version,
+                      )
+
+                      if (!result.ok) {
+                        throw new Error(result.error)
+                      }
+
+                      toast.success(text.notePosted)
+                      setReplyBody('')
+                      setIsReplying(false)
+                      startTransition(() => {
+                        router.refresh()
+                      })
+                    } catch {
+                      toast.error(text.postError)
+                    } finally {
+                      setIsReplySaving(false)
+                    }
+                  }}
+                >
+                  {text.save}
+                </Button>
+              </div>
+            </div>
+          ) : null}
 
           {isEditing ? (
             <div className="bg-muted/30 space-y-4 rounded-2xl border border-border/60 p-4">
@@ -157,7 +327,7 @@ export function NoteFeedItem({
                   <tbody>
                     <tr className="border-b border-border/60">
                       <th className="bg-muted/40 w-28 px-3 py-3 text-left font-medium">
-                        Body
+                        {text.body}
                       </th>
                       <td className="px-3 py-3">
                         <Textarea
@@ -167,9 +337,34 @@ export function NoteFeedItem({
                         />
                       </td>
                     </tr>
+                    <tr className="border-b border-border/60">
+                      <th className="bg-muted/40 w-28 px-3 py-3 text-left font-medium">
+                        {text.parent}
+                      </th>
+                      <td className="px-3 py-3">
+                        <Select
+                          value={draftParentValue}
+                          onValueChange={setDraftParentValue}
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder={text.topLevel} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value={ROOT_PARENT}>
+                              {text.topLevel}
+                            </SelectItem>
+                            {parentOptions.map((entry) => (
+                              <SelectItem key={entry.id} value={entry.id}>
+                                {formatParentOptionLabel(entry, locale)}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </td>
+                    </tr>
                     <tr>
                       <th className="bg-muted/40 w-28 px-3 py-3 text-left font-medium">
-                        Published
+                        {text.published}
                       </th>
                       <td className="px-3 py-3">
                         <Switch
@@ -188,7 +383,7 @@ export function NoteFeedItem({
                   variant="outline"
                   onClick={() => setIsEditing(false)}
                 >
-                  Cancel
+                  {text.cancel}
                 </Button>
                 <Button
                   type="button"
@@ -201,7 +396,7 @@ export function NoteFeedItem({
                     setIsSaving(true)
                     try {
                       const nextEntries = loadedState.collection.map((entry) => {
-                        if (entry.createdAt !== note.createdAt) {
+                        if (entry.id !== note.id) {
                           return entry
                         }
 
@@ -212,6 +407,10 @@ export function NoteFeedItem({
                             ...entry.body,
                             [localeKey]: draftBody.trim(),
                           },
+                          parentId:
+                            draftParentValue === ROOT_PARENT
+                              ? undefined
+                              : draftParentValue,
                           published: draftPublished,
                         }
                       })
@@ -226,19 +425,19 @@ export function NoteFeedItem({
                         throw new Error(result.error)
                       }
 
-                      toast.success('Note updated')
+                      toast.success(text.noteUpdated)
                       setIsEditing(false)
                       startTransition(() => {
                         router.refresh()
                       })
                     } catch {
-                      toast.error('Failed to save note.')
+                      toast.error(text.saveError)
                     } finally {
                       setIsSaving(false)
                     }
                   }}
                 >
-                  Save
+                  {text.save}
                 </Button>
               </div>
             </div>

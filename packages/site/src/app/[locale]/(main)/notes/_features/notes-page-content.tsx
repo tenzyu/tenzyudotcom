@@ -7,9 +7,12 @@ import { NoteFeedItem } from './note-feed-item'
 type NotesPageContentProps = {
   locale: string
   notes: {
+    id: string
     body: string
     createdAt: string
+    depth: number
     externalUrl?: string
+    parentId?: string
   }[]
 }
 
@@ -35,7 +38,7 @@ export async function NotesPageContent({
         <div>
           {notes.map((note) => (
             <NoteFeedItem
-              key={`${note.createdAt}-${note.body.slice(0, 20)}`}
+              key={note.id}
               locale={locale}
               note={note}
               authorName="夢"

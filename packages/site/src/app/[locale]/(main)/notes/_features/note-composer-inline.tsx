@@ -10,7 +10,7 @@ import {
   CollapsibleTrigger,
 } from '@/components/ui/collapsible'
 import { Textarea } from '@/components/ui/textarea'
-import type { NoteSourceEntry } from './notes.domain'
+import { createNoteId, type NoteSourceEntry } from './notes.domain'
 import {
   loadEditorCollection,
   saveEditorCollection,
@@ -61,6 +61,7 @@ export function NoteComposerInline() {
                   const state = await loadNotesAdminState()
                   const nextEntries: NoteSourceEntry[] = [
                     {
+                      id: createNoteId(),
                       body: {
                         ja: body.trim(),
                         en: '',

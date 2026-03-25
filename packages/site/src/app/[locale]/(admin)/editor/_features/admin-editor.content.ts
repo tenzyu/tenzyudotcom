@@ -192,6 +192,18 @@ const editorAdminContent = {
         ja: 'ノートを追加',
         en: 'Add note',
       }),
+      id: t({
+        ja: 'ID',
+        en: 'ID',
+      }),
+      parent: t({
+        ja: '親ノート',
+        en: 'Parent note',
+      }),
+      topLevel: t({
+        ja: 'トップレベル',
+        en: 'Top level',
+      }),
       bodyJa: t({
         ja: '本文 (ja)',
         en: 'Body (ja)',
