@@ -102,15 +102,29 @@ describe('assembleNoteThreadItems', () => {
         parentId: 'hidden-parent',
         hasConnectorAbove: false,
         hasConnectorBelow: false,
-        sharePath: '/ja/notes/visible-child',
+        sharePath: '/notes/visible-child',
         showBottomBorder: true,
       },
     ])
   })
+
+  test('uses normalized snowflake ids in share paths', () => {
+    const parsedEntries = parseNoteSourceEntries([
+      {
+        body: { ja: 'legacy', en: '' },
+        createdAt: '2026-03-08T10:00:00Z',
+        published: true,
+      },
+    ])
+    const items = assembleNoteThreadItems(parsedEntries, 'ja')
+
+    expect(items[0]?.sharePath).toBe(`/notes/${parsedEntries[0]?.id}`)
+    expect(items[0]?.sharePath).toMatch(/^\/notes\/\d+$/)
+  })
 })
 
 describe('parseNoteSourceEntries', () => {
-  test('fills missing ids from createdAt for legacy entries', () => {
+  test('normalizes legacy ids to snowflake ids', () => {
     const entries = parseNoteSourceEntries([
       {
         body: { ja: 'legacy', en: '' },
@@ -119,7 +133,27 @@ describe('parseNoteSourceEntries', () => {
       },
     ])
 
-    expect(entries[0]?.id).toBe('2026-03-08T10:00:00Z')
+    expect(entries[0]?.id).toMatch(/^\d+$/)
+  })
+
+  test('rewrites legacy parent ids to normalized snowflake ids', () => {
+    const entries = parseNoteSourceEntries([
+      {
+        id: 'legacy-root',
+        body: { ja: 'root', en: '' },
+        createdAt: '2026-03-08T10:00:00Z',
+        published: true,
+      },
+      {
+        body: { ja: 'child', en: '' },
+        createdAt: '2026-03-08T11:00:00Z',
+        parentId: 'legacy-root',
+        published: true,
+      },
+    ])
+
+    expect(entries[0]?.id).toMatch(/^\d+$/)
+    expect(entries[1]?.parentId).toBe(entries[0]?.id)
   })
 
   test('rejects circular parent references', () => {

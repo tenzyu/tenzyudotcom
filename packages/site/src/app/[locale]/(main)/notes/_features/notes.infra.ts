@@ -6,6 +6,11 @@ import {
 import type { NotesRepository } from './notes.port'
 import type { NoteSourceEntry } from './notes.domain'
 import { normalizeExternalUrl } from '@/lib/url/external-url.domain'
+import {
+  compareNotesByCreatedAtAsc,
+  createNoteSnowflakeId,
+  isNoteSnowflakeId,
+} from './notes.domain'
 
 const NOTES_STORAGE_PATH = 'editor/notes.json'
 
@@ -79,15 +84,69 @@ function assertValidNoteThread(entries: readonly NoteSourceEntry[]) {
   }
 }
 
-export function parseNoteSourceEntries(raw: unknown) {
-  const entries = z.array(RawNoteSourceEntrySchema).parse(raw).map((entry) => ({
-    id: entry.id ?? entry.createdAt,
+type RawNoteSourceEntry = z.infer<typeof RawNoteSourceEntrySchema>
+
+function normalizeNoteIds(entries: RawNoteSourceEntry[]): NoteSourceEntry[] {
+  const normalized = entries.map((entry) => ({
+    id:
+      typeof entry.id === 'string' && entry.id.trim()
+        ? entry.id
+        : entry.createdAt,
     body: entry.body,
     createdAt: entry.createdAt,
     parentId: entry.parentId,
     externalUrl: entry.externalUrl,
     published: entry.published,
   }))
+
+  const legacyEntries = normalized
+    .map((entry, originalIndex) => ({
+      entry,
+      originalIndex,
+    }))
+    .filter(({ entry }) => !isNoteSnowflakeId(entry.id))
+    .sort((a, b) => {
+      const timestampOrder = compareNotesByCreatedAtAsc(a.entry, b.entry)
+
+      if (timestampOrder !== 0) {
+        return timestampOrder
+      }
+
+      const idOrder = a.entry.id.localeCompare(b.entry.id)
+
+      if (idOrder !== 0) {
+        return idOrder
+      }
+
+      return a.originalIndex - b.originalIndex
+    })
+
+  const migratedIdByLegacyId = new Map<string, string>()
+  const sequenceByTimestampMs = new Map<number, number>()
+
+  for (const { entry } of legacyEntries) {
+    const timestampMs = new Date(entry.createdAt).getTime()
+
+    if (Number.isNaN(timestampMs)) {
+      throw new Error(`Invalid createdAt timestamp: ${entry.createdAt}`)
+    }
+
+    const sequence = sequenceByTimestampMs.get(timestampMs) ?? 0
+    sequenceByTimestampMs.set(timestampMs, sequence + 1)
+    migratedIdByLegacyId.set(entry.id, createNoteSnowflakeId(timestampMs, sequence))
+  }
+
+  return normalized.map((entry) => ({
+    ...entry,
+    id: migratedIdByLegacyId.get(entry.id) ?? entry.id,
+    parentId: entry.parentId
+      ? (migratedIdByLegacyId.get(entry.parentId) ?? entry.parentId)
+      : undefined,
+  }))
+}
+
+export function parseNoteSourceEntries(raw: unknown) {
+  const entries = normalizeNoteIds(z.array(RawNoteSourceEntrySchema).parse(raw))
 
   for (const entry of entries) {
     if (entry.externalUrl) {

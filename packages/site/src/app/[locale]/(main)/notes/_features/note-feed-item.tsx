@@ -117,6 +117,21 @@ function formatParentOptionLabel(entry: NoteSourceEntry, locale: string) {
   }).format(new Date(entry.createdAt))} · ${preview}`
 }
 
+function formatRelativeNoteTime(createdAt: string, locale: string) {
+  const createdAtMs = new Date(createdAt).getTime()
+  const diffMs = Math.max(0, Date.now() - createdAtMs)
+  const hourMs = 60 * 60 * 1000
+  const dayMs = 24 * hourMs
+
+  if (diffMs < dayMs) {
+    const hoursAgo = Math.max(1, Math.floor(diffMs / hourMs))
+    return locale === 'ja' ? `${hoursAgo}時間前` : `${hoursAgo}h ago`
+  }
+
+  const daysAgo = Math.max(1, Math.floor(diffMs / dayMs))
+  return locale === 'ja' ? `${daysAgo}日前` : `${daysAgo}d ago`
+}
+
 export function NoteFeedItem({
   locale,
   note,
@@ -169,30 +184,24 @@ export function NoteFeedItem({
       className={cn(
         'relative',
         note.showBottomBorder && 'border-b border-border/60',
-        isDetailFocus
-          ? 'bg-card/60 rounded-none border-b border-border/60 px-4 py-5 sm:px-6'
-          : 'px-4 py-4 sm:px-6',
+        'px-4 py-4 sm:px-6',
       )}
-      style={{
-        marginLeft:
-          variant === 'list' ? `${Math.min(note.depth, 6) * 20}px` : undefined,
-      }}
     >
       <div className="grid grid-cols-[56px_minmax(0,1fr)] gap-3">
         <div className="relative flex justify-center">
           {note.hasConnectorAbove ? (
             <span
-              className="bg-border/70 absolute top-0 left-1/2 h-4 w-px -translate-x-1/2"
+              className="bg-border/70 absolute -top-4 left-1/2 h-4 w-px -translate-x-1/2"
               aria-hidden="true"
             />
           ) : null}
           {note.hasConnectorBelow ? (
             <span
-              className="bg-border/70 absolute top-12 bottom-0 left-1/2 w-px -translate-x-1/2"
+              className="bg-border/70 absolute top-11 -bottom-4 left-1/2 w-px -translate-x-1/2"
               aria-hidden="true"
             />
           ) : null}
-          <Avatar className="relative z-10 mt-0.5 size-11 border border-border/60">
+          <Avatar className="relative z-10 size-11 border border-border/60">
             <AvatarImage src="/images/ltvgbz.jpg" alt="tenzyu" />
             <AvatarFallback>TN</AvatarFallback>
           </Avatar>
@@ -210,14 +219,9 @@ export function NoteFeedItem({
                 <time
                   className="text-sm text-muted-foreground"
                   dateTime={note.createdAt}
+                  suppressHydrationWarning
                 >
-                  {new Intl.DateTimeFormat(
-                    locale === 'ja' ? 'ja-JP' : 'en-US',
-                    {
-                      dateStyle: 'medium',
-                      timeStyle: 'short',
-                    },
-                  ).format(new Date(note.createdAt))}
+                  {formatRelativeNoteTime(note.createdAt, locale)}
                 </time>
               </>
             ) : null}
@@ -253,7 +257,6 @@ export function NoteFeedItem({
             <div
               className={cn(
                 'text-muted-foreground mt-3 flex items-center gap-1',
-                isDetailFocus && 'border-y border-border/60 py-2',
               )}
             >
               <AdminGate>

@@ -32,7 +32,7 @@ describe('migrate-notes-threading script', () => {
     })
   }
 
-  test('migrates legacy notes in place by adding deterministic ids', () => {
+  test('migrates all notes to snowflake ids and rewrites parent references', () => {
     const notesPath = join(tmpDir, 'notes.json')
 
     writeFileSync(
@@ -40,10 +40,19 @@ describe('migrate-notes-threading script', () => {
       JSON.stringify(
         [
           {
+            id: 'legacy-root',
             body: {
-              ja: 'legacy note',
+              ja: 'root note',
             },
             createdAt: '2026-03-25T12:10:10.284Z',
+            published: true,
+          },
+          {
+            body: {
+              ja: 'reply note',
+            },
+            createdAt: '2026-03-25T12:10:10.284Z',
+            parentId: 'legacy-root',
             published: true,
           },
         ],
@@ -58,20 +67,17 @@ describe('migrate-notes-threading script', () => {
 
     const migrated = JSON.parse(readFileSync(notesPath, 'utf8')) as Array<{
       id: string
+      parentId?: string
       body: { ja: string; en: string }
       createdAt: string
     }>
 
-    expect(migrated).toEqual([
-      {
-        id: '2026-03-25T12:10:10.284Z',
-        body: {
-          ja: 'legacy note',
-          en: '',
-        },
-        createdAt: '2026-03-25T12:10:10.284Z',
-        published: true,
-      },
-    ])
+    expect(migrated).toHaveLength(2)
+    expect(migrated[0]?.id).toMatch(/^\d+$/)
+    expect(migrated[1]?.id).toMatch(/^\d+$/)
+    expect(migrated[0]?.id).not.toBe('legacy-root')
+    expect(migrated[1]?.id).not.toBe('2026-03-25T12:10:10.284Z')
+    expect(migrated[1]?.parentId).toBe(migrated[0]?.id)
+    expect(migrated[1]?.body.en).toBe('')
   })
 })
