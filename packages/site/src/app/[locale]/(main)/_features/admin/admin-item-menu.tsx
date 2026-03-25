@@ -1,6 +1,6 @@
 'use client'
 
-import { MoreVertical, Pencil, Trash2 } from 'lucide-react'
+import { Ellipsis, MoreVertical, Pencil, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import {
@@ -21,12 +21,14 @@ import {
 } from '@/components/ui/dropdown-menu'
 
 type AdminItemMenuProps = {
+  icon?: 'horizontal' | 'vertical'
   label: string
   onEdit: () => void
   onDelete: () => Promise<void> | void
 }
 
 export function AdminItemMenu({
+  icon = 'vertical',
   label,
   onEdit,
   onDelete,
@@ -42,10 +44,14 @@ export function AdminItemMenu({
             type="button"
             variant="ghost"
             size="icon"
-            className="bg-background/80 hover:bg-background border shadow-sm"
+            className="text-muted-foreground hover:text-foreground"
             aria-label={`${label} actions`}
           >
-            <MoreVertical />
+            {icon === 'horizontal' ? (
+              <Ellipsis className="size-4" />
+            ) : (
+              <MoreVertical className="size-4" />
+            )}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">

@@ -3,6 +3,7 @@ import type { MetadataRoute } from 'next'
 import { BASE_URL } from '@/config/site'
 import { STATIC_SITEMAP_ROUTE_PATHS } from '@/config/site-policy'
 import { loadBlogPosts } from '@/app/[locale]/(main)/blog/_features/blog.assemble'
+import { getNoteStaticParams } from '@/app/[locale]/(main)/notes/_features/notes.assemble'
 
 const sitemap = async (): Promise<MetadataRoute.Sitemap> => {
   const routesWithAlternates = STATIC_SITEMAP_ROUTE_PATHS.map(
@@ -35,7 +36,24 @@ const sitemap = async (): Promise<MetadataRoute.Sitemap> => {
     },
   )
 
-  return [...routesWithAlternates, ...blogsWithAlternates]
+  const noteParams = await getNoteStaticParams()
+  const notesWithAlternates = noteParams.map(
+    ({ id }): MetadataRoute.Sitemap[number] => {
+      const route = `/notes/${id}`
+      return {
+        url: `${BASE_URL}${route}`,
+        lastModified: new Date().toISOString().split('T')[0],
+        alternates: {
+          languages: {
+            ...getMultilingualUrls(`${BASE_URL}${route}`),
+            'x-default': `${BASE_URL}${route}`,
+          },
+        },
+      }
+    },
+  )
+
+  return [...routesWithAlternates, ...blogsWithAlternates, ...notesWithAlternates]
 }
 
 export default sitemap

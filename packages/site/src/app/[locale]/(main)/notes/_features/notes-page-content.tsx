@@ -13,6 +13,10 @@ type NotesPageContentProps = {
     depth: number
     externalUrl?: string
     parentId?: string
+    hasConnectorAbove: boolean
+    hasConnectorBelow: boolean
+    sharePath: string
+    showBottomBorder: boolean
   }[]
 }
 
@@ -35,7 +39,7 @@ export async function NotesPageContent({
           <NoteComposerInline />
         </AdminGate>
 
-        <div>
+        <div className="overflow-hidden rounded-3xl border border-border/60">
           {notes.map((note) => (
             <NoteFeedItem
               key={note.id}

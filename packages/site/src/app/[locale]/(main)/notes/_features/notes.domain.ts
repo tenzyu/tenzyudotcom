@@ -31,7 +31,17 @@ export function compareNotesByCreatedAtAsc(
 }
 
 export function createNoteId() {
-  return `note_${crypto.randomUUID()}`
+  const now = Date.now().toString(36).padStart(10, '0')
+  const randomBytes = crypto.getRandomValues(new Uint8Array(6))
+  const random = Array.from(randomBytes, (byte) =>
+    byte.toString(16).padStart(2, '0'),
+  ).join('')
+
+  return `note_${now}_${random}`
+}
+
+export function buildLocalizedNotePath(locale: string, noteId: string) {
+  return `/${locale}/notes/${noteId}`
 }
 
 export function collectDescendantNoteIds(

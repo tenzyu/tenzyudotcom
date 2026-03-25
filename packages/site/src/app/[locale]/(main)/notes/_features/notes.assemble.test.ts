@@ -3,7 +3,10 @@ import {
   compareNotesByCreatedAtDesc,
   reparentChildrenAfterNoteDelete,
 } from './notes.domain'
-import { assembleNoteThreadItems } from './notes.assemble'
+import {
+  assembleNoteDetailPageDataFromEntries,
+  assembleNoteThreadItems,
+} from './notes.assemble'
 import { parseNoteSourceEntries } from './notes.infra'
 
 describe('compareNotesByCreatedAtDesc', () => {
@@ -61,6 +64,12 @@ describe('assembleNoteThreadItems', () => {
       'reply-newer',
     ])
     expect(items.map((item) => item.depth)).toEqual([0, 0, 1, 1])
+    expect(items.map((item) => item.hasConnectorBelow)).toEqual([
+      false,
+      true,
+      true,
+      false,
+    ])
   })
 
   test('promotes replies when the parent is unpublished', () => {
@@ -91,6 +100,10 @@ describe('assembleNoteThreadItems', () => {
         depth: 0,
         externalUrl: undefined,
         parentId: 'hidden-parent',
+        hasConnectorAbove: false,
+        hasConnectorBelow: false,
+        sharePath: '/ja/notes/visible-child',
+        showBottomBorder: true,
       },
     ])
   })
@@ -160,6 +173,51 @@ describe('reparentChildrenAfterNoteDelete', () => {
         createdAt: '2026-03-08T10:00:00Z',
         published: true,
       },
+    ])
+  })
+})
+
+describe('assembleNoteDetailPageDataFromEntries', () => {
+  test('returns ancestors, target note, and nested replies', () => {
+    const pageData = assembleNoteDetailPageDataFromEntries(
+      [
+        {
+          id: 'root',
+          body: { ja: 'root', en: '' },
+          createdAt: '2026-03-08T09:00:00Z',
+          published: true,
+        },
+        {
+          id: 'target',
+          parentId: 'root',
+          body: { ja: 'target', en: '' },
+          createdAt: '2026-03-08T10:00:00Z',
+          published: true,
+        },
+        {
+          id: 'child',
+          parentId: 'target',
+          body: { ja: 'child', en: '' },
+          createdAt: '2026-03-08T11:00:00Z',
+          published: true,
+        },
+        {
+          id: 'grandchild',
+          parentId: 'child',
+          body: { ja: 'grandchild', en: '' },
+          createdAt: '2026-03-08T12:00:00Z',
+          published: true,
+        },
+      ],
+      'target',
+      'ja',
+    )
+
+    expect(pageData?.ancestors.map((item) => item.id)).toEqual(['root'])
+    expect(pageData?.note.id).toBe('target')
+    expect(pageData?.replies.map((item) => item.id)).toEqual([
+      'child',
+      'grandchild',
     ])
   })
 })

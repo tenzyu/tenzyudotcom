@@ -1,5 +1,6 @@
 'use client'
 
+import { MessageCircle } from 'lucide-react'
 import { startTransition, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
@@ -16,6 +17,7 @@ import {
 } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
+import { cn } from '@/lib/utils/common'
 import {
   loadEditorCollection,
   saveEditorCollection,
@@ -27,12 +29,26 @@ import {
   reparentChildrenAfterNoteDelete,
   type NoteSourceEntry,
 } from './notes.domain'
+import { NoteShareButton } from './note-share-button'
 
 const ROOT_PARENT = '__root__'
 
 type NotesAdminState = {
   collection: NoteSourceEntry[]
   version: string
+}
+
+type NoteViewItem = {
+  id: string
+  body: string
+  createdAt: string
+  depth: number
+  externalUrl?: string
+  parentId?: string
+  hasConnectorAbove: boolean
+  hasConnectorBelow: boolean
+  sharePath: string
+  showBottomBorder: boolean
 }
 
 async function loadNotesAdminState() {
@@ -55,7 +71,7 @@ function getUiText(locale: string) {
       published: '公開',
       cancel: 'キャンセル',
       save: '保存',
-      continueThread: 'このノートに続ける',
+      continueThread: 'スレッドを続ける',
       topLevel: 'トップレベル',
       replyPlaceholder: 'このスレッドに続ける内容を書く',
       noteUpdated: 'ノートを更新しました',
@@ -65,6 +81,7 @@ function getUiText(locale: string) {
       deleteError: 'ノートの削除に失敗しました。',
       saveError: 'ノートの保存に失敗しました。',
       postError: 'ノートの投稿に失敗しました。',
+      replyAction: 'スレッドを続ける',
     }
   }
 
@@ -84,6 +101,7 @@ function getUiText(locale: string) {
     deleteError: 'Failed to delete note.',
     saveError: 'Failed to save note.',
     postError: 'Failed to post note.',
+    replyAction: 'Continue thread',
   }
 }
 
@@ -104,18 +122,13 @@ export function NoteFeedItem({
   note,
   authorName,
   authorHandle,
+  variant = 'list',
 }: {
   locale: string
-  note: {
-    id: string
-    body: string
-    createdAt: string
-    depth: number
-    externalUrl?: string
-    parentId?: string
-  }
+  note: NoteViewItem
   authorName: string
   authorHandle: string
+  variant?: 'list' | 'detail-focus' | 'detail-thread'
 }) {
   const text = getUiText(locale)
   const router = useRouter()
@@ -129,6 +142,7 @@ export function NoteFeedItem({
   const [replyBody, setReplyBody] = useState('')
   const [isReplySaving, setIsReplySaving] = useState(false)
 
+  const isDetailFocus = variant === 'detail-focus'
   const parentOptions = loadedState
     ? [...listAvailableParentNotes(loadedState.collection, note.id)].sort(
         compareNotesByCreatedAtDesc,
@@ -152,30 +166,46 @@ export function NoteFeedItem({
 
   return (
     <article
-      className="border-b border-border/50 py-4 last:border-b-0"
-      style={{ marginLeft: `${Math.min(note.depth, 6) * 20}px` }}
+      className={cn(
+        'relative',
+        note.showBottomBorder && 'border-b border-border/60',
+        isDetailFocus
+          ? 'bg-card/60 rounded-none border-b border-border/60 px-4 py-5 sm:px-6'
+          : 'px-4 py-4 sm:px-6',
+      )}
+      style={{
+        marginLeft:
+          variant === 'list' ? `${Math.min(note.depth, 6) * 20}px` : undefined,
+      }}
     >
-      <div className="grid grid-cols-[auto_minmax(0,1fr)] gap-3">
-        <div className="flex flex-col items-center">
-          <Avatar className="size-11 border border-border/60">
+      <div className="grid grid-cols-[56px_minmax(0,1fr)] gap-3">
+        <div className="relative flex justify-center">
+          {note.hasConnectorAbove ? (
+            <span
+              className="bg-border/70 absolute top-0 left-1/2 h-4 w-px -translate-x-1/2"
+              aria-hidden="true"
+            />
+          ) : null}
+          {note.hasConnectorBelow ? (
+            <span
+              className="bg-border/70 absolute top-12 bottom-0 left-1/2 w-px -translate-x-1/2"
+              aria-hidden="true"
+            />
+          ) : null}
+          <Avatar className="relative z-10 mt-0.5 size-11 border border-border/60">
             <AvatarImage src="/images/ltvgbz.jpg" alt="tenzyu" />
             <AvatarFallback>TN</AvatarFallback>
           </Avatar>
-          {/* {note.depth > 0 ? (
-            <div className="bg-border/60 mt-2 h-full w-px" aria-hidden="true" />
-          ) : null} */}
         </div>
 
-        <div className="min-w-0 space-y-3">
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                <span className="truncate text-sm font-semibold">
-                  {authorName}
-                </span>
-                <span className="truncate text-sm text-muted-foreground">
-                  {authorHandle}
-                </span>
+        <div className="min-w-0">
+          <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+            <span className="truncate text-sm font-semibold">{authorName}</span>
+            <span className="truncate text-sm text-muted-foreground">
+              {authorHandle}
+            </span>
+            {!isDetailFocus ? (
+              <>
                 <span className="text-sm text-muted-foreground">·</span>
                 <time
                   className="text-sm text-muted-foreground"
@@ -189,23 +219,65 @@ export function NoteFeedItem({
                     },
                   ).format(new Date(note.createdAt))}
                 </time>
-              </div>
-            </div>
+              </>
+            ) : null}
+          </div>
 
-            <div className="flex items-center gap-2">
+          <div className={cn('mt-1', isDetailFocus && 'space-y-3')}>
+            <p
+              className={cn(
+                'whitespace-pre-wrap text-[15px] leading-7',
+                isDetailFocus && 'text-[1.65rem] leading-[1.45] tracking-tight',
+              )}
+            >
+              {note.body}
+            </p>
+
+            {isDetailFocus ? (
+              <div className="text-muted-foreground flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+                <time dateTime={note.createdAt}>
+                  {new Intl.DateTimeFormat(
+                    locale === 'ja' ? 'ja-JP' : 'en-US',
+                    {
+                      hour: 'numeric',
+                      minute: '2-digit',
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric',
+                    },
+                  ).format(new Date(note.createdAt))}
+                </time>
+              </div>
+            ) : null}
+
+            <div
+              className={cn(
+                'text-muted-foreground mt-3 flex items-center gap-1',
+                isDetailFocus && 'border-y border-border/60 py-2',
+              )}
+            >
               <AdminGate>
                 <Button
                   type="button"
                   variant="ghost"
-                  size="sm"
+                  size="icon"
+                  className="hover:text-foreground"
+                  aria-label={text.replyAction}
                   onClick={() => setIsReplying((current) => !current)}
                 >
-                  {text.continueThread}
+                  <MessageCircle className="size-4" />
                 </Button>
               </AdminGate>
 
+              <NoteShareButton
+                locale={locale}
+                sharePath={note.sharePath}
+                title={note.body}
+              />
+
               <AdminGate>
                 <AdminItemMenu
+                  icon="horizontal"
                   label="note"
                   onEdit={async () => {
                     try {
@@ -248,10 +320,8 @@ export function NoteFeedItem({
             </div>
           </div>
 
-          <p className="text-[15px] leading-7 whitespace-pre-wrap">{note.body}</p>
-
           {isReplying ? (
-            <div className="bg-muted/30 space-y-3 rounded-2xl border border-border/60 p-4">
+            <div className="bg-muted/30 mt-3 space-y-3 rounded-2xl border border-border/60 p-4">
               <Textarea
                 value={replyBody}
                 onChange={(event) => setReplyBody(event.target.value)}
@@ -321,7 +391,7 @@ export function NoteFeedItem({
           ) : null}
 
           {isEditing ? (
-            <div className="bg-muted/30 space-y-4 rounded-2xl border border-border/60 p-4">
+            <div className="bg-muted/30 mt-3 space-y-4 rounded-2xl border border-border/60 p-4">
               <div className="overflow-hidden rounded-lg border border-border/60">
                 <table className="w-full text-sm">
                   <tbody>
