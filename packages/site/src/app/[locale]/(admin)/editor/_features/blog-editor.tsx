@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useActionState, useState } from 'react'
 import { Search, Pencil } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -11,7 +11,10 @@ import {
   CardDescription,
 } from '@/components/ui/card'
 import type { MDXData } from '@/app/[locale]/(main)/blog/_features/blog.domain'
-import { saveBlogPostAction } from './actions'
+import { INITIAL_SAVE_BLOG_POST_ACTION_STATE } from './blog-save-form-state'
+import {
+  saveBlogPostAction,
+} from './actions'
 
 type BlogEditorProps = {
   locale: string
@@ -35,6 +38,23 @@ export function BlogEditor({
   )
   const [isCreating, setIsCreating] = useState(startCreating)
   const [query, setQuery] = useState('')
+  const [formState, formAction, isPending] = useActionState(
+    saveBlogPostAction,
+    INITIAL_SAVE_BLOG_POST_ACTION_STATE,
+  )
+
+  const activeError = formState.error ?? error
+  const activeMessage =
+    formState.message ??
+    (error === 'conflict'
+      ? 'Version conflict: This post has been modified by another session. Please reload or back up your changes.'
+      : error === 'save'
+        ? 'Save failed. Check the blog storage state and try again.'
+        : error === 'validation'
+          ? 'Blog post fields are invalid. Fix the highlighted values and try again.'
+          : error === 'invalid'
+            ? 'Required blog fields are missing or invalid.'
+        : undefined)
 
   const filteredPosts = posts.filter((post) => {
     const normalizedQuery = query.trim().toLowerCase()
@@ -64,17 +84,12 @@ export function BlogEditor({
           </Button>
         </CardHeader>
         <CardContent>
-          {error === 'conflict' && (
+          {activeError ? (
             <div className="mb-4 rounded-md bg-destructive/15 p-3 text-sm text-destructive">
-              Version conflict: This post has been modified by another session. Please reload or backup your changes.
+              {activeMessage}
             </div>
-          )}
-          {error === 'save' && (
-            <div className="mb-4 rounded-md bg-destructive/15 p-3 text-sm text-destructive">
-              Save failed. Check optional fields like updatedAt and try again.
-            </div>
-          )}
-          <form action={saveBlogPostAction} className="space-y-6">
+          ) : null}
+          <form action={formAction} className="space-y-6">
             <input type="hidden" name="locale" value={locale} />
             {post && <input type="hidden" name="expectedVersion" value={post.version} />}
             <div className="space-y-4">
@@ -172,8 +187,8 @@ export function BlogEditor({
               />
             </div>
 
-            <Button type="submit" className="w-full">
-              Save Post
+            <Button type="submit" className="w-full" disabled={isPending}>
+              {isPending ? 'Saving...' : 'Save Post'}
             </Button>
           </form>
         </CardContent>

@@ -1,9 +1,9 @@
-import { getLocalizedUrl } from 'intlayer'
 import {
   BASE_URL,
   buildOgTitleImageUrl,
   getAbsoluteUrl,
 } from '@/config/site'
+import { buildLocalizedUrl } from '@/lib/intlayer/localized-url'
 
 export type FrontmatterBase = {
   title: string
@@ -81,7 +81,7 @@ export type BlogPostingJsonLd = {
 }
 
 export const buildBlogPostUrl = (slug: string, locale: string) =>
-  `${BASE_URL}${getLocalizedUrl(`/blog/${slug}`, locale)}`
+  `${BASE_URL}${buildLocalizedUrl(`/blog/${slug}`, locale)}`
 
 export const buildBlogPostImageUrl = (title: string, image?: string) =>
   image ? getAbsoluteUrl(image) : buildOgTitleImageUrl(title)

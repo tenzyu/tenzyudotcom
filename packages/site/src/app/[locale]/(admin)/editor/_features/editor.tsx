@@ -244,6 +244,11 @@ export async function EditorCollectionEditor({
             {content.dashboard.savedMessage.value}
           </p>
         ) : null}
+        {error === 'conflict' ? (
+          <p className="text-sm font-medium">
+            {content.dashboard.conflictMessage.value}
+          </p>
+        ) : null}
         {error === 'save' ? (
           <p className="text-sm font-medium">
             {content.dashboard.saveErrorMessage.value}

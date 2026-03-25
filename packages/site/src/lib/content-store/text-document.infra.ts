@@ -7,6 +7,10 @@ import {
   saveGitHubTextFile,
 } from './github-content.infra'
 
+export function createTextDocumentVersion(content: string) {
+  return createContentVersion(content.trimEnd())
+}
+
 export async function loadTextDocument(pathname: string) {
   const content = (await loadGitHubTextFile(pathname))?.content ?? null
 
@@ -16,7 +20,7 @@ export async function loadTextDocument(pathname: string) {
 
   return {
     content,
-    version: createContentVersion(content),
+    version: createTextDocumentVersion(content),
   }
 }
 
@@ -33,7 +37,7 @@ export async function saveTextDocument(
     const current = currentContent
       ? {
           content: currentContent,
-          version: createContentVersion(currentContent),
+          version: createTextDocumentVersion(currentContent),
         }
       : null
 
@@ -50,7 +54,7 @@ export async function saveTextDocument(
   })
 
   return {
-    version: createContentVersion(content),
+    version: createTextDocumentVersion(content),
   }
 }
 

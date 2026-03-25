@@ -14,7 +14,9 @@ import {
   parseEditorBlogSaveInput,
   parseEditorCollectionSaveInput,
   parseEditorLoginInput,
+  validateEditorBlogPostDates,
 } from './editor-input.assemble'
+import type { SaveBlogPostActionState } from './blog-save-form-state'
 import {
   clearEditorAdminSession,
   createEditorAdminSession,
@@ -157,7 +159,10 @@ export async function saveInlineEditorCollectionAction(input: {
   }
 }
 
-export async function saveBlogPostAction(formData: FormData) {
+export async function saveBlogPostAction(
+  _previousState: SaveBlogPostActionState,
+  formData: FormData,
+): Promise<SaveBlogPostActionState> {
   const parsed = parseEditorBlogSaveInput({
     locale: formData.get('locale'),
     slug: formData.get('slug'),
@@ -171,10 +176,25 @@ export async function saveBlogPostAction(formData: FormData) {
   })
 
   if (!parsed.success) {
-    redirect(getLocalizedUrl('/editor?error=invalid', 'ja'))
+    return {
+      error: 'invalid',
+      message: 'Required blog fields are missing or invalid.',
+    }
   }
 
   await requireEditorAdminSession(parsed.data.locale)
+
+  const validatedDates = validateEditorBlogPostDates({
+    publishedAt: parsed.data.publishedAt,
+    updatedAt: parsed.data.updatedAt,
+  })
+
+  if (!validatedDates.success) {
+    return {
+      error: 'validation',
+      message: validatedDates.message,
+    }
+  }
 
   const tags = parsed.data.tags
     ? parsed.data.tags
@@ -186,8 +206,8 @@ export async function saveBlogPostAction(formData: FormData) {
   const frontmatter = {
     title: parsed.data.title,
     summary: parsed.data.summary,
-    publishedAt: new Date(parsed.data.publishedAt),
-    updatedAt: parsed.data.updatedAt ? new Date(parsed.data.updatedAt) : undefined,
+    publishedAt: validatedDates.data.publishedAt,
+    updatedAt: validatedDates.data.updatedAt,
     tags,
   }
 
@@ -205,20 +225,18 @@ export async function saveBlogPostAction(formData: FormData) {
     revalidatePath(getLocalizedUrl(`/editor/blog`, parsed.data.locale))
   } catch (error) {
     if (error instanceof StorageVersionConflictError) {
-      redirect(
-        getLocalizedUrl(
-          `/editor/blog?slug=${parsed.data.slug}&error=conflict`,
-          parsed.data.locale,
-        ),
-      )
+      return {
+        error: 'conflict',
+        message:
+          'This post has been modified by another session. Reload the latest state and retry.',
+      }
     }
     console.error('Failed to save blog post:', error)
-    redirect(
-      getLocalizedUrl(
-        `/editor/blog?slug=${parsed.data.slug}&error=save`,
-        parsed.data.locale,
-      ),
-    )
+    return {
+      error: 'save',
+      message:
+        'Failed to save the blog post or refresh the blog index in GitHub content storage.',
+    }
   }
 
   redirect(getLocalizedUrl(`/editor/blog?saved=1`, parsed.data.locale))

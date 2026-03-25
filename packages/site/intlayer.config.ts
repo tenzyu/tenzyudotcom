@@ -1,9 +1,13 @@
-import { Locales, type IntlayerConfig } from 'intlayer'
+import type { IntlayerConfig } from 'intlayer'
+import {
+  intlayer_defaultLocale,
+  intlayer_locales,
+} from './src/lib/intlayer/locales'
 
 const config: IntlayerConfig = {
   internationalization: {
-    locales: [Locales.JAPANESE, Locales.ENGLISH],
-    defaultLocale: Locales.JAPANESE,
+    locales: intlayer_locales,
+    defaultLocale: intlayer_defaultLocale,
   },
   dictionary: {
     fill: false,
