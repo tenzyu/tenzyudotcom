@@ -172,7 +172,7 @@ export async function saveBlogPostAction(
     updatedAt: formData.get('updatedAt') || undefined,
     tags: formData.get('tags'),
     body: formData.get('body'),
-    expectedVersion: formData.get('expectedVersion'),
+    expectedVersion: formData.get('expectedVersion') || undefined,
   })
 
   if (!parsed.success) {

@@ -1,5 +1,8 @@
 import { describe, expect, test } from 'bun:test'
-import { validateEditorBlogPostDates } from './editor-input.assemble'
+import {
+  parseEditorBlogSaveInput,
+  validateEditorBlogPostDates,
+} from './editor-input.assemble'
 
 describe('validateEditorBlogPostDates', () => {
   test('rejects invalid publishedAt', () => {
@@ -43,5 +46,23 @@ describe('validateEditorBlogPostDates', () => {
     expect(result.data.updatedAt!.getTime()).toBeGreaterThan(
       result.data.publishedAt.getTime(),
     )
+  })
+})
+
+describe('parseEditorBlogSaveInput', () => {
+  test('accepts blog creation input without expectedVersion', () => {
+    const parsed = parseEditorBlogSaveInput({
+      locale: 'ja',
+      slug: 'new-post',
+      title: 'New Post',
+      summary: 'summary',
+      publishedAt: '2026-03-26T12:00',
+      updatedAt: undefined,
+      tags: '',
+      body: '# Hello',
+      expectedVersion: undefined,
+    })
+
+    expect(parsed.success).toBe(true)
   })
 })

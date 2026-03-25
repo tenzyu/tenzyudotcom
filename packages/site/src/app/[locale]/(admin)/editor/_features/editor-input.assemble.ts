@@ -118,7 +118,7 @@ export function parseEditorBlogSaveInput(input: {
   updatedAt: FormDataEntryValue | null | undefined
   tags: FormDataEntryValue | null
   body: FormDataEntryValue | null
-  expectedVersion: FormDataEntryValue | null
+  expectedVersion: FormDataEntryValue | null | undefined
 }) {
   return SaveBlogPostSchema.safeParse(input)
 }
