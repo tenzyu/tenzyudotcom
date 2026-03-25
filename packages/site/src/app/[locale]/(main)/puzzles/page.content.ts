@@ -44,6 +44,16 @@ const puzzlesPageContent = {
           en: 'Puzzles for iOS and Android',
         }),
       },
+      escape: {
+        name: t({
+          ja: '脱出ゲーム',
+          en: 'Escape Games',
+        }),
+        description: t({
+          ja: '脱出ゲーム系の謎解き',
+          en: 'Escape-room style puzzles',
+        }),
+      },
       other: {
         name: t({
           ja: 'その他',

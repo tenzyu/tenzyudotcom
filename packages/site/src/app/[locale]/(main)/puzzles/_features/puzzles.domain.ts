@@ -1,6 +1,14 @@
 import { normalizeExternalUrl } from '@/lib/url/external-url.domain'
 
 export type Platform = 'web' | 'ios' | 'android' | 'steam' | 'switch' | 'other'
+export type PuzzleCategoryId = 'web' | 'mobile' | 'escape' | 'other'
+
+export const PUZZLE_CATEGORY_IDS: readonly PuzzleCategoryId[] = [
+  'web',
+  'mobile',
+  'escape',
+  'other',
+]
 
 export type PuzzleLink = {
   platform: Platform
@@ -14,7 +22,7 @@ export type Puzzle = {
 }
 
 export type PuzzleCategory = {
-  id: 'web' | 'mobile' | 'other'
+  id: PuzzleCategoryId
   puzzles: Puzzle[]
 }
 
@@ -24,10 +32,11 @@ function assertNonEmpty(value: string, label: string) {
   }
 }
 
-export function definePuzzleCategories<const T extends PuzzleCategory>(
-  categories: readonly T[],
-): readonly T[] {
+export function definePuzzleCategories(
+  categories: readonly PuzzleCategory[],
+): readonly PuzzleCategory[] {
   const categoryIds = new Set<string>()
+  const categoryById = new Map<PuzzleCategoryId, PuzzleCategory>()
 
   for (const category of categories) {
     assertNonEmpty(category.id, 'puzzle category id')
@@ -36,6 +45,7 @@ export function definePuzzleCategories<const T extends PuzzleCategory>(
       throw new Error(`Duplicate puzzle category id: ${category.id}`)
     }
     categoryIds.add(category.id)
+    categoryById.set(category.id, category)
 
     for (const puzzle of category.puzzles) {
       assertNonEmpty(puzzle.title, `puzzle title in category ${category.id}`)
@@ -56,5 +66,12 @@ export function definePuzzleCategories<const T extends PuzzleCategory>(
     }
   }
 
-  return categories
+  return PUZZLE_CATEGORY_IDS.map(
+    (categoryId) =>
+      categoryById.get(categoryId) ??
+      {
+        id: categoryId,
+        puzzles: [],
+      },
+  )
 }
