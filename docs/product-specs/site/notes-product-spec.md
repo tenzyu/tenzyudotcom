@@ -38,14 +38,17 @@ user-invocable: false
 ## Route
 
 - public: `/:locale/notes`
+- public detail: `/:locale/notes/:id`
 - admin: `/:locale/editor/notes`
 
 ## Source Shape
 
 最小 shape:
 
+- `id`
 - `body`
 - `createdAt`
+- `parentId?`
 - `externalUrl?`
 - `imageUrl?`
 - `published`
@@ -60,13 +63,17 @@ page lead は「短文ログ」「Twitter の代替」であることが分か�
 表示は:
 
 - reverse chronological list
+- top-level note を reverse chronological に並べる
+- thread 内は親の直後に子 note を古い順で表示する
+- thread 内 item 間の separator は消し、avatar column の connector で親子関係を示す
+- 子 note はインデントで階層を示す
 - timestamp
 - body
 - `en` が未入力なら `ja` をそのまま表示してよい
 - 公開ページでは external link を主表示要素にしない
 - 公開ページでは image を主表示要素にしない
 
-個別 permalink page は後回し。
+詳細 page は共有前提の単独 view とし、target note と thread 文脈を見せる。
 
 ## Admin
 
@@ -76,6 +83,7 @@ page lead は「短文ログ」「Twitter の代替」であることが分か�
 - dropdown には `編集` と `削除` を出す
 - 削除は確認 UI を必須にする
 - 編集 UI は note 単位で開き、入力項目は最小化する
+- action row は share を基本にし、admin 時のみ reply と more を追加する
 
 編集入力:
 
@@ -88,10 +96,12 @@ page lead は「短文ログ」「Twitter の代替」であることが分か�
 - 新規入力は `body` のみでよい
 - `createdAt` と `updatedAt` は自動で入れる
 - externalUrl は notes の標準投稿フローでは要求しない
+- 管理者は note 単位で「この note に続ける」投稿ができる
+- 既存 note は editor とインライン編集から親 note を選び直せる
+- 親削除時は子 note を祖先側へ繰り上げる
 
 ## Non-goals for now
 
-- replies / threading
 - likes
 - comments
 - multi-user auth

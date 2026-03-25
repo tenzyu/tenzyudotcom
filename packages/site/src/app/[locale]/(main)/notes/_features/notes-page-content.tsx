@@ -7,9 +7,16 @@ import { NoteFeedItem } from './note-feed-item'
 type NotesPageContentProps = {
   locale: string
   notes: {
+    id: string
     body: string
     createdAt: string
+    depth: number
     externalUrl?: string
+    parentId?: string
+    hasConnectorAbove: boolean
+    hasConnectorBelow: boolean
+    sharePath: string
+    showBottomBorder: boolean
   }[]
 }
 
@@ -32,10 +39,10 @@ export async function NotesPageContent({
           <NoteComposerInline />
         </AdminGate>
 
-        <div>
+        <div className="overflow-hidden rounded-3xl border border-border/60">
           {notes.map((note) => (
             <NoteFeedItem
-              key={`${note.createdAt}-${note.body.slice(0, 20)}`}
+              key={note.id}
               locale={locale}
               note={note}
               authorName="夢"

@@ -41,6 +41,9 @@ export function NotesEditorDeferred({ locale }: NotesEditorDeferredProps) {
       labels={{
         add: 'Add note',
         save: 'Save and revalidate',
+        id: 'ID',
+        parent: 'Parent note',
+        topLevel: 'Top level',
         bodyJa: 'Body (ja)',
         bodyEn: 'Body (en)',
         createdAt: 'Created at (ISO)',

@@ -50,6 +50,8 @@ boundaries, and automated verification to maintain high technical integrity.
    - 3.10 [Component Separation](#310-component-separation)
    - 3.11 [Inline Admin Composition](#311-inline-admin-composition)
    - 3.12 [Admin Gate Contract](#312-admin-gate-contract)
+   - 3.13 [GitHub Content Read Write Boundary](#313-github-content-read-write-boundary)
+   - 3.14 [Site Owned GitHub Content Assembly](#314-site-owned-github-content-assembly)
 4. [UI & UX](#4-ui-ux)
    - 4.1 [Token-first Styling](#41-token-first-styling)
    - 4.2 [Locale Switcher Single Flow](#42-locale-switcher-single-flow)
@@ -65,6 +67,7 @@ boundaries, and automated verification to maintain high technical integrity.
 6. [Reliability](#6-reliability)
    - 6.1 [Reliability: Metadata & i18n Safety](#61-reliability-metadata-i18n-safety)
    - 6.2 [Reliability: Fault Tolerance & Isolated Boundaries](#62-reliability-fault-tolerance-isolated-boundaries)
+   - 6.3 [Reliability: Content Version Normalization](#63-reliability-content-version-normalization)
 7. [CLI](#7-cli)
    - 7.1 [Quote Path Commands](#71-quote-path-commands)
 

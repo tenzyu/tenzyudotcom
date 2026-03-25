@@ -22,6 +22,9 @@ export function NotesEditor({
       labels={{
         add: content.notesEditor.add.value,
         save: content.dashboard.saveLabel.value,
+        id: locale === 'ja' ? 'ID' : 'ID',
+        parent: locale === 'ja' ? '親ノート' : 'Parent note',
+        topLevel: locale === 'ja' ? 'トップレベル' : 'Top level',
         bodyJa: content.notesEditor.bodyJa.value,
         bodyEn: content.notesEditor.bodyEn.value,
         createdAt: content.notesEditor.createdAt.value,
