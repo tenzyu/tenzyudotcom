@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>osu! Skin Editor</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brandHeader">
+            <h1>osu! Skin Editor</h1>
+            <button id="toggleSidebar" title="Collapse sidebar" aria-label="Collapse sidebar">‹</button>
+          </div>
+          <p id="workspace">Loading workspace...</p>
+        </div>
+
+        <section>
+          <h2>Main Skin</h2>
+          <label>
+            Project name
+            <input id="projectName" placeholder="optional" />
+          </label>
+          <label>
+            Path
+            <input id="mainPath" placeholder="choose a .osk or folder" />
+          </label>
+          <div class="buttonRow">
+            <button id="chooseMainFile">Choose .osk</button>
+            <button id="chooseMainFolder">Choose folder</button>
+          </div>
+          <button id="importMain" class="primary">Import main skin</button>
+        </section>
+
+        <section>
+          <h2>Projects</h2>
+          <select id="projectSelect"></select>
+          <button id="refreshProjects">Refresh</button>
+        </section>
+
+        <section>
+          <h2>Asset Skin</h2>
+          <label>
+            Name
+            <input id="assetName" placeholder="optional" />
+          </label>
+          <label>
+            Path
+            <input id="assetPath" placeholder="choose a .osk or folder" />
+          </label>
+          <div class="buttonRow">
+            <button id="chooseAssetFile">Choose .osk</button>
+            <button id="chooseAssetFolder">Choose folder</button>
+          </div>
+          <button id="importAsset">Add asset source</button>
+        </section>
+
+        <section>
+          <h2>Asset Sources</h2>
+          <div id="sourceList" class="sourceList"></div>
+        </section>
+      </aside>
+
+      <main class="main">
+        <header class="toolbar">
+          <button id="showSidebar" class="sidebarOpen" title="Show sidebar" aria-label="Show sidebar">☰</button>
+          <div>
+            <h2 id="projectTitle">No project loaded</h2>
+            <p id="projectMeta"></p>
+          </div>
+          <div class="toolbarActions">
+            <select id="sourceSelect"></select>
+            <button id="copySelected">Copy selected assets</button>
+            <button id="exportProject" class="primary">Export</button>
+          </div>
+        </header>
+
+        <nav id="scopeTabs" class="tabs"></nav>
+        <nav id="categoryTabs" class="tabs subTabs"></nav>
+
+        <section class="content">
+          <div class="pane">
+            <div class="paneHeader">
+              <div>
+                <h3>Project</h3>
+                <p id="projectCategoryMeta"></p>
+              </div>
+              <input id="projectFilter" placeholder="Filter project groups" />
+            </div>
+            <div id="projectGroups" class="groupGrid"></div>
+          </div>
+
+          <div class="pane">
+            <div class="paneHeader">
+              <div>
+                <h3>Asset Source</h3>
+                <p id="sourceCategoryMeta"></p>
+              </div>
+              <div class="buttonRow">
+                <button id="selectCategory">Select category</button>
+                <button id="clearCategory">Clear</button>
+              </div>
+              <input id="sourceFilter" placeholder="Filter source groups" />
+            </div>
+            <div id="sourceGroups" class="groupGrid"></div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div id="textOverlay" class="overlay hidden">
+      <div class="modal textModal">
+        <header>
+          <h2 id="textTitle">Edit text</h2>
+          <button id="closeText">Close</button>
+        </header>
+        <div id="textForm" class="textForm"></div>
+        <textarea id="textEditor"></textarea>
+        <footer>
+          <button id="saveText" class="primary">Save</button>
+        </footer>
+      </div>
+    </div>
+
+    <div id="conflictOverlay" class="overlay hidden">
+      <div class="modal">
+        <header>
+          <h2>Resolve Conflicts</h2>
+          <button id="closeConflicts">Close</button>
+        </header>
+        <div id="conflictList"></div>
+        <footer>
+          <button id="applyConflicts" class="primary">Apply choices</button>
+        </footer>
+      </div>
+    </div>
+
+    <div id="toast" class="toast hidden"></div>
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>
