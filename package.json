@@ -2,31 +2,52 @@
   "name": "tenzyudotcom",
   "private": true,
   "workspaces": [
-    "packages/*",
-    "apps/*"
+    "apps/*",
+    "packages/*"
   ],
   "scripts": {
-    "dev": "bun run --filter site dev",
-    "dev:overlay": "bun run --filter site dev:overlay",
-    "clean": "bun run --filter site clean",
-    "build": "bun run --filter site build",
-    "build:prod": "bun run --filter site build:prod",
-    "start": "bun run --filter site start",
-    "start:intlayer": "bun run --filter site start:intlayer",
-    "lint": "bun run --filter site lint",
-    "lint:fix": "bun run --filter site lint:fix",
+    "dev:web": "bun run --filter @tenzyu/web dev",
+    "dev:web:overlay": "bun run --filter @tenzyu/web dev:overlay",
+
+    "clean:web": "bun run --filter @tenzyu/web clean",
+
+    "build:web": "bun run --filter @tenzyu/web build",
+    "build:web:prod": "bun run --filter @tenzyu/web build:prod",
+
+    "start:web": "bun run --filter @tenzyu/web start",
+    "start:web:intlayer": "bun run --filter @tenzyu/web start:intlayer",
+
+    "lint:web": "bun run --filter @tenzyu/web lint",
+
+    "format:web": "bun run --filter @tenzyu/web format",
+
+    "typecheck": "bun run typecheck:web",
+    "typecheck:web": "bun run --filter @tenzyu/web typecheck",
+
+    "test": "bun run test:web && bun run test:linter && bun run test:scripts",
+    "test:web": "bun run --filter @tenzyu/web test",
+    "test:linter": "bun run --filter @tenzyu/linter test",
+    "test:scripts": "bun test scripts/compile-agents-md.test.ts scripts/docs-rename.test.ts scripts/migrate-notes-threading.test.ts",
+
+    "verify:quick": "bun run lint && bun run lint:rules && bun run typecheck && bun run test",
+    "verify": "bun run verify:quick && bun run build",
+
+    "dev:skin-workbench": "bun run --filter @tenzyu/osu-skin-workbench dev",
+    "build:skin-workbench": "bun run --filter @tenzyu/osu-skin-workbench build",
+    "test:skin-workbench": "bun run --filter @tenzyu/osu-skin-workbench test",
+    "check:skin-workbench": "bun run --filter @tenzyu/osu-skin-workbench check",
+    "dev:skin-workbench:tauri": "bun run --filter @tenzyu/osu-skin-workbench dev:tauri",
+    "build:skin-workbench:tauri": "bun run --filter @tenzyu/osu-skin-workbench build:tauri",
+
+    "lint:fix": "bun run --filter @tenzyu/web lint:fix",
     "lint:rules": "bun run --filter @tenzyu/linter lint:rules ../..",
+
+    "verify:all": "bun run verify && bun run check:skin-workbench",
+
     "migrate:notes-threading": "bun scripts/migrate-notes-threading.ts",
     "docs-rename": "bun scripts/docs-rename.ts",
     "build:docs-map": "bun scripts/compile-agents-md.ts",
-    "format": "bun run --filter site format",
-    "typecheck": "bun run --filter site typecheck",
-    "test": "bun run --filter site test && bun run --filter @tenzyu/linter test && bun test scripts/compile-agents-md.test.ts scripts/docs-rename.test.ts scripts/migrate-notes-threading.test.ts",
-    "verify:quick": "bun run lint && bun run lint:rules && bun run typecheck && bun run test",
-    "verify": "bun run verify:quick && bun run build",
-    "analyze": "bun run --filter site analyze"
+
+    "analyze": "bun run --filter @tenzyu/web analyze"
   },
   "devDependencies": {
-    "gray-matter": "^4.0.3"
-  }
-}
