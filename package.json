@@ -4,6 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
     "build:editor": "vite build --config tools/editor/vite.config.ts",
     "dev:editor": "vite --config tools/editor/vite.config.ts",
     "editor": "bun run tools/osu-skin-editor.ts",
@@ -13,12 +16,14 @@
   },
   "dependencies": {
     "@vitejs/plugin-react": "^4.3.4",
-    "vite": "^6.0.7",
-    "typescript": "^5.7.2",
+    "next": "^16.2.6",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.7"
   },
   "devDependencies": {
+    "@types/bun": "^1.3.13",
     "@types/react": "^19.0.2",
     "@types/react-dom": "^19.0.2"
   }
