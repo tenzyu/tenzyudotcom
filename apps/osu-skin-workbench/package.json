@@ -1,0 +1,29 @@
+{
+  "name": "osu-skin-workbench",
+  "version": "0.1.0",
+  "author": {
+    "name": "tenzyu",
+    "email": "tenzyu.on@gmail.com"
+  },
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit",
+    "check": "bun test && tsc --noEmit && next build"
+  },
+  "dependencies": {
+    "next": "^16.2.6",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "typescript": "^5.7.2"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.3.13",
+    "@types/react": "^19.0.2",
+    "@types/react-dom": "^19.0.2"
+  }
+}
