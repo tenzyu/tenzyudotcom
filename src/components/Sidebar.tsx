@@ -1,3 +1,12 @@
+/**
+ * TODO:
+ * - 閉じれるようにする
+ * - browser からエクスプローラで osk または osk 群のディレクトリ または osk 展開後のディレクトリを選択できるようにする
+ * - * upload/download 方式になっても良い
+ * - Project の rename ができるようにする
+ * - asset resource を削除できるようにする
+ * - asset resource の rename をできるようにする
+ */
 "use client";
 
 type ScopeTab = {
@@ -180,40 +189,6 @@ export function Sidebar(props: Props) {
           ))}
 
           {!props.project?.sources.length && <span className="muted">No asset sources.</span>}
-        </div>
-      </section>
-
-      <section>
-        <h2>Scopes</h2>
-
-        <div className="sourceList">
-          {props.scopes.map((scope) => (
-            <button
-              key={scope.id}
-              type="button"
-              className={scope.id === props.activeScope ? "tab active" : "tab"}
-              onClick={() => props.onScope(scope.id)}
-            >
-              {scope.label} {scope.count}
-            </button>
-          ))}
-        </div>
-      </section>
-
-      <section>
-        <h2>Categories</h2>
-
-        <div className="sourceList">
-          {props.categories.map((category) => (
-            <button
-              key={category.id}
-              type="button"
-              className={category.id === props.activeCategory ? "tab active" : "tab"}
-              onClick={() => props.onCategory(category.id)}
-            >
-              {category.label} {category.count}
-            </button>
-          ))}
         </div>
       </section>
 

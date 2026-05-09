@@ -1,3 +1,10 @@
+/**
+ * TODO:
+ * - AssetPreview コンポーネントは切り分ける
+ * - 今実際に描画・再生されないので修正する
+ * - source skin のセレクタが存在しないので作成する
+ * - project 操作とかは reducer とか適宜作成して hooks 化してコンポーネントからは隠蔽する
+ */
 "use client";
 
 import type {

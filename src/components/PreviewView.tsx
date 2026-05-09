@@ -1,3 +1,8 @@
+/**
+ * TODO: 
+ * - 実際に osu!lazer でどのように描画されるかが確認できるクオリティまで引き上げる
+ * osu!lazer uses a modern rendering engine built within the osu!framework to display gameplay, which is significantly different from the original (stable) client.It offers a high-performance, flexible rendering system designed to take advantage of modern hardware and supports multiple graphics backends, allowing it to render complex gameplay visuals, shaders, and animations.
+ */
 "use client";
 
 import { useMemo, useState } from "react";

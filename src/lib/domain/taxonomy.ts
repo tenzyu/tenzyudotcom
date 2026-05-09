@@ -1,3 +1,9 @@
+/**
+ * TODO:
+ * - 分類ルールは 1 ファイルに集約されていますが、scope/category/group/componentId/patterns/modes/kind/meaning/groupStrategy を毎回ベタ書きしているため、ここが最も大きい DRY 対象です。
+ * このファイルが Single Source of Truth です。
+ */
+
 export const modeIds = ["osu", "taiko", "catch", "mania"] as const;
 export type Mode = (typeof modeIds)[number];
 

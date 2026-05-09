@@ -1,3 +1,9 @@
+/**
+ * TODO:
+ * - projectId 別の page に切り分ける REF: https://nextjs.org/docs/pages/building-your-application/routing/dynamic-routes
+ * - root ページの操作はプロジェクトの作成・削除・選択・更新に留める
+ * - root ページにはそれとは別にこのツールの紹介セクションを設ける
+ */
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
