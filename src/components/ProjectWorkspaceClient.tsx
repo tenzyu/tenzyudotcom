@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import {
   applyAssetGroup,
+  chooseSkinPath,
+  createProject,
   deleteAssetGroup,
   exportProject as exportProjectApi,
   rebuildStructuredMirrors,
@@ -35,7 +37,7 @@ export function ProjectWorkspaceClient({ initialProjectId }: Props) {
 
   const [filter, setFilter] = useState("");
   const [primaryRowsOnly, setPrimaryRowsOnly] = useState(true);
-  const [exportPreset, setExportPreset] = useState<ExportPreset>("full");
+  const [exportPreset] = useState<ExportPreset>("full");
   const [exportResult, setExportResult] = useState<ExportResult | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
@@ -105,7 +107,45 @@ export function ProjectWorkspaceClient({ initialProjectId }: Props) {
   }
 
   async function importMainSkin() {
-    setError("Create new projects from the project hub.");
+    if (!mainPath.trim()) {
+      setError("Main skin path is required.");
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const project = await createProject({
+        sourcePath: mainPath,
+        name: projectName || undefined,
+      });
+      projectsState.setProjects((current) => [project, ...current.filter((item) => item.id !== project.id)]);
+      projectsState.setProject(project);
+      const files = await projectFiles.fetchProjectFiles(project.id);
+      setMainPath("");
+      setProjectName("");
+      setStatus(`Imported ${project.name}: ${files.project.length} files.`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function chooseMainPath() {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const selected = await chooseSkinPath();
+      if (selected) setMainPath(selected);
+      setStatus(selected ? "Selected main skin path." : "File picker was cancelled or unavailable.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function addAssetSource() {
@@ -238,6 +278,7 @@ export function ProjectWorkspaceClient({ initialProjectId }: Props) {
         onAssetPath={setAssetPath}
         onClose={() => setSidebarOpen(false)}
         onImportMain={importMainSkin}
+        onChooseMainPath={chooseMainPath}
         onImportAsset={addAssetSource}
         onChooseAssetPath={chooseAssetSourcePath}
         onProjectSelect={selectProject}
@@ -286,23 +327,14 @@ export function ProjectWorkspaceClient({ initialProjectId }: Props) {
               </button>
             </div>
             <button type="button" onClick={refreshProjects} disabled={loading}>
-              Refresh
+              Undo
             </button>
             <button type="button" onClick={rebuildStructured} disabled={loading || !projectsState.project}>
-              Rebuild structured
+              History
             </button>
-            <select
-              value={exportPreset}
-              onChange={(event) => setExportPreset(event.target.value as ExportPreset)}
-              disabled={loading || !projectsState.project}
-              title="Export preset"
-            >
-              <option value="full">Full .osk</option>
-              <option value="sd-only">SD only</option>
-              <option value="hd-only">HD only</option>
-              <option value="diff">Diff</option>
-              <option value="backup">Backup</option>
-            </select>
+            <button type="button" onClick={rebuildStructured} disabled={loading || !projectsState.project}>
+              Reclassify
+            </button>
             <button type="button" onClick={exportCurrentProject} disabled={loading || !projectsState.project}>
               Export
             </button>

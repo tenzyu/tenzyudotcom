@@ -84,7 +84,7 @@ export function projectStructuredDir(projectId: string): string {
 }
 
 export function sourceDir(projectId: string, sourceId: string): string {
-  return path.join(projectDir(projectId), "sources", sourceId);
+  return path.join(/* turbopackIgnore: true */ projectDir(projectId), "sources", sourceId);
 }
 
 export function sourceRawDir(projectId: string, sourceId: string): string {

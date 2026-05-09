@@ -35,6 +35,7 @@ import {
   resolveUserPath,
   safeJoin,
   slugify,
+  sourceDir,
   sourceRawDir,
   sourceStructuredDir,
 } from "./fs-path";
@@ -288,7 +289,7 @@ export async function deleteProjectSource(input: {
   }
 
   manifest.sources = manifest.sources.filter((item) => item.id !== input.sourceId);
-  await rm(path.join(projectDir(input.projectId), "sources", input.sourceId), {
+  await rm(sourceDir(input.projectId, input.sourceId), {
     recursive: true,
     force: true,
   });

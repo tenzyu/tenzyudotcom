@@ -106,7 +106,7 @@ label {
   padding: 18px;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 16px;
   overflow: auto;
 }
 
@@ -123,7 +123,7 @@ label {
   margin-bottom: 8px;
 }
 
-.brandHeader button,
+.sidebarCollapseButton,
 .sidebarOpen {
   width: 34px;
   height: 34px;
@@ -235,9 +235,9 @@ section h2,
 }
 
 .toolbarActions {
-  width: min(900px, 70vw);
+  width: min(1160px, 76vw);
   display: grid;
-  grid-template-columns: auto minmax(150px, 1fr) auto auto auto auto;
+  grid-template-columns: auto minmax(240px, 1fr) auto auto auto;
   gap: 10px;
   justify-content: end;
 }
@@ -294,7 +294,7 @@ section h2,
 
 .compareShell {
   display: grid;
-  grid-template-rows: auto auto minmax(0, 1fr);
+  grid-template-rows: auto auto auto auto minmax(0, 1fr);
   gap: 10px;
   padding: 12px;
 }
@@ -304,6 +304,11 @@ section h2,
   grid-template-columns: minmax(220px, 1fr) auto auto 160px 140px auto auto auto auto auto;
   gap: 8px;
   align-items: center;
+}
+
+.copySelectedButton {
+  grid-column: 1 / 2;
+  width: 240px;
 }
 
 .inlineControl {
@@ -329,6 +334,7 @@ section h2,
 
 .compareHeader {
   padding: 0 2px;
+  align-items: end;
 }
 
 .compareHeader h3 {
@@ -360,6 +366,10 @@ section h2,
   gap: 9px;
   align-items: start;
   min-height: 148px;
+}
+
+.density-compact .assetRow {
+  min-height: 108px;
 }
 
 .compactRows .assetRow {
@@ -488,15 +498,30 @@ section h2,
 }
 
 .rowActions {
-  grid-column: 3;
+  grid-column: 2 / 4;
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
   gap: 6px;
 }
 
 .rowActions button {
   padding: 5px 8px;
   font-size: 12px;
+}
+
+.sourceAssetRow .rowActions {
+  grid-column: 3;
+  grid-row: 1;
+  justify-content: flex-end;
+}
+
+.sourceSelectCircle {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border-radius: 999px;
+  color: #94a0a7;
+  background: transparent;
 }
 
 .badge {
@@ -558,6 +583,12 @@ section h2,
   display: flex;
   justify-content: space-between;
   gap: 10px;
+  align-items: center;
+}
+
+.validationSummary > div {
+  display: flex;
+  gap: 8px;
   align-items: center;
 }
 

@@ -11,9 +11,10 @@ type Props = {
   sourceId: string | null;
   onCopy?: () => void;
   onDelete?: () => void;
+  onRestore?: () => void;
 };
 
-export function AssetRow({ projectId, row, cell, side, sourceId, onCopy, onDelete }: Props) {
+export function AssetRow({ projectId, row, cell, side, sourceId, onCopy, onDelete, onRestore }: Props) {
   return (
     <div
       className={[
@@ -39,7 +40,11 @@ export function AssetRow({ projectId, row, cell, side, sourceId, onCopy, onDelet
         <span>
           {row.lazerMeaningful ? "Lazer meaningful" : "Stable later"} · {row.requiredLevel}
         </span>
-        {row.warnings[0] && <div className="warningText">{row.warnings[0].message}</div>}
+        {row.warnings[0] && (
+          <div className="warningText">
+            {side === "project" ? "Project" : "Source"}: {row.warnings[0].message}
+          </div>
+        )}
       </div>
 
       <div className="cellMeta">
@@ -50,14 +55,19 @@ export function AssetRow({ projectId, row, cell, side, sourceId, onCopy, onDelet
 
       <div className="rowActions">
         {side === "source" && !cell.missing && (
-          <button type="button" className="primary" onClick={onCopy}>
-            Copy
+          <button type="button" className="sourceSelectCircle" onClick={onCopy} title="Copy this source row">
+            ○
           </button>
         )}
         {side === "project" && !cell.missing && (
-          <button type="button" className="danger" onClick={onDelete}>
-            Delete
-          </button>
+          <>
+            <button type="button" className="danger" onClick={onDelete}>
+              Delete
+            </button>
+            <button type="button" onClick={onRestore} disabled={!onRestore}>
+              Restore from main
+            </button>
+          </>
         )}
       </div>
 

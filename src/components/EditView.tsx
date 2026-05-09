@@ -40,6 +40,7 @@ type SourceCell = {
 
 export function EditView(props: Props) {
   const [requiredLevel, setRequiredLevel] = useState<RequiredLevelFilter>("all");
+  const [density, setDensity] = useState("comfortable");
   const rows = useMemo(
     () =>
       filterAssetRows(props.matrix.rows, {
@@ -58,9 +59,14 @@ export function EditView(props: Props) {
   const sourceColumns = props.matrix.columns.filter((column) => column.kind === "source");
   const activeSourceColumn =
     sourceColumns.find((column) => column.id === props.selectedSourceId) ?? sourceColumns[0] ?? null;
+  const warnings = warningSummary(props.matrix.rows);
+  const projectPresent = rows.filter((row) => !row.cells.project.missing).length;
+  const sourcePresent = activeSourceColumn
+    ? rows.filter((row) => !sourceCellFor(row, activeSourceColumn.id).cell.missing).length
+    : 0;
 
   return (
-    <section className="compareShell">
+    <section className={`compareShell density-${density}`}>
       <div className="compareTools">
         <input
           value={props.filter}
@@ -68,33 +74,72 @@ export function EditView(props: Props) {
           placeholder="Filter assets"
         />
 
-        <label>
-          Required level
-          <select
-            value={requiredLevel}
-            onChange={(event) => setRequiredLevel(event.target.value as RequiredLevelFilter)}
-          >
-            <option value="all">All levels</option>
-            <option value="required">Required</option>
-            <option value="recommended">Recommended</option>
-            <option value="optional">Optional</option>
-          </select>
-        </label>
-
         <label className="inlineControl">
           <input
             type="checkbox"
             checked={props.meaningfulOnly}
             onChange={(event) => {
               props.onMeaningfulOnly(event.target.checked);
-              props.onCollapseStable(event.target.checked);
             }}
           />
-          Primary editor rows
+          Lazer meaningful only
         </label>
 
-        <label>
-          Asset source
+        <label className="inlineControl">
+          <input
+            type="checkbox"
+            checked={props.collapseStable}
+            onChange={(event) => props.onCollapseStable(event.target.checked)}
+          />
+          Collapse stable later
+        </label>
+
+        <label className="compactSelect">
+          <select
+            value={requiredLevel}
+            onChange={(event) => setRequiredLevel(event.target.value as RequiredLevelFilter)}
+          >
+            <option value="all">All rows</option>
+            <option value="required">Required</option>
+            <option value="recommended">Recommended</option>
+            <option value="optional">Optional</option>
+          </select>
+        </label>
+
+        <label className="compactSelect">
+          <select value={density} onChange={(event) => setDensity(event.target.value)}>
+            <option value="comfortable">Comfortable</option>
+            <option value="compact">Compact</option>
+          </select>
+        </label>
+
+        <button type="button">Select visible</button>
+        <button type="button">Select missing</button>
+        <button type="button">Select warnings</button>
+        <button type="button">Clear selection</button>
+        <button type="button">Clear category</button>
+
+        <button type="button" className="primary copySelectedButton">
+          Copy selected
+        </button>
+      </div>
+
+      <div className="validationSummary">
+        <div>
+          <strong>{warnings.total} warnings</strong>
+          {warnings.hdOnly > 0 && <span className="badge">HdOnly {warnings.hdOnly}</span>}
+          {warnings.missing > 0 && <span className="badge">Missing {warnings.missing}</span>}
+        </div>
+        <button type="button">View warnings</button>
+      </div>
+
+      <div className="compareHeader">
+        <div>
+          <h3>Project</h3>
+          <p className="muted">{projectPresent} present</p>
+        </div>
+        <div>
+          <h3>Asset Source</h3>
           <select
             value={activeSourceColumn?.id ?? ""}
             onChange={(event) => props.onSelectedSourceId(event.target.value)}
@@ -107,24 +152,9 @@ export function EditView(props: Props) {
               </option>
             ))}
           </select>
-        </label>
-      </div>
-
-      <div className="validationSummary quiet">
-        <strong>Library-backed classification</strong>
-        <span className="muted">
-          {props.matrix.rows.length} rule rows from <code>src/lib/classification</code>.
-        </span>
-      </div>
-
-      <div className="compareHeader">
-        <div>
-          <h3>Project</h3>
-          <p className="muted">No project assets loaded yet.</p>
-        </div>
-        <div>
-          <h3>Asset Source</h3>
-          <p className="muted">{activeSourceColumn?.label ?? "No source assets loaded yet."}</p>
+          <p className="muted">
+            {activeSourceColumn?.label ?? "No source assets loaded yet"} · {sourcePresent} present
+          </p>
         </div>
       </div>
 
@@ -144,6 +174,16 @@ export function EditView(props: Props) {
               onDelete={() =>
                 props.onDeleteProjectRow(row.cells.project.assets.map((asset) => asset.file.relativePath))
               }
+              onRestore={() => {
+                const mainCell = sourceCellFor(row, "main");
+                if (!mainCell.sourceId || mainCell.cell.missing) return;
+
+                props.onCopySourceRow({
+                  sourceId: mainCell.sourceId,
+                  sourcePaths: mainCell.cell.assets.map((asset) => asset.file.relativePath),
+                  replaceProjectPaths: row.cells.project.assets.map((asset) => asset.file.relativePath),
+                });
+              }}
             />
             <AssetRow
               projectId={props.projectId}
@@ -169,6 +209,19 @@ export function EditView(props: Props) {
       </div>
     </section>
   );
+}
+
+function warningSummary(rows: AssetMatrixRow[]) {
+  const allWarnings = rows.flatMap((row) => [
+    ...row.warnings,
+    ...Object.values(row.cells).flatMap((cell) => cell.warnings),
+  ]);
+
+  return {
+    total: allWarnings.length,
+    hdOnly: allWarnings.filter((warning) => warning.type === "hdOnly").length,
+    missing: allWarnings.filter((warning) => warning.type === "missing").length,
+  };
 }
 
 function sourceCellFor(row: AssetMatrixRow, sourceColumnId: string | undefined): SourceCell {

@@ -40,6 +40,7 @@ type Props = {
 
   onClose: () => void;
   onImportMain: () => void;
+  onChooseMainPath: () => void;
   onImportAsset: () => void;
   onChooseAssetPath: () => void;
   onProjectSelect: (projectId: string) => void;
@@ -57,11 +58,11 @@ export function Sidebar(props: Props) {
       <div className="brand">
         <div className="brandHeader">
           <h1>osu! Skin Editor</h1>
-          <button type="button" className="ghostButton" onClick={props.onClose}>
-            Close
+          <button type="button" className="sidebarCollapseButton" onClick={props.onClose} title="Close sidebar">
+            ‹
           </button>
         </div>
-        <p>Lazer-first, Stable later.</p>
+        <p>/home/tenzyu/Documents/osu-skin</p>
       </div>
 
       <section>
@@ -87,6 +88,15 @@ export function Sidebar(props: Props) {
           />
         </label>
 
+        <div className="buttonRow">
+          <button type="button" onClick={props.onChooseMainPath} disabled={props.loading}>
+            Choose .osk
+          </button>
+          <button type="button" onClick={props.onChooseMainPath} disabled={props.loading}>
+            Choose folder
+          </button>
+        </div>
+
         <button
           type="button"
           className="primary"
@@ -96,7 +106,9 @@ export function Sidebar(props: Props) {
           Import main skin
         </button>
 
-        <p className="muted">Project creation moved to the hub. Paste a local path there for now.</p>
+        <button type="button" disabled={props.loading}>
+          Import backup
+        </button>
       </section>
 
       <section>
@@ -151,13 +163,22 @@ export function Sidebar(props: Props) {
           />
         </label>
 
-        <button
-          type="button"
-          onClick={props.onChooseAssetPath}
-          disabled={props.loading || !props.project}
-        >
-          Choose .osk or folder
-        </button>
+        <div className="buttonRow">
+          <button
+            type="button"
+            onClick={props.onChooseAssetPath}
+            disabled={props.loading || !props.project}
+          >
+            Choose .osk
+          </button>
+          <button
+            type="button"
+            onClick={props.onChooseAssetPath}
+            disabled={props.loading || !props.project}
+          >
+            Choose folder
+          </button>
+        </div>
 
         <button
           type="button"
@@ -174,21 +195,14 @@ export function Sidebar(props: Props) {
         <div className="sourceList">
           {props.project?.sources.map((source) => (
             <div className="sourceRow" key={source.id}>
-              <div>
-                <strong>{source.name}</strong>
-                <div className="muted">{source.sourcePath}</div>
-              </div>
+              <label className="sourceToggle">
+                <input type="checkbox" checked readOnly />
+                <div>
+                  <strong>{source.name}</strong>
+                  <div className="muted">{source.sourcePath}</div>
+                </div>
+              </label>
               <div className="sourceActions">
-                <button
-                  type="button"
-                  onClick={() => {
-                    const name = window.prompt("Asset source name", source.name);
-                    if (name && name !== source.name) props.onSourceRename(source.id, name);
-                  }}
-                  disabled={props.loading}
-                >
-                  Rename
-                </button>
                 <button
                   type="button"
                   className="danger"
@@ -208,6 +222,13 @@ export function Sidebar(props: Props) {
 
           {!props.project?.sources.length && <span className="muted">No asset sources.</span>}
         </div>
+      </section>
+
+      <section>
+        <h2>Recent sources</h2>
+        <button type="button" disabled={!props.project}>
+          Reimport {props.project?.sources.find((source) => !source.readonly)?.name ?? "source"}
+        </button>
       </section>
 
       <section>
