@@ -926,3 +926,27 @@ section h2,
     border-bottom: 1px solid #2c343a;
   }
 }
+
+.previewMock {
+  min-height: 100%;
+  padding: 24px;
+  display: grid;
+  align-content: start;
+  gap: 16px;
+}
+
+.previewMock h2,
+.previewMock p {
+  margin: 0;
+}
+
+.previewStats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.previewRows {
+  display: grid;
+  gap: 8px;
+}
