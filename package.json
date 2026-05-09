@@ -1,10 +1,12 @@
 {
   "name": "tenzyudotcom",
   "private": true,
+
   "workspaces": [
-    "apps/*",
-    "packages/*"
+    "product/apps/*",
+    "product/packages/*"
   ],
+
   "scripts": {
     "dev:web": "bun run --filter @tenzyu/web dev",
     "dev:web:overlay": "bun run --filter @tenzyu/web dev:overlay",
@@ -27,7 +29,8 @@
     "test": "bun run test:web && bun run test:linter && bun run test:scripts",
     "test:web": "bun run --filter @tenzyu/web test",
     "test:linter": "bun run --filter @tenzyu/linter test",
-    "test:scripts": "bun test scripts/compile-agents-md.test.ts scripts/docs-rename.test.ts scripts/migrate-notes-threading.test.ts",
+    "test:scripts": "bun test repo-ops/scripts/compile-agents-md.test.ts repo-ops/scripts/docs-rename.test.ts repo-ops/scripts/migrate-notes-threading.test.ts",
+
 
     "verify:quick": "bun run lint && bun run lint:rules && bun run typecheck && bun run test",
     "verify": "bun run verify:quick && bun run build",
@@ -44,10 +47,10 @@
 
     "verify:all": "bun run verify && bun run check:skin-workbench",
 
-    "migrate:notes-threading": "bun scripts/migrate-notes-threading.ts",
-    "docs-rename": "bun scripts/docs-rename.ts",
-    "build:docs-map": "bun scripts/compile-agents-md.ts",
+    "migrate:notes-threading": "bun repo-ops/scripts/migrate-notes-threading.ts",
+    "docs-rename": "bun repo-ops/scripts/docs-rename.ts",
+    "build:docs-map": "bun repo-ops/scripts/compile-agents-md.ts",
 
     "analyze": "bun run --filter @tenzyu/web analyze"
-  },
-  "devDependencies": {
+  }
+}

@@ -19,12 +19,19 @@
         lib = pkgs.lib;
 
         commonPackages = [
-          pkgs.biome
           pkgs.bun
+        ];
+
+        webPackages = [
+          pkgs.biome
+        ];
+
+        repoOpsPackages = [
+          pkgs.biome
           serena.packages.${system}.serena
         ];
 
-        rustPackages = [
+        nativePackages = [
           pkgs.rustc
           pkgs.cargo
           pkgs.rustfmt
@@ -49,20 +56,53 @@
             pkgs.dbus
             pkgs.xdotool
           ];
+
+        productWebPackages =
+          commonPackages
+          ++ webPackages;
+
+        productSkinWorkbenchPackages =
+          commonPackages
+          ++ webPackages
+          ++ nativePackages
+          ++ tauriLinuxPackages;
+
+        repoOpsShellPackages =
+          commonPackages
+          ++ repoOpsPackages;
+
+        allPackages =
+          commonPackages
+          ++ webPackages
+          ++ repoOpsPackages
+          ++ nativePackages
+          ++ tauriLinuxPackages;
+
+        shellHook = ''
+          export BIOME_BIN="${pkgs.biome}/bin/biome"
+
+          if [ -f ./repo-ops/shell/completion.sh ]; then
+            source ./repo-ops/shell/completion.sh
+          elif [ -f ./repo-ops/scripts/completion.sh ]; then
+            source ./repo-ops/scripts/completion.sh
+          fi
+        '';
+
+        mkDevShell = packages:
+          pkgs.mkShell {
+            inherit packages shellHook;
+          };
       in {
-        devShells.default = pkgs.mkShell {
-          packages =
-            commonPackages
-            ++ rustPackages
-            ++ tauriLinuxPackages;
+        devShells = {
+          default = mkDevShell allPackages;
 
-          shellHook = ''
-            export BIOME_BIN="${pkgs.biome}/bin/biome"
+          web = mkDevShell productWebPackages;
 
-            if [ -f ./scripts/completion.sh ]; then
-              source ./scripts/completion.sh
-            fi
-          '';
+          skin-workbench = mkDevShell productSkinWorkbenchPackages;
+
+          repo-ops = mkDevShell repoOpsShellPackages;
+
+          minimal = mkDevShell commonPackages;
         };
       }
     );
