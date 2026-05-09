@@ -2,7 +2,8 @@
   "name": "tenzyudotcom",
   "private": true,
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "apps/*"
   ],
   "scripts": {
     "dev": "bun run --filter site dev",
