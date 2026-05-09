@@ -1,5 +1,5 @@
 {
-  "name": "osu-skin-tools",
+  "name": "osu-skin-editor",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -7,20 +7,15 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "build:editor": "vite build --config tools/editor/vite.config.ts",
-    "dev:editor": "vite --config tools/editor/vite.config.ts",
-    "editor": "bun run tools/osu-skin-editor.ts",
-    "skin": "bun run tools/osu-skin-extract.ts",
     "test": "bun test",
-    "check": "bun test && bun run tools/osu-skin-extract.ts help && bun run build:editor && OSU_SKIN_EDITOR_STATIC_ROOT=tools/editor-dist bun run tools/osu-skin-editor.ts --check"
+    "typecheck": "tsc --noEmit",
+    "check": "bun test && tsc --noEmit && next build"
   },
   "dependencies": {
-    "@vitejs/plugin-react": "^4.3.4",
     "next": "^16.2.6",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "typescript": "^5.7.2",
-    "vite": "^6.0.7"
+    "typescript": "^5.7.2"
   },
   "devDependencies": {
     "@types/bun": "^1.3.13",

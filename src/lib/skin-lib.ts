@@ -1,4 +1,4 @@
-import { copyFile, mkdir, readdir, readFile, rm, stat } from "node:fs/promises";
+import { copyFile, mkdir, readdir, rm, stat } from "node:fs/promises";
 import path from "node:path";
 import { $ } from "bun";
 
@@ -23,7 +23,6 @@ import {
 } from "./classification/classification-rules";
 import {
   classifySkinAsset,
-  classifySkinFile as classifySkinFileDomain,
   matchingRuleFor,
 } from "./classification/skin-classifier";
 import {
