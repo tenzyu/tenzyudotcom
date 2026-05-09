@@ -1,7 +1,7 @@
 {
-  "name": "site",
-  "version": "0.1.0",
+  "name": "@tenzyu/web",
   "private": true,
+
   "scripts": {
     "dev": "next dev",
     "dev:overlay": "ENABLE_REACT_GRAB_OVERLAY=1 bunx @react-grab/codex@latest && ENABLE_REACT_GRAB_OVERLAY=1 intlayer watch --with 'next dev'",
