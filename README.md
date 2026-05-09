@@ -10,10 +10,17 @@ This project targets osu!lazer-oriented skin workflows. It intentionally separat
 - Import a main skin from an `.osk` archive or extracted skin folder
 - Add other skins as asset sources and mix assets into the project
 - Browse assets by `scope > category > group`
-- Preview image groups directly on cards, including simple frame animation for `name-0`, `name-1`, ... sequences
+- Edit mode with two aligned Project / Asset columns and thumbnail previews
+- Preview mode for Lazer-first song select and gameplay mockups for std, taiko, catch, and mania
+- Preview image groups directly on rows, including simple frame animation for `name-0`, `name-1`, ... sequences
+- Preview audio groups with browser playback controls
 - Edit project `skin.ini` and JSON layout files
 - Delete project assets and asset sources
+- Restore individual groups from the imported main skin
+- Undo recent edit operations and inspect undo history
+- Validate common skin issues such as missing assets, @2x-only assets, animation gaps, and missing `skin.ini` references
 - Export both a flat skin folder and an `.osk`
+- Export project backups and import them on another machine
 - Use the standalone extractor CLI for mode-based asset extraction
 
 ## Quick Start
@@ -33,11 +40,22 @@ The editor can choose `.osk` files or skin folders through a native dialog. Manu
 3. Add one or more asset skins.
 4. Select a source from the header.
 5. Browse by scope and category.
-6. Click asset cards to select groups.
-7. Use `Copy selected assets` to mix them into the project.
-8. Use `Export` to write:
+6. Use `Edit` to select asset rows and mix files into the project.
+7. Use `Preview` to inspect the current Project as a Lazer-first song select or gameplay screen.
+8. Click asset rows to select groups.
+9. Use selection helpers such as `Select visible`, `Select missing`, and `Select warnings` for bulk work.
+10. Use `Copy selected assets` to mix them into the project.
+11. Use `Export` to write:
    - `exports/<project-id>/flat/`
    - `exports/<project-id>.osk`
+   - `exports/<project-id>/diff/`
+   - `exports/<project-id>.backup.zip`
+
+The main skin is automatically added as an asset source. Use `Restore from main` on a row when you want to revert that group without manually finding the original files.
+
+Warnings are advisory. They are meant to catch likely broken exports while keeping import/export non-destructive. Ignored warning state is stored in the project manifest.
+
+Backups contain the editor project, not just a flat osu! skin folder. Use `Import backup` with the backup zip when moving a project to another machine or recovering a project after experiments.
 
 Projects are stored in:
 

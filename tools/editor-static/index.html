@@ -72,8 +72,13 @@
             <p id="projectMeta"></p>
           </div>
           <div class="toolbarActions">
+            <div class="viewSwitch" role="tablist" aria-label="View mode">
+              <button id="editView" class="active" type="button">Edit</button>
+              <button id="previewView" type="button">Preview</button>
+            </div>
             <select id="sourceSelect"></select>
             <button id="undoProject">Undo</button>
+            <button id="historyProject">History</button>
             <button id="reclassifyProject">Reclassify</button>
             <button id="exportProject" class="primary">Export</button>
           </div>
@@ -82,15 +87,11 @@
         <nav id="scopeTabs" class="tabs"></nav>
         <nav id="categoryTabs" class="tabs subTabs"></nav>
 
-        <section class="compareShell">
+        <section id="editShell" class="compareShell">
           <div class="compareTools">
             <input id="assetFilter" placeholder="Filter assets" />
             <label class="inlineControl"><input id="meaningfulOnly" type="checkbox" checked /> Lazer meaningful only</label>
             <label class="inlineControl"><input id="collapseStable" type="checkbox" checked /> Collapse stable later</label>
-            <select id="previewMode">
-              <option value="thumbnail">Thumbnail</option>
-              <option value="composite">Composite</option>
-            </select>
             <select id="sourceFilterMode">
               <option value="all">All rows</option>
               <option value="missing">Missing in project</option>
@@ -99,8 +100,15 @@
               <option value="hd">Has HD</option>
               <option value="sd">Has SD</option>
             </select>
+            <select id="densityMode">
+              <option value="comfortable">Comfortable</option>
+              <option value="compact">Compact</option>
+            </select>
             <button id="selectVisible">Select visible</button>
+            <button id="selectMissing">Select missing</button>
+            <button id="selectWarnings">Select warnings</button>
             <button id="clearSelection">Clear selection</button>
+            <button id="clearCategory">Clear category</button>
             <button id="copySelected">Copy selected</button>
           </div>
           <div id="validationSummary" class="validationSummary"></div>
@@ -118,6 +126,11 @@
           <div id="assetRows" class="assetRows"></div>
           <div id="projectAssets" class="hidden"></div>
           <div id="sourceAssets" class="hidden"></div>
+        </section>
+
+        <section id="previewShell" class="previewShell hidden">
+          <div class="previewTabs" id="previewTabs"></div>
+          <div id="previewStage" class="previewStage"></div>
         </section>
       </main>
     </div>
@@ -144,6 +157,19 @@
         <div id="validationList" class="modalList"></div>
         <footer>
           <button id="closeValidationFooter">Close</button>
+        </footer>
+      </div>
+    </div>
+
+    <div id="historyOverlay" class="overlay hidden">
+      <div class="modal">
+        <header>
+          <h2>Undo History</h2>
+          <button id="closeHistory">Close</button>
+        </header>
+        <div id="historyList" class="modalList"></div>
+        <footer>
+          <button id="closeHistoryFooter">Close</button>
         </footer>
       </div>
     </div>
@@ -202,6 +228,7 @@
             <label class="inlineControl"><input id="includeExtras" type="checkbox" checked /> Include extras</label>
           </div>
           <div id="validationPanel" class="validationPanel"></div>
+          <div id="exportResult" class="exportResult hidden"></div>
         </div>
         <footer>
           <button id="runExport" class="primary">Export</button>

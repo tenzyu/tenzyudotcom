@@ -58,6 +58,7 @@ type ProjectManifest = {
     backup?: string;
   };
   history?: HistoryEntry[];
+  warningStates?: Record<string, { ignored?: boolean; read?: boolean }>;
 };
 
 type HistoryEntry = {
@@ -371,7 +372,38 @@ function groupFiles(files: ReturnType<typeof fileInfoFromManifest>[]) {
   })).sort((a, b) => scopes.indexOf(a.scope) - scopes.indexOf(b.scope));
 }
 
-function sequenceWarnings(files: ReturnType<typeof fileInfoFromManifest>[]): string[] {
+type ValidationWarning = {
+  id: string;
+  rowKey: string;
+  type: string;
+  severity: "warning" | "info";
+  scope: string;
+  category: string;
+  group: string;
+  side: "project" | "source" | "row";
+  message: string;
+  ignored?: boolean;
+  read?: boolean;
+};
+
+type MatrixWarning = {
+  type: string;
+  message: string;
+};
+
+function warningId(parts: Array<string | undefined>): string {
+  return parts.map((part) => (part ?? "").toLowerCase().replace(/[^\w.-]+/g, "-")).join(":");
+}
+
+function warningType(message: string): string {
+  if (message.includes("@2x")) return "hdOnly";
+  if (message.includes("animation frames missing")) return "animationGap";
+  if (message.includes("missing")) return "missing";
+  if (message.includes("skin.ini")) return "skinIniReference";
+  return "warning";
+}
+
+function sequenceWarnings(files: ReturnType<typeof fileInfoFromManifest>[]): MatrixWarning[] {
   const indexes = files
     .map((file) => file.sequenceIndex)
     .filter((value): value is number => typeof value === "number")
@@ -381,7 +413,7 @@ function sequenceWarnings(files: ReturnType<typeof fileInfoFromManifest>[]): str
   for (let index = indexes[0]; index <= indexes[indexes.length - 1]; index += 1) {
     if (!indexes.includes(index)) missing.push(index);
   }
-  return missing.length ? [`animation frames missing: ${missing.join(", ")}`] : [];
+  return missing.length ? [{ type: "animationGap", message: `animation frames missing: ${missing.join(", ")}` }] : [];
 }
 
 function resolutionState(files: ReturnType<typeof fileInfoFromManifest>[]) {
@@ -394,7 +426,7 @@ function resolutionState(files: ReturnType<typeof fileInfoFromManifest>[]) {
 function matrixCell(files: ReturnType<typeof fileInfoFromManifest>[]) {
   const { hasHd, hasSd } = resolutionState(files);
   const warnings = [...sequenceWarnings(files)];
-  if (hasHd && !hasSd) warnings.push("@2x exists without SD file");
+  if (hasHd && !hasSd) warnings.push({ type: "hdOnly", message: "@2x exists without SD file" });
   return {
     files,
     missing: files.length === 0,
@@ -459,10 +491,10 @@ function buildMatrix(project: ReturnType<typeof fileInfoFromManifest>[], sources
 
   const rows = [...rowMap.values()].map((row) => {
     const projectCell = row.cells.project;
-    const warnings = [...projectCell.warnings];
+    const warnings: MatrixWarning[] = [];
     const anySourceHasFiles = columns.some((column) => column.kind === "source" && !row.cells[column.id].missing);
-    if (row.lazerMeaningful && projectCell.missing && anySourceHasFiles) warnings.push("missing in project but available from asset source");
-    if (row.requiredLevel !== "optional" && projectCell.missing && row.groupKey !== "__rule__") warnings.push(`${row.requiredLevel} asset missing in project`);
+    if (row.lazerMeaningful && projectCell.missing && anySourceHasFiles) warnings.push({ type: "missing", message: "missing in project but available from asset source" });
+    if (row.requiredLevel !== "optional" && projectCell.missing && row.groupKey !== "__rule__") warnings.push({ type: "missing", message: `${row.requiredLevel} asset missing in project` });
     return { ...row, warnings };
   }).sort((a, b) =>
     scopes.indexOf(a.scope) - scopes.indexOf(b.scope) ||
@@ -474,14 +506,38 @@ function buildMatrix(project: ReturnType<typeof fileInfoFromManifest>[], sources
 }
 
 function validationForMatrix(matrix: ReturnType<typeof buildMatrix>, project?: ReturnType<typeof fileInfoFromManifest>[], context?: SkinClassificationContext) {
-  const warnings = [];
+  const warnings: ValidationWarning[] = [];
   for (const row of matrix.rows) {
-    for (const message of row.warnings) {
-      warnings.push({ rowKey: row.rowKey, scope: row.scope, category: row.category, group: row.groupLabel, message });
+    for (const warning of row.warnings) {
+      const type = typeof warning === "string" ? warningType(warning) : warning.type;
+      const message = typeof warning === "string" ? warning : warning.message;
+      warnings.push({
+        id: warningId([row.rowKey, "row", type, message]),
+        rowKey: row.rowKey,
+        type,
+        severity: "warning",
+        scope: row.scope,
+        category: row.category,
+        group: row.groupLabel,
+        side: "row",
+        message
+      });
     }
     const projectCell = row.cells.project;
-    for (const message of projectCell.warnings) {
-      warnings.push({ rowKey: row.rowKey, scope: row.scope, category: row.category, group: row.groupLabel, message });
+    for (const warning of projectCell.warnings) {
+      const type = typeof warning === "string" ? warningType(warning) : warning.type;
+      const message = typeof warning === "string" ? warning : warning.message;
+      warnings.push({
+        id: warningId([row.rowKey, "project", type, message]),
+        rowKey: row.rowKey,
+        type,
+        severity: "warning",
+        scope: row.scope,
+        category: row.category,
+        group: row.groupLabel,
+        side: "project",
+        message
+      });
     }
   }
   if (project && context) {
@@ -492,7 +548,17 @@ function validationForMatrix(matrix: ReturnType<typeof buildMatrix>, project?: R
       if (ref?.category === "skin-ini-prefixes") continue;
       const basename = key.split("/").at(-1) ?? key;
       if (!existing.has(key) && !existing.has(basename)) {
-        warnings.push({ rowKey: `skin-ini:${key}`, scope: "configs", category: "skin-ini-references", group: basename, message: "skin.ini references a missing asset" });
+        warnings.push({
+          id: warningId(["skin-ini", key, "skinIniReference"]),
+          rowKey: `skin-ini:${key}`,
+          type: "skinIniReference",
+          severity: "warning",
+          scope: "configs",
+          category: "skin-ini-references",
+          group: basename,
+          side: "project",
+          message: "skin.ini references a missing asset"
+        });
       }
     }
   }
@@ -515,12 +581,16 @@ async function projectFiles(projectId: string) {
     sources.push({ ...source, files, grouped: groupFiles(files) });
   }
   const matrix = buildMatrix(project, sources);
+  const validation = validationForMatrix(matrix, project, projectContext);
+  const warningStates = manifest.warningStates ?? {};
+  validation.warnings = validation.warnings.map((warning) => ({ ...warning, ...(warningStates[warning.id] ?? {}) }));
+  validation.count = validation.warnings.filter((warning) => !warning.ignored).length;
   return {
     project,
     projectGrouped: groupFiles(project),
     sources,
     matrix,
-    validation: validationForMatrix(matrix, project, projectContext),
+    validation,
     scopes
   };
 }
@@ -564,7 +634,19 @@ async function blobResponse(projectId: string, url: URL): Promise<Response> {
   const target = safeJoin(scopedBase(projectId, scope, sourceId), filePath);
   const file = Bun.file(target);
   if (!(await file.exists())) throw new Error("file does not exist");
-  return new Response(file);
+  const ext = path.extname(filePath).toLowerCase();
+  const contentTypes: Record<string, string> = {
+    ".png": "image/png",
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
+    ".webp": "image/webp",
+    ".wav": "audio/wav",
+    ".ogg": "audio/ogg",
+    ".mp3": "audio/mpeg"
+  };
+  return new Response(file, {
+    headers: { "content-type": contentTypes[ext] ?? "application/octet-stream" }
+  });
 }
 
 async function mixFiles(projectId: string, request: Request): Promise<Response> {
@@ -688,16 +770,36 @@ async function reclassifyPlan(projectId: string, manifest?: ProjectManifest) {
   let missing = 0;
   for (const [oldStructuredPath, flatPath] of Object.entries(manifest.files)) {
     const nextStructuredPath = structuredPathFor(flatPath, context);
+    const oldParts = oldStructuredPath.split("/");
+    const nextParts = nextStructuredPath.split("/");
     const exists = existsSync(safeJoin(projectStructuredDir(projectId), oldStructuredPath));
     if (!exists) missing += 1;
     else if (oldStructuredPath === nextStructuredPath) unchanged += 1;
     else changed += 1;
-    entries.push({ oldStructuredPath, nextStructuredPath, flatPath, exists, changed: oldStructuredPath !== nextStructuredPath });
+    entries.push({
+      oldStructuredPath,
+      nextStructuredPath,
+      flatPath,
+      exists,
+      changed: oldStructuredPath !== nextStructuredPath,
+      oldScope: oldParts[0] ?? "",
+      oldCategory: oldParts[1] ?? "",
+      oldGroup: oldParts[2] ?? "",
+      newScope: nextParts[0] ?? "",
+      newCategory: nextParts[1] ?? "",
+      newGroup: nextParts[2] ?? ""
+    });
+  }
+  const moves = new Map<string, number>();
+  for (const entry of entries.filter((entry) => entry.changed)) {
+    const key = `${entry.oldScope}/${entry.oldCategory} -> ${entry.newScope}/${entry.newCategory}`;
+    moves.set(key, (moves.get(key) ?? 0) + 1);
   }
   return {
     changed,
     unchanged,
     missing,
+    moves: [...moves.entries()].map(([move, count]) => ({ move, count })).sort((a, b) => b.count - a.count).slice(0, 12),
     examples: entries.filter((entry) => entry.changed).slice(0, 20),
     entries
   };
@@ -730,7 +832,7 @@ async function undoProject(projectId: string): Promise<Response> {
     }
   }
   await writeManifest(manifestBefore);
-  return json({ ok: true, undone: entry.action });
+  return json({ ok: true, undone: entry.action, affectedCount: entry.files.length });
 }
 
 async function validationResponse(projectId: string): Promise<Response> {
@@ -744,8 +846,23 @@ async function historyResponse(projectId: string): Promise<Response> {
     id: entry.id,
     action: entry.action,
     createdAt: entry.createdAt,
-    affectedCount: entry.files.length
+    affectedCount: entry.files.length,
+    label: `${entry.action} ${entry.files.length} files`
   })));
+}
+
+async function updateWarningState(projectId: string, request: Request): Promise<Response> {
+  const body = await readJson<{ id: string; ignored?: boolean; read?: boolean }>(request);
+  if (!body.id) throw new Error("warning id is required");
+  const manifest = await readManifest(projectId);
+  manifest.warningStates ??= {};
+  manifest.warningStates[body.id] = {
+    ...(manifest.warningStates[body.id] ?? {}),
+    ...(typeof body.ignored === "boolean" ? { ignored: body.ignored } : {}),
+    ...(typeof body.read === "boolean" ? { read: body.read } : {})
+  };
+  await writeManifest(manifest);
+  return json({ ok: true, state: manifest.warningStates[body.id] });
 }
 
 async function chooseSkin(url: URL): Promise<Response> {
@@ -860,7 +977,19 @@ async function exportProject(projectId: string, request: Request): Promise<Respo
   }
   manifest.exports = exports;
   await writeManifest(manifest);
-  return json({ ok: true, exports: manifest.exports, counts, settings, validation: (await projectFiles(projectId)).validation });
+  const resultSummary = Object.entries(exports).map(([format, outputPath]) => ({
+    format,
+    path: outputPath,
+    count: counts[format] ?? (format === "osk" ? counts.flat : 0)
+  }));
+  return json({
+    ok: true,
+    exports: manifest.exports,
+    counts,
+    settings,
+    resultSummary,
+    validation: (await projectFiles(projectId)).validation
+  });
 }
 
 function routeProject(pathname: string): { projectId: string; action: string } | null {
@@ -903,6 +1032,7 @@ async function handleApi(request: Request, url: URL): Promise<Response> {
   if (action === "reclassify" && request.method === "POST") return reclassifyProject(projectId);
   if (action === "undo" && request.method === "POST") return undoProject(projectId);
   if (action === "validation" && request.method === "GET") return validationResponse(projectId);
+  if (action === "warning-state" && request.method === "POST") return updateWarningState(projectId, request);
   if (action === "export" && request.method === "POST") return exportProject(projectId, request);
   const sourceDelete = action.match(/^sources\/([^/]+)$/);
   if (sourceDelete && request.method === "DELETE") return deleteSource(projectId, decodeURIComponent(sourceDelete[1]));
