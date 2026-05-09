@@ -20,13 +20,11 @@
             !(base == ".git"
               || base == "result"
               || base == ".next"
-              || base == "out"
               || nixpkgs.lib.hasPrefix "skins/" rel
               || nixpkgs.lib.hasPrefix "exports/" rel
               || nixpkgs.lib.hasPrefix "skin-editor-projects/" rel
               || nixpkgs.lib.hasPrefix "node_modules/" rel
-              || nixpkgs.lib.hasPrefix ".next/" rel
-              || nixpkgs.lib.hasPrefix "out/" rel);
+              || nixpkgs.lib.hasPrefix ".next/" rel);
       };
 
       forAllSystems = f:

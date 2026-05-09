@@ -1,8 +1,10 @@
+# NEXTJS
+node_modules/
+.next/
+
+# NIX
+result
+
 skins/
 exports/
 skin-editor-projects/
-node_modules/
-result
-.next/
-out/
-dist/

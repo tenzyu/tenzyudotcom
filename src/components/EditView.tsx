@@ -78,7 +78,7 @@ export function EditView(props: Props) {
       </div>
 
       <p className="muted">
-        {activeScope?.label ?? props.scope} / {activeCategory?.label ?? props.category || "none"} · {rows.length} rows
+        {activeScope?.label ?? props.scope} / {activeCategory?.label ?? (props.category || "none")} · {rows.length} rows
       </p>
 
       <div className="assetRows">
