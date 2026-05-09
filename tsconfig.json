@@ -20,7 +20,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "allowJs": true,
+    "allowJs": false,
     "forceConsistentCasingInFileNames": true,
     "incremental": true,
     "plugins": [
@@ -30,13 +30,10 @@
     ]
   },
   "include": [
-    "./src",
-    "./dist/types/**/*.ts",
     "./next-env.d.ts",
-    "dist/types/**/*.ts",
-    "dist/dev/types/**/*.ts",
     ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts"
+    "**/*.ts",
+    "**/*.tsx"
   ],
   "exclude": [
     "./node_modules"

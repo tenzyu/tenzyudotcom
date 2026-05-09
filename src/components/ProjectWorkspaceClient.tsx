@@ -326,10 +326,10 @@ export function ProjectWorkspaceClient({ initialProjectId }: Props) {
                 Preview
               </button>
             </div>
-            <button type="button" onClick={refreshProjects} disabled={loading}>
+            <button type="button" disabled title="Undo history is not wired in this build yet.">
               Undo
             </button>
-            <button type="button" onClick={rebuildStructured} disabled={loading || !projectsState.project}>
+            <button type="button" disabled title="History view is not wired in this build yet.">
               History
             </button>
             <button type="button" onClick={rebuildStructured} disabled={loading || !projectsState.project}>

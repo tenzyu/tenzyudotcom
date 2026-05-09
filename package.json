@@ -1,6 +1,10 @@
 {
-  "name": "osu-skin-editor",
+  "name": "osu-skin-workbench",
   "version": "0.1.0",
+  "author": {
+    "name": "tenzyu",
+    "email": "tenzyu.on@gmail.com"
+  },
   "private": true,
   "type": "module",
   "scripts": {

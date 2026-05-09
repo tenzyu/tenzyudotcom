@@ -1,8 +1,7 @@
-# osu! Skin Tools
+# osu! Skin Workbench
 
-Browser-based tools for editing and extracting osu! skin assets.
-
-This project targets osu!lazer-oriented skin workflows. It intentionally separates stable-only assets into a `stable` scope instead of treating them as first-class editing targets.
+osu! Skin Workbench is a local-first, Lazer-oriented skin mixing and validation tool.
+It imports skins into a safe project workspace, classifies assets by playable meaning, lets users compare and mix semantic asset groups, validates likely breakage, and exports reproducible .osk / backup packages without writing directly to osu! directories.
 
 ## Features
 
@@ -33,7 +32,7 @@ This starts a local server and opens the editor in your browser. If the browser 
 
 The editor can choose `.osk` files or skin folders through a native dialog. Manual path entry also works.
 
-## Editor Workflow
+## Workflow
 
 1. Choose a main skin from the left panel.
 2. Import it as a project.

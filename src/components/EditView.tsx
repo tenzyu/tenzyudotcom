@@ -10,7 +10,8 @@ import {
   filterAssetRows,
   type RequiredLevelFilter,
 } from "../lib/project/asset-row-filter";
-import { AssetRow } from "./AssetRow";
+import { CompareAssetCard } from "./CompareAssetCard";
+import { EditorPreviewPanel } from "./EditorPreviewPanel";
 
 type Props = {
   projectId: string | null;
@@ -29,7 +30,7 @@ type Props = {
     sourceId: string;
     sourcePaths: string[];
     replaceProjectPaths: string[];
-  }) => void;
+  }) => Promise<void> | void;
   onDeleteProjectRow: (projectPaths: string[]) => void;
 };
 
@@ -41,6 +42,7 @@ type SourceCell = {
 export function EditView(props: Props) {
   const [requiredLevel, setRequiredLevel] = useState<RequiredLevelFilter>("all");
   const [density, setDensity] = useState("comfortable");
+  const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
   const rows = useMemo(
     () =>
       filterAssetRows(props.matrix.rows, {
@@ -64,6 +66,40 @@ export function EditView(props: Props) {
   const sourcePresent = activeSourceColumn
     ? rows.filter((row) => !sourceCellFor(row, activeSourceColumn.id).cell.missing).length
     : 0;
+  const selectedVisibleCount = rows.filter((row) => selectedRows.has(row.rowKey)).length;
+
+  function toggleRow(rowKey: string) {
+    setSelectedRows((current) => {
+      const next = new Set(current);
+      if (next.has(rowKey)) next.delete(rowKey);
+      else next.add(rowKey);
+      return next;
+    });
+  }
+
+  function selectRows(nextRows: AssetMatrixRow[]) {
+    setSelectedRows(new Set(nextRows.map((row) => row.rowKey)));
+  }
+
+  function rowHasWarning(row: AssetMatrixRow) {
+    return row.warnings.length > 0 || Object.values(row.cells).some((cell) => cell.warnings.length > 0);
+  }
+
+  async function copySelectedRows() {
+    if (!activeSourceColumn || selectedRows.size === 0) return;
+
+    for (const row of rows) {
+      if (!selectedRows.has(row.rowKey)) continue;
+      const sourceCell = sourceCellFor(row, activeSourceColumn.id);
+      if (!sourceCell.sourceId || sourceCell.cell.missing) continue;
+
+      await props.onCopySourceRow({
+        sourceId: sourceCell.sourceId,
+        sourcePaths: sourceCell.cell.assets.map((asset) => asset.file.relativePath),
+        replaceProjectPaths: row.cells.project.assets.map((asset) => asset.file.relativePath),
+      });
+    }
+  }
 
   return (
     <section className={`compareShell density-${density}`}>
@@ -113,14 +149,32 @@ export function EditView(props: Props) {
           </select>
         </label>
 
-        <button type="button">Select visible</button>
-        <button type="button">Select missing</button>
-        <button type="button">Select warnings</button>
-        <button type="button">Clear selection</button>
-        <button type="button">Clear category</button>
+        <button type="button" onClick={() => selectRows(rows)}>
+          Select visible
+        </button>
+        <button type="button" onClick={() => selectRows(rows.filter((row) => row.cells.project.missing))}>
+          Select missing
+        </button>
+        <button type="button" onClick={() => selectRows(rows.filter(rowHasWarning))}>
+          Select warnings
+        </button>
+        <button type="button" onClick={() => setSelectedRows(new Set())}>
+          Clear selection
+        </button>
+        <button type="button" onClick={() => setSelectedRows((current) => {
+          const visible = new Set(rows.map((row) => row.rowKey));
+          return new Set([...current].filter((rowKey) => !visible.has(rowKey)));
+        })}>
+          Clear category
+        </button>
 
-        <button type="button" className="primary copySelectedButton">
-          Copy selected
+        <button
+          type="button"
+          className="primary copySelectedButton"
+          onClick={() => void copySelectedRows()}
+          disabled={!selectedVisibleCount || !activeSourceColumn}
+        >
+          Copy selected ({selectedVisibleCount})
         </button>
       </div>
 
@@ -158,54 +212,70 @@ export function EditView(props: Props) {
         </div>
       </div>
 
-      <p className="muted">
-        {activeScope?.label ?? props.scope} / {activeCategory?.label ?? (props.category || "none")} · {rows.length} rows
-      </p>
+      <div className="scopeBreadcrumb">
+        <span>
+          {activeScope?.label ?? props.scope} / {activeCategory?.label ?? (props.category || "none")} · {rows.length} rows
+        </span>
+        <span>{selectedVisibleCount} selected</span>
+      </div>
 
-      <div className="assetRows">
-        {rows.map((row) => (
-          <div className="assetPairRow" key={row.rowKey}>
-            <AssetRow
-              projectId={props.projectId}
-              row={row}
-              cell={row.cells.project}
-              side="project"
-              sourceId={null}
-              onDelete={() =>
-                props.onDeleteProjectRow(row.cells.project.assets.map((asset) => asset.file.relativePath))
-              }
-              onRestore={() => {
-                const mainCell = sourceCellFor(row, "main");
-                if (!mainCell.sourceId || mainCell.cell.missing) return;
-
-                props.onCopySourceRow({
-                  sourceId: mainCell.sourceId,
-                  sourcePaths: mainCell.cell.assets.map((asset) => asset.file.relativePath),
-                  replaceProjectPaths: row.cells.project.assets.map((asset) => asset.file.relativePath),
-                });
-              }}
-            />
-            <AssetRow
-              projectId={props.projectId}
-              row={row}
-              cell={sourceCellFor(row, activeSourceColumn?.id).cell}
-              side="source"
-              sourceId={sourceCellFor(row, activeSourceColumn?.id).sourceId}
-              onCopy={() => {
-                const sourceCell = sourceCellFor(row, activeSourceColumn?.id);
-                if (!sourceCell.sourceId) return;
-
-                props.onCopySourceRow({
-                  sourceId: sourceCell.sourceId,
-                  sourcePaths: sourceCell.cell.assets.map((asset) => asset.file.relativePath),
-                  replaceProjectPaths: row.cells.project.assets.map((asset) => asset.file.relativePath),
-                });
-              }}
-            />
+      <div className="editorWorkArea">
+        <div className="compareTable">
+          <div className="compareTableHeader">
+            <span />
+            <span>カテゴリ / アセット</span>
+            <span>Project (My Skin)</span>
+            <span>Source ({activeSourceColumn?.label ?? "none"})</span>
+            <span>アクション</span>
           </div>
-        ))}
 
-        {!rows.length && <div className="emptyState">No rows match the current filters.</div>}
+          {rows.map((row) => {
+            const sourceCell = sourceCellFor(row, activeSourceColumn?.id);
+
+            return (
+              <CompareAssetCard
+                key={row.rowKey}
+                projectId={props.projectId}
+                row={row}
+                projectCell={row.cells.project}
+                sourceCell={sourceCell.cell}
+                sourceId={sourceCell.sourceId}
+                selected={selectedRows.has(row.rowKey)}
+                onToggle={() => toggleRow(row.rowKey)}
+                onCopy={() => {
+                  if (!sourceCell.sourceId) return;
+                  void props.onCopySourceRow({
+                    sourceId: sourceCell.sourceId,
+                    sourcePaths: sourceCell.cell.assets.map((asset) => asset.file.relativePath),
+                    replaceProjectPaths: row.cells.project.assets.map((asset) => asset.file.relativePath),
+                  });
+                }}
+                onDelete={() =>
+                  props.onDeleteProjectRow(row.cells.project.assets.map((asset) => asset.file.relativePath))
+                }
+                onRestore={() => {
+                  const mainCell = sourceCellFor(row, "main");
+                  if (!mainCell.sourceId || mainCell.cell.missing) return;
+
+                  void props.onCopySourceRow({
+                    sourceId: mainCell.sourceId,
+                    sourcePaths: mainCell.cell.assets.map((asset) => asset.file.relativePath),
+                    replaceProjectPaths: row.cells.project.assets.map((asset) => asset.file.relativePath),
+                  });
+                }}
+              />
+            );
+          })}
+
+          {!rows.length && <div className="emptyState">No rows match the current filters.</div>}
+        </div>
+
+        <EditorPreviewPanel
+          rows={rows}
+          scope={props.scope}
+          category={props.category}
+          warningCount={warnings.total}
+        />
       </div>
     </section>
   );
