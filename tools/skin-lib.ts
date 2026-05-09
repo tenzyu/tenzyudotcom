@@ -258,7 +258,7 @@ export const classificationRules: Rule[] = [
     lazerMeaningful: true,
   },
   {
-    scope: "interface",
+    scope: "std",
     category: "cursor",
     label: "cursor",
     patterns: [
@@ -912,7 +912,10 @@ function fallbackGroup(relativePath: string): {
   return { groupKey, groupLabel: titleize(groupKey), sequenceIndex };
 }
 
-export function classificationRuleId(rule: Rule, index = classificationRules.indexOf(rule)): string {
+export function classificationRuleId(
+  rule: Rule,
+  index = classificationRules.indexOf(rule),
+): string {
   return rule.id ?? `${rule.scope}:${rule.category}:${index}`;
 }
 
