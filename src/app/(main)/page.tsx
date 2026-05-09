@@ -1,9 +1,8 @@
-'use client'
- 
-import dynamic from 'next/dynamic'
- 
-const App = dynamic(() => import('./_features/App'), { ssr: false })
- 
-export function ClientOnly() {
-  return <App />
+export default function Page() {
+  return (
+    <main>
+      <h1>osu! Skin Editor</h1>
+      <p>Next.js migration in progress.</p>
+    </main>
+  );
 }

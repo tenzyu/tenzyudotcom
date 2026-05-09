@@ -99,22 +99,6 @@ Current scopes:
 - `stable`
 - `extras`
 
-## Extractor CLI
-
-The extractor remains available as a named Nix app:
-
-```sh
-nix run .#extract -- summary skins/tenzyu.osk
-nix run .#extract -- list skins/tenzyu .osk --mode mania --strict
-nix run .#extract -- extract skins/tenzyu.osk /tmp/tenzyu-mania --mode mania
-```
-
-Supported modes:
-
-```text
-osu, taiko, catch, mania
-```
-
 ## Development
 
 Enter the development shell:
