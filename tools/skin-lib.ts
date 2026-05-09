@@ -1,4 +1,4 @@
-import { copyFile, mkdir, readdir, rm, stat } from "node:fs/promises";
+import { copyFile, mkdir, readFile, readdir, rm, stat } from "node:fs/promises";
 import path from "node:path";
 import { $ } from "bun";
 
@@ -15,13 +15,18 @@ export const scopes = [
   "configs",
   "sounds",
   "stable",
-  "extras"
+  "extras",
 ] as const;
 export type Scope = (typeof scopes)[number];
 
 export type SkinKind = "image" | "audio" | "text" | "font" | "other";
+export type LazerMeaning = true | false;
+export type RequiredLevel = "required" | "recommended" | "optional";
 
 export type SkinClassification = {
+  ruleId: string;
+  componentId: string;
+  requiredLevel: RequiredLevel;
   scope: Scope;
   category: string;
   groupKey: string;
@@ -29,6 +34,7 @@ export type SkinClassification = {
   sequenceIndex: number | null;
   modes: Mode[];
   kind: SkinKind;
+  lazerMeaningful: LazerMeaning;
 };
 
 export type SkinFile = SkinClassification & {
@@ -65,7 +71,7 @@ const modePatterns: Record<Mode, string[]> = {
     "spinner_*",
     "spinnerspin*",
     "cursor*",
-    "cursors/*"
+    "cursors/*",
   ],
   taiko: [
     "approachcircle*",
@@ -75,67 +81,563 @@ const modePatterns: Record<Mode, string[]> = {
     "taiko-*",
     "taikobigcircle*",
     "taikohitcircle*",
-    "taiko/*"
+    "taiko/*",
   ],
   catch: ["comboburst-fruits*", "fruit-*", "lighting*"],
-  mania: ["comboburst-mania*", "lightingg*", "lightingl*", "lightingn*", "mania-*"]
+  mania: [
+    "comboburst-mania*",
+    "lightingg*",
+    "lightingl*",
+    "lightingn*",
+    "mania-*",
+  ],
 };
 
-type Rule = {
+export type Rule = {
+  id?: string;
   scope: Scope;
   category: string;
   label: string;
   patterns: string[];
+  lazerMeaningful: LazerMeaning;
+  componentId?: string;
+  requiredLevel?: RequiredLevel;
 };
 
-const classificationRules: Rule[] = [
-  { scope: "configs", category: "skin-ini", label: "skin.ini", patterns: ["skin.ini"] },
-  { scope: "configs", category: "lazer-layouts", label: "lazer layout JSON", patterns: ["*.json"] },
+export const classificationRules: Rule[] = [
+  {
+    scope: "configs",
+    category: "skin-ini",
+    label: "skin.ini",
+    patterns: ["skin.ini"],
+    lazerMeaningful: true,
+  },
+  {
+    scope: "configs",
+    category: "lazer-layouts",
+    label: "lazer layout JSON",
+    patterns: ["*.json"],
+    lazerMeaningful: true,
+  },
 
-  { scope: "fonts", category: "font-files", label: "font files", patterns: ["*.ttf", "*.otf", "*.fnt"] },
+  {
+    scope: "fonts",
+    category: "font-files",
+    label: "font files",
+    patterns: ["*.ttf", "*.otf", "*.fnt"],
+    lazerMeaningful: false,
+  },
 
-  { scope: "mania", category: "hit-bursts", label: "hit bursts", patterns: ["mania-hit0*", "mania-hit50*", "mania-hit100*", "mania-hit200*", "mania-hit300*", "mania-hit300g*"] },
-  { scope: "mania", category: "comboburst", label: "comboburst", patterns: ["comboburst-mania*"] },
-  { scope: "mania", category: "keys", label: "keys", patterns: ["mania-key*"] },
-  { scope: "mania", category: "notes", label: "notes", patterns: ["mania-note*"] },
-  { scope: "mania", category: "stage", label: "stage", patterns: ["mania-stage*", "mania-warningarrow*"] },
-  { scope: "mania", category: "lighting", label: "lighting", patterns: ["lightingg*", "lightingl*", "lightingn*"] },
+  {
+    scope: "stable",
+    category: "ranking",
+    label: "ranking",
+    patterns: ["ranking-*"],
+    lazerMeaningful: false,
+  },
+  {
+    scope: "stable",
+    category: "classic-menu",
+    label: "classic menu",
+    patterns: [
+      "button-*",
+      "menu-back*",
+      "menu-background*",
+      "menu-snow*",
+      "options-offset-tick*",
+    ],
+    lazerMeaningful: false,
+  },
+  {
+    scope: "stable",
+    category: "songselect",
+    label: "songselect",
+    patterns: [
+      "songselect-*",
+      "menu-button-background*",
+      "rank-forum*",
+      "star.png",
+    ],
+    lazerMeaningful: false,
+  },
+  {
+    scope: "stable",
+    category: "mode-icons",
+    label: "mode icons",
+    patterns: ["mode-osu*", "mode-taiko*", "mode-fruits*", "mode-mania*"],
+    lazerMeaningful: false,
+  },
+  {
+    scope: "stable",
+    category: "mod-icons",
+    label: "mod icons",
+    patterns: ["selection-mod-*"],
+    lazerMeaningful: false,
+  },
+  {
+    scope: "stable",
+    category: "selection",
+    label: "selection",
+    patterns: [
+      "selection-mode*",
+      "selection-mods*",
+      "selection-random*",
+      "selection-options*",
+      "selection-tab*",
+    ],
+    lazerMeaningful: false,
+  },
+  {
+    scope: "stable",
+    category: "pause-fail",
+    label: "pause and fail",
+    patterns: ["pause-*", "fail-background*"],
+    lazerMeaningful: false,
+  },
+  {
+    scope: "stable",
+    category: "break-editor",
+    label: "break and editor",
+    patterns: [
+      "section-pass*",
+      "section-fail*",
+      "play-warningarrow*",
+      "arrow-*",
+      "play-unranked*",
+      "multi-skipped*",
+      "masking-border*",
+      "hitcircleselect*",
+    ],
+    lazerMeaningful: false,
+  },
+  {
+    scope: "stable",
+    category: "countdown-images",
+    label: "countdown images",
+    patterns: ["count1.png", "count2.png", "count3.png", "go.png", "ready.png"],
+    lazerMeaningful: false,
+  },
+  {
+    scope: "stable",
+    category: "decorative",
+    label: "decorative",
+    patterns: ["comboburst*", "taiko-flower-group*", "taiko-hit300g*"],
+    lazerMeaningful: false,
+  },
+  {
+    scope: "stable",
+    category: "classic-ui-sounds",
+    label: "classic UI sounds",
+    patterns: [
+      "applause.*",
+      "pause-loop.*",
+      "comboburst*.*",
+      "sliderbar.*",
+      "whoosh.*",
+      "back-button-hover.*",
+      "click-short.*",
+      "menuclick.*",
+      "menu-*-hover.*",
+      "pause-hover.*",
+      "pause-*-hover.*",
+      "key-*.*",
+      "heartbeat.*",
+      "seeya.*",
+      "welcome.*",
+      "metronomelow.*",
+      "match-*.*",
+    ],
+    lazerMeaningful: false,
+  },
 
-  { scope: "taiko", category: "pippidon", label: "pippidon", patterns: ["pippidon*"] },
-  { scope: "taiko", category: "hit-bursts", label: "hit bursts", patterns: ["taiko-hit*", "taiko-normal-hit*", "taiko-soft-hit*"] },
-  { scope: "taiko", category: "notes", label: "notes", patterns: ["taikohitcircle*", "taikobigcircle*"] },
-  { scope: "taiko", category: "playfield-upper", label: "playfield upper", patterns: ["taiko-slider*", "taiko-flower-group*"] },
-  { scope: "taiko", category: "playfield-lower", label: "playfield lower", patterns: ["taiko-bar*", "taiko-drum-inner*", "taiko-drum-outer*"] },
-  { scope: "taiko", category: "drumrolls", label: "drumrolls", patterns: ["taiko-roll-*", "drum-slider*"] },
-  { scope: "taiko", category: "shaker", label: "shaker", patterns: ["spinner-warning*", "spinner-circle*", "spinner-approachcircle*"] },
-  { scope: "taiko", category: "sounds", label: "sounds", patterns: ["drum-hit*"] },
+  {
+    scope: "interface",
+    category: "global",
+    label: "global",
+    patterns: ["welcome_text*", "star2*"],
+    lazerMeaningful: true,
+  },
+  {
+    scope: "interface",
+    category: "cursor",
+    label: "cursor",
+    patterns: [
+      "cursor.png",
+      "cursormiddle.png",
+      "cursortrail.png",
+      "cursor-smoke.png",
+      "cursor-ripple.png",
+      "cursors/*",
+    ],
+    lazerMeaningful: true,
+  },
+  {
+    scope: "interface",
+    category: "input-overlay",
+    label: "input overlay",
+    patterns: ["inputoverlay-background*", "inputoverlay-key*"],
+    lazerMeaningful: true,
+  },
+  {
+    scope: "interface",
+    category: "health-display",
+    label: "health display",
+    patterns: [
+      "scorebar-bg*",
+      "scorebar-colour*",
+      "scorebar-marker*",
+      "scorebar-ki*",
+      "scorebar-kidanger*",
+    ],
+    lazerMeaningful: true,
+  },
+  {
+    scope: "interface",
+    category: "judgements",
+    label: "judgements",
+    patterns: ["hit0*", "hit50*", "hit100*", "hit300*"],
+    lazerMeaningful: true,
+  },
+  {
+    scope: "interface",
+    category: "particles",
+    label: "particles",
+    patterns: ["particle50*", "particle100*", "particle300*"],
+    lazerMeaningful: true,
+  },
+  {
+    scope: "fonts",
+    category: "score",
+    label: "score font",
+    patterns: ["score-*"],
+    lazerMeaningful: true,
+  },
+  {
+    scope: "fonts",
+    category: "combo",
+    label: "combo font",
+    patterns: ["combo-*"],
+    lazerMeaningful: true,
+  },
+  {
+    scope: "fonts",
+    category: "default-numbers",
+    label: "default numbers",
+    patterns: ["default-*"],
+    lazerMeaningful: true,
+  },
+  {
+    scope: "fonts",
+    category: "score-entry",
+    label: "score entry font",
+    patterns: ["scoreentry-*"],
+    lazerMeaningful: true,
+  },
 
-  { scope: "catch", category: "catcher", label: "catcher", patterns: ["fruit-catcher-*"] },
-  { scope: "catch", category: "comboburst", label: "comboburst", patterns: ["comboburst-fruits*"] },
-  { scope: "catch", category: "fruits", label: "fruits", patterns: ["fruit-*"] },
+  {
+    scope: "mania",
+    category: "hit-bursts",
+    label: "hit bursts",
+    patterns: [
+      "mania-hit0*",
+      "mania-hit50*",
+      "mania-hit100*",
+      "mania-hit200*",
+      "mania-hit300*",
+      "mania-hit300g*",
+    ],
+    lazerMeaningful: true,
+  },
+  {
+    scope: "mania",
+    category: "comboburst",
+    label: "comboburst",
+    patterns: ["comboburst-mania*"],
+    lazerMeaningful: true,
+  },
+  {
+    scope: "mania",
+    category: "keys",
+    label: "keys",
+    patterns: ["mania-key*"],
+    lazerMeaningful: true,
+  },
+  {
+    scope: "mania",
+    category: "notes",
+    label: "notes",
+    patterns: ["mania-note*"],
+    lazerMeaningful: true,
+  },
+  {
+    scope: "mania",
+    category: "stage",
+    label: "stage",
+    patterns: ["mania-stage*", "mania-warningarrow*"],
+    lazerMeaningful: true,
+  },
+  {
+    scope: "mania",
+    category: "lighting",
+    label: "lighting",
+    patterns: ["mania-light*", "lightingg*", "lightingl*", "lightingn*"],
+    lazerMeaningful: true,
+  },
 
-  { scope: "std", category: "cursor", label: "cursor", patterns: ["cursor*", "cursors/*"] },
-  { scope: "std", category: "comboburst", label: "comboburst", patterns: ["comboburst*"] },
-  { scope: "std", category: "default-numbers", label: "default numbers", patterns: ["default-*"] },
-  { scope: "std", category: "hit-circles", label: "hit circles", patterns: ["approachcircle*", "hitcircle*", "hitcircleoverlay*", "hitcircleselect*", "followpoint*"] },
-  { scope: "std", category: "slider", label: "slider", patterns: ["sliderstartcircle*", "sliderendcircle*", "sliderfollowcircle*", "sliderb*", "sliderscorepoint*", "reversearrow*", "sliderpoint*"] },
-  { scope: "std", category: "spinner", label: "spinner", patterns: ["spinner-*", "spinner_*", "spinnerspin*", "spinnerbonus*"] },
-  { scope: "std", category: "particles", label: "particles", patterns: ["lighting*"] },
-  { scope: "std", category: "slider-miss-indicators", label: "slider miss indicators", patterns: ["sliderendmiss*", "slidertickmiss*"] },
-  { scope: "std", category: "hit-bursts", label: "hit bursts", patterns: ["hit0*", "hit50*", "hit100*", "hit300*"] },
+  {
+    scope: "stable",
+    category: "decorative",
+    label: "decorative",
+    patterns: ["pippidon*"],
+    lazerMeaningful: false,
+  },
+  {
+    scope: "taiko",
+    category: "hit-bursts",
+    label: "hit bursts",
+    patterns: [
+      "taiko-hit0*",
+      "taiko-hit100*",
+      "taiko-hit100k*",
+      "taiko-hit300*",
+      "taiko-hit300k*",
+    ],
+    lazerMeaningful: true,
+  },
+  {
+    scope: "taiko",
+    category: "notes",
+    label: "notes",
+    patterns: ["taikohitcircle*", "taikobigcircle*"],
+    lazerMeaningful: true,
+  },
+  {
+    scope: "taiko",
+    category: "playfield-upper",
+    label: "playfield upper",
+    patterns: ["taiko-slider.png", "taiko-slider-fail.png", "taiko-glow.png"],
+    lazerMeaningful: true,
+  },
+  {
+    scope: "taiko",
+    category: "playfield-lower",
+    label: "playfield lower",
+    patterns: [
+      "taiko-bar-left*",
+      "taiko-drum-inner*",
+      "taiko-drum-outer*",
+      "taiko-bar-right*",
+      "taiko-bar-right-glow*",
+      "taiko-barline*",
+    ],
+    lazerMeaningful: true,
+  },
+  {
+    scope: "taiko",
+    category: "drumrolls",
+    label: "drumrolls",
+    patterns: ["taiko-roll-middle*", "taiko-roll-end*"],
+    lazerMeaningful: true,
+  },
+  {
+    scope: "taiko",
+    category: "shaker",
+    label: "shaker",
+    patterns: [
+      "spinner-warning*",
+      "spinner-circle*",
+      "spinner-approachcircle*",
+    ],
+    lazerMeaningful: true,
+  },
 
-  { scope: "interface", category: "hud", label: "hud", patterns: ["score-*", "scorebar-*", "combo-*", "inputoverlay-*", "play-*", "ready*", "count*", "section*"] },
-  { scope: "interface", category: "menu", label: "menu", patterns: ["menu-*", "button-*", "selection-*", "mode-*", "star*", "welcome*", "check-*", "click-*"] },
-  { scope: "interface", category: "sounds", label: "interface sounds", patterns: ["applause*", "combobreak*", "failsound*", "gos*", "seeya*", "welcome*", "menuclick*", "menuback*", "menuhit*", "key-*", "match-*", "nightcore-*", "normal-*", "soft-*"] },
+  {
+    scope: "catch",
+    category: "catcher",
+    label: "catcher",
+    patterns: ["fruit-catcher-*", "fruit-ryuuta*"],
+    lazerMeaningful: true,
+  },
+  {
+    scope: "catch",
+    category: "fruits",
+    label: "fruits",
+    patterns: [
+      "fruit-pear*",
+      "fruit-grapes*",
+      "fruit-apple*",
+      "fruit-orange*",
+      "fruit-bananas*",
+      "fruit-drop*",
+      "fruit-droplet*",
+    ],
+    lazerMeaningful: true,
+  },
+  {
+    scope: "catch",
+    category: "particles",
+    label: "particles",
+    patterns: ["lighting*"],
+    lazerMeaningful: true,
+  },
 
-  { scope: "sounds", category: "hitsounds", label: "hitsounds", patterns: ["normal-*", "soft-*", "drum-*", "taiko-*-hit*"] },
+  {
+    scope: "std",
+    category: "hit-circles",
+    label: "hit circles",
+    patterns: [
+      "approachcircle*",
+      "hitcircle*",
+      "hitcircleoverlay*",
+      "followpoint*",
+    ],
+    lazerMeaningful: true,
+  },
+  {
+    scope: "std",
+    category: "slider",
+    label: "slider",
+    patterns: [
+      "sliderendcircle*",
+      "sliderendcircleoverlay*",
+      "sliderfollowcircle*",
+      "sliderb*",
+      "sliderb-nd*",
+      "sliderb-spec*",
+      "sliderscorepoint*",
+      "reversearrow*",
+      "sliderpoint10*",
+      "sliderpoint30*",
+    ],
+    lazerMeaningful: true,
+  },
+  {
+    scope: "std",
+    category: "slider-miss-indicators",
+    label: "slider miss indicators",
+    patterns: ["sliderendmiss*", "slidertickmiss*"],
+    lazerMeaningful: true,
+  },
+  {
+    scope: "std",
+    category: "particles",
+    label: "particles",
+    patterns: ["lighting*"],
+    lazerMeaningful: true,
+  },
+  {
+    scope: "std",
+    category: "spinner",
+    label: "spinner",
+    patterns: [
+      "spinner-rpm*",
+      "spinner-clear*",
+      "spinner-spin*",
+      "spinner-background*",
+      "spinner-metre*",
+      "spinner-osu*",
+      "spinner-glow*",
+      "spinner-bottom*",
+      "spinner-top*",
+      "spinner-middle*",
+      "spinner-middle2*",
+    ],
+    lazerMeaningful: true,
+  },
+  {
+    scope: "std",
+    category: "intro",
+    label: "intro",
+    patterns: ["play-skip*"],
+    lazerMeaningful: true,
+  },
 
-  { scope: "stable", category: "ranking", label: "ranking", patterns: ["ranking-*", "scoreentry-*"] },
-  { scope: "stable", category: "pause", label: "pause", patterns: ["pause-*", "fail-background*"] },
-  { scope: "stable", category: "songselect", label: "songselect", patterns: ["songselect-*"] },
-  { scope: "stable", category: "selection", label: "selection", patterns: ["selection-*", "mode-*-small*", "mode-*-med*", "mode-osu*", "mode-taiko*", "mode-fruits*", "mode-mania*"] },
-  { scope: "stable", category: "legacy-editor", label: "legacy editor", patterns: ["hitcircleselect*"] },
-  { scope: "stable", category: "extras", label: "stable extras", patterns: ["arrow-*", "play-skip*", "play-unranked*"] }
+  {
+    scope: "sounds",
+    category: "hitsounds",
+    label: "hitsounds",
+    patterns: [
+      "normal-hitnormal.*",
+      "normal-hitwhistle.*",
+      "normal-hitfinish.*",
+      "normal-hitclap.*",
+      "soft-hitnormal.*",
+      "soft-hitwhistle.*",
+      "soft-hitfinish.*",
+      "soft-hitclap.*",
+      "drum-hitnormal.*",
+      "drum-hitwhistle.*",
+      "drum-hitfinish.*",
+      "drum-hitclap.*",
+    ],
+    lazerMeaningful: true,
+  },
+  {
+    scope: "sounds",
+    category: "slider",
+    label: "slider sounds",
+    patterns: [
+      "normal-slidertick.*",
+      "normal-sliderslide.*",
+      "normal-sliderwhistle.*",
+      "soft-slidertick.*",
+      "soft-sliderslide.*",
+      "soft-sliderwhistle.*",
+      "drum-slidertick.*",
+      "drum-sliderslide.*",
+      "drum-sliderwhistle.*",
+    ],
+    lazerMeaningful: true,
+  },
+  {
+    scope: "sounds",
+    category: "gameplay",
+    label: "gameplay sounds",
+    patterns: [
+      "spinnerspin.*",
+      "spinnerbonus.*",
+      "spinnerbonus-max.*",
+      "combobreak.*",
+      "failsound.*",
+      "sectionpass.*",
+      "sectionfail.*",
+    ],
+    lazerMeaningful: true,
+  },
+  {
+    scope: "sounds",
+    category: "countdown",
+    label: "countdown sounds",
+    patterns: [
+      "count.*",
+      "count1s.*",
+      "count2s.*",
+      "count3s.*",
+      "gos.*",
+      "readys.*",
+    ],
+    lazerMeaningful: true,
+  },
+  {
+    scope: "sounds",
+    category: "lazer",
+    label: "lazer sounds",
+    patterns: [
+      "fountain-loop.*",
+      "fountain-shoot.*",
+      "taiko-strong-hitnormal.*",
+      "taiko-strong-hitclap.*",
+      "taiko-strong-hitflourish.*",
+      "rank-up.*",
+      "rank-down.*",
+      "applause-s.*",
+      "applause-a.*",
+      "applause-b.*",
+      "applause-c.*",
+      "applause-d.*",
+    ],
+    lazerMeaningful: true,
+  },
 ];
 
 export function normalizeSeparators(value: string): string {
@@ -152,19 +654,202 @@ export function stripScaleSuffix(fileName: string): string {
   return `${stem.endsWith("@2x") ? stem.slice(0, -3) : stem}${ext}`;
 }
 
+function stripAnimationSuffix(fileName: string): string {
+  const ext = path.extname(fileName);
+  const stem = fileName.slice(0, fileName.length - ext.length);
+  const numberedDash = stem.match(/^(.*)-\d+$/);
+  if (numberedDash) return `${numberedDash[1]}${ext}`;
+  const sliderBallFrame = stem.match(/^(sliderb)\d+$/);
+  if (sliderBallFrame) return `${sliderBallFrame[1]}${ext}`;
+  return fileName;
+}
+
 export function canonicalKey(relativePath: string): string {
   const parts = toPosixPath(relativePath).toLowerCase().split("/");
   parts[parts.length - 1] = stripScaleSuffix(parts[parts.length - 1]);
   return parts.join("/");
 }
 
+export function logicalSkinKey(relativePath: string): string {
+  const parts = canonicalKey(relativePath).split("/");
+  parts[parts.length - 1] = stripAnimationSuffix(parts[parts.length - 1]);
+  return parts.join("/");
+}
+
+export type SkinClassificationContext = {
+  meaningfulKeys: Set<string>;
+  fontPrefixes: Set<string>;
+  referencedClassifications: Map<
+    string,
+    Pick<
+      SkinClassification,
+      "scope" | "category" | "componentId" | "requiredLevel"
+    >
+  >;
+};
+
+export function emptySkinContext(): SkinClassificationContext {
+  return {
+    meaningfulKeys: new Set(),
+    fontPrefixes: new Set(),
+    referencedClassifications: new Map(),
+  };
+}
+
+function addReferencedAsset(
+  context: SkinClassificationContext,
+  rawValue: string,
+  classification?: Pick<
+    SkinClassification,
+    "scope" | "category" | "componentId" | "requiredLevel"
+  >,
+): void {
+  const trimmed = rawValue.trim().replace(/^["']|["']$/g, "");
+  if (!trimmed || /^-?\d+(?:\.\d+)?$/.test(trimmed)) return;
+  if (/^(true|false)$/i.test(trimmed)) return;
+  if (/^\d+\s*,/.test(trimmed)) return;
+
+  const value = toPosixPath(trimmed).split(/[;,]/)[0]?.trim();
+  if (!value || /\s/.test(value)) return;
+
+  const ext = path.extname(value).toLowerCase();
+  const candidates = ext
+    ? [value]
+    : [
+        `${value}.png`,
+        `${value}.jpg`,
+        `${value}.jpeg`,
+        `${value}.wav`,
+        `${value}.ogg`,
+        `${value}.mp3`,
+      ];
+  for (const candidate of candidates) {
+    const key = logicalSkinKey(candidate);
+    context.meaningfulKeys.add(key);
+    context.meaningfulKeys.add(key.split("/").at(-1) ?? key);
+    if (classification) {
+      context.referencedClassifications.set(key, classification);
+      context.referencedClassifications.set(
+        key.split("/").at(-1) ?? key,
+        classification,
+      );
+    }
+  }
+}
+
+const fontGlyphs = [
+  "0",
+  "1",
+  "2",
+  "3",
+  "4",
+  "5",
+  "6",
+  "7",
+  "8",
+  "9",
+  "comma",
+  "dot",
+  "percent",
+  "x",
+  "pp",
+];
+
+function addFontPrefix(
+  context: SkinClassificationContext,
+  rawValue: string,
+): void {
+  const prefix = rawValue.trim().replace(/^["']|["']$/g, "");
+  if (!prefix) return;
+  context.fontPrefixes.add(prefix.toLowerCase());
+  for (const glyph of fontGlyphs) {
+    const key = `${prefix.toLowerCase()}-${glyph}.png`;
+    context.meaningfulKeys.add(key);
+    context.referencedClassifications.set(key, {
+      scope: "fonts",
+      category: "skin-ini-prefixes",
+      componentId: "font-prefixes",
+      requiredLevel: "recommended",
+    });
+  }
+}
+
+export function parseSkinIniContext(
+  content: string,
+): SkinClassificationContext {
+  const context = emptySkinContext();
+  let section = "";
+  for (const line of content.split(/\r?\n/)) {
+    const sectionMatch = line.match(/^\s*\[([^\]]+)]\s*$/);
+    if (sectionMatch) {
+      section = sectionMatch[1].trim().toLowerCase();
+      continue;
+    }
+    const pair = line.match(/^\s*([^:#;][^:]*):\s*(.*?)\s*(?:[;#].*)?$/);
+    if (!pair) continue;
+    const key = pair[1].trim().toLowerCase();
+    const value = pair[2].trim();
+    if (key.endsWith("prefix")) addFontPrefix(context, value);
+    if (
+      section === "mania" ||
+      /image|stage|note|key|light|hint|barline|warning/.test(key)
+    ) {
+      const category = key.includes("key")
+        ? "keys"
+        : key.includes("note")
+          ? "notes"
+          : key.includes("stage") ||
+              key.includes("barline") ||
+              key.includes("hint")
+            ? "stage"
+            : key.includes("light")
+              ? "lighting"
+              : "skin-ini-references";
+      addReferencedAsset(
+        context,
+        value,
+        section === "mania"
+          ? {
+              scope: "mania",
+              category,
+              componentId: "mania-custom-assets",
+              requiredLevel: "recommended",
+            }
+          : {
+              scope: "configs",
+              category: "skin-ini-references",
+              componentId: "skin-ini-references",
+              requiredLevel: "recommended",
+            },
+      );
+    }
+  }
+  return context;
+}
+
+export async function skinContextForRoot(
+  root: string,
+): Promise<SkinClassificationContext> {
+  const skinIni = path.join(root, "skin.ini");
+  const content = await readFile(skinIni, "utf8").catch(() => "");
+  return content ? parseSkinIniContext(content) : emptySkinContext();
+}
+
 export function globToRegExp(pattern: string): RegExp {
-  const escaped = pattern.replace(/[.+^${}()|[\]\\]/g, "\\$&").replaceAll("*", ".*");
+  const escaped = pattern
+    .replace(/[.+^${}()|[\]\\]/g, "\\$&")
+    .replaceAll("*", ".*");
   return new RegExp(`^${escaped}$`);
 }
 
-function nameMatches(relativePath: string, patterns: string[]): boolean {
-  const key = canonicalKey(relativePath);
+function nameMatches(
+  relativePath: string,
+  patterns: string[],
+  logical = false,
+): boolean {
+  const key = logical
+    ? logicalSkinKey(relativePath)
+    : canonicalKey(relativePath);
   const basename = key.split("/").at(-1) ?? key;
   return patterns.some((pattern) => {
     const lower = pattern.toLowerCase();
@@ -197,7 +882,10 @@ function titleize(value: string): string {
     .join(" ");
 }
 
-function sequenceInfo(relativePath: string): { groupKey: string; sequenceIndex: number | null } {
+function sequenceInfo(relativePath: string): {
+  groupKey: string;
+  sequenceIndex: number | null;
+} {
   const parsed = path.parse(toPosixPath(relativePath));
   let stem = stripScaleSuffix(parsed.name);
   const sequence = stem.match(/^(.*?)-(\d+)$/);
@@ -205,41 +893,189 @@ function sequenceInfo(relativePath: string): { groupKey: string; sequenceIndex: 
     stem = sequence[1];
     return { groupKey: stem.toLowerCase(), sequenceIndex: Number(sequence[2]) };
   }
+  const sliderBallFrame = stem.match(/^(sliderb)(\d+)$/);
+  if (sliderBallFrame) {
+    return {
+      groupKey: sliderBallFrame[1].toLowerCase(),
+      sequenceIndex: Number(sliderBallFrame[2]),
+    };
+  }
   return { groupKey: stem.toLowerCase(), sequenceIndex: null };
 }
 
-function fallbackGroup(relativePath: string): { groupKey: string; groupLabel: string; sequenceIndex: number | null } {
+function fallbackGroup(relativePath: string): {
+  groupKey: string;
+  groupLabel: string;
+  sequenceIndex: number | null;
+} {
   const { groupKey, sequenceIndex } = sequenceInfo(relativePath);
   return { groupKey, groupLabel: titleize(groupKey), sequenceIndex };
 }
 
-export function classifySkinFile(relativePath: string): SkinClassification {
+export function classificationRuleId(rule: Rule, index = classificationRules.indexOf(rule)): string {
+  return rule.id ?? `${rule.scope}:${rule.category}:${index}`;
+}
+
+function componentIdFor(rule: Rule): string {
+  return rule.componentId ?? `${rule.scope}:${rule.category}`;
+}
+
+function requiredLevelFor(rule: Rule): RequiredLevel {
+  if (rule.requiredLevel) return rule.requiredLevel;
+  return rule.lazerMeaningful ? "recommended" : "optional";
+}
+
+function isContextMeaningful(
+  relativePath: string,
+  context?: SkinClassificationContext,
+): boolean {
+  if (!context) return false;
+  const keys = [canonicalKey(relativePath), logicalSkinKey(relativePath)];
+  const basenames = keys.map((key) => key.split("/").at(-1) ?? key);
+  if (
+    keys.some((key) => context.meaningfulKeys.has(key)) ||
+    basenames.some((basename) => context.meaningfulKeys.has(basename))
+  )
+    return true;
+  const basename = basenames[0] ?? "";
+  const ext = path.extname(basename);
+  if (!ext) return false;
+  const stem = basename.slice(0, basename.length - ext.length);
+  return [...context.fontPrefixes].some((prefix) =>
+    stem.startsWith(`${prefix}-`),
+  );
+}
+
+function contextClassification(
+  relativePath: string,
+  context?: SkinClassificationContext,
+): Pick<
+  SkinClassification,
+  | "ruleId"
+  | "componentId"
+  | "requiredLevel"
+  | "scope"
+  | "category"
+  | "lazerMeaningful"
+> | null {
+  if (!isContextMeaningful(relativePath, context)) return null;
+  const canonical = canonicalKey(relativePath);
+  const logical = logicalSkinKey(relativePath);
+  const basename = logical.split("/").at(-1) ?? "";
+  const canonicalBase = canonical.split("/").at(-1) ?? canonical;
+  const direct =
+    context?.referencedClassifications.get(canonical) ??
+    context?.referencedClassifications.get(logical) ??
+    context?.referencedClassifications.get(canonicalBase) ??
+    context?.referencedClassifications.get(basename);
+  if (direct)
+    return {
+      ruleId: `skin-ini:${direct.scope}:${direct.category}`,
+      componentId: direct.componentId,
+      requiredLevel: direct.requiredLevel,
+      ...direct,
+      lazerMeaningful: true,
+    };
+  if (
+    basename.startsWith("mania-") ||
+    /^(note|key|stage|light|mania)/.test(basename)
+  ) {
+    if (basename.includes("key"))
+      return {
+        ruleId: "skin-ini:mania:keys",
+        componentId: "mania-custom-assets",
+        requiredLevel: "recommended",
+        scope: "mania",
+        category: "keys",
+        lazerMeaningful: true,
+      };
+    if (basename.includes("note"))
+      return {
+        ruleId: "skin-ini:mania:notes",
+        componentId: "mania-custom-assets",
+        requiredLevel: "recommended",
+        scope: "mania",
+        category: "notes",
+        lazerMeaningful: true,
+      };
+    if (basename.includes("stage"))
+      return {
+        ruleId: "skin-ini:mania:stage",
+        componentId: "mania-custom-assets",
+        requiredLevel: "recommended",
+        scope: "mania",
+        category: "stage",
+        lazerMeaningful: true,
+      };
+    return {
+      ruleId: "skin-ini:mania:references",
+      componentId: "mania-custom-assets",
+      requiredLevel: "recommended",
+      scope: "mania",
+      category: "skin-ini-references",
+      lazerMeaningful: true,
+    };
+  }
+  return {
+    ruleId: "skin-ini:configs:references",
+    componentId: "skin-ini-references",
+    requiredLevel: "recommended",
+    scope: "configs",
+    category: "skin-ini-references",
+    lazerMeaningful: true,
+  };
+}
+
+export function classifySkinFile(
+  relativePath: string,
+  context?: SkinClassificationContext,
+): SkinClassification {
   const key = canonicalKey(relativePath);
   const kind = kindFor(relativePath);
   const fileModes = modesFor(key);
   const group = fallbackGroup(key);
+  const contextual = contextClassification(key, context);
+  if (contextual) {
+    return {
+      ...contextual,
+      groupKey: group.groupKey,
+      groupLabel: group.groupLabel,
+      sequenceIndex: group.sequenceIndex,
+      modes: fileModes,
+      kind,
+    };
+  }
 
   for (const rule of classificationRules) {
-    if (!nameMatches(key, rule.patterns)) continue;
+    if (!nameMatches(key, rule.patterns, true)) continue;
+    const ruleIndex = classificationRules.indexOf(rule);
     return {
+      ruleId: classificationRuleId(rule, ruleIndex),
+      componentId: componentIdFor(rule),
+      requiredLevel: requiredLevelFor(rule),
       scope: rule.scope,
       category: rule.category,
       groupKey: group.groupKey,
       groupLabel: group.groupLabel,
       sequenceIndex: group.sequenceIndex,
       modes: fileModes,
-      kind
+      kind,
+      lazerMeaningful: rule.lazerMeaningful,
     };
   }
 
   return {
+    ruleId: "extras:unclassified",
+    componentId: "extras",
+    requiredLevel: "optional",
     scope: "extras",
     category: kind === "other" ? "other-files" : `${kind}-files`,
     groupKey: group.groupKey,
     groupLabel: group.groupLabel,
     sequenceIndex: group.sequenceIndex,
     modes: fileModes,
-    kind
+    kind,
+    lazerMeaningful: false,
   };
 }
 
@@ -247,8 +1083,11 @@ export function categoryFor(relativePath: string): string {
   return classifySkinFile(relativePath).scope;
 }
 
-export function structuredPathFor(relativePath: string): string {
-  const classification = classifySkinFile(relativePath);
+export function structuredPathFor(
+  relativePath: string,
+  context?: SkinClassificationContext,
+): string {
+  const classification = classifySkinFile(relativePath, context);
   return `${classification.scope}/${classification.category}/${classification.groupKey}/${toPosixPath(relativePath)}`;
 }
 
@@ -270,7 +1109,10 @@ export function safeJoin(root: string, relativePath: string): string {
   }
   const target = path.resolve(root, normalized);
   const resolvedRoot = path.resolve(root);
-  if (target !== resolvedRoot && !target.startsWith(`${resolvedRoot}${path.sep}`)) {
+  if (
+    target !== resolvedRoot &&
+    !target.startsWith(`${resolvedRoot}${path.sep}`)
+  ) {
     throw new Error(`path escapes root: ${relativePath}`);
   }
   return target;
@@ -278,6 +1120,7 @@ export function safeJoin(root: string, relativePath: string): string {
 
 export async function walkFiles(root: string): Promise<SkinFile[]> {
   const files: SkinFile[] = [];
+  const context = await skinContextForRoot(root);
 
   async function walk(current: string) {
     const entries = await readdir(current, { withFileTypes: true });
@@ -293,7 +1136,7 @@ export async function walkFiles(root: string): Promise<SkinFile[]> {
         root,
         relativePath,
         fullPath,
-        ...classifySkinFile(relativePath)
+        ...classifySkinFile(relativePath, context),
       });
     }
   }
@@ -302,7 +1145,10 @@ export async function walkFiles(root: string): Promise<SkinFile[]> {
   return files.sort((a, b) => a.relativePath.localeCompare(b.relativePath));
 }
 
-export async function extractArchive(source: string, output: string): Promise<void> {
+export async function extractArchive(
+  source: string,
+  output: string,
+): Promise<void> {
   await mkdir(output, { recursive: true });
   const listing = await $`unzip -Z1 ${source}`.quiet().text();
   for (const member of listing.split("\n").filter(Boolean)) {
@@ -314,22 +1160,34 @@ export async function extractArchive(source: string, output: string): Promise<vo
   await $`unzip -qq ${source} -d ${output}`.quiet();
 }
 
-export async function resolveSource(source: string, tempRoot: string): Promise<string> {
+export async function resolveSource(
+  source: string,
+  tempRoot: string,
+): Promise<string> {
   const sourceStat = await stat(source).catch(() => null);
   if (!sourceStat) throw new Error(`source does not exist: ${source}`);
   if (sourceStat.isDirectory()) return source;
   if (sourceStat.isFile() && source.toLowerCase().endsWith(".osk")) {
-    const output = path.join(tempRoot, path.basename(source, path.extname(source)));
+    const output = path.join(
+      tempRoot,
+      path.basename(source, path.extname(source)),
+    );
     await extractArchive(source, output);
     return output;
   }
-  throw new Error(`source must be an extracted skin folder or .osk file: ${source}`);
+  throw new Error(
+    `source must be an extracted skin folder or .osk file: ${source}`,
+  );
 }
 
-export async function copyTreeStructured(sourceRoot: string, outputRoot: string): Promise<Record<string, string>> {
+export async function copyTreeStructured(
+  sourceRoot: string,
+  outputRoot: string,
+): Promise<Record<string, string>> {
   const manifest: Record<string, string> = {};
+  const context = await skinContextForRoot(sourceRoot);
   for (const file of await walkFiles(sourceRoot)) {
-    const structuredPath = structuredPathFor(file.relativePath);
+    const structuredPath = structuredPathFor(file.relativePath, context);
     const target = safeJoin(outputRoot, structuredPath);
     await mkdir(path.dirname(target), { recursive: true });
     await copyFile(file.fullPath, target);

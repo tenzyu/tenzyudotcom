@@ -32,6 +32,7 @@
             <button id="chooseMainFolder">Choose folder</button>
           </div>
           <button id="importMain" class="primary">Import main skin</button>
+          <button id="importBackup">Import backup</button>
         </section>
 
         <section>
@@ -72,7 +73,8 @@
           </div>
           <div class="toolbarActions">
             <select id="sourceSelect"></select>
-            <button id="copySelected">Copy selected assets</button>
+            <button id="undoProject">Undo</button>
+            <button id="reclassifyProject">Reclassify</button>
             <button id="exportProject" class="primary">Export</button>
           </div>
         </header>
@@ -80,34 +82,70 @@
         <nav id="scopeTabs" class="tabs"></nav>
         <nav id="categoryTabs" class="tabs subTabs"></nav>
 
-        <section class="content">
-          <div class="pane">
-            <div class="paneHeader">
-              <div>
-                <h3>Project</h3>
-                <p id="projectCategoryMeta"></p>
-              </div>
-              <input id="projectFilter" placeholder="Filter project groups" />
-            </div>
-            <div id="projectGroups" class="groupGrid"></div>
+        <section class="compareShell">
+          <div class="compareTools">
+            <input id="assetFilter" placeholder="Filter assets" />
+            <label class="inlineControl"><input id="meaningfulOnly" type="checkbox" checked /> Lazer meaningful only</label>
+            <label class="inlineControl"><input id="collapseStable" type="checkbox" checked /> Collapse stable later</label>
+            <select id="previewMode">
+              <option value="thumbnail">Thumbnail</option>
+              <option value="composite">Composite</option>
+            </select>
+            <select id="sourceFilterMode">
+              <option value="all">All rows</option>
+              <option value="missing">Missing in project</option>
+              <option value="different">Different from project</option>
+              <option value="warnings">Warnings</option>
+              <option value="hd">Has HD</option>
+              <option value="sd">Has SD</option>
+            </select>
+            <button id="selectVisible">Select visible</button>
+            <button id="clearSelection">Clear selection</button>
+            <button id="copySelected">Copy selected</button>
           </div>
-
-          <div class="pane">
-            <div class="paneHeader">
-              <div>
-                <h3>Asset Source</h3>
-                <p id="sourceCategoryMeta"></p>
-              </div>
-              <div class="buttonRow">
-                <button id="selectCategory">Select category</button>
-                <button id="clearCategory">Clear</button>
-              </div>
-              <input id="sourceFilter" placeholder="Filter source groups" />
+          <div id="validationSummary" class="validationSummary"></div>
+          <div class="compareHeader">
+            <div>
+              <h3>Project</h3>
+              <p id="projectColumnMeta" class="muted"></p>
             </div>
-            <div id="sourceGroups" class="groupGrid"></div>
+            <div>
+              <h3>Asset Source</h3>
+              <p id="assetColumnMeta" class="muted"></p>
+            </div>
           </div>
+          <p id="compareMeta" class="muted"></p>
+          <div id="assetRows" class="assetRows"></div>
+          <div id="projectAssets" class="hidden"></div>
+          <div id="sourceAssets" class="hidden"></div>
         </section>
       </main>
+    </div>
+
+    <div id="reclassifyOverlay" class="overlay hidden">
+      <div class="modal">
+        <header>
+          <h2>Reclassify Project</h2>
+          <button id="closeReclassify">Close</button>
+        </header>
+        <div id="reclassifyPreview" class="modalList"></div>
+        <footer>
+          <button id="runReclassify" class="primary">Apply reclassify</button>
+        </footer>
+      </div>
+    </div>
+
+    <div id="validationOverlay" class="overlay hidden">
+      <div class="modal">
+        <header>
+          <h2>Warnings</h2>
+          <button id="closeValidation">Close</button>
+        </header>
+        <div id="validationList" class="modalList"></div>
+        <footer>
+          <button id="closeValidationFooter">Close</button>
+        </footer>
+      </div>
     </div>
 
     <div id="textOverlay" class="overlay hidden">
@@ -127,12 +165,46 @@
     <div id="conflictOverlay" class="overlay hidden">
       <div class="modal">
         <header>
-          <h2>Resolve Conflicts</h2>
+          <h2>Apply Changes</h2>
           <button id="closeConflicts">Close</button>
         </header>
         <div id="conflictList"></div>
         <footer>
           <button id="applyConflicts" class="primary">Apply choices</button>
+        </footer>
+      </div>
+    </div>
+
+    <div id="exportOverlay" class="overlay hidden">
+      <div class="modal exportModal">
+        <header>
+          <h2>Export</h2>
+          <button id="closeExport">Close</button>
+        </header>
+        <div class="exportBody">
+          <label>
+            Preset
+            <select id="exportPreset">
+              <option value="full">Full</option>
+              <option value="sd">SD only</option>
+              <option value="hd">HD only</option>
+              <option value="diff">Diff</option>
+              <option value="backup">Backup</option>
+            </select>
+          </label>
+          <p id="exportPresetDescription" class="muted"></p>
+          <div class="formGrid">
+            <label class="inlineControl"><input id="formatFlat" type="checkbox" checked /> Flat folder</label>
+            <label class="inlineControl"><input id="formatOsk" type="checkbox" checked /> .osk</label>
+            <label class="inlineControl"><input id="formatDiff" type="checkbox" /> Diff folder</label>
+            <label class="inlineControl"><input id="formatBackup" type="checkbox" /> Project backup</label>
+            <label class="inlineControl"><input id="includeStable" type="checkbox" checked /> Include stable later</label>
+            <label class="inlineControl"><input id="includeExtras" type="checkbox" checked /> Include extras</label>
+          </div>
+          <div id="validationPanel" class="validationPanel"></div>
+        </div>
+        <footer>
+          <button id="runExport" class="primary">Export</button>
         </footer>
       </div>
     </div>

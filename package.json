@@ -6,6 +6,7 @@
   "scripts": {
     "editor": "bun run tools/osu-skin-editor.ts",
     "skin": "bun run tools/osu-skin-extract.ts",
-    "check": "bun run tools/osu-skin-extract.ts help && bun run tools/osu-skin-editor.ts --check"
+    "test": "bun test",
+    "check": "bun test && bun run tools/osu-skin-extract.ts help && bun run tools/osu-skin-editor.ts --check"
   }
 }

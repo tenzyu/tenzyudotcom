@@ -115,7 +115,8 @@ async function commandList(args: string[]) {
         scope: file.scope,
         category: file.category,
         group: file.groupKey,
-        kind: file.kind
+        kind: file.kind,
+        lazerMeaningful: file.lazerMeaningful
       })), null, 2));
     }
     for (const { file } of files) {
