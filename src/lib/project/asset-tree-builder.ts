@@ -61,13 +61,13 @@ type MutableCategoryNode = Omit<AssetCategoryNode, "groups"> & {
 
 type MutableGroupNode = AssetGroupNode;
 
-function emptyMeaning(): SkinMeaning {
-  return {
-    lazerLegacy: false,
-    lazerNative: false,
-    stable: false,
-  };
-}
+// function emptyMeaning(): SkinMeaning {
+//   return {
+//     lazerLegacy: false,
+//     lazerNative: false,
+//     stable: false,
+//   };
+// }
 
 function mergeMeaning(target: SkinMeaning, source: SkinMeaning): SkinMeaning {
   return {

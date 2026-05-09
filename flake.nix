@@ -1,5 +1,5 @@
 {
-  description = "Tools for editing and extracting osu! skin elements";
+  description = "Lazer-first osu! skin editor";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -8,9 +8,10 @@
   outputs = { self, nixpkgs }:
     let
       systems = [ "x86_64-linux" "aarch64-linux" ];
+
       source = builtins.path {
         path = ./.;
-        name = "osu-skin-tools-source";
+        name = "osu-skin-editor-source";
         filter = path: type:
           let
             base = baseNameOf path;
@@ -18,11 +19,16 @@
           in
             !(base == ".git"
               || base == "result"
+              || base == ".next"
+              || base == "out"
               || nixpkgs.lib.hasPrefix "skins/" rel
               || nixpkgs.lib.hasPrefix "exports/" rel
               || nixpkgs.lib.hasPrefix "skin-editor-projects/" rel
-              || nixpkgs.lib.hasPrefix "node_modules/" rel);
+              || nixpkgs.lib.hasPrefix "node_modules/" rel
+              || nixpkgs.lib.hasPrefix ".next/" rel
+              || nixpkgs.lib.hasPrefix "out/" rel);
       };
+
       forAllSystems = f:
         nixpkgs.lib.genAttrs systems (system:
           f {
@@ -35,44 +41,59 @@
           packages = [
             pkgs.bun
             pkgs.nodejs_22
+
+            # .osk import/export
             pkgs.unzip
             pkgs.zip
-            pkgs.xdg-utils
-            pkgs.zenity
-            pkgs.kdePackages.kdialog
           ];
+
+          shellHook = ''
+            echo "osu-skin-editor dev shell"
+            echo "  bun install"
+            echo "  bun run dev"
+            echo "  bun run check"
+          '';
         };
       });
 
       packages = forAllSystems ({ pkgs }: {
-        frontend = pkgs.buildNpmPackage {
-          pname = "osu-skin-editor-frontend";
-          version = "0.1.0";
-          src = source;
-          npmDepsHash = "sha256-xe7onR737CobBQ84FapCJHw/Ea9PDJGX9H+CUEjLyv0=";
-          npmBuildScript = "build:editor";
-          installPhase = ''
-            runHook preInstall
-            mkdir -p $out
-            cp -r src/editor-dist/. $out/
-            runHook postInstall
-          '';
-        };
-
         editor = pkgs.writeShellApplication {
           name = "osu-skin-editor";
-          runtimeInputs = [ pkgs.bun pkgs.unzip pkgs.zip pkgs.xdg-utils pkgs.zenity pkgs.kdePackages.kdialog ];
+
+          runtimeInputs = [
+            pkgs.bun
+            pkgs.nodejs_22
+            pkgs.unzip
+            pkgs.zip
+          ];
+
           text = ''
-            export OSU_SKIN_EDITOR_STATIC_ROOT="${self.packages.${pkgs.stdenv.hostPlatform.system}.frontend}"
-            exec bun run ${self}/src/osu-skin-editor.ts "$@"
+            if [ ! -f package.json ]; then
+              echo "error: run this command from the osu-skin-editor repository root" >&2
+              exit 1
+            fi
+
+            exec bun run dev "$@"
           '';
         };
 
-        extract = pkgs.writeShellApplication {
-          name = "osu-skin-extract";
-          runtimeInputs = [ pkgs.bun pkgs.unzip ];
+        check = pkgs.writeShellApplication {
+          name = "osu-skin-editor-check";
+
+          runtimeInputs = [
+            pkgs.bun
+            pkgs.nodejs_22
+            pkgs.unzip
+            pkgs.zip
+          ];
+
           text = ''
-            exec bun run ${self}/src/osu-skin-extract.ts "$@"
+            if [ ! -f package.json ]; then
+              echo "error: run this command from the osu-skin-editor repository root" >&2
+              exit 1
+            fi
+
+            exec bun run check "$@"
           '';
         };
 
@@ -83,19 +104,19 @@
         default = {
           type = "app";
           program = "${self.packages.${pkgs.stdenv.hostPlatform.system}.editor}/bin/osu-skin-editor";
-          meta.description = "Open the browser-based osu! skin editor";
+          meta.description = "Start the Next.js osu! skin editor";
         };
 
         editor = {
           type = "app";
           program = "${self.packages.${pkgs.stdenv.hostPlatform.system}.editor}/bin/osu-skin-editor";
-          meta.description = "Open the browser-based osu! skin editor";
+          meta.description = "Start the Next.js osu! skin editor";
         };
 
-        extract = {
+        check = {
           type = "app";
-          program = "${self.packages.${pkgs.stdenv.hostPlatform.system}.extract}/bin/osu-skin-extract";
-          meta.description = "Extract osu! skin elements by game mode";
+          program = "${self.packages.${pkgs.stdenv.hostPlatform.system}.check}/bin/osu-skin-editor-check";
+          meta.description = "Run tests, typecheck, and Next.js build";
         };
       });
     };

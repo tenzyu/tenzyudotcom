@@ -100,7 +100,6 @@ export function titleizeIdentifier(value: string): string {
 
 export function sequenceInfo(relativePath: string): SequenceInfo {
   const fileName = basenameOf(logicalSkinKey(relativePath));
-  const ext = path.extname(fileName);
   let stem = stripScaleSuffix(withoutExtension(fileName));
 
   const numberedDash = stem.match(/^(.*?)-(\d+)$/);
