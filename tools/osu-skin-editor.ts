@@ -16,6 +16,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { parseArgs } from "node:util";
 import { $ } from "bun";
+import type { HistoryEntry, ProjectManifest, SourceManifest } from "./shared/editor-types";
 import {
   classifySkinFile,
   classificationRules,
@@ -35,48 +36,15 @@ import {
   walkFiles
 } from "./skin-lib";
 
-type SourceManifest = {
-  id: string;
-  name: string;
-  sourcePath: string;
-  createdAt: string;
-  files: Record<string, string>;
-};
-
-type ProjectManifest = {
-  id: string;
-  name: string;
-  mainSourcePath: string;
-  createdAt: string;
-  updatedAt: string;
-  files: Record<string, string>;
-  sources: SourceManifest[];
-  exports?: {
-    flat?: string;
-    osk?: string;
-    diff?: string;
-    backup?: string;
-  };
-  history?: HistoryEntry[];
-  warningStates?: Record<string, { ignored?: boolean; read?: boolean }>;
-};
-
-type HistoryEntry = {
-  id: string;
-  action: string;
-  createdAt: string;
-  manifestBeforePath: string;
-  files: Array<{
-    path: string;
-    existed: boolean;
-    backupPath?: string;
-  }>;
-};
-
 const workspaceRoot = process.cwd();
 const projectsRoot = path.join(workspaceRoot, "skin-editor-projects");
 const exportsRoot = path.join(workspaceRoot, "exports");
-const staticRoot = path.join(import.meta.dir, "editor-static");
+const builtStaticRoot = path.join(import.meta.dir, "editor-dist");
+const staticRoot = process.env.OSU_SKIN_EDITOR_STATIC_ROOT
+  ? path.resolve(workspaceRoot, process.env.OSU_SKIN_EDITOR_STATIC_ROOT)
+  : existsSync(builtStaticRoot)
+    ? builtStaticRoot
+  : path.join(import.meta.dir, "editor-static");
 
 function json(data: unknown, status = 200): Response {
   return new Response(JSON.stringify(data, null, 2), {
@@ -1093,7 +1061,7 @@ async function main() {
     }
   });
   if (parsed.values.check) {
-    for (const file of ["index.html", "styles.css", "app.js"]) {
+    for (const file of ["index.html"]) {
       const target = path.join(staticRoot, file);
       if (!existsSync(target)) throw new Error(`missing static file: ${target}`);
     }

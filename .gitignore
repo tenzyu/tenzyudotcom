@@ -1,3 +1,6 @@
 skins/
 exports/
 skin-editor-projects/
+node_modules/
+result
+tools/editor-dist/

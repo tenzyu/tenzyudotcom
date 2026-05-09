@@ -4,9 +4,22 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "build:editor": "vite build --config tools/editor/vite.config.ts",
+    "dev:editor": "vite --config tools/editor/vite.config.ts",
     "editor": "bun run tools/osu-skin-editor.ts",
     "skin": "bun run tools/osu-skin-extract.ts",
     "test": "bun test",
-    "check": "bun test && bun run tools/osu-skin-extract.ts help && bun run tools/osu-skin-editor.ts --check"
+    "check": "bun test && bun run tools/osu-skin-extract.ts help && bun run build:editor && OSU_SKIN_EDITOR_STATIC_ROOT=tools/editor-dist bun run tools/osu-skin-editor.ts --check"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "vite": "^6.0.7",
+    "typescript": "^5.7.2",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.2",
+    "@types/react-dom": "^19.0.2"
   }
 }

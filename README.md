@@ -136,6 +136,12 @@ Run the editor without opening a browser:
 nix run .#editor -- --no-open
 ```
 
+Build the React editor:
+
+```sh
+nix develop -c npm run build:editor
+```
+
 Run the editor check:
 
 ```sh
@@ -146,10 +152,12 @@ nix run .#editor -- --check
 
 ```text
 tools/
+  editor/                  React + Vite browser UI
+  editor-dist/             Generated editor build output (ignored)
   osu-skin-editor.ts      Local web server and editor API
   osu-skin-extract.ts     Extractor CLI
   skin-lib.ts             Shared classification/import/export helpers
-  editor-static/          Browser UI
+  shared/                 Frontend/backend API types
 flake.nix                 Nix apps and dev shell
 package.json              Bun scripts
 ```

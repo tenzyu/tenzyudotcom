@@ -8,6 +8,21 @@
   outputs = { self, nixpkgs }:
     let
       systems = [ "x86_64-linux" "aarch64-linux" ];
+      source = builtins.path {
+        path = ./.;
+        name = "osu-skin-tools-source";
+        filter = path: type:
+          let
+            base = baseNameOf path;
+            rel = nixpkgs.lib.removePrefix ((toString ./.) + "/") (toString path);
+          in
+            !(base == ".git"
+              || base == "result"
+              || nixpkgs.lib.hasPrefix "skins/" rel
+              || nixpkgs.lib.hasPrefix "exports/" rel
+              || nixpkgs.lib.hasPrefix "skin-editor-projects/" rel
+              || nixpkgs.lib.hasPrefix "node_modules/" rel);
+      };
       forAllSystems = f:
         nixpkgs.lib.genAttrs systems (system:
           f {
@@ -19,6 +34,7 @@
         default = pkgs.mkShell {
           packages = [
             pkgs.bun
+            pkgs.nodejs_22
             pkgs.unzip
             pkgs.zip
             pkgs.xdg-utils
@@ -29,10 +45,25 @@
       });
 
       packages = forAllSystems ({ pkgs }: {
+        frontend = pkgs.buildNpmPackage {
+          pname = "osu-skin-editor-frontend";
+          version = "0.1.0";
+          src = source;
+          npmDepsHash = "sha256-xe7onR737CobBQ84FapCJHw/Ea9PDJGX9H+CUEjLyv0=";
+          npmBuildScript = "build:editor";
+          installPhase = ''
+            runHook preInstall
+            mkdir -p $out
+            cp -r tools/editor-dist/. $out/
+            runHook postInstall
+          '';
+        };
+
         editor = pkgs.writeShellApplication {
           name = "osu-skin-editor";
           runtimeInputs = [ pkgs.bun pkgs.unzip pkgs.zip pkgs.xdg-utils pkgs.zenity pkgs.kdePackages.kdialog ];
           text = ''
+            export OSU_SKIN_EDITOR_STATIC_ROOT="${self.packages.${pkgs.stdenv.hostPlatform.system}.frontend}"
             exec bun run ${self}/tools/osu-skin-editor.ts "$@"
           '';
         };
