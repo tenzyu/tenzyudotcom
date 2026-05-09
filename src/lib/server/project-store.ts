@@ -1,27 +1,12 @@
-import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
+import type { ProjectManifest } from "../shared/project-contract";
 import {
   ensureProjectsRoot,
   projectDir,
   projectManifestPath,
   projectsRoot,
 } from "./fs-path";
-
-export type SourceManifest = {
-  id: string;
-  name: string;
-  sourcePath: string;
-  createdAt: string;
-};
-
-export type ProjectManifest = {
-  id: string;
-  name: string;
-  mainSourcePath: string;
-  createdAt: string;
-  updatedAt: string;
-  sources: SourceManifest[];
-};
 
 export async function readManifest(projectId: string): Promise<ProjectManifest> {
   return JSON.parse(await readFile(projectManifestPath(projectId), "utf8")) as ProjectManifest;
@@ -37,7 +22,7 @@ export async function writeManifest(manifest: ProjectManifest): Promise<void> {
 export async function listProjects(): Promise<ProjectManifest[]> {
   await ensureProjectsRoot();
 
-  const entries = await readdir(projectsRoot, { withFileTypes: true });
+  const entries = await readdir(projectsRoot(), { withFileTypes: true });
   const projects: ProjectManifest[] = [];
 
   for (const entry of entries) {
@@ -50,4 +35,8 @@ export async function listProjects(): Promise<ProjectManifest[]> {
   }
 
   return projects.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+}
+
+export async function deleteManifestProject(projectId: string): Promise<void> {
+  await rm(projectDir(projectId), { recursive: true, force: true });
 }

@@ -1,37 +1,23 @@
 import { NextResponse } from "next/server";
 import { addProjectSource } from "../../../../../lib/server/project-service";
+import { errorJson, readJsonBody, requiredString } from "../../../../../lib/server/http";
+import type { RouteContext } from "../../../../../lib/shared/project-contract";
 
 export const runtime = "nodejs";
 
-type Params = {
-  params: Promise<{
-    projectId: string;
-  }>;
-};
-
-export async function POST(request: Request, { params }: Params) {
+export async function POST(request: Request, { params }: RouteContext<{ projectId: string }>) {
   try {
     const { projectId } = await params;
-    const body = (await request.json()) as {
-      sourcePath?: string;
-      name?: string;
-    };
-
-    if (!body.sourcePath) {
-      return NextResponse.json({ error: "sourcePath is required" }, { status: 400 });
-    }
+    const body = await readJsonBody(request);
 
     const project = await addProjectSource({
       projectId,
-      sourcePath: body.sourcePath,
-      name: body.name,
+      sourcePath: requiredString(body, "sourcePath"),
+      name: typeof body.name === "string" ? body.name : undefined,
     });
 
     return NextResponse.json({ project });
   } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : String(error) },
-      { status: 400 },
-    );
+    return errorJson(error);
   }
 }

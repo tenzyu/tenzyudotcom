@@ -1,13 +1,7 @@
-/**
- * TODO:
- * - 閉じれるようにする
- * - browser からエクスプローラで osk または osk 群のディレクトリ または osk 展開後のディレクトリを選択できるようにする
- * - * upload/download 方式になっても良い
- * - Project の rename ができるようにする
- * - asset resource を削除できるようにする
- * - asset resource の rename をできるようにする
- */
+// Remaining sidebar cleanup is tracked in PLAN.md.
 "use client";
+
+import type { ProjectManifest } from "../lib/shared/project-contract";
 
 type ScopeTab = {
   id: string;
@@ -19,22 +13,6 @@ type CategoryTab = {
   id: string;
   label: string;
   count: number;
-};
-
-type SourceManifest = {
-  id: string;
-  name: string;
-  sourcePath: string;
-  createdAt: string;
-};
-
-type ProjectManifest = {
-  id: string;
-  name: string;
-  mainSourcePath: string;
-  createdAt: string;
-  updatedAt: string;
-  sources: SourceManifest[];
 };
 
 type Props = {
@@ -60,10 +38,14 @@ type Props = {
   onAssetName: (value: string) => void;
   onAssetPath: (value: string) => void;
 
+  onClose: () => void;
   onImportMain: () => void;
   onImportAsset: () => void;
+  onChooseAssetPath: () => void;
   onProjectSelect: (projectId: string) => void;
   onRefresh: () => void;
+  onSourceRename: (sourceId: string, name: string) => void;
+  onSourceDelete: (sourceId: string) => void;
 
   onScope: (scope: string) => void;
   onCategory: (category: string) => void;
@@ -75,6 +57,9 @@ export function Sidebar(props: Props) {
       <div className="brand">
         <div className="brandHeader">
           <h1>osu! Skin Editor</h1>
+          <button type="button" className="ghostButton" onClick={props.onClose}>
+            Close
+          </button>
         </div>
         <p>Lazer-first, Stable later.</p>
       </div>
@@ -111,7 +96,7 @@ export function Sidebar(props: Props) {
           Import main skin
         </button>
 
-        <p className="muted">Native file picker is not connected. Paste a local path for now.</p>
+        <p className="muted">Project creation moved to the hub. Paste a local path there for now.</p>
       </section>
 
       <section>
@@ -168,6 +153,14 @@ export function Sidebar(props: Props) {
 
         <button
           type="button"
+          onClick={props.onChooseAssetPath}
+          disabled={props.loading || !props.project}
+        >
+          Choose .osk or folder
+        </button>
+
+        <button
+          type="button"
           onClick={props.onImportAsset}
           disabled={props.loading || !props.project || !props.assetPath.trim()}
         >
@@ -184,6 +177,31 @@ export function Sidebar(props: Props) {
               <div>
                 <strong>{source.name}</strong>
                 <div className="muted">{source.sourcePath}</div>
+              </div>
+              <div className="sourceActions">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const name = window.prompt("Asset source name", source.name);
+                    if (name && name !== source.name) props.onSourceRename(source.id, name);
+                  }}
+                  disabled={props.loading}
+                >
+                  Rename
+                </button>
+                <button
+                  type="button"
+                  className="danger"
+                  onClick={() => {
+                    if (window.confirm(`Delete asset source "${source.name}"?`)) {
+                      props.onSourceDelete(source.id);
+                    }
+                  }}
+                  disabled={props.loading || source.readonly}
+                  title={source.readonly ? "Main source cannot be deleted" : undefined}
+                >
+                  Delete
+                </button>
               </div>
             </div>
           ))}

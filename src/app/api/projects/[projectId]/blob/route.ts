@@ -3,14 +3,10 @@ import path from "node:path";
 import { NextResponse } from "next/server";
 import { projectRawDir, safeJoin, sourceRawDir } from "../../../../../lib/server/fs-path";
 import { ensureProjectExists } from "../../../../../lib/server/project-service";
+import { errorJson } from "../../../../../lib/server/http";
+import type { RouteContext } from "../../../../../lib/shared/project-contract";
 
 export const runtime = "nodejs";
-
-type Params = {
-  params: Promise<{
-    projectId: string;
-  }>;
-};
 
 const contentTypes: Record<string, string> = {
   ".png": "image/png",
@@ -25,7 +21,7 @@ const contentTypes: Record<string, string> = {
   ".txt": "text/plain; charset=utf-8",
 };
 
-export async function GET(request: Request, { params }: Params) {
+export async function GET(request: Request, { params }: RouteContext<{ projectId: string }>) {
   try {
     const { projectId } = await params;
     await ensureProjectExists(projectId);
@@ -61,9 +57,6 @@ export async function GET(request: Request, { params }: Params) {
       },
     });
   } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : String(error) },
-      { status: 400 },
-    );
+    return errorJson(error);
   }
 }

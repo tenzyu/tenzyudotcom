@@ -1,8 +1,6 @@
-/**
- * TODO:
- * - 分類ルールは 1 ファイルに集約されていますが、scope/category/group/componentId/patterns/modes/kind/meaning/groupStrategy を毎回ベタ書きしているため、ここが最も大きい DRY 対象です。
- * このファイルが Single Source of Truth です。
- */
+// Taxonomy cleanup and rule-splitting work is tracked in PLAN.md.
+
+import { titleizeIdentifier } from "./label";
 
 export const modeIds = ["osu", "taiko", "catch", "mania"] as const;
 export type Mode = (typeof modeIds)[number];
@@ -613,40 +611,12 @@ export const taxonomyDefinition = defineTaxonomy({
   },
 } as const);
 
-const labelOverrides: Record<string, string> = {
-  std: "osu!standard",
-  osu: "osu!",
-  taiko: "osu!taiko",
-  catch: "osu!catch",
-  mania: "osu!mania",
-  ui: "UI",
-  hud: "HUD",
-  json: "JSON",
-  ini: "INI",
-  pp: "PP",
-  rpm: "RPM",
-  sd: "SD",
-  hd: "HD",
-  kiai: "Kiai",
-};
-
 export function isScopeId(value: string): value is ScopeId {
   return (scopeIds as readonly string[]).includes(value);
 }
 
 export function humanizeIdentifier(value: string): string {
-  const normalized = value
-    .replace(/([a-z])([A-Z])/g, "$1-$2")
-    .replace(/[_/]+/g, "-")
-    .toLowerCase();
-
-  if (labelOverrides[normalized]) return labelOverrides[normalized];
-
-  return normalized
-    .split("-")
-    .filter(Boolean)
-    .map((part) => labelOverrides[part] ?? part[0]?.toUpperCase() + part.slice(1))
-    .join(" ");
+  return titleizeIdentifier(value);
 }
 
 export class TaxonomyRegistry {

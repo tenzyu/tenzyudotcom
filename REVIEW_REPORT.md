@@ -48,7 +48,7 @@ export type ApiErrorResponse = {
 
 `rowSeedsFromRules()` が `page.tsx` と `project-service.ts` にあります。どちらも `classificationRules` から `AssetMatrixRowSeed` を作っています。 
 
-これは `src/lib/project/asset-matrix-seeds.ts` に寄せる。
+Status: done. `src/lib/project/asset-matrix-seeds.ts` に寄せた。
 
 ```ts
 import { classificationRules } from "../classification/classification-rules";
@@ -86,7 +86,7 @@ export function buildEmptyAssetMatrix(): AssetMatrix {
 
 API route 側で `try/catch`、`NextResponse.json({ error })`、`sourcePath is required` が複数箇所に出ています。`projects/route.ts`、`files/route.ts`、`sources/route.ts` で同じ形です。  
 
-`src/lib/server/http.ts` を作る。
+Status: done. `src/lib/server/http.ts` を作った。
 
 ```ts
 import { NextResponse } from "next/server";
@@ -245,7 +245,7 @@ export const t = {
 
 `taxonomy.ts` に `humanizeIdentifier`、`filename-normalizer.ts` に `titleizeIdentifier` があり、どちらも識別子を表示名に変換しています。`std`、`osu`、`taiko`、`mania`、`ui`、`json`、`hd` などの override も似ています。 
 
-これは `src/lib/domain/label.ts` に統合する。
+Status: done. `src/lib/domain/label.ts` に統合した。
 
 ```ts
 export const labelOverrides: Record<string, string> = {

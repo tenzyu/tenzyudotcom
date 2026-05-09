@@ -1,35 +1,63 @@
-/**
- * TODO:
- * - AssetPreview コンポーネントは切り分ける
- * - 今実際に描画・再生されないので修正する
- * - source skin のセレクタが存在しないので作成する
- * - project 操作とかは reducer とか適宜作成して hooks 化してコンポーネントからは隠蔽する
- */
 "use client";
 
+import { useMemo, useState } from "react";
 import type {
   AssetMatrix,
   AssetMatrixCell,
   AssetMatrixRow,
 } from "../lib/project/asset-matrix-builder";
+import {
+  filterAssetRows,
+  type RequiredLevelFilter,
+} from "../lib/project/asset-row-filter";
+import { AssetRow } from "./AssetRow";
 
 type Props = {
+  projectId: string | null;
   matrix: AssetMatrix;
+  selectedSourceId: string;
   scope: string;
   category: string;
   filter: string;
   meaningfulOnly: boolean;
   collapseStable: boolean;
+  onSelectedSourceId: (value: string) => void;
   onFilter: (value: string) => void;
   onMeaningfulOnly: (value: boolean) => void;
   onCollapseStable: (value: boolean) => void;
+  onCopySourceRow: (input: {
+    sourceId: string;
+    sourcePaths: string[];
+    replaceProjectPaths: string[];
+  }) => void;
+  onDeleteProjectRow: (projectPaths: string[]) => void;
+};
+
+type SourceCell = {
+  sourceId: string | null;
+  cell: AssetMatrixCell;
 };
 
 export function EditView(props: Props) {
-  const rows = visibleRows(props);
+  const [requiredLevel, setRequiredLevel] = useState<RequiredLevelFilter>("all");
+  const rows = useMemo(
+    () =>
+      filterAssetRows(props.matrix.rows, {
+        scope: props.scope,
+        category: props.category,
+        text: props.filter,
+        primaryRowsOnly: props.meaningfulOnly,
+        collapseStable: props.collapseStable,
+        requiredLevel,
+      }),
+    [props, requiredLevel],
+  );
   const activeScope = props.matrix.rows.find((row) => row.scope === props.scope)?.taxonomy.scope;
   const activeCategory = props.matrix.rows.find((row) => row.scope === props.scope && row.category === props.category)
     ?.taxonomy.category;
+  const sourceColumns = props.matrix.columns.filter((column) => column.kind === "source");
+  const activeSourceColumn =
+    sourceColumns.find((column) => column.id === props.selectedSourceId) ?? sourceColumns[0] ?? null;
 
   return (
     <section className="compareShell">
@@ -40,30 +68,46 @@ export function EditView(props: Props) {
           placeholder="Filter assets"
         />
 
+        <label>
+          Required level
+          <select
+            value={requiredLevel}
+            onChange={(event) => setRequiredLevel(event.target.value as RequiredLevelFilter)}
+          >
+            <option value="all">All levels</option>
+            <option value="required">Required</option>
+            <option value="recommended">Recommended</option>
+            <option value="optional">Optional</option>
+          </select>
+        </label>
+
         <label className="inlineControl">
           <input
             type="checkbox"
             checked={props.meaningfulOnly}
-            onChange={(event) => props.onMeaningfulOnly(event.target.checked)}
+            onChange={(event) => {
+              props.onMeaningfulOnly(event.target.checked);
+              props.onCollapseStable(event.target.checked);
+            }}
           />
-          Lazer meaningful only
+          Primary editor rows
         </label>
 
-        <label className="inlineControl">
-          <input
-            type="checkbox"
-            checked={props.collapseStable}
-            onChange={(event) => props.onCollapseStable(event.target.checked)}
-          />
-          Collapse stable later
+        <label>
+          Asset source
+          <select
+            value={activeSourceColumn?.id ?? ""}
+            onChange={(event) => props.onSelectedSourceId(event.target.value)}
+            disabled={!sourceColumns.length}
+          >
+            {!sourceColumns.length && <option value="">No asset source</option>}
+            {sourceColumns.map((column) => (
+              <option key={column.id} value={column.id}>
+                {column.label}
+              </option>
+            ))}
+          </select>
         </label>
-
-        <button type="button" disabled>
-          Select visible
-        </button>
-        <button type="button" disabled>
-          Copy selected
-        </button>
       </div>
 
       <div className="validationSummary quiet">
@@ -80,7 +124,7 @@ export function EditView(props: Props) {
         </div>
         <div>
           <h3>Asset Source</h3>
-          <p className="muted">No source assets loaded yet.</p>
+          <p className="muted">{activeSourceColumn?.label ?? "No source assets loaded yet."}</p>
         </div>
       </div>
 
@@ -91,8 +135,33 @@ export function EditView(props: Props) {
       <div className="assetRows">
         {rows.map((row) => (
           <div className="assetPairRow" key={row.rowKey}>
-            <AssetRow row={row} cell={row.cells.project} side="project" />
-            <AssetRow row={row} cell={firstSourceCell(row) ?? emptyCell()} side="source" />
+            <AssetRow
+              projectId={props.projectId}
+              row={row}
+              cell={row.cells.project}
+              side="project"
+              sourceId={null}
+              onDelete={() =>
+                props.onDeleteProjectRow(row.cells.project.assets.map((asset) => asset.file.relativePath))
+              }
+            />
+            <AssetRow
+              projectId={props.projectId}
+              row={row}
+              cell={sourceCellFor(row, activeSourceColumn?.id).cell}
+              side="source"
+              sourceId={sourceCellFor(row, activeSourceColumn?.id).sourceId}
+              onCopy={() => {
+                const sourceCell = sourceCellFor(row, activeSourceColumn?.id);
+                if (!sourceCell.sourceId) return;
+
+                props.onCopySourceRow({
+                  sourceId: sourceCell.sourceId,
+                  sourcePaths: sourceCell.cell.assets.map((asset) => asset.file.relativePath),
+                  replaceProjectPaths: row.cells.project.assets.map((asset) => asset.file.relativePath),
+                });
+              }}
+            />
           </div>
         ))}
 
@@ -102,119 +171,13 @@ export function EditView(props: Props) {
   );
 }
 
-function AssetRow(props: {
-  row: AssetMatrixRow;
-  cell: AssetMatrixCell;
-  side: "project" | "source";
-}) {
-  const { row, cell } = props;
+function sourceCellFor(row: AssetMatrixRow, sourceColumnId: string | undefined): SourceCell {
+  if (!sourceColumnId) return { sourceId: null, cell: emptyCell() };
 
-  return (
-    <div
-      className={[
-        "assetRow",
-        props.side === "project" ? "projectAssetRow" : "sourceAssetRow",
-        cell.missing ? " missing" : "",
-        row.lazerMeaningful ? "" : " legacy",
-      ].join("")}
-    >
-      <AssetPreview row={row} cell={cell} />
-
-      <div className="assetRowText">
-        <strong>{row.groupLabel}</strong>
-        <span>
-          {row.taxonomy.category.label} · {row.componentId}
-        </span>
-        <span>
-          {row.lazerMeaningful ? "Lazer meaningful" : "Stable later"} · {row.requiredLevel}
-        </span>
-        {row.warnings[0] && <div className="warningText">{row.warnings[0].message}</div>}
-      </div>
-
-      <div className="cellMeta">
-        {cell.hasHd && <span className="badge badgeHD">HD</span>}
-        {cell.hasSd && <span className="badge badgeSD">SD</span>}
-        <span className="badge">{row.kind}</span>
-      </div>
-
-      <div className="fileChips compact">
-        {cell.assets.slice(0, 4).map((asset) => (
-          <span key={asset.file.relativePath}>{asset.file.name}</span>
-        ))}
-        {cell.assets.length > 4 && <span>+{cell.assets.length - 4}</span>}
-        {!cell.assets.length && <span>No file</span>}
-      </div>
-    </div>
-  );
-}
-
-function AssetPreview({ row, cell }: { row: AssetMatrixRow; cell: AssetMatrixCell }) {
-  if (cell.missing) {
-    return <div className="miniPreview">Missing</div>;
-  }
-
-  const image = cell.assets.find((asset) => asset.kind === "image");
-
-  if (image) {
-    return (
-      <div className="miniPreview">
-        <span>{image.file.name}</span>
-      </div>
-    );
-  }
-
-  const audio = cell.assets.find((asset) => asset.kind === "audio");
-
-  if (audio) {
-    return (
-      <div className="miniPreview audioPreview">
-        <button type="button" disabled>
-          Play
-        </button>
-        <div className="audioLabel">
-          <strong>{row.groupLabel}</strong>
-          <span>{audio.file.name}</span>
-        </div>
-        <div className="audioMeter">
-          <span />
-        </div>
-        <span className="audioDuration">--:--</span>
-      </div>
-    );
-  }
-
-  return <div className="miniPreview">{cell.previewKind.toUpperCase()}</div>;
-}
-
-function visibleRows(props: Props) {
-  const filter = props.filter.trim().toLowerCase();
-
-  return props.matrix.rows.filter((row) => {
-    if (row.scope !== props.scope) return false;
-    if (row.category !== props.category) return false;
-    if (props.meaningfulOnly && !row.lazerMeaningful) return false;
-    if (props.collapseStable && row.scope === "stable") return false;
-
-    if (!filter) return true;
-
-    const haystack = [
-      row.groupLabel,
-      row.componentId,
-      row.scope,
-      row.category,
-      row.groupKey,
-      row.taxonomy.label,
-    ]
-      .join(" ")
-      .toLowerCase();
-
-    return haystack.includes(filter);
-  });
-}
-
-function firstSourceCell(row: AssetMatrixRow): AssetMatrixCell | null {
-  const sourceColumnId = Object.keys(row.cells).find((key) => key !== "project");
-  return sourceColumnId ? row.cells[sourceColumnId] ?? null : null;
+  return {
+    sourceId: sourceColumnId,
+    cell: row.cells[sourceColumnId] ?? emptyCell(),
+  };
 }
 
 function emptyCell(): AssetMatrixCell {

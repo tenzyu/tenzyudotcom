@@ -1,8 +1,17 @@
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
 
-export const workspaceRoot = process.cwd();
-export const projectsRoot = path.join(workspaceRoot, "skin-editor-projects");
+export function workspaceRoot(): string {
+  return process.cwd();
+}
+
+export function projectsRoot(): string {
+  return path.join(/* turbopackIgnore: true */ process.cwd(), "skin-editor-projects");
+}
+
+export function exportsRoot(): string {
+  return path.join(/* turbopackIgnore: true */ process.cwd(), "exports");
+}
 
 export function toPosixPath(value: string): string {
   return value.replaceAll("\\", "/");
@@ -19,7 +28,16 @@ export function slugify(value: string): string {
 }
 
 export function timestampId(prefix: string): string {
-  return `${prefix}-${new Date().toISOString().replace(/\D/g, "").slice(0, 14)}`;
+  return newEntityId(prefix);
+}
+
+export function newEntityId(prefix: string): string {
+  const time = new Date().toISOString().replace(/\D/g, "").slice(0, 17);
+  const entropy =
+    globalThis.crypto?.randomUUID?.().split("-")[0] ??
+    Math.random().toString(36).slice(2, 10);
+
+  return `${prefix}-${time}-${entropy}`;
 }
 
 export function resolveUserPath(input: string): string {
@@ -29,7 +47,7 @@ export function resolveUserPath(input: string): string {
     throw new Error("path is required");
   }
 
-  return path.resolve(workspaceRoot, value);
+  return path.resolve(/* turbopackIgnore: true */ process.cwd(), value);
 }
 
 export function safeJoin(root: string, relativePath: string): string {
@@ -50,7 +68,7 @@ export function safeJoin(root: string, relativePath: string): string {
 }
 
 export function projectDir(projectId: string): string {
-  return safeJoin(projectsRoot, projectId);
+  return safeJoin(projectsRoot(), projectId);
 }
 
 export function projectManifestPath(projectId: string): string {
@@ -61,10 +79,26 @@ export function projectRawDir(projectId: string): string {
   return path.join(projectDir(projectId), "project", "raw");
 }
 
+export function projectStructuredDir(projectId: string): string {
+  return path.join(projectDir(projectId), "project", "structured");
+}
+
+export function sourceDir(projectId: string, sourceId: string): string {
+  return path.join(projectDir(projectId), "sources", sourceId);
+}
+
 export function sourceRawDir(projectId: string, sourceId: string): string {
-  return path.join(projectDir(projectId), "sources", sourceId, "raw");
+  return path.join(sourceDir(projectId, sourceId), "raw");
+}
+
+export function sourceStructuredDir(projectId: string, sourceId: string): string {
+  return path.join(sourceDir(projectId, sourceId), "structured");
+}
+
+export function exportDir(projectId: string): string {
+  return safeJoin(exportsRoot(), projectId);
 }
 
 export async function ensureProjectsRoot(): Promise<void> {
-  await mkdir(projectsRoot, { recursive: true });
+  await mkdir(projectsRoot(), { recursive: true });
 }

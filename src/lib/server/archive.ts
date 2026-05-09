@@ -49,6 +49,40 @@ export async function copyTree(sourceRoot: string, outputRoot: string): Promise<
   }
 }
 
+export type CopyTreeFilter = (relativePath: string) => boolean | Promise<boolean>;
+
+export async function copyTreeFiltered(
+  sourceRoot: string,
+  outputRoot: string,
+  filter: CopyTreeFilter,
+): Promise<{ copied: number; skipped: number }> {
+  await emptyDir(outputRoot);
+
+  let copied = 0;
+  let skipped = 0;
+
+  for (const relativePath of await walkRelativeFiles(sourceRoot)) {
+    if (!(await filter(relativePath))) {
+      skipped += 1;
+      continue;
+    }
+
+    const source = path.join(sourceRoot, relativePath);
+    const target = safeJoin(outputRoot, relativePath);
+
+    await mkdir(path.dirname(target), { recursive: true });
+    await copyFile(source, target);
+    copied += 1;
+  }
+
+  return { copied, skipped };
+}
+
+export async function zipDirectory(sourceRoot: string, outputPath: string): Promise<void> {
+  await mkdir(path.dirname(outputPath), { recursive: true });
+  await execFileAsync("zip", ["-qr", outputPath, "."], { cwd: sourceRoot });
+}
+
 export async function extractOsk(sourcePath: string, outputRoot: string): Promise<void> {
   await mkdir(outputRoot, { recursive: true });
 

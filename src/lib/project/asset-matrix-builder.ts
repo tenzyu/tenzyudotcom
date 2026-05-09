@@ -6,6 +6,12 @@ import {
   type SkinKind,
   type SkinMeaning,
 } from "../domain/skin-asset";
+import {
+  compareTaxonomyPathOrder,
+  emptySkinMeaning,
+  mergeSkinMeaning,
+  preferSkinKind,
+} from "../domain/skin-asset-policy";
 import { TaxonomyPath } from "../domain/taxonomy-path";
 import type { TaxonomyPathInput } from "../domain/taxonomy";
 
@@ -77,22 +83,6 @@ export type AssetMatrix = {
   columns: AssetMatrixColumn[];
   rows: AssetMatrixRow[];
 };
-
-function emptyMeaning(): SkinMeaning {
-  return {
-    lazerLegacy: false,
-    lazerNative: false,
-    stable: false,
-  };
-}
-
-function mergeMeaning(target: SkinMeaning, source: SkinMeaning): SkinMeaning {
-  return {
-    lazerLegacy: target.lazerLegacy || source.lazerLegacy,
-    lazerNative: target.lazerNative || source.lazerNative,
-    stable: target.stable || source.stable,
-  };
-}
 
 function hasHdAsset(asset: ClassifiedSkinAsset): boolean {
   return /@2x\.[^.]+$/i.test(asset.file.relativePath);
@@ -205,7 +195,7 @@ function baseRowFromAsset(asset: ClassifiedSkinAsset, columns: AssetMatrixColumn
 
 function baseRowFromSeed(seed: AssetMatrixRowSeed, columns: AssetMatrixColumn[]): AssetMatrixRow {
   const taxonomyPath = taxonomyPathFromSeed(seed);
-  const meaning = seed.meaning ?? emptyMeaning();
+  const meaning = seed.meaning ?? emptySkinMeaning();
 
   return {
     rowKey: rowKeyForSeed(seed),
@@ -225,21 +215,9 @@ function baseRowFromSeed(seed: AssetMatrixRowSeed, columns: AssetMatrixColumn[])
   };
 }
 
-function preferKind(current: SkinKind | "empty", next: SkinKind): SkinKind {
-  if (current === "empty") return next;
-  if (current === "image" || next === "image") return "image";
-  if (current === "audio" || next === "audio") return "audio";
-  if (current === "text" || next === "text") return "text";
-  if (current === "font" || next === "font") return "font";
-  return current;
-}
-
 function compareRows(a: AssetMatrixRow, b: AssetMatrixRow): number {
   return (
-    a.taxonomyPath.scope.order - b.taxonomyPath.scope.order ||
-    a.taxonomyPath.category.order - b.taxonomyPath.category.order ||
-    a.taxonomyPath.group.order - b.taxonomyPath.group.order ||
-    a.groupLabel.localeCompare(b.groupLabel) ||
+    compareTaxonomyPathOrder(a.taxonomyPath, b.taxonomyPath) ||
     a.rowKey.localeCompare(b.rowKey)
   );
 }
@@ -306,9 +284,9 @@ export class AssetMatrixBuilder {
         const currentCell = row.cells[columnId] ?? matrixCell([]);
         row.cells[columnId] = matrixCell([...currentCell.assets, asset]);
 
-        row.meaning = mergeMeaning(row.meaning, asset.meaning);
+        row.meaning = mergeSkinMeaning(row.meaning, asset.meaning);
         row.lazerMeaningful = row.lazerMeaningful || isLazerMeaningful(asset.meaning);
-        row.kind = preferKind(row.kind, asset.kind);
+        row.kind = preferSkinKind(row.kind, asset.kind);
 
         if (row.requiredLevel === "optional" && asset.requiredLevel !== "optional") {
           row.requiredLevel = asset.requiredLevel;

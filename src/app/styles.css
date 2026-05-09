@@ -42,6 +42,28 @@ button.primary {
   background: #214238;
 }
 
+button.danger {
+  border-color: #744047;
+  color: #ffd7dc;
+}
+
+.buttonLike {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #3a444b;
+  background: #20262b;
+  color: #f2f5f6;
+  border-radius: 6px;
+  padding: 8px 10px;
+  text-decoration: none;
+}
+
+.buttonLike.primary {
+  border-color: #62a889;
+  background: #214238;
+}
+
 input,
 select,
 textarea {
@@ -116,6 +138,13 @@ label {
   flex: 0 0 auto;
 }
 
+.sidebarToggle {
+  position: fixed;
+  z-index: 20;
+  left: 14px;
+  top: 14px;
+}
+
 .brand p,
 .muted,
 .paneHeader p,
@@ -171,6 +200,17 @@ section h2,
 .sourceToggle input {
   width: auto;
   margin-top: 3px;
+}
+
+.sourceActions {
+  display: flex;
+  gap: 6px;
+}
+
+.sourceActions button,
+.ghostButton {
+  padding: 5px 7px;
+  font-size: 12px;
 }
 
 .recentSources {
@@ -399,18 +439,11 @@ section h2,
 
 .audioPreview {
   padding: 8px;
-  grid-template-columns: auto minmax(0, 1fr) 52px;
+  grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto auto;
   place-items: stretch;
   gap: 7px;
   text-align: left;
-}
-
-.audioPreview button {
-  grid-row: 1 / 3;
-  width: 54px;
-  padding: 5px;
-  align-self: center;
 }
 
 .audioLabel {
@@ -451,6 +484,18 @@ section h2,
   justify-content: flex-end;
   gap: 8px;
   color: #aeb8bf;
+  font-size: 12px;
+}
+
+.rowActions {
+  grid-column: 3;
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.rowActions button {
+  padding: 5px 8px;
   font-size: 12px;
 }
 
@@ -518,6 +563,82 @@ section h2,
 
 .validationSummary.quiet {
   border-color: #303940;
+}
+
+.hub {
+  min-height: 100vh;
+  display: grid;
+  align-content: start;
+  gap: 18px;
+  padding: 28px;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.hubIntro {
+  gap: 8px;
+}
+
+.hubIntro h1 {
+  margin: 0;
+  font-size: 30px;
+}
+
+.hubIntro p {
+  max-width: 760px;
+  margin: 0;
+  color: #aeb8bf;
+}
+
+.hubGrid {
+  display: grid;
+  grid-template-columns: minmax(300px, 420px) minmax(0, 1fr);
+  gap: 18px;
+}
+
+.panel {
+  border: 1px solid #303940;
+  background: #15191c;
+  border-radius: 8px;
+  padding: 16px;
+  display: grid;
+  gap: 12px;
+}
+
+.projectList {
+  display: grid;
+  gap: 10px;
+}
+
+.projectCard {
+  border: 1px solid #303940;
+  background: #171d21;
+  border-radius: 7px;
+  padding: 12px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+}
+
+.projectCard p {
+  margin: 4px 0 0;
+}
+
+.inlineActions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.statusBanner {
+  margin: 10px 20px 0;
+  border: 1px solid #365747;
+  background: #14241f;
+  border-radius: 7px;
+  padding: 10px 12px;
+  color: #c9f0df;
+  font-size: 13px;
   background: #13181b;
   color: #aeb8bf;
 }
@@ -949,4 +1070,58 @@ section h2,
 .previewRows {
   display: grid;
   gap: 8px;
+}
+
+.gameplayMock {
+  align-content: start;
+}
+
+.gameplayStage {
+  border: 1px solid #303940;
+  background: #0e1214;
+  border-radius: 8px;
+  min-height: 220px;
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.songSelectStrip {
+  border-bottom: 1px solid #303940;
+  background: #171d21;
+  padding: 10px 12px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: #cbd4d9;
+}
+
+.songSelectStrip span {
+  color: #94a0a7;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0;
+}
+
+.playfieldMock {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 26px;
+}
+
+.primaryDot,
+.legacyDot {
+  width: 44px;
+  aspect-ratio: 1;
+  border-radius: 999px;
+  border: 2px solid #d8e2e7;
+  background: #222a2f;
+}
+
+.legacyDot {
+  border-style: dashed;
+  border-color: #59656d;
+  background: transparent;
 }

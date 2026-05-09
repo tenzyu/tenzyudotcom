@@ -43,6 +43,9 @@
             # .osk import/export
             pkgs.unzip
             pkgs.zip
+
+            # Local browser-driven file picker fallback
+            pkgs.zenity
           ];
 
           shellHook = ''
@@ -63,6 +66,7 @@
             pkgs.nodejs_22
             pkgs.unzip
             pkgs.zip
+            pkgs.zenity
           ];
 
           text = ''
@@ -83,6 +87,7 @@
             pkgs.nodejs_22
             pkgs.unzip
             pkgs.zip
+            pkgs.zenity
           ];
 
           text = ''

@@ -6,6 +6,10 @@ import {
   type SkinKind,
   type SkinMeaning,
 } from "../domain/skin-asset";
+import {
+  mergeSkinMeaning,
+  preferSkinKind,
+} from "../domain/skin-asset-policy";
 import type {
   TaxonomyCategory,
   TaxonomyGroup,
@@ -61,22 +65,6 @@ type MutableCategoryNode = Omit<AssetCategoryNode, "groups"> & {
 
 type MutableGroupNode = AssetGroupNode;
 
-// function emptyMeaning(): SkinMeaning {
-//   return {
-//     lazerLegacy: false,
-//     lazerNative: false,
-//     stable: false,
-//   };
-// }
-
-function mergeMeaning(target: SkinMeaning, source: SkinMeaning): SkinMeaning {
-  return {
-    lazerLegacy: target.lazerLegacy || source.lazerLegacy,
-    lazerNative: target.lazerNative || source.lazerNative,
-    stable: target.stable || source.stable,
-  };
-}
-
 function getOrInsert<K, V>(map: Map<K, V>, key: K, create: () => V): V {
   const existing = map.get(key);
   if (existing) return existing;
@@ -130,14 +118,6 @@ function compareNode(a: { order: number; label: string; id: string }, b: { order
   return a.order - b.order || a.label.localeCompare(b.label) || a.id.localeCompare(b.id);
 }
 
-function preferKind(current: SkinKind, next: SkinKind): SkinKind {
-  if (current === "image" || next === "image") return "image";
-  if (current === "audio" || next === "audio") return "audio";
-  if (current === "text" || next === "text") return "text";
-  if (current === "font" || next === "font") return "font";
-  return current;
-}
-
 export class AssetTreeBuilder {
   build(files: ClassifiedSkinAsset[]): AssetTree {
     const scopeMap = new Map<string, MutableScopeNode>();
@@ -165,8 +145,8 @@ export class AssetTreeBuilder {
 
       groupNode.files.push(file);
       groupNode.fileCount += 1;
-      groupNode.kind = preferKind(groupNode.kind, file.kind);
-      groupNode.meaning = mergeMeaning(groupNode.meaning, file.meaning);
+      groupNode.kind = preferSkinKind(groupNode.kind, file.kind);
+      groupNode.meaning = mergeSkinMeaning(groupNode.meaning, file.meaning);
       groupNode.lazerMeaningful = groupNode.lazerMeaningful || isLazerMeaningful(file.meaning);
 
       categoryNode.fileCount += 1;

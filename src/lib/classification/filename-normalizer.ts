@@ -1,6 +1,7 @@
 import path from "node:path";
 import { modeIds, type Mode } from "../domain/taxonomy";
 import { skinKinds, type SkinKind } from "../domain/skin-asset";
+import { titleizeIdentifier } from "../domain/label";
 
 const imageExts = new Set([".png", ".jpg", ".jpeg", ".webp"]);
 const audioExts = new Set([".wav", ".ogg", ".mp3"]);
@@ -65,38 +66,7 @@ export function withoutExtension(fileName: string): string {
   return ext ? fileName.slice(0, -ext.length) : fileName;
 }
 
-export function titleizeIdentifier(value: string): string {
-  const overrides: Record<string, string> = {
-    osu: "osu!",
-    std: "osu!standard",
-    taiko: "Taiko",
-    catch: "Catch",
-    mania: "Mania",
-    ui: "UI",
-    hud: "HUD",
-    hp: "HP",
-    pp: "PP",
-    rpm: "RPM",
-    sd: "SD",
-    hd: "HD",
-    kiai: "Kiai",
-    ini: "INI",
-    json: "JSON",
-  };
-
-  const normalized = value
-    .replace(/([a-z])([A-Z])/g, "$1-$2")
-    .replace(/[_/]+/g, "-")
-    .toLowerCase();
-
-  if (overrides[normalized]) return overrides[normalized];
-
-  return normalized
-    .split("-")
-    .filter(Boolean)
-    .map((part) => overrides[part] ?? part[0]?.toUpperCase() + part.slice(1))
-    .join(" ");
-}
+export { titleizeIdentifier };
 
 export function sequenceInfo(relativePath: string): SequenceInfo {
   const fileName = basenameOf(logicalSkinKey(relativePath));

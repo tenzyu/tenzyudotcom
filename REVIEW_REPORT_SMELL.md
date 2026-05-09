@@ -20,6 +20,8 @@ Edit / Preview view switching
 
 `Page` が `classificationRules` と `buildAssetMatrix` を直接 import して、UI entry point なのに分類ルールと matrix 生成の事情まで知っています。これは「画面」が「domain/application の組み立て」を知りすぎている状態です。
 
+Status: in progress. Root page is now thin, and workspace state has been moved into hooks.
+
 対策は、`Page` を薄くすること。
 
 ```text
@@ -91,6 +93,8 @@ Client Component:
 
 これは将来、scope 名を変えたときに壊れます。
 
+Status: partially done. Preview tabs are now derived from the current matrix scopes, and `audio` was renamed to `sounds`.
+
 対策は、scope/tab 定義を taxonomy から導出すること。
 
 ```ts
@@ -118,6 +122,8 @@ const previewTabs = [
 これは DRY でもありますが、より正確には **domain policy の重複** です。
 
 `meaning` をどう merge するか、`kind` の優先順位をどう決めるかは domain rule です。builder ごとに持つべきではありません。
+
+Status: done. Shared policy now lives in `src/lib/domain/skin-asset-policy.ts`.
 
 切り出し先はここ。
 
@@ -189,6 +195,8 @@ server 側には `ReturnType<typeof buildAssetTree>` として型があります
 
 対策。
 
+Status: done for HTTP responses. `asset-dto.ts` now sanitizes `root` and `fullPath` before project file responses leave server services.
+
 ```text
 Domain model:
   ClassifiedSkinAsset
@@ -215,4 +223,9 @@ P2
 - magic string taxonomy coupling
 - timestampId collision
 - mounted gate の縮小
+
+Additional status:
+- Temporal source/project IDs now use timestamp plus random suffix.
+- Turbopack filesystem trace warning was removed by scoping `process.cwd()` usage with `turbopackIgnore`.
+- Browser-facing asset responses sanitize server-only `root` and `fullPath`.
 ```
