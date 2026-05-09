@@ -151,7 +151,10 @@ nix run .#editor -- --check
 ## Repository Layout
 
 ```text
-tools/
+src/
+  domain/
+  classification/
+  project/
   editor/                  React + Vite browser UI
   editor-dist/             Generated editor build output (ignored)
   osu-skin-editor.ts      Local web server and editor API

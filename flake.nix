@@ -54,7 +54,7 @@
           installPhase = ''
             runHook preInstall
             mkdir -p $out
-            cp -r tools/editor-dist/. $out/
+            cp -r src/editor-dist/. $out/
             runHook postInstall
           '';
         };
@@ -64,7 +64,7 @@
           runtimeInputs = [ pkgs.bun pkgs.unzip pkgs.zip pkgs.xdg-utils pkgs.zenity pkgs.kdePackages.kdialog ];
           text = ''
             export OSU_SKIN_EDITOR_STATIC_ROOT="${self.packages.${pkgs.stdenv.hostPlatform.system}.frontend}"
-            exec bun run ${self}/tools/osu-skin-editor.ts "$@"
+            exec bun run ${self}/src/osu-skin-editor.ts "$@"
           '';
         };
 
@@ -72,7 +72,7 @@
           name = "osu-skin-extract";
           runtimeInputs = [ pkgs.bun pkgs.unzip ];
           text = ''
-            exec bun run ${self}/tools/osu-skin-extract.ts "$@"
+            exec bun run ${self}/src/osu-skin-extract.ts "$@"
           '';
         };
 
