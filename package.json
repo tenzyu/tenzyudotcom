@@ -39,8 +39,8 @@
     "build:skin-workbench": "bun run --filter @tenzyu/osu-skin-workbench build",
     "test:skin-workbench": "bun run --filter @tenzyu/osu-skin-workbench test",
     "check:skin-workbench": "bun run --filter @tenzyu/osu-skin-workbench check",
-    "dev:skin-workbench:tauri": "bun run --filter @tenzyu/osu-skin-workbench dev:tauri",
-    "build:skin-workbench:tauri": "bun run --filter @tenzyu/osu-skin-workbench build:tauri",
+    "dev:skin-workbench:vite": "bun run --filter @tenzyu/osu-skin-workbench dev:vite",
+    "build:skin-workbench:vite": "bun run --filter @tenzyu/osu-skin-workbench build:vite",
 
     "clean:ui": "bun run --filter @tenzyu/ui dev",
     "build:ui": "bun run --filter @tenzyu/ui build",

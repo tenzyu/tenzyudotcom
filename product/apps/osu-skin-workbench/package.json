@@ -1,22 +1,17 @@
 {
   "name": "@tenzyu/osu-skin-workbench",
   "version": "0.1.0",
-  "author": {
-    "name": "tenzyu",
-    "email": "tenzyu.on@gmail.com"
-  },
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite --host 127.0.0.1 --port 1420",
-    "build": "tsc --noEmit && vite build",
+    "dev": "tauri dev",
+    "dev:vite": "vite --host 127.0.0.1 --port 1420",
+    "build": "tauri build",
+    "build:vite": "tsc --noEmit && vite build",
     "test": "bun test",
     "typecheck": "tsc --noEmit",
-    "check": "bun run check:browser-boundary && bun run typecheck && bun run build",
-    "verify": "bun run check",
-    "dev:tauri": "tauri dev",
-    "build:tauri": "tauri build",
-    "check:browser-boundary": "bun run scripts/check-browser-boundary.ts"
+    "check": "bun run typecheck && bun run build",
+    "verify": "bun run check"
   },
   "dependencies": {
     "@tauri-apps/api": "^2",

@@ -4,9 +4,9 @@
   "version": "0.1.0",
   "identifier": "com.tenzyu.osu-skin-workbench",
   "build": {
-    "beforeDevCommand": "bun run dev",
+    "beforeDevCommand": "bun run dev:vite",
     "devUrl": "http://127.0.0.1:1420",
-    "beforeBuildCommand": "bun run build",
+    "beforeBuildCommand": "bun run build:vite",
     "frontendDist": "../dist"
   },
   "app": {
