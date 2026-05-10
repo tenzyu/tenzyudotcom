@@ -97,5 +97,9 @@
       }
     }
   ],
-  "analytics": false
+  "analytics": false,
+  "tui": {
+    "enabled": false,
+    "autoExit": true
+  }
 }

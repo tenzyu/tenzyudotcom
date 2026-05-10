@@ -53,8 +53,8 @@
   ],
   "scripts": {
     "clean": "rm -rf dist",
-    "build": "bun run clean && nx vite:build && bun scripts/build-css.mjs",
-    "typecheck": "nx vite:typecheck",
+    "build": "bun run clean && vite build && bun scripts/build-css.mjs",
+    "typecheck": "vite:typecheck",
     "prepack": "bun run build"
   },
   "devDependencies": {

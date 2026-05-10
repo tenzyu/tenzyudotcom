@@ -10,8 +10,7 @@
   ],
   "implicitDependencies": [
     "ui",
-    "osu-skin-core",
-    "osu-skin-node"
+    "osu-skin-core"
   ],
   "targets": {
     "dev": {
