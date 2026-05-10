@@ -4,10 +4,9 @@
     "noEmit": false,
     "declaration": true,
     "declarationMap": true,
-    "emitDeclarationOnly": false,
+    "emitDeclarationOnly": true,
     "outDir": "dist",
     "rootDir": "src",
-    "sourceMap": true,
     "noEmitOnError": true
   },
   "include": ["src"]

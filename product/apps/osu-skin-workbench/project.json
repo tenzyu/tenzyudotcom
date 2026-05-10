@@ -1,0 +1,109 @@
+{
+  "name": "skin-workbench",
+  "projectType": "application",
+  "root": "product/apps/osu-skin-workbench",
+  "sourceRoot": "product/apps/osu-skin-workbench/src",
+  "tags": [
+    "scope:workbench",
+    "type:app",
+    "runtime:tauri"
+  ],
+  "implicitDependencies": [
+    "ui",
+    "osu-skin-core",
+    "osu-skin-node"
+  ],
+  "targets": {
+    "dev": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/osu-skin-workbench",
+        "command": "bun run dev"
+      },
+      "cache": false,
+      "dependsOn": [
+        "^build"
+      ]
+    },
+    "dev-vite": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/osu-skin-workbench",
+        "command": "bun run dev:vite"
+      },
+      "cache": false,
+      "dependsOn": [
+        "^build"
+      ]
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/osu-skin-workbench",
+        "command": "bun run build"
+      },
+      "outputs": [
+        "{projectRoot}/src-tauri/target",
+        "{projectRoot}/dist"
+      ],
+      "dependsOn": [
+        "^build"
+      ]
+    },
+    "build-vite": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/osu-skin-workbench",
+        "command": "bun run build:vite"
+      },
+      "outputs": [
+        "{projectRoot}/dist"
+      ],
+      "dependsOn": [
+        "^build"
+      ]
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/osu-skin-workbench",
+        "command": "bun run typecheck"
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/osu-skin-workbench",
+        "command": "bun run test"
+      }
+    },
+    "check": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/osu-skin-workbench",
+        "command": "bun run check"
+      },
+      "outputs": [
+        "{projectRoot}/src-tauri/target",
+        "{projectRoot}/dist"
+      ],
+      "dependsOn": [
+        "^build"
+      ]
+    },
+    "verify": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/osu-skin-workbench",
+        "command": "bun run verify"
+      },
+      "outputs": [
+        "{projectRoot}/src-tauri/target",
+        "{projectRoot}/dist"
+      ],
+      "dependsOn": [
+        "^build"
+      ]
+    }
+  }
+}

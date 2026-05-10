@@ -9,6 +9,7 @@
 .cursor/
 dist/
 storage/.sync-state/
+.nx
 
 # dependencies
 **/node_modules

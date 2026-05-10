@@ -4,10 +4,12 @@
   "private": true,
   "type": "module",
   "sideEffects": [
-    "./dist/styles.css"
+    "./dist/styles.css",
+    "./dist/workbench.css"
   ],
   "exports": {
     "./styles.css": "./dist/styles.css",
+    "./workbench.css": "./dist/workbench.css",
     "./package.json": "./package.json",
     "./*": {
       "types": "./dist/*.d.ts",
@@ -46,13 +48,16 @@
   ],
   "scripts": {
     "clean": "rm -rf dist",
-    "build": "bun run clean && tsc -p tsconfig.build.json && bun scripts/fix-js-extensions.mjs && bun scripts/create-flat-public-entries.mjs && bun scripts/copy-assets.mjs && bun scripts/prune-private-dist-entries.mjs",
+    "build": "bun run clean && vite build && bun scripts/copy-assets.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "prepack": "bun run build"
   },
   "devDependencies": {
     "@types/react": "*",
     "@types/react-dom": "*",
-    "typescript": "*"
+    "typescript": "^6.0.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "vite": "^8.0.11",
+    "vite-plugin-dts": "^5.0.0"
   }
 }

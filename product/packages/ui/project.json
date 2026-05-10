@@ -1,0 +1,57 @@
+{
+  "name": "ui",
+  "projectType": "library",
+  "root": "product/packages/ui",
+  "sourceRoot": "product/packages/ui/src",
+  "tags": [
+    "scope:ui",
+    "type:library"
+  ],
+  "targets": {
+    "clean": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/packages/ui",
+        "command": "bun run clean"
+      },
+      "cache": false
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/packages/ui",
+        "command": "bun run build"
+      },
+      "outputs": [
+        "{projectRoot}/dist"
+      ]
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/packages/ui",
+        "command": "bun run typecheck"
+      }
+    },
+    "prepack": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/packages/ui",
+        "command": "bun run prepack"
+      },
+      "outputs": [
+        "{projectRoot}/dist"
+      ]
+    },
+    "check": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/packages/ui",
+        "command": "bun run typecheck && bun run build"
+      },
+      "outputs": [
+        "{projectRoot}/dist"
+      ]
+    }
+  }
+}
