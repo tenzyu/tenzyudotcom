@@ -87,6 +87,7 @@
             source ./repo-ops/scripts/completion.sh
           fi
     export XDG_DATA_DIRS="$GSETTINGS_SCHEMAS_PATH" # Needed on Wayland to report the correct display scale
+    export LD_LIBRARY_PATH=${pkgs.webkitgtk_4_1}/lib:$LD_LIBRARY_PATH
         '';
 
         mkDevShell = packages:
@@ -99,7 +100,14 @@
 
           web = mkDevShell productWebPackages;
 
-          skin-workbench = mkDevShell productSkinWorkbenchPackages;
+          skin-workbench = pkgs.mkShell {
+inherit shellHook;
+            packages = productSkinWorkbenchPackages;
+  buildInputs = with pkgs; [
+    librsvg
+    webkitgtk_4_1
+  ];
+          } ;
 
           repo-ops = mkDevShell repoOpsShellPackages;
 

@@ -1,7 +1,7 @@
 // Remaining sidebar cleanup is tracked in PLAN.md.
 "use client";
 
-import type { ProjectManifest } from "../lib/shared/project-contract";
+import type { ProjectManifest } from "@tenzyu/osu-skin-core/lib/shared/project-contract";
 
 type ScopeTab = {
   id: string;

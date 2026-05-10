@@ -2,8 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { fetchProjectFiles as fetchProjectFilesApi } from "../lib/client/project-api";
-import type { AssetMatrix } from "../lib/project/asset-matrix-builder";
-import type { ProjectFilesResponse } from "../lib/shared/project-contract";
+import type { AssetMatrix } from "@tenzyu/osu-skin-core/lib/project/asset-matrix-builder";
+import type { ProjectFilesResponse } from "@tenzyu/osu-skin-core/lib/shared/project-contract";
 
 const emptyAssetMatrix: AssetMatrix = {
   columns: [{ id: "project", label: "Project", kind: "project" }],

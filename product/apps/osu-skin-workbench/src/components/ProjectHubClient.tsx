@@ -8,7 +8,7 @@ import {
   fetchProjects,
   renameProject,
 } from "../lib/client/project-api";
-import type { ProjectManifest } from "../lib/shared/project-contract";
+import type { ProjectManifest } from "@tenzyu/osu-skin-core/lib/shared/project-contract";
 
 export function ProjectHubClient({ onOpenProject }: { onOpenProject: (projectId: string) => void }) {
   const [projects, setProjects] = useState<ProjectManifest[]>([]);
@@ -115,12 +115,21 @@ export function ProjectHubClient({ onOpenProject }: { onOpenProject: (projectId:
 
   return (
     <main className="hub">
-      <section className="hubIntro">
-        <h1>osu! Skin Workbench</h1>
-        <p>
-          Lazer-first local skin editor. Import a main skin, add asset sources,
-          compare rows, preview changes, then export .osk, diff, or backup packages.
-        </p>
+      <section className="hubHeader">
+        <div>
+          <p className="eyebrow">Desktop Skin Workspace</p>
+          <h1>Projects</h1>
+          <p>
+            Import a main skin, add asset sources, compare rows, preview changes,
+            then export .osk, diff, or backup packages.
+          </p>
+        </div>
+
+        <div className="hubHeaderActions">
+          <button type="button" onClick={refreshProjects} disabled={loading}>
+            Refresh
+          </button>
+        </div>
       </section>
 
       <section className="hubGrid">
@@ -158,10 +167,6 @@ export function ProjectHubClient({ onOpenProject }: { onOpenProject: (projectId:
             disabled={loading || !sourcePath.trim()}
           >
             Import main skin
-          </button>
-
-          <button type="button" onClick={refreshProjects} disabled={loading}>
-            Refresh projects
           </button>
         </div>
 

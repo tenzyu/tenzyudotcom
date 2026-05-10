@@ -1,6 +1,6 @@
 "use client";
 
-import type { AssetMatrixRow } from "../lib/project/asset-matrix-builder";
+import type { AssetMatrixRow } from "@tenzyu/osu-skin-core/lib/project/asset-matrix-builder";
 
 type Props = {
   rows: AssetMatrixRow[];

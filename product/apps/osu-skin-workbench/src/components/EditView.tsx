@@ -5,11 +5,11 @@ import type {
   AssetMatrix,
   AssetMatrixCell,
   AssetMatrixRow,
-} from "../lib/project/asset-matrix-builder";
+} from "@tenzyu/osu-skin-core/lib/project/asset-matrix-builder";
 import {
   filterAssetRows,
   type RequiredLevelFilter,
-} from "../lib/project/asset-row-filter";
+} from "@tenzyu/osu-skin-core/lib/project/asset-row-filter";
 import { CompareAssetCard } from "./CompareAssetCard";
 import { EditorPreviewPanel } from "./EditorPreviewPanel";
 

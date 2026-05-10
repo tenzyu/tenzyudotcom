@@ -18,7 +18,8 @@
         "height": 860,
         "minWidth": 960,
         "minHeight": 640,
-        "resizable": true
+        "resizable": true,
+        "decorations": false
       }
     ],
     "security": {
@@ -26,7 +27,7 @@
     }
   },
   "bundle": {
-    "active": true,
+    "active": false,
     "targets": "all",
     "icon": [
       "icons/icon.png"

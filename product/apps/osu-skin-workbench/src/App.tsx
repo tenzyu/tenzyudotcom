@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { AppTitlebar } from "./components/AppTitlebar";
 import { ProjectHubClient } from "./components/ProjectHubClient";
 import { ProjectWorkspaceClient } from "./components/ProjectWorkspaceClient";
+import "./styles.css";
 
 type RouteState =
   | { screen: "hub" }
@@ -9,14 +11,22 @@ type RouteState =
 export default function App() {
   const [route, setRoute] = useState<RouteState>({ screen: "hub" });
 
-  if (route.screen === "project") {
-    return (
-      <ProjectWorkspaceClient
-        initialProjectId={route.projectId}
-        onBackToHub={() => setRoute({ screen: "hub" })}
-      />
-    );
-  }
+  return (
+    <div className="appFrame">
+      <AppTitlebar />
 
-  return <ProjectHubClient onOpenProject={(projectId) => setRoute({ screen: "project", projectId })} />;
+      {route.screen === "project" ? (
+        <ProjectWorkspaceClient
+          initialProjectId={route.projectId}
+          onBackToHub={() => setRoute({ screen: "hub" })}
+        />
+      ) : (
+        <ProjectHubClient
+          onOpenProject={(projectId) =>
+            setRoute({ screen: "project", projectId })
+          }
+        />
+      )}
+    </div>
+  );
 }

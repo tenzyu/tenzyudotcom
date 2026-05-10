@@ -1,6 +1,6 @@
 "use client";
 
-import type { AssetMatrixCell, AssetMatrixRow } from "../lib/project/asset-matrix-builder";
+import type { AssetMatrixCell, AssetMatrixRow } from "@tenzyu/osu-skin-core/lib/project/asset-matrix-builder";
 import { fileSrc } from "../lib/client/project-api";
 
 export type AssetPreviewSide = "project" | "source";

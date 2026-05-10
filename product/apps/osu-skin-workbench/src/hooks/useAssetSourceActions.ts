@@ -6,7 +6,7 @@ import {
   deleteProjectSource,
   renameProjectSource,
 } from "../lib/client/project-api";
-import type { ProjectManifest } from "../lib/shared/project-contract";
+import type { ProjectManifest } from "@tenzyu/osu-skin-core/lib/shared/project-contract";
 
 export function useAssetSourceActions(input: {
   project: ProjectManifest | null;

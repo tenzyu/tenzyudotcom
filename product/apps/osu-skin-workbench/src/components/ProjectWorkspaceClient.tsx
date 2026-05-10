@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { applyAssetGroup, chooseSkinPath, createProject, deleteAssetGroup, exportProject, rebuildStructuredMirrors } from "../lib/client/project-api";
-import type { ExportPreset } from "../lib/shared/project-contract";
+import type { ExportPreset } from "@tenzyu/osu-skin-core/lib/shared/project-contract";
 import { useAssetMatrixNavigation } from "../hooks/useAssetMatrixNavigation";
 import { useAssetSourceActions } from "../hooks/useAssetSourceActions";
 import { useProjectFiles } from "../hooks/useProjectFiles";

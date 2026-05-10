@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { fetchProjects } from "../lib/client/project-api";
-import type { ProjectManifest } from "../lib/shared/project-contract";
+import type { ProjectManifest } from "@tenzyu/osu-skin-core/lib/shared/project-contract";
 
 export function useProjects(initialProjectId: string) {
   const [projects, setProjects] = useState<ProjectManifest[]>([]);

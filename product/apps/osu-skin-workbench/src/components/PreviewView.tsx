@@ -2,7 +2,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { AssetMatrix, AssetMatrixRow } from "../lib/project/asset-matrix-builder";
+import type { AssetMatrix, AssetMatrixRow } from "@tenzyu/osu-skin-core/lib/project/asset-matrix-builder";
 
 type PreviewTab = "overview" | string;
 
