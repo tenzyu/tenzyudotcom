@@ -1,16 +1,12 @@
 {
 	"folders": [
 		{
-			"name": "harness",
-			"path": "../docs",
+			"name": "apps",
+			"path": "../product/apps",
 		},
 		{
-			"name": "site",
-			"path": "../packages/site",
-		},
-		{
-			"name": "linter",
-			"path": "../packages/linter",
+			"name": "packages",
+			"path": "../product/packages",
 		},
 		{
 			"name": "root",
@@ -27,6 +23,9 @@
 		},
 		"[jsonc]": {
 			"editor.defaultFormatter": "vscode.json-language-features"
+		},
+		"[nix]": {
+			"editor.defaultFormatter": "jnoortheen.nix-ide"
 		}
 	}
 }

@@ -1,33 +1,41 @@
 import { getLocalizedUrl } from 'intlayer'
+import { FolderArchive } from 'lucide-react'
 import Link from 'next/link'
 import { useIntlayer } from 'next-intlayer/server'
 import { Content } from '@/app/[locale]/_features/content'
 import { PageHeader } from '@/app/[locale]/_features/page-header'
+import { Card, CardContent } from '@/components/ui/card'
 
 export function ArchivesPageContent({ locale }: { locale: string }) {
   const content = useIntlayer('page-archives')
 
   return (
-    <main className="flex flex-col items-center p-4 py-8 md:py-12">
-      <Content size="3xl" className="flex flex-col gap-8">
+    <main className="px-4 py-8 md:py-12">
+      <Content size="3xl" className="flex flex-col gap-6">
         <PageHeader
+          eyebrow="Archives"
           title={content.metadata.title.value}
           description={content.metadata.description.value}
-          className="px-4"
         />
 
         <section className="grid gap-4">
-          <Link
-            href={getLocalizedUrl('/archives/osu-profile', locale)}
-            className="group border-border/50 bg-card text-card-foreground hover:bg-accent hover:text-accent-foreground flex flex-col gap-1 rounded-xl border p-6 shadow-sm transition-all hover:shadow-md"
-          >
-            <h2 className="text-lg font-semibold">
-              {content.cards.osuProfileTitle.value}
-            </h2>
-            <p className="text-muted-foreground text-sm">
-              {content.cards.osuProfileDescription.value}
-            </p>
-          </Link>
+          <Card asChild variant="interactive" className="gap-0 py-0">
+            <Link href={getLocalizedUrl('/archives/osu-profile', locale)}>
+              <CardContent className="flex items-center gap-4 p-5">
+                <div className="border-primary/20 bg-primary/10 text-primary flex size-11 shrink-0 items-center justify-center rounded-[var(--radius-lg)] border">
+                  <FolderArchive className="size-5" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h2 className="text-lg font-semibold tracking-tight">
+                    {content.cards.osuProfileTitle.value}
+                  </h2>
+                  <p className="text-muted-foreground text-sm leading-6">
+                    {content.cards.osuProfileDescription.value}
+                  </p>
+                </div>
+              </CardContent>
+            </Link>
+          </Card>
         </section>
       </Content>
     </main>

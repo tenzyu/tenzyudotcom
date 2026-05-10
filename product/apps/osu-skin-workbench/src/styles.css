@@ -1,7 +1,7 @@
 :root {
   color-scheme: dark;
-  background: #080a12;
-  color: #f4f1ff;
+  background: var(--background);
+  color: var(--foreground);
   font-family:
     Inter,
     ui-sans-serif,
@@ -10,17 +10,19 @@
     BlinkMacSystemFont,
     "Segoe UI",
     sans-serif;
-  --bg: #0b0c12;
-  --panel: #141622;
-  --panel-soft: #191c2b;
-  --border: #2a2f45;
-  --text: #f4f6ff;
-  --muted: #9da6c0;
-  --accent: #ff5ebc;
-  --accent-2: #79d7ff;
-  --danger: #ff6b6b;
-  --warn: #f6c760;
-  --ok: #79e69a;
+
+  /* Legacy workbench names mapped to @tenzyu/ui tokens. */
+  --bg: var(--background);
+  --panel: var(--card);
+  --panel-soft: var(--secondary);
+  --border: var(--border);
+  --text: var(--foreground);
+  --muted: var(--muted-foreground);
+  --accent: var(--primary);
+  --accent-2: var(--visualization-accent);
+  --danger: var(--destructive);
+  --warn: var(--chart-4);
+  --ok: var(--chart-3);
 }
 
 * {
@@ -279,3 +281,4 @@ code { background: #0f1220; border: 1px solid var(--border); border-radius: 6px;
 .fileChips span { font-size:11px; color:var(--muted); border:1px solid var(--border); border-radius:999px; padding:2px 6px; }
 .emptyState { border:1px dashed var(--border); color:var(--muted); padding:22px; text-align:center; border-radius:16px; }
 @media (max-width: 1100px) { .workspaceShell { grid-template-columns: 280px minmax(0,1fr); } .editorWorkArea, .previewStage { grid-template-columns:1fr; } .compareAssetCard, .compareTableHeader { grid-template-columns: 30px minmax(160px,1fr); } .comparePreview, .compareActions { grid-column: 2; } }
+

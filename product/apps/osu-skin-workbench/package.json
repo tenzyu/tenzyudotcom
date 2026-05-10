@@ -23,6 +23,7 @@
     "@tauri-apps/plugin-dialog": "^2",
     "@tauri-apps/plugin-opener": "^2",
     "@tenzyu/osu-skin-core": "workspace:*",
+    "@tenzyu/ui": "workspace:*",
     "@vitejs/plugin-react": "^latest",
     "vite": "^latest",
     "typescript": "^latest",

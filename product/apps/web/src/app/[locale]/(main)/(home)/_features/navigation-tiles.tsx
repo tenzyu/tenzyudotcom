@@ -17,16 +17,8 @@ import Link from 'next/link'
 import { useIntlayer, useLocale } from 'next-intlayer/server'
 import type { ReactNode } from 'react'
 import { Content } from '@/app/[locale]/_features/content'
-import {
-  Item,
-  ItemActions,
-  ItemContent,
-  ItemDescription,
-  ItemGroup,
-  ItemMedia,
-  ItemTitle,
-} from '@/components/ui/item'
-import { Separator } from '@/components/ui/separator'
+import { SectionHeader } from '@/app/[locale]/(main)/_features/section-header'
+import { Card, CardContent } from '@/components/ui/card'
 import {
   PUBLIC_ROUTE_GROUPS,
   PUBLIC_ROUTES,
@@ -62,14 +54,7 @@ export function NavigationTiles() {
 
   return (
     <Content size="5xl" className="space-y-12">
-      <div className="space-y-2">
-        <h2 className="text-2xl font-bold tracking-tight">
-          {home.siteIndexTitle}
-        </h2>
-        <p className="text-muted-foreground text-sm font-medium">
-          {home.siteIndexSubtitle}
-        </p>
-      </div>
+      <SectionHeader title={home.siteIndexTitle} description={home.siteIndexSubtitle} />
 
       {PUBLIC_ROUTE_GROUPS.map((group) => {
         const groupContent = navigation.groups[group.id]
@@ -79,68 +64,47 @@ export function NavigationTiles() {
         >
 
         return (
-          <section key={group.id} className="space-y-6">
-            {/* header */}
-            <div className="space-y-2">
-              <div className="flex items-center gap-4">
-                <div className="bg-primary/10 flex size-14 shrink-0 items-center justify-center rounded-2xl">
-                  <GroupIcon className="text-primary h-7 w-7" />
-                </div>
-                <div className="flex flex-1 flex-col justify-center">
-                  <div className="flex items-center gap-4">
-                    <h2 className="text-2xl font-bold tracking-tight">
-                      {groupContent.title}
-                    </h2>
-                    <Separator className="bg-border/50 flex-1" />
-                  </div>
-                  <p className="text-muted-foreground text-sm font-medium">
-                    {groupContent.subtitle}
-                  </p>
-                </div>
-              </div>
-            </div>
+          <section key={group.id} className="space-y-5">
+            <SectionHeader
+              icon={<GroupIcon className="size-5" />}
+              title={groupContent.title}
+              description={groupContent.subtitle}
+              titleClassName="text-xl"
+            />
 
-            {/* content */}
-            <ItemGroup className="grid gap-3 md:grid-cols-2">
+            <div className="grid gap-3 md:grid-cols-2">
               {group.routeIds.map((routeId) => {
                 const itemContent = itemContents[routeId]
                 const Icon = NAVIGATION_ITEM_ICONS[routeId]
                 if (!itemContent) return null
 
                 return (
-                  <Item
+                  <Card
                     key={routeId}
-                    variant="card"
-                    size="sm"
-                    className="group h-auto w-full"
                     asChild
+                    variant="interactive"
+                    className="group gap-0 py-0"
                   >
-                    <Link
-                      href={getLocalizedUrl(PUBLIC_ROUTES[routeId].href, locale)}
-                      className="flex w-full items-center gap-3"
-                    >
-                      <ItemMedia
-                        variant="icon"
-                        className="bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground"
-                      >
-                        <Icon className="h-4 w-4" />
-                      </ItemMedia>
-                      <ItemContent className="min-w-0">
-                        <ItemTitle className="text-sm font-semibold">
-                          {itemContent.label}
-                        </ItemTitle>
-                        <ItemDescription className="text-xs">
-                          {itemContent.description}
-                        </ItemDescription>
-                      </ItemContent>
-                      <ItemActions className="text-muted-foreground/80">
-                        <ChevronRight className="h-4 w-4" />
-                      </ItemActions>
+                    <Link href={getLocalizedUrl(PUBLIC_ROUTES[routeId].href, locale)}>
+                      <CardContent className="flex items-center gap-4 p-4">
+                        <div className="border-primary/20 bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground flex size-10 shrink-0 items-center justify-center rounded-[var(--radius-lg)] border transition-colors">
+                          <Icon className="size-4" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <h3 className="text-sm font-semibold tracking-tight">
+                            {itemContent.label}
+                          </h3>
+                          <p className="text-muted-foreground line-clamp-2 text-xs leading-5">
+                            {itemContent.description}
+                          </p>
+                        </div>
+                        <ChevronRight className="text-muted-foreground size-4 transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
+                      </CardContent>
                     </Link>
-                  </Item>
+                  </Card>
                 )
               })}
-            </ItemGroup>
+            </div>
           </section>
         )
       })}

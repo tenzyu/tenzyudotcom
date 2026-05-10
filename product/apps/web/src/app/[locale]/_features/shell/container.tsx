@@ -1,4 +1,4 @@
-import { Content } from '@/app/[locale]/_features/content'
+import { Content } from '@tenzyu/ui'
 import { cn } from '@/lib/utils/common'
 
 type ContainerProps = {
