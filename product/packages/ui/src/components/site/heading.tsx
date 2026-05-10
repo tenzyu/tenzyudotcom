@@ -26,8 +26,9 @@ function Heading({
   VariantProps<typeof headingVariants> & {
     as?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5'
   }) {
-  const Comp = as ?? (size === 'display' ? 'h1' : size)
+  const Comp = (as ?? (size === 'display' ? 'h1' : size)) as 'h1' | 'h2' | 'h3' | 'h4' | 'h5'
   return <Comp className={cn(headingVariants({ size }), className)} {...props} />
 }
 
 export { Heading, headingVariants }
+

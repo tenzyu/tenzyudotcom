@@ -1,7 +1,6 @@
 'use client'
 
 import { XIcon } from 'lucide-react'
-import { useIntlayer } from 'next-intlayer'
 import { Dialog as DialogPrimitive } from 'radix-ui'
 
 import { Button } from './button'
@@ -51,11 +50,12 @@ function DialogContent({
   className,
   children,
   showCloseButton = true,
+  closeLabel = 'Close',
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
   showCloseButton?: boolean
+  closeLabel?: React.ReactNode
 }) {
-  const content = useIntlayer('dialog')
 
   return (
     <DialogPortal data-slot="dialog-portal">
@@ -75,7 +75,7 @@ function DialogContent({
             className="ring-offset-background focus:ring-ring data-[state=open]:bg-accent text-muted-foreground hover:text-foreground dark:text-foreground absolute top-4 right-4 rounded-xs transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
           >
             <XIcon />
-            <span className="sr-only">{content.closeLabel}</span>
+            <span className="sr-only">{closeLabel}</span>
           </DialogPrimitive.Close>
         )}
       </DialogPrimitive.Content>
@@ -96,12 +96,13 @@ function DialogHeader({ className, ...props }: React.ComponentProps<'div'>) {
 function DialogFooter({
   className,
   showCloseButton = false,
+  closeLabel = 'Close',
   children,
   ...props
 }: React.ComponentProps<'div'> & {
   showCloseButton?: boolean
+  closeLabel?: React.ReactNode
 }) {
-  const content = useIntlayer('dialog')
 
   return (
     <div
@@ -115,7 +116,7 @@ function DialogFooter({
       {children}
       {showCloseButton && (
         <DialogPrimitive.Close asChild>
-          <Button variant="soft">{content.closeLabel}</Button>
+          <Button variant="soft">{closeLabel}</Button>
         </DialogPrimitive.Close>
       )}
     </div>

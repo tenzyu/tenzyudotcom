@@ -42,6 +42,11 @@
     "dev:skin-workbench:tauri": "bun run --filter @tenzyu/osu-skin-workbench dev:tauri",
     "build:skin-workbench:tauri": "bun run --filter @tenzyu/osu-skin-workbench build:tauri",
 
+    "clean:ui": "bun run --filter @tenzyu/ui dev",
+    "build:ui": "bun run --filter @tenzyu/ui build",
+    "typecheck:ui": "bun run --filter @tenzyu/ui typecheck",
+    "prepack:ui": "bun run --filter @tenzyu/ui prepack",
+
     "lint:fix": "bun run --filter @tenzyu/web lint:fix",
     "lint:rules": "bun run --filter @tenzyu/linter lint:rules ../..",
 

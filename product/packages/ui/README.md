@@ -2,69 +2,44 @@
 
 ## Import policy
 
-Use the root package for normal application UI:
+This package intentionally exposes flat component subpaths instead of a root barrel.
 
 ```ts
-import {
-  Button,
-  Card,
-  CardContent,
-  Input,
-  Label,
-  Checkbox,
-  NativeSelect,
-} from "@tenzyu/ui";
+import { Button } from "@tenzyu/ui/button";
+import { Card, CardContent } from "@tenzyu/ui/card";
+import { Dialog, DialogContent } from "@tenzyu/ui/dialog";
 ```
 
-The root package is curated and browser-safe. It does not export heavy or environment-sensitive modules.
-
-Use `@tenzyu/ui/web` in Next.js/web-site code when you need the full web bundle:
+Load the shared CSS explicitly:
 
 ```ts
-import { Toaster, ChartContainer, Calendar } from "@tenzyu/ui/web";
+import "@tenzyu/ui/styles.css";
 ```
 
-Use `@tenzyu/ui/advanced` when you explicitly need heavy components without Next/web helpers:
+## Public exports
 
-```ts
-import { Command, Combobox, ChartContainer } from "@tenzyu/ui/advanced";
+The package uses a wildcard export boundary:
+
+```json
+{
+  "./styles.css": "./dist/styles.css",
+  "./*": {
+    "types": "./dist/*.d.ts",
+    "import": "./dist/*.js"
+  }
+}
 ```
 
-Individual subpath imports remain supported for library internals and bundle-critical code, but application code should not need them for normal UI.
+`@tenzyu/ui/button` resolves to `dist/button.js` and `dist/button.d.ts`.
+The source tree does not need flat entry files; the build generates flat public entries from `src/components/ui/*`, `src/components/site/*`, `src/lib/cn.ts`, and `src/tokens/foundations.ts`.
 
-## Why root is curated
+## Non-goals
 
-A package root barrel is convenient, but every re-export becomes part of the module graph. In Tauri/Vite browser code, exporting everything from the root can pull in dependencies such as `recharts`, `react-day-picker`, `cmdk`, `react-hook-form`, `sonner`, or `next-themes`.
+The package no longer emits or exposes these public entries:
 
-Keeping `@tenzyu/ui` curated prevents browser runtime failures such as:
+- `@tenzyu/ui`
+- `@tenzyu/ui/web`
+- `@tenzyu/ui/advanced`
+- `@tenzyu/ui/browser`
 
-```txt
-TypeError: createRequire is not a function
-```
-
-## Boundary
-
-Root / browser-safe:
-
-- primitive UI
-- common Radix components
-- site layout primitives
-- `cn`
-
-Advanced:
-
-- chart
-- calendar
-- command / combobox
-- form
-- drawer
-- carousel
-- sidebar
-- resizable panels
-- navigation menu
-
-Web:
-
-- everything above
-- sonner / next-themes-related pieces
-- foundations tokens
+This keeps the public API explicit at the component level while avoiding an exploding `exports` field.
