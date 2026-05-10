@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
   chooseSkinPath,
@@ -11,7 +10,7 @@ import {
 } from "../lib/client/project-api";
 import type { ProjectManifest } from "../lib/shared/project-contract";
 
-export function ProjectHubClient() {
+export function ProjectHubClient({ onOpenProject }: { onOpenProject: (projectId: string) => void }) {
   const [projects, setProjects] = useState<ProjectManifest[]>([]);
   const [projectName, setProjectName] = useState("");
   const [sourcePath, setSourcePath] = useState("");
@@ -117,7 +116,7 @@ export function ProjectHubClient() {
   return (
     <main className="hub">
       <section className="hubIntro">
-        <h1>osu! Skin Editor</h1>
+        <h1>osu! Skin Workbench</h1>
         <p>
           Lazer-first local skin editor. Import a main skin, add asset sources,
           compare rows, preview changes, then export .osk, diff, or backup packages.
@@ -179,9 +178,9 @@ export function ProjectHubClient() {
                 </div>
 
                 <div className="inlineActions">
-                  <Link className="buttonLike primary" href={`/projects/${encodeURIComponent(project.id)}`}>
+                  <button type="button" className="primary" onClick={() => onOpenProject(project.id)}>
                     Open
-                  </Link>
+                  </button>
                   <button type="button" onClick={() => rename(project)} disabled={loading}>
                     Rename
                   </button>

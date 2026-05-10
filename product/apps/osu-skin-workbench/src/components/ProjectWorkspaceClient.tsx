@@ -1,18 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import {
-  applyAssetGroup,
-  chooseSkinPath,
-  createProject,
-  deleteAssetGroup,
-  exportProject as exportProjectApi,
-  rebuildStructuredMirrors,
-} from "../lib/client/project-api";
-import type {
-  ExportPreset,
-  ExportResult,
-} from "../lib/shared/project-contract";
+import { useEffect, useMemo, useState } from "react";
+import { applyAssetGroup, chooseSkinPath, createProject, deleteAssetGroup, exportProject, rebuildStructuredMirrors } from "../lib/client/project-api";
+import type { ExportPreset } from "../lib/shared/project-contract";
 import { useAssetMatrixNavigation } from "../hooks/useAssetMatrixNavigation";
 import { useAssetSourceActions } from "../hooks/useAssetSourceActions";
 import { useProjectFiles } from "../hooks/useProjectFiles";
@@ -21,92 +11,59 @@ import { EditView } from "./EditView";
 import { PreviewView } from "./PreviewView";
 import { Sidebar } from "./Sidebar";
 
-type ViewMode = "edit" | "preview";
-
 type Props = {
   initialProjectId: string;
+  onBackToHub: () => void;
 };
 
-export function ProjectWorkspaceClient({ initialProjectId }: Props) {
-  const [viewMode, setViewMode] = useState<ViewMode>("edit");
-
-  const [mainPath, setMainPath] = useState("");
+export function ProjectWorkspaceClient({ initialProjectId, onBackToHub }: Props) {
   const [projectName, setProjectName] = useState("");
-  const [assetPath, setAssetPath] = useState("");
+  const [mainPath, setMainPath] = useState("");
   const [assetName, setAssetName] = useState("");
-
-  const [filter, setFilter] = useState("");
-  const [primaryRowsOnly, setPrimaryRowsOnly] = useState(true);
-  const [exportPreset] = useState<ExportPreset>("full");
-  const [exportResult, setExportResult] = useState<ExportResult | null>(null);
+  const [assetPath, setAssetPath] = useState("");
+  const [view, setView] = useState<"edit" | "preview">("edit");
   const [sidebarOpen, setSidebarOpen] = useState(true);
-
+  const [filter, setFilter] = useState("");
+  const [meaningfulOnly, setMeaningfulOnly] = useState(true);
+  const [collapseStable, setCollapseStable] = useState(true);
   const [loading, setLoading] = useState(false);
-  const [status, setStatus] = useState("No project loaded.");
+  const [status, setStatus] = useState("Loading project.");
   const [error, setError] = useState<string | null>(null);
-  
-  // NOTE: mounted gate
-  const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const projectFiles = useProjectFiles();
-  const matrixNavigation = useAssetMatrixNavigation(projectFiles.matrix);
+  const { files, matrix, fetchProjectFiles, setFiles } = useProjectFiles();
   const projectsState = useProjects(initialProjectId);
-  const assetSourceActions = useAssetSourceActions({
+  const navigation = useAssetMatrixNavigation(matrix);
+
+  const sourceActions = useAssetSourceActions({
     project: projectsState.project,
     updateProject: projectsState.updateProject,
-    reloadFiles: projectFiles.fetchProjectFiles,
+    reloadFiles: fetchProjectFiles,
     setStatus,
     setError,
     setLoading,
   });
 
   useEffect(() => {
-    if (!mounted) return;
-    void refreshProjects();
-  }, [mounted]);
+    void refreshAll();
+    // initialProjectId is intentionally captured by useProjects.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  async function refreshProjects() {
+  async function refreshAll() {
     setLoading(true);
     setError(null);
 
     try {
-      const data = await projectsState.refreshProjects({
-        loadFiles: projectFiles.fetchProjectFiles,
-      });
-      setStatus(data.length ? "Projects loaded." : "No projects yet.");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
+      const projects = await projectsState.refreshProjects({ loadFiles: fetchProjectFiles });
+      setStatus(projects.length ? "Projects loaded." : "No projects yet.");
+    } catch (unknownError) {
+      setError(unknownError instanceof Error ? unknownError.message : String(unknownError));
     } finally {
       setLoading(false);
     }
   }
 
-  async function selectProject(projectId: string, projectList = projectsState.projects) {
-    if (!projectId) return;
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      await projectsState.selectProject(projectId, {
-        projectList,
-        loadFiles: async (nextProjectId) => {
-          const data = await projectFiles.fetchProjectFiles(nextProjectId);
-          setStatus(`Loaded ${data.project.length} project files.`);
-        },
-      });
-    } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function importMainSkin() {
+  async function importMain() {
     if (!mainPath.trim()) {
       setError("Main skin path is required.");
       return;
@@ -116,18 +73,15 @@ export function ProjectWorkspaceClient({ initialProjectId }: Props) {
     setError(null);
 
     try {
-      const project = await createProject({
-        sourcePath: mainPath,
-        name: projectName || undefined,
-      });
-      projectsState.setProjects((current) => [project, ...current.filter((item) => item.id !== project.id)]);
+      const project = await createProject({ sourcePath: mainPath, name: projectName || undefined });
       projectsState.setProject(project);
-      const files = await projectFiles.fetchProjectFiles(project.id);
-      setMainPath("");
+      projectsState.setProjects((current) => [project, ...current.filter((item) => item.id !== project.id)]);
+      await fetchProjectFiles(project.id);
       setProjectName("");
-      setStatus(`Imported ${project.name}: ${files.project.length} files.`);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
+      setMainPath("");
+      setStatus(`Imported project: ${project.name}`);
+    } catch (unknownError) {
+      setError(unknownError instanceof Error ? unknownError.message : String(unknownError));
     } finally {
       setLoading(false);
     }
@@ -140,70 +94,29 @@ export function ProjectWorkspaceClient({ initialProjectId }: Props) {
     try {
       const selected = await chooseSkinPath();
       if (selected) setMainPath(selected);
-      setStatus(selected ? "Selected main skin path." : "File picker was cancelled or unavailable.");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
+      setStatus(selected ? "Selected main skin path." : "File picker was cancelled.");
+    } catch (unknownError) {
+      setError(unknownError instanceof Error ? unknownError.message : String(unknownError));
     } finally {
       setLoading(false);
     }
   }
 
-  async function addAssetSource() {
-    const nextProject = await assetSourceActions.addSource(assetPath, assetName);
-    if (nextProject) {
-      setAssetPath("");
-      setAssetName("");
-    }
-  }
-
-  async function chooseAssetSourcePath() {
-    const selected = await assetSourceActions.chooseSourcePath();
+  async function chooseAssetPath() {
+    const selected = await sourceActions.chooseSourcePath();
     if (selected) setAssetPath(selected);
   }
 
-  async function renameSource(sourceId: string, name: string) {
-    await assetSourceActions.renameSource(sourceId, name);
-  }
-
-  async function deleteSource(sourceId: string) {
-    await assetSourceActions.deleteSource(sourceId);
-  }
-
-  async function exportCurrentProject() {
-    if (!projectsState.project) return;
-
-    setLoading(true);
-    setError(null);
-    setExportResult(null);
-
-    try {
-      const result = await exportProjectApi({ projectId: projectsState.project.id, preset: exportPreset });
-      setExportResult(result);
-      setStatus(`Exported ${result.fileCount} files to ${result.outputPath}`);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
-    } finally {
-      setLoading(false);
+  async function importAsset() {
+    const nextProject = await sourceActions.addSource(assetPath, assetName || undefined);
+    if (nextProject) {
+      setAssetName("");
+      setAssetPath("");
     }
   }
 
-  async function rebuildStructured() {
-    if (!projectsState.project) return;
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      const result = await rebuildStructuredMirrors(projectsState.project.id);
-      await projectFiles.fetchProjectFiles(projectsState.project.id);
-      setStatus(
-        `Rebuilt structured mirrors: ${result.projectFileCount} project files, ${Object.keys(result.sourceFileCounts).length} sources.`,
-      );
-    } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
-    } finally {
-      setLoading(false);
-    }
+  async function selectProject(projectId: string) {
+    await projectsState.selectProject(projectId, { loadFiles: fetchProjectFiles });
   }
 
   async function copySourceRow(input: {
@@ -212,225 +125,173 @@ export function ProjectWorkspaceClient({ initialProjectId }: Props) {
     replaceProjectPaths: string[];
   }) {
     if (!projectsState.project) return;
-
     setLoading(true);
     setError(null);
 
     try {
       const result = await applyAssetGroup({
         projectId: projectsState.project.id,
-        ...input,
+        sourceId: input.sourceId,
+        sourcePaths: input.sourcePaths,
+        replaceProjectPaths: input.replaceProjectPaths,
       });
-      const files = await projectFiles.fetchProjectFiles(projectsState.project.id);
-      setStatus(`Copied ${result.copiedCount} files. Project now has ${files.project.length} files.`);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
+      await fetchProjectFiles(projectsState.project.id);
+      setStatus(`Copied ${result.copiedCount} file(s), deleted ${result.deletedCount}, rebuilt ${result.rebuiltStructuredCount}.`);
+    } catch (unknownError) {
+      setError(unknownError instanceof Error ? unknownError.message : String(unknownError));
     } finally {
       setLoading(false);
     }
   }
 
   async function deleteProjectRow(projectPaths: string[]) {
-    if (!projectsState.project) return;
-    if (!projectPaths.length) return;
+    if (!projectsState.project || !projectPaths.length) return;
+    if (!window.confirm(`Delete ${projectPaths.length} project file(s)?`)) return;
 
     setLoading(true);
     setError(null);
 
     try {
-      const result = await deleteAssetGroup({
-        projectId: projectsState.project.id,
-        projectPaths,
-      });
-      const files = await projectFiles.fetchProjectFiles(projectsState.project.id);
-      setStatus(`Deleted ${result.deletedCount} files. Project now has ${files.project.length} files.`);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
+      const result = await deleteAssetGroup({ projectId: projectsState.project.id, projectPaths });
+      await fetchProjectFiles(projectsState.project.id);
+      setStatus(`Deleted ${result.deletedCount} file(s), rebuilt ${result.rebuiltStructuredCount}.`);
+    } catch (unknownError) {
+      setError(unknownError instanceof Error ? unknownError.message : String(unknownError));
     } finally {
       setLoading(false);
     }
   }
 
-  if (!mounted) {
-    return <InitialShell />;
+  async function rebuild() {
+    if (!projectsState.project) return;
+    setLoading(true);
+    setError(null);
+
+    try {
+      const result = await rebuildStructuredMirrors(projectsState.project.id);
+      await fetchProjectFiles(projectsState.project.id);
+      setStatus(`Rebuilt project mirror (${result.projectFileCount} files).`);
+    } catch (unknownError) {
+      setError(unknownError instanceof Error ? unknownError.message : String(unknownError));
+    } finally {
+      setLoading(false);
+    }
   }
-  
+
+  async function runExport(preset: ExportPreset) {
+    if (!projectsState.project) return;
+    setLoading(true);
+    setError(null);
+
+    try {
+      const result = await exportProject({ projectId: projectsState.project.id, preset });
+      setStatus(`Exported ${result.fileCount} file(s) to ${result.outputPath}.`);
+    } catch (unknownError) {
+      setError(unknownError instanceof Error ? unknownError.message : String(unknownError));
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const sourceFileCount = useMemo(
+    () => files?.sources.reduce((count, source) => count + source.assets.length, 0) ?? 0,
+    [files?.sources],
+  );
+
   return (
-    <main className={`app${sidebarOpen ? "" : " sidebarCollapsed"}`}>
-      {sidebarOpen ? (
+    <main className={`workspaceShell${sidebarOpen ? "" : " sidebarClosed"}`}>
+      {sidebarOpen && (
         <Sidebar
-        projects={projectsState.projects}
-        project={projectsState.project}
-        projectName={projectName}
-        mainPath={mainPath}
-        assetName={assetName}
-        assetPath={assetPath}
-        scopes={matrixNavigation.scopes}
-        categories={matrixNavigation.categories}
-        activeScope={matrixNavigation.activeScope}
-        activeCategory={matrixNavigation.activeCategory}
-        loading={loading}
-        status={status}
-        error={error}
-        onProjectName={setProjectName}
-        onMainPath={setMainPath}
-        onAssetName={setAssetName}
-        onAssetPath={setAssetPath}
-        onClose={() => setSidebarOpen(false)}
-        onImportMain={importMainSkin}
-        onChooseMainPath={chooseMainPath}
-        onImportAsset={addAssetSource}
-        onChooseAssetPath={chooseAssetSourcePath}
-        onProjectSelect={selectProject}
-        onRefresh={refreshProjects}
-        onSourceRename={renameSource}
-        onSourceDelete={deleteSource}
-        onScope={matrixNavigation.selectScope}
-        onCategory={matrixNavigation.setActiveCategory}
-      />
-      ) : (
-        <button
-          type="button"
-          className="sidebarToggle"
-          onClick={() => setSidebarOpen(true)}
-        >
-          Open sidebar
-        </button>
+          projects={projectsState.projects}
+          project={projectsState.project}
+          projectName={projectName}
+          mainPath={mainPath}
+          assetName={assetName}
+          assetPath={assetPath}
+          scopes={navigation.scopes}
+          categories={navigation.categories}
+          activeScope={navigation.activeScope}
+          activeCategory={navigation.activeCategory}
+          loading={loading}
+          status={status}
+          error={error}
+          onProjectName={setProjectName}
+          onMainPath={setMainPath}
+          onAssetName={setAssetName}
+          onAssetPath={setAssetPath}
+          onClose={() => setSidebarOpen(false)}
+          onImportMain={() => void importMain()}
+          onChooseMainPath={() => void chooseMainPath()}
+          onImportAsset={() => void importAsset()}
+          onChooseAssetPath={() => void chooseAssetPath()}
+          onProjectSelect={(projectId) => void selectProject(projectId)}
+          onRefresh={() => void refreshAll()}
+          onSourceRename={(sourceId, name) => void sourceActions.renameSource(sourceId, name)}
+          onSourceDelete={(sourceId) => void sourceActions.deleteSource(sourceId)}
+          onScope={navigation.selectScope}
+          onCategory={navigation.setActiveCategory}
+        />
       )}
 
-      <section className="main">
-        <header className="toolbar">
+      <section className="workspaceMain">
+        <header className="workspaceHeader">
           <div>
-            <h2>{projectsState.project?.name ?? "osu! Skin Editor"}</h2>
-            <p>
-              {projectFiles.files
-                ? `${projectFiles.files.project.length} project files · ${projectFiles.files.sources.length} asset sources`
-                : "Lazer-first skin editor. Import a skin to start."}
+            {!sidebarOpen && (
+              <button type="button" onClick={() => setSidebarOpen(true)}>
+                Open sidebar
+              </button>
+            )}
+            <button type="button" onClick={onBackToHub}>
+              Back to projects
+            </button>
+            <h1>{projectsState.project?.name ?? "osu! Skin Workbench"}</h1>
+            <p className="muted">
+              Project files: {files?.project.length ?? 0} · Source files: {sourceFileCount} · Rows: {matrix.rows.length}
             </p>
           </div>
 
-          <div className="toolbarActions">
-            <div className="viewSwitch">
-              <button
-                type="button"
-                className={viewMode === "edit" ? "active" : ""}
-                onClick={() => setViewMode("edit")}
-              >
-                Edit
-              </button>
-              <button
-                type="button"
-                className={viewMode === "preview" ? "active" : ""}
-                onClick={() => setViewMode("preview")}
-              >
-                Preview
-              </button>
-            </div>
-            <button type="button" disabled title="Undo history is not wired in this build yet.">
-              Undo
+          <div className="workspaceActions">
+            <button type="button" onClick={() => setView("edit")} className={view === "edit" ? "active" : ""}>
+              Edit
             </button>
-            <button type="button" disabled title="History view is not wired in this build yet.">
-              History
+            <button type="button" onClick={() => setView("preview")} className={view === "preview" ? "active" : ""}>
+              Preview
             </button>
-            <button type="button" onClick={rebuildStructured} disabled={loading || !projectsState.project}>
-              Reclassify
+            <button type="button" onClick={() => void rebuild()} disabled={!projectsState.project || loading}>
+              Rebuild mirrors
             </button>
-            <button type="button" onClick={exportCurrentProject} disabled={loading || !projectsState.project}>
-              Export
+            <button type="button" onClick={() => void runExport("full")} disabled={!projectsState.project || loading}>
+              Export full
+            </button>
+            <button type="button" onClick={() => void runExport("diff")} disabled={!projectsState.project || loading}>
+              Export diff
+            </button>
+            <button type="button" onClick={() => void runExport("backup")} disabled={!projectsState.project || loading}>
+              Backup
             </button>
           </div>
         </header>
 
-        {exportResult && (
-          <div className="statusBanner">
-            <strong>{exportResult.preset}</strong> exported {exportResult.fileCount} files
-            to {exportResult.outputPath}. {exportResult.notes.join(" ")}
-          </div>
-        )}
-
-        <nav className="tabs">
-          {matrixNavigation.scopes.map((scope) => (
-            <button
-              key={scope.id}
-              type="button"
-              className={`tab${scope.id === matrixNavigation.activeScope ? " active" : ""}`}
-              onClick={() => matrixNavigation.selectScope(scope.id)}
-            >
-              {scope.label} {scope.count}
-            </button>
-          ))}
-        </nav>
-
-        <nav className="tabs subTabs">
-          {matrixNavigation.categories.map((category) => (
-            <button
-              key={category.id}
-              type="button"
-              className={`tab${category.id === matrixNavigation.activeCategory ? " active" : ""}`}
-              onClick={() => matrixNavigation.setActiveCategory(category.id)}
-            >
-              {category.label} {category.count}
-            </button>
-          ))}
-        </nav>
-
-        {viewMode === "edit" ? (
+        {view === "edit" ? (
           <EditView
             projectId={projectsState.project?.id ?? null}
-            matrix={projectFiles.matrix}
-            selectedSourceId={matrixNavigation.selectedSourceId}
-            scope={matrixNavigation.activeScope}
-            category={matrixNavigation.activeCategory}
+            matrix={matrix}
+            selectedSourceId={navigation.selectedSourceId}
+            scope={navigation.activeScope}
+            category={navigation.activeCategory}
             filter={filter}
-            meaningfulOnly={primaryRowsOnly}
-            collapseStable={primaryRowsOnly}
+            meaningfulOnly={meaningfulOnly}
+            collapseStable={collapseStable}
+            onSelectedSourceId={navigation.setSelectedSourceId}
             onFilter={setFilter}
-            onSelectedSourceId={matrixNavigation.setSelectedSourceId}
-            onMeaningfulOnly={setPrimaryRowsOnly}
-            onCollapseStable={setPrimaryRowsOnly}
+            onMeaningfulOnly={setMeaningfulOnly}
+            onCollapseStable={setCollapseStable}
             onCopySourceRow={copySourceRow}
-            onDeleteProjectRow={deleteProjectRow}
+            onDeleteProjectRow={(paths) => void deleteProjectRow(paths)}
           />
         ) : (
-          <PreviewView
-            matrix={projectFiles.matrix}
-            scope={matrixNavigation.activeScope}
-            category={matrixNavigation.activeCategory}
-          />
+          <PreviewView matrix={matrix} scope={navigation.activeScope} category={navigation.activeCategory} />
         )}
-      </section>
-    </main>
-  );
-}
-
-function InitialShell() {
-  return (
-    <main className="app">
-      <aside className="sidebar">
-        <div className="brand">
-          <div className="brandHeader">
-            <h1>osu! Skin Editor</h1>
-          </div>
-          <p>Lazer-first, Stable later.</p>
-        </div>
-
-        <section>
-          <h2>Loading</h2>
-          <p className="muted">Preparing local editor...</p>
-        </section>
-      </aside>
-
-      <section className="main">
-        <header className="toolbar">
-          <div>
-            <h2>osu! Skin Editor</h2>
-            <p>Loading Next.js editor shell...</p>
-          </div>
-        </header>
-
-        <section className="compareShell">
-          <div className="emptyState">Loading editor...</div>
-        </section>
       </section>
     </main>
   );

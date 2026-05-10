@@ -1,80 +1,157 @@
 "use client";
 
+import { convertFileSrc, invoke } from "@tauri-apps/api/core";
+import { open } from "@tauri-apps/plugin-dialog";
+
+import { classifySkinFiles } from "@tenzyu/osu-skin-core/lib/classification/skin-classifier";
+import { parseSkinIniContext } from "@tenzyu/osu-skin-core/lib/classification/skin-ini-context";
+import { buildAssetMatrix } from "@tenzyu/osu-skin-core/lib/project/asset-matrix-builder";
+import { rowSeedsFromClassificationRules } from "@tenzyu/osu-skin-core/lib/project/asset-matrix-seeds";
+import { buildAssetTree } from "@tenzyu/osu-skin-core/lib/project/asset-tree-builder";
+import { toAssetMatrixDto, toAssetTreeDto } from "@tenzyu/osu-skin-core/lib/shared/asset-dto";
 import type {
-  ApiErrorResponse,
+  AssetMutationResult,
   ExportPreset,
   ExportResult,
   ProjectFilesResponse,
   ProjectManifest,
-  ProjectResponse,
-  ProjectsResponse,
   RebuildStructuredResult,
-  AssetMutationResult,
-} from "../shared/project-contract";
+} from "@tenzyu/osu-skin-core/lib/shared/project-contract";
+import type { ClassifiedSkinAsset } from "@tenzyu/osu-skin-core/lib/domain/skin-asset";
 
-function isApiError(value: unknown): value is ApiErrorResponse {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    "error" in value &&
-    typeof (value as { error: unknown }).error === "string"
-  );
+export type RawFileEntry = {
+  relativePath: string;
+  fullPath: string;
+};
+
+export type RawSourceFiles = {
+  id: string;
+  name: string;
+  sourcePath: string;
+  createdAt: string;
+  readonly?: boolean;
+  files: RawFileEntry[];
+  skinIni?: string | null;
+};
+
+export type RawProjectFilesResponse = {
+  project: RawFileEntry[];
+  projectSkinIni?: string | null;
+  sources: RawSourceFiles[];
+};
+
+function toDesktopAssetDto(asset: ClassifiedSkinAsset): ClassifiedSkinAsset {
+  // Desktop-only app: keep fullPath so the Tauri WebView can preview files through convertFileSrc().
+  return asset;
 }
 
-async function readJson<T>(response: Response): Promise<T> {
-  const json = (await response.json().catch(() => null)) as unknown;
+export function isTauriRuntime(): boolean {
+  return typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
+}
 
-  if (!response.ok) {
-    const message = isApiError(json) ? json.error : `HTTP ${response.status}`;
-    throw new Error(message);
-  }
+export function fileSrc(fullPath: string): string {
+  return convertFileSrc(fullPath);
+}
 
-  return json as T;
+export async function chooseSkinPath(): Promise<string | null> {
+  const selected = await open({
+    title: "Choose osu! skin .osk or extracted skin folder",
+    directory: false,
+    multiple: false,
+    filters: [
+      { name: "osu! skin", extensions: ["osk"] },
+      { name: "All files", extensions: ["*"] },
+    ],
+  });
+
+  if (Array.isArray(selected)) return selected[0] ?? null;
+  return selected ?? null;
+}
+
+export async function chooseSkinDirectory(): Promise<string | null> {
+  const selected = await open({
+    title: "Choose extracted osu! skin folder",
+    directory: true,
+    multiple: false,
+  });
+
+  if (Array.isArray(selected)) return selected[0] ?? null;
+  return selected ?? null;
 }
 
 export async function fetchProjects(): Promise<ProjectManifest[]> {
-  return (await readJson<ProjectsResponse>(await fetch("/api/projects"))).projects;
+  return await invoke<ProjectManifest[]>("list_projects");
 }
 
 export async function createProject(input: {
   sourcePath: string;
   name?: string;
 }): Promise<ProjectManifest> {
-  const data = await readJson<ProjectResponse>(
-    await fetch("/api/projects", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(input),
-    }),
-  );
-
-  return data.project;
+  return await invoke<ProjectManifest>("create_project", { input });
 }
 
 export async function renameProject(projectId: string, name: string): Promise<ProjectManifest> {
-  const data = await readJson<ProjectResponse>(
-    await fetch(`/api/projects/${encodeURIComponent(projectId)}`, {
-      method: "PATCH",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ name }),
-    }),
-  );
-
-  return data.project;
+  return await invoke<ProjectManifest>("rename_project", { projectId, name });
 }
 
 export async function deleteProject(projectId: string): Promise<void> {
-  await readJson<{ ok: true }>(
-    await fetch(`/api/projects/${encodeURIComponent(projectId)}`, {
-      method: "DELETE",
-    }),
-  );
+  await invoke<void>("delete_project", { projectId });
 }
 
 export async function fetchProjectFiles(projectId: string): Promise<ProjectFilesResponse> {
-  return readJson<ProjectFilesResponse>(
-    await fetch(`/api/projects/${encodeURIComponent(projectId)}/files`),
+  const raw = await invoke<RawProjectFilesResponse>("get_project_files", { projectId });
+  const projectContext = raw.projectSkinIni ? parseSkinIniContext(raw.projectSkinIni) : undefined;
+  const project = classifySkinFiles(
+    raw.project.map((file) => ({
+      root: "",
+      relativePath: file.relativePath,
+      fullPath: file.fullPath,
+    })),
+    projectContext,
   );
+
+  const sources = raw.sources.map((source) => {
+    const context = source.skinIni ? parseSkinIniContext(source.skinIni) : undefined;
+    const assets = classifySkinFiles(
+      source.files.map((file) => ({
+        root: "",
+        relativePath: file.relativePath,
+        fullPath: file.fullPath,
+      })),
+      context,
+    );
+
+    return {
+      id: source.id,
+      name: source.name,
+      sourcePath: source.sourcePath,
+      createdAt: source.createdAt,
+      readonly: source.readonly,
+      assets,
+      tree: buildAssetTree(assets),
+    };
+  });
+
+  const matrix = buildAssetMatrix({
+    project,
+    sources: sources.map((source) => ({
+      id: source.id,
+      label: source.name,
+      assets: source.assets,
+    })),
+    rowSeeds: rowSeedsFromClassificationRules(),
+  });
+
+  return {
+    project: project.map(toDesktopAssetDto),
+    projectTree: toAssetTreeDto(buildAssetTree(project)),
+    sources: sources.map((source) => ({
+      ...source,
+      assets: source.assets.map(toDesktopAssetDto),
+      tree: toAssetTreeDto(source.tree),
+    })),
+    matrix: toAssetMatrixDto(matrix),
+  };
 }
 
 export async function addProjectSource(input: {
@@ -82,18 +159,7 @@ export async function addProjectSource(input: {
   sourcePath: string;
   name?: string;
 }): Promise<ProjectManifest> {
-  const data = await readJson<ProjectResponse>(
-    await fetch(`/api/projects/${encodeURIComponent(input.projectId)}/sources`, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({
-        sourcePath: input.sourcePath,
-        name: input.name,
-      }),
-    }),
-  );
-
-  return data.project;
+  return await invoke<ProjectManifest>("add_project_source", { input });
 }
 
 export async function renameProjectSource(input: {
@@ -101,67 +167,25 @@ export async function renameProjectSource(input: {
   sourceId: string;
   name: string;
 }): Promise<ProjectManifest> {
-  const data = await readJson<ProjectResponse>(
-    await fetch(
-      `/api/projects/${encodeURIComponent(input.projectId)}/sources/${encodeURIComponent(input.sourceId)}`,
-      {
-        method: "PATCH",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ name: input.name }),
-      },
-    ),
-  );
-
-  return data.project;
+  return await invoke<ProjectManifest>("rename_project_source", { input });
 }
 
 export async function deleteProjectSource(input: {
   projectId: string;
   sourceId: string;
 }): Promise<ProjectManifest> {
-  const data = await readJson<ProjectResponse>(
-    await fetch(
-      `/api/projects/${encodeURIComponent(input.projectId)}/sources/${encodeURIComponent(input.sourceId)}`,
-      {
-        method: "DELETE",
-      },
-    ),
-  );
-
-  return data.project;
+  return await invoke<ProjectManifest>("delete_project_source", { input });
 }
 
 export async function exportProject(input: {
   projectId: string;
   preset: ExportPreset;
 }): Promise<ExportResult> {
-  const data = await readJson<{ result: ExportResult }>(
-    await fetch(`/api/projects/${encodeURIComponent(input.projectId)}/export`, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ preset: input.preset }),
-    }),
-  );
-
-  return data.result;
-}
-
-export async function chooseSkinPath(): Promise<string | null> {
-  const data = await readJson<{ path: string | null }>(
-    await fetch("/api/dialog/choose-skin", { method: "POST" }),
-  );
-
-  return data.path;
+  return await invoke<ExportResult>("export_project", { input });
 }
 
 export async function rebuildStructuredMirrors(projectId: string): Promise<RebuildStructuredResult> {
-  const data = await readJson<{ result: RebuildStructuredResult }>(
-    await fetch(`/api/projects/${encodeURIComponent(projectId)}/rebuild-structured`, {
-      method: "POST",
-    }),
-  );
-
-  return data.result;
+  return await invoke<RebuildStructuredResult>("rebuild_structured_mirrors", { projectId });
 }
 
 export async function applyAssetGroup(input: {
@@ -170,34 +194,16 @@ export async function applyAssetGroup(input: {
   sourcePaths: string[];
   replaceProjectPaths: string[];
 }): Promise<AssetMutationResult> {
-  const data = await readJson<{ result: AssetMutationResult }>(
-    await fetch(`/api/projects/${encodeURIComponent(input.projectId)}/assets/apply`, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({
-        sourceId: input.sourceId,
-        sourcePaths: input.sourcePaths,
-        replaceProjectPaths: input.replaceProjectPaths,
-      }),
-    }),
-  );
-
-  return data.result;
+  return await invoke<AssetMutationResult>("apply_asset_group", { input });
 }
 
 export async function deleteAssetGroup(input: {
   projectId: string;
   projectPaths: string[];
 }): Promise<AssetMutationResult> {
-  const data = await readJson<{ result: AssetMutationResult }>(
-    await fetch(`/api/projects/${encodeURIComponent(input.projectId)}/assets/delete`, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({
-        projectPaths: input.projectPaths,
-      }),
-    }),
-  );
+  return await invoke<AssetMutationResult>("delete_asset_group", { input });
+}
 
-  return data.result;
+export async function openPath(path: string): Promise<void> {
+  await invoke<void>("open_path", { path });
 }
