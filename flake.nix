@@ -86,6 +86,7 @@
           elif [ -f ./repo-ops/scripts/completion.sh ]; then
             source ./repo-ops/scripts/completion.sh
           fi
+    export XDG_DATA_DIRS="$GSETTINGS_SCHEMAS_PATH" # Needed on Wayland to report the correct display scale
         '';
 
         mkDevShell = packages:

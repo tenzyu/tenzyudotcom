@@ -12,10 +12,11 @@
     "build": "tsc --noEmit && vite build",
     "test": "bun test",
     "typecheck": "tsc --noEmit",
-    "check": "bun run typecheck && bun run build",
+    "check": "bun run check:browser-boundary && bun run typecheck && bun run build",
     "verify": "bun run check",
     "dev:tauri": "tauri dev",
-    "build:tauri": "tauri build"
+    "build:tauri": "tauri build",
+    "check:browser-boundary": "bun run scripts/check-browser-boundary.ts"
   },
   "dependencies": {
     "@tauri-apps/api": "^2",

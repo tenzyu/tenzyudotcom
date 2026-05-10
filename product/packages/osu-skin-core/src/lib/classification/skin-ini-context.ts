@@ -1,5 +1,3 @@
-import { readFile } from "node:fs/promises";
-import path from "node:path";
 import type { Mode, TaxonomyPathInput } from "../domain/taxonomy";
 import {
   meaningForLazerLegacy,
@@ -9,6 +7,7 @@ import {
 } from "../domain/skin-asset";
 import {
   canonicalKey,
+  extensionOf,
   kindFor,
   logicalSkinKey,
   toPosixPath,
@@ -79,7 +78,7 @@ function candidateAssetPaths(rawValue: string): string[] {
   if (isNonAssetValue(value)) return [];
 
   const normalized = toPosixPath(value);
-  const ext = path.extname(normalized).toLowerCase();
+  const ext = extensionOf(normalized);
 
   if (ext) return [normalized];
 
@@ -299,10 +298,6 @@ export function parseSkinIniContext(content: string): SkinClassificationContext 
   return context;
 }
 
-export async function skinContextForRoot(root: string): Promise<SkinClassificationContext> {
-  const content = await readFile(path.join(root, "skin.ini"), "utf8").catch(() => "");
-  return content ? parseSkinIniContext(content) : emptySkinContext();
-}
 
 export function mergeSkinContexts(
   ...contexts: Array<SkinClassificationContext | undefined>
@@ -363,7 +358,7 @@ export function isContextMeaningful(
   }
 
   const basename = logicalBase;
-  const ext = path.extname(basename);
+  const ext = extensionOf(basename);
   if (!ext) return false;
 
   const stem = basename.slice(0, basename.length - ext.length);

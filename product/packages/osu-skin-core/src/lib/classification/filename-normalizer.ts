@@ -1,4 +1,3 @@
-import path from "node:path";
 import { modeIds, type Mode } from "../domain/taxonomy";
 import { skinKinds, type SkinKind } from "../domain/skin-asset";
 import { titleizeIdentifier } from "../domain/label";
@@ -27,17 +26,22 @@ export function basenameOf(relativePath: string): string {
 }
 
 export function extensionOf(relativePath: string): string {
-  return path.extname(basenameOf(relativePath)).toLowerCase();
+  const name = basenameOf(relativePath);
+  const dotIndex = name.lastIndexOf(".");
+
+  if (dotIndex <= 0 || dotIndex === name.length - 1) return "";
+
+  return name.slice(dotIndex).toLowerCase();
 }
 
 export function stripScaleSuffix(fileName: string): string {
-  const ext = path.extname(fileName);
+  const ext = extensionOf(fileName);
   const stem = fileName.slice(0, fileName.length - ext.length);
   return `${stem.endsWith("@2x") ? stem.slice(0, -3) : stem}${ext}`;
 }
 
 export function stripAnimationSuffix(fileName: string): string {
-  const ext = path.extname(fileName);
+  const ext = extensionOf(fileName);
   const stem = fileName.slice(0, fileName.length - ext.length);
 
   const numberedDash = stem.match(/^(.*?)-(\d+)$/);
@@ -62,7 +66,7 @@ export function logicalSkinKey(relativePath: string): string {
 }
 
 export function withoutExtension(fileName: string): string {
-  const ext = path.extname(fileName);
+  const ext = extensionOf(fileName);
   return ext ? fileName.slice(0, -ext.length) : fileName;
 }
 
