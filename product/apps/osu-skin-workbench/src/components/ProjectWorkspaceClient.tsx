@@ -325,7 +325,7 @@ function countSourceFiles(files: unknown): number {
   }
 
   if (sourceFiles && typeof sourceFiles === "object") {
-    return Object.values(sourceFiles as Record<string, unknown>).reduce((sum, entry) => {
+    return Object.values(sourceFiles as Record<string, unknown>).reduce<number>((sum, entry) => {
       if (Array.isArray(entry)) return sum + entry.length;
       if (entry && typeof entry === "object" && Array.isArray((entry as { files?: unknown[] }).files)) {
         return sum + ((entry as { files: unknown[] }).files.length ?? 0);
