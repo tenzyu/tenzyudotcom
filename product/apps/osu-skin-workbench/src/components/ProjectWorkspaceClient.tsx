@@ -2,7 +2,7 @@
 
 import {
   Button,
-} from "@tenzyu/ui";
+} from "@tenzyu/ui/button";
 
 import { useEffect, useMemo, useState } from "react";
 import {

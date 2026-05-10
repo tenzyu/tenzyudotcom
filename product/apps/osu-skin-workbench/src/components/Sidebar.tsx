@@ -1,20 +1,14 @@
 "use client";
 
-import {
-  Badge,
-  Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  Input,
-  Label,
-  NativeSelect,
-} from "@tenzyu/ui";
 
 import type { AssetMatrix } from "@tenzyu/osu-skin-core/lib/project/asset-matrix-builder";
 import type { ProjectManifest } from "@tenzyu/osu-skin-core/lib/shared/project-contract";
+import { Badge } from "@tenzyu/ui/badge";
+import { Button } from "@tenzyu/ui/button";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@tenzyu/ui/card";
+import { Input } from "@tenzyu/ui/input";
+import { Label } from "@tenzyu/ui/label";
+import { NativeSelect } from "@tenzyu/ui/native-select";
 
 type Props = {
   project: ProjectManifest | null;
@@ -55,7 +49,7 @@ export function Sidebar(props: Props) {
         <div className="brand">
           <h1>osu! Skin Editor</h1>
           <p className="truncate mutedText">
-            {props.project?.sourcePath ?? "No project selected"}
+            {props.project?.mainSourcePath ?? "No project selected"}
           </p>
         </div>
         <Button type="button" variant="ghost" size="icon-sm" onClick={props.onClose} aria-label="Close sidebar">

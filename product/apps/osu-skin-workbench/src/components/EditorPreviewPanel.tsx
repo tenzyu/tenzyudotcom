@@ -1,13 +1,14 @@
 "use client";
 
 import {
-  Badge,
-  Button,
   Card,
   CardContent,
   CardHeader,
   CardTitle,
-} from "@tenzyu/ui";
+} from "@tenzyu/ui/card";
+import { Badge } from "@tenzyu/ui/badge";
+import { Button } from "@tenzyu/ui/button";
+
 
 import type { AssetMatrixRow } from "@tenzyu/osu-skin-core/lib/project/asset-matrix-builder";
 

@@ -1,11 +1,9 @@
 "use client";
 
-import {
-  Badge,
-  Button,
-  Card,
-  Checkbox,
-} from "@tenzyu/ui";
+import { Badge } from "@tenzyu/ui/badge";
+import { Button } from "@tenzyu/ui/button";
+import { Card } from "@tenzyu/ui/card";
+import { Checkbox } from "@tenzyu/ui/checkbox";
 
 import type { AssetMatrixCell, AssetMatrixRow } from "@tenzyu/osu-skin-core/lib/project/asset-matrix-builder";
 import { AssetPreview } from "./AssetPreview";

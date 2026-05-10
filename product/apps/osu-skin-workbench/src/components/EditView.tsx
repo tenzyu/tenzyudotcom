@@ -1,15 +1,5 @@
 "use client";
 
-import {
-  Badge,
-  Button,
-  Card,
-  CardContent,
-  Checkbox,
-  Input,
-  Label,
-  NativeSelect,
-} from "@tenzyu/ui";
 
 import { useMemo, useState } from "react";
 import type {
@@ -23,6 +13,13 @@ import {
 } from "@tenzyu/osu-skin-core/lib/project/asset-row-filter";
 import { CompareAssetCard } from "./CompareAssetCard";
 import { EditorPreviewPanel } from "./EditorPreviewPanel";
+import { Badge } from "@tenzyu/ui/badge";
+import { Button } from "@tenzyu/ui/button";
+import { Card, CardContent } from "@tenzyu/ui/card";
+import { Checkbox } from "@tenzyu/ui/checkbox";
+import { Input } from "@tenzyu/ui/input";
+import { Label } from "@tenzyu/ui/label";
+import { NativeSelect } from "@tenzyu/ui/native-select";
 
 type Props = {
   projectId: string | null;

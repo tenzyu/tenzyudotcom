@@ -1,16 +1,11 @@
 "use client";
 
-import {
-  Badge,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@tenzyu/ui";
 
 import { useMemo } from "react";
 import type { AssetMatrix } from "@tenzyu/osu-skin-core/lib/project/asset-matrix-builder";
 import { AssetRow } from "./AssetRow";
+import { Badge } from "@tenzyu/ui/badge";
+import { Card, CardHeader, CardTitle, CardContent } from "@tenzyu/ui/card";
 
 type Props = {
   matrix: AssetMatrix;

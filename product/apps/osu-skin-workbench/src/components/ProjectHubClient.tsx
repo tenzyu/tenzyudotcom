@@ -1,17 +1,5 @@
 "use client";
 
-import {
-  Badge,
-  Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-  Input,
-  Label,
-} from "@tenzyu/ui";
 
 import { useEffect, useState } from "react";
 import {
@@ -22,6 +10,11 @@ import {
   renameProject,
 } from "../lib/client/project-api";
 import type { ProjectManifest } from "@tenzyu/osu-skin-core/lib/shared/project-contract";
+import { Badge } from "@tenzyu/ui/badge";
+import { Button } from "@tenzyu/ui/button";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@tenzyu/ui/card";
+import { Input } from "@tenzyu/ui/input";
+import { Label } from "@tenzyu/ui/label";
 
 type Props = {
   onOpenProject: (projectId: string) => void;

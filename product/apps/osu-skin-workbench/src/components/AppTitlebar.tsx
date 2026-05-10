@@ -1,7 +1,5 @@
 import { getCurrentWindow } from "@tauri-apps/api/window";
-import {
-  Button,
-} from "@tenzyu/ui";
+import { Button } from "@tenzyu/ui/button";
 
 export function AppTitlebar() {
   const appWindow = getCurrentWindow();
