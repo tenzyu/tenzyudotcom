@@ -70,8 +70,7 @@ export default defineConfig({
     dts({
       tsconfigPath: './tsconfig.build.json',
       entryRoot: 'src',
-      outDir: 'dist',
-      declarationOnly: true,
+      outDirs: 'dist',
       beforeWriteFile(filePath, content) {
         const nextFilePath = flatDtsFilePath(filePath)
         if (!nextFilePath) return false

@@ -8,6 +8,11 @@
     "./dist/workbench.css"
   ],
   "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
     "./styles.css": "./dist/styles.css",
     "./workbench.css": "./dist/workbench.css",
     "./package.json": "./package.json",
@@ -48,8 +53,8 @@
   ],
   "scripts": {
     "clean": "rm -rf dist",
-    "build": "bun run clean && vite build && bun scripts/copy-assets.mjs",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "build": "bun run clean && nx vite:build && bun scripts/build-css.mjs",
+    "typecheck": "nx vite:typecheck",
     "prepack": "bun run build"
   },
   "devDependencies": {
@@ -58,6 +63,10 @@
     "typescript": "^6.0.3",
     "@vitejs/plugin-react": "^6.0.1",
     "vite": "^8.0.11",
-    "vite-plugin-dts": "^5.0.0"
+    "vite-plugin-dts": "^5.0.0",
+    "@tailwindcss/postcss": "^4.2.1",
+    "@tailwindcss/typography": "^0.5.19",
+    "tailwindcss": "^4.2.1",
+    "postcss": "^8.5.6"
   }
 }
