@@ -9,7 +9,6 @@
 .cursor/
 dist/
 storage/.sync-state/
-.nx
 
 # dependencies
 **/node_modules
@@ -52,3 +51,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 **/next-env.d.ts
+
+
+
+.nx/cache
+.nx/workspace-data
