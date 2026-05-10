@@ -5,9 +5,9 @@ import { Suspense } from 'react'
 
 import { Content } from '@/app/[locale]/_features/content'
 import { ExternalLink } from '@/app/[locale]/_features/external-link'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { Skeleton } from '@/components/ui/skeleton'
+import { Button } from '@tenzyu/ui/button'
+import { Card, CardContent } from '@tenzyu/ui/card'
+import { Skeleton } from '@tenzyu/ui/skeleton'
 
 import { ID_OSU } from './osu.source'
 import { getUser } from './lib/getUser'

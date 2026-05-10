@@ -12,7 +12,7 @@ import {
   ItemGroup,
   ItemMedia,
   ItemTitle,
-} from '@/components/ui/item'
+} from '@tenzyu/ui/item'
 import { AdminGate } from '@/app/[locale]/(main)/_features/admin/admin-gate'
 import { loadLinks } from '@/features/links/links.assemble'
 import { LINK_CATEGORY_ORDER, type MyLink } from '@/features/links/links.domain'

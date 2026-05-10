@@ -1,8 +1,8 @@
 import { Check, Copy } from 'lucide-react'
 import { useIntlayer } from 'next-intlayer'
-import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
+import { Button } from '@tenzyu/ui/button'
+import { Label } from '@tenzyu/ui/label'
+import { Textarea } from '@tenzyu/ui/textarea'
 
 type PreviewPanelProps = {
   outputText: string

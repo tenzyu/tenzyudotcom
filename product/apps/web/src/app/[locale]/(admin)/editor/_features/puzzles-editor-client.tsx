@@ -7,9 +7,9 @@ import type {
   PuzzleCategory,
   PuzzleLink,
 } from '@/app/[locale]/(main)/puzzles/_features/puzzles.domain'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
+import { Button } from '@tenzyu/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@tenzyu/ui/card'
+import { Input } from '@tenzyu/ui/input'
 import { saveEditorCollectionAction } from './actions'
 import { moveItem } from './editor-utils'
 

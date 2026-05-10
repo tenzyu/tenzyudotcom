@@ -4,7 +4,7 @@ import { useIntlayer } from 'next-intlayer'
 import { useEffect } from 'react'
 import { toast } from 'sonner'
 
-import { Button } from '@/components/ui/button'
+import { Button } from '@tenzyu/ui/button'
 
 type ErrorBoundaryProps = {
   error: Error & { digest?: string }

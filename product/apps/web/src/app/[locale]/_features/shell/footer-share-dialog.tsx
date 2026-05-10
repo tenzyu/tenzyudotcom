@@ -4,14 +4,14 @@ import { Link, Mail, Share2 } from 'lucide-react'
 import { useIntlayer } from 'next-intlayer'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
-import { Button } from '@/components/ui/button'
+import { Button } from '@tenzyu/ui/button'
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
+} from '@tenzyu/ui/dialog'
 import { cn } from '@/lib/utils/common'
 
 type FooterShareDialogProps = {

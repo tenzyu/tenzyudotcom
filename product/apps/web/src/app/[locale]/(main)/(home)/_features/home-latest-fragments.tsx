@@ -4,14 +4,14 @@ import Link from 'next/link'
 import { useIntlayer } from 'next-intlayer/server'
 import { Content } from '@/app/[locale]/_features/content'
 import { SectionHeader } from '@/app/[locale]/(main)/_features/section-header'
-import { Button } from '@/components/ui/button'
+import { Button } from '@tenzyu/ui/button'
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
+} from '@tenzyu/ui/card'
 
 type HomeLatestFragmentsProps = {
   locale: string

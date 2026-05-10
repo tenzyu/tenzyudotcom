@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useIntlayer } from 'next-intlayer/server'
 import { Content } from '@/app/[locale]/_features/content'
 import { PageHeader } from '@/app/[locale]/_features/page-header'
-import { Card, CardContent } from '@/components/ui/card'
+import { Card, CardContent } from '@tenzyu/ui/card'
 
 export function ArchivesPageContent({ locale }: { locale: string }) {
   const content = useIntlayer('page-archives')

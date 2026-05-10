@@ -2,14 +2,14 @@ import { ExternalLink as ExternalLinkIcon } from 'lucide-react'
 import Image from 'next/image'
 import { useIntlayer } from 'next-intlayer/server'
 import { ExternalLink } from '@/app/[locale]/_features/external-link'
-import { Button } from '@/components/ui/button'
+import { Button } from '@tenzyu/ui/button'
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
+} from '@tenzyu/ui/card'
 import type { PuzzleWithOgp } from './types'
 import type { Platform, PuzzleLink } from './puzzles.assemble'
 

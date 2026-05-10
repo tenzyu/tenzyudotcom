@@ -1,5 +1,5 @@
 import { VisuallyHidden } from 'radix-ui'
-import { DialogContent, DialogTitle } from '@/components/ui/dialog'
+import { DialogContent, DialogTitle } from '@tenzyu/ui/dialog'
 import { buildTikTokEmbedUrl } from '@/features/tiktok/tiktok.domain'
 import { cn } from '@/lib/utils/common'
 

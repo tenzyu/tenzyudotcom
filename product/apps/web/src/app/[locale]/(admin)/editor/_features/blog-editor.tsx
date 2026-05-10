@@ -2,14 +2,14 @@
 
 import { useActionState, useState } from 'react'
 import { Search, Pencil } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Button } from '@tenzyu/ui/button'
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
   CardDescription,
-} from '@/components/ui/card'
+} from '@tenzyu/ui/card'
 import type { MDXData } from '@/app/[locale]/(main)/blog/_features/blog.domain'
 import { INITIAL_SAVE_BLOG_POST_ACTION_STATE } from './blog-save-form-state'
 import {

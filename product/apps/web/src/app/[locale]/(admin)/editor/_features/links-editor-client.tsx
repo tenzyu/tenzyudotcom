@@ -2,15 +2,15 @@
 
 import { ArrowDown, ArrowUp, Loader2, Plus, Sparkles, Trash2 } from 'lucide-react'
 import { useState } from 'react'
-import { Button } from '@/components/ui/button'
+import { Button } from '@tenzyu/ui/button'
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
+} from '@tenzyu/ui/card'
+import { Input } from '@tenzyu/ui/input'
 import type { LinkCategory, MyLink } from '@/features/links/links.domain'
 import { saveEditorCollectionAction } from './actions'
 import { moveItem } from './editor-utils'

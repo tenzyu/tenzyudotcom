@@ -6,8 +6,8 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-} from '@/components/ui/carousel'
-import { Dialog, DialogTrigger } from '@/components/ui/dialog'
+} from '@tenzyu/ui/carousel'
+import { Dialog, DialogTrigger } from '@tenzyu/ui/dialog'
 import { YouTubeDialogContent } from '@/app/[locale]/(main)/_features/youtube/youtube-dialog-content'
 import { YouTubeThumbnailImage } from '@/app/[locale]/(main)/_features/youtube/youtube-thumbnail-image'
 import { cn } from '@/lib/utils/common'

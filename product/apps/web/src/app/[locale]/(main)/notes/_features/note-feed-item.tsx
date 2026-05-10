@@ -7,17 +7,17 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { AdminGate } from '@/app/[locale]/(main)/_features/admin/admin-gate'
 import { AdminItemMenu } from '@/app/[locale]/(main)/_features/admin/admin-item-menu'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
+import { Avatar, AvatarFallback, AvatarImage } from '@tenzyu/ui/avatar'
+import { Button } from '@tenzyu/ui/button'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Switch } from '@/components/ui/switch'
-import { Textarea } from '@/components/ui/textarea'
+} from '@tenzyu/ui/select'
+import { Switch } from '@tenzyu/ui/switch'
+import { Textarea } from '@tenzyu/ui/textarea'
 import { cn } from '@/lib/utils/common'
 import {
   loadEditorCollection,

@@ -1,8 +1,8 @@
 import { useIntlayer } from 'next-intlayer'
 import type { Dispatch, SetStateAction } from 'react'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Slider } from '@/components/ui/slider'
+import { Input } from '@tenzyu/ui/input'
+import { Label } from '@tenzyu/ui/label'
+import { Slider } from '@tenzyu/ui/slider'
 
 type SettingsPanelProps = {
   fontSize: number

@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { Content } from '@/app/[locale]/_features/content'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@tenzyu/ui/card'
 
 export type TocSection = {
   id: string

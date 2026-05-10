@@ -11,7 +11,7 @@ import {
   ItemGroup,
   ItemMedia,
   ItemTitle,
-} from '@/components/ui/item'
+} from '@tenzyu/ui/item'
 import { loadLinks } from '@/features/links/links.assemble'
 import { LINK_CATEGORY_ORDER, type LinkCategory, type MyLink } from '@/features/links/links.domain'
 

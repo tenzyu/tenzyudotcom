@@ -5,9 +5,9 @@ import { useIntlayer } from 'next-intlayer/server'
 import { OtakuAside } from '@/app/[locale]/(main)/_features/otaku-aside'
 import { PageHeader } from '@/app/[locale]/_features/page-header'
 import { KoFiLink } from '@/app/[locale]/_features/shell/kofi-link'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@tenzyu/ui/badge'
+import { Button } from '@tenzyu/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@tenzyu/ui/card'
 
 const ICONS = {
   type: Type,

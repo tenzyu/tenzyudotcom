@@ -10,12 +10,12 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from '@/components/ui/pagination'
+} from '@tenzyu/ui/pagination'
 import { BlogTile } from './blog-tile'
 import type { BlogListItem } from './blog.assemble'
 import { AdminGate } from '@/app/[locale]/(main)/_features/admin/admin-gate'
 import { Content } from '@/app/[locale]/_features/content'
-import { Button } from '@/components/ui/button'
+import { Button } from '@tenzyu/ui/button'
 
 type BlogPageContentProps = {
   currentPage: number

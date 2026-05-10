@@ -7,17 +7,17 @@ import type {
   RecommendationSourceEntry,
   RecommendationSourceVideoEntry,
 } from '@/features/recommendations/recommendations.domain'
-import { Button } from '@/components/ui/button'
+import { Button } from '@tenzyu/ui/button'
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Switch } from '@/components/ui/switch'
-import { Textarea } from '@/components/ui/textarea'
+} from '@tenzyu/ui/card'
+import { Input } from '@tenzyu/ui/input'
+import { Switch } from '@tenzyu/ui/switch'
+import { Textarea } from '@tenzyu/ui/textarea'
 import { saveEditorCollectionAction } from './actions'
 import { moveItem } from './editor-utils'
 

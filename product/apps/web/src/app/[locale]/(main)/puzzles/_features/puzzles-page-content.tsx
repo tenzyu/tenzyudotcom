@@ -6,7 +6,7 @@ import {
   EmptyDescription,
   EmptyHeader,
   EmptyTitle,
-} from '@/components/ui/empty'
+} from '@tenzyu/ui/empty'
 import type { PuzzleCategoryWithOgp } from './types'
 import { PuzzleTile } from './puzzle-tile'
 import { AdminGate } from '@/app/[locale]/(main)/_features/admin/admin-gate'

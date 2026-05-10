@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { startTransition } from 'react'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Tabs, TabsList, TabsTrigger } from '@tenzyu/ui/tabs'
 import {
   applyRecommendationTabParam,
   parseRecommendationTabParam,

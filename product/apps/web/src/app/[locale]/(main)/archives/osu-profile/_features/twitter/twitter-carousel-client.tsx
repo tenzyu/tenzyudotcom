@@ -12,8 +12,8 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-} from '@/components/ui/carousel'
-import { Skeleton } from '@/components/ui/skeleton'
+} from '@tenzyu/ui/carousel'
+import { Skeleton } from '@tenzyu/ui/skeleton'
 
 import type { TweetData } from '../twitter.source'
 

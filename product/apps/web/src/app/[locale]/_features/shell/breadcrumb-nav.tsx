@@ -12,7 +12,7 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb'
+} from '@tenzyu/ui/breadcrumb'
 
 export function BreadcrumbNav() {
   const [mounted, setMounted] = useState(false)

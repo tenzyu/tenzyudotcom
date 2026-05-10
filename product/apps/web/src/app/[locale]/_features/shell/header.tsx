@@ -1,8 +1,8 @@
 import { getLocalizedUrl } from 'intlayer'
 import Link from 'next/link'
 import { useIntlayer } from 'next-intlayer/server'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import { Badge } from '@tenzyu/ui/badge'
+import { Button } from '@tenzyu/ui/button'
 import {
   PRIMARY_NAV_ROUTE_IDS,
   PUBLIC_ROUTES,

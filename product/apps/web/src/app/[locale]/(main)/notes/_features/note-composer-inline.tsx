@@ -3,13 +3,13 @@
 import { startTransition, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import { Button } from '@/components/ui/button'
+import { Button } from '@tenzyu/ui/button'
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from '@/components/ui/collapsible'
-import { Textarea } from '@/components/ui/textarea'
+} from '@tenzyu/ui/collapsible'
+import { Textarea } from '@tenzyu/ui/textarea'
 import { createNoteId, type NoteSourceEntry } from './notes.domain'
 import {
   loadEditorCollection,

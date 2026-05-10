@@ -2,7 +2,7 @@
 
 import { Ellipsis, MoreVertical, Pencil, Trash2 } from 'lucide-react'
 import { useState } from 'react'
-import { Button } from '@/components/ui/button'
+import { Button } from '@tenzyu/ui/button'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,13 +12,13 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
+} from '@tenzyu/ui/alert-dialog'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from '@tenzyu/ui/dropdown-menu'
 
 type AdminItemMenuProps = {
   icon?: 'horizontal' | 'vertical'

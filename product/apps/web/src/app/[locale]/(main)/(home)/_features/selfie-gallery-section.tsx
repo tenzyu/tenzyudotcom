@@ -1,6 +1,6 @@
 import { Camera, ExternalLink } from 'lucide-react'
 import { ExternalLink as SiteExternalLink } from '@/app/[locale]/_features/external-link'
-import { Card } from '@/components/ui/card'
+import { Card } from '@tenzyu/ui/card'
 import { HOME_SELFIES } from './selfie-gallery.source'
 import { TweetImage } from './tweet-image'
 

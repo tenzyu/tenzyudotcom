@@ -1,8 +1,8 @@
 import { useIntlayer } from 'next-intlayer'
 import type { Dispatch, SetStateAction } from 'react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { Button } from '@tenzyu/ui/button'
+import { Input } from '@tenzyu/ui/input'
+import { Label } from '@tenzyu/ui/label'
 
 type ControlPanelProps = {
   inputText: string

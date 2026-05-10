@@ -1,7 +1,7 @@
 import { useIntlayer } from 'next-intlayer/server'
 
 import { Content } from '@/app/[locale]/_features/content'
-import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table'
+import { Table, TableBody, TableCell, TableRow } from '@tenzyu/ui/table'
 import { cn } from '@/lib/utils/common'
 
 export function YearlyGoals() {

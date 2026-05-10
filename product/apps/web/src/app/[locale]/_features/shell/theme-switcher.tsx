@@ -3,12 +3,12 @@
 import { Moon, Sun } from 'lucide-react'
 import { useIntlayer } from 'next-intlayer'
 import { useTheme } from 'next-themes'
-import { Button } from '@/components/ui/button'
+import { Button } from '@tenzyu/ui/button'
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from '@/components/ui/tooltip'
+} from '@tenzyu/ui/tooltip'
 
 export function ThemeSwitcher() {
   const content = useIntlayer('themeSwitcher')

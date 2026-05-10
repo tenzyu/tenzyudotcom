@@ -1,5 +1,5 @@
 import { AlertCircleIcon } from 'lucide-react'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Alert, AlertDescription, AlertTitle } from '@tenzyu/ui/alert'
 import { cn } from '@/lib/utils/common'
 
 type CautionProps = {

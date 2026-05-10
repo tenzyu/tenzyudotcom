@@ -1,6 +1,6 @@
 import { useIntlayer } from 'next-intlayer/server'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Badge } from '@/components/ui/badge'
+import { Alert, AlertDescription, AlertTitle } from '@tenzyu/ui/alert'
+import { Badge } from '@tenzyu/ui/badge'
 import {
   type BlogListItem,
   type BlogPost,

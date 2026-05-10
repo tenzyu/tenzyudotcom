@@ -5,9 +5,9 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from '@/components/ui/accordion'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardFooter } from '@/components/ui/card'
+} from '@tenzyu/ui/accordion'
+import { Badge } from '@tenzyu/ui/badge'
+import { Card, CardContent, CardFooter } from '@tenzyu/ui/card'
 import { PORTFOLIO_ENVIRONMENTS } from './portfolio.source'
 
 export function DevEnvironmentSection() {

@@ -1,15 +1,15 @@
 import { useIntlayer } from 'next-intlayer/server'
 import { ExternalLink } from '@/app/[locale]/_features/external-link'
 import { SectionHeader } from '@/app/[locale]/(main)/_features/section-header'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import { Badge } from '@tenzyu/ui/badge'
+import { Button } from '@tenzyu/ui/button'
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
+} from '@tenzyu/ui/card'
 import { PORTFOLIO_PROJECTS } from './portfolio.source'
 
 export function ProjectsSection() {

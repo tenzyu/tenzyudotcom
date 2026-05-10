@@ -18,7 +18,7 @@ import { useIntlayer, useLocale } from 'next-intlayer/server'
 import type { ReactNode } from 'react'
 import { Content } from '@/app/[locale]/_features/content'
 import { SectionHeader } from '@/app/[locale]/(main)/_features/section-header'
-import { Card, CardContent } from '@/components/ui/card'
+import { Card, CardContent } from '@tenzyu/ui/card'
 import {
   PUBLIC_ROUTE_GROUPS,
   PUBLIC_ROUTES,

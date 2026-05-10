@@ -8,7 +8,7 @@ import type {
   RecommendationSourceEntry,
 } from '@/features/recommendations/recommendations.domain'
 import { AdminItemMenu } from '@/app/[locale]/(main)/_features/admin/admin-item-menu'
-import { Button } from '@/components/ui/button'
+import { Button } from '@tenzyu/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -16,10 +16,10 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Switch } from '@/components/ui/switch'
-import { Textarea } from '@/components/ui/textarea'
+} from '@tenzyu/ui/dialog'
+import { Input } from '@tenzyu/ui/input'
+import { Switch } from '@tenzyu/ui/switch'
+import { Textarea } from '@tenzyu/ui/textarea'
 import {
   loadEditorCollection,
   saveEditorCollection,

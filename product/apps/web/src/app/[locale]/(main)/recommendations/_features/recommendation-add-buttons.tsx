@@ -4,10 +4,10 @@ import { startTransition, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import type { RecommendationSourceEntry } from '@/features/recommendations/recommendations.domain'
-import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
+import { Button } from '@tenzyu/ui/button'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@tenzyu/ui/dialog'
+import { Input } from '@tenzyu/ui/input'
+import { Textarea } from '@tenzyu/ui/textarea'
 import {
   loadEditorCollection,
   saveEditorCollection,

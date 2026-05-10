@@ -1,5 +1,5 @@
 import { VisuallyHidden } from 'radix-ui'
-import { DialogContent, DialogTitle } from '@/components/ui/dialog'
+import { DialogContent, DialogTitle } from '@tenzyu/ui/dialog'
 import { cn } from '@/lib/utils/common'
 import { buildYouTubeEmbedUrl } from '@/features/youtube/youtube.domain'
 

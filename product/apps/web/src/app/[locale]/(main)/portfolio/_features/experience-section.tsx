@@ -1,13 +1,13 @@
 import { useIntlayer } from 'next-intlayer/server'
 import { SectionHeader } from '@/app/[locale]/(main)/_features/section-header'
-import { Badge } from '@/components/ui/badge'
+import { Badge } from '@tenzyu/ui/badge'
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
+} from '@tenzyu/ui/card'
 import { PORTFOLIO_EXPERIENCES } from './portfolio.source'
 
 export function ExperienceSection() {

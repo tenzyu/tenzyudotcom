@@ -1,5 +1,5 @@
 import { useIntlayer } from 'next-intlayer/server'
-import { Separator } from '@/components/ui/separator'
+import { Separator } from '@tenzyu/ui/separator'
 import { AboutMeSection } from './about-me-section'
 import { DevEnvironmentSection } from './dev-environment-section'
 import { ExperienceSection } from './experience-section'

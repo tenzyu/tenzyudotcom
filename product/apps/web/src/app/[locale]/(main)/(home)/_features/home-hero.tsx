@@ -1,9 +1,9 @@
 import { ArrowUpRight, Sparkles } from 'lucide-react'
 import { useIntlayer } from 'next-intlayer/server'
 import { ExternalLink } from '@/app/[locale]/_features/external-link'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import { Avatar, AvatarFallback, AvatarImage } from '@tenzyu/ui/avatar'
+import { Badge } from '@tenzyu/ui/badge'
+import { Button } from '@tenzyu/ui/button'
 
 export function HomeHero() {
   const home = useIntlayer('page-home')

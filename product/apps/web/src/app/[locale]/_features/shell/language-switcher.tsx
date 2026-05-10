@@ -4,13 +4,13 @@ import { getLocaleName } from 'intlayer'
 import { ChevronDown, Globe } from 'lucide-react'
 import { useIntlayer, useLocale } from 'next-intlayer'
 import { startTransition } from 'react'
-import { Button } from '@/components/ui/button'
+import { Button } from '@tenzyu/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from '@tenzyu/ui/dropdown-menu'
 
 export function LanguageSwitcher() {
   const content = useIntlayer('languageSwitcher')

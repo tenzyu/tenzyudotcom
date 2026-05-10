@@ -3,7 +3,7 @@
 import { Share2 } from 'lucide-react'
 import { useMemo } from 'react'
 import { toast } from 'sonner'
-import { Button } from '@/components/ui/button'
+import { Button } from '@tenzyu/ui/button'
 
 type NoteShareButtonProps = {
   className?: string

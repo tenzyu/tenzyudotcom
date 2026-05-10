@@ -8,7 +8,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
+} from '@tenzyu/ui/card'
 import { useDotGeneration } from './use-dot-generation'
 import { ControlPanel } from './control-panel'
 import { PreviewPanel } from './preview-panel'

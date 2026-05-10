@@ -2,8 +2,8 @@ import { getLocalizedUrl } from 'intlayer'
 import { CalendarIcon } from 'lucide-react'
 import Link from 'next/link'
 
-import { Badge } from '@/components/ui/badge'
-import { Card } from '@/components/ui/card'
+import { Badge } from '@tenzyu/ui/badge'
+import { Card } from '@tenzyu/ui/card'
 import { cn } from '@/lib/utils/common'
 import { formatDate } from './format-date'
 

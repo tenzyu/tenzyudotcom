@@ -6,11 +6,11 @@ import type {
   DashboardSourceCategory,
   DashboardSourceLink,
 } from '@/app/[locale]/(main)/pointers/_features/dashboard/dashboard.domain'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Switch } from '@/components/ui/switch'
-import { Textarea } from '@/components/ui/textarea'
+import { Button } from '@tenzyu/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@tenzyu/ui/card'
+import { Input } from '@tenzyu/ui/input'
+import { Switch } from '@tenzyu/ui/switch'
+import { Textarea } from '@tenzyu/ui/textarea'
 import { saveEditorCollectionAction } from './actions'
 import { moveItem } from './editor-utils'
 import { fetchUrlMetadataAction } from './metadata.actions'

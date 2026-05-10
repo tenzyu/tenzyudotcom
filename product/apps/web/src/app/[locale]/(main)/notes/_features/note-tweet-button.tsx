@@ -7,7 +7,7 @@ import {
   createNoteId,
   type NoteSourceEntry,
 } from './notes.domain'
-import { Button } from '@/components/ui/button'
+import { Button } from '@tenzyu/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -15,8 +15,8 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { Textarea } from '@/components/ui/textarea'
+} from '@tenzyu/ui/dialog'
+import { Textarea } from '@tenzyu/ui/textarea'
 import {
   loadEditorCollection,
   saveEditorCollection,

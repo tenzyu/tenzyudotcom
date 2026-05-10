@@ -8,7 +8,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
+} from '@tenzyu/ui/card'
 import { EDITOR_ADMIN_LOCALE } from './editor-admin.constants'
 import {
   getEditorStorageDriver,

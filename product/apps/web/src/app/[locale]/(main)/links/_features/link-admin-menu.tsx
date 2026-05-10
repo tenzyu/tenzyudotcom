@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import type { MyLink } from '@/features/links/links.domain'
 import { AdminItemMenu } from '@/app/[locale]/(main)/_features/admin/admin-item-menu'
-import { Button } from '@/components/ui/button'
+import { Button } from '@tenzyu/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -13,8 +13,8 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
+} from '@tenzyu/ui/dialog'
+import { Input } from '@tenzyu/ui/input'
 import {
   loadEditorCollection,
   saveEditorCollection,

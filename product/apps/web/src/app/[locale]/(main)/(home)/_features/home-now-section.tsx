@@ -2,7 +2,7 @@ import { getLocalizedUrl } from 'intlayer'
 import { Clock } from 'lucide-react'
 import Link from 'next/link'
 import { useIntlayer } from 'next-intlayer/server'
-import { Button } from '@/components/ui/button'
+import { Button } from '@tenzyu/ui/button'
 
 export function HomeNowSection({ locale }: { locale: string }) {
   const home = useIntlayer('page-home')

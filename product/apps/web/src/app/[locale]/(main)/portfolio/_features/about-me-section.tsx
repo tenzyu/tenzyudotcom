@@ -2,8 +2,8 @@ import Image from 'next/image'
 import { useIntlayer } from 'next-intlayer/server'
 
 import { ExternalLink } from '@/app/[locale]/_features/external-link'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@tenzyu/ui/button'
+import { Card, CardContent } from '@tenzyu/ui/card'
 import {
   PORTFOLIO_ABOUT_LINKS,
   PORTFOLIO_PROFILE_IMAGE_PATH,

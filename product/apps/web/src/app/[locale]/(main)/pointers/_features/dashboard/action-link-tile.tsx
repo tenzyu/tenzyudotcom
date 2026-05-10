@@ -3,7 +3,7 @@ import type { LucideIcon } from 'lucide-react'
 import Link from 'next/link'
 import { useLocale } from 'next-intlayer/server'
 import { ExternalLink } from '@/app/[locale]/_features/external-link'
-import { Card } from '@/components/ui/card'
+import { Card } from '@tenzyu/ui/card'
 
 type ActionLinkTileProps = {
   title: string
