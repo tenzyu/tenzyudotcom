@@ -70,7 +70,7 @@ export function YouTubeCarousel({
   const isShort = type === 'short'
 
   return (
-    <Content size={isShort ? '3xl' : '4xl'}>
+    <Content size={isShort ? 'xl' : '2xl'}>
       <Carousel
         opts={{
           align: 'start',

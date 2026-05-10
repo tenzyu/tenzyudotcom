@@ -1,1 +1,1 @@
-export { PageHeader } from '@tenzyu/ui'
+export { PageHeader } from '@tenzyu/ui/page-header'

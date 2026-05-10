@@ -36,7 +36,7 @@ export const DotTypeContent: React.FC = () => {
   } = useDotGeneration({ initialText: content.defaults.inputText.value })
 
   return (
-    <Content size="4xl" className="py-12">
+    <Content size="2xl" className="py-12">
       <Card variant="soft">
         <CardHeader>
           <CardTitle className="text-2xl">{content.hero.title}</CardTitle>

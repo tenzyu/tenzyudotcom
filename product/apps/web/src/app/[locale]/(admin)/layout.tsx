@@ -1,4 +1,6 @@
-import { Content, SkipLink, Stack } from '@tenzyu/ui'
+import { Content } from "@tenzyu/ui/content"
+import { SkipLink } from "@tenzyu/ui/skip-link"
+import { Stack } from "@tenzyu/ui/stack"
 
 export default function AdminLayout({
   children,

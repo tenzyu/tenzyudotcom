@@ -72,7 +72,7 @@ export function OsuProfileContent() {
 
   return (
     <div className="flex flex-col items-center legacy-osu">
-      <Content size="4xl" className="py-4">
+      <Content size="2xl" className="py-4">
         <p className="text-muted-foreground mt-2 text-xs">
           {content.archiveNote.value}
         </p>
@@ -85,7 +85,7 @@ export function OsuProfileContent() {
       <TableOfContents sections={tocSections} />
 
       <Content
-        size="4xl"
+        size="2xl"
         className="grid grid-cols-1 gap-y-12 md:grid-cols-2 md:gap-x-4 md:gap-y-0"
       >
         <ArchiveSection
@@ -135,7 +135,7 @@ export function OsuProfileContent() {
         id="osu-settings"
         title={content.sections.osuSettings.value}
       >
-        <Content size="4xl" className="flex flex-col gap-4">
+        <Content size="2xl" className="flex flex-col gap-4">
           <TabletSettings />
           <KeyboardSettings />
           <MonitorSettings />

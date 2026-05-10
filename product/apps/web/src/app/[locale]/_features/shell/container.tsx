@@ -1,4 +1,4 @@
-import { Content } from '@tenzyu/ui'
+import { Content } from '@tenzyu/ui/content'
 import { cn } from '@/lib/utils/common'
 
 type ContainerProps = {

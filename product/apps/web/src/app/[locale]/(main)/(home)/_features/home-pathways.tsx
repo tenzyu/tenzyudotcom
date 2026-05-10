@@ -27,7 +27,7 @@ export function HomePathways({ locale }: { locale: string }) {
   }>
 
   return (
-    <Content size="5xl" className="space-y-6">
+    <Content size="2xl" className="space-y-6">
       <SectionHeader
         title={home.pathwaysTitle.value}
         description={home.pathwaysSubtitle.value}

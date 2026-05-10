@@ -1,1 +1,1 @@
-export { Content } from '@tenzyu/ui'
+export { Content } from '@tenzyu/ui/content'

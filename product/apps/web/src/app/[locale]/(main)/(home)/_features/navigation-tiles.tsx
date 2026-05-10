@@ -53,7 +53,7 @@ export function NavigationTiles() {
   const { locale } = useLocale()
 
   return (
-    <Content size="5xl" className="space-y-12">
+    <Content size="2xl" className="space-y-12">
       <SectionHeader title={home.siteIndexTitle} description={home.siteIndexSubtitle} />
 
       {PUBLIC_ROUTE_GROUPS.map((group) => {
@@ -66,7 +66,6 @@ export function NavigationTiles() {
         return (
           <section key={group.id} className="space-y-5">
             <SectionHeader
-              icon={<GroupIcon className="size-5" />}
               title={groupContent.title}
               description={groupContent.subtitle}
               titleClassName="text-xl"

@@ -1,1 +1,1 @@
-export { SectionHeader } from '@tenzyu/ui'
+export { SectionHeader } from '@tenzyu/ui/section-header'

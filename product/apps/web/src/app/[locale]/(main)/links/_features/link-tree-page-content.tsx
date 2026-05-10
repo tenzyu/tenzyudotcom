@@ -43,7 +43,7 @@ export async function LinkTreePageContent() {
         title={content.metadata.title.value}
         description={content.metadata.description.value}
       />
-      <Content size="4xl" className="space-y-6">
+      <Content size="2xl" className="space-y-6">
         <div className="flex justify-end">
           <AdminGate>
             <LinkAddButton />

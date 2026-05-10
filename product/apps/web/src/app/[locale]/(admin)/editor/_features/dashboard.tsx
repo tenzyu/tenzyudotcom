@@ -24,7 +24,7 @@ export function EditorDashboard({ locale }: { locale: string }) {
     : content.dashboard.unconfiguredStorage.value
 
   return (
-    <Content size="4xl" className="space-y-8">
+    <Content size="2xl" className="space-y-8">
       <PageHeader
         title={content.dashboard.title.value}
         description={content.dashboard.description.value}

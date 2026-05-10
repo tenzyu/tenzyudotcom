@@ -39,7 +39,7 @@ export async function EditorCollectionEditor({
     const state = await loadUseCase.execute('recommendations')
 
     return (
-      <Content size="4xl" className="space-y-8">
+      <Content size="2xl" className="space-y-8">
         <PageHeader
           title={`${content.dashboard.title.value}: ${collection.label}`}
         />
@@ -77,7 +77,7 @@ export async function EditorCollectionEditor({
     const state = await loadUseCase.execute('links')
 
     return (
-      <Content size="4xl" className="space-y-8">
+      <Content size="2xl" className="space-y-8">
         <PageHeader
           title={`${content.dashboard.title.value}: ${collection.label}`}
         />
@@ -115,7 +115,7 @@ export async function EditorCollectionEditor({
     const state = await loadUseCase.execute('notes')
 
     return (
-      <Content size="4xl" className="space-y-8">
+      <Content size="2xl" className="space-y-8">
         <PageHeader
           title={`${content.dashboard.title.value}: ${collection.label}`}
         />
@@ -153,7 +153,7 @@ export async function EditorCollectionEditor({
     const state = await loadUseCase.execute('pointers')
 
     return (
-      <Content size="4xl" className="space-y-8">
+      <Content size="2xl" className="space-y-8">
         <PageHeader
           title={`${content.dashboard.title.value}: ${collection.label}`}
         />
@@ -191,7 +191,7 @@ export async function EditorCollectionEditor({
     const state = await loadUseCase.execute('puzzles')
 
     return (
-      <Content size="4xl" className="space-y-8">
+      <Content size="2xl" className="space-y-8">
         <PageHeader
           title={`${content.dashboard.title.value}: ${collection.label}`}
         />
@@ -229,7 +229,7 @@ export async function EditorCollectionEditor({
     const state = await loadUseCase.execute('blog')
 
     return (
-      <Content size="7xl" className="space-y-8">
+      <Content size="2xl" className="space-y-8">
         <PageHeader
           title={`${content.dashboard.title.value}: ${collection.label}`}
         />
@@ -267,7 +267,7 @@ export async function EditorCollectionEditor({
 
   const state = await loadUseCase.execute(collectionId)
   return (
-    <Content size="4xl" className="space-y-8">
+    <Content size="2xl" className="space-y-8">
       <PageHeader
         title={`${content.dashboard.title.value}: ${collection.label}`}
       />

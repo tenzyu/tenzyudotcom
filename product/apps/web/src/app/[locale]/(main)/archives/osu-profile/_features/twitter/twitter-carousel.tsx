@@ -12,7 +12,7 @@ export function TwitterCarousel({ tweets, className }: TwitterCarouselProps) {
   const content = useIntlayer('twitterCarousel')
 
   return (
-    <Content size="4xl" className={className}>
+    <Content size="2xl" className={className}>
       <TwitterCarouselClient
         tweets={tweets}
         previousLabel={content.previous.value}

@@ -46,7 +46,7 @@ export function BreadcrumbNav() {
   if (!mounted || segments.length === 0) return null
 
   return (
-    <Content size="4xl" className="px-4 py-4 md:py-6">
+    <Content size="2xl" className="px-4 py-4 md:py-6">
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>

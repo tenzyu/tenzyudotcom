@@ -35,7 +35,7 @@ export async function LinkList() {
   }))
 
   return (
-    <Content size="4xl" className="space-y-6">
+    <Content size="2xl" className="space-y-6">
       {groupedLinks.map(
         (group) =>
           group.links.length > 0 && (

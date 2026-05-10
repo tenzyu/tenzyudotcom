@@ -45,7 +45,7 @@ export async function BlogPageContent({
       />
 
       <AdminGate>
-        <Content size="4xl" className="mb-8">
+        <Content size="2xl" className="mb-8">
           <div className="border-border/70 bg-muted/30 flex flex-col gap-4 rounded-2xl border px-4 py-4 sm:px-5">
             <div className="space-y-1">
               <p className="text-sm font-semibold tracking-wide">

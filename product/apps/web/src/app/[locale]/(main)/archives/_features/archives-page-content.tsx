@@ -11,7 +11,7 @@ export function ArchivesPageContent({ locale }: { locale: string }) {
 
   return (
     <main className="px-4 py-8 md:py-12">
-      <Content size="3xl" className="flex flex-col gap-6">
+      <Content size="2xl" className="flex flex-col gap-6">
         <PageHeader
           eyebrow="Archives"
           title={content.metadata.title.value}

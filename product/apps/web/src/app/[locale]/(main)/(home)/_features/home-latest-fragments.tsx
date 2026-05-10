@@ -46,7 +46,7 @@ export function HomeLatestFragments({
   const formatter = noteDateFormatter(locale)
 
   return (
-    <Content size="5xl" className="space-y-6">
+    <Content size="2xl" className="space-y-6">
       <SectionHeader
         title={home.fragmentsTitle.value}
         description={home.fragmentsSubtitle.value}
