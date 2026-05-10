@@ -1,5 +1,11 @@
 "use client";
 
+import {
+  Badge,
+  Button,
+  Card,
+} from "@tenzyu/ui";
+
 import type { AssetMatrixCell, AssetMatrixRow } from "@tenzyu/osu-skin-core/lib/project/asset-matrix-builder";
 import { AssetPreview, type AssetPreviewSide } from "./AssetPreview";
 
@@ -16,7 +22,8 @@ type Props = {
 
 export function AssetRow({ projectId, row, cell, side, sourceId, onCopy, onDelete, onRestore }: Props) {
   return (
-    <div
+    <Card
+      variant="soft"
       className={[
         "assetRow",
         side === "project" ? "projectAssetRow" : "sourceAssetRow",
@@ -24,13 +31,7 @@ export function AssetRow({ projectId, row, cell, side, sourceId, onCopy, onDelet
         row.lazerMeaningful ? "" : " legacy",
       ].join("")}
     >
-      <AssetPreview
-        projectId={projectId}
-        sourceId={sourceId}
-        side={side}
-        row={row}
-        cell={cell}
-      />
+      <AssetPreview projectId={projectId} sourceId={sourceId} side={side} row={row} cell={cell} />
 
       <div className="assetRowText">
         <strong>{row.groupLabel}</strong>
@@ -48,36 +49,37 @@ export function AssetRow({ projectId, row, cell, side, sourceId, onCopy, onDelet
       </div>
 
       <div className="cellMeta">
-        {cell.hasHd && <span className="badge badgeHD">HD</span>}
-        {cell.hasSd && <span className="badge badgeSD">SD</span>}
-        <span className="badge">{row.kind}</span>
+        {cell.hasHd && <Badge variant="secondary">HD</Badge>}
+        {cell.hasSd && <Badge variant="secondary">SD</Badge>}
+        <Badge variant="outline">{row.kind}</Badge>
       </div>
 
       <div className="rowActions">
         {side === "source" && !cell.missing && (
-          <button type="button" className="sourceSelectCircle" onClick={onCopy} title="Copy this source row">
-            ○
-          </button>
+          <Button type="button" size="xs" onClick={onCopy} title="Copy this source row">
+            Copy
+          </Button>
         )}
         {side === "project" && !cell.missing && (
           <>
-            <button type="button" className="danger" onClick={onDelete}>
+            <Button type="button" size="xs" variant="soft" onClick={onRestore}>
+              Restore
+            </Button>
+            <Button type="button" size="xs" variant="destructive" onClick={onDelete}>
               Delete
-            </button>
-            <button type="button" onClick={onRestore} disabled={!onRestore}>
-              Restore from main
-            </button>
+            </Button>
           </>
         )}
       </div>
 
-      <div className="fileChips compact">
-        {cell.assets.slice(0, 4).map((asset) => (
-          <span key={asset.file.relativePath}>{asset.file.name}</span>
-        ))}
-        {cell.assets.length > 4 && <span>+{cell.assets.length - 4}</span>}
-        {!cell.assets.length && <span>No file</span>}
-      </div>
-    </div>
+      {cell.assets.length > 1 && (
+        <div className="fileChips">
+          {cell.assets.slice(0, 8).map((asset) => (
+            <span key={asset.file.name}>{asset.file.name}</span>
+          ))}
+          {cell.assets.length > 8 && <span>+{cell.assets.length - 8}</span>}
+        </div>
+      )}
+    </Card>
   );
 }

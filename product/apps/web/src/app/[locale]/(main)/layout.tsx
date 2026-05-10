@@ -1,4 +1,4 @@
-import { Content } from '@/app/[locale]/_features/content'
+import { Content, SkipLink, Stack } from '@tenzyu/ui'
 
 export default function MainLayout({
   children,
@@ -6,10 +6,13 @@ export default function MainLayout({
   children: React.ReactNode
 }>) {
   return (
-    <main className="min-h-[calc(100dvh-8rem)] px-4 py-8 md:py-12">
-      <Content size="3xl" className="space-y-8 sm:space-y-6">
-        {children}
-      </Content>
-    </main>
+    <>
+      <SkipLink href="#main-content" />
+      <main id="main-content" className="px-[var(--tz-page-padding-x)] py-[var(--tz-page-padding-y)]">
+        <Content size="md">
+          <Stack gap="xl">{children}</Stack>
+        </Content>
+      </main>
+    </>
   )
 }

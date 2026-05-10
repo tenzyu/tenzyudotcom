@@ -1,4 +1,6 @@
 import { cn } from '../../lib/cn'
+import { Heading } from './heading'
+import { Text } from './text'
 
 type PageHeaderProps = React.HTMLAttributes<HTMLDivElement> & {
   title: React.ReactNode
@@ -7,44 +9,25 @@ type PageHeaderProps = React.HTMLAttributes<HTMLDivElement> & {
   actions?: React.ReactNode
 }
 
-function PageHeader({
-  title,
-  description,
-  eyebrow,
-  actions,
-  className,
-  ...props
-}: PageHeaderProps) {
+function PageHeader({ title, description, eyebrow, actions, className, ...props }: PageHeaderProps) {
   return (
     <header
       className={cn(
-        'relative overflow-hidden rounded-[var(--radius-2xl)] border border-border/60 bg-card/55 px-5 py-6 shadow-[var(--shadow-surface)] backdrop-blur-xl sm:px-6',
-        'before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-linear-to-r before:from-transparent before:via-primary/50 before:to-transparent',
+        'grid gap-5 border-b border-border/70 pb-8 md:grid-cols-[minmax(0,1fr)_auto] md:items-end',
         className,
       )}
       {...props}
     >
-      <div className="relative flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-        <div className="min-w-0 space-y-2">
-          {eyebrow ? (
-            <p className="text-primary text-xs font-semibold tracking-[0.2em] uppercase">
-              {eyebrow}
-            </p>
-          ) : null}
-          <h1 className="text-3xl font-bold tracking-[-0.04em] text-balance sm:text-4xl">
-            {title}
-          </h1>
-          {description ? (
-            <p className="text-muted-foreground max-w-2xl text-sm leading-7">
-              {description}
-            </p>
-          ) : null}
-        </div>
-        {actions ? <div className="flex shrink-0 flex-wrap gap-2">{actions}</div> : null}
+      <div className="min-w-0 space-y-3">
+        {eyebrow ? (
+          <p className="text-sm font-bold uppercase tracking-[0.16em] text-primary">{eyebrow}</p>
+        ) : null}
+        <Heading as="h1" size="h1">{title}</Heading>
+        {description ? <Text variant="lead" className="max-w-3xl">{description}</Text> : null}
       </div>
+      {actions ? <div className="flex flex-wrap items-center gap-2 md:justify-end">{actions}</div> : null}
     </header>
   )
 }
 
 export { PageHeader }
-export type { PageHeaderProps }

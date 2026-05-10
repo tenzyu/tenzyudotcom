@@ -1,39 +1,37 @@
 import { cn } from '../../lib/cn'
 
-type ContentSize =
-  | 'xs'
-  | 'sm'
-  | 'md'
-  | 'lg'
-  | 'xl'
-  | '2xl'
-  | '3xl'
-  | '4xl'
-  | '5xl'
-  | '7xl'
-  | 'full'
+type ContentSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full'
 
 const sizeClasses: Record<ContentSize, string> = {
-  xs: 'max-w-xs',
-  sm: 'max-w-sm',
-  md: 'max-w-md',
-  lg: 'max-w-lg',
-  xl: 'max-w-xl',
-  '2xl': 'max-w-2xl',
-  '3xl': 'max-w-3xl',
-  '4xl': 'max-w-4xl',
-  '5xl': 'max-w-5xl',
-  '7xl': 'max-w-7xl',
+  xs: 'max-w-[var(--tz-container-xs)]',
+  sm: 'max-w-[var(--tz-container-sm)]',
+  md: 'max-w-[var(--tz-container-md)]',
+  lg: 'max-w-[var(--tz-container-lg)]',
+  xl: 'max-w-[var(--tz-container-xl)]',
+  '2xl': 'max-w-[var(--tz-container-2xl)]',
   full: 'max-w-none',
 }
 
-type ContentProps = React.HTMLAttributes<HTMLDivElement> & {
+function Content({
+  size = 'md',
+  padded = false,
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement> & {
   size?: ContentSize
+  padded?: boolean
+}) {
+  return (
+    <div
+      className={cn(
+        'mx-auto w-full',
+        sizeClasses[size],
+        padded && 'px-[var(--tz-page-padding-x)]',
+        className,
+      )}
+      {...props}
+    />
+  )
 }
 
-function Content({ size = '4xl', className, ...props }: ContentProps) {
-  return <div className={cn('mx-auto w-full', sizeClasses[size], className)} {...props} />
-}
-
-export { Content }
-export type { ContentProps, ContentSize }
+export { Content, type ContentSize }

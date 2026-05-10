@@ -1,5 +1,12 @@
 "use client";
 
+import {
+  Badge,
+  Button,
+  Card,
+  Checkbox,
+} from "@tenzyu/ui";
+
 import type { AssetMatrixCell, AssetMatrixRow } from "@tenzyu/osu-skin-core/lib/project/asset-matrix-builder";
 import { AssetPreview } from "./AssetPreview";
 
@@ -29,15 +36,17 @@ export function CompareAssetCard({
   onRestore,
 }: Props) {
   return (
-    <div className={`compareAssetCard${selected ? " selected" : ""}`}>
-      <button type="button" className="rowCheck" onClick={onToggle} title="Select asset row">
-        {selected ? "✓" : ""}
-      </button>
+    <Card variant="soft" className={`compareAssetCard${selected ? " selected" : ""}`}>
+      <div className="rowCheckCell">
+        <Checkbox checked={selected} onCheckedChange={onToggle} aria-label="Select asset row" />
+      </div>
 
       <div className="assetIdentity">
         <strong>{row.groupLabel}</strong>
         <span>{row.cells.project.assets[0]?.file.name ?? sourceCell.assets[0]?.file.name ?? row.componentId}</span>
-        <span>{Math.max(projectCell.assets.length, sourceCell.assets.length)} files</span>
+        <span>
+          {Math.max(projectCell.assets.length, sourceCell.assets.length)} files · {row.requiredLevel}
+        </span>
       </div>
 
       <div className="comparePreview projectPreview">
@@ -51,27 +60,29 @@ export function CompareAssetCard({
       </div>
 
       <div className="compareActions">
-        <button type="button" className="primary" onClick={onCopy} disabled={sourceCell.missing}>
-          Copy to Project
-        </button>
-        <button type="button" onClick={onRestore} disabled={sourceCell.missing}>
+        <Button type="button" size="xs" onClick={onCopy} disabled={sourceCell.missing}>
+          Copy
+        </Button>
+        <Button type="button" size="xs" variant="soft" onClick={onRestore} disabled={sourceCell.missing}>
           Restore
-        </button>
-        <button type="button" className="danger" onClick={onDelete} disabled={projectCell.missing}>
+        </Button>
+        <Button type="button" size="xs" variant="destructive" onClick={onDelete} disabled={projectCell.missing}>
           Delete
-        </button>
+        </Button>
       </div>
-    </div>
+    </Card>
   );
 }
 
 function PreviewMeta({ label, cell }: { label: string; cell: AssetMatrixCell }) {
-  const resolution = cell.hasHd ? "HD" : cell.hasSd ? "SD" : "";
+  const resolution = cell.hasHd ? "HD" : cell.hasSd ? "SD" : "missing";
 
   return (
     <div className="previewMeta">
-      <span>{label}</span>
-      {resolution && <span className={`badge badge${resolution}`}>{resolution}</span>}
+      <strong>{label}</strong>
+      <span>{cell.assets.length} files</span>
+      <Badge variant={cell.missing ? "destructive" : "secondary"}>{resolution}</Badge>
+      {cell.warnings.length > 0 && <Badge variant="secondary">{cell.warnings.length} warnings</Badge>}
     </div>
   );
 }

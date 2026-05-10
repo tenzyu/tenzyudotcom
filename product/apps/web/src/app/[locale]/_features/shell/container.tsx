@@ -8,8 +8,9 @@ type ContainerProps = {
 export function Container({ children, className, ...props }: ContainerProps) {
   return (
     <Content
-      size="7xl"
-      className={cn('px-5 sm:px-8 lg:px-12', className)}
+      size="xl"
+      padded
+      className={cn(className)}
       {...props}
     >
       {children}

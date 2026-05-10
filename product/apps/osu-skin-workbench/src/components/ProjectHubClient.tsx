@@ -1,5 +1,18 @@
 "use client";
 
+import {
+  Badge,
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+  Input,
+  Label,
+} from "@tenzyu/ui";
+
 import { useEffect, useState } from "react";
 import {
   chooseSkinPath,
@@ -10,7 +23,11 @@ import {
 } from "../lib/client/project-api";
 import type { ProjectManifest } from "@tenzyu/osu-skin-core/lib/shared/project-contract";
 
-export function ProjectHubClient({ onOpenProject }: { onOpenProject: (projectId: string) => void }) {
+type Props = {
+  onOpenProject: (projectId: string) => void;
+};
+
+export function ProjectHubClient({ onOpenProject }: Props) {
   const [projects, setProjects] = useState<ProjectManifest[]>([]);
   const [projectName, setProjectName] = useState("");
   const [sourcePath, setSourcePath] = useState("");
@@ -30,8 +47,8 @@ export function ProjectHubClient({ onOpenProject }: { onOpenProject: (projectId:
       const nextProjects = await fetchProjects();
       setProjects(nextProjects);
       setStatus(nextProjects.length ? "Projects loaded." : "No projects yet.");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
+    } catch (unknownError) {
+      setError(unknownError instanceof Error ? unknownError.message : String(unknownError));
     } finally {
       setLoading(false);
     }
@@ -56,8 +73,8 @@ export function ProjectHubClient({ onOpenProject }: { onOpenProject: (projectId:
       setProjectName("");
       setSourcePath("");
       setStatus(`Imported project: ${project.name}`);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
+    } catch (unknownError) {
+      setError(unknownError instanceof Error ? unknownError.message : String(unknownError));
     } finally {
       setLoading(false);
     }
@@ -71,8 +88,8 @@ export function ProjectHubClient({ onOpenProject }: { onOpenProject: (projectId:
       const selected = await chooseSkinPath();
       if (selected) setSourcePath(selected);
       setStatus(selected ? "Selected main skin path." : "File picker was cancelled or unavailable.");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
+    } catch (unknownError) {
+      setError(unknownError instanceof Error ? unknownError.message : String(unknownError));
     } finally {
       setLoading(false);
     }
@@ -89,8 +106,8 @@ export function ProjectHubClient({ onOpenProject }: { onOpenProject: (projectId:
       const nextProject = await renameProject(project.id, name);
       setProjects((current) => current.map((item) => (item.id === nextProject.id ? nextProject : item)));
       setStatus("Project renamed.");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
+    } catch (unknownError) {
+      setError(unknownError instanceof Error ? unknownError.message : String(unknownError));
     } finally {
       setLoading(false);
     }
@@ -106,115 +123,129 @@ export function ProjectHubClient({ onOpenProject }: { onOpenProject: (projectId:
       await deleteProject(project.id);
       setProjects((current) => current.filter((item) => item.id !== project.id));
       setStatus("Project deleted.");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
+    } catch (unknownError) {
+      setError(unknownError instanceof Error ? unknownError.message : String(unknownError));
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <main className="hub">
-      <section className="hubHeader">
+    <main className="hubPage">
+      <section className="hubHero">
         <div>
-          <p className="eyebrow">Desktop Skin Workspace</p>
+          <p className="eyebrow">
+            Desktop Skin Workspace
+          </p>
           <h1>Projects</h1>
-          <p>
+          <p className="hubLead mutedText">
             Import a main skin, add asset sources, compare rows, preview changes,
             then export .osk, diff, or backup packages.
           </p>
         </div>
 
         <div className="hubHeaderActions">
-          <button type="button" onClick={refreshProjects} disabled={loading}>
+          <Button type="button" variant="soft" onClick={refreshProjects} disabled={loading}>
             Refresh
-          </button>
+          </Button>
         </div>
       </section>
 
       <section className="hubGrid">
-        <div className="panel">
-          <h2>Create Project</h2>
+        <Card variant="soft" className="hubCreateCard">
+          <CardHeader>
+            <CardTitle>Create Project</CardTitle>
+            <CardDescription>Use a stable or lazer skin folder as the editable main source.</CardDescription>
+          </CardHeader>
 
-          <label>
-            Project name
-            <input
-              value={projectName}
-              onChange={(event) => setProjectName(event.target.value)}
-              placeholder="optional"
-              disabled={loading}
-            />
-          </label>
+          <CardContent className="formStack">
+            <div className="fieldStack">
+              <Label htmlFor="project-name">Project name</Label>
+              <Input
+                id="project-name"
+                value={projectName}
+                onChange={(event) => setProjectName(event.target.value)}
+                placeholder="optional"
+                disabled={loading}
+              />
+            </div>
 
-          <label>
-            Main skin path
-            <input
-              value={sourcePath}
-              onChange={(event) => setSourcePath(event.target.value)}
-              placeholder="skins/example.osk or /absolute/skin/folder"
-              disabled={loading}
-            />
-          </label>
+            <div className="fieldStack">
+              <Label htmlFor="main-skin-path">Main skin path</Label>
+              <Input
+                id="main-skin-path"
+                value={sourcePath}
+                onChange={(event) => setSourcePath(event.target.value)}
+                placeholder="skins/example.osk or /absolute/skin/folder"
+                disabled={loading}
+              />
+            </div>
 
-          <button type="button" onClick={chooseMainSkin} disabled={loading}>
-            Choose .osk or folder
-          </button>
+            <div className="buttonRow">
+              <Button type="button" variant="soft" onClick={chooseMainSkin} disabled={loading}>
+                Choose .osk / folder
+              </Button>
+              <Button type="button" onClick={importProject} disabled={loading || !sourcePath.trim()}>
+                Import main skin
+              </Button>
+            </div>
+          </CardContent>
 
-          <button
-            type="button"
-            className="primary"
-            onClick={importProject}
-            disabled={loading || !sourcePath.trim()}
-          >
-            Import main skin
-          </button>
-        </div>
+          <CardFooter className="statusFooter">
+            {error ? (
+              <div className="statusSurface statusDanger">
+                {error}
+              </div>
+            ) : (
+              <div className="statusSurface statusQuiet">
+                {status}
+              </div>
+            )}
+          </CardFooter>
+        </Card>
 
-        <div className="panel">
-          <h2>Projects</h2>
+        <div className="projectListPanel">
+          <div className="sectionHeaderRow">
+            <div>
+              <h2>Recent projects</h2>
+              <p className="mutedText">{projects.length} project(s)</p>
+            </div>
+          </div>
 
           <div className="projectList">
             {projects.map((project) => (
-              <div className="projectCard" key={project.id}>
-                <div>
-                  <strong>{project.name}</strong>
-                  <p className="muted">{project.mainSourcePath}</p>
-                  <p className="muted">{project.sources.length} asset sources</p>
-                </div>
+              <Card key={project.id} variant="interactive" className="projectCard">
+                <CardHeader>
+                  <div className="projectCardHeader">
+                    <div>
+                      <CardTitle>{project.name}</CardTitle>
+                      <CardDescription>{project.mainSourcePath}</CardDescription>
+                    </div>
+                    <Badge variant="secondary">{project.sources?.length ?? 0} sources</Badge>
+                  </div>
+                </CardHeader>
 
-                <div className="inlineActions">
-                  <button type="button" className="primary" onClick={() => onOpenProject(project.id)}>
+                <CardFooter className="projectCardActions">
+                  <Button type="button" onClick={() => onOpenProject(project.id)} disabled={loading}>
                     Open
-                  </button>
-                  <button type="button" onClick={() => rename(project)} disabled={loading}>
+                  </Button>
+                  <Button type="button" variant="soft" onClick={() => void rename(project)} disabled={loading}>
                     Rename
-                  </button>
-                  <button type="button" className="danger" onClick={() => remove(project)} disabled={loading}>
+                  </Button>
+                  <Button type="button" variant="destructive" onClick={() => void remove(project)} disabled={loading}>
                     Delete
-                  </button>
-                </div>
-              </div>
+                  </Button>
+                </CardFooter>
+              </Card>
             ))}
 
-            {!projects.length && <p className="muted">No projects yet.</p>}
+            {!projects.length && (
+              <div className="emptyState">
+                No projects yet. Import a main skin to create the first workbench project.
+              </div>
+            )}
           </div>
         </div>
-      </section>
-
-      <section className="panel">
-        <h2>Project Layout</h2>
-        <p className="muted">
-          Each project keeps editable raw files and a generated structured mirror:
-          <code> project/raw</code>, <code>project/structured</code>,
-          <code> sources/*/raw</code>, and <code>sources/*/structured</code>.
-          Edit raw files when using an external file manager; structured folders are regenerated from classification rules.
-        </p>
-      </section>
-
-      <section className="panel">
-        <h2>Status</h2>
-        <p className="muted">{loading ? "Loading..." : status}</p>
-        {error && <p className="warningText">{error}</p>}
       </section>
     </main>
   );

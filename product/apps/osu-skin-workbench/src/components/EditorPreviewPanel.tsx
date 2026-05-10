@@ -1,5 +1,14 @@
 "use client";
 
+import {
+  Badge,
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@tenzyu/ui";
+
 import type { AssetMatrixRow } from "@tenzyu/osu-skin-core/lib/project/asset-matrix-builder";
 
 type Props = {
@@ -15,50 +24,51 @@ export function EditorPreviewPanel({ rows, scope, category, warningCount }: Prop
   const audioRow = rows.find((row) => row.kind === "audio");
 
   return (
-    <aside className="editorPreviewPanel">
-      <h3>プレビュー</h3>
-      <div className="previewModeTabs">
-        <button type="button" className={scope === "std" ? "active" : ""}>Std</button>
-        <button type="button" className={scope === "taiko" ? "active" : ""}>Taiko</button>
-        <button type="button" className={scope === "catch" ? "active" : ""}>Catch</button>
-        <button type="button" className={scope === "mania" ? "active" : ""}>Mania</button>
-      </div>
+    <Card variant="soft" className="editorPreviewPanel">
+      <CardHeader>
+        <CardTitle>Live skin model</CardTitle>
+        <p className="mutedText">
+          {scope} / {category}
+        </p>
+      </CardHeader>
 
-      <div className="gamePreviewSurface">
-        <div className="mockHitObject">3</div>
-        <div className="mockApproach" />
-        <div className="mockScore">123x</div>
-      </div>
-
-      <section className="compatPanel">
-        <strong>互換性</strong>
-        <CompatibilityRow label="lazer meaningful" value={primaryCount} tone="ok" />
-        <CompatibilityRow label="stable only" value={rows.length - primaryCount} tone="info" />
-        <CompatibilityRow label="missing" value={missingCount} tone="danger" />
-        <CompatibilityRow label="warnings" value={warningCount} tone="warn" />
-      </section>
-
-      <section className="audioRack">
-        <strong>音声プレビュー</strong>
-        <p className="muted">{audioRow?.groupLabel ?? `${scope} / ${category}`}</p>
-        <div className="waveformMock">
-          <button type="button">▶</button>
-          <span />
+      <CardContent>
+        <div className="previewModeTabs">
+          <Button type="button" size="xs">osu!</Button>
+          <Button type="button" size="xs" variant="soft">taiko</Button>
+          <Button type="button" size="xs" variant="soft">catch</Button>
+          <Button type="button" size="xs" variant="soft">mania</Button>
         </div>
-      </section>
-    </aside>
+
+        <div className="gamePreviewSurface" aria-hidden>
+          <div className="mockApproach" />
+          <div className="mockHitObject">1</div>
+          <div className="mockScore">1000000</div>
+        </div>
+
+        <div className="compatPanel">
+          <CompatRow label="Primary rows" value={`${primaryCount}/${rows.length}`} tone="ok" />
+          <CompatRow label="Missing project assets" value={String(missingCount)} tone={missingCount ? "warn" : "ok"} />
+          <CompatRow label="Warnings" value={String(warningCount)} tone={warningCount ? "warn" : "ok"} />
+          <CompatRow label="Audio sample" value={audioRow?.groupLabel ?? "none"} tone="info" />
+        </div>
+
+        <div className="audioRack">
+          <strong>Hit sound rack</strong>
+          <div className="waveformMock">
+            <Button type="button" size="icon-xs" variant="soft" aria-label="Play sample">
+              ▶
+            </Button>
+            <span />
+            {audioRow && <Badge variant="secondary">{audioRow.kind}</Badge>}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
-function CompatibilityRow({
-  label,
-  value,
-  tone,
-}: {
-  label: string;
-  value: number;
-  tone: "ok" | "info" | "danger" | "warn";
-}) {
+function CompatRow({ label, value, tone }: { label: string; value: string; tone: "ok" | "warn" | "danger" | "info" }) {
   return (
     <div className={`compatRow ${tone}`}>
       <span>{label}</span>

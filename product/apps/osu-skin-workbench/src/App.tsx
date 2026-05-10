@@ -1,8 +1,8 @@
 import { useState } from "react";
+
 import { AppTitlebar } from "./components/AppTitlebar";
 import { ProjectHubClient } from "./components/ProjectHubClient";
 import { ProjectWorkspaceClient } from "./components/ProjectWorkspaceClient";
-import "./styles.css";
 
 type RouteState =
   | { screen: "hub" }
@@ -12,7 +12,7 @@ export default function App() {
   const [route, setRoute] = useState<RouteState>({ screen: "hub" });
 
   return (
-    <div className="appFrame">
+    <div className="dark appFrame" data-theme="dark">
       <AppTitlebar />
 
       {route.screen === "project" ? (

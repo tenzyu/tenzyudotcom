@@ -1,7 +1,18 @@
 "use client";
 
+import {
+  Button,
+} from "@tenzyu/ui";
+
 import { useEffect, useMemo, useState } from "react";
-import { applyAssetGroup, chooseSkinPath, createProject, deleteAssetGroup, exportProject, rebuildStructuredMirrors } from "../lib/client/project-api";
+import {
+  applyAssetGroup,
+  chooseSkinPath,
+  createProject,
+  deleteAssetGroup,
+  exportProject,
+  rebuildStructuredMirrors,
+} from "../lib/client/project-api";
 import type { ExportPreset } from "@tenzyu/osu-skin-core/lib/shared/project-contract";
 import { useAssetMatrixNavigation } from "../hooks/useAssetMatrixNavigation";
 import { useAssetSourceActions } from "../hooks/useAssetSourceActions";
@@ -30,7 +41,7 @@ export function ProjectWorkspaceClient({ initialProjectId, onBackToHub }: Props)
   const [status, setStatus] = useState("Loading project.");
   const [error, setError] = useState<string | null>(null);
 
-  const { files, matrix, fetchProjectFiles, setFiles } = useProjectFiles();
+  const { files, matrix, fetchProjectFiles } = useProjectFiles();
   const projectsState = useProjects(initialProjectId);
   const navigation = useAssetMatrixNavigation(matrix);
 
@@ -42,6 +53,8 @@ export function ProjectWorkspaceClient({ initialProjectId, onBackToHub }: Props)
     setError,
     setLoading,
   });
+
+  const sourceFileCount = useMemo(() => countSourceFiles(files), [files]);
 
   useEffect(() => {
     void refreshAll();
@@ -107,7 +120,7 @@ export function ProjectWorkspaceClient({ initialProjectId, onBackToHub }: Props)
     if (selected) setAssetPath(selected);
   }
 
-  async function importAsset() {
+  async function addSource() {
     const nextProject = await sourceActions.addSource(assetPath, assetName || undefined);
     if (nextProject) {
       setAssetName("");
@@ -193,84 +206,85 @@ export function ProjectWorkspaceClient({ initialProjectId, onBackToHub }: Props)
     }
   }
 
-  const sourceFileCount = useMemo(
-    () => files?.sources.reduce((count, source) => count + source.assets.length, 0) ?? 0,
-    [files?.sources],
-  );
-
   return (
     <main className={`workspaceShell${sidebarOpen ? "" : " sidebarClosed"}`}>
       {sidebarOpen && (
         <Sidebar
-          projects={projectsState.projects}
           project={projectsState.project}
+          projects={projectsState.projects}
           projectName={projectName}
           mainPath={mainPath}
           assetName={assetName}
           assetPath={assetPath}
-          scopes={navigation.scopes}
-          categories={navigation.categories}
-          activeScope={navigation.activeScope}
-          activeCategory={navigation.activeCategory}
           loading={loading}
           status={status}
           error={error}
+          matrix={matrix}
+          activeScope={navigation.activeScope}
+          activeCategory={navigation.activeCategory}
           onProjectName={setProjectName}
           onMainPath={setMainPath}
+          onChooseMainPath={() => void chooseMainPath()}
+          onImportMain={() => void importMain()}
           onAssetName={setAssetName}
           onAssetPath={setAssetPath}
-          onClose={() => setSidebarOpen(false)}
-          onImportMain={() => void importMain()}
-          onChooseMainPath={() => void chooseMainPath()}
-          onImportAsset={() => void importAsset()}
           onChooseAssetPath={() => void chooseAssetPath()}
+          onImportAsset={() => void addSource()}
           onProjectSelect={(projectId) => void selectProject(projectId)}
-          onRefresh={() => void refreshAll()}
           onSourceRename={(sourceId, name) => void sourceActions.renameSource(sourceId, name)}
           onSourceDelete={(sourceId) => void sourceActions.deleteSource(sourceId)}
           onScope={navigation.selectScope}
           onCategory={navigation.setActiveCategory}
+          onClose={() => setSidebarOpen(false)}
         />
       )}
 
       <section className="workspaceMain">
         <header className="workspaceHeader">
-          <div>
-            {!sidebarOpen && (
-              <button type="button" onClick={() => setSidebarOpen(true)}>
-                Open sidebar
-              </button>
-            )}
-            <button type="button" onClick={onBackToHub}>
-              Back to projects
-            </button>
+          <div className="workspaceTitleBlock">
+            <div className="inlineActions">
+              {!sidebarOpen && (
+                <Button type="button" variant="soft" size="sm" onClick={() => setSidebarOpen(true)}>
+                  Open sidebar
+                </Button>
+              )}
+              <Button type="button" variant="ghost" size="sm" onClick={onBackToHub}>
+                Back to projects
+              </Button>
+            </div>
             <h1>{projectsState.project?.name ?? "osu! Skin Workbench"}</h1>
-            <p className="muted">
+            <p className="workspaceMeta mutedText">
               Project files: {files?.project.length ?? 0} · Source files: {sourceFileCount} · Rows: {matrix.rows.length}
             </p>
           </div>
 
           <div className="workspaceActions">
-            <button type="button" onClick={() => setView("edit")} className={view === "edit" ? "active" : ""}>
+            <Button type="button" size="sm" variant={view === "edit" ? "default" : "soft"} onClick={() => setView("edit")}>
               Edit
-            </button>
-            <button type="button" onClick={() => setView("preview")} className={view === "preview" ? "active" : ""}>
+            </Button>
+            <Button type="button" size="sm" variant={view === "preview" ? "default" : "soft"} onClick={() => setView("preview")}>
               Preview
-            </button>
-            <button type="button" onClick={() => void rebuild()} disabled={!projectsState.project || loading}>
+            </Button>
+            <Button type="button" size="sm" variant="soft" onClick={() => void rebuild()} disabled={!projectsState.project || loading}>
               Rebuild mirrors
-            </button>
-            <button type="button" onClick={() => void runExport("full")} disabled={!projectsState.project || loading}>
+            </Button>
+            <Button type="button" size="sm" variant="soft" onClick={() => void runExport("full")} disabled={!projectsState.project || loading}>
               Export full
-            </button>
-            <button type="button" onClick={() => void runExport("diff")} disabled={!projectsState.project || loading}>
+            </Button>
+            <Button type="button" size="sm" variant="soft" onClick={() => void runExport("diff")} disabled={!projectsState.project || loading}>
               Export diff
-            </button>
-            <button type="button" onClick={() => void runExport("backup")} disabled={!projectsState.project || loading}>
+            </Button>
+            <Button type="button" size="sm" variant="soft" onClick={() => void runExport("backup")} disabled={!projectsState.project || loading}>
               Backup
-            </button>
+            </Button>
           </div>
         </header>
+
+        {(error || status) && (
+          <div className={`workspaceStatus ${error ? "statusDanger" : "statusQuiet"}`}>
+            {error ?? status}
+          </div>
+        )}
 
         {view === "edit" ? (
           <EditView
@@ -295,4 +309,30 @@ export function ProjectWorkspaceClient({ initialProjectId, onBackToHub }: Props)
       </section>
     </main>
   );
+}
+
+function countSourceFiles(files: unknown): number {
+  const sourceFiles = (files as { sources?: unknown })?.sources;
+
+  if (Array.isArray(sourceFiles)) {
+    return sourceFiles.reduce((sum, entry) => {
+      if (Array.isArray(entry)) return sum + entry.length;
+      if (entry && typeof entry === "object" && Array.isArray((entry as { files?: unknown[] }).files)) {
+        return sum + ((entry as { files: unknown[] }).files.length ?? 0);
+      }
+      return sum;
+    }, 0);
+  }
+
+  if (sourceFiles && typeof sourceFiles === "object") {
+    return Object.values(sourceFiles as Record<string, unknown>).reduce((sum, entry) => {
+      if (Array.isArray(entry)) return sum + entry.length;
+      if (entry && typeof entry === "object" && Array.isArray((entry as { files?: unknown[] }).files)) {
+        return sum + ((entry as { files: unknown[] }).files.length ?? 0);
+      }
+      return sum;
+    }, 0);
+  }
+
+  return 0;
 }

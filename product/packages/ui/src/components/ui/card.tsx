@@ -8,14 +8,15 @@ const cardVariants = cva(
   {
     variants: {
       variant: {
-        default:
-          'border-border/70 bg-card shadow-[var(--shadow-surface)]',
-        soft:
-          'border-border/60 bg-card/70 shadow-[var(--shadow-surface)] backdrop-blur-xl',
+        default: 'border-border/75 bg-card shadow-[var(--shadow-surface)]',
+        soft: 'border-border/65 bg-card/75 shadow-[var(--shadow-surface)] backdrop-blur-xl',
         interactive:
-          'border-border/60 bg-card/75 shadow-[var(--shadow-surface)] transition-[background,border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:bg-card hover:shadow-[var(--shadow-lifted)]',
-        quiet:
-          'border-border/50 bg-muted/25 shadow-none',
+          'border-border/65 bg-card/75 shadow-[var(--shadow-surface)] transition-[background,border-color,box-shadow,transform] duration-150 hover:-translate-y-0.5 hover:border-primary/45 hover:bg-card hover:shadow-[var(--shadow-lifted)] focus-within:border-ring',
+        quiet: 'border-border/55 bg-muted/25 shadow-none',
+        info: 'border-info/40 bg-info/10',
+        warning: 'border-warning/45 bg-warning/12',
+        danger: 'border-destructive/45 bg-destructive/10',
+        success: 'border-success/45 bg-success/10',
       },
     },
     defaultVariants: {
@@ -60,7 +61,7 @@ function CardTitle({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
       data-slot="card-title"
-      className={cn('text-foreground leading-snug font-semibold tracking-tight', className)}
+      className={cn('text-foreground text-xl leading-[var(--tz-leading-heading)] font-semibold tracking-tight', className)}
       {...props}
     />
   )
@@ -70,7 +71,7 @@ function CardDescription({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
       data-slot="card-description"
-      className={cn('text-muted-foreground text-sm leading-relaxed', className)}
+      className={cn('text-muted-foreground text-base leading-[var(--tz-leading-readable)]', className)}
       {...props}
     />
   )

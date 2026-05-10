@@ -1,5 +1,16 @@
 "use client";
 
+import {
+  Badge,
+  Button,
+  Card,
+  CardContent,
+  Checkbox,
+  Input,
+  Label,
+  NativeSelect,
+} from "@tenzyu/ui";
+
 import { useMemo, useState } from "react";
 import type {
   AssetMatrix,
@@ -43,6 +54,7 @@ export function EditView(props: Props) {
   const [requiredLevel, setRequiredLevel] = useState<RequiredLevelFilter>("all");
   const [density, setDensity] = useState("comfortable");
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
+
   const rows = useMemo(
     () =>
       filterAssetRows(props.matrix.rows, {
@@ -53,14 +65,13 @@ export function EditView(props: Props) {
         collapseStable: props.collapseStable,
         requiredLevel,
       }),
-    [props, requiredLevel],
+    [props.matrix.rows, props.scope, props.category, props.filter, props.meaningfulOnly, props.collapseStable, requiredLevel],
   );
+
   const activeScope = props.matrix.rows.find((row) => row.scope === props.scope)?.taxonomy.scope;
-  const activeCategory = props.matrix.rows.find((row) => row.scope === props.scope && row.category === props.category)
-    ?.taxonomy.category;
+  const activeCategory = props.matrix.rows.find((row) => row.scope === props.scope && row.category === props.category)?.taxonomy.category;
   const sourceColumns = props.matrix.columns.filter((column) => column.kind === "source");
-  const activeSourceColumn =
-    sourceColumns.find((column) => column.id === props.selectedSourceId) ?? sourceColumns[0] ?? null;
+  const activeSourceColumn = sourceColumns.find((column) => column.id === props.selectedSourceId) ?? sourceColumns[0] ?? null;
   const warnings = warningSummary(props.matrix.rows);
   const projectPresent = rows.filter((row) => !row.cells.project.missing).length;
   const sourcePresent = activeSourceColumn
@@ -91,216 +102,187 @@ export function EditView(props: Props) {
     for (const row of rows) {
       if (!selectedRows.has(row.rowKey)) continue;
       const sourceCell = sourceCellFor(row, activeSourceColumn.id);
-      if (!sourceCell.sourceId || sourceCell.cell.missing) continue;
+      if (sourceCell.cell.missing) continue;
 
       await props.onCopySourceRow({
-        sourceId: sourceCell.sourceId,
-        sourcePaths: sourceCell.cell.assets.map((asset) => asset.file.relativePath),
-        replaceProjectPaths: row.cells.project.assets.map((asset) => asset.file.relativePath),
+        sourceId: activeSourceColumn.id,
+        sourcePaths: pathsFromCell(sourceCell.cell),
+        replaceProjectPaths: pathsFromCell(row.cells.project),
       });
     }
+
+    setSelectedRows(new Set());
   }
 
   return (
-    <section className={`compareShell density-${density}`}>
-      <div className="compareTools">
-        <input
-          value={props.filter}
-          onChange={(event) => props.onFilter(event.target.value)}
-          placeholder="Filter assets"
-        />
+    <section className={`editView density-${density}`}>
+      <Card variant="soft" className="filterBar">
+        <CardContent className="filterBarContent">
+          <div className="fieldStack filterSearch">
+            <Label htmlFor="asset-filter">Filter assets</Label>
+            <Input
+              id="asset-filter"
+              value={props.filter}
+              onChange={(event) => props.onFilter(event.target.value)}
+              placeholder="hitcircle, cursor, menu, comboburst..."
+            />
+          </div>
 
-        <label className="inlineControl">
-          <input
-            type="checkbox"
-            checked={props.meaningfulOnly}
-            onChange={(event) => {
-              props.onMeaningfulOnly(event.target.checked);
-            }}
-          />
-          Lazer meaningful only
-        </label>
+          <div className="fieldStack">
+            <Label htmlFor="source-column-select">Asset Source</Label>
+            <NativeSelect
+              id="source-column-select"
+              value={activeSourceColumn?.id ?? ""}
+              onChange={(event) => props.onSelectedSourceId(event.target.value)}
+              disabled={!sourceColumns.length}
+            >
+              {sourceColumns.map((column) => (
+                <option key={column.id} value={column.id}>
+                  {column.label}
+                </option>
+              ))}
+            </NativeSelect>
+          </div>
 
-        <label className="inlineControl">
-          <input
-            type="checkbox"
-            checked={props.collapseStable}
-            onChange={(event) => props.onCollapseStable(event.target.checked)}
-          />
-          Collapse stable later
-        </label>
+          <div className="fieldStack compactField">
+            <Label htmlFor="required-level">Rows</Label>
+            <NativeSelect
+              id="required-level"
+              value={requiredLevel}
+              onChange={(event) => setRequiredLevel(event.target.value as RequiredLevelFilter)}
+            >
+              <option value="all">All rows</option>
+              <option value="required">Required</option>
+              <option value="recommended">Recommended</option>
+              <option value="optional">Optional</option>
+            </NativeSelect>
+          </div>
 
-        <label className="compactSelect">
-          <select
-            value={requiredLevel}
-            onChange={(event) => setRequiredLevel(event.target.value as RequiredLevelFilter)}
-          >
-            <option value="all">All rows</option>
-            <option value="required">Required</option>
-            <option value="recommended">Recommended</option>
-            <option value="optional">Optional</option>
-          </select>
-        </label>
+          <div className="fieldStack compactField">
+            <Label htmlFor="density">Density</Label>
+            <NativeSelect id="density" value={density} onChange={(event) => setDensity(event.target.value)}>
+              <option value="comfortable">Comfortable</option>
+              <option value="compact">Compact</option>
+            </NativeSelect>
+          </div>
 
-        <label className="compactSelect">
-          <select value={density} onChange={(event) => setDensity(event.target.value)}>
-            <option value="comfortable">Comfortable</option>
-            <option value="compact">Compact</option>
-          </select>
-        </label>
+          <div className="toggleStack">
+            <label className="checkboxLine">
+              <Checkbox checked={props.meaningfulOnly} onCheckedChange={(checked) => props.onMeaningfulOnly(checked === true)} />
+              <span>Lazer meaningful only</span>
+            </label>
+            <label className="checkboxLine">
+              <Checkbox checked={props.collapseStable} onCheckedChange={(checked) => props.onCollapseStable(checked === true)} />
+              <span>Collapse stable later</span>
+            </label>
+          </div>
+        </CardContent>
+      </Card>
 
-        <button type="button" onClick={() => selectRows(rows)}>
-          Select visible
-        </button>
-        <button type="button" onClick={() => selectRows(rows.filter((row) => row.cells.project.missing))}>
-          Select missing
-        </button>
-        <button type="button" onClick={() => selectRows(rows.filter(rowHasWarning))}>
-          Select warnings
-        </button>
-        <button type="button" onClick={() => setSelectedRows(new Set())}>
-          Clear selection
-        </button>
-        <button type="button" onClick={() => setSelectedRows((current) => {
-          const visible = new Set(rows.map((row) => row.rowKey));
-          return new Set([...current].filter((rowKey) => !visible.has(rowKey)));
-        })}>
-          Clear category
-        </button>
-
-        <button
-          type="button"
-          className="primary copySelectedButton"
-          onClick={() => void copySelectedRows()}
-          disabled={!selectedVisibleCount || !activeSourceColumn}
-        >
-          Copy selected ({selectedVisibleCount})
-        </button>
+      <div className="actionStrip">
+        <div className="actionStripStats">
+          <Badge variant="secondary">{rows.length} rows</Badge>
+          <Badge variant="secondary">Project {projectPresent}</Badge>
+          <Badge variant="secondary">Source {sourcePresent}</Badge>
+          <Badge variant="secondary">Warnings {warnings.total}</Badge>
+        </div>
+        <div className="actionStripButtons">
+          <Button type="button" variant="soft" size="sm" onClick={() => selectRows(rows.filter((row) => row.cells.project.missing))}>
+            Select missing
+          </Button>
+          <Button type="button" variant="soft" size="sm" onClick={() => selectRows(rows.filter(rowHasWarning))}>
+            Select warnings
+          </Button>
+          <Button type="button" variant="ghost" size="sm" onClick={() => setSelectedRows(new Set())}>
+            Clear selection
+          </Button>
+          <Button type="button" size="sm" onClick={() => void copySelectedRows()} disabled={!activeSourceColumn || selectedVisibleCount === 0}>
+            Copy selected ({selectedVisibleCount})
+          </Button>
+        </div>
       </div>
 
-      <div className="validationSummary">
+      <div className={`validationSummary ${warnings.total ? "statusWarning" : "statusQuiet"}`}>
         <div>
           <strong>{warnings.total} warnings</strong>
-          {warnings.hdOnly > 0 && <span className="badge">HdOnly {warnings.hdOnly}</span>}
-          {warnings.missing > 0 && <span className="badge">Missing {warnings.missing}</span>}
+          <span>
+            HD only {warnings.hdOnly} · Missing {warnings.missing} · Scope {activeScope?.label ?? props.scope} / {activeCategory?.label ?? props.category}
+          </span>
         </div>
-        <button type="button">View warnings</button>
-      </div>
-
-      <div className="compareHeader">
-        <div>
-          <h3>Project</h3>
-          <p className="muted">{projectPresent} present</p>
-        </div>
-        <div>
-          <h3>Asset Source</h3>
-          <select
-            value={activeSourceColumn?.id ?? ""}
-            onChange={(event) => props.onSelectedSourceId(event.target.value)}
-            disabled={!sourceColumns.length}
-          >
-            {!sourceColumns.length && <option value="">No asset source</option>}
-            {sourceColumns.map((column) => (
-              <option key={column.id} value={column.id}>
-                {column.label}
-              </option>
-            ))}
-          </select>
-          <p className="muted">
-            {activeSourceColumn?.label ?? "No source assets loaded yet"} · {sourcePresent} present
-          </p>
-        </div>
-      </div>
-
-      <div className="scopeBreadcrumb">
-        <span>
-          {activeScope?.label ?? props.scope} / {activeCategory?.label ?? (props.category || "none")} · {rows.length} rows
-        </span>
-        <span>{selectedVisibleCount} selected</span>
+        <Button type="button" variant="soft" size="sm" onClick={() => selectRows(rows.filter(rowHasWarning))}>
+          View warnings
+        </Button>
       </div>
 
       <div className="editorWorkArea">
-        <div className="compareTable">
-          <div className="compareTableHeader">
-            <span />
-            <span>カテゴリ / アセット</span>
-            <span>Project (My Skin)</span>
-            <span>Source ({activeSourceColumn?.label ?? "none"})</span>
-            <span>アクション</span>
+        <div className="compareShell">
+          <div className="compareHeader">
+            <div>
+              <p className="eyebrow compactEyebrow">Compare Matrix</p>
+              <h2>Project ⇄ {activeSourceColumn?.label ?? "Asset Source"}</h2>
+            </div>
+            <p className="mutedText">{selectedVisibleCount} selected</p>
           </div>
 
-          {rows.map((row) => {
-            const sourceCell = sourceCellFor(row, activeSourceColumn?.id);
+          <div className="compareTable">
+            <div className="compareTableHeader">
+              <span />
+              <span>Asset</span>
+              <span>Project</span>
+              <span>Source</span>
+              <span>Actions</span>
+            </div>
 
-            return (
-              <CompareAssetCard
-                key={row.rowKey}
-                projectId={props.projectId}
-                row={row}
-                projectCell={row.cells.project}
-                sourceCell={sourceCell.cell}
-                sourceId={sourceCell.sourceId}
-                selected={selectedRows.has(row.rowKey)}
-                onToggle={() => toggleRow(row.rowKey)}
-                onCopy={() => {
-                  if (!sourceCell.sourceId) return;
-                  void props.onCopySourceRow({
-                    sourceId: sourceCell.sourceId,
-                    sourcePaths: sourceCell.cell.assets.map((asset) => asset.file.relativePath),
-                    replaceProjectPaths: row.cells.project.assets.map((asset) => asset.file.relativePath),
-                  });
-                }}
-                onDelete={() =>
-                  props.onDeleteProjectRow(row.cells.project.assets.map((asset) => asset.file.relativePath))
-                }
-                onRestore={() => {
-                  const mainCell = sourceCellFor(row, "main");
-                  if (!mainCell.sourceId || mainCell.cell.missing) return;
-
-                  void props.onCopySourceRow({
-                    sourceId: mainCell.sourceId,
-                    sourcePaths: mainCell.cell.assets.map((asset) => asset.file.relativePath),
-                    replaceProjectPaths: row.cells.project.assets.map((asset) => asset.file.relativePath),
-                  });
-                }}
-              />
-            );
-          })}
-
-          {!rows.length && <div className="emptyState">No rows match the current filters.</div>}
+            {activeSourceColumn ? (
+              rows.map((row) => {
+                const sourceCell = sourceCellFor(row, activeSourceColumn.id);
+                return (
+                  <CompareAssetCard
+                    key={row.rowKey}
+                    projectId={props.projectId}
+                    row={row}
+                    projectCell={row.cells.project}
+                    sourceCell={sourceCell.cell}
+                    sourceId={sourceCell.sourceId}
+                    selected={selectedRows.has(row.rowKey)}
+                    onToggle={() => toggleRow(row.rowKey)}
+                    onCopy={() =>
+                      void props.onCopySourceRow({
+                        sourceId: activeSourceColumn.id,
+                        sourcePaths: pathsFromCell(sourceCell.cell),
+                        replaceProjectPaths: pathsFromCell(row.cells.project),
+                      })
+                    }
+                    onDelete={() => props.onDeleteProjectRow(pathsFromCell(row.cells.project))}
+                    onRestore={() =>
+                      void props.onCopySourceRow({
+                        sourceId: activeSourceColumn.id,
+                        sourcePaths: pathsFromCell(sourceCell.cell),
+                        replaceProjectPaths: pathsFromCell(row.cells.project),
+                      })
+                    }
+                  />
+                );
+              })
+            ) : (
+              <div className="emptyState">
+                Add an asset source to compare against the project skin.
+              </div>
+            )}
+          </div>
         </div>
 
-        <EditorPreviewPanel
-          rows={rows}
-          scope={props.scope}
-          category={props.category}
-          warningCount={warnings.total}
-        />
+        <EditorPreviewPanel rows={rows} scope={props.scope} category={props.category} warningCount={warnings.total} />
       </div>
     </section>
   );
 }
 
-function warningSummary(rows: AssetMatrixRow[]) {
-  const allWarnings = rows.flatMap((row) => [
-    ...row.warnings,
-    ...Object.values(row.cells).flatMap((cell) => cell.warnings),
-  ]);
+function sourceCellFor(row: AssetMatrixRow, sourceId: string | undefined): SourceCell {
+  if (!sourceId) return { sourceId: null, cell: emptyCell() };
 
-  return {
-    total: allWarnings.length,
-    hdOnly: allWarnings.filter((warning) => warning.type === "hdOnly").length,
-    missing: allWarnings.filter((warning) => warning.type === "missing").length,
-  };
-}
-
-function sourceCellFor(row: AssetMatrixRow, sourceColumnId: string | undefined): SourceCell {
-  if (!sourceColumnId) return { sourceId: null, cell: emptyCell() };
-
-  return {
-    sourceId: sourceColumnId,
-    cell: row.cells[sourceColumnId] ?? emptyCell(),
-  };
+  const cells = row.cells as Record<string, AssetMatrixCell>;
+  return { sourceId, cell: cells[sourceId] ?? emptyCell() };
 }
 
 function emptyCell(): AssetMatrixCell {
@@ -312,4 +294,30 @@ function emptyCell(): AssetMatrixCell {
     warnings: [],
     previewKind: "empty",
   };
+}
+
+export function pathsFromCell(cell: AssetMatrixCell): string[] {
+  return cell.assets
+    .map((asset) => {
+      const file = asset.file as { relativePath?: string; path?: string; fullPath?: string; name?: string };
+      return file.relativePath ?? file.path ?? file.fullPath ?? file.name;
+    })
+    .filter((path): path is string => Boolean(path));
+}
+
+function warningSummary(rows: AssetMatrixRow[]) {
+  let hdOnly = 0;
+  let missing = 0;
+  let total = 0;
+
+  for (const row of rows) {
+    total += row.warnings.length;
+    for (const cell of Object.values(row.cells)) {
+      total += cell.warnings.length;
+      if (cell.hasHd && !cell.hasSd) hdOnly += 1;
+      if (cell.missing) missing += 1;
+    }
+  }
+
+  return { hdOnly, missing, total };
 }
