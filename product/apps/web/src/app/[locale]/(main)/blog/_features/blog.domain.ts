@@ -1,8 +1,4 @@
-import {
-  BASE_URL,
-  buildOgTitleImageUrl,
-  getAbsoluteUrl,
-} from '@/config/site'
+import { BASE_URL, buildOgTitleImageUrl, getAbsoluteUrl } from '@/config/site'
 import { buildLocalizedUrl } from '@/lib/intlayer/localized-url'
 
 type FrontmatterBase = {
@@ -13,9 +9,8 @@ type FrontmatterBase = {
   updatedAt?: Date
 }
 
-type Frontmatter<
-  T extends Record<string, unknown> = Record<string, never>,
-> = FrontmatterBase & T
+type Frontmatter<T extends Record<string, unknown> = Record<string, never>> =
+  FrontmatterBase & T
 
 export type BlogFrontmatter = Frontmatter<{
   tags?: string[]

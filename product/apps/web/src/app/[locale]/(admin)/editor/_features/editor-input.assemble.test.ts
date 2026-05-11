@@ -48,7 +48,9 @@ describe('validateEditorBlogPostDates', () => {
     if (!updatedAt) {
       throw new Error('Expected updatedAt to be present')
     }
-    expect(updatedAt.getTime()).toBeGreaterThan(result.data.publishedAt.getTime())
+    expect(updatedAt.getTime()).toBeGreaterThan(
+      result.data.publishedAt.getTime(),
+    )
   })
 })
 

@@ -121,7 +121,10 @@ export async function assembleRecommendationsPageData(
           entry.sourceUrl,
           `recommendation video source (${entry.sourceUrl})`,
         )
-        const { title, views } = await fetchYouTubeVideoMeta(videoId, viewLocale)
+        const { title, views } = await fetchYouTubeVideoMeta(
+          videoId,
+          viewLocale,
+        )
 
         return {
           id: videoId,

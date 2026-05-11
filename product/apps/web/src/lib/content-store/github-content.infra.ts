@@ -124,7 +124,9 @@ async function readGitHubFile(
   const encodedContent = payload.content?.replace(/\n/g, '')
 
   if (!encodedContent) {
-    throw new StorageError(`GitHub content payload is missing body: ${pathname}`)
+    throw new StorageError(
+      `GitHub content payload is missing body: ${pathname}`,
+    )
   }
 
   return {
@@ -169,7 +171,9 @@ export async function saveGitHubTextFile(
   } = {},
 ) {
   const current = await loadGitHubTextFileFresh(pathname)
-  const currentVersion = createContentVersion((current?.content ?? '').trimEnd())
+  const currentVersion = createContentVersion(
+    (current?.content ?? '').trimEnd(),
+  )
 
   if (
     typeof options.expectedVersion === 'string' &&
@@ -238,7 +242,9 @@ async function deleteGitHubTextFile(
 }
 
 export async function loadGitHubBlogIndex() {
-  return (await loadGitHubJsonFile<GitHubBlogIndexEntry[]>('blog/index.json')) ?? []
+  return (
+    (await loadGitHubJsonFile<GitHubBlogIndexEntry[]>('blog/index.json')) ?? []
+  )
 }
 
 export async function upsertGitHubBlogIndexEntry(entry: GitHubBlogIndexEntry) {
@@ -251,9 +257,10 @@ export async function upsertGitHubBlogIndexEntry(entry: GitHubBlogIndexEntry) {
   )
 
   nextEntries.push(entry)
-  nextEntries.sort((a, b) =>
-    new Date(b.metadata.publishedAt).getTime() -
-    new Date(a.metadata.publishedAt).getTime(),
+  nextEntries.sort(
+    (a, b) =>
+      new Date(b.metadata.publishedAt).getTime() -
+      new Date(a.metadata.publishedAt).getTime(),
   )
 
   await saveGitHubTextFile(
@@ -267,7 +274,10 @@ export async function upsertGitHubBlogIndexEntry(entry: GitHubBlogIndexEntry) {
 
 async function listGitHubRepositoryFiles(prefix: string) {
   const { root } = getGitHubConfig()
-  const normalizedPrefix = [root.replace(/^\/+|\/+$/g, ''), prefix.replace(/^\/+/, '')]
+  const normalizedPrefix = [
+    root.replace(/^\/+|\/+$/g, ''),
+    prefix.replace(/^\/+/, ''),
+  ]
     .filter(Boolean)
     .join('/')
 
@@ -287,7 +297,10 @@ async function listGitHubRepositoryFiles(prefix: string) {
   }
 
   return (payload.tree ?? [])
-    .filter((entry) => entry.type === 'blob' && entry.path.startsWith(normalizedPrefix))
+    .filter(
+      (entry) =>
+        entry.type === 'blob' && entry.path.startsWith(normalizedPrefix),
+    )
     .map((entry) => entry.path.slice(root.replace(/^\/+|\/+$/g, '').length + 1))
     .sort()
 }
@@ -310,7 +323,11 @@ export const githubContentRepository: ContentRepository = {
     return loadGitHubJsonFile<T>(pathname)
   },
   async saveJson(pathname, value, options) {
-    await saveGitHubTextFile(pathname, `${JSON.stringify(value, null, 2)}\n`, options)
+    await saveGitHubTextFile(
+      pathname,
+      `${JSON.stringify(value, null, 2)}\n`,
+      options,
+    )
   },
   async list(prefix) {
     return listGitHubRepositoryFiles(prefix)

@@ -24,11 +24,9 @@ export async function loadEditorCollection<K extends EditorCollectionId>(
   return (await response.json()) as CollectionState<K>
 }
 
-export async function saveEditorCollection<K extends Exclude<EditorCollectionId, 'blog'>>(
-  collectionId: K,
-  sourceJson: string,
-  expectedVersion?: string,
-) {
+export async function saveEditorCollection<
+  K extends Exclude<EditorCollectionId, 'blog'>,
+>(collectionId: K, sourceJson: string, expectedVersion?: string) {
   const response = await fetch(`/api/editor/${collectionId}`, {
     method: 'PUT',
     headers: {
@@ -42,7 +40,11 @@ export async function saveEditorCollection<K extends Exclude<EditorCollectionId,
 
   if (!response.ok) {
     const error =
-      response.status === 409 ? 'conflict' : response.status === 401 ? 'unauthorized' : 'save'
+      response.status === 409
+        ? 'conflict'
+        : response.status === 401
+          ? 'unauthorized'
+          : 'save'
     return {
       ok: false as const,
       error,

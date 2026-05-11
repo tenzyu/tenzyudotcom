@@ -26,13 +26,18 @@ export async function PointersPageContent() {
             <div className="space-y-3">
               <SectionHeader
                 title={dashboardContent.categoryContent[category.id].title}
-                description={dashboardContent.categoryContent[category.id].description}
+                description={
+                  dashboardContent.categoryContent[category.id].description
+                }
                 titleClassName="text-lg"
                 className="flex flex-col gap-1"
               />
               <AdminGate>
                 <div className="flex justify-end">
-                  <PointerAddButton locale={locale || 'ja'} categoryId={category.id} />
+                  <PointerAddButton
+                    locale={locale || 'ja'}
+                    categoryId={category.id}
+                  />
                 </div>
               </AdminGate>
             </div>

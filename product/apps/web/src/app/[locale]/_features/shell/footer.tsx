@@ -7,8 +7,16 @@ import { FooterShareDialog } from './footer-share-dialog'
 import { KoFiLink } from './kofi-link'
 
 const socialLinks = [
-  { href: 'https://twitch.tv/tenzyudotcom', label: 'Twitch', id: '@tenzyudotcom' },
-  { href: 'https://www.youtube.com/@tenzyudotcom', label: 'YouTube', id: '@tenzyudotcom' },
+  {
+    href: 'https://twitch.tv/tenzyudotcom',
+    label: 'Twitch',
+    id: '@tenzyudotcom',
+  },
+  {
+    href: 'https://www.youtube.com/@tenzyudotcom',
+    label: 'YouTube',
+    id: '@tenzyudotcom',
+  },
   { href: 'https://x.com/FlawInAffection', label: 'X', id: '@FlawInAffection' },
 ]
 
@@ -23,7 +31,9 @@ export function Footer({ locale }: { locale: string }) {
         <div className="rounded-[var(--radius-2xl)] border border-border/60 bg-card/45 p-5 shadow-[var(--shadow-surface)] sm:p-6">
           <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
             <div className="space-y-1">
-              <p className="text-sm font-semibold tracking-[-0.02em]">tenzyu.com</p>
+              <p className="text-sm font-semibold tracking-[-0.02em]">
+                tenzyu.com
+              </p>
               <p className="text-muted-foreground text-xs">
                 © {new Date().getFullYear()} tenzyu
               </p>
@@ -35,7 +45,9 @@ export function Footer({ locale }: { locale: string }) {
                   <Tooltip key={link.label}>
                     <TooltipTrigger asChild>
                       <Button variant="ghost" size="sm" asChild>
-                        <ExternalLink href={link.href}>{link.label}</ExternalLink>
+                        <ExternalLink href={link.href}>
+                          {link.label}
+                        </ExternalLink>
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent sideOffset={6}>{link.id}</TooltipContent>

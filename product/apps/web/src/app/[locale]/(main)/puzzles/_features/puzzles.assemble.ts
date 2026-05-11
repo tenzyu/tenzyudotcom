@@ -1,13 +1,10 @@
-import {
-  definePuzzleCategories,
-} from './puzzles.domain'
+import { definePuzzleCategories } from './puzzles.domain'
 import type { PuzzleCategory } from './puzzles.domain'
 import type { PuzzlesRepository } from './puzzles.port'
 import { makePuzzlesRepository } from './puzzles.infra'
 
 export type {
   Platform,
-  
   PuzzleCategory,
   PuzzleLink,
 } from './puzzles.domain'

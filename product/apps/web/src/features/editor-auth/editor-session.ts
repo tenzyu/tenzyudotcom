@@ -50,14 +50,11 @@ function warnWeakSessionSecret(sessionSecret: string) {
 }
 
 function expectedOriginFromHeaders(headerStore: Headers) {
-  const host =
-    headerStore.get('x-forwarded-host') ??
-    headerStore.get('host')
+  const host = headerStore.get('x-forwarded-host') ?? headerStore.get('host')
   if (!host) return null
 
   const protocol =
-    headerStore.get('x-forwarded-proto') ??
-    (isProduction ? 'https' : 'http')
+    headerStore.get('x-forwarded-proto') ?? (isProduction ? 'https' : 'http')
 
   return `${protocol}://${host}`
 }
@@ -74,7 +71,9 @@ function assertSameOrigin(headerStore: Headers) {
   }
 
   if (origin !== expectedOrigin) {
-    throw new Error('Editor mutation rejected because Origin does not match Host.')
+    throw new Error(
+      'Editor mutation rejected because Origin does not match Host.',
+    )
   }
 }
 

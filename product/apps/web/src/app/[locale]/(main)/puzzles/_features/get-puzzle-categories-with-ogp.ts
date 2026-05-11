@@ -7,8 +7,9 @@ export async function getPuzzleCategoriesWithOgp(): Promise<
 > {
   const categories = await loadPuzzleCategories()
   return Promise.all(
-    categories.filter((category) => category.puzzles.length > 0).map(
-      async (category) => {
+    categories
+      .filter((category) => category.puzzles.length > 0)
+      .map(async (category) => {
         const puzzles = await Promise.all(
           category.puzzles.map(async (puzzle) => {
             const ogpUrl = puzzle.url ?? puzzle.links[0]?.url
@@ -25,7 +26,6 @@ export async function getPuzzleCategoriesWithOgp(): Promise<
           ...category,
           puzzles,
         }
-      },
-    ),
+      }),
   )
 }

@@ -9,8 +9,13 @@ type PointersEditorDeferredProps = {
   locale: string
 }
 
-export function PointersEditorDeferred({ locale }: PointersEditorDeferredProps) {
-  const [state, setState] = useState<{ entries: DashboardSourceCategory[], version: string } | null>(null)
+export function PointersEditorDeferred({
+  locale,
+}: PointersEditorDeferredProps) {
+  const [state, setState] = useState<{
+    entries: DashboardSourceCategory[]
+    version: string
+  } | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -21,7 +26,7 @@ export function PointersEditorDeferred({ locale }: PointersEditorDeferredProps) 
         const data = await res.json()
         setState({
           entries: data.collection,
-          version: data.version
+          version: data.version,
         })
       } catch (_e) {
         setError('Failed to load Pointers collection')
@@ -31,7 +36,12 @@ export function PointersEditorDeferred({ locale }: PointersEditorDeferredProps) 
   }, [])
 
   if (error) return <div className="text-destructive text-sm">{error}</div>
-  if (!state) return <div className="flex justify-center p-8"><Loader2 className="animate-spin text-muted-foreground" /></div>
+  if (!state)
+    return (
+      <div className="flex justify-center p-8">
+        <Loader2 className="animate-spin text-muted-foreground" />
+      </div>
+    )
 
   return (
     <PointersEditorClient
@@ -55,7 +65,7 @@ export function PointersEditorDeferred({ locale }: PointersEditorDeferredProps) 
         moveUp: 'Move up',
         moveDown: 'Move down',
         remove: 'Remove',
-        fetchMetadata: 'Fetch Info'
+        fetchMetadata: 'Fetch Info',
       }}
     />
   )

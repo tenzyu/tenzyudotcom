@@ -3,10 +3,7 @@
 import { startTransition, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import {
-  createNoteId,
-  type NoteSourceEntry,
-} from './notes.domain'
+import { createNoteId, type NoteSourceEntry } from './notes.domain'
 import { Button } from '@tenzyu/ui/button'
 import {
   Dialog,
@@ -60,7 +57,11 @@ export function NoteTweetButton() {
           />
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setOpen(false)}
+            >
               Cancel
             </Button>
             <Button

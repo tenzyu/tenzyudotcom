@@ -61,7 +61,9 @@ export function HomeLatestFragments({
               </div>
               <div>
                 <CardTitle>{home.fragmentsNotesTitle}</CardTitle>
-                <CardDescription>{home.fragmentsNotesDescription}</CardDescription>
+                <CardDescription>
+                  {home.fragmentsNotesDescription}
+                </CardDescription>
               </div>
             </div>
           </CardHeader>
@@ -97,7 +99,9 @@ export function HomeLatestFragments({
                   </div>
                   <div>
                     <CardTitle>{home.fragmentsBlogTitle}</CardTitle>
-                    <CardDescription>{home.fragmentsBlogDescription}</CardDescription>
+                    <CardDescription>
+                      {home.fragmentsBlogDescription}
+                    </CardDescription>
                   </div>
                 </div>
               </CardHeader>
@@ -125,14 +129,18 @@ export function HomeLatestFragments({
                 </div>
                 <div>
                   <CardTitle>{home.fragmentsThingTitle}</CardTitle>
-                  <CardDescription>{home.fragmentsThingDescription}</CardDescription>
+                  <CardDescription>
+                    {home.fragmentsThingDescription}
+                  </CardDescription>
                 </div>
               </div>
             </CardHeader>
             <CardContent className="space-y-3 pb-5">
               <p className="text-sm leading-6">{home.fragmentsThingBody}</p>
               <Button asChild variant="ghost" size="sm" className="px-0">
-                <Link href={getLocalizedUrl(home.fragmentsThingHref.value, locale)}>
+                <Link
+                  href={getLocalizedUrl(home.fragmentsThingHref.value, locale)}
+                >
                   {home.fragmentsThingLinkLabel}
                   <ArrowRight />
                 </Link>

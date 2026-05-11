@@ -68,8 +68,7 @@ export function definePuzzleCategories(
 
   return PUZZLE_CATEGORY_IDS.map(
     (categoryId) =>
-      categoryById.get(categoryId) ??
-      {
+      categoryById.get(categoryId) ?? {
         id: categoryId,
         puzzles: [],
       },

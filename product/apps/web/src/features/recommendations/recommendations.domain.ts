@@ -74,7 +74,10 @@ export function defineRecommendationChannels<
   )
 
   for (const channel of channels) {
-    assertNonEmpty(channel.title, `recommendation channel title (${channel.title})`)
+    assertNonEmpty(
+      channel.title,
+      `recommendation channel title (${channel.title})`,
+    )
     assertNonEmpty(
       channel.handle,
       `recommendation channel handle (${channel.title})`,

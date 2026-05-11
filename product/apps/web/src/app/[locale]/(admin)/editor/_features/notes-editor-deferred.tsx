@@ -10,7 +10,10 @@ type NotesEditorDeferredProps = {
 }
 
 export function NotesEditorDeferred({ locale }: NotesEditorDeferredProps) {
-  const [state, setState] = useState<{ entries: NoteSourceEntry[], version: string } | null>(null)
+  const [state, setState] = useState<{
+    entries: NoteSourceEntry[]
+    version: string
+  } | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -21,7 +24,7 @@ export function NotesEditorDeferred({ locale }: NotesEditorDeferredProps) {
         const data = await res.json()
         setState({
           entries: data.collection,
-          version: data.version
+          version: data.version,
         })
       } catch (_e) {
         setError('Failed to load Notes collection')
@@ -31,7 +34,12 @@ export function NotesEditorDeferred({ locale }: NotesEditorDeferredProps) {
   }, [])
 
   if (error) return <div className="text-destructive text-sm">{error}</div>
-  if (!state) return <div className="flex justify-center p-8"><Loader2 className="animate-spin text-muted-foreground" /></div>
+  if (!state)
+    return (
+      <div className="flex justify-center p-8">
+        <Loader2 className="animate-spin text-muted-foreground" />
+      </div>
+    )
 
   return (
     <NotesEditorClient
@@ -51,7 +59,7 @@ export function NotesEditorDeferred({ locale }: NotesEditorDeferredProps) {
         published: 'Published',
         moveUp: 'Move up',
         moveDown: 'Move down',
-        remove: 'Remove'
+        remove: 'Remove',
       }}
     />
   )

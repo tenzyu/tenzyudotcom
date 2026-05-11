@@ -9,8 +9,13 @@ type RecommendationsEditorDeferredProps = {
   locale: string
 }
 
-export function RecommendationsEditorDeferred({ locale }: RecommendationsEditorDeferredProps) {
-  const [state, setState] = useState<{ entries: RecommendationSourceEntry[], version: string } | null>(null)
+export function RecommendationsEditorDeferred({
+  locale,
+}: RecommendationsEditorDeferredProps) {
+  const [state, setState] = useState<{
+    entries: RecommendationSourceEntry[]
+    version: string
+  } | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -21,7 +26,7 @@ export function RecommendationsEditorDeferred({ locale }: RecommendationsEditorD
         const data = await res.json()
         setState({
           entries: data.collection,
-          version: data.version
+          version: data.version,
         })
       } catch (_e) {
         setError('Failed to load Recommendations collection')
@@ -31,7 +36,12 @@ export function RecommendationsEditorDeferred({ locale }: RecommendationsEditorD
   }, [])
 
   if (error) return <div className="text-destructive text-sm">{error}</div>
-  if (!state) return <div className="flex justify-center p-8"><Loader2 className="animate-spin text-muted-foreground" /></div>
+  if (!state)
+    return (
+      <div className="flex justify-center p-8">
+        <Loader2 className="animate-spin text-muted-foreground" />
+      </div>
+    )
 
   return (
     <RecommendationsEditorClient
@@ -52,10 +62,12 @@ export function RecommendationsEditorDeferred({ locale }: RecommendationsEditorD
         moveDown: 'Move down',
         remove: 'Remove',
         preview: 'Preview',
-        autoFetched: 'Title and views are filled from the YouTube API after save.',
-        channelHint: 'Channels still require a manual title and handle for now.',
+        autoFetched:
+          'Title and views are filled from the YouTube API after save.',
+        channelHint:
+          'Channels still require a manual title and handle for now.',
         videoType: 'YouTube Video',
-        channelType: 'YouTube Channel'
+        channelType: 'YouTube Channel',
       }}
     />
   )

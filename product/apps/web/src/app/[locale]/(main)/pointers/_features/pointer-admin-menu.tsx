@@ -108,7 +108,10 @@ export function PointerAdminMenu({
         label={label}
         onEdit={async () => {
           try {
-            const state = entries && version ? { collection: entries, version } : await loadState()
+            const state =
+              entries && version
+                ? { collection: entries, version }
+                : await loadState()
             const link = state.collection
               .find((entry) => entry.id === categoryId)
               ?.links.find((entry) => entry.id === linkId)
@@ -138,7 +141,10 @@ export function PointerAdminMenu({
         }}
         onDelete={async () => {
           try {
-            const state = entries && version ? { collection: entries, version } : await loadState()
+            const state =
+              entries && version
+                ? { collection: entries, version }
+                : await loadState()
             const nextEntries = state.collection.map((entry) =>
               entry.id === categoryId
                 ? {
@@ -178,7 +184,9 @@ export function PointerAdminMenu({
                 value={draft.title}
                 onChange={(event) =>
                   setDraft((current) =>
-                    current ? { ...current, title: event.target.value } : current,
+                    current
+                      ? { ...current, title: event.target.value }
+                      : current,
                   )
                 }
                 placeholder="Title"
@@ -208,7 +216,8 @@ export function PointerAdminMenu({
                 <div className="space-y-0.5">
                   <p className="text-sm font-medium">App link</p>
                   <p className="text-muted-foreground text-sm">
-                    Enable when this points to a custom scheme instead of http(s).
+                    Enable when this points to a custom scheme instead of
+                    http(s).
                   </p>
                 </div>
                 <Switch
@@ -224,7 +233,11 @@ export function PointerAdminMenu({
           ) : null}
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setDialogOpen(false)}
+            >
               Cancel
             </Button>
             <Button
@@ -247,12 +260,17 @@ export function PointerAdminMenu({
                     return entry
                   }
 
-                  const existingLink = entry.links.find((link) => link.id === linkId)
+                  const existingLink = entry.links.find(
+                    (link) => link.id === linkId,
+                  )
                   if (!existingLink) {
                     return entry
                   }
 
-                  const titleLocale = resolveEditableLocaleKey(existingLink.title, locale)
+                  const titleLocale = resolveEditableLocaleKey(
+                    existingLink.title,
+                    locale,
+                  )
                   const descriptionLocale = resolveEditableLocaleKey(
                     existingLink.description,
                     locale,

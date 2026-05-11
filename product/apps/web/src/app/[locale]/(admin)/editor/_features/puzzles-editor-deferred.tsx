@@ -10,7 +10,10 @@ type PuzzlesEditorDeferredProps = {
 }
 
 export function PuzzlesEditorDeferred({ locale }: PuzzlesEditorDeferredProps) {
-  const [state, setState] = useState<{ entries: PuzzleCategory[], version: string } | null>(null)
+  const [state, setState] = useState<{
+    entries: PuzzleCategory[]
+    version: string
+  } | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -21,7 +24,7 @@ export function PuzzlesEditorDeferred({ locale }: PuzzlesEditorDeferredProps) {
         const data = await res.json()
         setState({
           entries: data.collection,
-          version: data.version
+          version: data.version,
         })
       } catch (_e) {
         setError('Failed to load Puzzles collection')
@@ -31,7 +34,12 @@ export function PuzzlesEditorDeferred({ locale }: PuzzlesEditorDeferredProps) {
   }, [])
 
   if (error) return <div className="text-destructive text-sm">{error}</div>
-  if (!state) return <div className="flex justify-center p-8"><Loader2 className="animate-spin text-muted-foreground" /></div>
+  if (!state)
+    return (
+      <div className="flex justify-center p-8">
+        <Loader2 className="animate-spin text-muted-foreground" />
+      </div>
+    )
 
   return (
     <PuzzlesEditorClient
@@ -48,7 +56,7 @@ export function PuzzlesEditorDeferred({ locale }: PuzzlesEditorDeferredProps) {
         platform: 'Platform',
         moveUp: 'Move up',
         moveDown: 'Move down',
-        remove: 'Remove'
+        remove: 'Remove',
       }}
     />
   )

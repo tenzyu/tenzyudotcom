@@ -1,8 +1,5 @@
 import { describe, expect, test } from 'bun:test'
-import {
-  definePuzzleCategories,
-  PUZZLE_CATEGORY_IDS,
-} from './puzzles.domain'
+import { definePuzzleCategories, PUZZLE_CATEGORY_IDS } from './puzzles.domain'
 import { parsePuzzleSourceCategories } from './puzzles.infra'
 
 describe('definePuzzleCategories', () => {
@@ -18,8 +15,12 @@ describe('definePuzzleCategories', () => {
       },
     ])
 
-    expect(categories.map((category) => category.id)).toEqual([...PUZZLE_CATEGORY_IDS])
-    expect(categories.find((category) => category.id === 'escape')?.puzzles).toEqual([])
+    expect(categories.map((category) => category.id)).toEqual([
+      ...PUZZLE_CATEGORY_IDS,
+    ])
+    expect(
+      categories.find((category) => category.id === 'escape')?.puzzles,
+    ).toEqual([])
   })
 })
 
@@ -46,7 +47,11 @@ describe('parsePuzzleSourceCategories', () => {
       },
     ])
 
-    expect(categories.map((category) => category.id)).toEqual([...PUZZLE_CATEGORY_IDS])
-    expect(categories.find((category) => category.id === 'escape')?.puzzles).toHaveLength(1)
+    expect(categories.map((category) => category.id)).toEqual([
+      ...PUZZLE_CATEGORY_IDS,
+    ])
+    expect(
+      categories.find((category) => category.id === 'escape')?.puzzles,
+    ).toHaveLength(1)
   })
 })

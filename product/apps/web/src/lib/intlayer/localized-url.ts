@@ -46,11 +46,14 @@ function stripExistingLocalePrefix(pathname: string) {
 
 export function buildLocalizedUrl(pathname: string, locale: string) {
   const normalizedInput = normalizePathname(pathname)
-  const { pathname: pathnameWithoutSuffix, suffix } = splitSuffix(normalizedInput)
+  const { pathname: pathnameWithoutSuffix, suffix } =
+    splitSuffix(normalizedInput)
   const normalizedPath = stripExistingLocalePrefix(pathnameWithoutSuffix)
   const localePrefix = locale === intlayer_defaultLocale ? '' : `/${locale}`
   const resolvedPath =
-    normalizedPath === '/' ? localePrefix || '/' : `${localePrefix}${normalizedPath}`
+    normalizedPath === '/'
+      ? localePrefix || '/'
+      : `${localePrefix}${normalizedPath}`
 
   return `${resolvedPath}${suffix}`
 }

@@ -65,7 +65,9 @@ function resolveEditableLocaleKey(entry: NoteSourceEntry, locale: string) {
 }
 
 function formatParentOptionLabel(entry: NoteSourceEntry, locale: string) {
-  const body = (locale === 'ja' ? entry.body.ja : entry.body.en || entry.body.ja)
+  const body = (
+    locale === 'ja' ? entry.body.ja : entry.body.en || entry.body.ja
+  )
     .replace(/\s+/g, ' ')
     .trim()
   const preview = body.slice(0, 36) || entry.id
@@ -428,25 +430,30 @@ export function NoteFeedItem({
 
                     setIsSaving(true)
                     try {
-                      const nextEntries = loadedState.collection.map((entry) => {
-                        if (entry.id !== note.id) {
-                          return entry
-                        }
+                      const nextEntries = loadedState.collection.map(
+                        (entry) => {
+                          if (entry.id !== note.id) {
+                            return entry
+                          }
 
-                        const localeKey = resolveEditableLocaleKey(entry, locale)
-                        return {
-                          ...entry,
-                          body: {
-                            ...entry.body,
-                            [localeKey]: draftBody.trim(),
-                          },
-                          parentId:
-                            draftParentValue === ROOT_PARENT
-                              ? undefined
-                              : draftParentValue,
-                          published: draftPublished,
-                        }
-                      })
+                          const localeKey = resolveEditableLocaleKey(
+                            entry,
+                            locale,
+                          )
+                          return {
+                            ...entry,
+                            body: {
+                              ...entry.body,
+                              [localeKey]: draftBody.trim(),
+                            },
+                            parentId:
+                              draftParentValue === ROOT_PARENT
+                                ? undefined
+                                : draftParentValue,
+                            published: draftPublished,
+                          }
+                        },
+                      )
 
                       const result = await saveEditorCollection(
                         'notes',

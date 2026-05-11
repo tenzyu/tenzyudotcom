@@ -1,7 +1,5 @@
 import { z } from 'zod'
-import type {
-  RecommendationSourceEntry,
-} from '@/features/recommendations/recommendations.domain'
+import type { RecommendationSourceEntry } from '@/features/recommendations/recommendations.domain'
 import type { RecommendationsRepository } from './recommendations.port'
 
 import { normalizeExternalUrl } from '@/lib/url/external-url.domain'
@@ -89,7 +87,10 @@ function parseRecommendationSourceEntries(raw: unknown) {
       continue
     }
 
-    normalizeExternalUrl(entry.url, `recommendation channel url (${entry.title})`)
+    normalizeExternalUrl(
+      entry.url,
+      `recommendation channel url (${entry.title})`,
+    )
   }
 
   return entries

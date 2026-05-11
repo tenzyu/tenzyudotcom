@@ -1,8 +1,5 @@
 import { describe, expect, test } from 'bun:test'
-import {
-  normalizeExternalUrl,
-  parseExternalUrl,
-} from './external-url.domain'
+import { normalizeExternalUrl, parseExternalUrl } from './external-url.domain'
 
 describe('external-url.domain', () => {
   test('accepts http(s) urls', () => {

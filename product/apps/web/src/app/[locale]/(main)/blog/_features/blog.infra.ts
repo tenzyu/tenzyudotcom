@@ -7,9 +7,16 @@ import {
   type MDXData,
 } from './blog.domain'
 import { parseBlogFrontmatter } from './blog-frontmatter.assemble'
-import { listTextDocuments, loadTextDocument, saveTextDocument } from '@/lib/content-store/text-document.infra'
+import {
+  listTextDocuments,
+  loadTextDocument,
+  saveTextDocument,
+} from '@/lib/content-store/text-document.infra'
 import { createContentVersion } from '@/lib/content-store/content-version.infra'
-import { loadGitHubBlogIndex, upsertGitHubBlogIndexEntry } from '@/lib/content-store/github-content.infra'
+import {
+  loadGitHubBlogIndex,
+  upsertGitHubBlogIndexEntry,
+} from '@/lib/content-store/github-content.infra'
 import { isEditorGithubStorage } from '@/config/env.infra'
 
 const BLOG_STORAGE_PREFIX = 'blog/'

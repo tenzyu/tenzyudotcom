@@ -3,7 +3,10 @@
 import { startTransition, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import type { DashboardSourceCategory, DashboardSourceLink } from './dashboard/dashboard.domain'
+import type {
+  DashboardSourceCategory,
+  DashboardSourceLink,
+} from './dashboard/dashboard.domain'
 import { Button } from '@tenzyu/ui/button'
 import {
   Dialog,
@@ -44,9 +47,7 @@ function createDraft(): PointerDraft {
   }
 }
 
-export function PointerAddButton({
-  categoryId,
-}: PointerAddButtonProps) {
+export function PointerAddButton({ categoryId }: PointerAddButtonProps) {
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const [draft, setDraft] = useState<PointerDraft>(createDraft())
@@ -103,7 +104,10 @@ export function PointerAddButton({
             <Input
               value={draft.title}
               onChange={(event) =>
-                setDraft((current) => ({ ...current, title: event.target.value }))
+                setDraft((current) => ({
+                  ...current,
+                  title: event.target.value,
+                }))
               }
               placeholder="Title"
             />
@@ -142,7 +146,11 @@ export function PointerAddButton({
           </div>
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setOpen(false)}
+            >
               Cancel
             </Button>
             <Button

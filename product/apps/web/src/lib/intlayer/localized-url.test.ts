@@ -15,6 +15,8 @@ describe('buildLocalizedUrl', () => {
   })
 
   test('preserves search params and hashes', () => {
-    expect(buildLocalizedUrl('/blog?page=2#top', 'en')).toBe('/en/blog?page=2#top')
+    expect(buildLocalizedUrl('/blog?page=2#top', 'en')).toBe(
+      '/en/blog?page=2#top',
+    )
   })
 })

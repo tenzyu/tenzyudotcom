@@ -61,17 +61,17 @@ export async function LinkTreePageContent() {
                 <nav
                   aria-label={`${group.label} ${linksContent.aria.groupLabelSuffix.value}`}
                 >
-                <ItemGroup className="xs:grid-cols-2 grid grid-cols-1 gap-4 p-0 sm:grid-cols-3">
-                  {group.links.map((link) => (
-                    <LinkTile
-                      key={link.shortenUrl}
-                      link={link}
-                      locale={locale || 'ja'}
-                      visitPrefix={linksContent.aria.visitPrefix.value}
-                      iconSuffix={linksContent.aria.iconSuffix.value}
-                    />
-                  ))}
-                </ItemGroup>
+                  <ItemGroup className="xs:grid-cols-2 grid grid-cols-1 gap-4 p-0 sm:grid-cols-3">
+                    {group.links.map((link) => (
+                      <LinkTile
+                        key={link.shortenUrl}
+                        link={link}
+                        locale={locale || 'ja'}
+                        visitPrefix={linksContent.aria.visitPrefix.value}
+                        iconSuffix={linksContent.aria.iconSuffix.value}
+                      />
+                    ))}
+                  </ItemGroup>
                 </nav>
               </section>
             ),
@@ -120,10 +120,7 @@ function LinkTile({
           aria-label={`${visitPrefix} ${link.name} (${link.id})`}
         >
           <ItemMedia variant="avatar" className="dark:bg-secondary-foreground">
-            <LinkIcon
-              icon={link.icon}
-              alt={`${link.name} ${iconSuffix}`}
-            />
+            <LinkIcon icon={link.icon} alt={`${link.name} ${iconSuffix}`} />
           </ItemMedia>
 
           <ItemContent className="min-w-0 text-left">

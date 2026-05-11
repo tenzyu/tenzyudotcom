@@ -31,13 +31,12 @@ type RecommendationsAdminState = {
 }
 
 async function loadRecommendationsState() {
-  return loadEditorCollection('recommendations') as Promise<RecommendationsAdminState>
+  return loadEditorCollection(
+    'recommendations',
+  ) as Promise<RecommendationsAdminState>
 }
 
-function resolveLocaleKey(
-  text: { ja: string; en: string },
-  locale: string,
-) {
+function resolveLocaleKey(text: { ja: string; en: string }, locale: string) {
   if (locale === 'en' && text.en.trim()) {
     return 'en'
   }
@@ -76,7 +75,12 @@ export function RecommendationVideoAdminMenu({
                 ) === videoId,
             )
             const target = nextState.collection[sourceIndex]
-            if (sourceIndex === -1 || !target || target.kind !== 'youtube-video') throw new Error('Not found')
+            if (
+              sourceIndex === -1 ||
+              !target ||
+              target.kind !== 'youtube-video'
+            )
+              throw new Error('Not found')
             const localeKey = resolveLocaleKey(target.note, locale)
             setState(nextState)
             setDraftNote(target.note[localeKey])
@@ -100,7 +104,9 @@ export function RecommendationVideoAdminMenu({
             const result = await saveEditorCollection(
               'recommendations',
               JSON.stringify(
-                nextState.collection.filter((_, index) => index !== sourceIndex),
+                nextState.collection.filter(
+                  (_, index) => index !== sourceIndex,
+                ),
                 null,
                 2,
               ),
@@ -137,10 +143,17 @@ export function RecommendationVideoAdminMenu({
                 Hide the video from the public list without deleting it.
               </p>
             </div>
-            <Switch checked={draftPublished} onCheckedChange={setDraftPublished} />
+            <Switch
+              checked={draftPublished}
+              onCheckedChange={setDraftPublished}
+            />
           </div>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setOpen(false)}
+            >
               Cancel
             </Button>
             <Button
@@ -158,7 +171,9 @@ export function RecommendationVideoAdminMenu({
                         `recommendation video source (${entry.sourceUrl})`,
                       ) === videoId,
                   )
-                  const existing = state.collection[sourceIndex] as RecommendationSourceVideoEntry
+                  const existing = state.collection[
+                    sourceIndex
+                  ] as RecommendationSourceVideoEntry
                   const localeKey = resolveLocaleKey(existing.note, locale)
                   const nextEntries = state.collection.map((entry, index) =>
                     index === sourceIndex && entry.kind === 'youtube-video'

@@ -1,6 +1,13 @@
 'use client'
 
-import { ArrowDown, ArrowUp, Loader2, Plus, Sparkles, Trash2 } from 'lucide-react'
+import {
+  ArrowDown,
+  ArrowUp,
+  Loader2,
+  Plus,
+  Sparkles,
+  Trash2,
+} from 'lucide-react'
 import { useState } from 'react'
 import type {
   DashboardSourceCategory,
@@ -359,18 +366,25 @@ export function PointersEditorClient({
                               onChange={(event) => {
                                 const value = event.target.value
                                 setEntries((current) =>
-                                  current.map((currentCategory, currentIndex) =>
-                                    currentIndex === categoryIndex
-                                      ? {
-                                          ...currentCategory,
-                                          links: currentCategory.links.map(
-                                            (currentLink, currentLinkIndex) =>
-                                              currentLinkIndex === linkIndex
-                                                ? { ...currentLink, url: value }
-                                                : currentLink,
-                                          ),
-                                        }
-                                      : currentCategory,
+                                  current.map(
+                                    (currentCategory, currentIndex) =>
+                                      currentIndex === categoryIndex
+                                        ? {
+                                            ...currentCategory,
+                                            links: currentCategory.links.map(
+                                              (
+                                                currentLink,
+                                                currentLinkIndex,
+                                              ) =>
+                                                currentLinkIndex === linkIndex
+                                                  ? {
+                                                      ...currentLink,
+                                                      url: value,
+                                                    }
+                                                  : currentLink,
+                                            ),
+                                          }
+                                        : currentCategory,
                                   ),
                                 )
                               }}
@@ -380,10 +394,16 @@ export function PointersEditorClient({
                               variant="outline"
                               size="icon"
                               title={labels.fetchMetadata}
-                              disabled={loadingPath === `${categoryIndex}-${linkIndex}` || !link.url}
-                              onClick={() => handleFetchMetadata(categoryIndex, linkIndex)}
+                              disabled={
+                                loadingPath ===
+                                  `${categoryIndex}-${linkIndex}` || !link.url
+                              }
+                              onClick={() =>
+                                handleFetchMetadata(categoryIndex, linkIndex)
+                              }
                             >
-                              {loadingPath === `${categoryIndex}-${linkIndex}` ? (
+                              {loadingPath ===
+                              `${categoryIndex}-${linkIndex}` ? (
                                 <Loader2 className="animate-spin" />
                               ) : (
                                 <Sparkles className="size-4" />

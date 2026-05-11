@@ -13,7 +13,11 @@ import {
   ItemTitle,
 } from '@tenzyu/ui/item'
 import { loadLinks } from '@/features/links/links.assemble'
-import { LINK_CATEGORY_ORDER, type LinkCategory, type MyLink } from '@/features/links/links.domain'
+import {
+  LINK_CATEGORY_ORDER,
+  type LinkCategory,
+  type MyLink,
+} from '@/features/links/links.domain'
 
 const CATEGORY_KEYS: Record<
   LinkCategory,

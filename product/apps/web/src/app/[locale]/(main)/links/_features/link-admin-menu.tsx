@@ -33,9 +33,7 @@ async function loadLinksAdminState() {
   return loadEditorCollection('links') as Promise<LinksAdminState>
 }
 
-export function LinkAdminMenu({
-  shortenUrl,
-}: LinkAdminMenuProps) {
+export function LinkAdminMenu({ shortenUrl }: LinkAdminMenuProps) {
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const [draft, setDraft] = useState<MyLink | null>(null)
@@ -66,7 +64,9 @@ export function LinkAdminMenu({
             const result = await saveEditorCollection(
               'links',
               JSON.stringify(
-                state.collection.filter((entry) => entry.shortenUrl !== shortenUrl),
+                state.collection.filter(
+                  (entry) => entry.shortenUrl !== shortenUrl,
+                ),
                 null,
                 2,
               ),
@@ -132,7 +132,11 @@ export function LinkAdminMenu({
             </div>
           ) : null}
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setOpen(false)}
+            >
               Cancel
             </Button>
             <Button

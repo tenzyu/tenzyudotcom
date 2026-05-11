@@ -58,9 +58,7 @@ function parseLinks(linksText: string, primaryUrl: string): PuzzleLink[] {
   })
 }
 
-export function PuzzleAddButton({
-  categoryId,
-}: PuzzleAddButtonProps) {
+export function PuzzleAddButton({ categoryId }: PuzzleAddButtonProps) {
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const [draft, setDraft] = useState<PuzzleDraft>(createDraft())
@@ -110,7 +108,10 @@ export function PuzzleAddButton({
             <Input
               value={draft.title}
               onChange={(event) =>
-                setDraft((current) => ({ ...current, title: event.target.value }))
+                setDraft((current) => ({
+                  ...current,
+                  title: event.target.value,
+                }))
               }
               placeholder="Title"
             />
@@ -127,15 +128,24 @@ export function PuzzleAddButton({
             <Textarea
               value={draft.linksText}
               onChange={(event) =>
-                setDraft((current) => ({ ...current, linksText: event.target.value }))
+                setDraft((current) => ({
+                  ...current,
+                  linksText: event.target.value,
+                }))
               }
               className="min-h-40"
-              placeholder={'web https://example.com\nswitch https://example.com'}
+              placeholder={
+                'web https://example.com\nswitch https://example.com'
+              }
             />
           </div>
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setOpen(false)}
+            >
               Cancel
             </Button>
             <Button

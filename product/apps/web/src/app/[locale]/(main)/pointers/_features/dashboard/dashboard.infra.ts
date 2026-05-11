@@ -4,9 +4,7 @@ import {
   saveJsonCollection,
 } from '@/lib/content-store/json-document.infra'
 import { normalizeExternalUrl } from '@/lib/url/external-url.domain'
-import type {
-  DashboardSourceCategory,
-} from './dashboard.domain'
+import type { DashboardSourceCategory } from './dashboard.domain'
 import type { PointersRepository } from './dashboard.port'
 const POINTERS_STORAGE_PATH = 'editor/pointers.json'
 

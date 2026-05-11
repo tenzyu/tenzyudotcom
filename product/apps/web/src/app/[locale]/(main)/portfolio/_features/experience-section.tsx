@@ -49,17 +49,19 @@ export function ExperienceSection() {
                   </p>
                 </div>
                 <ul className="text-foreground list-inside list-disc pl-2 text-sm leading-relaxed">
-                  {(exp.responsibilities as ReadonlyArray<{ value: string }>).map((resp) => (
+                  {(
+                    exp.responsibilities as ReadonlyArray<{ value: string }>
+                  ).map((resp) => (
                     <li key={resp.value}>{resp.value}</li>
                   ))}
                 </ul>
               </CardContent>
               <CardFooter className="flex flex-wrap gap-2 pt-0 pb-5">
-                  {experience.technologies.map((tech) => (
-                    <Badge key={tech} variant="secondary">
-                      {tech}
-                    </Badge>
-                  ))}
+                {experience.technologies.map((tech) => (
+                  <Badge key={tech} variant="secondary">
+                    {tech}
+                  </Badge>
+                ))}
               </CardFooter>
             </Card>
           )

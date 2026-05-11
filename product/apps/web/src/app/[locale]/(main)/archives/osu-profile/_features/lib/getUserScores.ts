@@ -13,15 +13,17 @@ type GetUserScoresParams = Parameters<ApiInstance['getUserScores']>
  * @param params Parameters for the getUserScores API call
  * @returns Array of user's scores with beatmap and beatmapset information
  */
-export const getUserScores = cache(async (
-  ...params: GetUserScoresParams
-): Promise<osu.Score.WithUserBeatmapBeatmapset[]> => {
-  try {
-    const api = await createApi()
-    const scores = await withRetry(() => api.getUserScores(...params))
+export const getUserScores = cache(
+  async (
+    ...params: GetUserScoresParams
+  ): Promise<osu.Score.WithUserBeatmapBeatmapset[]> => {
+    try {
+      const api = await createApi()
+      const scores = await withRetry(() => api.getUserScores(...params))
 
-    return scores
-  } catch (error) {
-    return handleOsuAPIError(error)
-  }
-})
+      return scores
+    } catch (error) {
+      return handleOsuAPIError(error)
+    }
+  },
+)

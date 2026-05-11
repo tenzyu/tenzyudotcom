@@ -49,13 +49,14 @@ export type EditorCollectionDefinition<K extends EditorCollectionId> =
     load: () => Promise<EditorCollectionState<K>>
   }
 
-export type WritableEditorCollectionDefinition<K extends WritableEditorCollectionId> =
-  EditorCollectionDefinition<K> & {
-    save: (
-      sourceJson: string,
-      expectedVersion?: string,
-    ) => Promise<{ version: string }>
-  }
+export type WritableEditorCollectionDefinition<
+  K extends WritableEditorCollectionId,
+> = EditorCollectionDefinition<K> & {
+  save: (
+    sourceJson: string,
+    expectedVersion?: string,
+  ) => Promise<{ version: string }>
+}
 
 const EDITOR_COLLECTIONS: Record<EditorCollectionId, EditorCollectionMeta> = {
   recommendations: {
@@ -104,7 +105,9 @@ export function listEditorCollectionMeta() {
   return Object.values(EDITOR_COLLECTIONS)
 }
 
-export function isEditorCollectionId(value: string): value is EditorCollectionId {
+export function isEditorCollectionId(
+  value: string,
+): value is EditorCollectionId {
   return EDITOR_COLLECTION_IDS.includes(value as EditorCollectionId)
 }
 

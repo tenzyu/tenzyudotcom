@@ -47,7 +47,10 @@ export function NavigationTiles() {
 
   return (
     <Content size="2xl" className="space-y-12">
-      <SectionHeader title={home.siteIndexTitle} description={home.siteIndexSubtitle} />
+      <SectionHeader
+        title={home.siteIndexTitle}
+        description={home.siteIndexSubtitle}
+      />
 
       {PUBLIC_ROUTE_GROUPS.map((group) => {
         const groupContent = navigation.groups[group.id]
@@ -76,7 +79,12 @@ export function NavigationTiles() {
                     variant="interactive"
                     className="group gap-0 py-0"
                   >
-                    <Link href={getLocalizedUrl(PUBLIC_ROUTES[routeId].href, locale)}>
+                    <Link
+                      href={getLocalizedUrl(
+                        PUBLIC_ROUTES[routeId].href,
+                        locale,
+                      )}
+                    >
                       <CardContent className="flex items-center gap-4 p-4">
                         <div className="border-primary/20 bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground flex size-10 shrink-0 items-center justify-center rounded-[var(--radius-lg)] border transition-colors">
                           <Icon className="size-4" />

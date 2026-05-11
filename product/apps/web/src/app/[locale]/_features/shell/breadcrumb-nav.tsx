@@ -24,7 +24,8 @@ export function BreadcrumbNav() {
   }, [])
 
   const segments = useMemo(() => {
-    const pathname = (pathWithoutLocale ?? '/').split('?')[0]?.split('#')[0] ?? '/'
+    const pathname =
+      (pathWithoutLocale ?? '/').split('?')[0]?.split('#')[0] ?? '/'
     if (!pathname || pathname === '/') return []
 
     const parts = pathname.split('/').filter(Boolean)

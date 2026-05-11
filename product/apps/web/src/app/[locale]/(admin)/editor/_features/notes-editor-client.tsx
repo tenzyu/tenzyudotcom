@@ -64,7 +64,9 @@ function createEmptyNote(): NoteSourceEntry {
 }
 
 function formatParentOptionLabel(entry: NoteSourceEntry, locale: string) {
-  const body = (locale === 'ja' ? entry.body.ja : entry.body.en || entry.body.ja)
+  const body = (
+    locale === 'ja' ? entry.body.ja : entry.body.en || entry.body.ja
+  )
     .replace(/\s+/g, ' ')
     .trim()
   const preview = body.slice(0, 36) || entry.id
@@ -113,9 +115,9 @@ export function NotesEditorClient({
 
       <div className="space-y-4">
         {entries.map((entry, index) => {
-          const parentOptions = [...listAvailableParentNotes(entries, entry.id)].sort(
-            compareNotesByCreatedAtDesc,
-          )
+          const parentOptions = [
+            ...listAvailableParentNotes(entries, entry.id),
+          ].sort(compareNotesByCreatedAtDesc)
 
           return (
             <Card key={entry.id}>
@@ -123,7 +125,10 @@ export function NotesEditorClient({
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <CardTitle>
-                      {entry.body[titleKey] || entry.body.ja || entry.body.en || 'Note'}
+                      {entry.body[titleKey] ||
+                        entry.body.ja ||
+                        entry.body.en ||
+                        'Note'}
                     </CardTitle>
                     <CardDescription>{entry.createdAt}</CardDescription>
                   </div>
@@ -174,7 +179,9 @@ export function NotesEditorClient({
                   <Input id={`note-${entry.id}-id`} value={entry.id} readOnly />
                 </div>
                 <div className="space-y-2 text-sm md:col-span-2">
-                  <label htmlFor={`note-${entry.id}-parent`}>{labels.parent}</label>
+                  <label htmlFor={`note-${entry.id}-parent`}>
+                    {labels.parent}
+                  </label>
                   <Select
                     value={entry.parentId ?? ROOT_PARENT}
                     onValueChange={(value) => {
@@ -240,7 +247,10 @@ export function NotesEditorClient({
                       setEntries((current) =>
                         current.map((currentEntry, currentIndex) =>
                           currentIndex === index
-                            ? { ...currentEntry, externalUrl: value || undefined }
+                            ? {
+                                ...currentEntry,
+                                externalUrl: value || undefined,
+                              }
                             : currentEntry,
                         ),
                       )

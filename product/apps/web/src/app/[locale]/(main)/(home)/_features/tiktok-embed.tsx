@@ -25,10 +25,7 @@ function TikTokThumbnail({
 
   if (!video.thumbnailUrl) {
     return (
-      <div
-        className="bg-muted relative w-full"
-        style={{ aspectRatio }}
-      >
+      <div className="bg-muted relative w-full" style={{ aspectRatio }}>
         {overlay ? (
           <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/10">
             {overlay}
@@ -64,8 +61,7 @@ function TikTokEmbedItem({ video }: TikTokEmbedItemProps) {
   const title = video.title || video.id
   const playLabel = locale === 'ja' ? 'TikTok を再生' : 'Play TikTok'
   const fromLabel = 'from TikTok'
-  const openOnTikTokLabel =
-    locale === 'ja' ? 'TikTok で開く' : 'Open on TikTok'
+  const openOnTikTokLabel = locale === 'ja' ? 'TikTok で開く' : 'Open on TikTok'
 
   return (
     <Dialog>

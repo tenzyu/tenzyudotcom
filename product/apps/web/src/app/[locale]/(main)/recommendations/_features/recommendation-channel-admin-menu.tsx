@@ -31,13 +31,12 @@ type RecommendationsAdminState = {
 }
 
 async function loadRecommendationsState() {
-  return loadEditorCollection('recommendations') as Promise<RecommendationsAdminState>
+  return loadEditorCollection(
+    'recommendations',
+  ) as Promise<RecommendationsAdminState>
 }
 
-function resolveLocaleKey(
-  text: { ja: string; en: string },
-  locale: string,
-) {
+function resolveLocaleKey(text: { ja: string; en: string }, locale: string) {
   if (locale === 'en' && text.en.trim()) return 'en'
   return 'ja'
 }
@@ -74,7 +73,12 @@ export function RecommendationChannelAdminMenu({
               (entry) => entry.kind === 'youtube-channel' && entry.url === url,
             )
             const target = nextState.collection[sourceIndex]
-            if (sourceIndex === -1 || !target || target.kind !== 'youtube-channel') throw new Error('Not found')
+            if (
+              sourceIndex === -1 ||
+              !target ||
+              target.kind !== 'youtube-channel'
+            )
+              throw new Error('Not found')
             const localeKey = resolveLocaleKey(target.note, locale)
             setState(nextState)
             setDraft({
@@ -98,7 +102,9 @@ export function RecommendationChannelAdminMenu({
             const result = await saveEditorCollection(
               'recommendations',
               JSON.stringify(
-                nextState.collection.filter((_, index) => index !== sourceIndex),
+                nextState.collection.filter(
+                  (_, index) => index !== sourceIndex,
+                ),
                 null,
                 2,
               ),
@@ -124,20 +130,49 @@ export function RecommendationChannelAdminMenu({
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4">
-            <Input value={draft.title} onChange={(e) => setDraft({ ...draft, title: e.target.value })} placeholder="Title" />
-            <Input value={draft.handle} onChange={(e) => setDraft({ ...draft, handle: e.target.value })} placeholder="@handle" />
-            <Input value={draft.url} onChange={(e) => setDraft({ ...draft, url: e.target.value })} placeholder="Channel URL" />
-            <Textarea value={draft.note} onChange={(e) => setDraft({ ...draft, note: e.target.value })} className="min-h-40" />
+            <Input
+              value={draft.title}
+              onChange={(e) => setDraft({ ...draft, title: e.target.value })}
+              placeholder="Title"
+            />
+            <Input
+              value={draft.handle}
+              onChange={(e) => setDraft({ ...draft, handle: e.target.value })}
+              placeholder="@handle"
+            />
+            <Input
+              value={draft.url}
+              onChange={(e) => setDraft({ ...draft, url: e.target.value })}
+              placeholder="Channel URL"
+            />
+            <Textarea
+              value={draft.note}
+              onChange={(e) => setDraft({ ...draft, note: e.target.value })}
+              className="min-h-40"
+            />
             <div className="flex items-center justify-between rounded-xl border px-4 py-3">
               <div className="space-y-0.5">
                 <p className="text-sm font-medium">Published</p>
-                <p className="text-muted-foreground text-sm">Hide the channel without deleting it.</p>
+                <p className="text-muted-foreground text-sm">
+                  Hide the channel without deleting it.
+                </p>
               </div>
-              <Switch checked={draft.published} onCheckedChange={(checked) => setDraft({ ...draft, published: checked })} />
+              <Switch
+                checked={draft.published}
+                onCheckedChange={(checked) =>
+                  setDraft({ ...draft, published: checked })
+                }
+              />
             </div>
           </div>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setOpen(false)}
+            >
+              Cancel
+            </Button>
             <Button
               type="button"
               disabled={!state || isSaving}
@@ -146,9 +181,12 @@ export function RecommendationChannelAdminMenu({
                 setIsSaving(true)
                 try {
                   const sourceIndex = state.collection.findIndex(
-                    (entry) => entry.kind === 'youtube-channel' && entry.url === url,
+                    (entry) =>
+                      entry.kind === 'youtube-channel' && entry.url === url,
                   )
-                  const existing = state.collection[sourceIndex] as RecommendationSourceChannelEntry
+                  const existing = state.collection[
+                    sourceIndex
+                  ] as RecommendationSourceChannelEntry
                   const localeKey = resolveLocaleKey(existing.note, locale)
                   const nextEntries = state.collection.map((entry, index) =>
                     index === sourceIndex && entry.kind === 'youtube-channel'

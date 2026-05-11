@@ -12,14 +12,14 @@ type GetUserParams = Parameters<ApiInstance['getUser']>
  * @param params Parameters for the getUser API call
  * @returns User data with extended information
  */
-export const getUser = cache(async (
-  ...params: GetUserParams
-): Promise<osu.User.Extended> => {
-  try {
-    const api = await createApi()
-    const user = await withRetry(() => api.getUser(...params))
-    return user
-  } catch (error) {
-    return handleOsuAPIError(error)
-  }
-})
+export const getUser = cache(
+  async (...params: GetUserParams): Promise<osu.User.Extended> => {
+    try {
+      const api = await createApi()
+      const user = await withRetry(() => api.getUser(...params))
+      return user
+    } catch (error) {
+      return handleOsuAPIError(error)
+    }
+  },
+)

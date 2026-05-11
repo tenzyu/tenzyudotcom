@@ -56,9 +56,7 @@ export function ActionLinkTile({
       ) : openInNewTab ? (
         <ExternalLink href={href}>{content}</ExternalLink>
       ) : (
-        <a href={href}>
-          {content}
-        </a>
+        <a href={href}>{content}</a>
       )}
     </Card>
   )

@@ -30,12 +30,12 @@ export function BlogEditorDeferred({ locale }: BlogEditorDeferredProps) {
   }, [])
 
   if (error) return <div className="text-destructive text-sm">{error}</div>
-  if (!state) return <div className="flex justify-center p-8"><Loader2 className="animate-spin text-muted-foreground" /></div>
+  if (!state)
+    return (
+      <div className="flex justify-center p-8">
+        <Loader2 className="animate-spin text-muted-foreground" />
+      </div>
+    )
 
-  return (
-    <BlogEditor
-      locale={locale}
-      posts={state.posts}
-    />
-  )
+  return <BlogEditor locale={locale} posts={state.posts} />
 }

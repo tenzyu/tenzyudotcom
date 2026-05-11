@@ -1,10 +1,25 @@
 import { revalidatePath, revalidateTag } from 'next/cache'
 import type { BlogFrontmatter } from '@/app/[locale]/(main)/blog/_features/blog.domain'
-import { loadBlogPostsState, saveBlogPostState } from '@/app/[locale]/(main)/blog/_features/blog.infra'
-import { loadNotesState, saveNotesState } from '@/app/[locale]/(main)/notes/_features/notes.infra'
-import { loadPointersState, savePointersState } from '@/app/[locale]/(main)/pointers/_features/dashboard/dashboard.infra'
-import { loadPuzzlesState, savePuzzlesState } from '@/app/[locale]/(main)/puzzles/_features/puzzles.infra'
-import { loadRecommendationsState, saveRecommendationsState } from '@/app/[locale]/(main)/recommendations/_features/recommendations.infra'
+import {
+  loadBlogPostsState,
+  saveBlogPostState,
+} from '@/app/[locale]/(main)/blog/_features/blog.infra'
+import {
+  loadNotesState,
+  saveNotesState,
+} from '@/app/[locale]/(main)/notes/_features/notes.infra'
+import {
+  loadPointersState,
+  savePointersState,
+} from '@/app/[locale]/(main)/pointers/_features/dashboard/dashboard.infra'
+import {
+  loadPuzzlesState,
+  savePuzzlesState,
+} from '@/app/[locale]/(main)/puzzles/_features/puzzles.infra'
+import {
+  loadRecommendationsState,
+  saveRecommendationsState,
+} from '@/app/[locale]/(main)/recommendations/_features/recommendations.infra'
 import { loadLinksState, saveLinksState } from '@/features/links/links.infra'
 import {
   getEditorCollectionMeta,
@@ -23,7 +38,9 @@ class LoadEditorCollectionUseCase {
     collectionId: K,
   ): Promise<EditorCollectionState<K>> {
     if (collectionId === 'recommendations') {
-      return loadRecommendationsState() as unknown as Promise<EditorCollectionState<K>>
+      return loadRecommendationsState() as unknown as Promise<
+        EditorCollectionState<K>
+      >
     }
 
     if (collectionId === 'notes') {

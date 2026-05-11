@@ -22,7 +22,7 @@ const NOTE_SNOWFLAKE_EPOCH = Date.UTC(2026, 0, 1)
 const NOTE_SNOWFLAKE_ID_PATTERN = /^\d+$/
 const NOTE_SNOWFLAKE_NODE_ID = (() => {
   const randomBytes = crypto.getRandomValues(new Uint8Array(2))
-  return ((randomBytes[0] ?? 0) << 8 | (randomBytes[1] ?? 0)) & 0x3ff
+  return (((randomBytes[0] ?? 0) << 8) | (randomBytes[1] ?? 0)) & 0x3ff
 })()
 
 let lastSnowflakeTimestamp = -1

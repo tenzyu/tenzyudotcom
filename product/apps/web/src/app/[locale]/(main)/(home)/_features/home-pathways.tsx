@@ -1,5 +1,10 @@
 import { getLocalizedUrl } from 'intlayer'
-import { ArrowRight, BriefcaseBusiness, Sparkles, UserRound } from 'lucide-react'
+import {
+  ArrowRight,
+  BriefcaseBusiness,
+  Sparkles,
+  UserRound,
+} from 'lucide-react'
 import Link from 'next/link'
 import { useIntlayer } from 'next-intlayer/server'
 import { Content } from '@tenzyu/ui/content'
@@ -36,7 +41,10 @@ export function HomePathways({ locale }: { locale: string }) {
       <div className="grid gap-4 lg:grid-cols-3">
         {pathways.map((pathway, index) => {
           const Icon = PATHWAY_ICONS[index] ?? Sparkles
-          const title = typeof pathway.title === 'string' ? pathway.title : pathway.title.value
+          const title =
+            typeof pathway.title === 'string'
+              ? pathway.title
+              : pathway.title.value
           const description =
             typeof pathway.description === 'string'
               ? pathway.description
@@ -59,7 +67,12 @@ export function HomePathways({ locale }: { locale: string }) {
               </CardHeader>
               <CardContent className="flex flex-wrap gap-2">
                 {pathway.links.map((link) => (
-                  <Button key={link.href.value} asChild variant="outline" size="sm">
+                  <Button
+                    key={link.href.value}
+                    asChild
+                    variant="outline"
+                    size="sm"
+                  >
                     <Link href={getLocalizedUrl(link.href.value, locale)}>
                       {link.label}
                       <ArrowRight />

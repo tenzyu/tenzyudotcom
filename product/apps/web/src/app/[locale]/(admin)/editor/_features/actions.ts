@@ -3,12 +3,8 @@
 import { getLocalizedUrl } from 'intlayer'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
-import {
-  StorageVersionConflictError,
-} from '@/lib/content-store/content-store.domain'
-import {
-  isWritableEditorCollectionId,
-} from '@/features/content-editor/editor-collections'
+import { StorageVersionConflictError } from '@/lib/content-store/content-store.domain'
+import { isWritableEditorCollectionId } from '@/features/content-editor/editor-collections'
 import {
   makeSaveEditorCollectionUseCase,
   makeSaveBlogPostUseCase,
@@ -47,9 +43,7 @@ export async function loginEditorAdminAction(formData: FormData) {
   ) {
     // Artificial delay to deter brute force
     await new Promise((resolve) => setTimeout(resolve, 1000))
-    redirect(
-      getLocalizedUrl('/editor/login?error=invalid', parsed.data.locale),
-    )
+    redirect(getLocalizedUrl('/editor/login?error=invalid', parsed.data.locale))
   }
 
   await clearEditorLoginRateLimit()
@@ -112,10 +106,7 @@ export async function saveEditorCollectionAction(formData: FormData) {
 
   revalidatePath(getLocalizedUrl('/editor', parsed.data.locale))
   revalidatePath(
-    getLocalizedUrl(
-      `/editor/${parsed.data.collectionId}`,
-      parsed.data.locale,
-    ),
+    getLocalizedUrl(`/editor/${parsed.data.collectionId}`, parsed.data.locale),
   )
 
   redirect(
@@ -189,7 +180,9 @@ export async function saveBlogPostAction(
     )
 
     revalidatePath(getLocalizedUrl('/blog', parsed.data.locale))
-    revalidatePath(getLocalizedUrl(`/blog/${parsed.data.slug}`, parsed.data.locale))
+    revalidatePath(
+      getLocalizedUrl(`/blog/${parsed.data.slug}`, parsed.data.locale),
+    )
     revalidatePath(getLocalizedUrl(`/editor/blog`, parsed.data.locale))
   } catch (error) {
     if (error instanceof StorageVersionConflictError) {

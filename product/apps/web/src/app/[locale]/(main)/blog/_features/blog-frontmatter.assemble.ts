@@ -7,7 +7,9 @@ function parseTags(value: unknown, filePath: string) {
   }
 
   if (!Array.isArray(value)) {
-    throw new Error(`${filePath}: frontmatter "tags" must be an array of strings`)
+    throw new Error(
+      `${filePath}: frontmatter "tags" must be an array of strings`,
+    )
   }
 
   const tags = value.map((tag, index) => {

@@ -30,7 +30,9 @@ export async function fetchUrlMetadataAction(url: string) {
     const ogTitleMatch = html.match(/property="og:title" content="(.*?)"/i)
     const ogTitle = ogTitleMatch ? ogTitleMatch[1] : ''
 
-    const ogDescriptionMatch = html.match(/property="og:description" content="(.*?)"/i)
+    const ogDescriptionMatch = html.match(
+      /property="og:description" content="(.*?)"/i,
+    )
     const ogDescription = ogDescriptionMatch ? ogDescriptionMatch[1] : ''
 
     const descriptionMatch = html.match(/name="description" content="(.*?)"/i)

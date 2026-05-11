@@ -5,7 +5,14 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import type { RecommendationSourceEntry } from '@/features/recommendations/recommendations.domain'
 import { Button } from '@tenzyu/ui/button'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@tenzyu/ui/dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@tenzyu/ui/dialog'
 import { Input } from '@tenzyu/ui/input'
 import { Textarea } from '@tenzyu/ui/textarea'
 import {
@@ -19,7 +26,9 @@ type RecommendationsAdminState = {
 }
 
 async function loadRecommendationsState() {
-  return loadEditorCollection('recommendations') as Promise<RecommendationsAdminState>
+  return loadEditorCollection(
+    'recommendations',
+  ) as Promise<RecommendationsAdminState>
 }
 
 export function RecommendationAddButtons() {
@@ -40,34 +49,87 @@ export function RecommendationAddButtons() {
         <Button type="button" onClick={() => setMode('video')}>
           Add video
         </Button>
-        <Button type="button" variant="outline" onClick={() => setMode('channel')}>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => setMode('channel')}
+        >
           Add channel
         </Button>
       </div>
 
-      <Dialog open={mode !== null} onOpenChange={(open) => !open && setMode(null)}>
+      <Dialog
+        open={mode !== null}
+        onOpenChange={(open) => !open && setMode(null)}
+      >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{mode === 'video' ? 'Add video' : 'Add channel'}</DialogTitle>
+            <DialogTitle>
+              {mode === 'video' ? 'Add video' : 'Add channel'}
+            </DialogTitle>
             <DialogDescription>
               Create one recommendation item without leaving the page.
             </DialogDescription>
           </DialogHeader>
           {mode === 'video' ? (
             <div className="grid gap-4">
-              <Input value={videoDraft.sourceUrl} onChange={(e) => setVideoDraft({ ...videoDraft, sourceUrl: e.target.value })} placeholder="YouTube URL" />
-              <Textarea value={videoDraft.note} onChange={(e) => setVideoDraft({ ...videoDraft, note: e.target.value })} className="min-h-40" placeholder="Comment" />
+              <Input
+                value={videoDraft.sourceUrl}
+                onChange={(e) =>
+                  setVideoDraft({ ...videoDraft, sourceUrl: e.target.value })
+                }
+                placeholder="YouTube URL"
+              />
+              <Textarea
+                value={videoDraft.note}
+                onChange={(e) =>
+                  setVideoDraft({ ...videoDraft, note: e.target.value })
+                }
+                className="min-h-40"
+                placeholder="Comment"
+              />
             </div>
           ) : mode === 'channel' ? (
             <div className="grid gap-4">
-              <Input value={channelDraft.title} onChange={(e) => setChannelDraft({ ...channelDraft, title: e.target.value })} placeholder="Title" />
-              <Input value={channelDraft.handle} onChange={(e) => setChannelDraft({ ...channelDraft, handle: e.target.value })} placeholder="@handle" />
-              <Input value={channelDraft.url} onChange={(e) => setChannelDraft({ ...channelDraft, url: e.target.value })} placeholder="Channel URL" />
-              <Textarea value={channelDraft.note} onChange={(e) => setChannelDraft({ ...channelDraft, note: e.target.value })} className="min-h-40" placeholder="Comment" />
+              <Input
+                value={channelDraft.title}
+                onChange={(e) =>
+                  setChannelDraft({ ...channelDraft, title: e.target.value })
+                }
+                placeholder="Title"
+              />
+              <Input
+                value={channelDraft.handle}
+                onChange={(e) =>
+                  setChannelDraft({ ...channelDraft, handle: e.target.value })
+                }
+                placeholder="@handle"
+              />
+              <Input
+                value={channelDraft.url}
+                onChange={(e) =>
+                  setChannelDraft({ ...channelDraft, url: e.target.value })
+                }
+                placeholder="Channel URL"
+              />
+              <Textarea
+                value={channelDraft.note}
+                onChange={(e) =>
+                  setChannelDraft({ ...channelDraft, note: e.target.value })
+                }
+                className="min-h-40"
+                placeholder="Comment"
+              />
             </div>
           ) : null}
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setMode(null)}>Cancel</Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setMode(null)}
+            >
+              Cancel
+            </Button>
             <Button
               type="button"
               disabled={isSaving}

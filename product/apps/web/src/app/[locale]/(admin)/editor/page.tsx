@@ -14,7 +14,9 @@ export async function generateMetadata() {
   }
 }
 
-export default async function EditorDashboardPage({ params }: {
+export default async function EditorDashboardPage({
+  params,
+}: {
   params: Promise<{ locale: string }>
 }) {
   const locale = await resolvePageLocale(params)

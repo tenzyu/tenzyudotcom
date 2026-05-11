@@ -35,7 +35,10 @@ export function defineLinks<const T extends MyLink>(
     assertNonEmpty(link.id, `link id (${link.name})`)
     assertNonEmpty(link.shortenUrl, `link shortenUrl (${link.name})`)
 
-    const normalizedUrl = normalizeExternalUrl(link.url, `link url (${link.name})`)
+    const normalizedUrl = normalizeExternalUrl(
+      link.url,
+      `link url (${link.name})`,
+    )
 
     if (shortUrls.has(link.shortenUrl)) {
       throw new Error(`Duplicate link shortenUrl: ${link.shortenUrl}`)

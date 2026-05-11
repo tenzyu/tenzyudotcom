@@ -111,10 +111,13 @@ export function PuzzleAdminMenu({
         label={label}
         onEdit={async () => {
           try {
-            const state = entries && version ? { collection: entries, version } : await loadState()
-            const puzzle = state.collection
-              .find((entry) => entry.id === categoryId)
-              ?.puzzles[puzzleIndex]
+            const state =
+              entries && version
+                ? { collection: entries, version }
+                : await loadState()
+            const puzzle = state.collection.find(
+              (entry) => entry.id === categoryId,
+            )?.puzzles[puzzleIndex]
 
             if (!puzzle) {
               toast.error('Puzzle not found.')
@@ -133,12 +136,17 @@ export function PuzzleAdminMenu({
         }}
         onDelete={async () => {
           try {
-            const state = entries && version ? { collection: entries, version } : await loadState()
+            const state =
+              entries && version
+                ? { collection: entries, version }
+                : await loadState()
             const nextEntries = state.collection.map((entry) =>
               entry.id === categoryId
                 ? {
                     ...entry,
-                    puzzles: entry.puzzles.filter((_, index) => index !== puzzleIndex),
+                    puzzles: entry.puzzles.filter(
+                      (_, index) => index !== puzzleIndex,
+                    ),
                   }
                 : entry,
             )
@@ -164,7 +172,9 @@ export function PuzzleAdminMenu({
                 value={draft.title}
                 onChange={(event) =>
                   setDraft((current) =>
-                    current ? { ...current, title: event.target.value } : current,
+                    current
+                      ? { ...current, title: event.target.value }
+                      : current,
                   )
                 }
                 placeholder="Title"
@@ -184,17 +194,25 @@ export function PuzzleAdminMenu({
                 value={draft.linksText}
                 onChange={(event) =>
                   setDraft((current) =>
-                    current ? { ...current, linksText: event.target.value } : current,
+                    current
+                      ? { ...current, linksText: event.target.value }
+                      : current,
                   )
                 }
                 className="min-h-40"
-                placeholder={'web https://example.com\nswitch https://example.com'}
+                placeholder={
+                  'web https://example.com\nswitch https://example.com'
+                }
               />
             </div>
           ) : null}
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setOpen(false)}
+            >
               Cancel
             </Button>
             <Button

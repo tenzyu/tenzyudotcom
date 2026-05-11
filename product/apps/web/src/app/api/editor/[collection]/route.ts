@@ -15,7 +15,7 @@ import { StorageVersionConflictError } from '@/lib/content-store/content-store.d
 
 export async function GET(
   _request: NextRequest,
-  { params }: { params: Promise<{ collection: string }> }
+  { params }: { params: Promise<{ collection: string }> },
 ) {
   const isAdmin = await hasEditorAdminSession()
   if (!isAdmin) {
@@ -33,13 +33,16 @@ export async function GET(
     return NextResponse.json(state)
   } catch (error) {
     console.error('Failed to load collection:', error)
-    return NextResponse.json({ error: 'Failed to load collection' }, { status: 500 })
+    return NextResponse.json(
+      { error: 'Failed to load collection' },
+      { status: 500 },
+    )
   }
 }
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ collection: string }> }
+  { params }: { params: Promise<{ collection: string }> },
 ) {
   if (!isSameOriginEditorRequest(request)) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
@@ -56,7 +59,10 @@ export async function PUT(
   }
 
   if (!isWritableEditorCollectionId(collection)) {
-    return NextResponse.json({ error: 'Collection is read-only' }, { status: 405 })
+    return NextResponse.json(
+      { error: 'Collection is read-only' },
+      { status: 405 },
+    )
   }
 
   try {
@@ -65,7 +71,10 @@ export async function PUT(
       expectedVersion?: string
     }
 
-    if (typeof body.sourceJson !== 'string' || body.sourceJson.trim().length < 2) {
+    if (
+      typeof body.sourceJson !== 'string' ||
+      body.sourceJson.trim().length < 2
+    ) {
       return NextResponse.json({ error: 'Invalid payload' }, { status: 400 })
     }
 
@@ -83,6 +92,9 @@ export async function PUT(
     }
 
     console.error('Failed to save collection:', error)
-    return NextResponse.json({ error: 'Failed to save collection' }, { status: 500 })
+    return NextResponse.json(
+      { error: 'Failed to save collection' },
+      { status: 500 },
+    )
   }
 }

@@ -31,4 +31,3 @@ export async function getLinkByShortUrl(shortUrl: string) {
   const links = await loadLinks()
   return links.find((link) => link.shortenUrl === shortUrl)
 }
-

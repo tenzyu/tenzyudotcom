@@ -46,10 +46,7 @@ function resolveEditableLocaleKey(entry: NoteSourceEntry, locale: string) {
   return 'ja'
 }
 
-export function NoteAdminMenu({
-  locale,
-  id,
-}: NoteAdminMenuProps) {
+export function NoteAdminMenu({ locale, id }: NoteAdminMenuProps) {
   const router = useRouter()
   const [dialogOpen, setDialogOpen] = useState(false)
   const [draftBody, setDraftBody] = useState('')

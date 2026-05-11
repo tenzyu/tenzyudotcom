@@ -19,9 +19,8 @@ type PageProps = LocalPromiseParams & {
 export default async function Page({ params, searchParams }: PageProps) {
   const locale = await resolvePageLocale(params)
   const resolvedSearchParams = await searchParams
-  const { currentPage, pageItems, totalPages } = await assemblePaginatedBlogPosts(
-    resolvedSearchParams?.page,
-  )
+  const { currentPage, pageItems, totalPages } =
+    await assemblePaginatedBlogPosts(resolvedSearchParams?.page)
 
   return (
     <IntlayerServerProvider locale={locale}>

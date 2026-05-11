@@ -17,7 +17,9 @@ type PuzzlesPageContentProps = {
   categories: PuzzleCategoryWithOgp[]
 }
 
-export async function PuzzlesPageContent({ categories }: PuzzlesPageContentProps) {
+export async function PuzzlesPageContent({
+  categories,
+}: PuzzlesPageContentProps) {
   const content = useIntlayer('page-puzzles')
   const { locale } = useLocale()
   const resolvedLocale = locale || 'ja'
@@ -52,7 +54,10 @@ export async function PuzzlesPageContent({ categories }: PuzzlesPageContentProps
                   />
                   <AdminGate>
                     <div className="flex justify-end">
-                      <PuzzleAddButton locale={resolvedLocale} categoryId={category.id} />
+                      <PuzzleAddButton
+                        locale={resolvedLocale}
+                        categoryId={category.id}
+                      />
                     </div>
                   </AdminGate>
                 </div>

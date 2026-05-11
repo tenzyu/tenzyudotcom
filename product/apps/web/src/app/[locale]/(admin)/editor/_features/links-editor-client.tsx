@@ -1,6 +1,13 @@
 'use client'
 
-import { ArrowDown, ArrowUp, Loader2, Plus, Sparkles, Trash2 } from 'lucide-react'
+import {
+  ArrowDown,
+  ArrowUp,
+  Loader2,
+  Plus,
+  Sparkles,
+  Trash2,
+} from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '@tenzyu/ui/button'
 import {

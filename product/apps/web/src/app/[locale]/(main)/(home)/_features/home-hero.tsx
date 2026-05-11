@@ -18,13 +18,19 @@ export function HomeHero() {
           <div className="absolute inset-0 rounded-full bg-primary/25 blur-3xl" />
           <div className="relative h-full w-full overflow-hidden rounded-full border border-border/60 bg-background shadow-[var(--shadow-lifted)] ring-1 ring-primary/15">
             <Avatar className="size-full">
-              <AvatarImage src="/images/ltvgbz.jpg" alt={home.profileImageAlt.value} />
+              <AvatarImage
+                src="/images/ltvgbz.jpg"
+                alt={home.profileImageAlt.value}
+              />
               <AvatarFallback>{home.profileImageFallback}</AvatarFallback>
             </Avatar>
           </div>
         </div>
 
-        <Badge variant="outline" className="gap-2 border-primary/30 bg-primary/8 px-3 py-1 text-primary">
+        <Badge
+          variant="outline"
+          className="gap-2 border-primary/30 bg-primary/8 px-3 py-1 text-primary"
+        >
           <Sparkles className="size-3" />
           {home.dreamLabel} / {home.realName}
         </Badge>

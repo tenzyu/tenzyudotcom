@@ -45,7 +45,11 @@ export function RecommendationTabs({
   }
 
   return (
-    <Tabs value={activeTab} onValueChange={handleTabChange} className={className}>
+    <Tabs
+      value={activeTab}
+      onValueChange={handleTabChange}
+      className={className}
+    >
       <TabsList className="grid w-full grid-cols-2 md:inline-flex md:w-auto">
         {tabs.map((tab) => (
           <TabsTrigger key={tab.id} value={tab.id}>

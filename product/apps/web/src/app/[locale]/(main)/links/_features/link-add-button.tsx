@@ -56,19 +56,53 @@ export function LinkAddButton() {
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 md:grid-cols-2">
-            <Input value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} placeholder="Name" />
-            <Input value={draft.id} onChange={(e) => setDraft({ ...draft, id: e.target.value })} placeholder="ID" />
-            <Input className="md:col-span-2" value={draft.url} onChange={(e) => setDraft({ ...draft, url: e.target.value })} placeholder="https://example.com" />
-            <Input value={draft.shortenUrl} onChange={(e) => setDraft({ ...draft, shortenUrl: e.target.value })} placeholder="short-url" />
-            <Input value={draft.icon} onChange={(e) => setDraft({ ...draft, icon: e.target.value })} placeholder="icon" />
+            <Input
+              value={draft.name}
+              onChange={(e) => setDraft({ ...draft, name: e.target.value })}
+              placeholder="Name"
+            />
+            <Input
+              value={draft.id}
+              onChange={(e) => setDraft({ ...draft, id: e.target.value })}
+              placeholder="ID"
+            />
+            <Input
+              className="md:col-span-2"
+              value={draft.url}
+              onChange={(e) => setDraft({ ...draft, url: e.target.value })}
+              placeholder="https://example.com"
+            />
+            <Input
+              value={draft.shortenUrl}
+              onChange={(e) =>
+                setDraft({ ...draft, shortenUrl: e.target.value })
+              }
+              placeholder="short-url"
+            />
+            <Input
+              value={draft.icon}
+              onChange={(e) => setDraft({ ...draft, icon: e.target.value })}
+              placeholder="icon"
+            />
           </div>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setOpen(false)}
+            >
               Cancel
             </Button>
             <Button
               type="button"
-              disabled={isSaving || !draft.name.trim() || !draft.id.trim() || !draft.url.trim() || !draft.shortenUrl.trim() || !draft.icon.trim()}
+              disabled={
+                isSaving ||
+                !draft.name.trim() ||
+                !draft.id.trim() ||
+                !draft.url.trim() ||
+                !draft.shortenUrl.trim() ||
+                !draft.icon.trim()
+              }
               onClick={async () => {
                 setIsSaving(true)
                 try {

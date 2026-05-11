@@ -12,9 +12,7 @@ import {
 } from '@tenzyu/ui/card'
 import type { MDXData } from '@/app/[locale]/(main)/blog/_features/blog.domain'
 import { INITIAL_SAVE_BLOG_POST_ACTION_STATE } from './blog-save-form-state'
-import {
-  saveBlogPostAction,
-} from './actions'
+import { saveBlogPostAction } from './actions'
 
 type BlogEditorProps = {
   locale: string
@@ -31,8 +29,9 @@ export function BlogEditor({
   error,
   startCreating = false,
 }: BlogEditorProps) {
-  const allTags = [...new Set(posts.flatMap((entry) => entry.metadata.tags ?? []))]
-    .sort((a, b) => a.localeCompare(b))
+  const allTags = [
+    ...new Set(posts.flatMap((entry) => entry.metadata.tags ?? [])),
+  ].sort((a, b) => a.localeCompare(b))
   const [editingPost, setEditingPost] = useState<MDXData | null>(
     slug ? posts.find((p) => p.slug === slug) || null : null,
   )
@@ -54,7 +53,7 @@ export function BlogEditor({
           ? 'Blog post fields are invalid. Fix the highlighted values and try again.'
           : error === 'invalid'
             ? 'Required blog fields are missing or invalid.'
-        : undefined)
+            : undefined)
 
   const filteredPosts = posts.filter((post) => {
     const normalizedQuery = query.trim().toLowerCase()
@@ -78,8 +77,16 @@ export function BlogEditor({
     return (
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>{isCreating ? 'New Post' : `Editing: ${post?.slug}`}</CardTitle>
-          <Button variant="ghost" onClick={() => { setEditingPost(null); setIsCreating(false); }}>
+          <CardTitle>
+            {isCreating ? 'New Post' : `Editing: ${post?.slug}`}
+          </CardTitle>
+          <Button
+            variant="ghost"
+            onClick={() => {
+              setEditingPost(null)
+              setIsCreating(false)
+            }}
+          >
             Back to list
           </Button>
         </CardHeader>
@@ -91,10 +98,18 @@ export function BlogEditor({
           ) : null}
           <form action={formAction} className="space-y-6">
             <input type="hidden" name="locale" value={locale} />
-            {post && <input type="hidden" name="expectedVersion" value={post.version} />}
+            {post && (
+              <input
+                type="hidden"
+                name="expectedVersion"
+                value={post.version}
+              />
+            )}
             <div className="space-y-4">
               <div className="space-y-2">
-                <label htmlFor="slug" className="text-sm font-medium">Slug</label>
+                <label htmlFor="slug" className="text-sm font-medium">
+                  Slug
+                </label>
                 <input
                   id="slug"
                   name="slug"
@@ -105,7 +120,9 @@ export function BlogEditor({
                 />
               </div>
               <div className="space-y-2">
-                <label htmlFor="title" className="text-sm font-medium">Title</label>
+                <label htmlFor="title" className="text-sm font-medium">
+                  Title
+                </label>
                 <input
                   id="title"
                   name="title"
@@ -117,7 +134,9 @@ export function BlogEditor({
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="summary" className="text-sm font-medium">Summary</label>
+              <label htmlFor="summary" className="text-sm font-medium">
+                Summary
+              </label>
               <textarea
                 id="summary"
                 name="summary"
@@ -129,14 +148,21 @@ export function BlogEditor({
 
             <div className="space-y-4">
               <div className="space-y-2">
-                <label htmlFor="publishedAt" className="text-sm font-medium">Published At</label>
+                <label htmlFor="publishedAt" className="text-sm font-medium">
+                  Published At
+                </label>
                 <input
                   id="publishedAt"
                   type="datetime-local"
                   name="publishedAt"
                   defaultValue={
                     post?.metadata.publishedAt
-                      ? new Date(post.metadata.publishedAt.getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)
+                      ? new Date(
+                          post.metadata.publishedAt.getTime() -
+                            new Date().getTimezoneOffset() * 60000,
+                        )
+                          .toISOString()
+                          .slice(0, 16)
                       : new Date().toISOString().slice(0, 16)
                   }
                   className="w-full rounded-md border p-3 text-sm"
@@ -144,21 +170,30 @@ export function BlogEditor({
                 />
               </div>
               <div className="space-y-2">
-                <label htmlFor="updatedAt" className="text-sm font-medium">Updated At (Optional)</label>
+                <label htmlFor="updatedAt" className="text-sm font-medium">
+                  Updated At (Optional)
+                </label>
                 <input
                   id="updatedAt"
                   type="datetime-local"
                   name="updatedAt"
                   defaultValue={
                     post?.metadata.updatedAt
-                      ? new Date(post.metadata.updatedAt.getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)
+                      ? new Date(
+                          post.metadata.updatedAt.getTime() -
+                            new Date().getTimezoneOffset() * 60000,
+                        )
+                          .toISOString()
+                          .slice(0, 16)
                       : ''
                   }
                   className="w-full rounded-md border p-3 text-sm"
                 />
               </div>
               <div className="space-y-2">
-                <label htmlFor="tags" className="text-sm font-medium">Tags (Comma separated)</label>
+                <label htmlFor="tags" className="text-sm font-medium">
+                  Tags (Comma separated)
+                </label>
                 <input
                   id="tags"
                   name="tags"
@@ -176,7 +211,9 @@ export function BlogEditor({
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="body" className="text-sm font-medium">Content (MDX)</label>
+              <label htmlFor="body" className="text-sm font-medium">
+                Content (MDX)
+              </label>
               <textarea
                 id="body"
                 name="body"
@@ -216,10 +253,16 @@ export function BlogEditor({
             <CardHeader className="gap-2">
               <div className="flex items-start justify-between gap-3">
                 <div className="space-y-1">
-                  <CardTitle className="text-base">{post.metadata.title}</CardTitle>
+                  <CardTitle className="text-base">
+                    {post.metadata.title}
+                  </CardTitle>
                   <CardDescription>{post.slug}.mdx</CardDescription>
                 </div>
-                <Button variant="outline" size="icon-sm" onClick={() => setEditingPost(post)}>
+                <Button
+                  variant="outline"
+                  size="icon-sm"
+                  onClick={() => setEditingPost(post)}
+                >
                   <Pencil />
                   <span className="sr-only">Edit {post.slug}</span>
                 </Button>
@@ -229,7 +272,10 @@ export function BlogEditor({
               {(post.metadata.tags ?? []).length > 0 ? (
                 <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
                   {post.metadata.tags?.map((tag) => (
-                    <span key={tag} className="rounded-full border border-border/60 px-2 py-0.5">
+                    <span
+                      key={tag}
+                      className="rounded-full border border-border/60 px-2 py-0.5"
+                    >
                       #{tag}
                     </span>
                   ))}

@@ -26,7 +26,10 @@ export function Header({ locale }: { locale: string }) {
             >
               <span className="size-2.5 rounded-full bg-primary shadow-[var(--shadow-accent)]" />
               <span>tenzyu.com</span>
-              <Badge variant="outline" className="hidden border-primary/25 bg-primary/8 text-[10px] uppercase tracking-[0.18em] text-primary sm:inline-flex">
+              <Badge
+                variant="outline"
+                className="hidden border-primary/25 bg-primary/8 text-[10px] uppercase tracking-[0.18em] text-primary sm:inline-flex"
+              >
                 lab
               </Badge>
             </Link>
@@ -37,7 +40,9 @@ export function Header({ locale }: { locale: string }) {
             >
               {PRIMARY_NAV_ROUTE_IDS.map((routeId) => (
                 <Button key={routeId} asChild variant="ghost" size="sm">
-                  <Link href={getLocalizedUrl(PUBLIC_ROUTES[routeId].href, locale)}>
+                  <Link
+                    href={getLocalizedUrl(PUBLIC_ROUTES[routeId].href, locale)}
+                  >
                     {content.primaryNav[routeId].value}
                   </Link>
                 </Button>
@@ -59,7 +64,13 @@ export function Header({ locale }: { locale: string }) {
           className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 md:hidden"
         >
           {PRIMARY_NAV_ROUTE_IDS.map((routeId) => (
-            <Button key={routeId} asChild variant="soft" size="xs" className="shrink-0">
+            <Button
+              key={routeId}
+              asChild
+              variant="soft"
+              size="xs"
+              className="shrink-0"
+            >
               <Link href={getLocalizedUrl(PUBLIC_ROUTES[routeId].href, locale)}>
                 {content.primaryNav[routeId].value}
               </Link>

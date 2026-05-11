@@ -33,7 +33,8 @@ export async function saveTextDocument(
   },
 ) {
   if (options.expectedVersion) {
-    const currentContent = (await loadGitHubTextFileFresh(pathname))?.content ?? null
+    const currentContent =
+      (await loadGitHubTextFileFresh(pathname))?.content ?? null
     const current = currentContent
       ? {
           content: currentContent,
@@ -68,7 +69,9 @@ export async function listTextDocuments(prefix: string) {
     blobs: entries.map((entry) => ({
       pathname: entry.pathname,
       size: 0,
-      uploadedAt: new Date(entry.metadata.updatedAt ?? entry.metadata.publishedAt),
+      uploadedAt: new Date(
+        entry.metadata.updatedAt ?? entry.metadata.publishedAt,
+      ),
       url: entry.pathname,
     })),
   }

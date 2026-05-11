@@ -133,7 +133,10 @@ function normalizeNoteIds(entries: RawNoteSourceEntry[]): NoteSourceEntry[] {
 
     const sequence = sequenceByTimestampMs.get(timestampMs) ?? 0
     sequenceByTimestampMs.set(timestampMs, sequence + 1)
-    migratedIdByLegacyId.set(entry.id, createNoteSnowflakeId(timestampMs, sequence))
+    migratedIdByLegacyId.set(
+      entry.id,
+      createNoteSnowflakeId(timestampMs, sequence),
+    )
   }
 
   return normalized.map((entry) => ({

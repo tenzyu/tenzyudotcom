@@ -22,10 +22,7 @@ export const PORTFOLIO_ABOUT_LINKS: readonly PortfolioAboutLink[] = [
   },
 ] as const
 
-type PortfolioProjectId =
-  | 'personalWebsite'
-  | 'osuBpDatabase'
-  | 'osuSkinRemixer'
+type PortfolioProjectId = 'personalWebsite' | 'osuBpDatabase' | 'osuSkinRemixer'
 
 type PortfolioProject = {
   id: PortfolioProjectId

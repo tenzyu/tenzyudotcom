@@ -10,7 +10,10 @@ type LinksEditorDeferredProps = {
 }
 
 export function LinksEditorDeferred({ locale }: LinksEditorDeferredProps) {
-  const [state, setState] = useState<{ entries: MyLink[], version: string } | null>(null)
+  const [state, setState] = useState<{
+    entries: MyLink[]
+    version: string
+  } | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -21,7 +24,7 @@ export function LinksEditorDeferred({ locale }: LinksEditorDeferredProps) {
         const data = await res.json()
         setState({
           entries: data.collection,
-          version: data.version
+          version: data.version,
         })
       } catch (_e) {
         setError('Failed to load Link collection')
@@ -31,7 +34,12 @@ export function LinksEditorDeferred({ locale }: LinksEditorDeferredProps) {
   }, [])
 
   if (error) return <div className="text-destructive text-sm">{error}</div>
-  if (!state) return <div className="flex justify-center p-8"><Loader2 className="animate-spin text-muted-foreground" /></div>
+  if (!state)
+    return (
+      <div className="flex justify-center p-8">
+        <Loader2 className="animate-spin text-muted-foreground" />
+      </div>
+    )
 
   return (
     <LinksEditorClient
@@ -50,7 +58,7 @@ export function LinksEditorDeferred({ locale }: LinksEditorDeferredProps) {
         moveUp: 'Move up',
         moveDown: 'Move down',
         remove: 'Remove',
-        fetchMetadata: 'Fetch Info'
+        fetchMetadata: 'Fetch Info',
       }}
     />
   )

@@ -53,7 +53,11 @@ const sitemap = async (): Promise<MetadataRoute.Sitemap> => {
     },
   )
 
-  return [...routesWithAlternates, ...blogsWithAlternates, ...notesWithAlternates]
+  return [
+    ...routesWithAlternates,
+    ...blogsWithAlternates,
+    ...notesWithAlternates,
+  ]
 }
 
 export default sitemap

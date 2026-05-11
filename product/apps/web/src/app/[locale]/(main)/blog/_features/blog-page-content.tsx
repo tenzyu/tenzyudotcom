@@ -57,16 +57,16 @@ export async function BlogPageContent({
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
-            <Button asChild size="sm">
-              <Link href={getLocalizedUrl('/editor/blog', locale)}>
-                Open blog editor
-              </Link>
-            </Button>
-            <Button asChild size="sm" variant="outline">
-              <Link href={getLocalizedUrl('/editor/blog?create=1', locale)}>
-                Create post
-              </Link>
-            </Button>
+              <Button asChild size="sm">
+                <Link href={getLocalizedUrl('/editor/blog', locale)}>
+                  Open blog editor
+                </Link>
+              </Button>
+              <Button asChild size="sm" variant="outline">
+                <Link href={getLocalizedUrl('/editor/blog?create=1', locale)}>
+                  Create post
+                </Link>
+              </Button>
             </div>
           </div>
         </Content>
