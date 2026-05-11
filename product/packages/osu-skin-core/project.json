@@ -52,6 +52,16 @@
       "outputs": [
         "{projectRoot}/dist"
       ]
+    },
+    "verify": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/packages/osu-skin-core",
+        "command": "bun run check"
+      },
+      "outputs": [
+        "{projectRoot}/dist"
+      ]
     }
   }
 }

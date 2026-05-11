@@ -36,7 +36,7 @@
       "executor": "nx:run-commands",
       "options": {
         "cwd": "product/packages/linter",
-        "command": "bun run lint -- --project-root ../.. workspace-boundaries"
+        "command": "bun run lint -- --project-root ../../.. workspace-boundaries"
       }
     },
     "check": {
@@ -45,6 +45,16 @@
         "cwd": "product/packages/linter",
         "command": "bun run check"
       }
+    },
+    "verify": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/packages/linter",
+        "command": "bun run check && bun run build"
+      },
+      "outputs": [
+        "{projectRoot}/dist"
+      ]
     }
   }
 }

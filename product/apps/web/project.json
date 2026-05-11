@@ -19,7 +19,9 @@
         "command": "bun run dev"
       },
       "cache": false,
-      "dependsOn": []
+      "dependsOn": [
+        "^build"
+      ]
     },
     "dev-overlay": {
       "executor": "nx:run-commands",
@@ -28,7 +30,9 @@
         "command": "bun run dev:overlay"
       },
       "cache": false,
-      "dependsOn": []
+      "dependsOn": [
+        "^build"
+      ]
     },
     "clean": {
       "executor": "nx:run-commands",

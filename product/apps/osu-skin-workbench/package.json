@@ -8,7 +8,7 @@
     "dev:vite": "vite --host 127.0.0.1 --port 1420",
     "build": "tauri build",
     "build:vite": "tsc --noEmit && vite build",
-    "test": "bun test --pass-with-no-tests",
+    "test": "bun test",
     "typecheck": "tsc --noEmit",
     "check": "bun run typecheck && bun run test && bun run build:vite",
     "cargo:check": "cargo check --manifest-path src-tauri/Cargo.toml",

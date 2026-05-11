@@ -20,7 +20,9 @@
         "command": "bun run dev"
       },
       "cache": false,
-      "dependsOn": []
+      "dependsOn": [
+        "^build"
+      ]
     },
     "dev-vite": {
       "executor": "nx:run-commands",
@@ -29,7 +31,9 @@
         "command": "bun run dev:vite"
       },
       "cache": false,
-      "dependsOn": []
+      "dependsOn": [
+        "^build"
+      ]
     },
     "build": {
       "executor": "nx:run-commands",
@@ -123,7 +127,7 @@
       "executor": "nx:run-commands",
       "options": {
         "cwd": "product/apps/osu-skin-workbench",
-        "command": "bun run verify && bun run cargo:check"
+        "command": "bun run verify && bun run cargo:check && bun run cargo:clippy"
       },
       "outputs": [
         "{projectRoot}/src-tauri/target",

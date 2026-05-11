@@ -62,6 +62,16 @@
       "outputs": [
         "{projectRoot}/dist"
       ]
+    },
+    "verify": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/packages/ui",
+        "command": "bun run check"
+      },
+      "outputs": [
+        "{projectRoot}/dist"
+      ]
     }
   }
 }
