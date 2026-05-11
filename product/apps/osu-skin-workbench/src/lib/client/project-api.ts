@@ -1,14 +1,11 @@
 "use client";
 
-import { convertFileSrc, invoke } from "@tauri-apps/api/core";
-import { open } from "@tauri-apps/plugin-dialog";
-
-import { classifySkinFiles } from "@tenzyu/osu-skin-core/lib/classification/skin-classifier";
-import { parseSkinIniContext } from "@tenzyu/osu-skin-core/lib/classification/skin-ini-context";
-import { buildAssetMatrix } from "@tenzyu/osu-skin-core/lib/project/asset-matrix-builder";
-import { rowSeedsFromClassificationRules } from "@tenzyu/osu-skin-core/lib/project/asset-matrix-seeds";
-import { buildAssetTree } from "@tenzyu/osu-skin-core/lib/project/asset-tree-builder";
-import { toAssetMatrixDto, toAssetTreeDto } from "@tenzyu/osu-skin-core/lib/shared/asset-dto";
+import { classifySkinFiles } from "@tenzyu/osu-skin-core/classification";
+import { parseSkinIniContext } from "@tenzyu/osu-skin-core/classification";
+import { buildAssetMatrix } from "@tenzyu/osu-skin-core/project";
+import { rowSeedsFromClassificationRules } from "@tenzyu/osu-skin-core/project";
+import { buildAssetTree } from "@tenzyu/osu-skin-core/project";
+import { toAssetMatrixDto, toAssetTreeDto } from "@tenzyu/osu-skin-core/contract";
 import type {
   AssetMutationResult,
   ExportPreset,
@@ -16,8 +13,25 @@ import type {
   ProjectFilesResponse,
   ProjectManifest,
   RebuildStructuredResult,
-} from "@tenzyu/osu-skin-core/lib/shared/project-contract";
-import type { ClassifiedSkinAsset } from "@tenzyu/osu-skin-core/lib/domain/skin-asset";
+} from "@tenzyu/osu-skin-core/contract";
+import type { ClassifiedSkinAsset } from "@tenzyu/osu-skin-core/domain";
+import { chooseSkinFilePath, chooseSkinFolderPath } from "../tauri/file-dialog.adapter";
+import {
+  desktopFileSrc,
+  invokeAddProjectSource,
+  invokeApplyAssetGroup,
+  invokeCreateProject,
+  invokeDeleteAssetGroup,
+  invokeDeleteProject,
+  invokeDeleteProjectSource,
+  invokeExportProject,
+  invokeGetProjectFiles,
+  invokeOpenPath,
+  invokeRebuildStructuredMirrors,
+  invokeRenameProject,
+  invokeRenameProjectSource,
+  listProjectManifests,
+} from "../tauri/project-command.adapter";
 
 type RawFileEntry = {
   relativePath: string;
@@ -50,56 +64,38 @@ function isTauriRuntime(): boolean {
 }
 
 function fileSrc(fullPath: string): string {
-  return convertFileSrc(fullPath);
+  return desktopFileSrc(fullPath);
 }
 
 export async function chooseSkinPath(): Promise<string | null> {
-  const selected = await open({
-    title: "Choose osu! skin .osk or extracted skin folder",
-    directory: false,
-    multiple: false,
-    filters: [
-      { name: "osu! skin", extensions: ["osk"] },
-      { name: "All files", extensions: ["*"] },
-    ],
-  });
-
-  if (Array.isArray(selected)) return selected[0] ?? null;
-  return selected ?? null;
+  return chooseSkinFilePath();
 }
 
 async function chooseSkinDirectory(): Promise<string | null> {
-  const selected = await open({
-    title: "Choose extracted osu! skin folder",
-    directory: true,
-    multiple: false,
-  });
-
-  if (Array.isArray(selected)) return selected[0] ?? null;
-  return selected ?? null;
+  return chooseSkinFolderPath();
 }
 
 export async function fetchProjects(): Promise<ProjectManifest[]> {
-  return await invoke<ProjectManifest[]>("list_projects");
+  return await listProjectManifests();
 }
 
 export async function createProject(input: {
   sourcePath: string;
   name?: string;
 }): Promise<ProjectManifest> {
-  return await invoke<ProjectManifest>("create_project", { input });
+  return await invokeCreateProject(input);
 }
 
 export async function renameProject(projectId: string, name: string): Promise<ProjectManifest> {
-  return await invoke<ProjectManifest>("rename_project", { projectId, name });
+  return await invokeRenameProject(projectId, name);
 }
 
 export async function deleteProject(projectId: string): Promise<void> {
-  await invoke<void>("delete_project", { projectId });
+  await invokeDeleteProject(projectId);
 }
 
 export async function fetchProjectFiles(projectId: string): Promise<ProjectFilesResponse> {
-  const raw = await invoke<RawProjectFilesResponse>("get_project_files", { projectId });
+  const raw = await invokeGetProjectFiles<RawProjectFilesResponse>(projectId);
   const projectContext = raw.projectSkinIni ? parseSkinIniContext(raw.projectSkinIni) : undefined;
   const project = classifySkinFiles(
     raw.project.map((file) => ({
@@ -159,7 +155,7 @@ export async function addProjectSource(input: {
   sourcePath: string;
   name?: string;
 }): Promise<ProjectManifest> {
-  return await invoke<ProjectManifest>("add_project_source", { input });
+  return await invokeAddProjectSource(input);
 }
 
 export async function renameProjectSource(input: {
@@ -167,25 +163,25 @@ export async function renameProjectSource(input: {
   sourceId: string;
   name: string;
 }): Promise<ProjectManifest> {
-  return await invoke<ProjectManifest>("rename_project_source", { input });
+  return await invokeRenameProjectSource(input);
 }
 
 export async function deleteProjectSource(input: {
   projectId: string;
   sourceId: string;
 }): Promise<ProjectManifest> {
-  return await invoke<ProjectManifest>("delete_project_source", { input });
+  return await invokeDeleteProjectSource(input);
 }
 
 export async function exportProject(input: {
   projectId: string;
   preset: ExportPreset;
 }): Promise<ExportResult> {
-  return await invoke<ExportResult>("export_project", { input });
+  return await invokeExportProject(input);
 }
 
 export async function rebuildStructuredMirrors(projectId: string): Promise<RebuildStructuredResult> {
-  return await invoke<RebuildStructuredResult>("rebuild_structured_mirrors", { projectId });
+  return await invokeRebuildStructuredMirrors(projectId);
 }
 
 export async function applyAssetGroup(input: {
@@ -194,16 +190,16 @@ export async function applyAssetGroup(input: {
   sourcePaths: string[];
   replaceProjectPaths: string[];
 }): Promise<AssetMutationResult> {
-  return await invoke<AssetMutationResult>("apply_asset_group", { input });
+  return await invokeApplyAssetGroup(input);
 }
 
 export async function deleteAssetGroup(input: {
   projectId: string;
   projectPaths: string[];
 }): Promise<AssetMutationResult> {
-  return await invoke<AssetMutationResult>("delete_asset_group", { input });
+  return await invokeDeleteAssetGroup(input);
 }
 
 async function openPath(path: string): Promise<void> {
-  await invoke<void>("open_path", { path });
+  await invokeOpenPath(path);
 }

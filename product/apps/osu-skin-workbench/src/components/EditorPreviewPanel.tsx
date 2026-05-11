@@ -10,7 +10,7 @@ import { Badge } from "@tenzyu/ui/badge";
 import { Button } from "@tenzyu/ui/button";
 
 
-import type { AssetMatrixRow } from "@tenzyu/osu-skin-core/lib/project/asset-matrix-builder";
+import type { AssetMatrixRow } from "@tenzyu/osu-skin-core/project";
 
 type Props = {
   rows: AssetMatrixRow[];

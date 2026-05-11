@@ -9,7 +9,7 @@ import {
   fetchProjects,
   renameProject,
 } from "../lib/client/project-api";
-import type { ProjectManifest } from "@tenzyu/osu-skin-core/lib/shared/project-contract";
+import type { ProjectManifest } from "@tenzyu/osu-skin-core/contract";
 import { Badge } from "@tenzyu/ui/badge";
 import { Button } from "@tenzyu/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@tenzyu/ui/card";

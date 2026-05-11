@@ -5,7 +5,7 @@ import { Button } from "@tenzyu/ui/button";
 import { Card } from "@tenzyu/ui/card";
 import { Checkbox } from "@tenzyu/ui/checkbox";
 
-import type { AssetMatrixCell, AssetMatrixRow } from "@tenzyu/osu-skin-core/lib/project/asset-matrix-builder";
+import type { AssetMatrixCell, AssetMatrixRow } from "@tenzyu/osu-skin-core/project";
 import { AssetPreview } from "./AssetPreview";
 
 type Props = {

@@ -1,8 +1,8 @@
 "use client";
 
 
-import type { AssetMatrix } from "@tenzyu/osu-skin-core/lib/project/asset-matrix-builder";
-import type { ProjectManifest } from "@tenzyu/osu-skin-core/lib/shared/project-contract";
+import type { AssetMatrix } from "@tenzyu/osu-skin-core/project";
+import type { ProjectManifest } from "@tenzyu/osu-skin-core/contract";
 import { Badge } from "@tenzyu/ui/badge";
 import { Button } from "@tenzyu/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@tenzyu/ui/card";

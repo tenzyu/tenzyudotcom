@@ -4,7 +4,7 @@ import { Button } from "@tenzyu/ui/button";
 import { Badge } from '@tenzyu/ui/badge'
 import { Card } from "@tenzyu/ui/card";
 
-import type { AssetMatrixCell, AssetMatrixRow } from "@tenzyu/osu-skin-core/lib/project/asset-matrix-builder";
+import type { AssetMatrixCell, AssetMatrixRow } from "@tenzyu/osu-skin-core/project";
 import { AssetPreview, type AssetPreviewSide } from "./AssetPreview";
 
 type Props = {

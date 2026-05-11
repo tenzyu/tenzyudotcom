@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import type { AssetMatrix } from "@tenzyu/osu-skin-core/lib/project/asset-matrix-builder";
+import type { AssetMatrix } from "@tenzyu/osu-skin-core/project";
 
 export function useAssetMatrixNavigation(matrix: AssetMatrix) {
   const [activeScope, setActiveScope] = useState("std");

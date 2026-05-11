@@ -6,11 +6,11 @@ import type {
   AssetMatrix,
   AssetMatrixCell,
   AssetMatrixRow,
-} from "@tenzyu/osu-skin-core/lib/project/asset-matrix-builder";
+} from "@tenzyu/osu-skin-core/project";
 import {
   filterAssetRows,
   type RequiredLevelFilter,
-} from "@tenzyu/osu-skin-core/lib/project/asset-row-filter";
+} from "@tenzyu/osu-skin-core/project";
 import { CompareAssetCard } from "./CompareAssetCard";
 import { EditorPreviewPanel } from "./EditorPreviewPanel";
 import { Badge } from "@tenzyu/ui/badge";

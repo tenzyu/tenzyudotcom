@@ -13,7 +13,7 @@ import {
   exportProject,
   rebuildStructuredMirrors,
 } from "../lib/client/project-api";
-import type { ExportPreset } from "@tenzyu/osu-skin-core/lib/shared/project-contract";
+import type { ExportPreset } from "@tenzyu/osu-skin-core/contract";
 import { useAssetMatrixNavigation } from "../hooks/useAssetMatrixNavigation";
 import { useAssetSourceActions } from "../hooks/useAssetSourceActions";
 import { useProjectFiles } from "../hooks/useProjectFiles";
