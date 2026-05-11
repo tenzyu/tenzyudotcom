@@ -2,7 +2,7 @@
   description = "tenzyu.com monorepo";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/master";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
     serena.url = "github:oraios/serena";
   };
