@@ -20,9 +20,7 @@
         "command": "bun run dev"
       },
       "cache": false,
-      "dependsOn": [
-        "^build"
-      ]
+      "dependsOn": []
     },
     "dev-vite": {
       "executor": "nx:run-commands",
@@ -31,9 +29,7 @@
         "command": "bun run dev:vite"
       },
       "cache": false,
-      "dependsOn": [
-        "^build"
-      ]
+      "dependsOn": []
     },
     "build": {
       "executor": "nx:run-commands",
@@ -76,6 +72,40 @@
         "command": "bun run test"
       }
     },
+    "cargo-check": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/osu-skin-workbench",
+        "command": "bun run cargo:check"
+      },
+      "outputs": [
+        "{projectRoot}/src-tauri/target"
+      ]
+    },
+    "cargo-clippy": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/osu-skin-workbench",
+        "command": "bun run cargo:clippy"
+      },
+      "outputs": [
+        "{projectRoot}/src-tauri/target"
+      ]
+    },
+    "tauri-build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/osu-skin-workbench",
+        "command": "bun run tauri:build"
+      },
+      "outputs": [
+        "{projectRoot}/src-tauri/target",
+        "{projectRoot}/dist"
+      ],
+      "dependsOn": [
+        "^build"
+      ]
+    },
     "check": {
       "executor": "nx:run-commands",
       "options": {
@@ -83,7 +113,6 @@
         "command": "bun run check"
       },
       "outputs": [
-        "{projectRoot}/src-tauri/target",
         "{projectRoot}/dist"
       ],
       "dependsOn": [
@@ -94,7 +123,7 @@
       "executor": "nx:run-commands",
       "options": {
         "cwd": "product/apps/osu-skin-workbench",
-        "command": "bun run verify"
+        "command": "bun run verify && bun run cargo:check"
       },
       "outputs": [
         "{projectRoot}/src-tauri/target",

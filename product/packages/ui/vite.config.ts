@@ -26,6 +26,7 @@ const entries = {
   index: join(packageRoot, 'src/index.ts'),
   cn: join(packageRoot, 'src/lib/cn.ts'),
   foundations: join(packageRoot, 'src/tokens/foundations.ts'),
+  ...entriesFromDir('advanced/', 'src/advanced'),
   ...entriesFromDir('', 'src/components/ui'),
   ...entriesFromDir('', 'src/components/site'),
 }
@@ -54,13 +55,21 @@ const external = [
   /^zod($|\/)/,
 ]
 
-function flatDtsFilePath(filePath: string) {
+function flatDtsFile(filePath: string, content: string) {
   const relativePath = relative(distRoot, filePath).replaceAll('\\', '/')
   const componentMatch = relativePath.match(/^components\/(?:ui|site)\/(.+)\.d\.ts$/)
-  if (componentMatch) return join(distRoot, `${componentMatch[1]}.d.ts`)
-  if (relativePath === 'lib/cn.d.ts') return join(distRoot, 'cn.d.ts')
-  if (relativePath === 'tokens/foundations.d.ts') return join(distRoot, 'foundations.d.ts')
-  if (relativePath === 'index.d.ts') return filePath
+  if (componentMatch) return { filePath: join(distRoot, `${componentMatch[1]}.d.ts`), content }
+  if (/^advanced\/.+\.d\.ts$/.test(relativePath)) {
+    return {
+      filePath,
+      content: content.replaceAll('../components/ui/', '../'),
+    }
+  }
+  if (relativePath === 'lib/cn.d.ts') return { filePath: join(distRoot, 'cn.d.ts'), content }
+  if (relativePath === 'tokens/foundations.d.ts') {
+    return { filePath: join(distRoot, 'foundations.d.ts'), content }
+  }
+  if (relativePath === 'index.d.ts') return { filePath, content }
   return false
 }
 
@@ -72,9 +81,7 @@ export default defineConfig({
       entryRoot: 'src',
       outDirs: 'dist',
       beforeWriteFile(filePath, content) {
-        const nextFilePath = flatDtsFilePath(filePath)
-        if (!nextFilePath) return false
-        return { filePath: nextFilePath, content }
+        return flatDtsFile(filePath, content)
       },
     }),
   ],

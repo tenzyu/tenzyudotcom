@@ -6,22 +6,36 @@
   "sideEffects": false,
   "exports": {
     ".": {
-      "types": "./src/index.ts",
-      "import": "./src/index.ts"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
     },
-    "./lib/*": {
-      "types": "./src/lib/*.ts",
-      "import": "./src/lib/*.ts"
+    "./classification": {
+      "types": "./dist/classification.d.ts",
+      "import": "./dist/classification.js"
+    },
+    "./contract": {
+      "types": "./dist/contract.d.ts",
+      "import": "./dist/contract.js"
+    },
+    "./domain": {
+      "types": "./dist/domain.d.ts",
+      "import": "./dist/domain.js"
+    },
+    "./project": {
+      "types": "./dist/project.d.ts",
+      "import": "./dist/project.js"
     }
   },
   "scripts": {
+    "build": "rm -rf dist && tsc -p tsconfig.build.json",
+    "package-smoke": "bun scripts/package-smoke.ts",
     "typecheck": "tsc --noEmit",
     "test": "bun test tests",
-    "check:browser-boundary": "bash -lc \"! grep -RInE 'from [\\\"'\\'' ]node:|import .*node:' src\"",
-    "check": "bun run typecheck && bun run test && bun run check:browser-boundary"
+    "check:browser-boundary": "bun scripts/check-browser-boundary.ts",
+    "check": "bun run typecheck && bun run test && bun run check:browser-boundary && bun run build && bun run package-smoke"
   },
   "devDependencies": {
     "@types/bun": "^1.3.13",
-    "typescript": "^5.7.2"
+    "typescript": "^5.9.3"
   }
 }

@@ -2,7 +2,7 @@
 
 ## Import policy
 
-This package intentionally exposes flat component subpaths instead of a root barrel.
+Use flat component subpaths for normal UI:
 
 ```ts
 import { Button } from "@tenzyu/ui/button";
@@ -10,36 +10,26 @@ import { Card, CardContent } from "@tenzyu/ui/card";
 import { Dialog, DialogContent } from "@tenzyu/ui/dialog";
 ```
 
-Load the shared CSS explicitly:
+The root export is intentionally curated and contains only lightweight,
+cross-runtime components. Heavy or environment-sensitive components are exposed
+through `advanced/*`:
+
+```ts
+import { Carousel } from "@tenzyu/ui/advanced/carousel";
+import { Toaster } from "@tenzyu/ui/advanced/sonner";
+```
+
+Load shared CSS explicitly from applications:
 
 ```ts
 import "@tenzyu/ui/styles.css";
+import "@tenzyu/ui/workbench.css";
 ```
 
-## Public exports
+## Dependency contract
 
-The package uses a wildcard export boundary:
+React is a peer dependency. Advanced components use optional peer dependencies
+so applications only need to install the heavy packages they import.
 
-```json
-{
-  "./styles.css": "./dist/styles.css",
-  "./*": {
-    "types": "./dist/*.d.ts",
-    "import": "./dist/*.js"
-  }
-}
-```
-
-`@tenzyu/ui/button` resolves to `dist/button.js` and `dist/button.d.ts`.
-The source tree does not need flat entry files; the build generates flat public entries from `src/components/ui/*`, `src/components/site/*`, `src/lib/cn.ts`, and `src/tokens/foundations.ts`.
-
-## Non-goals
-
-The package no longer emits or exposes these public entries:
-
-- `@tenzyu/ui`
-- `@tenzyu/ui/web`
-- `@tenzyu/ui/advanced`
-- `@tenzyu/ui/browser`
-
-This keeps the public API explicit at the component level while avoiding an exploding `exports` field.
+The package build keeps those optional peers in `devDependencies` to make
+typecheck, package smoke tests, and declaration generation deterministic.

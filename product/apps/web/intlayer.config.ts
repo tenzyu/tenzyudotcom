@@ -1,8 +1,7 @@
-import type { IntlayerConfig } from 'intlayer'
-import {
-  intlayer_defaultLocale,
-  intlayer_locales,
-} from './src/lib/intlayer/locales'
+import { Locales, type IntlayerConfig } from 'intlayer'
+
+const intlayer_locales: Locales.Locales[] = [Locales.JAPANESE, Locales.ENGLISH]
+const intlayer_defaultLocale = Locales.JAPANESE
 
 const config: IntlayerConfig = {
   internationalization: {
@@ -21,8 +20,8 @@ const config: IntlayerConfig = {
   },
   editor: {
     applicationURL: 'http://localhost:3000',
-    liveSync: true
-  }
+    liveSync: true,
+  },
 }
 
 export default config

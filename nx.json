@@ -17,9 +17,17 @@
       "!{projectRoot}/README.md"
     ],
     "sharedGlobals": [
+      "{workspaceRoot}/bun.lock",
+      "{workspaceRoot}/flake.lock",
       "{workspaceRoot}/package.json",
       "{workspaceRoot}/nx.json",
-      "{workspaceRoot}/tsconfig.json"
+      "{workspaceRoot}/tsconfig.base.json",
+      "{workspaceRoot}/tsconfig.bun.json",
+      "{workspaceRoot}/tsconfig.json",
+      "{workspaceRoot}/tsconfig.next.json",
+      "{workspaceRoot}/tsconfig.react-lib.json",
+      "{workspaceRoot}/tsconfig.vite.json",
+      "{workspaceRoot}/product/apps/osu-skin-workbench/src-tauri/Cargo.lock"
     ]
   },
   "targetDefaults": {

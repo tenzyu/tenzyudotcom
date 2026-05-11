@@ -33,6 +33,16 @@
         "command": "bun run typecheck"
       }
     },
+    "package-smoke": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/packages/ui",
+        "command": "bun run build && bun run package-smoke"
+      },
+      "outputs": [
+        "{projectRoot}/dist"
+      ]
+    },
     "prepack": {
       "executor": "nx:run-commands",
       "options": {
@@ -47,7 +57,7 @@
       "executor": "nx:run-commands",
       "options": {
         "cwd": "product/packages/ui",
-        "command": "bun run typecheck && bun run build"
+        "command": "bun run check"
       },
       "outputs": [
         "{projectRoot}/dist"

@@ -1,17 +1,18 @@
 {
-  "name": "linter",
+  "name": "osu-skin-core",
   "projectType": "library",
-  "root": "product/packages/linter",
-  "sourceRoot": "product/packages/linter/src",
+  "root": "product/packages/osu-skin-core",
+  "sourceRoot": "product/packages/osu-skin-core/src",
   "tags": [
-    "scope:tooling",
-    "type:cli"
+    "scope:osu-skin",
+    "type:library",
+    "runtime:pure"
   ],
   "targets": {
     "build": {
       "executor": "nx:run-commands",
       "options": {
-        "cwd": "product/packages/linter",
+        "cwd": "product/packages/osu-skin-core",
         "command": "bun run build"
       },
       "outputs": [
@@ -21,30 +22,36 @@
     "typecheck": {
       "executor": "nx:run-commands",
       "options": {
-        "cwd": "product/packages/linter",
+        "cwd": "product/packages/osu-skin-core",
         "command": "bun run typecheck"
       }
     },
     "test": {
       "executor": "nx:run-commands",
       "options": {
-        "cwd": "product/packages/linter",
+        "cwd": "product/packages/osu-skin-core",
         "command": "bun run test"
       }
     },
-    "lint-rules": {
+    "package-smoke": {
       "executor": "nx:run-commands",
       "options": {
-        "cwd": "product/packages/linter",
-        "command": "bun run lint -- --project-root ../.. workspace-boundaries"
-      }
+        "cwd": "product/packages/osu-skin-core",
+        "command": "bun run build && bun run package-smoke"
+      },
+      "outputs": [
+        "{projectRoot}/dist"
+      ]
     },
     "check": {
       "executor": "nx:run-commands",
       "options": {
-        "cwd": "product/packages/linter",
+        "cwd": "product/packages/osu-skin-core",
         "command": "bun run check"
-      }
+      },
+      "outputs": [
+        "{projectRoot}/dist"
+      ]
     }
   }
 }

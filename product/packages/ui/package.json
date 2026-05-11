@@ -16,6 +16,11 @@
     "./styles.css": "./dist/styles.css",
     "./workbench.css": "./dist/workbench.css",
     "./package.json": "./package.json",
+    "./advanced/*": {
+      "types": "./dist/advanced/*.d.ts",
+      "import": "./dist/advanced/*.js",
+      "default": "./dist/advanced/*.js"
+    },
     "./*": {
       "types": "./dist/*.d.ts",
       "import": "./dist/*.js",
@@ -23,15 +28,61 @@
     }
   },
   "peerDependencies": {
-    "react": "*",
-    "react-dom": "*"
+    "@base-ui/react": "^1.0.0",
+    "cmdk": "^1.1.1",
+    "embla-carousel-react": "^8.6.0",
+    "input-otp": "^1.4.2",
+    "next-themes": "^0.4.6",
+    "react": ">=19 <20",
+    "react-day-picker": "^9.12.0",
+    "react-dom": ">=19 <20",
+    "react-hook-form": "^7.68.0",
+    "react-resizable-panels": "^4.0.9",
+    "recharts": "^3.5.1",
+    "sonner": "^2.0.7",
+    "vaul": "^1.1.2"
+  },
+  "peerDependenciesMeta": {
+    "@base-ui/react": {
+      "optional": true
+    },
+    "cmdk": {
+      "optional": true
+    },
+    "embla-carousel-react": {
+      "optional": true
+    },
+    "input-otp": {
+      "optional": true
+    },
+    "next-themes": {
+      "optional": true
+    },
+    "react-day-picker": {
+      "optional": true
+    },
+    "react-hook-form": {
+      "optional": true
+    },
+    "react-resizable-panels": {
+      "optional": true
+    },
+    "recharts": {
+      "optional": true
+    },
+    "sonner": {
+      "optional": true
+    },
+    "vaul": {
+      "optional": true
+    }
   },
   "dependencies": {
-    "class-variance-authority": "*",
-    "clsx": "*",
-    "lucide-react": "*",
-    "radix-ui": "*",
-    "tailwind-merge": "*"
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.577.0",
+    "radix-ui": "^1.4.3",
+    "tailwind-merge": "^3.5.0"
   },
   "files": [
     "dist",
@@ -40,13 +91,28 @@
   "scripts": {
     "clean": "rm -rf dist",
     "build": "bun run clean && vite build && bun scripts/build-css.mjs",
-    "typecheck": "vite:typecheck",
+    "package-smoke": "bun scripts/package-smoke.ts",
+    "typecheck": "tsc --noEmit",
+    "check": "bun run typecheck && bun run build && bun run package-smoke",
     "prepack": "bun run build"
   },
   "devDependencies": {
-    "@types/react": "*",
-    "@types/react-dom": "*",
-    "typescript": "^6.0.3",
+    "@base-ui/react": "^1.0.0",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "cmdk": "^1.1.1",
+    "embla-carousel-react": "^8.6.0",
+    "input-otp": "^1.4.2",
+    "next-themes": "^0.4.6",
+    "react": "19.2.4",
+    "react-day-picker": "^9.12.0",
+    "react-dom": "19.2.4",
+    "react-hook-form": "^7.68.0",
+    "react-resizable-panels": "^4.0.9",
+    "recharts": "^3.5.1",
+    "sonner": "^2.0.7",
+    "typescript": "^5.9.3",
+    "vaul": "^1.1.2",
     "@vitejs/plugin-react": "^6.0.1",
     "vite": "^8.0.11",
     "vite-plugin-dts": "^5.0.0",
