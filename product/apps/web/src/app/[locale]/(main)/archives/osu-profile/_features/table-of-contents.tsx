@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Content } from '@tenzyu/ui/content'
+import { Content } from '@/components/site/content'
 import { Card, CardContent, CardHeader, CardTitle } from '@tenzyu/ui/card'
 
 export type TocSection = {

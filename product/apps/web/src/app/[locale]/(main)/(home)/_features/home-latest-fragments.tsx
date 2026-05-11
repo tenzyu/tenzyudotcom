@@ -2,8 +2,8 @@ import { getLocalizedUrl } from 'intlayer'
 import { ArrowRight, FileText, MessageSquareText, Sparkles } from 'lucide-react'
 import Link from 'next/link'
 import { useIntlayer } from 'next-intlayer/server'
-import { Content } from '@tenzyu/ui/content'
-import { SectionHeader } from '@tenzyu/ui/section-header'
+import { Content } from '@/components/site/content'
+import { SectionHeader } from '@/components/site/section-header'
 import { Button } from '@tenzyu/ui/button'
 import {
   Card,

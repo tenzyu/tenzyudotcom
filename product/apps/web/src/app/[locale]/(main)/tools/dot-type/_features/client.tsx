@@ -1,7 +1,7 @@
 'use client'
 
 import { useIntlayer } from 'next-intlayer'
-import { Content } from '@tenzyu/ui/content'
+import { Content } from '@/components/site/content'
 import {
   Card,
   CardContent,

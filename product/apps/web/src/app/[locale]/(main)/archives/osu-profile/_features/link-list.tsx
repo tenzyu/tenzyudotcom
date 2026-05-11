@@ -2,8 +2,8 @@ import { getLocalizedUrl } from 'intlayer'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useIntlayer, useLocale } from 'next-intlayer/server'
-import { Content } from '@tenzyu/ui/content'
-import { SectionHeader } from '@tenzyu/ui/section-header'
+import { Content } from '@/components/site/content'
+import { SectionHeader } from '@/components/site/section-header'
 import {
   Item,
   ItemContent,

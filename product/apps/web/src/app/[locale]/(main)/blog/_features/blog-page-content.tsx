@@ -2,7 +2,7 @@ import { getLocalizedUrl } from 'intlayer'
 import { Pencil } from 'lucide-react'
 import { useIntlayer } from 'next-intlayer/server'
 import Link from 'next/link'
-import { PageHeader } from '@tenzyu/ui/page-header'
+import { PageHeader } from '@/components/site/page-header'
 import {
   Pagination,
   PaginationContent,
@@ -14,7 +14,7 @@ import {
 import { BlogTile } from './blog-tile'
 import type { BlogListItem } from './blog.assemble'
 import { AdminGate } from '@/app/[locale]/(main)/_features/admin/admin-gate'
-import { Content } from '@tenzyu/ui/content'
+import { Content } from '@/components/site/content'
 import { Button } from '@tenzyu/ui/button'
 
 type BlogPageContentProps = {

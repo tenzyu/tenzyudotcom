@@ -1,6 +1,6 @@
 import { useIntlayer } from 'next-intlayer/server'
 
-import { Content } from '@tenzyu/ui/content'
+import { Content } from '@/components/site/content'
 import { Table, TableBody, TableCell, TableRow } from '@tenzyu/ui/table'
 import { cn } from '@tenzyu/ui/cn'
 

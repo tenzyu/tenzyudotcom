@@ -14,8 +14,8 @@ import {
 import Link from 'next/link'
 import { useIntlayer, useLocale } from 'next-intlayer/server'
 import type { ReactNode } from 'react'
-import { Content } from '@tenzyu/ui/content'
-import { SectionHeader } from '@tenzyu/ui/section-header'
+import { Content } from '@/components/site/content'
+import { SectionHeader } from '@/components/site/section-header'
 import { Card, CardContent } from '@tenzyu/ui/card'
 import {
   PUBLIC_ROUTE_GROUPS,

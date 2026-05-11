@@ -1,12 +1,12 @@
 import { useIntlayer } from 'next-intlayer/server'
-import { Content } from '@tenzyu/ui/content'
+import { Content } from '@/components/site/content'
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-} from '@tenzyu/ui/advanced/carousel'
+} from '@tenzyu/ui/carousel'
 import { Dialog, DialogTrigger } from '@tenzyu/ui/dialog'
 import { YouTubeDialogContent } from '@/app/[locale]/(main)/_features/youtube/youtube-dialog-content'
 import { YouTubeThumbnailImage } from '@/app/[locale]/(main)/_features/youtube/youtube-thumbnail-image'

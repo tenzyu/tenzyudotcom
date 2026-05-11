@@ -1,6 +1,6 @@
 import { useIntlayer, useLocale } from 'next-intlayer/server'
-import { PageHeader } from '@tenzyu/ui/page-header'
-import { SectionHeader } from '@tenzyu/ui/section-header'
+import { PageHeader } from '@/components/site/page-header'
+import { SectionHeader } from '@/components/site/section-header'
 import { TabsContent } from '@tenzyu/ui/tabs'
 import { AdminGate } from '@/app/[locale]/(main)/_features/admin/admin-gate'
 import { ExternalLink } from '@/app/[locale]/_features/external-link'

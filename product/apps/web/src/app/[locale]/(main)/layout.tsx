@@ -1,6 +1,6 @@
-import { SkipLink } from '@tenzyu/ui/skip-link'
-import { Stack } from '@tenzyu/ui/stack'
-import { Content } from '@tenzyu/ui/content'
+import { SkipLink } from '@/components/site/skip-link'
+import { Stack } from '@/components/site/stack'
+import { Content } from '@/components/site/content'
 
 export default function MainLayout({
   children,

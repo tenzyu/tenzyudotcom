@@ -1,6 +1,6 @@
 import { useIntlayer, useLocale } from 'next-intlayer/server'
-import { PageHeader } from '@tenzyu/ui/page-header'
-import { SectionHeader } from '@tenzyu/ui/section-header'
+import { PageHeader } from '@/components/site/page-header'
+import { SectionHeader } from '@/components/site/section-header'
 import {
   Empty,
   EmptyDescription,

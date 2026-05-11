@@ -2,8 +2,8 @@ import { getLocalizedUrl } from 'intlayer'
 import { FolderArchive } from 'lucide-react'
 import Link from 'next/link'
 import { useIntlayer } from 'next-intlayer/server'
-import { Content } from '@tenzyu/ui/content'
-import { PageHeader } from '@tenzyu/ui/page-header'
+import { Content } from '@/components/site/content'
+import { PageHeader } from '@/components/site/page-header'
 import { Card, CardContent } from '@tenzyu/ui/card'
 
 export function ArchivesPageContent({ locale }: { locale: string }) {
