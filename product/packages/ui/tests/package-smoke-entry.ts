@@ -1,10 +1,9 @@
 import "@tenzyu/ui/styles.css";
-import "@tenzyu/ui/workbench.css";
 
 import { Button } from "@tenzyu/ui/button";
 import { Card } from "@tenzyu/ui/card";
-import { Carousel } from "@tenzyu/ui/advanced/carousel";
-import { Toaster } from "@tenzyu/ui/advanced/sonner";
+import { Carousel } from "@tenzyu/ui/carousel";
+import { Toaster } from "@tenzyu/ui/sonner";
 
 export const smoke = {
   Button,
@@ -12,3 +11,7 @@ export const smoke = {
   Carousel,
   Toaster,
 };
+
+
+import { uiVariantPolicy } from "@tenzyu/ui/variant-policy";
+export const policy = uiVariantPolicy;

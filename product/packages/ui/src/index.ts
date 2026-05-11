@@ -1,20 +1,8 @@
 /*
  * @tenzyu/ui
  *
- * Root export is intentionally curated and cross-runtime safe.
- *
- * Do not export heavy or environment-sensitive modules from here:
- * - chart / recharts
- * - calendar / react-day-picker / date-fns
- * - command / combobox / cmdk
- * - form / react-hook-form / zod
- * - drawer / vaul
- * - carousel / embla
- * - sonner / next-themes
- * - sidebar or application-specific shells
- *
- * Those stay available from flat subpaths and the `@tenzyu/ui/advanced/*`
- * namespace.
+ * Cross-runtime React primitive UI, design tokens, and browser/WebView
+ * normalization. Product-specific site/workbench layouts live in their owning apps.
  */
 
 export * from "./components/ui/accordion";
@@ -57,16 +45,9 @@ export * from "./components/ui/toggle";
 export * from "./components/ui/toggle-group";
 export * from "./components/ui/tooltip";
 
-export * from "./components/site/cluster";
-export * from "./components/site/content";
-export * from "./components/site/grid";
-export * from "./components/site/heading";
-export * from "./components/site/link";
-export * from "./components/site/page-header";
-export * from "./components/site/section-header";
-export * from "./components/site/skip-link";
-export * from "./components/site/stack";
-export * from "./components/site/surface";
-export * from "./components/site/text";
 
 export * from "./lib/cn";
+
+
+export * from "./tokens/foundations";
+export * from "./tokens/variant-policy";

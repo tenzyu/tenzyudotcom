@@ -6,8 +6,8 @@ import tailwindcss from '@tailwindcss/postcss'
 
 const packageRoot = dirname(dirname(fileURLToPath(import.meta.url)))
 const cssEntries = [
+  ['src/normalize.css', 'dist/normalize.css'],
   ['src/styles.css', 'dist/styles.css'],
-  ['src/workbench.css', 'dist/workbench.css'],
 ]
 
 await mkdir(join(packageRoot, 'dist'), { recursive: true })
@@ -24,3 +24,4 @@ for (const [input, output] of cssEntries) {
     await writeFile(`${to}.map`, result.map.toString())
   }
 }
+

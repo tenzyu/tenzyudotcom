@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "sideEffects": [
-    "./dist/styles.css",
-    "./dist/workbench.css"
+    "./dist/normalize.css",
+    "./dist/styles.css"
   ],
   "exports": {
     ".": {
@@ -14,13 +14,7 @@
       "default": "./dist/index.js"
     },
     "./styles.css": "./dist/styles.css",
-    "./workbench.css": "./dist/workbench.css",
     "./package.json": "./package.json",
-    "./advanced/*": {
-      "types": "./dist/advanced/*.d.ts",
-      "import": "./dist/advanced/*.js",
-      "default": "./dist/advanced/*.js"
-    },
     "./*": {
       "types": "./dist/*.d.ts",
       "import": "./dist/*.js",
@@ -93,8 +87,11 @@
     "build": "bun run clean && vite build && bun scripts/build-css.mjs",
     "package-smoke": "bun scripts/package-smoke.ts",
     "typecheck": "tsc --noEmit",
-    "check": "bun run typecheck && bun run build && bun run package-smoke",
-    "prepack": "bun run build"
+    "check": "bun run typecheck && bun run check:boundaries && bun run build && bun run package-smoke",
+    "prepack": "bun run build",
+    "storybook": "storybook dev -p 6006",
+    "build:storybook": "storybook build",
+    "check:boundaries": "bun scripts/check-boundaries.ts"
   },
   "devDependencies": {
     "@base-ui/react": "^1.0.0",
@@ -117,6 +114,9 @@
     "vite": "^8.0.11",
     "vite-plugin-dts": "^5.0.0",
     "@tailwindcss/postcss": "^4.2.1",
-    "postcss": "^8.5.6"
+    "postcss": "^8.5.6",
+    "@storybook/addon-a11y": "^10.0.0",
+    "@storybook/react-vite": "^10.0.0",
+    "storybook": "^10.0.0"
   }
 }

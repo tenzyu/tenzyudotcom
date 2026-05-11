@@ -33,16 +33,6 @@ async function assertWildcardExports() {
     throw new Error(`missing declaration files for JS exports: ${missingTypes.join(", ")}`);
   }
 
-  const advancedRoot = join(distRoot, "advanced");
-  const advancedFiles = existsSync(advancedRoot) ? await readdir(advancedRoot) : [];
-  const missingAdvancedTypes = advancedFiles
-    .filter((fileName) => fileName.endsWith(".js"))
-    .map((fileName) => fileName.replace(/\.js$/, ".d.ts"))
-    .filter((typeFileName) => !existsSync(join(advancedRoot, typeFileName)));
-
-  if (missingAdvancedTypes.length > 0) {
-    throw new Error(`missing declaration files for advanced exports: ${missingAdvancedTypes.join(", ")}`);
-  }
 }
 
 for (const [subpath, target] of Object.entries(packageJson.exports)) {
@@ -72,3 +62,4 @@ if (!result.success) {
   }
   process.exit(1);
 }
+

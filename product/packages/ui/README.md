@@ -1,35 +1,22 @@
-# @tenzyu/ui package boundary
+# @tenzyu/ui
 
-## Import policy
+`@tenzyu/ui` is the cross-runtime React UI package for tenzyudotcom.
 
-Use flat component subpaths for normal UI:
+It owns:
 
-```ts
-import { Button } from "@tenzyu/ui/button";
-import { Card, CardContent } from "@tenzyu/ui/card";
-import { Dialog, DialogContent } from "@tenzyu/ui/dialog";
-```
+- design tokens and CSS variables
+- browser/WebView normalization
+- primitive React UI components
+- Storybook catalog for primitive UI quality checks
+- variant vocabulary and accessibility-oriented component policy
 
-The root export is intentionally curated and contains only lightweight,
-cross-runtime components. Heavy or environment-sensitive components are exposed
-through `advanced/*`:
+It does not own:
 
-```ts
-import { Carousel } from "@tenzyu/ui/advanced/carousel";
-import { Toaster } from "@tenzyu/ui/advanced/sonner";
-```
+- web page layout
+- workbench application layout
+- route-specific classes
+- app-specific animation
+- one-off product overrides
+- Next.js, Tauri, or domain-specific behavior
 
-Load shared CSS explicitly from applications:
-
-```ts
-import "@tenzyu/ui/styles.css";
-import "@tenzyu/ui/workbench.css";
-```
-
-## Dependency contract
-
-React is a peer dependency. Advanced components use optional peer dependencies
-so applications only need to install the heavy packages they import.
-
-The package build keeps those optional peers in `devDependencies` to make
-typecheck, package smoke tests, and declaration generation deterministic.
+Product-specific layout belongs to the product that uses it. For example, site layout components live under `product/apps/web/src/components/site`, and workbench runtime layout CSS lives under `product/apps/osu-skin-workbench/src/workbench.css`.
