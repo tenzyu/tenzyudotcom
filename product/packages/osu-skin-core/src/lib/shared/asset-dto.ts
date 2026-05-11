@@ -2,11 +2,13 @@ import type { ClassifiedSkinAsset } from "../domain/skin-asset";
 import type { AssetMatrix } from "../project/asset-matrix-builder";
 import type { AssetTree } from "../project/asset-tree-builder";
 
-export type SkinAssetDto = ClassifiedSkinAsset;
+export type WebSafeSkinAssetDto = ClassifiedSkinAsset;
+export type DesktopSkinAssetDto = ClassifiedSkinAsset;
+export type SkinAssetDto = WebSafeSkinAssetDto;
 export type AssetMatrixDto = AssetMatrix;
 export type AssetTreeDto = AssetTree;
 
-export function toSkinAssetDto(asset: ClassifiedSkinAsset): SkinAssetDto {
+export function toWebSafeSkinAssetDto(asset: ClassifiedSkinAsset): WebSafeSkinAssetDto {
   return {
     ...asset,
     file: {
@@ -17,7 +19,21 @@ export function toSkinAssetDto(asset: ClassifiedSkinAsset): SkinAssetDto {
   };
 }
 
-export function toAssetTreeDto(tree: AssetTree): AssetTreeDto {
+export function toDesktopSkinAssetDto(asset: ClassifiedSkinAsset): DesktopSkinAssetDto {
+  return {
+    ...asset,
+    file: {
+      ...asset.file,
+    },
+  };
+}
+
+export const toSkinAssetDto = toWebSafeSkinAssetDto;
+
+export function toAssetTreeDto(
+  tree: AssetTree,
+  toAssetDto: (asset: ClassifiedSkinAsset) => ClassifiedSkinAsset = toWebSafeSkinAssetDto,
+): AssetTreeDto {
   return {
     ...tree,
     scopes: tree.scopes.map((scope) => ({
@@ -26,14 +42,17 @@ export function toAssetTreeDto(tree: AssetTree): AssetTreeDto {
         ...category,
         groups: category.groups.map((group) => ({
           ...group,
-          files: group.files.map(toSkinAssetDto),
+          files: group.files.map(toAssetDto),
         })),
       })),
     })),
   };
 }
 
-export function toAssetMatrixDto(matrix: AssetMatrix): AssetMatrixDto {
+export function toAssetMatrixDto(
+  matrix: AssetMatrix,
+  toAssetDto: (asset: ClassifiedSkinAsset) => ClassifiedSkinAsset = toWebSafeSkinAssetDto,
+): AssetMatrixDto {
   return {
     ...matrix,
     rows: matrix.rows.map((row) => ({
@@ -43,7 +62,7 @@ export function toAssetMatrixDto(matrix: AssetMatrix): AssetMatrixDto {
           columnId,
           {
             ...cell,
-            assets: cell.assets.map(toSkinAssetDto),
+            assets: cell.assets.map(toAssetDto),
           },
         ]),
       ),
@@ -51,3 +70,10 @@ export function toAssetMatrixDto(matrix: AssetMatrix): AssetMatrixDto {
   };
 }
 
+export function toDesktopAssetTreeDto(tree: AssetTree): AssetTreeDto {
+  return toAssetTreeDto(tree, toDesktopSkinAssetDto);
+}
+
+export function toDesktopAssetMatrixDto(matrix: AssetMatrix): AssetMatrixDto {
+  return toAssetMatrixDto(matrix, toDesktopSkinAssetDto);
+}

@@ -1,4 +1,9 @@
-import type { AssetMatrixDto, AssetTreeDto, SkinAssetDto } from "./asset-dto";
+import type {
+  AssetMatrixDto,
+  AssetTreeDto,
+  DesktopSkinAssetDto,
+  SkinAssetDto,
+} from "./asset-dto";
 
 export type SourceManifest = {
   id: string;
@@ -21,6 +26,13 @@ export type ProjectFilesResponse = {
   project: SkinAssetDto[];
   projectTree: AssetTreeDto;
   sources: Array<SourceManifest & { assets: SkinAssetDto[]; tree: AssetTreeDto }>;
+  matrix: AssetMatrixDto;
+};
+
+export type DesktopProjectFilesResponse = {
+  project: DesktopSkinAssetDto[];
+  projectTree: AssetTreeDto;
+  sources: Array<SourceManifest & { assets: DesktopSkinAssetDto[]; tree: AssetTreeDto }>;
   matrix: AssetMatrixDto;
 };
 
@@ -74,4 +86,3 @@ export type AssetMutationResult = {
 export type RouteContext<T extends Record<string, string>> = {
   params: Promise<T>;
 };
-
