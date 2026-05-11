@@ -37,6 +37,9 @@ jobs:
       - name: Dependency policy
         run: bun run policy:deps
 
+      - name: Workspace boundary policy
+        run: bun run verify:workspace
+
       - name: Affected checks
         run: bun nx affected -t check --base=origin/main --head=HEAD
 
