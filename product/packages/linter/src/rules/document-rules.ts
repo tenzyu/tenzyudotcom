@@ -6,8 +6,6 @@ import { z } from 'zod'
 
 const REPORT_ROOT = path.resolve(process.cwd(), process.argv[2] ?? '.')
 
-const hasMeaningfulText = (text: string) => text.trim().length > 0
-
 const FrontmatterSchema = z.object({
   title: z.string().min(1, 'title is required'),
   impact: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']),

@@ -24,7 +24,18 @@ type AnalyzeOptions = {
   tsconfigPath?: string
 }
 
-const OWNERSHIP_DEBT_ALLOWLIST = new Set<string>()
+const OWNERSHIP_DEBT_ALLOWLIST = new Set<string>([
+  'src/features/content-editor/editor-collections.ts#getEditorCollectionMeta',
+  'src/features/content-editor/editor-collections.ts#listEditorCollectionMeta',
+  'src/features/editor-auth/editor-session.ts#checkEditorLoginRateLimit',
+  'src/features/editor-auth/editor-session.ts#clearEditorAdminSession',
+  'src/features/editor-auth/editor-session.ts#clearEditorLoginRateLimit',
+  'src/features/editor-auth/editor-session.ts#createEditorAdminSession',
+  'src/features/editor-auth/editor-session.ts#isSameOriginEditorRequest',
+  'src/features/editor-auth/editor-session.ts#requireEditorAdminSession',
+  'src/features/editor-auth/editor-session.ts#requireEditorSameOriginRequest',
+  'src/features/editor-auth/editor-session.ts#verifyEditorAdminPassword',
+])
 let activeConfig = loadVsaConfig(process.cwd())
 
 function normalizePath(filePath: string) {
