@@ -28,3 +28,8 @@ export {
   formatServerActionGuardIssue,
   type ServerActionGuardIssue,
 } from './rules/server-action-guards'
+export {
+  analyzeWorkspaceBoundaries,
+  formatWorkspaceBoundaryIssue,
+  type WorkspaceBoundaryIssue,
+} from './rules/workspace-boundaries'

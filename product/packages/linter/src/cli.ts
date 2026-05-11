@@ -7,6 +7,7 @@ import {
   analyzePureReexports,
   analyzeRestrictedImportUsage,
   analyzeServerActionGuards,
+  analyzeWorkspaceBoundaries,
   analyzeSymbolOwnership,
   formatForbiddenFileIssue,
   formatImportBoundaryIssue,
@@ -14,6 +15,7 @@ import {
   formatPureReexportIssue,
   formatRestrictedImportUsageIssue,
   formatServerActionGuardIssue,
+  formatWorkspaceBoundaryIssue,
 } from './index'
 
 const DEFAULT_RULES = [
@@ -23,6 +25,7 @@ const DEFAULT_RULES = [
   'server-action-guards',
   'restricted-import-usage',
   'forbidden-files',
+  'workspace-boundaries',
 ] as const
 
 const OPTIONAL_RULES = ['rules'] as const
@@ -160,6 +163,17 @@ export async function runCli(argv: readonly string[]) {
         hasIssues = true
         for (const issue of issues) {
           console.error(formatForbiddenFileIssue(issue))
+        }
+      }
+      continue
+    }
+
+    if (rule === 'workspace-boundaries') {
+      const issues = analyzeWorkspaceBoundaries({ projectRoot: options.projectRoot })
+      if (issues.length > 0) {
+        hasIssues = true
+        for (const issue of issues) {
+          console.error(formatWorkspaceBoundaryIssue(issue))
         }
       }
       continue
