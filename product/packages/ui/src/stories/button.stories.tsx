@@ -20,8 +20,8 @@ const meta = {
   },
   args: {
     children: "Button",
-    variant: "solid",
-    size: "md",
+    variant: "default",
+    size: "default",
   },
 } satisfies Meta<typeof Button>;
 
