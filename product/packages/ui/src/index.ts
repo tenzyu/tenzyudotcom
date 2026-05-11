@@ -13,8 +13,8 @@
  * - sonner / next-themes
  * - sidebar or application-specific shells
  *
- * Those stay available from subpaths or grouped barrels such as
- * `@tenzyu/ui/web` and `@tenzyu/ui/advanced`.
+ * Those stay available from flat subpaths and the `@tenzyu/ui/advanced/*`
+ * namespace.
  */
 
 export * from "./components/ui/accordion";
