@@ -119,3 +119,27 @@ pub(crate) fn entity_id(prefix: &str) -> String {
         uuid::Uuid::new_v4().simple()
     )
 }
+
+#[cfg(test)]
+mod tests {
+    use super::{ensure_safe_relative, normalize_relative_path, slugify};
+    use std::path::Path;
+
+    #[test]
+    fn rejects_absolute_and_parent_relative_paths() {
+        assert!(ensure_safe_relative("/tmp/skin.png").is_err());
+        assert!(ensure_safe_relative("../skin.png").is_err());
+        assert!(ensure_safe_relative("nested/../../skin.png").is_err());
+    }
+
+    #[test]
+    fn accepts_nested_relative_paths() {
+        assert!(ensure_safe_relative("hitcircles/default-0.png").is_ok());
+    }
+
+    #[test]
+    fn normalizes_and_slugifies_project_paths() {
+        assert_eq!(normalize_relative_path(Path::new("a/b/c.png")), "a/b/c.png");
+        assert_eq!(slugify("My Skin! 2026"), "my-skin-2026");
+    }
+}

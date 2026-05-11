@@ -1,18 +1,14 @@
 "use client";
 
 import type { AssetMatrixCell, AssetMatrixRow } from "@tenzyu/osu-skin-core/project";
-
-export type AssetPreviewSide = "project" | "source";
+import { desktopFileSrc } from "../lib/tauri/project-command.adapter";
 
 type Props = {
-  projectId: string | null;
-  sourceId: string | null;
-  side: AssetPreviewSide;
   row: AssetMatrixRow;
   cell: AssetMatrixCell;
 };
 
-export function AssetPreview({ projectId, sourceId, side, row, cell }: Props) {
+export function AssetPreview({ row, cell }: Props) {
   if (cell.missing) {
     return <div className="miniPreview missingPreview">missing</div>;
   }
@@ -22,10 +18,14 @@ export function AssetPreview({ projectId, sourceId, side, row, cell }: Props) {
   const extension = fileName.split(".").pop()?.toLowerCase() ?? "";
 
   if (["png", "jpg", "jpeg", "webp", "gif"].includes(extension)) {
-    const src = buildPreviewUrl({ projectId, sourceId, side, fileName });
+    const fullPath = firstAsset?.file.fullPath;
     return (
       <div className="miniPreview imagePreview">
-        <img src={src} alt={fileName} loading="lazy" />
+        {fullPath ? (
+          <img src={desktopFileSrc(fullPath)} alt={fileName} loading="lazy" />
+        ) : (
+          <span>no preview</span>
+        )}
       </div>
     );
   }
@@ -39,13 +39,4 @@ export function AssetPreview({ projectId, sourceId, side, row, cell }: Props) {
   }
 
   return <div className="miniPreview filePreview">{extension || row.kind}</div>;
-}
-
-function buildPreviewUrl(input: { projectId: string | null; sourceId: string | null; side: AssetPreviewSide; fileName: string }) {
-  const params = new URLSearchParams();
-  if (input.projectId) params.set("projectId", input.projectId);
-  if (input.sourceId) params.set("sourceId", input.sourceId);
-  params.set("side", input.side);
-  params.set("file", input.fileName);
-  return `/asset-preview?${params.toString()}`;
 }

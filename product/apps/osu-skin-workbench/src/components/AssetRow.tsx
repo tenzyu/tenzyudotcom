@@ -5,20 +5,20 @@ import { Badge } from '@tenzyu/ui/badge'
 import { Card } from "@tenzyu/ui/card";
 
 import type { AssetMatrixCell, AssetMatrixRow } from "@tenzyu/osu-skin-core/project";
-import { AssetPreview, type AssetPreviewSide } from "./AssetPreview";
+import { AssetPreview } from "./AssetPreview";
+
+export type AssetPreviewSide = "project" | "source";
 
 type Props = {
-  projectId: string | null;
   row: AssetMatrixRow;
   cell: AssetMatrixCell;
   side: AssetPreviewSide;
-  sourceId: string | null;
   onCopy?: () => void;
   onDelete?: () => void;
   onRestore?: () => void;
 };
 
-export function AssetRow({ projectId, row, cell, side, sourceId, onCopy, onDelete, onRestore }: Props) {
+export function AssetRow({ row, cell, side, onCopy, onDelete, onRestore }: Props) {
   return (
     <Card
       variant="soft"
@@ -29,7 +29,7 @@ export function AssetRow({ projectId, row, cell, side, sourceId, onCopy, onDelet
         row.lazerMeaningful ? "" : " legacy",
       ].join("")}
     >
-      <AssetPreview projectId={projectId} sourceId={sourceId} side={side} row={row} cell={cell} />
+      <AssetPreview row={row} cell={cell} />
 
       <div className="assetRowText">
         <strong>{row.groupLabel}</strong>

@@ -22,7 +22,6 @@ import { Label } from "@tenzyu/ui/label";
 import { NativeSelect } from "@tenzyu/ui/native-select";
 
 type Props = {
-  projectId: string | null;
   matrix: AssetMatrix;
   selectedSourceId: string;
   scope: string;
@@ -43,7 +42,6 @@ type Props = {
 };
 
 type SourceCell = {
-  sourceId: string | null;
   cell: AssetMatrixCell;
 };
 
@@ -236,11 +234,9 @@ export function EditView(props: Props) {
                 return (
                   <CompareAssetCard
                     key={row.rowKey}
-                    projectId={props.projectId}
                     row={row}
                     projectCell={row.cells.project}
                     sourceCell={sourceCell.cell}
-                    sourceId={sourceCell.sourceId}
                     selected={selectedRows.has(row.rowKey)}
                     onToggle={() => toggleRow(row.rowKey)}
                     onCopy={() =>
@@ -276,10 +272,10 @@ export function EditView(props: Props) {
 }
 
 function sourceCellFor(row: AssetMatrixRow, sourceId: string | undefined): SourceCell {
-  if (!sourceId) return { sourceId: null, cell: emptyCell() };
+  if (!sourceId) return { cell: emptyCell() };
 
   const cells = row.cells as Record<string, AssetMatrixCell>;
-  return { sourceId, cell: cells[sourceId] ?? emptyCell() };
+  return { cell: cells[sourceId] ?? emptyCell() };
 }
 
 function emptyCell(): AssetMatrixCell {

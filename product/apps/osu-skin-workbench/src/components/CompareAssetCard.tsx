@@ -9,11 +9,9 @@ import type { AssetMatrixCell, AssetMatrixRow } from "@tenzyu/osu-skin-core/proj
 import { AssetPreview } from "./AssetPreview";
 
 type Props = {
-  projectId: string | null;
   row: AssetMatrixRow;
   projectCell: AssetMatrixCell;
   sourceCell: AssetMatrixCell;
-  sourceId: string | null;
   selected: boolean;
   onToggle: () => void;
   onCopy: () => void;
@@ -22,11 +20,9 @@ type Props = {
 };
 
 export function CompareAssetCard({
-  projectId,
   row,
   projectCell,
   sourceCell,
-  sourceId,
   selected,
   onToggle,
   onCopy,
@@ -48,12 +44,12 @@ export function CompareAssetCard({
       </div>
 
       <div className="comparePreview projectPreview">
-        <AssetPreview projectId={projectId} sourceId={null} side="project" row={row} cell={projectCell} />
+        <AssetPreview row={row} cell={projectCell} />
         <PreviewMeta label="Project" cell={projectCell} />
       </div>
 
       <div className="comparePreview sourcePreview">
-        <AssetPreview projectId={projectId} sourceId={sourceId} side="source" row={row} cell={sourceCell} />
+        <AssetPreview row={row} cell={sourceCell} />
         <PreviewMeta label="Source" cell={sourceCell} />
       </div>
 

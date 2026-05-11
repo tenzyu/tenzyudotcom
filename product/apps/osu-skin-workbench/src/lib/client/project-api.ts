@@ -5,19 +5,21 @@ import { parseSkinIniContext } from "@tenzyu/osu-skin-core/classification";
 import { buildAssetMatrix } from "@tenzyu/osu-skin-core/project";
 import { rowSeedsFromClassificationRules } from "@tenzyu/osu-skin-core/project";
 import { buildAssetTree } from "@tenzyu/osu-skin-core/project";
-import { toAssetMatrixDto, toAssetTreeDto } from "@tenzyu/osu-skin-core/contract";
+import {
+  toDesktopAssetMatrixDto,
+  toDesktopAssetTreeDto,
+  toDesktopSkinAssetDto,
+} from "@tenzyu/osu-skin-core/contract";
 import type {
   AssetMutationResult,
+  DesktopProjectFilesResponse,
   ExportPreset,
   ExportResult,
-  ProjectFilesResponse,
   ProjectManifest,
   RebuildStructuredResult,
 } from "@tenzyu/osu-skin-core/contract";
-import type { ClassifiedSkinAsset } from "@tenzyu/osu-skin-core/domain";
 import { chooseSkinFilePath, chooseSkinFolderPath } from "../tauri/file-dialog.adapter";
 import {
-  desktopFileSrc,
   invokeAddProjectSource,
   invokeApplyAssetGroup,
   invokeCreateProject,
@@ -26,7 +28,6 @@ import {
   invokeDeleteProjectSource,
   invokeExportProject,
   invokeGetProjectFiles,
-  invokeOpenPath,
   invokeRebuildStructuredMirrors,
   invokeRenameProject,
   invokeRenameProjectSource,
@@ -54,25 +55,16 @@ type RawProjectFilesResponse = {
   sources: RawSourceFiles[];
 };
 
-function toDesktopAssetDto(asset: ClassifiedSkinAsset): ClassifiedSkinAsset {
-  // Desktop-only app: keep fullPath so the Tauri WebView can preview files through convertFileSrc().
-  return asset;
-}
-
-function isTauriRuntime(): boolean {
-  return typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
-}
-
-function fileSrc(fullPath: string): string {
-  return desktopFileSrc(fullPath);
-}
-
-export async function chooseSkinPath(): Promise<string | null> {
+export async function chooseSkinFile(): Promise<string | null> {
   return chooseSkinFilePath();
 }
 
-async function chooseSkinDirectory(): Promise<string | null> {
+export async function chooseSkinDirectory(): Promise<string | null> {
   return chooseSkinFolderPath();
+}
+
+export async function chooseSkinPath(): Promise<string | null> {
+  return chooseSkinFile();
 }
 
 export async function fetchProjects(): Promise<ProjectManifest[]> {
@@ -94,7 +86,7 @@ export async function deleteProject(projectId: string): Promise<void> {
   await invokeDeleteProject(projectId);
 }
 
-export async function fetchProjectFiles(projectId: string): Promise<ProjectFilesResponse> {
+export async function fetchProjectFiles(projectId: string): Promise<DesktopProjectFilesResponse> {
   const raw = await invokeGetProjectFiles<RawProjectFilesResponse>(projectId);
   const projectContext = raw.projectSkinIni ? parseSkinIniContext(raw.projectSkinIni) : undefined;
   const project = classifySkinFiles(
@@ -139,14 +131,14 @@ export async function fetchProjectFiles(projectId: string): Promise<ProjectFiles
   });
 
   return {
-    project: project.map(toDesktopAssetDto),
-    projectTree: toAssetTreeDto(buildAssetTree(project)),
+    project: project.map(toDesktopSkinAssetDto),
+    projectTree: toDesktopAssetTreeDto(buildAssetTree(project)),
     sources: sources.map((source) => ({
       ...source,
-      assets: source.assets.map(toDesktopAssetDto),
-      tree: toAssetTreeDto(source.tree),
+      assets: source.assets.map(toDesktopSkinAssetDto),
+      tree: toDesktopAssetTreeDto(source.tree),
     })),
-    matrix: toAssetMatrixDto(matrix),
+    matrix: toDesktopAssetMatrixDto(matrix),
   };
 }
 
@@ -198,8 +190,4 @@ export async function deleteAssetGroup(input: {
   projectPaths: string[];
 }): Promise<AssetMutationResult> {
   return await invokeDeleteAssetGroup(input);
-}
-
-async function openPath(path: string): Promise<void> {
-  await invokeOpenPath(path);
 }

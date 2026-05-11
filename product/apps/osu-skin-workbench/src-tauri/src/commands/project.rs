@@ -14,9 +14,23 @@ use crate::infra::manifest::{
     ensure_main_source, main_source_manifest, read_manifest, write_manifest,
 };
 use crate::infra::paths::{
-    entity_id, now, project_dir, project_raw_dir, project_structured_dir, projects_root,
-    source_dir, source_raw_dir, source_structured_dir,
+    entity_id, now, project_dir, project_raw_dir, project_structured_dir, projects_root, source_dir,
+    source_raw_dir, source_structured_dir,
 };
+
+fn staged_source_dir(source_dir: &std::path::Path) -> Result<std::path::PathBuf, String> {
+    let parent = source_dir
+        .parent()
+        .ok_or_else(|| format!("source directory has no parent: {}", source_dir.display()))?;
+    let name = source_dir
+        .file_name()
+        .and_then(|value| value.to_str())
+        .ok_or_else(|| format!("source directory has no name: {}", source_dir.display()))?;
+    Ok(parent.join(format!(
+        "{name}.delete-{}",
+        uuid::Uuid::new_v4().simple()
+    )))
+}
 
 #[tauri::command]
 pub(crate) fn health_check() -> &'static str {
@@ -183,18 +197,27 @@ pub(crate) fn delete_project_source(
         .sources
         .iter()
         .find(|source| source.id == input.source_id)
+        .cloned()
         .ok_or_else(|| format!("unknown source: {}", input.source_id))?;
     if source.readonly.unwrap_or(false) {
         return Err("main source cannot be deleted".into());
     }
+    let dir = source_dir(&app, &input.project_id, &input.source_id)?;
+    let staged_dir = staged_source_dir(&dir)?;
+    if dir.exists() {
+        fs::rename(&dir, &staged_dir)
+            .map_err(|error| format!("failed to stage source deletion: {error}"))?;
+    }
     manifest
         .sources
         .retain(|source| source.id != input.source_id);
-    let dir = source_dir(&app, &input.project_id, &input.source_id)?;
-    if dir.exists() {
-        fs::remove_dir_all(dir).map_err(|error| format!("failed to delete source: {error}"))?;
+    if let Err(error) = write_manifest(&app, &mut manifest) {
+        if staged_dir.exists() {
+            let _ = fs::rename(&staged_dir, &dir);
+        }
+        return Err(error);
     }
-    write_manifest(&app, &mut manifest)?;
+    let _ = fs::remove_dir_all(staged_dir);
     Ok(manifest)
 }
 

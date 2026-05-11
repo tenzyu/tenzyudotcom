@@ -86,6 +86,14 @@ export async function invokeDeleteAssetGroup(input: {
   return await invoke<AssetMutationResult>("delete_asset_group", { input });
 }
 
-export async function invokeOpenPath(path: string): Promise<void> {
-  await invoke<void>("open_path", { path });
+export async function invokeOpenProjectDir(projectId: string): Promise<void> {
+  await invoke<void>("open_project_dir", { projectId });
+}
+
+export async function invokeOpenExportDir(projectId: string): Promise<void> {
+  await invoke<void>("open_export_dir", { projectId });
+}
+
+export async function invokeOpenExportFile(projectId: string, fileName: string): Promise<void> {
+  await invoke<void>("open_export_file", { projectId, fileName });
 }

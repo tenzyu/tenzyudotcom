@@ -20,7 +20,9 @@ pub fn run() {
             commands::assets::apply_asset_group,
             commands::assets::delete_asset_group,
             commands::export::export_project,
-            commands::system::open_path,
+            commands::system::open_project_dir,
+            commands::system::open_export_dir,
+            commands::system::open_export_file,
         ])
         .run(tauri::generate_context!())
         .expect("error while running osu! Skin Workbench");

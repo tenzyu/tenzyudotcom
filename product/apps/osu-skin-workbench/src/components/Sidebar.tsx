@@ -25,11 +25,13 @@ type Props = {
   activeCategory: string;
   onProjectName: (value: string) => void;
   onMainPath: (value: string) => void;
-  onChooseMainPath: () => void;
+  onChooseMainFile: () => void;
+  onChooseMainDirectory: () => void;
   onImportMain: () => void;
   onAssetName: (value: string) => void;
   onAssetPath: (value: string) => void;
-  onChooseAssetPath: () => void;
+  onChooseAssetFile: () => void;
+  onChooseAssetDirectory: () => void;
   onImportAsset: () => void;
   onProjectSelect: (projectId: string) => void;
   onSourceRename: (sourceId: string, name: string) => void;
@@ -105,8 +107,11 @@ export function Sidebar(props: Props) {
           </div>
 
           <div className="buttonRow verticalButtons">
-            <Button type="button" variant="soft" onClick={props.onChooseMainPath} disabled={props.loading}>
-              Choose .osk / folder
+            <Button type="button" variant="soft" onClick={props.onChooseMainFile} disabled={props.loading}>
+              Choose .osk
+            </Button>
+            <Button type="button" variant="soft" onClick={props.onChooseMainDirectory} disabled={props.loading}>
+              Choose folder
             </Button>
             <Button type="button" onClick={props.onImportMain} disabled={props.loading || !props.mainPath.trim()}>
               Import main skin
@@ -144,8 +149,11 @@ export function Sidebar(props: Props) {
           </div>
 
           <div className="buttonRow verticalButtons">
-            <Button type="button" variant="soft" onClick={props.onChooseAssetPath} disabled={props.loading || !props.project}>
-              Choose source
+            <Button type="button" variant="soft" onClick={props.onChooseAssetFile} disabled={props.loading || !props.project}>
+              Choose .osk
+            </Button>
+            <Button type="button" variant="soft" onClick={props.onChooseAssetDirectory} disabled={props.loading || !props.project}>
+              Choose folder
             </Button>
             <Button type="button" onClick={props.onImportAsset} disabled={props.loading || !props.project || !props.assetPath.trim()}>
               Add asset source

@@ -3,7 +3,8 @@
 
 import { useEffect, useState } from "react";
 import {
-  chooseSkinPath,
+  chooseSkinDirectory,
+  chooseSkinFile,
   createProject,
   deleteProject,
   fetchProjects,
@@ -73,12 +74,12 @@ export function ProjectHubClient({ onOpenProject }: Props) {
     }
   }
 
-  async function chooseMainSkin() {
+  async function chooseMainSkin(kind: "file" | "directory") {
     setLoading(true);
     setError(null);
 
     try {
-      const selected = await chooseSkinPath();
+      const selected = kind === "directory" ? await chooseSkinDirectory() : await chooseSkinFile();
       if (selected) setSourcePath(selected);
       setStatus(selected ? "Selected main skin path." : "File picker was cancelled or unavailable.");
     } catch (unknownError) {
@@ -175,8 +176,11 @@ export function ProjectHubClient({ onOpenProject }: Props) {
             </div>
 
             <div className="buttonRow">
-              <Button type="button" variant="soft" onClick={chooseMainSkin} disabled={loading}>
-                Choose .osk / folder
+              <Button type="button" variant="soft" onClick={() => void chooseMainSkin("file")} disabled={loading}>
+                Choose .osk
+              </Button>
+              <Button type="button" variant="soft" onClick={() => void chooseMainSkin("directory")} disabled={loading}>
+                Choose folder
               </Button>
               <Button type="button" onClick={importProject} disabled={loading || !sourcePath.trim()}>
                 Import main skin

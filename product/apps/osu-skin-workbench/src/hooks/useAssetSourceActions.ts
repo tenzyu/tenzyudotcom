@@ -2,7 +2,8 @@
 
 import {
   addProjectSource,
-  chooseSkinPath,
+  chooseSkinDirectory,
+  chooseSkinFile,
   deleteProjectSource,
   renameProjectSource,
 } from "../lib/client/project-api";
@@ -49,12 +50,12 @@ export function useAssetSourceActions(input: {
     }
   }
 
-  async function chooseSourcePath(): Promise<string | null> {
+  async function chooseSourcePath(kind: "file" | "directory" = "file"): Promise<string | null> {
     input.setLoading(true);
     input.setError(null);
 
     try {
-      const selected = await chooseSkinPath();
+      const selected = kind === "directory" ? await chooseSkinDirectory() : await chooseSkinFile();
       input.setStatus(selected ? "Selected asset source path." : "File picker was cancelled or unavailable.");
       return selected;
     } catch (err) {

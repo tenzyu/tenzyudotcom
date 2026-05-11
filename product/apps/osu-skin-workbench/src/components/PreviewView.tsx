@@ -69,11 +69,9 @@ export function PreviewView({ matrix, scope, category }: Props) {
         {rows.slice(0, 120).map((row) => (
           <AssetRow
             key={row.rowKey}
-            projectId={null}
             row={row}
             cell={row.cells.project}
             side="project"
-            sourceId={null}
           />
         ))}
 

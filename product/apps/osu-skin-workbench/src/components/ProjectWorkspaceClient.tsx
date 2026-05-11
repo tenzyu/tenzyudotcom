@@ -7,7 +7,8 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import {
   applyAssetGroup,
-  chooseSkinPath,
+  chooseSkinDirectory,
+  chooseSkinFile,
   createProject,
   deleteAssetGroup,
   exportProject,
@@ -18,6 +19,7 @@ import { useAssetMatrixNavigation } from "../hooks/useAssetMatrixNavigation";
 import { useAssetSourceActions } from "../hooks/useAssetSourceActions";
 import { useProjectFiles } from "../hooks/useProjectFiles";
 import { useProjects } from "../hooks/useProjects";
+import { countSourceFiles } from "../lib/client/project-file-count";
 import { EditView } from "./EditView";
 import { PreviewView } from "./PreviewView";
 import { Sidebar } from "./Sidebar";
@@ -100,12 +102,12 @@ export function ProjectWorkspaceClient({ initialProjectId, onBackToHub }: Props)
     }
   }
 
-  async function chooseMainPath() {
+  async function chooseMainPath(kind: "file" | "directory") {
     setLoading(true);
     setError(null);
 
     try {
-      const selected = await chooseSkinPath();
+      const selected = kind === "directory" ? await chooseSkinDirectory() : await chooseSkinFile();
       if (selected) setMainPath(selected);
       setStatus(selected ? "Selected main skin path." : "File picker was cancelled.");
     } catch (unknownError) {
@@ -115,8 +117,8 @@ export function ProjectWorkspaceClient({ initialProjectId, onBackToHub }: Props)
     }
   }
 
-  async function chooseAssetPath() {
-    const selected = await sourceActions.chooseSourcePath();
+  async function chooseAssetPath(kind: "file" | "directory") {
+    const selected = await sourceActions.chooseSourcePath(kind);
     if (selected) setAssetPath(selected);
   }
 
@@ -224,11 +226,13 @@ export function ProjectWorkspaceClient({ initialProjectId, onBackToHub }: Props)
           activeCategory={navigation.activeCategory}
           onProjectName={setProjectName}
           onMainPath={setMainPath}
-          onChooseMainPath={() => void chooseMainPath()}
+          onChooseMainFile={() => void chooseMainPath("file")}
+          onChooseMainDirectory={() => void chooseMainPath("directory")}
           onImportMain={() => void importMain()}
           onAssetName={setAssetName}
           onAssetPath={setAssetPath}
-          onChooseAssetPath={() => void chooseAssetPath()}
+          onChooseAssetFile={() => void chooseAssetPath("file")}
+          onChooseAssetDirectory={() => void chooseAssetPath("directory")}
           onImportAsset={() => void addSource()}
           onProjectSelect={(projectId) => void selectProject(projectId)}
           onSourceRename={(sourceId, name) => void sourceActions.renameSource(sourceId, name)}
@@ -288,7 +292,6 @@ export function ProjectWorkspaceClient({ initialProjectId, onBackToHub }: Props)
 
         {view === "edit" ? (
           <EditView
-            projectId={projectsState.project?.id ?? null}
             matrix={matrix}
             selectedSourceId={navigation.selectedSourceId}
             scope={navigation.activeScope}
@@ -309,30 +312,4 @@ export function ProjectWorkspaceClient({ initialProjectId, onBackToHub }: Props)
       </section>
     </main>
   );
-}
-
-function countSourceFiles(files: unknown): number {
-  const sourceFiles = (files as { sources?: unknown })?.sources;
-
-  if (Array.isArray(sourceFiles)) {
-    return sourceFiles.reduce((sum, entry) => {
-      if (Array.isArray(entry)) return sum + entry.length;
-      if (entry && typeof entry === "object" && Array.isArray((entry as { files?: unknown[] }).files)) {
-        return sum + ((entry as { files: unknown[] }).files.length ?? 0);
-      }
-      return sum;
-    }, 0);
-  }
-
-  if (sourceFiles && typeof sourceFiles === "object") {
-    return Object.values(sourceFiles as Record<string, unknown>).reduce<number>((sum, entry) => {
-      if (Array.isArray(entry)) return sum + entry.length;
-      if (entry && typeof entry === "object" && Array.isArray((entry as { files?: unknown[] }).files)) {
-        return sum + ((entry as { files: unknown[] }).files.length ?? 0);
-      }
-      return sum;
-    }, 0);
-  }
-
-  return 0;
 }
