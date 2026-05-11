@@ -18,7 +18,7 @@ import {
 } from '@tenzyu/ui/select'
 import { Switch } from '@tenzyu/ui/switch'
 import { Textarea } from '@tenzyu/ui/textarea'
-import { cn } from '@/lib/utils/common'
+import { cn } from '@tenzyu/ui/cn'
 import {
   loadEditorCollection,
   saveEditorCollection,

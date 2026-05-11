@@ -1,6 +1,6 @@
 import { useIntlayer } from 'next-intlayer/server'
-import { Content } from '@/app/[locale]/_features/content'
-import { PageHeader } from '@/app/[locale]/_features/page-header'
+import { Content } from '@tenzyu/ui/content'
+import { PageHeader } from '@tenzyu/ui/page-header'
 import { Button } from '@tenzyu/ui/button'
 import { EDITOR_ADMIN_LOCALE } from './editor-admin.constants'
 import { loginEditorAdminAction } from './actions'

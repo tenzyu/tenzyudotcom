@@ -2,7 +2,7 @@ import { useIntlayer } from 'next-intlayer/server'
 import type { ReactNode } from 'react'
 
 import { Card, CardContent, CardTitle } from '@tenzyu/ui/card'
-import { cn } from '@/lib/utils/common'
+import { cn } from '@tenzyu/ui/cn'
 
 type SettingsCardProps = {
   title: string

@@ -1,16 +1,16 @@
 import { useIntlayer } from 'next-intlayer/server'
-import { Content } from '@/app/[locale]/_features/content'
+import { Content } from '@tenzyu/ui/content'
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-} from '@tenzyu/ui/carousel'
+} from '@tenzyu/ui/advanced/carousel'
 import { Dialog, DialogTrigger } from '@tenzyu/ui/dialog'
 import { YouTubeDialogContent } from '@/app/[locale]/(main)/_features/youtube/youtube-dialog-content'
 import { YouTubeThumbnailImage } from '@/app/[locale]/(main)/_features/youtube/youtube-thumbnail-image'
-import { cn } from '@/lib/utils/common'
+import { cn } from '@tenzyu/ui/cn'
 
 type YouTubeVideo = {
   id: string

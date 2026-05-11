@@ -1,5 +1,8 @@
 import { type NextRequest, NextResponse } from 'next/server'
-import { hasEditorAdminSession } from '@/app/[locale]/(admin)/editor/_features/editor-session'
+import {
+  hasEditorAdminSession,
+  isSameOriginEditorRequest,
+} from '@/app/[locale]/(admin)/editor/_features/editor-session'
 import {
   makeLoadEditorCollectionUseCase,
   makeSaveEditorCollectionUseCase,
@@ -37,6 +40,10 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ collection: string }> }
 ) {
+  if (!isSameOriginEditorRequest(request)) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
+
   const isAdmin = await hasEditorAdminSession()
   if (!isAdmin) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })

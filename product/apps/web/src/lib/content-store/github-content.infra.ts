@@ -1,6 +1,7 @@
 import { unstable_cache } from 'next/cache'
 import { env } from '@/config/env.infra'
 import {
+  type ContentRepository,
   StorageError,
   StorageVersionConflictError,
 } from './content-store.domain'
@@ -289,4 +290,32 @@ async function listGitHubRepositoryFiles(prefix: string) {
     .filter((entry) => entry.type === 'blob' && entry.path.startsWith(normalizedPrefix))
     .map((entry) => entry.path.slice(root.replace(/^\/+|\/+$/g, '').length + 1))
     .sort()
+}
+
+export const githubContentRepository: ContentRepository = {
+  async loadText(pathname) {
+    const file = await loadGitHubTextFile(pathname)
+    return file
+      ? {
+          content: file.content,
+          path: file.path,
+          version: createContentVersion(file.content.trimEnd()),
+        }
+      : null
+  },
+  async saveText(pathname, content, options) {
+    await saveGitHubTextFile(pathname, content, options)
+  },
+  async loadJson<T>(pathname: string) {
+    return loadGitHubJsonFile<T>(pathname)
+  },
+  async saveJson(pathname, value, options) {
+    await saveGitHubTextFile(pathname, `${JSON.stringify(value, null, 2)}\n`, options)
+  },
+  async list(prefix) {
+    return listGitHubRepositoryFiles(prefix)
+  },
+  async delete(pathname, options) {
+    await deleteGitHubTextFile(pathname, options)
+  },
 }

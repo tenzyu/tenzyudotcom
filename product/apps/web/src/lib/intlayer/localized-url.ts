@@ -1,8 +1,7 @@
 import { getLocaleFromPathname } from '@/lib/i18n/locale-precedence.domain'
-import {
-  intlayer_defaultLocale,
-  intlayer_locales,
-} from '@/lib/intlayer/locales'
+
+const intlayer_locales = ['ja', 'en'] as const
+const intlayer_defaultLocale = 'ja'
 
 function normalizePathname(pathname: string) {
   if (!pathname) {

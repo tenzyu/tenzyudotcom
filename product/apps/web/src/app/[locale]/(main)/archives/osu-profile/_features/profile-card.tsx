@@ -3,7 +3,7 @@ import Image from 'next/image'
 import { useIntlayer } from 'next-intlayer/server'
 import { Suspense } from 'react'
 
-import { Content } from '@/app/[locale]/_features/content'
+import { Content } from '@tenzyu/ui/content'
 import { ExternalLink } from '@/app/[locale]/_features/external-link'
 import { Button } from '@tenzyu/ui/button'
 import { Card, CardContent } from '@tenzyu/ui/card'

@@ -1,8 +1,8 @@
 import { getLocalizedUrl } from 'intlayer'
 import Link from 'next/link'
 import { useIntlayer } from 'next-intlayer/server'
-import { Content } from '@/app/[locale]/_features/content'
-import { PageHeader } from '@/app/[locale]/_features/page-header'
+import { Content } from '@tenzyu/ui/content'
+import { PageHeader } from '@tenzyu/ui/page-header'
 import {
   Card,
   CardContent,

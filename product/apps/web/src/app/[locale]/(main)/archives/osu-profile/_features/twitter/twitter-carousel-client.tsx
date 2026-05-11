@@ -12,7 +12,7 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-} from '@tenzyu/ui/carousel'
+} from '@tenzyu/ui/advanced/carousel'
 import { Skeleton } from '@tenzyu/ui/skeleton'
 
 import type { TweetData } from '../twitter.source'

@@ -1,5 +1,5 @@
 import { useIntlayer } from 'next-intlayer/server'
-import { SectionHeader } from '@/app/[locale]/(main)/_features/section-header'
+import { SectionHeader } from '@tenzyu/ui/section-header'
 import {
   Accordion,
   AccordionContent,

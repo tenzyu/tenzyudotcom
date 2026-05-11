@@ -4,7 +4,7 @@ import Link from 'next/link'
 
 import { Badge } from '@tenzyu/ui/badge'
 import { Card } from '@tenzyu/ui/card'
-import { cn } from '@/lib/utils/common'
+import { cn } from '@tenzyu/ui/cn'
 import { formatDate } from './format-date'
 
 type BlogTileProps = {

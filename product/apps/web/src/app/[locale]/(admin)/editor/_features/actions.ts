@@ -19,13 +19,17 @@ import {
 import type { SaveBlogPostActionState } from './blog-save-form-state'
 import {
   clearEditorAdminSession,
+  checkEditorLoginRateLimit,
+  clearEditorLoginRateLimit,
   createEditorAdminSession,
   hasEditorAdminSession,
+  requireEditorSameOriginRequest,
   requireEditorAdminSession,
   verifyEditorAdminPassword,
 } from './editor-session'
 
 export async function loginEditorAdminAction(formData: FormData) {
+  await requireEditorSameOriginRequest()
   const parsed = parseEditorLoginInput({
     locale: formData.get('locale'),
     password: formData.get('password'),
@@ -35,7 +39,10 @@ export async function loginEditorAdminAction(formData: FormData) {
     redirect(getLocalizedUrl('/editor/login?error=invalid', 'ja'))
   }
 
-  if (!verifyEditorAdminPassword(parsed.data.password)) {
+  if (
+    !(await checkEditorLoginRateLimit()) ||
+    !verifyEditorAdminPassword(parsed.data.password)
+  ) {
     // Artificial delay to deter brute force
     await new Promise((resolve) => setTimeout(resolve, 1000))
     redirect(
@@ -43,11 +50,13 @@ export async function loginEditorAdminAction(formData: FormData) {
     )
   }
 
+  await clearEditorLoginRateLimit()
   await createEditorAdminSession()
   redirect(getLocalizedUrl('/editor', parsed.data.locale))
 }
 
 export async function logoutEditorAdminAction(formData: FormData) {
+  await requireEditorSameOriginRequest()
   const locale =
     typeof formData.get('locale') === 'string'
       ? (formData.get('locale') as string)
@@ -57,6 +66,7 @@ export async function logoutEditorAdminAction(formData: FormData) {
 }
 
 export async function saveEditorCollectionAction(formData: FormData) {
+  await requireEditorSameOriginRequest()
   const parsed = parseEditorCollectionSaveInput({
     locale: formData.get('locale'),
     collectionId: formData.get('collectionId'),
@@ -116,6 +126,7 @@ async function saveInlineEditorCollectionAction(input: {
   sourceJson: string
   expectedVersion?: string
 }) {
+  await requireEditorSameOriginRequest()
   const parsed = parseEditorCollectionSaveInput(input)
 
   if (!parsed.success) {
@@ -163,6 +174,7 @@ export async function saveBlogPostAction(
   _previousState: SaveBlogPostActionState,
   formData: FormData,
 ): Promise<SaveBlogPostActionState> {
+  await requireEditorSameOriginRequest()
   const parsed = parseEditorBlogSaveInput({
     locale: formData.get('locale'),
     slug: formData.get('slug'),

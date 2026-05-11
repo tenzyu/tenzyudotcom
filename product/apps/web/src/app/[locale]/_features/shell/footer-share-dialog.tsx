@@ -12,7 +12,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@tenzyu/ui/dialog'
-import { cn } from '@/lib/utils/common'
+import { cn } from '@tenzyu/ui/cn'
 
 type FooterShareDialogProps = {
   title: string

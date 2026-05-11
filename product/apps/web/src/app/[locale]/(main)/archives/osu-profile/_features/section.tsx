@@ -1,4 +1,4 @@
-import { cn } from '@/lib/utils/common'
+import { cn } from '@tenzyu/ui/cn'
 
 type SectionProps = {
   children: React.ReactNode

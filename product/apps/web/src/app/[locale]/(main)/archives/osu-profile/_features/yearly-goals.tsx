@@ -1,8 +1,8 @@
 import { useIntlayer } from 'next-intlayer/server'
 
-import { Content } from '@/app/[locale]/_features/content'
+import { Content } from '@tenzyu/ui/content'
 import { Table, TableBody, TableCell, TableRow } from '@tenzyu/ui/table'
-import { cn } from '@/lib/utils/common'
+import { cn } from '@tenzyu/ui/cn'
 
 export function YearlyGoals() {
   const content = useIntlayer('yearlyGoals')

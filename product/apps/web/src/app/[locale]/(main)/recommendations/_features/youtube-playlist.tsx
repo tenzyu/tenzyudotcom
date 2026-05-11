@@ -2,7 +2,7 @@ import { OtakuAside } from '@/app/[locale]/(main)/_features/otaku-aside'
 import { Dialog, DialogTrigger } from '@tenzyu/ui/dialog'
 import { YouTubeDialogContent } from '@/app/[locale]/(main)/_features/youtube/youtube-dialog-content'
 import { YouTubeThumbnailImage } from '@/app/[locale]/(main)/_features/youtube/youtube-thumbnail-image'
-import { cn } from '@/lib/utils/common'
+import { cn } from '@tenzyu/ui/cn'
 import type { YouTubePlaylistItem } from './lib/types'
 
 type YouTubePlaylistProps = {

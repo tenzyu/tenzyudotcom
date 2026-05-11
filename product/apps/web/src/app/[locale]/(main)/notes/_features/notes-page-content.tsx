@@ -1,5 +1,5 @@
 import { useIntlayer } from 'next-intlayer/server'
-import { PageHeader } from '@/app/[locale]/_features/page-header'
+import { PageHeader } from '@tenzyu/ui/page-header'
 import { AdminGate } from '@/app/[locale]/(main)/_features/admin/admin-gate'
 import { NoteComposerInline } from './note-composer-inline'
 import { NoteFeedItem } from './note-feed-item'

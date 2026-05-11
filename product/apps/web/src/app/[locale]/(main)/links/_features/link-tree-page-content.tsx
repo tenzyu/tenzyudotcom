@@ -2,9 +2,9 @@ import { getLocalizedUrl } from 'intlayer'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useIntlayer, useLocale } from 'next-intlayer/server'
-import { Content } from '@/app/[locale]/_features/content'
-import { PageHeader } from '@/app/[locale]/_features/page-header'
-import { SectionHeader } from '@/app/[locale]/(main)/_features/section-header'
+import { Content } from '@tenzyu/ui/content'
+import { PageHeader } from '@tenzyu/ui/page-header'
+import { SectionHeader } from '@tenzyu/ui/section-header'
 import {
   Item,
   ItemContent,
