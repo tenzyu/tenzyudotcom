@@ -4,7 +4,7 @@
     "paths": {}
   },
   "include": [
-    "scripts/**/*.ts"
+    "src/**/*.ts"
   ],
   "exclude": [
     "node_modules"

@@ -110,7 +110,7 @@ export async function saveEditorCollectionAction(formData: FormData) {
   )
 }
 
-export async function saveInlineEditorCollectionAction(input: {
+async function saveInlineEditorCollectionAction(input: {
   locale: string
   collectionId: 'recommendations' | 'notes' | 'puzzles' | 'pointers' | 'links'
   sourceJson: string

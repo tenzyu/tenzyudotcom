@@ -149,7 +149,7 @@ export async function loadGitHubTextFileFresh(pathname: string) {
   return readGitHubFile(pathname, { fresh: true })
 }
 
-export async function loadGitHubJsonFile<T>(pathname: string): Promise<T | null> {
+async function loadGitHubJsonFile<T>(pathname: string): Promise<T | null> {
   const file = await loadGitHubTextFile(pathname)
 
   if (!file) {
@@ -202,7 +202,7 @@ export async function saveGitHubTextFile(
   }
 }
 
-export async function deleteGitHubTextFile(
+async function deleteGitHubTextFile(
   pathname: string,
   options: {
     message?: string
@@ -264,7 +264,7 @@ export async function upsertGitHubBlogIndexEntry(entry: GitHubBlogIndexEntry) {
   )
 }
 
-export async function listGitHubRepositoryFiles(prefix: string) {
+async function listGitHubRepositoryFiles(prefix: string) {
   const { root } = getGitHubConfig()
   const normalizedPrefix = [root.replace(/^\/+|\/+$/g, ''), prefix.replace(/^\/+/, '')]
     .filter(Boolean)

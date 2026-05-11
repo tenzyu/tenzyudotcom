@@ -53,7 +53,7 @@ function assertDashboardUrl(
   normalizeExternalUrl(url, label)
 }
 
-export function parseDashboardSourceCategories(raw: unknown) {
+function parseDashboardSourceCategories(raw: unknown) {
   const categories = z.array(DashboardSourceCategorySchema).parse(raw)
   const categoryIds = new Set<string>()
   const linkIds = new Set<string>()

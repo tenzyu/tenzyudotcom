@@ -96,7 +96,7 @@ export async function savePuzzlesState(
   )
 }
 
-export class PuzzlesStorageRepository implements PuzzlesRepository {
+class PuzzlesStorageRepository implements PuzzlesRepository {
   async loadAll(): Promise<readonly PuzzleCategory[]> {
     const { collection } = await loadPuzzlesState()
     return collection

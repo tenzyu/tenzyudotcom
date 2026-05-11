@@ -28,7 +28,7 @@ export async function saveLinksState(
   )
 }
 
-export class LinksStorageRepository implements LinksRepository {
+class LinksStorageRepository implements LinksRepository {
   async loadAll(): Promise<readonly MyLink[]> {
     const { collection } = await loadLinksState()
     return collection

@@ -15,7 +15,7 @@ export type PuzzleLink = {
   url: string
 }
 
-export type Puzzle = {
+type Puzzle = {
   title: string
   url?: string
   links: PuzzleLink[]

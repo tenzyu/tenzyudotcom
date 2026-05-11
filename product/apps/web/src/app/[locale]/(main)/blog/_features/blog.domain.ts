@@ -5,7 +5,7 @@ import {
 } from '@/config/site'
 import { buildLocalizedUrl } from '@/lib/intlayer/localized-url'
 
-export type FrontmatterBase = {
+type FrontmatterBase = {
   title: string
   summary: string
   image?: string
@@ -13,7 +13,7 @@ export type FrontmatterBase = {
   updatedAt?: Date
 }
 
-export type Frontmatter<
+type Frontmatter<
   T extends Record<string, unknown> = Record<string, never>,
 > = FrontmatterBase & T
 

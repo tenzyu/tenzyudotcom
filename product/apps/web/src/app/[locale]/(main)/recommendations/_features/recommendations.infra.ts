@@ -3,7 +3,7 @@ import type {
   RecommendationSourceEntry,
 } from '@/features/recommendations/recommendations.domain'
 import type { RecommendationsRepository } from './recommendations.port'
-export { isRecommendationTabId } from '@/features/recommendations/recommendations.domain'
+
 import { normalizeExternalUrl } from '@/lib/url/external-url.domain'
 import { normalizeYouTubeVideoId } from '@/features/youtube/youtube.domain'
 import { normalizeRecommendationVideoSource } from '@/features/recommendations/recommendation-source.domain'
@@ -51,7 +51,7 @@ function assertUniqueStrings(items: readonly string[], label: string) {
   }
 }
 
-export function parseRecommendationSourceEntries(raw: unknown) {
+function parseRecommendationSourceEntries(raw: unknown) {
   const entries = z.array(RecommendationSourceEntrySchema).parse(raw)
 
   assertUniqueStrings(
@@ -115,7 +115,7 @@ export async function saveRecommendationsState(
   )
 }
 
-export class RecommendationsStorageRepository implements RecommendationsRepository {
+class RecommendationsStorageRepository implements RecommendationsRepository {
   async loadAll(): Promise<readonly RecommendationSourceEntry[]> {
     const { collection } = await loadRecommendationsState()
     return collection

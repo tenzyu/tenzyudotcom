@@ -22,7 +22,7 @@ export function parseLinkSourceEntries(raw: unknown) {
   return defineLinks(links)
 }
 
-export class LoadLinksUseCase {
+class LoadLinksUseCase {
   constructor(private repository: LinksRepository) {}
 
   async execute(): Promise<readonly MyLink[]> {
@@ -30,7 +30,7 @@ export class LoadLinksUseCase {
   }
 }
 
-export function makeLoadLinksUseCase() {
+function makeLoadLinksUseCase() {
   return new LoadLinksUseCase(makeLinksRepository())
 }
 
@@ -52,5 +52,5 @@ export async function getLinkByShortUrl(shortUrl: string) {
   return links.find((link) => link.shortenUrl === shortUrl)
 }
 
-export { LINK_CATEGORY_ORDER }
-export type { LinkCategory, MyLink }
+
+

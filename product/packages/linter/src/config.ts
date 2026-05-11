@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 
-export type VsaConfig = {
+type VsaConfig = {
   architecture?: {
     appRoots?: string[]
     featureMarker?: string

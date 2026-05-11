@@ -32,7 +32,7 @@ function parseYouTubeApiItem(value: unknown): YouTubeApiItem | null {
   }
 }
 
-export function parseYouTubeVideoApiResponse(raw: unknown): YouTubeVideoData | null {
+function parseYouTubeVideoApiResponse(raw: unknown): YouTubeVideoData | null {
   if (!isRecord(raw) || !Array.isArray(raw.items)) {
     return null
   }

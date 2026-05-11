@@ -24,7 +24,7 @@ export type DashboardSourceCategory = {
   links: readonly DashboardSourceLink[]
 }
 
-export type DashboardLink = {
+type DashboardLink = {
   id: string
   url: string
   isApp?: boolean

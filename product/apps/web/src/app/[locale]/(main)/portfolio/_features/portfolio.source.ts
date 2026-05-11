@@ -1,6 +1,6 @@
 export const PORTFOLIO_PROFILE_IMAGE_PATH = '/images/my-icon.png' as const
 
-export type PortfolioAboutLinkId = 'blog' | 'github' | 'x'
+type PortfolioAboutLinkId = 'blog' | 'github' | 'x'
 
 type PortfolioAboutLink = {
   id: PortfolioAboutLinkId
@@ -22,7 +22,7 @@ export const PORTFOLIO_ABOUT_LINKS: readonly PortfolioAboutLink[] = [
   },
 ] as const
 
-export type PortfolioProjectId =
+type PortfolioProjectId =
   | 'personalWebsite'
   | 'osuBpDatabase'
   | 'osuSkinRemixer'
@@ -53,7 +53,7 @@ export const PORTFOLIO_PROJECTS: readonly PortfolioProject[] = [
   },
 ] as const
 
-export type PortfolioExperienceId =
+type PortfolioExperienceId =
   | 'webDevelopmentCompany'
   | 'systemsDevelopmentCompany'
   | 'inHouseServiceCompany'
@@ -78,7 +78,7 @@ export const PORTFOLIO_EXPERIENCES: readonly PortfolioExperience[] = [
   },
 ] as const
 
-export type PortfolioEnvironmentId = 'neko3' | 'neko5' | 'neko6' | 'neko7'
+type PortfolioEnvironmentId = 'neko3' | 'neko5' | 'neko6' | 'neko7'
 
 type PortfolioEnvironment = {
   id: PortfolioEnvironmentId

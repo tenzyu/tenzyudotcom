@@ -16,7 +16,6 @@
   "dependencies": {
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-dialog": "^2",
-    "@tauri-apps/plugin-opener": "^2",
     "@tenzyu/osu-skin-core": "workspace:*",
     "@tenzyu/ui": "workspace:*",
     "react": "^19.0.0",

@@ -97,7 +97,7 @@ function ResponsiveIframe(props: React.ComponentPropsWithoutRef<'iframe'>) {
   )
 }
 
-export const components: MDXComponents = {
+const components: MDXComponents = {
   OtakuAside,
   CautionAlert,
   KoFiLink,

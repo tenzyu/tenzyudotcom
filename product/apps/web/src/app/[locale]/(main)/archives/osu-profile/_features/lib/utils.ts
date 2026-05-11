@@ -20,7 +20,7 @@ export const handleOsuAPIError = (error: unknown): never => {
 }
 
 // リトライ設定
-export const API_RETRY_OPTIONS = {
+const API_RETRY_OPTIONS = {
   maxAttempts: 3,
   initialDelay: 1000,
   maxDelay: 5000,

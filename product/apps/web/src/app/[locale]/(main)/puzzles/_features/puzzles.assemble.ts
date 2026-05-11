@@ -7,12 +7,12 @@ import { makePuzzlesRepository } from './puzzles.infra'
 
 export type {
   Platform,
-  Puzzle,
+  
   PuzzleCategory,
   PuzzleLink,
 } from './puzzles.domain'
 
-export class LoadPuzzlesUseCase {
+class LoadPuzzlesUseCase {
   constructor(private repository: PuzzlesRepository) {}
 
   async execute(): Promise<readonly PuzzleCategory[]> {
@@ -20,7 +20,7 @@ export class LoadPuzzlesUseCase {
   }
 }
 
-export function makeLoadPuzzlesUseCase() {
+function makeLoadPuzzlesUseCase() {
   return new LoadPuzzlesUseCase(makePuzzlesRepository())
 }
 

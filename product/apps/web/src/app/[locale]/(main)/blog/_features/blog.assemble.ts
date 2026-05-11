@@ -62,7 +62,7 @@ export async function getBlogStaticParams() {
   }))
 }
 
-export async function getBlogPostBySlug(slug: string) {
+async function getBlogPostBySlug(slug: string) {
   try {
     return await loadBlogPostBySlug(slug)
   } catch {

@@ -293,7 +293,7 @@ function emptyCell(): AssetMatrixCell {
   };
 }
 
-export function pathsFromCell(cell: AssetMatrixCell): string[] {
+function pathsFromCell(cell: AssetMatrixCell): string[] {
   return cell.assets
     .map((asset) => {
       const file = asset.file as { relativePath?: string; path?: string; fullPath?: string; name?: string };

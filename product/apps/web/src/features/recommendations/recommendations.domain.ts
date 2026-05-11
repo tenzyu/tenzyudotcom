@@ -43,7 +43,7 @@ export type RecommendationTab = {
   disabled?: boolean
 }
 
-export function isRecommendationTabId(
+function isRecommendationTabId(
   value: string | null,
 ): value is RecommendationTabId {
   return value === 'music' || value === 'channels'

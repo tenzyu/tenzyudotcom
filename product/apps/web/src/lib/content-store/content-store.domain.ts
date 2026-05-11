@@ -18,5 +18,5 @@ export function withLocaleRevalidatePaths(pathname: string) {
 }
 
 export class StorageError extends Error {}
-export class StorageNotFoundError extends StorageError {}
+class StorageNotFoundError extends StorageError {}
 export class StorageVersionConflictError extends StorageError {}

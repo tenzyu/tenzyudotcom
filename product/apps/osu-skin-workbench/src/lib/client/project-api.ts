@@ -19,12 +19,12 @@ import type {
 } from "@tenzyu/osu-skin-core/lib/shared/project-contract";
 import type { ClassifiedSkinAsset } from "@tenzyu/osu-skin-core/lib/domain/skin-asset";
 
-export type RawFileEntry = {
+type RawFileEntry = {
   relativePath: string;
   fullPath: string;
 };
 
-export type RawSourceFiles = {
+type RawSourceFiles = {
   id: string;
   name: string;
   sourcePath: string;
@@ -34,7 +34,7 @@ export type RawSourceFiles = {
   skinIni?: string | null;
 };
 
-export type RawProjectFilesResponse = {
+type RawProjectFilesResponse = {
   project: RawFileEntry[];
   projectSkinIni?: string | null;
   sources: RawSourceFiles[];
@@ -45,11 +45,11 @@ function toDesktopAssetDto(asset: ClassifiedSkinAsset): ClassifiedSkinAsset {
   return asset;
 }
 
-export function isTauriRuntime(): boolean {
+function isTauriRuntime(): boolean {
   return typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
 }
 
-export function fileSrc(fullPath: string): string {
+function fileSrc(fullPath: string): string {
   return convertFileSrc(fullPath);
 }
 
@@ -68,7 +68,7 @@ export async function chooseSkinPath(): Promise<string | null> {
   return selected ?? null;
 }
 
-export async function chooseSkinDirectory(): Promise<string | null> {
+async function chooseSkinDirectory(): Promise<string | null> {
   const selected = await open({
     title: "Choose extracted osu! skin folder",
     directory: true,
@@ -204,6 +204,6 @@ export async function deleteAssetGroup(input: {
   return await invoke<AssetMutationResult>("delete_asset_group", { input });
 }
 
-export async function openPath(path: string): Promise<void> {
+async function openPath(path: string): Promise<void> {
   await invoke<void>("open_path", { path });
 }

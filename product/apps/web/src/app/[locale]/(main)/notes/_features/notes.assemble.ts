@@ -33,7 +33,7 @@ export type NoteDetailPageData = {
   replies: NotePageItem[]
 }
 
-export class LoadNotesUseCase {
+class LoadNotesUseCase {
   constructor(private repository: NotesRepository) {}
 
   async execute(): Promise<readonly NoteSourceEntry[]> {
@@ -42,7 +42,7 @@ export class LoadNotesUseCase {
   }
 }
 
-export function makeLoadNotesUseCase() {
+function makeLoadNotesUseCase() {
   return new LoadNotesUseCase(makeNotesRepository())
 }
 

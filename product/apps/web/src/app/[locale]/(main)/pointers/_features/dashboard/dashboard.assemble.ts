@@ -16,7 +16,7 @@ function resolveEditorLocale(locale: string): EditorLocale {
   return locale === 'ja' ? 'ja' : 'en'
 }
 
-export class LoadPointersUseCase {
+class LoadPointersUseCase {
   constructor(private repository: PointersRepository) {}
 
   async execute(): Promise<readonly DashboardCategory[]> {
@@ -34,7 +34,7 @@ export class LoadPointersUseCase {
   }
 }
 
-export function makeLoadPointersUseCase() {
+function makeLoadPointersUseCase() {
   return new LoadPointersUseCase(makePointersRepository())
 }
 

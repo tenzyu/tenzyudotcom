@@ -13,7 +13,7 @@ import {
   withLocaleRevalidatePaths,
 } from '@/lib/content-store/content-store.domain'
 
-export const EDITOR_COLLECTION_IDS = [
+const EDITOR_COLLECTION_IDS = [
   'recommendations',
   'notes',
   'puzzles',
@@ -42,7 +42,7 @@ type EditorCollectionMeta = {
   publicPaths: readonly RevalidatePathTarget[]
 }
 
-export const EDITOR_COLLECTIONS: Record<EditorCollectionId, EditorCollectionMeta> = {
+const EDITOR_COLLECTIONS: Record<EditorCollectionId, EditorCollectionMeta> = {
   recommendations: {
     id: 'recommendations',
     label: 'Recommendations',

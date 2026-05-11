@@ -17,7 +17,7 @@ import {
   getEditorCollectionContentTag,
 } from '@/lib/content-store/content-tags.infra'
 
-export class LoadEditorCollectionUseCase {
+class LoadEditorCollectionUseCase {
   async execute<K extends EditorCollectionId>(
     collectionId: K,
   ): Promise<EditorCollectionState<K>> {
@@ -45,7 +45,7 @@ export class LoadEditorCollectionUseCase {
   }
 }
 
-export class SaveEditorCollectionUseCase {
+class SaveEditorCollectionUseCase {
   async execute(
     collectionId: EditorCollectionId,
     rawJson: string,
@@ -77,7 +77,7 @@ export class SaveEditorCollectionUseCase {
   }
 }
 
-export class SaveBlogPostUseCase {
+class SaveBlogPostUseCase {
   async execute(
     slug: string,
     frontmatter: BlogFrontmatter,

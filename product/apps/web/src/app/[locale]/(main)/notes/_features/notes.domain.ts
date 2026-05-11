@@ -1,6 +1,6 @@
 import { buildLocalizedUrl } from '@/lib/intlayer/localized-url'
 
-export type LocalizedText = {
+type LocalizedText = {
   ja: string
   en: string
 }
@@ -83,7 +83,7 @@ export function buildLocalizedNotePath(locale: string, noteId: string) {
   return buildLocalizedUrl(`/notes/${noteId}`, locale)
 }
 
-export function collectDescendantNoteIds(
+function collectDescendantNoteIds(
   entries: readonly NoteSourceEntry[],
   noteId: string,
 ) {

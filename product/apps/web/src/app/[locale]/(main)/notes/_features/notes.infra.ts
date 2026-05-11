@@ -182,7 +182,7 @@ export async function saveNotesState(
   )
 }
 
-export class NotesStorageRepository implements NotesRepository {
+class NotesStorageRepository implements NotesRepository {
   async loadAll(): Promise<readonly NoteSourceEntry[]> {
     const { collection } = await loadNotesState()
     return collection

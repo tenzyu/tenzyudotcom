@@ -41,7 +41,7 @@ function isRecommendationVideoEntry(
   return entry.kind === 'youtube-video'
 }
 
-export class LoadRecommendationsUseCase {
+class LoadRecommendationsUseCase {
   constructor(private repository: RecommendationsRepository) {}
 
   async execute(): Promise<{
@@ -63,7 +63,7 @@ export class LoadRecommendationsUseCase {
   }
 }
 
-export function makeLoadRecommendationsUseCase() {
+function makeLoadRecommendationsUseCase() {
   return new LoadRecommendationsUseCase(makeRecommendationsRepository())
 }
 
