@@ -1,8 +1,9 @@
 @import '@tenzyu/ui/styles.css';
-@import '@tenzyu/ui/workbench.css';
+@import './workbench.css';
 
 /*
  * App-local CSS boundary.
  * Keep this file import-only unless a rule truly depends on this app root.
- * Shared workbench runtime styling lives in @tenzyu/ui/workbench.css.
+ * Application-specific workbench runtime styling lives in ./workbench.css.
  */
+
