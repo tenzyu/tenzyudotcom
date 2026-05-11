@@ -1,8 +1,8 @@
 import { notFound } from 'next/navigation'
 import { resolvePageLocale } from '@/lib/intlayer/page'
 import { EditorCollectionEditor } from '../_features/editor'
-import { requireEditorAdminSession } from '../_features/editor-session'
-import { isEditorCollectionId } from '../_features/editor-collections'
+import { requireEditorAdminSession } from '@/features/editor-auth/editor-session'
+import { isEditorCollectionId } from '@/features/content-editor/editor-collections'
 
 export const dynamic = 'force-dynamic'
 

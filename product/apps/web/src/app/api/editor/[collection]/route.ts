@@ -2,14 +2,15 @@ import { type NextRequest, NextResponse } from 'next/server'
 import {
   hasEditorAdminSession,
   isSameOriginEditorRequest,
-} from '@/app/[locale]/(admin)/editor/_features/editor-session'
+} from '@/features/editor-auth/editor-session'
 import {
   makeLoadEditorCollectionUseCase,
   makeSaveEditorCollectionUseCase,
 } from '@/app/[locale]/(admin)/editor/_features/editor.assemble'
 import {
   isEditorCollectionId,
-} from '@/app/[locale]/(admin)/editor/_features/editor-collections'
+  isWritableEditorCollectionId,
+} from '@/features/content-editor/editor-collections'
 import { StorageVersionConflictError } from '@/lib/content-store/content-store.domain'
 
 export async function GET(
@@ -25,7 +26,7 @@ export async function GET(
   if (!isEditorCollectionId(collection)) {
     return NextResponse.json({ error: 'Unknown collection' }, { status: 404 })
   }
-  
+
   try {
     const loadUseCase = makeLoadEditorCollectionUseCase()
     const state = await loadUseCase.execute(collection)
@@ -52,6 +53,10 @@ export async function PUT(
   const { collection } = await params
   if (!isEditorCollectionId(collection)) {
     return NextResponse.json({ error: 'Unknown collection' }, { status: 404 })
+  }
+
+  if (!isWritableEditorCollectionId(collection)) {
+    return NextResponse.json({ error: 'Collection is read-only' }, { status: 405 })
   }
 
   try {

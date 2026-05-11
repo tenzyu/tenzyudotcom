@@ -35,6 +35,7 @@
   "restrictedImportUsage": {
     "nextServerApiAllowedPrefixes": [
       "src/app/",
+      "src/features/editor-auth/",
       "src/lib/content-store/"
     ],
     "storageOwnerRoots": [

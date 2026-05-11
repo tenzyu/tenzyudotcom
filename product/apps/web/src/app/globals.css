@@ -7,7 +7,7 @@
 @plugin '@tailwindcss/typography';
 
 @theme inline {
-  --font-sans: var(--font-geist-sans, var(--tz-font-sans));
-  --font-mono: var(--font-geist-mono, var(--tz-font-mono));
-  --font-serif: var(--font-noto-serif-jp, serif);
+  --font-sans: var(--font-atkinson, var(--tz-font-sans));
+  --font-mono: var(--tz-font-mono);
+  --font-serif: Georgia, 'Hiragino Mincho ProN', 'Yu Mincho', serif;
 }

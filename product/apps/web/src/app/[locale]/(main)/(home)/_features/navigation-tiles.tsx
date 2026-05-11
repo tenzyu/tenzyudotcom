@@ -9,9 +9,7 @@ import {
   MessageSquareText,
   Pointer,
   Puzzle,
-  Sparkles,
   BriefcaseBusiness,
-  LibraryBig,
 } from 'lucide-react'
 import Link from 'next/link'
 import { useIntlayer, useLocale } from 'next-intlayer/server'
@@ -24,11 +22,6 @@ import {
   PUBLIC_ROUTES,
   type PublicRouteId,
 } from '@/features/site-navigation/public-routes.data'
-
-const NAVIGATION_GROUP_ICONS = {
-  core: LibraryBig,
-  around: Sparkles,
-} as const
 
 const NAVIGATION_ITEM_ICONS = {
   tools: Hammer,
@@ -58,7 +51,6 @@ export function NavigationTiles() {
 
       {PUBLIC_ROUTE_GROUPS.map((group) => {
         const groupContent = navigation.groups[group.id]
-        const GroupIcon = NAVIGATION_GROUP_ICONS[group.id]
         const itemContents = groupContent.items as unknown as Partial<
           Record<PublicRouteId, NavigationItemContent>
         >

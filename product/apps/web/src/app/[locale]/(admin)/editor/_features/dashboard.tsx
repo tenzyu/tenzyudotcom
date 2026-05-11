@@ -14,7 +14,7 @@ import {
   getEditorStorageDriver,
   usesEditorGithubStorage,
 } from './editor-config.assemble'
-import { listEditorCollectionMeta } from './editor-collections'
+import { listEditorCollectionMeta } from '@/features/content-editor/editor-collections'
 import { logoutEditorAdminAction } from './actions'
 
 export function EditorDashboard({ locale }: { locale: string }) {

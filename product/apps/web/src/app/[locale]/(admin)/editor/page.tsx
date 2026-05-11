@@ -1,5 +1,5 @@
 import { EditorDashboard } from './_features/dashboard'
-import { requireEditorAdminSession } from './_features/editor-session'
+import { requireEditorAdminSession } from '@/features/editor-auth/editor-session'
 import { resolvePageLocale } from '@/lib/intlayer/page'
 
 export const dynamic = 'force-dynamic'

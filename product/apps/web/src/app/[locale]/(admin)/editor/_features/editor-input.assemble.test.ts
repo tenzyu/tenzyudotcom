@@ -43,9 +43,12 @@ describe('validateEditorBlogPostDates', () => {
 
     expect(Number.isNaN(result.data.publishedAt.getTime())).toBe(false)
     expect(Number.isNaN(result.data.updatedAt?.getTime() ?? NaN)).toBe(false)
-    expect(result.data.updatedAt!.getTime()).toBeGreaterThan(
-      result.data.publishedAt.getTime(),
-    )
+    const updatedAt = result.data.updatedAt
+    expect(updatedAt).toBeDefined()
+    if (!updatedAt) {
+      throw new Error('Expected updatedAt to be present')
+    }
+    expect(updatedAt.getTime()).toBeGreaterThan(result.data.publishedAt.getTime())
   })
 })
 

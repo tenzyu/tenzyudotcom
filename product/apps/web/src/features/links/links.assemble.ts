@@ -1,26 +1,6 @@
-import { z } from 'zod'
-import {
-  LINK_CATEGORY_ORDER,
-  defineLinks,
-  type LinkCategory,
-  type MyLink,
-} from './links.domain'
+import { defineLinks, type MyLink } from './links.domain'
 import type { LinksRepository } from './links.port'
 import { makeLinksRepository } from './links.infra'
-
-const LinkSourceEntrySchema = z.object({
-  name: z.string().trim().min(1),
-  id: z.string().trim().min(1),
-  url: z.string().trim().min(1),
-  shortenUrl: z.string().trim().min(1),
-  icon: z.string().trim().min(1),
-  category: z.enum(['Watch', 'Social', 'Build', 'Legacy']),
-})
-
-export function parseLinkSourceEntries(raw: unknown) {
-  const links = z.array(LinkSourceEntrySchema).parse(raw)
-  return defineLinks(links)
-}
 
 class LoadLinksUseCase {
   constructor(private repository: LinksRepository) {}
@@ -51,6 +31,4 @@ export async function getLinkByShortUrl(shortUrl: string) {
   const links = await loadLinks()
   return links.find((link) => link.shortenUrl === shortUrl)
 }
-
-
 

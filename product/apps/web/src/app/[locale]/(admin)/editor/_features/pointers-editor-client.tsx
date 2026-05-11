@@ -63,7 +63,7 @@ export function PointersEditorClient({
 
   const handleFetchMetadata = async (catIdx: number, linkIdx: number) => {
     const link = entries[catIdx]?.links[linkIdx]
-    if (!link || !link.url) return
+    if (!link?.url) return
 
     const path = `${catIdx}-${linkIdx}`
     setLoadingPath(path)

@@ -1,6 +1,6 @@
 'use server'
 
-import { hasEditorAdminSession } from './editor-session'
+import { hasEditorAdminSession } from '@/features/editor-auth/editor-session'
 
 export async function fetchUrlMetadataAction(url: string) {
   if (!(await hasEditorAdminSession())) {

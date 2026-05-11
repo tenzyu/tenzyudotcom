@@ -3,7 +3,7 @@
 import type {
   EditorCollectionData,
   EditorCollectionId,
-} from '@/app/[locale]/(admin)/editor/_features/editor-collections'
+} from '@/features/content-editor/editor-collections'
 
 type CollectionState<K extends EditorCollectionId> = {
   collection: EditorCollectionData[K]

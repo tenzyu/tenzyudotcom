@@ -43,7 +43,7 @@ export type TabletSettings = BaseDeviceSettings & {
   }
 }
 
-type DeviceSettings = {
+export type DeviceSettings = {
   keyboard: KeyboardSettings
   monitor: MonitorSettings
   tablet: TabletSettings

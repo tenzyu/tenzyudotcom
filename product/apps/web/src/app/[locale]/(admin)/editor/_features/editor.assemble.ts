@@ -10,7 +10,8 @@ import {
   getEditorCollectionMeta,
   type EditorCollectionId,
   type EditorCollectionState,
-} from './editor-collections'
+  type WritableEditorCollectionId,
+} from '@/features/content-editor/editor-collections'
 import {
   BLOG_INDEX_CONTENT_TAG,
   getBlogPostContentTag,
@@ -47,7 +48,7 @@ class LoadEditorCollectionUseCase {
 
 class SaveEditorCollectionUseCase {
   async execute(
-    collectionId: EditorCollectionId,
+    collectionId: WritableEditorCollectionId,
     rawJson: string,
     expectedVersion?: string,
   ): Promise<{ version: string }> {

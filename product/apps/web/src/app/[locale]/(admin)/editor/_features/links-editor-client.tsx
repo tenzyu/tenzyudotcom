@@ -61,7 +61,7 @@ export function LinksEditorClient({
 
   const handleFetchMetadata = async (index: number) => {
     const entry = entries[index]
-    if (!entry || !entry.url) return
+    if (!entry?.url) return
 
     setLoadingIndex(index)
     const metadata = await fetchUrlMetadataAction(entry.url)

@@ -43,12 +43,6 @@ export type RecommendationTab = {
   disabled?: boolean
 }
 
-function isRecommendationTabId(
-  value: string | null,
-): value is RecommendationTabId {
-  return value === 'music' || value === 'channels'
-}
-
 function assertNonEmpty(value: string, label: string) {
   if (!value.trim()) {
     throw new Error(`${label} must not be empty`)
