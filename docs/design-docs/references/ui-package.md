@@ -1,29 +1,63 @@
 # @tenzyu/ui package boundary
 
-`@tenzyu/ui` must remain a product-neutral React design-system package.
+`@tenzyu/ui` is the shared design-system package for React consumers in tenzyudotcom.
 
-## Owns
+## Owned by @tenzyu/ui
 
-- primitive React UI components
-- design tokens
-- cross-browser and WebView normalization
-- variant policy
-- Storybook catalog
+- React primitive UI components
+- Design tokens and CSS custom properties
+- Browser/WebView normalization
+- Component variant vocabulary
+- Storybook catalog and component quality checks
 
-## Does not own
+## Not owned by @tenzyu/ui
 
-- web page layout
-- workbench layout
-- route-specific styles
-- product-specific animation
-- one-off overrides
-- Next.js adapters
-- Tauri adapters
-- osu! domain concepts
+- Web page layout
+- Workbench application layout
+- Route-specific classes
+- App-specific animation
+- One-off product overrides
+- Next.js routing, Tauri commands, or domain-specific behavior
 
-## Import direction
+## Storybook contract
 
-Apps may import `@tenzyu/ui` primitives. `@tenzyu/ui` must not import from apps.
+Every primitive component must be represented in the Storybook catalog. Storybook is not merely a gallery. It is the review surface for:
 
-Site layout belongs to `product/apps/web/src/components/site`.
-Workbench layout belongs to `product/apps/osu-skin-workbench/src/workbench.css` and workbench feature components.
+- variants
+- sizes
+- component states
+- accessibility expectations
+- cross-theme behavior
+- composition boundaries
+
+The canonical category prefix is `Design System/`.
+
+## Variant policy
+
+Variants must be reusable UI concepts. Product-specific concepts are forbidden.
+
+Allowed examples:
+
+- `default`
+- `primary`
+- `secondary`
+- `tertiary`
+- `outline`
+- `soft`
+- `ghost`
+- `link`
+- `destructive`
+- `warning`
+- `success`
+- `info`
+
+Forbidden examples:
+
+- `workbench`
+- `editor`
+- `blog`
+- `osu`
+- `landing`
+- `admin`
+
+Product-specific presentation should compose primitives in the owning app.

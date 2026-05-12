@@ -1,31 +1,40 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { tenzyuFoundationTokens } from "../tokens/foundations";
-import { uiVariantPolicy } from "../tokens/variant-policy";
+import { StorybookGrid, StorybookPage, StorybookSection, StorybookSwatch } from "./_storybook-helpers";
 
 const meta = {
-  title: "Foundations/Policy",
+  title: "Design System/Foundations/Tokens",
 } satisfies Meta;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const TokensAndVariants: Story = {
+export const ColorRoles: Story = {
   render: () => (
-    <div className="max-w-3xl space-y-6 text-sm">
-      <section className="space-y-2">
-        <h2 className="text-xl font-semibold">Color roles</h2>
-        <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
+    <StorybookPage
+      title="Design tokens"
+      description="Role-based tokens that must work in web apps and WebView-based desktop apps. Product layout must not be encoded here."
+    >
+      <StorybookSection title="Color roles" description="Components should consume roles, not product-specific color names.">
+        <StorybookGrid min={240}>
           {tenzyuFoundationTokens.colorRoles.map((role) => (
-            <div key={role} className="rounded-md border border-border bg-card p-3 text-card-foreground">
-              {role}
-            </div>
+            <StorybookSwatch key={role} name={role} value={`var(--${role})`} />
           ))}
-        </div>
-      </section>
-      <section className="space-y-2">
-        <h2 className="text-xl font-semibold">Variant vocabulary</h2>
-        <p className="text-muted-foreground">{uiVariantPolicy.variants.join(" / ")}</p>
-      </section>
-    </div>
+        </StorybookGrid>
+      </StorybookSection>
+      <StorybookSection title="Typography and layout policy">
+        <pre style={{ margin: 0, whiteSpace: "pre-wrap", color: "var(--muted-foreground)", lineHeight: 1.6 }}>
+          {JSON.stringify(
+            {
+              contrast: tenzyuFoundationTokens.contrastPolicy,
+              typography: tenzyuFoundationTokens.typographyPolicy,
+              layout: tenzyuFoundationTokens.layoutPolicy,
+            },
+            null,
+            2,
+          )}
+        </pre>
+      </StorybookSection>
+    </StorybookPage>
   ),
 };

@@ -5,13 +5,13 @@ import { cn } from '../../lib/cn'
 
 const buttonVariants = cva(
   [
-    'inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap',
-    'rounded-[var(--radius-md)] font-medium',
-    'transition-[background,border-color,color,box-shadow,transform] duration-150',
-    'outline-none focus-visible:border-ring focus-visible:ring-[var(--tz-focus-ring-width)] focus-visible:ring-ring/40',
-    'disabled:pointer-events-none disabled:opacity-50',
-    'aria-invalid:border-destructive aria-invalid:ring-destructive/20',
-    '[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*=\'size-\'])]:size-4',
+    // 'inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap',
+    // 'rounded-[var(--radius-md)] font-medium',
+    // 'transition-[background,border-color,color,box-shadow,transform] duration-150',
+    // 'outline-none focus-visible:border-ring focus-visible:ring-[var(--tz-focus-ring-width)] focus-visible:ring-ring/40',
+    // 'disabled:pointer-events-none disabled:opacity-50',
+    // 'aria-invalid:border-destructive aria-invalid:ring-destructive/20',
+    // '[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*=\'size-\'])]:size-4',
   ],
   {
     variants: {

@@ -33,6 +33,13 @@
         "command": "bun run typecheck"
       }
     },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/packages/ui",
+        "command": "bun run test"
+      }
+    },
     "package-smoke": {
       "executor": "nx:run-commands",
       "options": {
@@ -52,6 +59,31 @@
       "outputs": [
         "{projectRoot}/dist"
       ]
+    },
+    "storybook": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/packages/ui",
+        "command": "bun run storybook"
+      },
+      "cache": false
+    },
+    "build-storybook": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/packages/ui",
+        "command": "bun run build:storybook"
+      },
+      "outputs": [
+        "{projectRoot}/storybook-static"
+      ]
+    },
+    "check-storybook-catalog": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/packages/ui",
+        "command": "bun run check:storybook-catalog"
+      }
     },
     "check": {
       "executor": "nx:run-commands",

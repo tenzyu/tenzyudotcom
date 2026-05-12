@@ -13,6 +13,7 @@
       "import": "./dist/index.js",
       "default": "./dist/index.js"
     },
+    "./normalize.css": "./dist/normalize.css",
     "./styles.css": "./dist/styles.css",
     "./package.json": "./package.json",
     "./*": {
@@ -26,7 +27,6 @@
     "cmdk": "^1.1.1",
     "embla-carousel-react": "^8.6.0",
     "input-otp": "^1.4.2",
-    "next-themes": "^0.4.6",
     "react": ">=19 <20",
     "react-day-picker": "^9.12.0",
     "react-dom": ">=19 <20",
@@ -47,9 +47,6 @@
       "optional": true
     },
     "input-otp": {
-      "optional": true
-    },
-    "next-themes": {
       "optional": true
     },
     "react-day-picker": {
@@ -83,24 +80,33 @@
     "README.md"
   ],
   "scripts": {
-    "clean": "rm -rf dist",
+    "clean": "rm -rf dist storybook-static",
     "build": "bun run clean && vite build && bun scripts/build-css.mjs",
     "package-smoke": "bun scripts/package-smoke.ts",
     "typecheck": "tsc --noEmit",
-    "check": "bun run typecheck && bun run check:boundaries && bun run build && bun run package-smoke",
+    "test": "bun test",
+    "check": "bun run typecheck && bun run test && bun run check:boundaries && bun run check:storybook-catalog && bun run build && bun run package-smoke",
     "prepack": "bun run build",
     "storybook": "storybook dev -p 6006",
     "build:storybook": "storybook build",
+    "check:storybook-catalog": "bun scripts/check-storybook-catalog.ts",
     "check:boundaries": "bun scripts/check-boundaries.ts"
   },
   "devDependencies": {
     "@base-ui/react": "^1.0.0",
+    "@storybook/addon-a11y": "^10.0.0",
+    "@storybook/addon-postcss": "^2.0.0",
+    "@storybook/addon-themes": "^10.3.6",
+    "@storybook/react-vite": "^10.0.0",
+    "@tailwindcss/postcss": "^4.2.1",
+    "@tailwindcss/vite": "^4.3.0",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
     "cmdk": "^1.1.1",
     "embla-carousel-react": "^8.6.0",
     "input-otp": "^1.4.2",
-    "next-themes": "^0.4.6",
+    "postcss": "^8.5.6",
     "react": "19.2.4",
     "react-day-picker": "^9.12.0",
     "react-dom": "19.2.4",
@@ -108,15 +114,10 @@
     "react-resizable-panels": "^4.0.9",
     "recharts": "^3.5.1",
     "sonner": "^2.0.7",
+    "storybook": "^10.0.0",
     "typescript": "^5.9.3",
     "vaul": "^1.1.2",
-    "@vitejs/plugin-react": "^6.0.1",
     "vite": "^8.0.11",
-    "vite-plugin-dts": "^5.0.0",
-    "@tailwindcss/postcss": "^4.2.1",
-    "postcss": "^8.5.6",
-    "@storybook/addon-a11y": "^10.0.0",
-    "@storybook/react-vite": "^10.0.0",
-    "storybook": "^10.0.0"
+    "vite-plugin-dts": "^5.0.0"
   }
 }

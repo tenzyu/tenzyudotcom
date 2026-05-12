@@ -9,7 +9,16 @@ export const uiVariantPolicy = {
     "ghost",
     "link",
     "destructive",
+    "warning",
+    "success",
+    "info",
   ],
+  componentVariants: {
+    button: ["default", "primary", "secondary", "tertiary", "outline", "soft", "ghost", "link", "destructive"],
+    card: ["default", "soft", "interactive", "quiet", "info", "warning", "danger", "success"],
+    badge: ["default", "secondary", "tertiary", "destructive", "warning", "success", "outline", "ghost", "link"],
+    alert: ["default", "destructive"],
+  },
   sizes: ["default", "xs", "sm", "lg", "icon", "icon-xs", "icon-sm", "icon-lg"],
   densities: ["comfortable", "compact"],
   rules: {
@@ -18,6 +27,8 @@ export const uiVariantPolicy = {
     destructiveIsVariant: true,
     iconOnlyRequiresAccessibleName: true,
     applicationLayoutIsOutOfScope: true,
+    productSpecificVariantsAreForbidden: true,
+    storybookCoverageIsRequired: true,
   },
 } as const;
 
