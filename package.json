@@ -42,7 +42,11 @@
     "policy:deps": "bun repo-ops/scripts/check-dependency-policy.ts"
   },
   "devDependencies": {
-    "nx": "22.6.5",
-    "@nx/js": "22.6.5"
+    "@nx/js": "22.6.5",
+    "@nx/next": "^22.7.1",
+    "@nx/react": "^22.7.1",
+    "@nx/storybook": "^22.7.1",
+    "@nx/vite": "^22.7.1",
+    "nx": "22.6.5"
   }
 }
