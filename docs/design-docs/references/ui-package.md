@@ -1,3 +1,11 @@
+---
+title: UI Package Boundary Repair Guide
+impact: HIGH
+impactDescription: "@tenzyu/ui の責務境界と Storybook 検証面を短く参照できるようにする。"
+tags: reference, ui, package-boundary
+chapter: References
+---
+
 # @tenzyu/ui package boundary
 
 `@tenzyu/ui` is the shared design-system package for React consumers in tenzyudotcom.

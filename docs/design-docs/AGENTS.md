@@ -2,7 +2,7 @@
 
 **Version 1.0.0**
 Engineering
-March 2026
+May 2026
 
 > **Note:**
 > This document is mainly for agents and LLMs to follow when maintaining,
@@ -39,19 +39,19 @@ boundaries, and automated verification to maintain high technical integrity.
    - 2.8 [Security: Outbound Boundary & Zero Trust](#28-security-outbound-boundary-zero-trust)
 3. [Implementation](#3-implementation)
    - 3.1 [File Role Contract](#31-file-role-contract)
-   - 3.2 [Editor Collection Registration](#32-editor-collection-registration)
-   - 3.3 [Editor Errors And Blog Saving Should Cross Boundaries Via Port](#33-editor-errors-and-blog-saving-should-cross-boundaries-via-port)
-   - 3.4 [Parse At Boundaries](#34-parse-at-boundaries)
-   - 3.5 [Apply DI Before UI Assembly](#35-apply-di-before-ui-assembly)
-   - 3.6 [Avoid Route POST And Hard Reload For Inline Admin](#36-avoid-route-post-and-hard-reload-for-inline-admin)
-   - 3.7 [Actions Mount Through Assemble](#37-actions-mount-through-assemble)
-   - 3.8 [Bundle Hygiene](#38-bundle-hygiene)
-   - 3.9 [Route Entrypoint Contracts](#39-route-entrypoint-contracts)
-   - 3.10 [Component Separation](#310-component-separation)
-   - 3.11 [Inline Admin Composition](#311-inline-admin-composition)
-   - 3.12 [Admin Gate Contract](#312-admin-gate-contract)
-   - 3.13 [GitHub Content Read Write Boundary](#313-github-content-read-write-boundary)
-   - 3.14 [Site Owned GitHub Content Assembly](#314-site-owned-github-content-assembly)
+   - 3.2 [Site Owned GitHub Content Assembly](#32-site-owned-github-content-assembly)
+   - 3.3 [Editor Collection Registration](#33-editor-collection-registration)
+   - 3.4 [Editor Errors And Blog Saving Should Cross Boundaries Via Port](#34-editor-errors-and-blog-saving-should-cross-boundaries-via-port)
+   - 3.5 [Parse At Boundaries](#35-parse-at-boundaries)
+   - 3.6 [Apply DI Before UI Assembly](#36-apply-di-before-ui-assembly)
+   - 3.7 [Avoid Route POST And Hard Reload For Inline Admin](#37-avoid-route-post-and-hard-reload-for-inline-admin)
+   - 3.8 [Actions Mount Through Assemble](#38-actions-mount-through-assemble)
+   - 3.9 [Bundle Hygiene](#39-bundle-hygiene)
+   - 3.10 [GitHub Content Read Write Boundary](#310-github-content-read-write-boundary)
+   - 3.11 [Route Entrypoint Contracts](#311-route-entrypoint-contracts)
+   - 3.12 [Component Separation](#312-component-separation)
+   - 3.13 [Inline Admin Composition](#313-inline-admin-composition)
+   - 3.14 [Admin Gate Contract](#314-admin-gate-contract)
 4. [UI & UX](#4-ui-ux)
    - 4.1 [Token-first Styling](#41-token-first-styling)
    - 4.2 [Locale Switcher Single Flow](#42-locale-switcher-single-flow)
@@ -67,7 +67,7 @@ boundaries, and automated verification to maintain high technical integrity.
 6. [Reliability](#6-reliability)
    - 6.1 [Reliability: Metadata & i18n Safety](#61-reliability-metadata-i18n-safety)
    - 6.2 [Reliability: Fault Tolerance & Isolated Boundaries](#62-reliability-fault-tolerance-isolated-boundaries)
-   - 6.3 [Reliability: Content Version Normalization](#63-reliability-content-version-normalization)
+   - 6.3 [Content Version Normalization](#63-content-version-normalization)
 7. [CLI](#7-cli)
    - 7.1 [Quote Path Commands](#71-quote-path-commands)
 
@@ -524,7 +524,38 @@ UI から *.infra.ts を直接呼ぶ
 *.assemble.ts: use case 組み立てと入力整形
 ```
 
-### 3.2 Editor Collection Registration <a id="32-editor-collection-registration"></a>
+### 3.2 Site Owned GitHub Content Assembly <a id="32-site-owned-github-content-assembly"></a>
+
+**Impact: MEDIUM**
+
+> keeps package boundaries clean by separating generic GitHub clients from site-specific caching and schemas
+
+## Site Owned GitHub Content Assembly
+
+Do not extract GitHub content code into a shared package if it still knows site-specific cache tags, manifests, or route semantics.
+Only generic GitHub Contents API mechanics belong in a shared package. Site-specific assembly stays in `site`.
+
+**Avoid:**
+
+```ts
+export async function upsertGitHubBlogIndexEntry(entry: GitHubBlogIndexEntry) {
+  revalidateTag('content:blog:index', 'max')
+  // package knows site manifest and cache tags
+}
+```
+
+**Prefer:**
+
+```ts
+// shared package
+export async function putGitHubContent(pathname: string, content: string) {}
+
+// site
+await putGitHubContent('blog/index.json', serialized)
+revalidateTag(BLOG_INDEX_CONTENT_TAG, 'max')
+```
+
+### 3.3 Editor Collection Registration <a id="33-editor-collection-registration"></a>
 
 **Impact: HIGH**
 
@@ -550,7 +581,7 @@ export const EDITOR_COLLECTIONS = {
 }
 ```
 
-### 3.3 Editor Errors And Blog Saving Should Cross Boundaries Via Port <a id="33-editor-errors-and-blog-saving-should-cross-boundaries-via-port"></a>
+### 3.4 Editor Errors And Blog Saving Should Cross Boundaries Via Port <a id="34-editor-errors-and-blog-saving-should-cross-boundaries-via-port"></a>
 
 **Impact: MEDIUM**
 
@@ -580,7 +611,7 @@ const saveUseCase = makeSaveBlogPostUseCase()
 await saveUseCase.execute(slug, frontmatter, body, version)
 ```
 
-### 3.4 Parse At Boundaries <a id="34-parse-at-boundaries"></a>
+### 3.5 Parse At Boundaries <a id="35-parse-at-boundaries"></a>
 
 **Impact: HIGH**
 
@@ -602,7 +633,7 @@ const data = await res.json() as UnsafeType
 const data = MySchema.parse(await res.json())
 ```
 
-### 3.5 Apply DI Before UI Assembly <a id="35-apply-di-before-ui-assembly"></a>
+### 3.6 Apply DI Before UI Assembly <a id="36-apply-di-before-ui-assembly"></a>
 
 **Impact: HIGH**
 
@@ -632,7 +663,7 @@ function LeafAdminMenu() {
 // UI は leaf affordance として最小限の入力状態だけを持つ
 ```
 
-### 3.6 Avoid Route POST And Hard Reload For Inline Admin <a id="36-avoid-route-post-and-hard-reload-for-inline-admin"></a>
+### 3.7 Avoid Route POST And Hard Reload For Inline Admin <a id="37-avoid-route-post-and-hard-reload-for-inline-admin"></a>
 
 **Impact: MEDIUM**
 
@@ -658,7 +689,7 @@ if (result.ok) {
 }
 ```
 
-### 3.7 Actions Mount Through Assemble <a id="37-actions-mount-through-assemble"></a>
+### 3.8 Actions Mount Through Assemble <a id="38-actions-mount-through-assemble"></a>
 
 **Impact: HIGH**
 
@@ -692,7 +723,7 @@ export async function saveBlogPostAction(formData: FormData) {
 }
 ```
 
-### 3.8 Bundle Hygiene <a id="38-bundle-hygiene"></a>
+### 3.9 Bundle Hygiene <a id="39-bundle-hygiene"></a>
 
 **Impact: HIGH**
 
@@ -714,7 +745,40 @@ import { a, b, c } from "@/features/notes"
 import { a } from "@/features/notes/components/a"
 ```
 
-### 3.9 Route Entrypoint Contracts <a id="39-route-entrypoint-contracts"></a>
+### 3.10 GitHub Content Read Write Boundary <a id="310-github-content-read-write-boundary"></a>
+
+**Impact: HIGH**
+
+> prevents stale reads, false conflicts, and excessive GitHub API traffic
+
+## GitHub Content Read Write Boundary
+
+GitHub-backed content must separate cached reads from fresh mutation paths.
+Public page reads may use cached GitHub fetches, but save-time conflict checks and writes must always read fresh state.
+
+**Avoid:**
+
+```ts
+const current = await loadGitHubTextFile(pathname)
+
+if (createContentVersion(current?.content ?? '') !== expectedVersion) {
+  throw new StorageVersionConflictError('conflict')
+}
+```
+
+**Prefer:**
+
+```ts
+const current = await loadGitHubTextFileFresh(pathname)
+
+if (createContentVersion((current?.content ?? '').trimEnd()) !== expectedVersion) {
+  throw new StorageVersionConflictError('conflict')
+}
+
+await saveGitHubTextFile(pathname, content, { expectedVersion })
+```
+
+### 3.11 Route Entrypoint Contracts <a id="311-route-entrypoint-contracts"></a>
 
 **Impact: HIGH**
 
@@ -753,7 +817,7 @@ const FooPage: NextPageIntlayer = async ({ params }) => {
 }
 ```
 
-### 3.10 Component Separation <a id="310-component-separation"></a>
+### 3.12 Component Separation <a id="312-component-separation"></a>
 
 **Impact: HIGH**
 
@@ -783,7 +847,7 @@ export default function CleanComponent() {
 }
 ```
 
-### 3.11 Inline Admin Composition <a id="311-inline-admin-composition"></a>
+### 3.13 Inline Admin Composition <a id="313-inline-admin-composition"></a>
 
 **Impact: HIGH**
 
@@ -823,7 +887,7 @@ export function NotesPageCollection() {
 </NoteCard>
 ```
 
-### 3.12 Admin Gate Contract <a id="312-admin-gate-contract"></a>
+### 3.14 Admin Gate Contract <a id="314-admin-gate-contract"></a>
 
 **Impact: CRITICAL**
 
@@ -1203,6 +1267,35 @@ export default function Page() {
 }
 ```
 
+### 6.3 Content Version Normalization <a id="63-content-version-normalization"></a>
+
+**Impact: HIGH**
+
+> avoids false conflict detection caused by newline and serialization drift
+
+## Content Version Normalization
+
+Content version hashes must be computed from the same normalized representation on load, compare, and save.
+If one path trims trailing newlines and another does not, the system will report conflicts even when the user changed nothing.
+
+**Avoid:**
+
+```ts
+const loadedVersion = createContentVersion(serialized.trimEnd())
+const saveVersion = createContentVersion(current?.content ?? '')
+```
+
+**Prefer:**
+
+```ts
+const normalizeVersionSource = (value: string) => value.trimEnd()
+
+const loadedVersion = createContentVersion(normalizeVersionSource(serialized))
+const saveVersion = createContentVersion(
+  normalizeVersionSource(current?.content ?? ''),
+)
+```
+
 ---
 
 ## 7. CLI <a id="7-cli"></a>
@@ -1221,12 +1314,14 @@ shell で path を渡すときは quote する。
 
 ```bash
 nix develop -c mv src/app/[locale]/(main)/hoge/_features/fuga.domain.ts src/lib/hoge/fuga.domain.ts
+sed -n '1,260p' packages/site/src/app/[locale]/(main)/puzzles/_features/puzzles.infra.ts
 ```
 
 **Prefer:**
 
 ```bash
 nix develop -c mv "src/app/[locale]/(main)/hoge/_features/fuga.domain.ts" "src/lib/hoge/fuga.domain.ts"
+sed -n '1,260p' 'packages/site/src/app/[locale]/(main)/puzzles/_features/puzzles.infra.ts'
 ```
 
 
@@ -1240,3 +1335,4 @@ Use these short guides when a linter points you at a specific repair path.
 - [No Re-export Repair Guide](./references/no-reexport.md)
 - [Site Rules Repair Guide](./references/site-rules.md)
 - [Symbol Ownership Repair Guide](./references/symbol-ownership.md)
+- [UI Package Boundary Repair Guide](./references/ui-package.md)

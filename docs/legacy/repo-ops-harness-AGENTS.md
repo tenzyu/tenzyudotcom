@@ -1,3 +1,12 @@
+# Legacy AGENTS: Repo-Ops Harness Map
+
+This file was moved out of `repo-ops/harness` during the legacy harness cleanup.
+It is retained as historical routing context only. Active AI organization
+instructions live under `harness/ai-org/`; active repository contracts live under
+`docs/`.
+
+---
+
 # AGENTS: Repo Map
 
 This file is a routing map, not an encyclopedia.
