@@ -21,6 +21,10 @@ type WorkspaceProject = {
   tags: string[]
 }
 
+type PackageJsonWorkspaces = string[] | {
+  packages?: string[]
+}
+
 type ModuleReference = {
   hasBindings: boolean
   isExport: boolean
@@ -173,11 +177,16 @@ function workspacePatternRoot(pattern: string) {
   return root.replace(/\/$/, '')
 }
 
+function workspacePatternsFromPackageJson(workspaces: PackageJsonWorkspaces | undefined) {
+  if (Array.isArray(workspaces)) return workspaces
+  return workspaces?.packages ?? ['product/apps/*', 'product/packages/*']
+}
+
 function discoverWorkspaceProjects(workspaceRoot: string): WorkspaceProject[] {
-  const rootPackageJson = readJson<{ workspaces?: string[] }>(
+  const rootPackageJson = readJson<{ workspaces?: PackageJsonWorkspaces }>(
     path.join(workspaceRoot, 'package.json'),
   )
-  const workspacePatterns = rootPackageJson?.workspaces ?? ['product/apps/*', 'product/packages/*']
+  const workspacePatterns = workspacePatternsFromPackageJson(rootPackageJson?.workspaces)
   const projects: WorkspaceProject[] = []
 
   for (const pattern of workspacePatterns) {
