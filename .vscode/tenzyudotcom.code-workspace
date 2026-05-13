@@ -17,15 +17,8 @@
 		"editor.formatOnSave": true,
 		"editor.defaultFormatter": "esbenp.prettier-vscode",
 		"editor.codeActionsOnSave": {
-			"source.fixAll.biome": "explicit",
 			"source.organizeImports": "never",
 			"source.organizeImports.biome": "explicit"
-		},
-		"[jsonc]": {
-			"editor.defaultFormatter": "vscode.json-language-features"
-		},
-		"[nix]": {
-			"editor.defaultFormatter": "jnoortheen.nix-ide"
 		}
 	}
 }
