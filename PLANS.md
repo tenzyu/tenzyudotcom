@@ -3,7 +3,7 @@
 Large changes should land as short execution plans before implementation.
 
 Use this file as the index for active plans. Detailed plans can live under
-`repo-ops/harness/exec-plans`.
+`docs/exec-plans`.
 
 Current foundation track:
 

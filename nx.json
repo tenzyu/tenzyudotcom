@@ -1,113 +1,115 @@
 {
-  "$schema": "./node_modules/nx/schemas/nx-schema.json",
-  "workspaceLayout": {
-    "appsDir": "product/apps",
-    "libsDir": "product/packages"
-  },
-  "namedInputs": {
-    "default": [
-      "{projectRoot}/**/*",
-      "sharedGlobals"
-    ],
-    "production": [
-      "default",
-      "!{projectRoot}/**/*.test.ts",
-      "!{projectRoot}/**/*.test.tsx",
-      "!{projectRoot}/tests/**",
-      "!{projectRoot}/README.md"
-    ],
-    "sharedGlobals": [
-      "{workspaceRoot}/bun.lock",
-      "{workspaceRoot}/flake.lock",
-      "{workspaceRoot}/package.json",
-      "{workspaceRoot}/nx.json",
-      "{workspaceRoot}/tsconfig.base.json",
-      "{workspaceRoot}/tsconfig.bun.json",
-      "{workspaceRoot}/tsconfig.json",
-      "{workspaceRoot}/tsconfig.next.json",
-      "{workspaceRoot}/tsconfig.react-lib.json",
-      "{workspaceRoot}/tsconfig.vite.json",
-      "{workspaceRoot}/product/apps/osu-skin-workbench/src-tauri/Cargo.lock"
-    ]
-  },
-  "targetDefaults": {
-    "build": {
-      "dependsOn": [
-        "^build"
-      ],
-      "inputs": [
-        "production",
-        "^production"
-      ],
-      "cache": true
-    },
-    "build-vite": {
-      "dependsOn": [
-        "^build"
-      ],
-      "inputs": [
-        "production",
-        "^production"
-      ],
-      "cache": true
-    },
-    "typecheck": {
-      "inputs": [
-        "default",
-        "^production"
-      ],
-      "cache": true
-    },
-    "lint": {
-      "inputs": [
-        "default",
-        "^production"
-      ],
-      "cache": true
-    },
-    "test": {
-      "inputs": [
-        "default",
-        "^production"
-      ],
-      "cache": true
-    },
-    "check": {
-      "dependsOn": [
-        "typecheck",
-        "test"
-      ],
-      "inputs": [
-        "default",
-        "^production"
-      ],
-      "cache": true
-    },
-    "verify": {
-      "dependsOn": [
-        "check",
-        "build"
-      ],
-      "inputs": [
-        "production",
-        "^production"
-      ],
-      "cache": true
-    }
-  },
-  "plugins": [
-    {
-      "plugin": "@nx/js/typescript",
-      "options": {
-        "typecheck": {
-          "targetName": "typecheck"
-        }
-      }
-    }
-  ],
-  "analytics": false,
-  "tui": {
-    "enabled": false,
-    "autoExit": true
-  }
+	"$schema": "./node_modules/nx/schemas/nx-schema.json",
+	"workspaceLayout": {
+		"appsDir": "product/apps",
+		"libsDir": "product/packages"
+	},
+	"namedInputs": {
+		"default": ["{projectRoot}/**/*", "sharedGlobals"],
+		"production": [
+			"default",
+			"!{projectRoot}/README.md",
+			"!{projectRoot}/tests/**",
+			"!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)",
+			"!{projectRoot}/tsconfig.spec.json",
+			"!{projectRoot}/src/test-setup.[jt]s",
+			"!{projectRoot}/**/*.stories.@(js|jsx|ts|tsx|mdx)",
+			"!{projectRoot}/.storybook/**/*",
+			"!{projectRoot}/tsconfig.storybook.json"
+		],
+		"sharedGlobals": [
+			"{workspaceRoot}/bun.lock",
+			"{workspaceRoot}/flake.lock",
+			"{workspaceRoot}/package.json",
+			"{workspaceRoot}/nx.json",
+			"{workspaceRoot}/tsconfig.base.json",
+			"{workspaceRoot}/tsconfig.bun.json",
+			"{workspaceRoot}/tsconfig.json",
+			"{workspaceRoot}/tsconfig.next.json",
+			"{workspaceRoot}/tsconfig.react-lib.json",
+			"{workspaceRoot}/tsconfig.vite.json",
+			"{workspaceRoot}/product/apps/osu-skin-workbench/src-tauri/Cargo.lock"
+		]
+	},
+	"targetDefaults": {
+		"build": {
+			"dependsOn": ["^build"],
+			"inputs": ["production", "^production"],
+			"cache": true
+		},
+		"build-vite": {
+			"dependsOn": ["^build"],
+			"inputs": ["production", "^production"],
+			"cache": true
+		},
+		"typecheck": {
+			"inputs": ["default", "^production"],
+			"cache": true
+		},
+		"lint": {
+			"inputs": ["default", "^production"],
+			"cache": true
+		},
+		"test": {
+			"inputs": ["default", "^production"],
+			"cache": true
+		},
+		"check": {
+			"dependsOn": ["typecheck", "test"],
+			"inputs": ["default", "^production"],
+			"cache": true
+		},
+		"verify": {
+			"dependsOn": ["check", "build"],
+			"inputs": ["production", "^production"],
+			"cache": true
+		}
+	},
+	"plugins": [
+		{
+			"plugin": "@nx/js/typescript",
+			"options": {
+				"typecheck": {
+					"targetName": "typecheck"
+				}
+			}
+		},
+		{
+			"plugin": "@nx/vite/plugin",
+			"options": {
+				"buildTargetName": "build",
+				"testTargetName": "test",
+				"serveTargetName": "serve",
+				"devTargetName": "vite:dev",
+				"previewTargetName": "preview",
+				"serveStaticTargetName": "serve-static",
+				"typecheckTargetName": "vite:typecheck",
+				"buildDepsTargetName": "build-deps",
+				"watchDepsTargetName": "watch-deps"
+			}
+		},
+		{
+			"plugin": "@nx/storybook/plugin",
+			"options": {
+				"serveStorybookTargetName": "serve:storybook",
+				"buildStorybookTargetName": "storybook:build",
+				"testStorybookTargetName": "test-storybook",
+				"staticStorybookTargetName": "static-storybook",
+				"buildDepsTargetName": "storybook:build-deps",
+				"watchDepsTargetName": "storybook:watch-deps"
+			}
+		}
+	],
+	"analytics": false,
+	"tui": {
+		"enabled": false,
+		"autoExit": true
+	},
+	"generators": {
+		"@nx/react": {
+			"library": {
+				"unitTestRunner": "none"
+			}
+		}
+	}
 }

@@ -1,3 +1,7 @@
+model = "gpt-5.5"
+model_reasoning_effort = "high"
+personality = "pragmatic"
+
 [mcp_servers.serena]
 command = "serena"
 args = [ "start-mcp-server", "--context", "codex" ]
@@ -8,6 +12,7 @@ args = [ "nx", "mcp" ]
 
 [features]
 multi_agent = true
+goals = true
 
 [agents.ci-monitor-subagent]
 description = "CI helper for /monitor-ci. Fetches CI status, retrieves fix details, or updates self-healing fixes. Executes one MCP tool call and returns the result."

@@ -1,3 +1,6 @@
 {
-  "recommendations": ["intlayer.intlayer-vs-code-extension", "biomejs.biome"]
+  "recommendations": [
+    "intlayer.intlayer-vs-code-extension",
+    "esbenp.prettier-vscode"
+  ]
 }

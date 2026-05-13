@@ -1,4 +1,27 @@
-@docs/AGENTS.md
+# AGENTS.md
+
+This repository uses `harness/ai-org` as the canonical AI organization system.
+Tool-specific root files are adapters only; durable policy, workflow, memory,
+and handoff rules live under `harness/ai-org`.
+
+Also read `docs/AGENTS.md` for repository-local engineering constraints.
+
+Before changing code:
+
+1. Read `harness/ai-org/org/charter.md`.
+2. Read `harness/ai-org/memory/repo-map.md`.
+3. Read the relevant role file under `harness/ai-org/agents/`.
+4. Read the relevant workflow under `harness/ai-org/workflows/`.
+5. Create or update a task folder under `harness/ai-org/tasks/` for non-trivial work.
+6. Do not claim completion without `verification.md` and `handoff.md`.
+
+Hard rules:
+
+- Do not remove existing features unless explicitly requested.
+- Do not rewrite large areas without an ExecPlan.
+- Do not change public component APIs without migration notes.
+- Do not introduce app-specific logic into `@tenzyu/ui`.
+- Do not bypass typecheck, lint, tests, build, Storybook, or affected Nx validation when relevant.
 
 <!-- nx configuration start-->
 <!-- Leave the start & end comments to automatically receive updates. -->

@@ -17,11 +17,10 @@ tenzyudotcom/
       osu-skin-core/
 
   repo-ops/
-    harness/
-    linter/
     scripts/
-    biome/
-    shell/
+
+  harness/
+    ai-org/
 
   .codex/
   .gemini/
@@ -67,26 +66,38 @@ Product code must not depend on `repo-ops/`.
 
 ### `repo-ops/`
 
-Non-product code for repository operation, automation, AI harnesses, linting, migration, and generation.
+Non-product code for repository operation, automation, migration, and generation.
 
 ```txt
-repo-ops/harness/
-  AI instructions, ExecPlans, workflows, repository knowledge, reports
-
-repo-ops/linter/
-  Custom lint rules
-
 repo-ops/scripts/
   Repository maintenance scripts
-
-repo-ops/biome/
-  Biome support files
-
-repo-ops/shell/
-  Shell helpers
 ```
 
 `repo-ops/` may inspect or transform `product/`, but product runtime code should not import from `repo-ops/`.
+
+### `docs/`
+
+Repository and product contracts.
+
+```txt
+docs/design-docs/
+  Architecture rules and generated rules index
+
+docs/exec-plans/
+  Active and completed execution plans
+
+docs/product-specs/
+  Product and route-specific requirements
+
+docs/workflows/ and docs/references/
+  Supporting workflow and external tool references
+```
+
+### `harness/ai-org/`
+
+Canonical AI organization system for role definitions, task workflow, handoff,
+and durable memory. Root AI files such as `AGENTS.md`, `CLAUDE.md`, and
+`GEMINI.md` are adapters into this directory.
 
 ## Root Files
 
@@ -106,10 +117,10 @@ README.md
   Repository overview
 ```
 
-Detailed AI harness assets live under:
+Detailed AI organization assets live under:
 
 ```txt
-repo-ops/harness/
+harness/ai-org/
 ```
 
 ## Workspaces
@@ -195,4 +206,3 @@ repo-ops/*           -> product/*           allowed when needed
 ```
 
 Keep product code, shared runtime code, and repository operation code separate.
-

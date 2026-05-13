@@ -11,6 +11,9 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "paths": {
+      "@tenzyu/ui-react": ["./product/packages/ui-react/src/index.ts"]
+    }
   }
 }
