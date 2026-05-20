@@ -43,7 +43,7 @@ export const Default: Story = {
         <FieldGroup>
           <Field>
             <FieldLabel htmlFor="entry">Entry point</FieldLabel>
-            <Input id="entry" defaultValue="@tenzyu/ui-react/button" />
+            <Input id="entry" defaultValue="@tenzyu/ui/button" />
             <FieldDescription>
               Component entries are validated as package subpaths.
             </FieldDescription>

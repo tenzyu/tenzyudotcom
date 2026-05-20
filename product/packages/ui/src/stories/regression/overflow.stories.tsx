@@ -35,7 +35,7 @@ export const LongText: Story = {
       </CardHeader>
       <CardContent className="grid gap-3">
         <p className="break-words text-muted-foreground">
-          @tenzyu/ui-react/some-very-long-component-entry-that-must-not-overflow
+          @tenzyu/ui/some-very-long-component-entry-that-must-not-overflow
         </p>
         <Button className="max-w-full whitespace-normal">
           Button label with intentionally long text

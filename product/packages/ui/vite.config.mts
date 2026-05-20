@@ -61,7 +61,7 @@ export default defineConfig(() => ({
         index: path.resolve(srcRoot, 'index.ts'),
         ...componentEntries,
       },
-      name: 'ui-react',
+      name: 'ui',
       formats: ['es' as const],
       fileName: (_format, entryName) => `${entryName}.js`,
       cssFileName: 'styles',

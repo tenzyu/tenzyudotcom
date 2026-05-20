@@ -36,11 +36,7 @@ export const Default: Story = {
           </Field>
           <Field data-invalid="true">
             <FieldLabel htmlFor="package-name">Package name</FieldLabel>
-            <Input
-              id="package-name"
-              defaultValue="@tenzyu/ui-react"
-              aria-invalid
-            />
+            <Input id="package-name" defaultValue="@tenzyu/ui" aria-invalid />
             <FieldError>Package names cannot include source paths.</FieldError>
           </Field>
           <div>

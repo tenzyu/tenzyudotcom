@@ -21,7 +21,7 @@
     "analyze": "next experimental-analyze"
   },
   "dependencies": {
-    "@tenzyu/ui-react": "workspace:*",
+    "@tenzyu/ui": "workspace:*",
     "@vercel/analytics": "catalog:",
     "@vercel/speed-insights": "catalog:",
     "embla-carousel-react": "catalog:",
