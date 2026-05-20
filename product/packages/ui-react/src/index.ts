@@ -2,5 +2,5 @@
 import './index.css'
 
 export { ThemeProvider } from './components/theme-provider'
-export { useIsMobile } from './hooks/use-mobile'
+export { useIsMobile, useIsMobile as useMobile } from './hooks/use-mobile'
 export { cn } from './lib/utils'
