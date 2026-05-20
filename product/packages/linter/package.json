@@ -23,10 +23,10 @@
     "lint": "bun run ./src/cli.ts"
   },
   "dependencies": {
-    "typescript": "^5.9.3"
+    "typescript": "catalog:"
   },
   "devDependencies": {
-    "@types/bun": "^1.3.10",
-    "@types/picomatch": "^4.0.3"
+    "@types/bun": "catalog:",
+    "@types/picomatch": "catalog:"
   }
 }
