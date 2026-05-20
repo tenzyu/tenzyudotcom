@@ -1,53 +1,85 @@
 /// <reference types='vitest' />
 
-import * as path from "node:path";
-import { nxCopyAssetsPlugin } from "@nx/vite/plugins/nx-copy-assets.plugin";
-import { nxViteTsPaths } from "@nx/vite/plugins/nx-tsconfig-paths.plugin";
-import react from "@vitejs/plugin-react";
-import tailwindcss from "@tailwindcss/vite";
-import { defineConfig } from "vite";
-import dts from "vite-plugin-dts";
+import * as fs from 'node:fs'
+import * as path from 'node:path'
+import { nxCopyAssetsPlugin } from '@nx/vite/plugins/nx-copy-assets.plugin'
+import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin'
+import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
+import { defineConfig } from 'vite'
+import dts from 'vite-plugin-dts'
+
+const projectRoot = import.meta.dirname
+const srcRoot = path.resolve(projectRoot, 'src')
+const uiRoot = path.resolve(srcRoot, 'components/ui')
+const outDir = path.resolve(
+  projectRoot,
+  '../../../dist/product/packages/ui-react'
+)
+
+const componentEntries = Object.fromEntries(
+  fs
+    .readdirSync(uiRoot)
+    .filter((file) => /\.(ts|tsx)$/.test(file))
+    .filter((file) => !file.endsWith('.test.ts'))
+    .filter((file) => !file.endsWith('.test.tsx'))
+    .filter((file) => !file.endsWith('.spec.ts'))
+    .filter((file) => !file.endsWith('.spec.tsx'))
+    .filter((file) => !file.endsWith('.stories.ts'))
+    .filter((file) => !file.endsWith('.stories.tsx'))
+    .map((file) => {
+      const entryName = path.basename(file, path.extname(file))
+
+      return [entryName, path.resolve(uiRoot, file)] as const
+    })
+)
 
 export default defineConfig(() => ({
-  root: import.meta.dirname,
-  cacheDir: "../../../node_modules/.vite/product/packages/ui-react",
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
-    },
-  },
+  root: projectRoot,
+  cacheDir: '../../../node_modules/.vite/product/packages/ui-react',
+  resolve: { alias: { '@': srcRoot } },
+
   plugins: [
     react(),
     tailwindcss(),
     nxViteTsPaths(),
-    nxCopyAssetsPlugin(["*.md"]),
+    nxCopyAssetsPlugin(['*.md']),
     dts({
-      entryRoot: "src",
-      tsconfigPath: path.join(import.meta.dirname, "tsconfig.lib.json"),
+      entryRoot: 'src',
+      outDirs: [outDir],
+      tsconfigPath: path.join(projectRoot, 'tsconfig.lib.json'),
       pathsToAliases: false,
+      exclude: ['**/*.test.*', '**/*.spec.*', '**/*.stories.*'],
     }),
   ],
   // Configuration for building your library.
   // See: https://vite.dev/guide/build.html#library-mode
   build: {
-    outDir: "../../../dist/product/packages/ui-react",
+    outDir,
     emptyOutDir: true,
     reportCompressedSize: true,
-    commonjsOptions: {
-      transformMixedEsModules: true,
-    },
+    sourcemap: true,
+
+    commonjsOptions: { transformMixedEsModules: true },
+
     lib: {
-      // Could also be a dictionary or array of multiple entry points.
-      entry: "src/index.ts",
-      name: "ui-react",
-      fileName: "index",
-      // Change this to the formats you want to support.
-      // Don't forget to update your package.json as well.
-      formats: ["es" as const],
+      entry: {
+        index: path.resolve(srcRoot, 'index.ts'),
+        ...componentEntries,
+      },
+      name: 'ui-react',
+      formats: ['es' as const],
+      fileName: (_format, entryName) => `${entryName}.js`,
+      cssFileName: 'styles',
     },
     rollupOptions: {
       // External packages that should not be bundled into your library.
-      external: ["react", "react-dom", "react/jsx-runtime"],
+      external: ['react', 'react-dom', 'react/jsx-runtime'],
+      output: {
+        entryFileNames: '[name].js',
+        chunkFileNames: 'chunks/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash][extname]',
+      },
     },
   },
-}));
+}))

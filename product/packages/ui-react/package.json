@@ -1,12 +1,22 @@
 {
   "name": "@tenzyu/ui-react",
   "version": "0.0.1",
-  "main": "./index.js",
-  "types": "./index.d.ts",
+  "sideEffects": [
+    "*.css",
+    "./dist/styles.css"
+  ],
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./index.mjs",
-      "require": "./index.js"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./styles.css": "./dist/styles.css",
+    "./*": {
+      "types": "./dist/components/ui/*.d.ts",
+      "import": "./dist/*.js"
     }
   },
   "scripts": {
