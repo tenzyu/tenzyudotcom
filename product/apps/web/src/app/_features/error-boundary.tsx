@@ -20,7 +20,7 @@ export default function ErrorBoundary({ error, reset }: ErrorBoundaryProps) {
   }, [error])
 
   return (
-    <div className="flex min-h-[400px] flex-col items-center justify-center space-y-4 text-center">
+    <div className="flex min-h-100 flex-col items-center justify-center space-y-4 text-center">
       <div className="space-y-2">
         <h1 className="text-2xl font-bold tracking-tighter">{content.title}</h1>
         <p className="text-muted-foreground">
@@ -33,7 +33,7 @@ export default function ErrorBoundary({ error, reset }: ErrorBoundaryProps) {
         )}
       </div>
       <Button
-        variant="soft"
+        variant="outline"
         onClick={() => {
           reset()
           toast.success(content.retrying)

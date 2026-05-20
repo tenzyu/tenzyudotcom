@@ -1,6 +1,6 @@
 import { cva, type VariantProps } from 'class-variance-authority'
 import { Slot } from 'radix-ui'
-import { cn } from '@tenzyu/ui/cn'
+import { cn } from '@tenzyu/ui'
 
 const surfaceVariants = cva('border text-card-foreground', {
   variants: {

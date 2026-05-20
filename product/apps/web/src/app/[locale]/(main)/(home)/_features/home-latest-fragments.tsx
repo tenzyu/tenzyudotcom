@@ -53,7 +53,7 @@ export function HomeLatestFragments({
       />
 
       <div className="grid gap-4 lg:grid-cols-[1.25fr_0.9fr]">
-        <Card variant="soft" className="gap-0">
+        <Card className="gap-0">
           <CardHeader className="gap-2 pt-5 pb-3">
             <div className="flex items-center gap-3">
               <div className="bg-primary/10 text-primary flex size-9 items-center justify-center rounded-2xl">
@@ -80,18 +80,23 @@ export function HomeLatestFragments({
                 <p className="line-clamp-2 text-sm leading-6">{note.body}</p>
               </Link>
             ))}
-            <Button asChild variant="ghost" size="sm" className="px-0">
-              <Link href={getLocalizedUrl('/notes', locale)}>
-                {home.fragmentsNotesLinkLabel}
-                <ArrowRight />
-              </Link>
-            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="px-0"
+              render={
+                <Link href={getLocalizedUrl('/notes', locale)}>
+                  {home.fragmentsNotesLinkLabel}
+                  <ArrowRight />
+                </Link>
+              }
+            ></Button>
           </CardContent>
         </Card>
 
         <div className="grid gap-4">
           {latestPost ? (
-            <Card variant="soft" className="gap-0">
+            <Card className="gap-0">
               <CardHeader className="gap-2 pt-5 pb-3">
                 <div className="flex items-center gap-3">
                   <div className="bg-primary/10 text-primary flex size-9 items-center justify-center rounded-2xl">
@@ -121,7 +126,7 @@ export function HomeLatestFragments({
             </Card>
           ) : null}
 
-          <Card variant="soft" className="gap-0">
+          <Card className="gap-0">
             <CardHeader className="gap-2 pt-5 pb-3">
               <div className="flex items-center gap-3">
                 <div className="bg-primary/10 text-primary flex size-9 items-center justify-center rounded-2xl">
@@ -137,14 +142,22 @@ export function HomeLatestFragments({
             </CardHeader>
             <CardContent className="space-y-3 pb-5">
               <p className="text-sm leading-6">{home.fragmentsThingBody}</p>
-              <Button asChild variant="ghost" size="sm" className="px-0">
-                <Link
-                  href={getLocalizedUrl(home.fragmentsThingHref.value, locale)}
-                >
-                  {home.fragmentsThingLinkLabel}
-                  <ArrowRight />
-                </Link>
-              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="px-0"
+                render={
+                  <Link
+                    href={getLocalizedUrl(
+                      home.fragmentsThingHref.value,
+                      locale
+                    )}
+                  >
+                    {home.fragmentsThingLinkLabel}
+                    <ArrowRight />
+                  </Link>
+                }
+              ></Button>
             </CardContent>
           </Card>
         </div>

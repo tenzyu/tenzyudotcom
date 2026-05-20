@@ -22,7 +22,7 @@ type CreatePageMetadataOptions<K extends DictionaryKeys> = {
 
 export async function resolvePageLocale(params: LocalPromiseParams['params']) {
   const { locale } = await params
-  return locale
+  return locale || defaultLocale
 }
 
 const hasValue = <T>(value: unknown): value is IntlayerValue<T> =>
@@ -35,7 +35,7 @@ const normalizeNullable = <T>(value: T | null | undefined) => value ?? undefined
 
 const resolvePathname = <K extends DictionaryKeys>(
   pathname: CreatePageMetadataOptions<K>['pathname'],
-  content: ReturnType<typeof getIntlayer<K>>,
+  content: ReturnType<typeof getIntlayer<K>>
 ) => {
   if (typeof pathname === 'function') {
     return pathname(content)
@@ -46,7 +46,7 @@ const resolvePathname = <K extends DictionaryKeys>(
 
 const createAlternates = (
   pathname: string,
-  alternates: Metadata['alternates'] | undefined,
+  alternates: Metadata['alternates'] | undefined
 ) => {
   const languages = getMultilingualUrls(pathname)
   const canonical =
@@ -67,7 +67,7 @@ const createOpenGraph = (
   metadata: MetadataLike,
   localizedUrl: string | undefined,
   title: Metadata['title'],
-  description: Metadata['description'],
+  description: Metadata['description']
 ) => {
   const openGraph = (metadata.openGraph ?? {}) as Record<string, unknown>
 
@@ -76,20 +76,20 @@ const createOpenGraph = (
     type: openGraph.type ?? 'website',
     url:
       normalizeNullable(
-        unwrap(openGraph.url as string | IntlayerValue<string> | null),
+        unwrap(openGraph.url as string | IntlayerValue<string> | null)
       ) ?? localizedUrl,
     title: normalizeNullable(
       unwrap(
-        openGraph.title as Metadata['title'] | IntlayerValue<string> | null,
-      ) ?? title,
+        openGraph.title as Metadata['title'] | IntlayerValue<string> | null
+      ) ?? title
     ),
     description: normalizeNullable(
       unwrap(
         openGraph.description as
           | Metadata['description']
           | IntlayerValue<string>
-          | null,
-      ) ?? description,
+          | null
+      ) ?? description
     ),
   } as Metadata['openGraph']
 }
@@ -97,7 +97,7 @@ const createOpenGraph = (
 const createTwitter = (
   metadata: MetadataLike,
   title: Metadata['title'],
-  description: Metadata['description'],
+  description: Metadata['description']
 ) => {
   const twitter = (metadata.twitter ?? {}) as Record<string, unknown>
   const twitterImages = twitter.images
@@ -117,23 +117,23 @@ const createTwitter = (
     card: twitter.card ?? (hasLargeImage ? 'summary_large_image' : 'summary'),
     title: normalizeNullable(
       unwrap(
-        twitter.title as Metadata['title'] | IntlayerValue<string> | null,
-      ) ?? title,
+        twitter.title as Metadata['title'] | IntlayerValue<string> | null
+      ) ?? title
     ),
     description: normalizeNullable(
       unwrap(
         twitter.description as
           | Metadata['description']
           | IntlayerValue<string>
-          | null,
-      ) ?? description,
+          | null
+      ) ?? description
     ),
   } as Metadata['twitter']
 }
 
 export function createPageMetadata<K extends DictionaryKeys>(
   key: K,
-  options: CreatePageMetadataOptions<K> = {},
+  options: CreatePageMetadataOptions<K> = {}
 ) {
   return async ({ params }: LocalPromiseParams): Promise<Metadata> => {
     const locale = await resolvePageLocale(params)
@@ -147,10 +147,9 @@ export function createPageMetadata<K extends DictionaryKeys>(
     const localizedUrl =
       pathname && alternates?.languages
         ? normalizeNullable(
-            alternates.languages[locale as keyof typeof alternates.languages] as
-              | string
-              | null
-              | undefined,
+            alternates.languages[
+              locale as keyof typeof alternates.languages
+            ] as string | null | undefined
           )
         : undefined
 
@@ -159,16 +158,16 @@ export function createPageMetadata<K extends DictionaryKeys>(
         selectedMetadata.title as
           | Metadata['title']
           | IntlayerValue<string>
-          | null,
-      ),
+          | null
+      )
     )
     const description = normalizeNullable(
       unwrap(
         selectedMetadata.description as
           | Metadata['description']
           | IntlayerValue<string>
-          | null,
-      ),
+          | null
+      )
     )
 
     return {
@@ -180,7 +179,7 @@ export function createPageMetadata<K extends DictionaryKeys>(
         selectedMetadata,
         localizedUrl,
         title,
-        description,
+        description
       ),
       twitter: createTwitter(selectedMetadata, title, description),
     }

@@ -1,6 +1,6 @@
-import { Locales, type IntlayerConfig } from 'intlayer'
+import { type IntlayerConfig, Locales } from 'intlayer'
 
-const intlayer_locales: Locales.Locales[] = [Locales.JAPANESE, Locales.ENGLISH]
+const intlayer_locales = [Locales.JAPANESE, Locales.ENGLISH]
 const intlayer_defaultLocale = Locales.JAPANESE
 
 const config: IntlayerConfig = {

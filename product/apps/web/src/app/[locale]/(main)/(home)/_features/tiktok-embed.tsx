@@ -66,33 +66,32 @@ function TikTokEmbedItem({ video }: TikTokEmbedItemProps) {
   return (
     <Dialog>
       <div className="relative">
-        <Card
-          variant="interactive"
-          className="group overflow-hidden border p-0"
-        >
-          <DialogTrigger asChild>
-            <button
-              type="button"
-              className="block w-full text-left"
-              aria-label={`${playLabel}: ${title}`}
-            >
-              <div className="overflow-hidden">
-                <TikTokThumbnail
-                  video={video}
-                  overlay={
-                    <Play className="h-10 w-10 fill-white text-white opacity-0 drop-shadow-md transition-opacity group-hover:opacity-100" />
-                  }
-                />
-              </div>
-              <div className="border-border/60 text-muted-foreground flex items-center gap-2 border-t px-3 py-2 text-xs font-medium">
-                <Heart className="h-3.5 w-3.5" aria-hidden="true" />
-                <span>{likeCount ?? '—'}</span>
-                <span className="text-muted-foreground/70 ml-auto text-[10px] tracking-wide uppercase">
-                  {fromLabel}
-                </span>
-              </div>
-            </button>
-          </DialogTrigger>
+        <Card className="group overflow-hidden border p-0">
+          <DialogTrigger
+            render={
+              <button
+                type="button"
+                className="block w-full text-left"
+                aria-label={`${playLabel}: ${title}`}
+              >
+                <div className="overflow-hidden">
+                  <TikTokThumbnail
+                    video={video}
+                    overlay={
+                      <Play className="h-10 w-10 fill-white text-white opacity-0 drop-shadow-md transition-opacity group-hover:opacity-100" />
+                    }
+                  />
+                </div>
+                <div className="border-border/60 text-muted-foreground flex items-center gap-2 border-t px-3 py-2 text-xs font-medium">
+                  <Heart className="h-3.5 w-3.5" aria-hidden="true" />
+                  <span>{likeCount ?? '—'}</span>
+                  <span className="text-muted-foreground/70 ml-auto text-[10px] tracking-wide uppercase">
+                    {fromLabel}
+                  </span>
+                </div>
+              </button>
+            }
+          ></DialogTrigger>
         </Card>
 
         <SiteExternalLink

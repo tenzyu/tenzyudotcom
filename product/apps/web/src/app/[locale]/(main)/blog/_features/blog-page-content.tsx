@@ -57,16 +57,23 @@ export async function BlogPageContent({
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
-              <Button asChild size="sm">
-                <Link href={getLocalizedUrl('/editor/blog', locale)}>
-                  Open blog editor
-                </Link>
-              </Button>
-              <Button asChild size="sm" variant="outline">
-                <Link href={getLocalizedUrl('/editor/blog?create=1', locale)}>
-                  Create post
-                </Link>
-              </Button>
+              <Button
+                size="sm"
+                render={
+                  <Link href={getLocalizedUrl('/editor/blog', locale)}>
+                    Open blog editor
+                  </Link>
+                }
+              ></Button>
+              <Button
+                size="sm"
+                variant="outline"
+                render={
+                  <Link href={getLocalizedUrl('/editor/blog?create=1', locale)}>
+                    Create post
+                  </Link>
+                }
+              ></Button>
             </div>
           </div>
         </Content>
@@ -77,17 +84,21 @@ export async function BlogPageContent({
           <div key={post.slug} className="relative">
             <AdminGate>
               <div className="absolute top-3 right-3 z-10">
-                <Button asChild size="icon-sm" variant="outline">
-                  <Link
-                    href={getLocalizedUrl(
-                      `/editor/blog?slug=${post.slug}`,
-                      locale,
-                    )}
-                  >
-                    <Pencil />
-                    <span className="sr-only">Edit {post.slug}</span>
-                  </Link>
-                </Button>
+                <Button
+                  size="icon-sm"
+                  variant="outline"
+                  render={
+                    <Link
+                      href={getLocalizedUrl(
+                        `/editor/blog?slug=${post.slug}`,
+                        locale
+                      )}
+                    >
+                      <Pencil />
+                      <span className="sr-only">Edit {post.slug}</span>
+                    </Link>
+                  }
+                ></Button>
               </div>
             </AdminGate>
             <BlogTile {...post.metadata} slug={post.slug} locale={locale} />
@@ -98,7 +109,7 @@ export async function BlogPageContent({
       {totalPages > 1 ? (
         <Pagination
           className="mt-10"
-          ariaLabel={content.pagination.ariaLabel.value}
+          // ariaLabel={content.pagination.ariaLabel.value}
         >
           <PaginationContent>
             <PaginationItem>
@@ -110,8 +121,8 @@ export async function BlogPageContent({
                     ? 'pointer-events-none opacity-50'
                     : undefined
                 }
-                label={content.pagination.previous.value}
-                ariaLabel={content.pagination.previousAria.value}
+                // label={content.pagination.previous.value}
+                // ariaLabel={content.pagination.previousAria.value}
               />
             </PaginationItem>
             {Array.from({ length: totalPages }, (_, index) => {
@@ -137,8 +148,8 @@ export async function BlogPageContent({
                     ? 'pointer-events-none opacity-50'
                     : undefined
                 }
-                label={content.pagination.next.value}
-                ariaLabel={content.pagination.nextAria.value}
+                // label={content.pagination.next.value}
+                // ariaLabel={content.pagination.nextAria.value}
               />
             </PaginationItem>
           </PaginationContent>

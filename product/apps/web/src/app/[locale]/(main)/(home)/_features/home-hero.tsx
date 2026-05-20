@@ -9,14 +9,14 @@ export function HomeHero() {
   const home = useIntlayer('page-home')
 
   return (
-    <section className="relative overflow-hidden rounded-[var(--radius-2xl)] border border-border/60 bg-card/50 px-5 py-10 text-center shadow-[var(--shadow-surface)] backdrop-blur-xl sm:px-8 sm:py-14">
+    <section className="relative overflow-hidden rounded-2xl border border-border/60 bg-card/50 px-5 py-10 text-center shadow-(--shadow-surface) backdrop-blur-xl sm:px-8 sm:py-14">
       <div className="pointer-events-none absolute inset-x-10 top-0 h-px bg-linear-to-r from-transparent via-primary/60 to-transparent" />
       <div className="pointer-events-none absolute left-1/2 top-0 size-72 -translate-x-1/2 rounded-full bg-primary/12 blur-3xl" />
 
       <div className="relative mx-auto flex max-w-3xl flex-col items-center gap-5">
         <div className="relative h-32 w-32 sm:h-40 sm:w-40">
           <div className="absolute inset-0 rounded-full bg-primary/25 blur-3xl" />
-          <div className="relative h-full w-full overflow-hidden rounded-full border border-border/60 bg-background shadow-[var(--shadow-lifted)] ring-1 ring-primary/15">
+          <div className="relative h-full w-full overflow-hidden rounded-full border border-border/60 bg-background shadow-(--shadow-lifted) ring-1 ring-primary/15">
             <Avatar className="size-full">
               <AvatarImage
                 src="/images/ltvgbz.jpg"
@@ -46,14 +46,18 @@ export function HomeHero() {
         </p>
 
         <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-          <Button asChild size="lg" className="shadow-[var(--shadow-accent)]">
-            <ExternalLink href="https://x.com/FlawInAffection">
-              <span className="inline-flex items-center gap-2 font-bold tracking-widest">
-                @FlawInAffection
-                <ArrowUpRight data-icon="inline-end" className="opacity-80" />
-              </span>
-            </ExternalLink>
-          </Button>
+          <Button
+            size="lg"
+            className="shadow-(--shadow-accent)"
+            render={
+              <ExternalLink href="https://x.com/FlawInAffection">
+                <span className="inline-flex items-center gap-2 font-bold tracking-widest">
+                  @FlawInAffection
+                  <ArrowUpRight data-icon="inline-end" className="opacity-80" />
+                </span>
+              </ExternalLink>
+            }
+          ></Button>
         </div>
       </div>
     </section>

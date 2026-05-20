@@ -22,7 +22,7 @@ type Story = StoryObj<typeof meta>
 
 export const LongText: Story = {
   render: () => (
-    <Card className="w-[22rem]">
+    <Card className="w-88">
       <CardHeader>
         <CardTitle>
           Extremely long component title that should wrap without breaking the
@@ -34,7 +34,7 @@ export const LongText: Story = {
         </CardDescription>
       </CardHeader>
       <CardContent className="grid gap-3">
-        <p className="break-words text-muted-foreground">
+        <p className="wrap-break-word text-muted-foreground">
           @tenzyu/ui/some-very-long-component-entry-that-must-not-overflow
         </p>
         <Button className="max-w-full whitespace-normal">

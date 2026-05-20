@@ -1,4 +1,4 @@
-import { cn } from '@tenzyu/ui/cn'
+import { cn } from '@tenzyu/ui'
 import { Heading } from './heading'
 import { Text } from './text'
 
@@ -21,7 +21,7 @@ function PageHeader({
     <header
       className={cn(
         'grid gap-5 border-b border-border/70 pb-8 md:grid-cols-[minmax(0,1fr)_auto] md:items-end',
-        className,
+        className
       )}
       {...props}
     >

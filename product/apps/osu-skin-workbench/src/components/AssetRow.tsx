@@ -1,33 +1,42 @@
-"use client";
+'use client'
 
-import { Button } from "@tenzyu/ui/button";
+import { Button } from '@tenzyu/ui/button'
 import { Badge } from '@tenzyu/ui/badge'
-import { Card } from "@tenzyu/ui/card";
+import { Card } from '@tenzyu/ui/card'
 
-import type { AssetMatrixCell, AssetMatrixRow } from "@tenzyu/osu-skin-core/project";
-import { AssetPreview } from "./AssetPreview";
+import type {
+  AssetMatrixCell,
+  AssetMatrixRow,
+} from '@tenzyu/osu-skin-core/project'
+import { AssetPreview } from './AssetPreview'
 
-export type AssetPreviewSide = "project" | "source";
+export type AssetPreviewSide = 'project' | 'source'
 
 type Props = {
-  row: AssetMatrixRow;
-  cell: AssetMatrixCell;
-  side: AssetPreviewSide;
-  onCopy?: () => void;
-  onDelete?: () => void;
-  onRestore?: () => void;
-};
+  row: AssetMatrixRow
+  cell: AssetMatrixCell
+  side: AssetPreviewSide
+  onCopy?: () => void
+  onDelete?: () => void
+  onRestore?: () => void
+}
 
-export function AssetRow({ row, cell, side, onCopy, onDelete, onRestore }: Props) {
+export function AssetRow({
+  row,
+  cell,
+  side,
+  onCopy,
+  onDelete,
+  onRestore,
+}: Props) {
   return (
     <Card
-      variant="soft"
       className={[
-        "assetRow",
-        side === "project" ? "projectAssetRow" : "sourceAssetRow",
-        cell.missing ? " missing" : "",
-        row.lazerMeaningful ? "" : " legacy",
-      ].join("")}
+        'assetRow',
+        side === 'project' ? 'projectAssetRow' : 'sourceAssetRow',
+        cell.missing ? ' missing' : '',
+        row.lazerMeaningful ? '' : ' legacy',
+      ].join('')}
     >
       <AssetPreview row={row} cell={cell} />
 
@@ -37,11 +46,13 @@ export function AssetRow({ row, cell, side, onCopy, onDelete, onRestore }: Props
           {row.taxonomy.category.label} · {row.componentId}
         </span>
         <span>
-          {row.lazerMeaningful ? "Lazer meaningful" : "Stable later"} · {row.requiredLevel}
+          {row.lazerMeaningful ? 'Lazer meaningful' : 'Stable later'} ·{' '}
+          {row.requiredLevel}
         </span>
         {row.warnings[0] && (
           <div className="warningText">
-            {side === "project" ? "Project" : "Source"}: {row.warnings[0].message}
+            {side === 'project' ? 'Project' : 'Source'}:{' '}
+            {row.warnings[0].message}
           </div>
         )}
       </div>
@@ -53,17 +64,27 @@ export function AssetRow({ row, cell, side, onCopy, onDelete, onRestore }: Props
       </div>
 
       <div className="rowActions">
-        {side === "source" && !cell.missing && (
-          <Button type="button" size="xs" onClick={onCopy} title="Copy this source row">
+        {side === 'source' && !cell.missing && (
+          <Button
+            type="button"
+            size="xs"
+            onClick={onCopy}
+            title="Copy this source row"
+          >
             Copy
           </Button>
         )}
-        {side === "project" && !cell.missing && (
+        {side === 'project' && !cell.missing && (
           <>
-            <Button type="button" size="xs" variant="soft" onClick={onRestore}>
+            <Button type="button" size="xs" variant="ghost" onClick={onRestore}>
               Restore
             </Button>
-            <Button type="button" size="xs" variant="destructive" onClick={onDelete}>
+            <Button
+              type="button"
+              size="xs"
+              variant="destructive"
+              onClick={onDelete}
+            >
               Delete
             </Button>
           </>
@@ -79,5 +100,5 @@ export function AssetRow({ row, cell, side, onCopy, onDelete, onRestore }: Props
         </div>
       )}
     </Card>
-  );
+  )
 }

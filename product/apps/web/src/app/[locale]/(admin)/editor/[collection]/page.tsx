@@ -29,9 +29,9 @@ export default async function EditorCollectionPage({
   }>
 }) {
   const awaitedParams = await params
-  const locale = await resolvePageLocale(
-    Promise.resolve({ locale: awaitedParams.locale }),
-  )
+  const locale = (await resolvePageLocale(
+    Promise.resolve({ locale: awaitedParams.locale })
+  ))!
   const search = await searchParams
 
   await requireEditorAdminSession(locale)

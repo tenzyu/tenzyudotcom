@@ -34,9 +34,9 @@ export function NoteComposerInline() {
   return (
     <Collapsible open={open} onOpenChange={setOpen} className="space-y-3">
       <div className="flex justify-end">
-        <CollapsibleTrigger asChild>
-          <Button type="button">{open ? 'Close' : 'Post'}</Button>
-        </CollapsibleTrigger>
+        <CollapsibleTrigger
+          render={<Button type="button">{open ? 'Close' : 'Post'}</Button>}
+        ></CollapsibleTrigger>
       </div>
 
       <CollapsibleContent className="data-[state=closed]:hidden">
@@ -79,7 +79,7 @@ export function NoteComposerInline() {
                   const result = await saveEditorCollection(
                     'notes',
                     JSON.stringify(nextEntries, null, 2),
-                    state.version,
+                    state.version
                   )
 
                   if (!result.ok) {

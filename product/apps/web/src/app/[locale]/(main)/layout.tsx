@@ -12,7 +12,7 @@ export default function MainLayout({
       <SkipLink href="#main-content" />
       <main
         id="main-content"
-        className="px-[var(--tz-page-padding-x)] py-[var(--tz-page-padding-y)]"
+        className="px-(--tz-page-padding-x) py-(--tz-page-padding-y)"
       >
         <Content size="md">
           <Stack gap="xl">{children}</Stack>

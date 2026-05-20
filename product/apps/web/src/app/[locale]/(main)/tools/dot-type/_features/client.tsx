@@ -37,7 +37,7 @@ export const DotTypeContent: React.FC = () => {
 
   return (
     <Content size="2xl" className="py-12">
-      <Card variant="soft">
+      <Card>
         <CardHeader>
           <CardTitle className="text-2xl">{content.hero.title}</CardTitle>
           <CardDescription>{content.hero.description}</CardDescription>

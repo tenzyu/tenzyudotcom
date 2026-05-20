@@ -24,7 +24,7 @@ export function Header({ locale }: { locale: string }) {
               className="group inline-flex min-w-0 items-center gap-2 text-base font-bold tracking-[-0.03em] transition-colors hover:text-primary"
               prefetch
             >
-              <span className="size-2.5 rounded-full bg-primary shadow-[var(--shadow-accent)]" />
+              <span className="size-2.5 rounded-full bg-primary shadow-(--shadow-accent)" />
               <span>tenzyu.com</span>
               <Badge
                 variant="outline"
@@ -39,13 +39,21 @@ export function Header({ locale }: { locale: string }) {
               className="hidden items-center gap-1 md:flex"
             >
               {PRIMARY_NAV_ROUTE_IDS.map((routeId) => (
-                <Button key={routeId} asChild variant="ghost" size="sm">
-                  <Link
-                    href={getLocalizedUrl(PUBLIC_ROUTES[routeId].href, locale)}
-                  >
-                    {content.primaryNav[routeId].value}
-                  </Link>
-                </Button>
+                <Button
+                  key={routeId}
+                  variant="ghost"
+                  size="sm"
+                  render={
+                    <Link
+                      href={getLocalizedUrl(
+                        PUBLIC_ROUTES[routeId].href,
+                        locale
+                      )}
+                    >
+                      {content.primaryNav[routeId].value}
+                    </Link>
+                  }
+                ></Button>
               ))}
             </nav>
           </div>
@@ -66,15 +74,17 @@ export function Header({ locale }: { locale: string }) {
           {PRIMARY_NAV_ROUTE_IDS.map((routeId) => (
             <Button
               key={routeId}
-              asChild
-              variant="soft"
+              variant="outline"
               size="xs"
               className="shrink-0"
-            >
-              <Link href={getLocalizedUrl(PUBLIC_ROUTES[routeId].href, locale)}>
-                {content.primaryNav[routeId].value}
-              </Link>
-            </Button>
+              render={
+                <Link
+                  href={getLocalizedUrl(PUBLIC_ROUTES[routeId].href, locale)}
+                >
+                  {content.primaryNav[routeId].value}
+                </Link>
+              }
+            ></Button>
           ))}
         </nav>
       </Container>

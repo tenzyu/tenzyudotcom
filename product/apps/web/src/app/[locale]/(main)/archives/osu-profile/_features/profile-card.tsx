@@ -82,27 +82,27 @@ function SocialButton({
 
   return (
     <Button
-      variant="soft"
+      variant="outline"
       className="flex w-full items-center justify-center gap-2"
-      asChild
-    >
-      <ExternalLink
-        href={href}
-        rel="noreferrer"
-        aria-label={`${profile.aria.visitPrefix.value} ${iconAlt}`}
-      >
-        <Image
-          src={iconSrc}
-          alt={iconAlt}
-          width={20}
-          height={20}
-          className="rounded-full"
-          loading="lazy"
-          quality={75}
-        />
-        <span>{children}</span>
-      </ExternalLink>
-    </Button>
+      render={
+        <ExternalLink
+          href={href}
+          rel="noreferrer"
+          aria-label={`${profile.aria.visitPrefix.value} ${iconAlt}`}
+        >
+          <Image
+            src={iconSrc}
+            alt={iconAlt}
+            width={20}
+            height={20}
+            className="rounded-full"
+            loading="lazy"
+            quality={75}
+          />
+          <span>{children}</span>
+        </ExternalLink>
+      }
+    ></Button>
   )
 }
 

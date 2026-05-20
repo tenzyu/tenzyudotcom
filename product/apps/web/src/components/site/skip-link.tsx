@@ -1,4 +1,4 @@
-import { cn } from '@tenzyu/ui/cn'
+import { cn } from '@tenzyu/ui'
 
 function SkipLink({
   href = '#main-content',
@@ -10,8 +10,8 @@ function SkipLink({
     <a
       href={href}
       className={cn(
-        'sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[1000] focus:rounded-[var(--radius-md)] focus:border focus:border-ring focus:bg-popover focus:px-4 focus:py-3 focus:text-popover-foreground focus:shadow-[var(--shadow-lifted)]',
-        className,
+        'sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-1000 focus:rounded-md focus:border focus:border-ring focus:bg-popover focus:px-4 focus:py-3 focus:text-popover-foreground focus:shadow-(--shadow-lifted)',
+        className
       )}
       {...props}
     >

@@ -24,7 +24,7 @@ export function ExperienceSection() {
           const exp = content.experience.items[experience.id]
 
           return (
-            <Card key={experience.id} variant="soft" className="gap-0 p-0">
+            <Card key={experience.id} className="gap-0 p-0">
               <CardHeader className="gap-3 pt-5 pb-4">
                 <div className="flex flex-col md:flex-row md:items-baseline md:justify-between">
                   <CardTitle className="text-lg font-semibold">

@@ -38,7 +38,7 @@ export function SettingsPanel({
               max={48}
               step={1}
               onValueChange={(value) => {
-                setFontSize(value[0] ?? 8)
+                setFontSize(Array.isArray(value) ? (value[0] ?? 8) : value)
               }}
               className="flex-1"
             />
@@ -63,7 +63,7 @@ export function SettingsPanel({
               max={255}
               step={1}
               onValueChange={(value) => {
-                setThreshold(value[0] ?? 0)
+                setThreshold(Array.isArray(value) ? (value[0] ?? 0) : value)
               }}
               className="flex-1"
             />

@@ -59,7 +59,7 @@ export async function LinkList() {
                 </ItemGroup>
               </nav>
             </section>
-          ),
+          )
       )}
     </Content>
   )
@@ -83,14 +83,14 @@ function LinkTile({ link }: { link: MyLink }) {
   const { locale } = useLocale()
 
   return (
-    <Item asChild variant="card" className="w-full">
+    <Item className="w-full">
       <Link
         href={getLocalizedUrl(`/links/${link.shortenUrl}`, locale)}
         target="_blank"
         rel="noopener noreferrer"
         aria-label={`${content.aria.visitPrefix.value} ${link.name} (${link.id})`}
       >
-        <ItemMedia variant="avatar" className="dark:bg-secondary-foreground">
+        <ItemMedia variant="icon" className="dark:bg-secondary-foreground">
           <LinkIcon
             icon={link.icon}
             alt={`${link.name} ${content.aria.iconSuffix.value}`}

@@ -39,21 +39,23 @@ export function AdminItemMenu({
   return (
     <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="text-muted-foreground hover:text-foreground"
-            aria-label={`${label} actions`}
-          >
-            {icon === 'horizontal' ? (
-              <Ellipsis className="size-4" />
-            ) : (
-              <MoreVertical className="size-4" />
-            )}
-          </Button>
-        </DropdownMenuTrigger>
+        <DropdownMenuTrigger
+          render={
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="text-muted-foreground hover:text-foreground"
+              aria-label={`${label} actions`}
+            >
+              {icon === 'horizontal' ? (
+                <Ellipsis className="size-4" />
+              ) : (
+                <MoreVertical className="size-4" />
+              )}
+            </Button>
+          }
+        ></DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem
             onSelect={(event) => {

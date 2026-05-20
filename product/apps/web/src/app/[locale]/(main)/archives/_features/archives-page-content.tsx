@@ -19,10 +19,10 @@ export function ArchivesPageContent({ locale }: { locale: string }) {
         />
 
         <section className="grid gap-4">
-          <Card asChild variant="interactive" className="gap-0 py-0">
+          <Card className="gap-0 py-0">
             <Link href={getLocalizedUrl('/archives/osu-profile', locale)}>
               <CardContent className="flex items-center gap-4 p-5">
-                <div className="border-primary/20 bg-primary/10 text-primary flex size-11 shrink-0 items-center justify-center rounded-[var(--radius-lg)] border">
+                <div className="border-primary/20 bg-primary/10 text-primary flex size-11 shrink-0 items-center justify-center rounded-lg border">
                   <FolderArchive className="size-5" />
                 </div>
                 <div className="min-w-0 flex-1">

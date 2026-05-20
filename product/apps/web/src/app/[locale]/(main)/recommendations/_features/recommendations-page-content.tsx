@@ -15,7 +15,7 @@ import { RECOMMENDATION_TABS } from './recommendations.assemble'
 import { RecommendationAddButtons } from './recommendation-add-buttons'
 import { RecommendationVideoAdminMenu } from './recommendation-video-admin-menu'
 import { RecommendationChannelAdminMenu } from './recommendation-channel-admin-menu'
-import { ArrowUpRight, Youtube } from 'lucide-react'
+import { ArrowUpRight, VideoIcon } from 'lucide-react'
 
 type RecommendationsPageContentProps = RecommendationsPageData
 
@@ -64,34 +64,36 @@ export async function RecommendationsPageContent({
                   </AdminGate>
                   <Dialog>
                     <div>
-                      <DialogTrigger asChild>
-                        <button
-                          type="button"
-                          className="group hover:bg-muted/40 w-full text-left transition-colors"
-                          aria-label={`${content.labels.openVideo.value}: ${video.title}`}
-                        >
-                          <div className="flex w-full flex-col gap-3 px-4 pt-4 pb-2 sm:flex-row sm:items-center sm:gap-4 sm:px-5">
-                            <div className="relative aspect-video w-full shrink-0 overflow-hidden rounded-lg sm:w-48">
-                              <YouTubeThumbnailImage
-                                videoId={video.id}
-                                title={video.title}
-                                className="object-cover transition-transform duration-300 group-hover:scale-105"
-                                sizes="(max-width: 640px) 100vw, 240px"
-                              />
-                            </div>
-                            <div className="flex flex-1 flex-col gap-2 pr-12">
-                              <div className="space-y-1">
-                                <h3 className="text-base leading-snug font-semibold">
-                                  {video.title}
-                                </h3>
-                                <p className="text-muted-foreground text-xs font-medium">
-                                  {content.labels.views.value}: {video.views}
-                                </p>
+                      <DialogTrigger
+                        render={
+                          <button
+                            type="button"
+                            className="group hover:bg-muted/40 w-full text-left transition-colors"
+                            aria-label={`${content.labels.openVideo.value}: ${video.title}`}
+                          >
+                            <div className="flex w-full flex-col gap-3 px-4 pt-4 pb-2 sm:flex-row sm:items-center sm:gap-4 sm:px-5">
+                              <div className="relative aspect-video w-full shrink-0 overflow-hidden rounded-lg sm:w-48">
+                                <YouTubeThumbnailImage
+                                  videoId={video.id}
+                                  title={video.title}
+                                  className="object-cover transition-transform duration-300 group-hover:scale-105"
+                                  sizes="(max-width: 640px) 100vw, 240px"
+                                />
+                              </div>
+                              <div className="flex flex-1 flex-col gap-2 pr-12">
+                                <div className="space-y-1">
+                                  <h3 className="text-base leading-snug font-semibold">
+                                    {video.title}
+                                  </h3>
+                                  <p className="text-muted-foreground text-xs font-medium">
+                                    {content.labels.views.value}: {video.views}
+                                  </p>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        </button>
-                      </DialogTrigger>
+                          </button>
+                        }
+                      ></DialogTrigger>
                       <div className="px-4 pb-4 sm:px-5">
                         <OtakuAside label={content.labels.comment.value}>
                           <p className="text-muted-foreground text-sm leading-relaxed">
@@ -139,7 +141,7 @@ export async function RecommendationsPageContent({
                   </AdminGate>
                   <div className="flex flex-col gap-2 pr-12">
                     <div className="text-muted-foreground flex items-center gap-2 text-[11px] font-semibold tracking-[0.18em] uppercase">
-                      <Youtube className="size-3.5 text-red-500" />
+                      <VideoIcon className="size-3.5 text-red-500" />
                       <span>YouTube Channel</span>
                     </div>
                     <div className="flex flex-col gap-1">
@@ -153,20 +155,20 @@ export async function RecommendationsPageContent({
                   </div>
 
                   <Button
-                    asChild
                     variant="outline"
                     size="sm"
                     className="w-full"
-                  >
-                    <ExternalLink
-                      href={channel.url}
-                      aria-label={content.labels.openChannel.value}
-                      className="justify-center"
-                    >
-                      <span>{content.labels.openChannel.value}</span>
-                      <ArrowUpRight data-icon="inline-end" />
-                    </ExternalLink>
-                  </Button>
+                    render={
+                      <ExternalLink
+                        href={channel.url}
+                        aria-label={content.labels.openChannel.value}
+                        className="justify-center"
+                      >
+                        <span>{content.labels.openChannel.value}</span>
+                        <ArrowUpRight data-icon="inline-end" />
+                      </ExternalLink>
+                    }
+                  ></Button>
 
                   <OtakuAside label={content.labels.comment.value}>
                     <p className="text-muted-foreground text-sm leading-relaxed">

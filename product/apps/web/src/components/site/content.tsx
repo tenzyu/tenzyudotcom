@@ -1,4 +1,4 @@
-import { cn } from '@tenzyu/ui/cn'
+import { cn } from '@tenzyu/ui'
 
 type ContentSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full'
 
@@ -26,8 +26,8 @@ function Content({
       className={cn(
         'mx-auto w-full',
         sizeClasses[size],
-        padded && 'px-[var(--tz-page-padding-x)]',
-        className,
+        padded && 'px-(--tz-page-padding-x)',
+        className
       )}
       {...props}
     />

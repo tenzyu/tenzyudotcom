@@ -13,7 +13,7 @@ export function AboutMeSection() {
   const content = useIntlayer('page-portfolio')
 
   return (
-    <Card variant="soft" className="p-0">
+    <Card className="p-0">
       <CardContent className="flex flex-col items-start gap-5 py-6 md:flex-row md:items-center">
         <div className="shrink-0">
           <Image
@@ -47,15 +47,15 @@ export function AboutMeSection() {
                   key={link.id}
                   variant="ghost"
                   className="text-primary h-auto px-0 hover:bg-transparent hover:underline"
-                  asChild
-                >
-                  <ExternalLink
-                    href={link.url}
-                    aria-label={linkContent.ariaLabel.value}
-                  >
-                    {linkContent.label} &rarr;
-                  </ExternalLink>
-                </Button>
+                  render={
+                    <ExternalLink
+                      href={link.url}
+                      aria-label={linkContent.ariaLabel.value}
+                    >
+                      {linkContent.label} &rarr;
+                    </ExternalLink>
+                  }
+                ></Button>
               )
             })}
           </div>

@@ -14,15 +14,20 @@ type KoFiLinkProps = {
 export function KoFiLink({
   label,
   className,
-  variant = 'soft',
+  variant = 'outline',
   size = 'sm',
 }: KoFiLinkProps) {
   return (
-    <Button variant={variant} size={size} asChild className={className}>
-      <ExternalLink href={KOFI_URL} aria-label={label}>
-        <Coffee className="size-4" />
-        <span>{label}</span>
-      </ExternalLink>
-    </Button>
+    <Button
+      variant={variant}
+      size={size}
+      className={className}
+      render={
+        <ExternalLink href={KOFI_URL} aria-label={label}>
+          <Coffee className="size-4" />
+          <span>{label}</span>
+        </ExternalLink>
+      }
+    ></Button>
   )
 }

@@ -164,7 +164,7 @@ export function NotesEditorClient({
                       aria-label={labels.remove}
                       onClick={() =>
                         setEntries((current) =>
-                          reparentChildrenAfterNoteDelete(current, entry.id),
+                          reparentChildrenAfterNoteDelete(current, entry.id)
                         )
                       }
                     >
@@ -191,10 +191,12 @@ export function NotesEditorClient({
                             ? {
                                 ...currentEntry,
                                 parentId:
-                                  value === ROOT_PARENT ? undefined : value,
+                                  value === ROOT_PARENT
+                                    ? undefined
+                                    : (value as string),
                               }
-                            : currentEntry,
-                        ),
+                            : currentEntry
+                        )
                       )
                     }}
                   >
@@ -229,8 +231,8 @@ export function NotesEditorClient({
                         current.map((currentEntry, currentIndex) =>
                           currentIndex === index
                             ? { ...currentEntry, createdAt: value }
-                            : currentEntry,
-                        ),
+                            : currentEntry
+                        )
                       )
                     }}
                   />
@@ -251,8 +253,8 @@ export function NotesEditorClient({
                                 ...currentEntry,
                                 externalUrl: value || undefined,
                               }
-                            : currentEntry,
-                        ),
+                            : currentEntry
+                        )
                       )
                     }}
                   />
@@ -273,8 +275,8 @@ export function NotesEditorClient({
                                 ...currentEntry,
                                 body: { ...currentEntry.body, ja: value },
                               }
-                            : currentEntry,
-                        ),
+                            : currentEntry
+                        )
                       )
                     }}
                   />
@@ -295,8 +297,8 @@ export function NotesEditorClient({
                                 ...currentEntry,
                                 body: { ...currentEntry.body, en: value },
                               }
-                            : currentEntry,
-                        ),
+                            : currentEntry
+                        )
                       )
                     }}
                   />
@@ -310,8 +312,8 @@ export function NotesEditorClient({
                         current.map((currentEntry, currentIndex) =>
                           currentIndex === index
                             ? { ...currentEntry, published: checked }
-                            : currentEntry,
-                        ),
+                            : currentEntry
+                        )
                       )
                     }}
                   />

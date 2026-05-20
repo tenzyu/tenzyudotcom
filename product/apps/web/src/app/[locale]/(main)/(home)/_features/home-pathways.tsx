@@ -51,7 +51,7 @@ export function HomePathways({ locale }: { locale: string }) {
               : pathway.description.value
 
           return (
-            <Card key={title} variant="soft" className="h-full">
+            <Card key={title} className="h-full">
               <CardHeader className="gap-3">
                 <div className="bg-primary/10 text-primary flex size-10 items-center justify-center rounded-2xl">
                   <Icon className="h-5 w-5" />
@@ -69,15 +69,15 @@ export function HomePathways({ locale }: { locale: string }) {
                 {pathway.links.map((link) => (
                   <Button
                     key={link.href.value}
-                    asChild
                     variant="outline"
                     size="sm"
-                  >
-                    <Link href={getLocalizedUrl(link.href.value, locale)}>
-                      {link.label}
-                      <ArrowRight />
-                    </Link>
-                  </Button>
+                    render={
+                      <Link href={getLocalizedUrl(link.href.value, locale)}>
+                        {link.label}
+                        <ArrowRight />
+                      </Link>
+                    }
+                  ></Button>
                 ))}
               </CardContent>
             </Card>

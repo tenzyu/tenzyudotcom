@@ -24,7 +24,7 @@ export function DevEnvironmentSection() {
         variant="underline"
       />
 
-      <Accordion type="single" collapsible className="w-full">
+      <Accordion className="w-full">
         <AccordionItem value="environments">
           <AccordionTrigger className="text-sm font-semibold hover:no-underline">
             {content.environments.detailsTrigger}
@@ -35,7 +35,7 @@ export function DevEnvironmentSection() {
                 const env = content.environments.items[environment.id]
 
                 return (
-                  <Card key={environment.id} variant="soft" className="gap-0">
+                  <Card key={environment.id} className="gap-0">
                     <CardContent className="space-y-2 pt-4 pb-2">
                       <h3 className="text-lg font-semibold">
                         {environment.title}
@@ -54,7 +54,7 @@ export function DevEnvironmentSection() {
               })}
             </div>
 
-            <Card variant="soft" className="gap-0">
+            <Card className="gap-0">
               <CardContent className="space-y-3 pt-5 pb-5">
                 <h3 className="text-sm font-semibold">
                   {content.environments.networkTitle}

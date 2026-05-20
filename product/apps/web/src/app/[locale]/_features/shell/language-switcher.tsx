@@ -20,17 +20,19 @@ export function LanguageSwitcher() {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="soft"
-          className="gap-2 px-3"
-          aria-label={content.changeLanguage.value}
-        >
-          <Globe className="text-muted-foreground h-[1.2rem] w-[1.2rem]" />
-          {getLocaleName(locale)}
-          <ChevronDown className="h-4 w-4 opacity-50" />
-        </Button>
-      </DropdownMenuTrigger>
+      <DropdownMenuTrigger
+        render={
+          <Button
+            variant="outline"
+            className="gap-2 px-3"
+            aria-label={content.changeLanguage.value}
+          >
+            <Globe className="text-muted-foreground h-[1.2rem] w-[1.2rem]" />
+            {getLocaleName(locale)}
+            <ChevronDown className="h-4 w-4 opacity-50" />
+          </Button>
+        }
+      ></DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         {availableLocales.map((localeItem) => (
           <DropdownMenuItem

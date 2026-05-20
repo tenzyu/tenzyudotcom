@@ -18,7 +18,7 @@ import {
 } from '@tenzyu/ui/select'
 import { Switch } from '@tenzyu/ui/switch'
 import { Textarea } from '@tenzyu/ui/textarea'
-import { cn } from '@tenzyu/ui/cn'
+import { cn } from '@tenzyu/ui'
 import {
   loadEditorCollection,
   saveEditorCollection,
@@ -122,7 +122,7 @@ export function NoteFeedItem({
   const isDetailFocus = variant === 'detail-focus'
   const parentOptions = loadedState
     ? [...listAvailableParentNotes(loadedState.collection, note.id)].sort(
-        compareNotesByCreatedAtDesc,
+        compareNotesByCreatedAtDesc
       )
     : []
 
@@ -146,7 +146,7 @@ export function NoteFeedItem({
       className={cn(
         'relative',
         note.showBottomBorder && 'border-b border-border/60',
-        'px-4 py-4 sm:px-6',
+        'px-4 py-4 sm:px-6'
       )}
     >
       <div className="grid grid-cols-[56px_minmax(0,1fr)] gap-3">
@@ -193,7 +193,7 @@ export function NoteFeedItem({
             <p
               className={cn(
                 'whitespace-pre-wrap text-[15px] leading-7',
-                isDetailFocus && 'text-[1.65rem] leading-[1.45] tracking-tight',
+                isDetailFocus && 'text-[1.65rem] leading-[1.45] tracking-tight'
               )}
             >
               {note.body}
@@ -210,7 +210,7 @@ export function NoteFeedItem({
                       month: 'short',
                       day: 'numeric',
                       year: 'numeric',
-                    },
+                    }
                   ).format(new Date(note.createdAt))}
                 </time>
               </div>
@@ -218,7 +218,7 @@ export function NoteFeedItem({
 
             <div
               className={cn(
-                'text-muted-foreground mt-3 flex items-center gap-1',
+                'text-muted-foreground mt-3 flex items-center gap-1'
               )}
             >
               <AdminGate>
@@ -260,12 +260,12 @@ export function NoteFeedItem({
                         JSON.stringify(
                           reparentChildrenAfterNoteDelete(
                             state.collection,
-                            note.id,
+                            note.id
                           ),
                           null,
-                          2,
+                          2
                         ),
-                        state.version,
+                        state.version
                       )
 
                       if (!result.ok) {
@@ -329,7 +329,7 @@ export function NoteFeedItem({
                       const result = await saveEditorCollection(
                         'notes',
                         JSON.stringify(nextEntries, null, 2),
-                        state.version,
+                        state.version
                       )
 
                       if (!result.ok) {
@@ -379,7 +379,11 @@ export function NoteFeedItem({
                       <td className="px-3 py-3">
                         <Select
                           value={draftParentValue}
-                          onValueChange={setDraftParentValue}
+                          onValueChange={(value) => {
+                            if (value !== null) {
+                              setDraftParentValue(value)
+                            }
+                          }}
                         >
                           <SelectTrigger className="w-full">
                             <SelectValue placeholder={text.topLevel.value} />
@@ -438,7 +442,7 @@ export function NoteFeedItem({
 
                           const localeKey = resolveEditableLocaleKey(
                             entry,
-                            locale,
+                            locale
                           )
                           return {
                             ...entry,
@@ -452,13 +456,13 @@ export function NoteFeedItem({
                                 : draftParentValue,
                             published: draftPublished,
                           }
-                        },
+                        }
                       )
 
                       const result = await saveEditorCollection(
                         'notes',
                         JSON.stringify(nextEntries, null, 2),
-                        loadedState.version,
+                        loadedState.version
                       )
 
                       if (!result.ok) {

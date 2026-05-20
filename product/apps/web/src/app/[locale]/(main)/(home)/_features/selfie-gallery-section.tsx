@@ -36,9 +36,7 @@ export function SelfieGallerySection({
         {HOME_SELFIES.map((selfie) => (
           <Card
             key={selfie.id}
-            variant="interactive"
             className="group mb-4 break-inside-avoid overflow-hidden border p-0"
-            asChild
           >
             <SiteExternalLink
               href={`https://x.com/FlawInAffection/status/${selfie.id}`}

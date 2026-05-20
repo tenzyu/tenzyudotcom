@@ -1,6 +1,6 @@
 import { AlertCircleIcon } from 'lucide-react'
 import { Alert, AlertDescription, AlertTitle } from '@tenzyu/ui/alert'
-import { cn } from '@tenzyu/ui/cn'
+import { cn } from '@tenzyu/ui'
 
 type CautionProps = {
   title?: React.ReactNode
@@ -12,7 +12,7 @@ export function CautionAlert({ className, title, description }: CautionProps) {
     <Alert
       className={cn(
         'border-amber-50 bg-amber-50 text-amber-900 dark:border-amber-950 dark:bg-amber-950 dark:text-amber-100',
-        className,
+        className
       )}
     >
       <AlertCircleIcon />

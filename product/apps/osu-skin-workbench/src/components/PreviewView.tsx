@@ -1,26 +1,32 @@
-"use client";
+'use client'
 
-
-import { useMemo } from "react";
-import type { AssetMatrix } from "@tenzyu/osu-skin-core/project";
-import { AssetRow } from "./AssetRow";
-import { Badge } from "@tenzyu/ui/badge";
-import { Card, CardHeader, CardTitle, CardContent } from "@tenzyu/ui/card";
+import { useMemo } from 'react'
+import type { AssetMatrix } from '@tenzyu/osu-skin-core/project'
+import { AssetRow } from './AssetRow'
+import { Badge } from '@tenzyu/ui/badge'
+import { Card, CardHeader, CardTitle, CardContent } from '@tenzyu/ui/card'
 
 type Props = {
-  matrix: AssetMatrix;
-  scope: string;
-  category: string;
-};
+  matrix: AssetMatrix
+  scope: string
+  category: string
+}
 
 export function PreviewView({ matrix, scope, category }: Props) {
   const rows = useMemo(
-    () => matrix.rows.filter((row) => row.scope === scope && row.category === category),
-    [matrix.rows, scope, category],
-  );
-  const primaryRows = rows.filter((row) => row.lazerMeaningful).length;
-  const missingRows = rows.filter((row) => row.cells.project.missing).length;
-  const warningRows = rows.filter((row) => row.warnings.length > 0 || Object.values(row.cells).some((cell) => cell.warnings.length > 0)).length;
+    () =>
+      matrix.rows.filter(
+        (row) => row.scope === scope && row.category === category
+      ),
+    [matrix.rows, scope, category]
+  )
+  const primaryRows = rows.filter((row) => row.lazerMeaningful).length
+  const missingRows = rows.filter((row) => row.cells.project.missing).length
+  const warningRows = rows.filter(
+    (row) =>
+      row.warnings.length > 0 ||
+      Object.values(row.cells).some((cell) => cell.warnings.length > 0)
+  ).length
 
   return (
     <section className="previewShell">
@@ -32,16 +38,20 @@ export function PreviewView({ matrix, scope, category }: Props) {
       </div>
 
       <div className="previewStage">
-        <Card variant="soft" className="lazerPreview">
+        <Card className="lazerPreview">
           <CardHeader>
             <CardTitle>Gameplay preview</CardTitle>
-            <p className="mutedText">Skin composition model for the active category.</p>
+            <p className="mutedText">
+              Skin composition model for the active category.
+            </p>
           </CardHeader>
           <CardContent className="previewMock">
             <div className="gameplayStage">
               <div className="songSelectStrip">
                 <span>tenzyu-main</span>
-                <span>{scope} / {category}</span>
+                <span>
+                  {scope} / {category}
+                </span>
               </div>
               <div className="playfieldMock">
                 <span className="legacyDot" />
@@ -52,7 +62,7 @@ export function PreviewView({ matrix, scope, category }: Props) {
           </CardContent>
         </Card>
 
-        <Card variant="soft" className="previewAudioRack">
+        <Card className="previewAudioRack">
           <CardHeader>
             <CardTitle>Validation</CardTitle>
           </CardHeader>
@@ -82,7 +92,7 @@ export function PreviewView({ matrix, scope, category }: Props) {
         )}
       </div>
     </section>
-  );
+  )
 }
 
 function PreviewStat({ label, value }: { label: string; value: number }) {
@@ -91,5 +101,5 @@ function PreviewStat({ label, value }: { label: string; value: number }) {
       <span>{label}</span>
       <strong>{value}</strong>
     </div>
-  );
+  )
 }

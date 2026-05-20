@@ -39,7 +39,7 @@ const twitterComponents: TwitterComponents = {
 
 function TweetItem({ tweet }: { tweet: TweetData }) {
   return (
-    <Suspense fallback={<Skeleton className="h-[300px] w-full rounded-lg" />}>
+    <Suspense fallback={<Skeleton className="h-75 w-full rounded-lg" />}>
       <Tweet id={tweet.id} components={twitterComponents} />
     </Suspense>
   )
@@ -51,11 +51,7 @@ type TwitterCarouselClientProps = {
   nextLabel: string
 }
 
-export function TwitterCarouselClient({
-  tweets,
-  previousLabel,
-  nextLabel,
-}: TwitterCarouselClientProps) {
+export function TwitterCarouselClient({ tweets }: TwitterCarouselClientProps) {
   return (
     <Carousel
       opts={{
@@ -76,11 +72,11 @@ export function TwitterCarouselClient({
       </CarouselContent>
       <CarouselPrevious
         className="dark:bg-popover dark:text-popover-foreground absolute top-1/2 left-4 z-10 -translate-y-1/2 transform"
-        label={previousLabel}
+        // label={previousLabel}
       />
       <CarouselNext
         className="dark:bg-popover dark:text-popover-foreground absolute top-1/2 right-4 z-10 -translate-y-1/2 transform"
-        label={nextLabel}
+        // label={nextLabel}
       />
     </Carousel>
   )

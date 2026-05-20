@@ -28,18 +28,22 @@ function PlatformButton({ link }: { link: PuzzleLink }) {
   const icon = PLATFORM_ICONS[link.platform]
 
   return (
-    <Button variant="soft" size="sm" className="group/btn gap-2" asChild>
-      <ExternalLink href={link.url} aria-label={label.value}>
-        <span className="text-base leading-none" aria-hidden="true">
-          {icon}
-        </span>
-        <span>{label}</span>
-        <ExternalLinkIcon
-          className="h-3.5 w-3.5 opacity-40 transition-opacity group-hover/btn:opacity-100"
-          aria-hidden="true"
-        />
-      </ExternalLink>
-    </Button>
+    <Button
+      size="sm"
+      className="group/btn gap-2"
+      render={
+        <ExternalLink href={link.url} aria-label={label.value}>
+          <span className="text-base leading-none" aria-hidden="true">
+            {icon}
+          </span>
+          <span>{label}</span>
+          <ExternalLinkIcon
+            className="h-3.5 w-3.5 opacity-40 transition-opacity group-hover/btn:opacity-100"
+            aria-hidden="true"
+          />
+        </ExternalLink>
+      }
+    ></Button>
   )
 }
 
@@ -113,7 +117,7 @@ export function PuzzleTile({ puzzle }: { puzzle: PuzzleWithOgp }) {
 
   if (isSingleWebLink && primaryLink) {
     return (
-      <Card variant="interactive" className="overflow-hidden p-0" asChild>
+      <Card className="overflow-hidden p-0">
         <ExternalLink
           href={primaryLink.url}
           aria-label={webLabel.value}
@@ -125,9 +129,5 @@ export function PuzzleTile({ puzzle }: { puzzle: PuzzleWithOgp }) {
     )
   }
 
-  return (
-    <Card variant="interactive" className="overflow-hidden p-0">
-      {cardContent}
-    </Card>
-  )
+  return <Card className="overflow-hidden p-0">{cardContent}</Card>
 }

@@ -1,7 +1,7 @@
 import { VisuallyHidden } from 'radix-ui'
 import { DialogContent, DialogTitle } from '@tenzyu/ui/dialog'
 import { buildTikTokEmbedUrl } from '@/features/tiktok/tiktok.domain'
-import { cn } from '@tenzyu/ui/cn'
+import { cn } from '@tenzyu/ui'
 
 type TikTokDialogContentProps = {
   embedUrl: string

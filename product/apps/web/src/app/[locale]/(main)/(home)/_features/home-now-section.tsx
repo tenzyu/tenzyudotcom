@@ -58,11 +58,16 @@ export function HomeNowSection({ locale }: { locale: string }) {
             <p className="text-muted-foreground text-sm">{home.entryLead}</p>
             <div className="flex flex-wrap gap-2">
               {entryLinks.map((link) => (
-                <Button key={link.href.value} asChild variant="soft" size="sm">
-                  <Link href={getLocalizedUrl(link.href.value, locale)}>
-                    {link.label}
-                  </Link>
-                </Button>
+                <Button
+                  key={link.href.value}
+                  variant="outline"
+                  size="sm"
+                  render={
+                    <Link href={getLocalizedUrl(link.href.value, locale)}>
+                      {link.label}
+                    </Link>
+                  }
+                ></Button>
               ))}
             </div>
           </div>

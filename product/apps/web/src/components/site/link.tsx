@@ -1,4 +1,4 @@
-import { cn } from '@tenzyu/ui/cn'
+import { cn } from '@tenzyu/ui'
 
 type LinkPrimitiveProps = React.AnchorHTMLAttributes<HTMLAnchorElement> & {
   external?: boolean
@@ -14,8 +14,8 @@ function LinkPrimitive({
   return (
     <a
       className={cn(
-        'text-link underline underline-offset-4 transition-colors visited:text-link-visited hover:text-primary focus-visible:rounded-[var(--radius-xs)]',
-        className,
+        'text-link underline underline-offset-4 transition-colors visited:text-link-visited hover:text-primary focus-visible:rounded-xs',
+        className
       )}
       target={external ? (target ?? '_blank') : target}
       rel={external ? (rel ?? 'noopener noreferrer') : rel}

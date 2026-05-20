@@ -36,7 +36,7 @@ export function PreviewPanel({
       <Textarea
         value={outputText}
         readOnly
-        className="min-h-[300px] resize-y font-mono text-xs leading-none tracking-tighter whitespace-pre"
+        className="min-h-75 resize-y font-mono text-xs leading-none tracking-tighter whitespace-pre"
         style={{
           lineHeight: '1em',
         }}

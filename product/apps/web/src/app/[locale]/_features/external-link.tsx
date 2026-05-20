@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { cn } from '@tenzyu/ui/cn'
+import { cn } from '@tenzyu/ui'
 import { normalizeExternalUrl } from '@/lib/url/external-url.domain'
 
 type ExternalLinkProps = Omit<React.ComponentPropsWithoutRef<'a'>, 'href'> & {

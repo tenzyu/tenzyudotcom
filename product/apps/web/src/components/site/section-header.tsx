@@ -1,4 +1,4 @@
-import { cn } from '@tenzyu/ui/cn'
+import { cn } from '@tenzyu/ui'
 import { Heading } from './heading'
 import { Text } from './text'
 
@@ -27,7 +27,7 @@ function SectionHeader({
           size="h3"
           className={cn(
             variant === 'underline' && 'border-b border-border/70 pb-2',
-            titleClassName,
+            titleClassName
           )}
         >
           {title}

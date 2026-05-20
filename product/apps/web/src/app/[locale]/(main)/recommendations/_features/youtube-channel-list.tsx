@@ -1,8 +1,8 @@
-import { ArrowUpRight, Youtube } from 'lucide-react'
+import { ArrowUpRight, VideoIcon } from 'lucide-react'
 import { ExternalLink } from '@/app/[locale]/_features/external-link'
 import { OtakuAside } from '@/app/[locale]/(main)/_features/otaku-aside'
 import { Button } from '@tenzyu/ui/button'
-import { cn } from '@tenzyu/ui/cn'
+import { cn } from '@tenzyu/ui'
 import type { YouTubeChannelItem } from './lib/types'
 
 type YouTubeChannelListProps = {
@@ -22,7 +22,7 @@ export function YouTubeChannelList({
     <div
       className={cn(
         'border-border/60 bg-card/40 rounded-2xl border',
-        className,
+        className
       )}
     >
       <ul className="divide-border/60 divide-y">
@@ -33,7 +33,7 @@ export function YouTubeChannelList({
           >
             <div className="flex flex-col gap-2">
               <div className="text-muted-foreground flex items-center gap-2 text-[11px] font-semibold tracking-[0.18em] uppercase">
-                <Youtube className="size-3.5 text-red-500" />
+                <VideoIcon className="size-3.5 text-red-500" />
                 <span>YouTube Channel</span>
               </div>
               <div className="flex flex-col gap-1">
@@ -46,16 +46,21 @@ export function YouTubeChannelList({
               </div>
             </div>
 
-            <Button asChild variant="outline" size="sm" className="w-full">
-              <ExternalLink
-                href={channel.url}
-                aria-label={openLabel}
-                className="justify-center"
-              >
-                <span>{openLabel}</span>
-                <ArrowUpRight data-icon="inline-end" />
-              </ExternalLink>
-            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full"
+              render={
+                <ExternalLink
+                  href={channel.url}
+                  aria-label={openLabel}
+                  className="justify-center"
+                >
+                  <span>{openLabel}</span>
+                  <ArrowUpRight data-icon="inline-end" />
+                </ExternalLink>
+              }
+            ></Button>
 
             <OtakuAside label={commentLabel}>
               <p className="text-muted-foreground text-sm leading-relaxed">

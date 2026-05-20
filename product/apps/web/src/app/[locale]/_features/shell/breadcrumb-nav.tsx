@@ -51,9 +51,11 @@ export function BreadcrumbNav() {
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link href={getLocalizedUrl('/', locale)}>{content.home}</Link>
-            </BreadcrumbLink>
+            <BreadcrumbLink
+              render={
+                <Link href={getLocalizedUrl('/', locale)}>{content.home}</Link>
+              }
+            ></BreadcrumbLink>
           </BreadcrumbItem>
           {segments.map((segment) => (
             <React.Fragment key={segment.href}>
@@ -62,9 +64,9 @@ export function BreadcrumbNav() {
                 {segment.isLast ? (
                   <BreadcrumbPage>{segment.label}</BreadcrumbPage>
                 ) : (
-                  <BreadcrumbLink asChild>
-                    <Link href={segment.href}>{segment.label}</Link>
-                  </BreadcrumbLink>
+                  <BreadcrumbLink
+                    render={<Link href={segment.href}>{segment.label}</Link>}
+                  ></BreadcrumbLink>
                 )}
               </BreadcrumbItem>
             </React.Fragment>

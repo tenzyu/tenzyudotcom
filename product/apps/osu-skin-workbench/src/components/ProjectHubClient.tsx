@@ -1,7 +1,6 @@
-"use client";
+'use client'
 
-
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react'
 import {
   chooseSkinDirectory,
   chooseSkinFile,
@@ -9,118 +8,162 @@ import {
   deleteProject,
   fetchProjects,
   renameProject,
-} from "../lib/client/project-api";
-import type { ProjectManifest } from "@tenzyu/osu-skin-core/contract";
-import { Badge } from "@tenzyu/ui/badge";
-import { Button } from "@tenzyu/ui/button";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@tenzyu/ui/card";
-import { Input } from "@tenzyu/ui/input";
-import { Label } from "@tenzyu/ui/label";
+} from '../lib/client/project-api'
+import type { ProjectManifest } from '@tenzyu/osu-skin-core/contract'
+import { Badge } from '@tenzyu/ui/badge'
+import { Button } from '@tenzyu/ui/button'
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from '@tenzyu/ui/card'
+import { Input } from '@tenzyu/ui/input'
+import { Label } from '@tenzyu/ui/label'
 
 type Props = {
-  onOpenProject: (projectId: string) => void;
-};
+  onOpenProject: (projectId: string) => void
+}
 
 export function ProjectHubClient({ onOpenProject }: Props) {
-  const [projects, setProjects] = useState<ProjectManifest[]>([]);
-  const [projectName, setProjectName] = useState("");
-  const [sourcePath, setSourcePath] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [status, setStatus] = useState("No project loaded.");
-  const [error, setError] = useState<string | null>(null);
+  const [projects, setProjects] = useState<ProjectManifest[]>([])
+  const [projectName, setProjectName] = useState('')
+  const [sourcePath, setSourcePath] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [status, setStatus] = useState('No project loaded.')
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    void refreshProjects();
-  }, []);
+    void refreshProjects()
+  }, [])
 
   async function refreshProjects() {
-    setLoading(true);
-    setError(null);
+    setLoading(true)
+    setError(null)
 
     try {
-      const nextProjects = await fetchProjects();
-      setProjects(nextProjects);
-      setStatus(nextProjects.length ? "Projects loaded." : "No projects yet.");
+      const nextProjects = await fetchProjects()
+      setProjects(nextProjects)
+      setStatus(nextProjects.length ? 'Projects loaded.' : 'No projects yet.')
     } catch (unknownError) {
-      setError(unknownError instanceof Error ? unknownError.message : String(unknownError));
+      setError(
+        unknownError instanceof Error
+          ? unknownError.message
+          : String(unknownError)
+      )
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
   }
 
   async function importProject() {
     if (!sourcePath.trim()) {
-      setError("Main skin path is required.");
-      return;
+      setError('Main skin path is required.')
+      return
     }
 
-    setLoading(true);
-    setError(null);
+    setLoading(true)
+    setError(null)
 
     try {
       const project = await createProject({
         sourcePath,
         name: projectName || undefined,
-      });
+      })
 
-      setProjects((current) => [project, ...current.filter((item) => item.id !== project.id)]);
-      setProjectName("");
-      setSourcePath("");
-      setStatus(`Imported project: ${project.name}`);
+      setProjects((current) => [
+        project,
+        ...current.filter((item) => item.id !== project.id),
+      ])
+      setProjectName('')
+      setSourcePath('')
+      setStatus(`Imported project: ${project.name}`)
     } catch (unknownError) {
-      setError(unknownError instanceof Error ? unknownError.message : String(unknownError));
+      setError(
+        unknownError instanceof Error
+          ? unknownError.message
+          : String(unknownError)
+      )
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
   }
 
-  async function chooseMainSkin(kind: "file" | "directory") {
-    setLoading(true);
-    setError(null);
+  async function chooseMainSkin(kind: 'file' | 'directory') {
+    setLoading(true)
+    setError(null)
 
     try {
-      const selected = kind === "directory" ? await chooseSkinDirectory() : await chooseSkinFile();
-      if (selected) setSourcePath(selected);
-      setStatus(selected ? "Selected main skin path." : "File picker was cancelled or unavailable.");
+      const selected =
+        kind === 'directory'
+          ? await chooseSkinDirectory()
+          : await chooseSkinFile()
+      if (selected) setSourcePath(selected)
+      setStatus(
+        selected
+          ? 'Selected main skin path.'
+          : 'File picker was cancelled or unavailable.'
+      )
     } catch (unknownError) {
-      setError(unknownError instanceof Error ? unknownError.message : String(unknownError));
+      setError(
+        unknownError instanceof Error
+          ? unknownError.message
+          : String(unknownError)
+      )
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
   }
 
   async function rename(project: ProjectManifest) {
-    const name = window.prompt("Project name", project.name);
-    if (!name || name === project.name) return;
+    const name = window.prompt('Project name', project.name)
+    if (!name || name === project.name) return
 
-    setLoading(true);
-    setError(null);
+    setLoading(true)
+    setError(null)
 
     try {
-      const nextProject = await renameProject(project.id, name);
-      setProjects((current) => current.map((item) => (item.id === nextProject.id ? nextProject : item)));
-      setStatus("Project renamed.");
+      const nextProject = await renameProject(project.id, name)
+      setProjects((current) =>
+        current.map((item) => (item.id === nextProject.id ? nextProject : item))
+      )
+      setStatus('Project renamed.')
     } catch (unknownError) {
-      setError(unknownError instanceof Error ? unknownError.message : String(unknownError));
+      setError(
+        unknownError instanceof Error
+          ? unknownError.message
+          : String(unknownError)
+      )
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
   }
 
   async function remove(project: ProjectManifest) {
-    if (!window.confirm(`Delete project "${project.name}"? Raw project files will be removed.`)) return;
+    if (
+      !window.confirm(
+        `Delete project "${project.name}"? Raw project files will be removed.`
+      )
+    )
+      return
 
-    setLoading(true);
-    setError(null);
+    setLoading(true)
+    setError(null)
 
     try {
-      await deleteProject(project.id);
-      setProjects((current) => current.filter((item) => item.id !== project.id));
-      setStatus("Project deleted.");
+      await deleteProject(project.id)
+      setProjects((current) => current.filter((item) => item.id !== project.id))
+      setStatus('Project deleted.')
     } catch (unknownError) {
-      setError(unknownError instanceof Error ? unknownError.message : String(unknownError));
+      setError(
+        unknownError instanceof Error
+          ? unknownError.message
+          : String(unknownError)
+      )
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
   }
 
@@ -128,28 +171,28 @@ export function ProjectHubClient({ onOpenProject }: Props) {
     <main className="hubPage">
       <section className="hubHero">
         <div>
-          <p className="eyebrow">
-            Desktop Skin Workspace
-          </p>
+          <p className="eyebrow">Desktop Skin Workspace</p>
           <h1>Projects</h1>
           <p className="hubLead mutedText">
-            Import a main skin, add asset sources, compare rows, preview changes,
-            then export .osk, diff, or backup packages.
+            Import a main skin, add asset sources, compare rows, preview
+            changes, then export .osk, diff, or backup packages.
           </p>
         </div>
 
         <div className="hubHeaderActions">
-          <Button type="button" variant="soft" onClick={refreshProjects} disabled={loading}>
+          <Button type="button" onClick={refreshProjects} disabled={loading}>
             Refresh
           </Button>
         </div>
       </section>
 
       <section className="hubGrid">
-        <Card variant="soft" className="hubCreateCard">
+        <Card className="hubCreateCard">
           <CardHeader>
             <CardTitle>Create Project</CardTitle>
-            <CardDescription>Use a stable or lazer skin folder as the editable main source.</CardDescription>
+            <CardDescription>
+              Use a stable or lazer skin folder as the editable main source.
+            </CardDescription>
           </CardHeader>
 
           <CardContent className="formStack">
@@ -176,13 +219,25 @@ export function ProjectHubClient({ onOpenProject }: Props) {
             </div>
 
             <div className="buttonRow">
-              <Button type="button" variant="soft" onClick={() => void chooseMainSkin("file")} disabled={loading}>
+              <Button
+                type="button"
+                onClick={() => void chooseMainSkin('file')}
+                disabled={loading}
+              >
                 Choose .osk
               </Button>
-              <Button type="button" variant="soft" onClick={() => void chooseMainSkin("directory")} disabled={loading}>
+              <Button
+                type="button"
+                onClick={() => void chooseMainSkin('directory')}
+                disabled={loading}
+              >
                 Choose folder
               </Button>
-              <Button type="button" onClick={importProject} disabled={loading || !sourcePath.trim()}>
+              <Button
+                type="button"
+                onClick={importProject}
+                disabled={loading || !sourcePath.trim()}
+              >
                 Import main skin
               </Button>
             </div>
@@ -190,13 +245,9 @@ export function ProjectHubClient({ onOpenProject }: Props) {
 
           <CardFooter className="statusFooter">
             {error ? (
-              <div className="statusSurface statusDanger">
-                {error}
-              </div>
+              <div className="statusSurface statusDanger">{error}</div>
             ) : (
-              <div className="statusSurface statusQuiet">
-                {status}
-              </div>
+              <div className="statusSurface statusQuiet">{status}</div>
             )}
           </CardFooter>
         </Card>
@@ -211,25 +262,42 @@ export function ProjectHubClient({ onOpenProject }: Props) {
 
           <div className="projectList">
             {projects.map((project) => (
-              <Card key={project.id} variant="interactive" className="projectCard">
+              <Card key={project.id} className="projectCard">
                 <CardHeader>
                   <div className="projectCardHeader">
                     <div>
                       <CardTitle>{project.name}</CardTitle>
-                      <CardDescription>{project.mainSourcePath}</CardDescription>
+                      <CardDescription>
+                        {project.mainSourcePath}
+                      </CardDescription>
                     </div>
-                    <Badge variant="secondary">{project.sources?.length ?? 0} sources</Badge>
+                    <Badge variant="secondary">
+                      {project.sources?.length ?? 0} sources
+                    </Badge>
                   </div>
                 </CardHeader>
 
                 <CardFooter className="projectCardActions">
-                  <Button type="button" onClick={() => onOpenProject(project.id)} disabled={loading}>
+                  <Button
+                    type="button"
+                    onClick={() => onOpenProject(project.id)}
+                    disabled={loading}
+                  >
                     Open
                   </Button>
-                  <Button type="button" variant="soft" onClick={() => void rename(project)} disabled={loading}>
+                  <Button
+                    type="button"
+                    onClick={() => void rename(project)}
+                    disabled={loading}
+                  >
                     Rename
                   </Button>
-                  <Button type="button" variant="destructive" onClick={() => void remove(project)} disabled={loading}>
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    onClick={() => void remove(project)}
+                    disabled={loading}
+                  >
                     Delete
                   </Button>
                 </CardFooter>
@@ -238,12 +306,13 @@ export function ProjectHubClient({ onOpenProject }: Props) {
 
             {!projects.length && (
               <div className="emptyState">
-                No projects yet. Import a main skin to create the first workbench project.
+                No projects yet. Import a main skin to create the first
+                workbench project.
               </div>
             )}
           </div>
         </div>
       </section>
     </main>
-  );
+  )
 }

@@ -73,20 +73,15 @@ export function NavigationTiles() {
                 if (!itemContent) return null
 
                 return (
-                  <Card
-                    key={routeId}
-                    asChild
-                    variant="interactive"
-                    className="group gap-0 py-0"
-                  >
+                  <Card key={routeId} className="group gap-0 py-0">
                     <Link
                       href={getLocalizedUrl(
                         PUBLIC_ROUTES[routeId].href,
-                        locale,
+                        locale
                       )}
                     >
                       <CardContent className="flex items-center gap-4 p-4">
-                        <div className="border-primary/20 bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground flex size-10 shrink-0 items-center justify-center rounded-[var(--radius-lg)] border transition-colors">
+                        <div className="border-primary/20 bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground flex size-10 shrink-0 items-center justify-center rounded-lg border transition-colors">
                           <Icon className="size-4" />
                         </div>
                         <div className="min-w-0 flex-1">

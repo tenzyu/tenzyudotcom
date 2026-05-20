@@ -2,7 +2,7 @@ import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { useIntlayer } from 'next-intlayer/server'
 import { memo } from 'react'
 
-import { cn } from '@tenzyu/ui/cn'
+import { cn } from '@tenzyu/ui'
 import {
   SettingsCard,
   SettingsData,
@@ -25,7 +25,7 @@ const Key = memo(function Key({ label, className }: KeyProps) {
     <div
       className={cn(
         'bg-visualization-secondary flex h-29 w-29 items-center justify-center rounded-md',
-        className,
+        className
       )}
       role="img"
       aria-label={`${label} ${settings.aria.keySuffix.value}`}
@@ -86,7 +86,7 @@ export const KeyboardSettings = memo(function KeyboardSettings() {
     <SettingsCard title={settingsContent.keyboard.value}>
       <SettingsVisualization>
         <div
-          className="bg-visualization-bg relative mx-auto aspect-4/3 max-w-[400px] rounded-md p-4"
+          className="bg-visualization-bg relative mx-auto aspect-4/3 max-w-100 rounded-md p-4"
           role="img"
           aria-label={settingsContent.aria.keyboardVisualization.value}
         >

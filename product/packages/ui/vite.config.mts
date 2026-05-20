@@ -13,6 +13,18 @@ const projectRoot = import.meta.dirname
 const srcRoot = path.resolve(projectRoot, 'src')
 const uiRoot = path.resolve(srcRoot, 'components/ui')
 const outDir = path.resolve(projectRoot, './dist')
+const packageJson = JSON.parse(
+  fs.readFileSync(path.join(projectRoot, 'package.json'), 'utf8')
+)
+const externalPackages = [
+  ...Object.keys(packageJson.dependencies ?? {}),
+  ...Object.keys(packageJson.peerDependencies ?? {}),
+  'react/jsx-runtime',
+  'react/jsx-dev-runtime',
+]
+function isExternal(id: string) {
+  return externalPackages.some((pkg) => id === pkg || id.startsWith(`${pkg}/`))
+}
 
 const componentEntries = Object.fromEntries(
   fs
@@ -68,10 +80,12 @@ export default defineConfig(() => ({
     },
     rollupOptions: {
       // External packages that should not be bundled into your library.
-      external: ['react', 'react-dom', 'react/jsx-runtime'],
+      external: isExternal,
       output: {
+        preserveModules: true,
+        preserveModulesRoot: path.resolve(projectRoot, 'src'),
         entryFileNames: '[name].js',
-        chunkFileNames: 'chunks/[name]-[hash].js',
+        chunkFileNames: '_chunks/[name]-[hash].js',
         assetFileNames: (assetInfo) => {
           if (assetInfo.name === 'styles.css') {
             return 'styles.css'

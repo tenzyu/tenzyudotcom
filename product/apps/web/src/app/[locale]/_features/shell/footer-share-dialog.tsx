@@ -12,7 +12,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@tenzyu/ui/dialog'
-import { cn } from '@tenzyu/ui/cn'
+import { cn } from '@tenzyu/ui'
 
 type FooterShareDialogProps = {
   title: string
@@ -49,7 +49,7 @@ function ShareButton({
 }) {
   return (
     <Button
-      variant="soft"
+      variant="outline"
       className="flex h-auto flex-col items-center gap-1 py-3"
       onClick={onClick}
     >
@@ -121,22 +121,24 @@ export function FooterShareDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button
-          variant="ghost"
-          size={triggerLabel ? 'sm' : 'default'}
-          className={cn('h-auto py-4', triggerClassName)}
-        >
-          <Share2 className="size-5" />
-          {triggerLabel ? (
-            <span className="ml-1">{triggerLabel}</span>
-          ) : (
-            <span className="sr-only">
-              {content.triggerAriaPrefix} {title}
-            </span>
-          )}
-        </Button>
-      </DialogTrigger>
+      <DialogTrigger
+        render={
+          <Button
+            variant="ghost"
+            size={triggerLabel ? 'sm' : 'default'}
+            className={cn('h-auto py-4', triggerClassName)}
+          >
+            <Share2 className="size-5" />
+            {triggerLabel ? (
+              <span className="ml-1">{triggerLabel}</span>
+            ) : (
+              <span className="sr-only">
+                {content.triggerAriaPrefix} {title}
+              </span>
+            )}
+          </Button>
+        }
+      ></DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>

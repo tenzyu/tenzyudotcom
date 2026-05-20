@@ -6,7 +6,7 @@ import { Content } from '@/components/site/content'
 import { ExternalLink } from '@/app/[locale]/_features/external-link'
 import { Card, CardContent, CardTitle } from '@tenzyu/ui/card'
 import { Skeleton } from '@tenzyu/ui/skeleton'
-import { cn } from '@tenzyu/ui/cn'
+import { cn } from '@tenzyu/ui'
 import { DEFAULT_SCORE_LIMIT, ID_OSU } from '../osu.source'
 import { getUserScores } from '../lib/getUserScores'
 
@@ -156,7 +156,7 @@ const ScoreCard = ({ score, index, className }: ScoreCardProps) => {
                 <div
                   className={cn(
                     'flex h-10 w-10 items-center justify-center rounded-full border-2 text-lg font-bold',
-                    rankStyle,
+                    rankStyle
                   )}
                 >
                   {score.rank}
@@ -176,7 +176,7 @@ const BestScoresContainer = async ({ limit }: { limit: number }) => {
     'best',
     0,
     { lazer: true },
-    { limit },
+    { limit }
   )
 
   return (

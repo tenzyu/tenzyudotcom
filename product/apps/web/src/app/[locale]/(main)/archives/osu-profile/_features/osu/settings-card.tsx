@@ -2,7 +2,7 @@ import { useIntlayer } from 'next-intlayer/server'
 import type { ReactNode } from 'react'
 
 import { Card, CardContent, CardTitle } from '@tenzyu/ui/card'
-import { cn } from '@tenzyu/ui/cn'
+import { cn } from '@tenzyu/ui'
 
 type SettingsCardProps = {
   title: string
@@ -110,7 +110,7 @@ export function SettingsGrid({
       className={cn(
         'grid gap-2',
         columns === 2 ? 'grid-cols-2' : 'grid-cols-3',
-        className,
+        className
       )}
     >
       {children}

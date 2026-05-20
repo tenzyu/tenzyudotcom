@@ -40,7 +40,7 @@ export function ToolsPageContent({ locale }: { locale: string }) {
         description={content.metadata.description.value}
       />
 
-      <Card variant="quiet" className="gap-0 py-0">
+      <Card className="gap-0 py-0">
         <CardContent className="space-y-3 p-5">
           <h2 className="text-lg font-semibold tracking-tight">
             {content.overview.title}
@@ -63,14 +63,10 @@ export function ToolsPageContent({ locale }: { locale: string }) {
         {tools.map((tool) => {
           const Icon = ICONS[tool.icon as keyof typeof ICONS] ?? Type
           return (
-            <Card
-              key={tool.href.value}
-              variant="interactive"
-              className="h-full"
-            >
+            <Card key={tool.href.value} className="h-full">
               <CardHeader className="gap-3">
                 <div className="flex items-center gap-3">
-                  <div className="border-primary/20 bg-primary/10 text-primary flex size-10 items-center justify-center rounded-[var(--radius-lg)] border">
+                  <div className="border-primary/20 bg-primary/10 text-primary flex size-10 items-center justify-center rounded-lg border">
                     <Icon className="size-5" />
                   </div>
                   <CardTitle className="text-lg">{tool.title}</CardTitle>
@@ -82,33 +78,37 @@ export function ToolsPageContent({ locale }: { locale: string }) {
                   {tool.note}
                 </OtakuAside>
                 <Button
-                  asChild
-                  variant="soft"
+                  variant="outline"
                   size="sm"
                   className="w-full justify-center"
-                >
-                  <Link href={getLocalizedUrl(tool.href.value, locale)}>
-                    {content.labels.openTool.value}
-                    <ArrowRight />
-                  </Link>
-                </Button>
+                  render={
+                    <Link href={getLocalizedUrl(tool.href.value, locale)}>
+                      {content.labels.openTool.value}
+                      <ArrowRight />
+                    </Link>
+                  }
+                ></Button>
               </CardContent>
             </Card>
           )
         })}
       </div>
 
-      <Card variant="quiet" className="gap-0 py-0">
+      <Card className="gap-0 py-0">
         <CardContent className="flex flex-wrap items-center gap-3 p-5 text-sm">
           <p className="text-muted-foreground leading-6">
             {content.support.description}
           </p>
           <KoFiLink label={content.support.supportLabel.value} />
-          <Button asChild variant="ghost" size="sm">
-            <Link href={getLocalizedUrl('/blog', locale)}>
-              {content.support.readBlogLabel}
-            </Link>
-          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            render={
+              <Link href={getLocalizedUrl('/blog', locale)}>
+                {content.support.readBlogLabel}
+              </Link>
+            }
+          ></Button>
         </CardContent>
       </Card>
     </>

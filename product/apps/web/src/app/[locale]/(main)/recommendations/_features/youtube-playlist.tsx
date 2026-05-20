@@ -2,7 +2,7 @@ import { OtakuAside } from '@/app/[locale]/(main)/_features/otaku-aside'
 import { Dialog, DialogTrigger } from '@tenzyu/ui/dialog'
 import { YouTubeDialogContent } from '@/app/[locale]/(main)/_features/youtube/youtube-dialog-content'
 import { YouTubeThumbnailImage } from '@/app/[locale]/(main)/_features/youtube/youtube-thumbnail-image'
-import { cn } from '@tenzyu/ui/cn'
+import { cn } from '@tenzyu/ui'
 import type { YouTubePlaylistItem } from './lib/types'
 
 type YouTubePlaylistProps = {
@@ -24,7 +24,7 @@ export function YouTubePlaylist({
     <div
       className={cn(
         'border-border/60 bg-card/40 rounded-2xl border',
-        className,
+        className
       )}
     >
       <ul className="divide-border/60 divide-y">
@@ -32,34 +32,36 @@ export function YouTubePlaylist({
           <li key={video.id}>
             <Dialog>
               <div>
-                <DialogTrigger asChild>
-                  <button
-                    type="button"
-                    className="group hover:bg-muted/40 w-full text-left transition-colors"
-                    aria-label={`${openLabel}: ${video.title}`}
-                  >
-                    <div className="flex w-full flex-col gap-3 px-4 pt-4 pb-2 sm:flex-row sm:items-center sm:gap-4 sm:px-5">
-                      <div className="relative aspect-video w-full shrink-0 overflow-hidden rounded-lg sm:w-48">
-                        <YouTubeThumbnailImage
-                          videoId={video.id}
-                          title={video.title}
-                          className="object-cover transition-transform duration-300 group-hover:scale-105"
-                          sizes="(max-width: 640px) 100vw, 240px"
-                        />
-                      </div>
-                      <div className="flex flex-1 flex-col gap-2">
-                        <div className="space-y-1">
-                          <h3 className="text-base leading-snug font-semibold">
-                            {video.title}
-                          </h3>
-                          <p className="text-muted-foreground text-xs font-medium">
-                            {viewLabel}: {video.views}
-                          </p>
+                <DialogTrigger
+                  render={
+                    <button
+                      type="button"
+                      className="group hover:bg-muted/40 w-full text-left transition-colors"
+                      aria-label={`${openLabel}: ${video.title}`}
+                    >
+                      <div className="flex w-full flex-col gap-3 px-4 pt-4 pb-2 sm:flex-row sm:items-center sm:gap-4 sm:px-5">
+                        <div className="relative aspect-video w-full shrink-0 overflow-hidden rounded-lg sm:w-48">
+                          <YouTubeThumbnailImage
+                            videoId={video.id}
+                            title={video.title}
+                            className="object-cover transition-transform duration-300 group-hover:scale-105"
+                            sizes="(max-width: 640px) 100vw, 240px"
+                          />
+                        </div>
+                        <div className="flex flex-1 flex-col gap-2">
+                          <div className="space-y-1">
+                            <h3 className="text-base leading-snug font-semibold">
+                              {video.title}
+                            </h3>
+                            <p className="text-muted-foreground text-xs font-medium">
+                              {viewLabel}: {video.views}
+                            </p>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </button>
-                </DialogTrigger>
+                    </button>
+                  }
+                ></DialogTrigger>
                 <div className="px-4 pb-4 sm:px-5">
                   <OtakuAside label={commentLabel}>
                     <p className="text-muted-foreground text-sm leading-relaxed">

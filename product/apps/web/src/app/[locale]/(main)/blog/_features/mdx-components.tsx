@@ -2,7 +2,7 @@ import type { MDXComponents } from 'mdx/types'
 import Link from 'next/link'
 import { createElement, isValidElement, type ReactNode } from 'react'
 import { KoFiLink } from '@/app/[locale]/_features/shell/kofi-link'
-import { cn } from '@tenzyu/ui/cn'
+import { cn } from '@tenzyu/ui'
 import { OtakuAside } from '../../_features/otaku-aside'
 import { slugifyBlogHeading } from './blog.domain'
 import { CautionAlert } from './caution-alert'
@@ -48,7 +48,7 @@ function createHeading(level: 2 | 3 | 4, slugCounts: Map<string, number>) {
         id,
         className: cn('group', className),
       },
-      children,
+      children
     )
   }
 }

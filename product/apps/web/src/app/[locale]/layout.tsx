@@ -1,6 +1,6 @@
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/next'
-import { getHTMLTextDir, getIntlayer } from 'intlayer'
+import { defaultLocale, getHTMLTextDir, getIntlayer } from 'intlayer'
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono, Noto_Serif_JP } from 'next/font/google'
 import Script from 'next/script'
@@ -42,13 +42,13 @@ export async function generateMetadata({
   params,
 }: LocalPromiseParams): Promise<Metadata> {
   const { locale } = await params
-  return buildSiteMetadata(locale)
+  return buildSiteMetadata(locale || defaultLocale)
 }
 
 const LocaleLayout: NextLayoutIntlayer = async ({ children, params }) => {
   const { locale } = await params
-  const shellContent = getIntlayer('shell', locale)
-  const siteStructuredData = buildSiteStructuredData(locale)
+  const shellContent = getIntlayer('shell', locale || defaultLocale)
+  const siteStructuredData = buildSiteStructuredData(locale || defaultLocale)
 
   return (
     <html lang={locale} dir={getHTMLTextDir(locale)} suppressHydrationWarning>
@@ -96,7 +96,7 @@ const LocaleLayout: NextLayoutIntlayer = async ({ children, params }) => {
                 >
                   {shellContent.skipToContent}
                 </a>
-                <Header locale={locale} />
+                <Header locale={locale || defaultLocale} />
                 <main
                   id="main-content"
                   tabIndex={-1}
@@ -109,7 +109,7 @@ const LocaleLayout: NextLayoutIntlayer = async ({ children, params }) => {
                   </Container>
                 </main>
                 <Toaster />
-                <Footer locale={locale} />
+                <Footer locale={locale || defaultLocale} />
                 <Analytics />
                 <SpeedInsights />
               </TooltipProvider>

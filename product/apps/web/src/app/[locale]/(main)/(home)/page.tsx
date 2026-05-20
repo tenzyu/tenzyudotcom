@@ -12,7 +12,7 @@ export const generateMetadata = createPageMetadata('page-home', {
 })
 
 const HomePage: NextPageIntlayer = async ({ params }) => {
-  const locale = await resolvePageLocale(params)
+  const locale = (await resolvePageLocale(params))!
   const [notes, posts] = await Promise.all([
     assembleNotesPageData(locale),
     loadBlogPosts(),

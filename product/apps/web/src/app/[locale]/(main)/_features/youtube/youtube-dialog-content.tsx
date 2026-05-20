@@ -1,6 +1,6 @@
 import { VisuallyHidden } from 'radix-ui'
 import { DialogContent, DialogTitle } from '@tenzyu/ui/dialog'
-import { cn } from '@tenzyu/ui/cn'
+import { cn } from '@tenzyu/ui'
 import { buildYouTubeEmbedUrl } from '@/features/youtube/youtube.domain'
 
 type YouTubeDialogContentProps = {

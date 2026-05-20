@@ -74,7 +74,7 @@ export async function LinkTreePageContent() {
                   </ItemGroup>
                 </nav>
               </section>
-            ),
+            )
         )}
       </Content>
     </>
@@ -112,25 +112,29 @@ function LinkTile({
           <LinkAdminMenu shortenUrl={link.shortenUrl} />
         </AdminGate>
       </div>
-      <Item asChild variant="card" className="w-full pr-11">
-        <Link
-          href={getLocalizedUrl(`/links/${link.shortenUrl}`, locale)}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label={`${visitPrefix} ${link.name} (${link.id})`}
-        >
-          <ItemMedia variant="avatar" className="dark:bg-secondary-foreground">
-            <LinkIcon icon={link.icon} alt={`${link.name} ${iconSuffix}`} />
-          </ItemMedia>
+      <Item
+        variant="outline"
+        className="w-full pr-11"
+        render={
+          <Link
+            href={getLocalizedUrl(`/links/${link.shortenUrl}`, locale)}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`${visitPrefix} ${link.name} (${link.id})`}
+          >
+            <ItemMedia variant="icon" className="dark:bg-secondary-foreground">
+              <LinkIcon icon={link.icon} alt={`${link.name} ${iconSuffix}`} />
+            </ItemMedia>
 
-          <ItemContent className="min-w-0 text-left">
-            <ItemTitle className="truncate text-sm">{link.name}</ItemTitle>
-            <ItemDescription className="truncate text-xs">
-              {link.id}
-            </ItemDescription>
-          </ItemContent>
-        </Link>
-      </Item>
+            <ItemContent className="min-w-0 text-left">
+              <ItemTitle className="truncate text-sm">{link.name}</ItemTitle>
+              <ItemDescription className="truncate text-xs">
+                {link.id}
+              </ItemDescription>
+            </ItemContent>
+          </Link>
+        }
+      ></Item>
     </div>
   )
 }

@@ -46,11 +46,7 @@ export function ActionLinkTile({
   )
 
   return (
-    <Card
-      variant="interactive"
-      className="group w-full gap-3 px-5 py-4"
-      asChild
-    >
+    <Card className="group w-full gap-3 px-5 py-4">
       {isLocalizedRoute ? (
         <Link href={getLocalizedUrl(href, locale)}>{content}</Link>
       ) : openInNewTab ? (

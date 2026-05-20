@@ -27,7 +27,7 @@ export function ProjectsSection() {
           const note = 'note' in projectContent ? projectContent.note : null
 
           return (
-            <Card key={project.id} variant="soft" className="gap-0 p-0">
+            <Card key={project.id} className="gap-0 p-0">
               <CardHeader className="gap-2 pt-5 pb-4">
                 <CardTitle className="text-lg font-semibold">
                   {projectContent.name}
@@ -58,23 +58,23 @@ export function ProjectsSection() {
                     <Button
                       variant="ghost"
                       className="text-primary h-auto px-0 hover:bg-transparent hover:underline"
-                      asChild
-                    >
-                      <ExternalLink href={project.github}>
-                        {content.projects.githubLabel} &rarr;
-                      </ExternalLink>
-                    </Button>
+                      render={
+                        <ExternalLink href={project.github}>
+                          {content.projects.githubLabel} &rarr;
+                        </ExternalLink>
+                      }
+                    ></Button>
                   ) : null}
                   {project.demo ? (
                     <Button
                       variant="ghost"
                       className="text-primary h-auto px-0 hover:bg-transparent hover:underline"
-                      asChild
-                    >
-                      <ExternalLink href={project.demo}>
-                        {content.projects.demoLabel} &rarr;
-                      </ExternalLink>
-                    </Button>
+                      render={
+                        <ExternalLink href={project.demo}>
+                          {content.projects.demoLabel} &rarr;
+                        </ExternalLink>
+                      }
+                    ></Button>
                   ) : null}
                 </div>
                 {note ? (

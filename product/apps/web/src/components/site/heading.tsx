@@ -1,5 +1,5 @@
 import { cva, type VariantProps } from 'class-variance-authority'
-import { cn } from '@tenzyu/ui/cn'
+import { cn } from '@tenzyu/ui'
 
 const headingVariants = cva(
   'text-balance font-bold tracking-tight text-foreground',
@@ -17,7 +17,7 @@ const headingVariants = cva(
     defaultVariants: {
       size: 'h2',
     },
-  },
+  }
 )
 
 function Heading({

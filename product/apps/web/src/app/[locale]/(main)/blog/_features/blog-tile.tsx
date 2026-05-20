@@ -4,7 +4,7 @@ import Link from 'next/link'
 
 import { Badge } from '@tenzyu/ui/badge'
 import { Card } from '@tenzyu/ui/card'
-import { cn } from '@tenzyu/ui/cn'
+import { cn } from '@tenzyu/ui'
 import { formatDate } from './format-date'
 
 type BlogTileProps = {
@@ -30,11 +30,9 @@ export function BlogTile({
 
   return (
     <Card
-      asChild
-      variant="interactive"
       className={cn(
         'group focus-visible:ring-ring/50 gap-3 p-5 focus-visible:ring-2 focus-visible:outline-none',
-        className,
+        className
       )}
     >
       <Link href={href} prefetch>

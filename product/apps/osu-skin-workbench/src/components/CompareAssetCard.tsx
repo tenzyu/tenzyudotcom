@@ -1,23 +1,26 @@
-"use client";
+'use client'
 
-import { Badge } from "@tenzyu/ui/badge";
-import { Button } from "@tenzyu/ui/button";
-import { Card } from "@tenzyu/ui/card";
-import { Checkbox } from "@tenzyu/ui/checkbox";
+import { Badge } from '@tenzyu/ui/badge'
+import { Button } from '@tenzyu/ui/button'
+import { Card } from '@tenzyu/ui/card'
+import { Checkbox } from '@tenzyu/ui/checkbox'
 
-import type { AssetMatrixCell, AssetMatrixRow } from "@tenzyu/osu-skin-core/project";
-import { AssetPreview } from "./AssetPreview";
+import type {
+  AssetMatrixCell,
+  AssetMatrixRow,
+} from '@tenzyu/osu-skin-core/project'
+import { AssetPreview } from './AssetPreview'
 
 type Props = {
-  row: AssetMatrixRow;
-  projectCell: AssetMatrixCell;
-  sourceCell: AssetMatrixCell;
-  selected: boolean;
-  onToggle: () => void;
-  onCopy: () => void;
-  onDelete: () => void;
-  onRestore: () => void;
-};
+  row: AssetMatrixRow
+  projectCell: AssetMatrixCell
+  sourceCell: AssetMatrixCell
+  selected: boolean
+  onToggle: () => void
+  onCopy: () => void
+  onDelete: () => void
+  onRestore: () => void
+}
 
 export function CompareAssetCard({
   row,
@@ -30,16 +33,25 @@ export function CompareAssetCard({
   onRestore,
 }: Props) {
   return (
-    <Card variant="soft" className={`compareAssetCard${selected ? " selected" : ""}`}>
+    <Card className={`compareAssetCard${selected ? ' selected' : ''}`}>
       <div className="rowCheckCell">
-        <Checkbox checked={selected} onCheckedChange={onToggle} aria-label="Select asset row" />
+        <Checkbox
+          checked={selected}
+          onCheckedChange={onToggle}
+          aria-label="Select asset row"
+        />
       </div>
 
       <div className="assetIdentity">
         <strong>{row.groupLabel}</strong>
-        <span>{row.cells.project.assets[0]?.file.name ?? sourceCell.assets[0]?.file.name ?? row.componentId}</span>
         <span>
-          {Math.max(projectCell.assets.length, sourceCell.assets.length)} files · {row.requiredLevel}
+          {row.cells.project.assets[0]?.file.name ??
+            sourceCell.assets[0]?.file.name ??
+            row.componentId}
+        </span>
+        <span>
+          {Math.max(projectCell.assets.length, sourceCell.assets.length)} files
+          · {row.requiredLevel}
         </span>
       </div>
 
@@ -54,29 +66,56 @@ export function CompareAssetCard({
       </div>
 
       <div className="compareActions">
-        <Button type="button" size="xs" onClick={onCopy} disabled={sourceCell.missing}>
+        <Button
+          type="button"
+          size="xs"
+          onClick={onCopy}
+          disabled={sourceCell.missing}
+        >
           Copy
         </Button>
-        <Button type="button" size="xs" variant="soft" onClick={onRestore} disabled={sourceCell.missing}>
+        <Button
+          type="button"
+          size="xs"
+          variant="ghost"
+          onClick={onRestore}
+          disabled={sourceCell.missing}
+        >
           Restore
         </Button>
-        <Button type="button" size="xs" variant="destructive" onClick={onDelete} disabled={projectCell.missing}>
+        <Button
+          type="button"
+          size="xs"
+          variant="destructive"
+          onClick={onDelete}
+          disabled={projectCell.missing}
+        >
           Delete
         </Button>
       </div>
     </Card>
-  );
+  )
 }
 
-function PreviewMeta({ label, cell }: { label: string; cell: AssetMatrixCell }) {
-  const resolution = cell.hasHd ? "HD" : cell.hasSd ? "SD" : "missing";
+function PreviewMeta({
+  label,
+  cell,
+}: {
+  label: string
+  cell: AssetMatrixCell
+}) {
+  const resolution = cell.hasHd ? 'HD' : cell.hasSd ? 'SD' : 'missing'
 
   return (
     <div className="previewMeta">
       <strong>{label}</strong>
       <span>{cell.assets.length} files</span>
-      <Badge variant={cell.missing ? "destructive" : "secondary"}>{resolution}</Badge>
-      {cell.warnings.length > 0 && <Badge variant="secondary">{cell.warnings.length} warnings</Badge>}
+      <Badge variant={cell.missing ? 'destructive' : 'secondary'}>
+        {resolution}
+      </Badge>
+      {cell.warnings.length > 0 && (
+        <Badge variant="secondary">{cell.warnings.length} warnings</Badge>
+      )}
     </div>
-  );
+  )
 }

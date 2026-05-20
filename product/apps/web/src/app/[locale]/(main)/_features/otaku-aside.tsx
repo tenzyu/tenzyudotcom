@@ -1,6 +1,6 @@
 import { ChevronRight } from 'lucide-react'
 import type { ReactNode } from 'react'
-import { cn } from '@tenzyu/ui/cn'
+import { cn } from '@tenzyu/ui'
 
 type OtakuAsideProps = {
   label: string

@@ -19,7 +19,7 @@ export default async function EditorDashboardPage({
 }: {
   params: Promise<{ locale: string }>
 }) {
-  const locale = await resolvePageLocale(params)
+  const locale = (await resolvePageLocale(params))!
   await requireEditorAdminSession(locale)
   return <EditorDashboard locale={locale} />
 }

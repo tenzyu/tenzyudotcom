@@ -23,7 +23,7 @@ export default async function EditorLoginPage({
   params: Promise<{ locale: string }>
   searchParams: Promise<{ error?: string }>
 }) {
-  const locale = await resolvePageLocale(params)
+  const locale = (await resolvePageLocale(params))!
   const search = await searchParams
 
   if (await hasEditorAdminSession()) {
