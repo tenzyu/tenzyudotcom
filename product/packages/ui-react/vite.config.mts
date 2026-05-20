@@ -12,10 +12,7 @@ import dts from 'vite-plugin-dts'
 const projectRoot = import.meta.dirname
 const srcRoot = path.resolve(projectRoot, 'src')
 const uiRoot = path.resolve(srcRoot, 'components/ui')
-const outDir = path.resolve(
-  projectRoot,
-  '../../../dist/product/packages/ui-react'
-)
+const outDir = path.resolve(projectRoot, './dist')
 
 const componentEntries = Object.fromEntries(
   fs
@@ -36,7 +33,6 @@ const componentEntries = Object.fromEntries(
 
 export default defineConfig(() => ({
   root: projectRoot,
-  cacheDir: '../../../node_modules/.vite/product/packages/ui-react',
   resolve: { alias: { '@': srcRoot } },
 
   plugins: [
@@ -59,9 +55,7 @@ export default defineConfig(() => ({
     emptyOutDir: true,
     reportCompressedSize: true,
     sourcemap: true,
-
     commonjsOptions: { transformMixedEsModules: true },
-
     lib: {
       entry: {
         index: path.resolve(srcRoot, 'index.ts'),
@@ -78,7 +72,12 @@ export default defineConfig(() => ({
       output: {
         entryFileNames: '[name].js',
         chunkFileNames: 'chunks/[name]-[hash].js',
-        assetFileNames: 'assets/[name]-[hash][extname]',
+        assetFileNames: (assetInfo) => {
+          if (assetInfo.name === 'styles.css') {
+            return 'styles.css'
+          }
+          return 'assets/[name]-[hash][extname]'
+        },
       },
     },
   },
