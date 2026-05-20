@@ -8,7 +8,7 @@ import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
 import dts from "vite-plugin-dts";
 
-export default defineConfig(() => ({
+export default defineConfig({
   root: import.meta.dirname,
   cacheDir: "../../../node_modules/.vite/product/packages/ui-react",
   resolve: {
@@ -50,4 +50,4 @@ export default defineConfig(() => ({
       external: ["react", "react-dom", "react/jsx-runtime"],
     },
   },
-}));
+});
