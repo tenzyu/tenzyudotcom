@@ -18,6 +18,7 @@ Create or update `brief.md` in the task folder.
 - non-goals
 - constraints
 - role assignment
+- worktree isolation
 - validation commands
 - acceptance criteria
 - risks
@@ -29,4 +30,5 @@ Create or update `brief.md` in the task folder.
 - Ask for human decisions only when the scope cannot be bounded safely.
 - Mark assumptions explicitly.
 - Prefer a small first task over a broad rewrite.
+- For non-trivial mutable work, apply `workflows/worktree-task-isolation.md` before implementation or parallel AI handoff.
 - If the request is trivial documentation or formatting, record a lightweight brief in the worklog or handoff.
