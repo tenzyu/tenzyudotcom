@@ -57,18 +57,40 @@ slots:
     multiline: true
     required: true
 ---
+
 TC:pir
 
 変更:
 {{change}}
 ```
 
-## Hyprland usage
+## Castalia nixfiles integration
 
-Castalia intentionally does not expose `programs.castalia.hyprland.*`. Bind it from your Hyprland layer:
+Castalia does not expose or own Hyprland/Home Manager options. Install the package from the `castalia` flake from `tenzyudotcom`, then bind the command in your existing Hyprland layer.
+
+### Flake input example
+
+```nix
+castalia = {
+  url = "github:tenzyu/tenzyudotcom/develop?dir=product/apps/castalia";
+  inputs.nixpkgs.follows = "nixpkgs";
+};
+```
+
+### Home Manager package example
+
+```nix
+{ inputs, pkgs, ... }: {
+  home.packages = [
+    inputs.castalia.packages.${pkgs.system}.castalia
+  ];
+}
+```
+
+## Hyprland bind example
+
+Use the same composition style as `rofi -show drun` and `cliphist`:
 
 ```nix
 (modBind "p" (luaExec "pkill rofi || castalia rofi --replace"))
 ```
-
-The tool composes like `rofi -show drun` or `cliphist list | rofi -dmenu` rather than owning compositor configuration.
