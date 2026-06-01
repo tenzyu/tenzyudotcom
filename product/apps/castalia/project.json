@@ -16,7 +16,7 @@
       "executor": "nx:run-commands",
       "options": {
         "cwd": "product/apps/castalia",
-        "command": "cargo run -p castalia-cli --"
+        "command": "cargo run -p castalia --"
       },
       "cache": false
     },
@@ -24,7 +24,7 @@
       "executor": "nx:run-commands",
       "options": {
         "cwd": "product/apps/castalia",
-        "command": "cargo run -p castalia-cli -- rofi --replace"
+        "command": "cargo run -p castalia -- rofi --replace"
       },
       "cache": false
     },
@@ -72,7 +72,7 @@
       "executor": "nx:run-commands",
       "options": {
         "cwd": "product/apps/castalia",
-        "command": "cargo run -p castalia-cli -- validate"
+        "command": "cargo run -p castalia -- validate --prompt-dir prompts"
       },
       "cache": false
     },
@@ -80,7 +80,7 @@
       "executor": "nx:run-commands",
       "options": {
         "cwd": "product/apps/castalia",
-        "command": "cargo run -p castalia-cli -- init"
+        "command": "cargo run -p castalia -- init"
       },
       "cache": false
     },
@@ -88,7 +88,7 @@
       "executor": "nx:run-commands",
       "options": {
         "cwd": "product/apps/castalia",
-        "command": "cargo run -p castalia-cli -- list"
+        "command": "cargo run -p castalia -- list"
       },
       "cache": false
     },
@@ -96,7 +96,7 @@
       "executor": "nx:run-commands",
       "options": {
         "cwd": "product/apps/castalia",
-        "command": "cargo run -p castalia-cli -- rofi --replace"
+        "command": "cargo run -p castalia -- rofi --replace"
       },
       "cache": false
     },
@@ -104,7 +104,7 @@
       "executor": "nx:run-commands",
       "options": {
         "cwd": "product/apps/castalia",
-        "command": "cargo fmt --all -- --check && cargo check --workspace && cargo clippy --workspace --all-targets -- -D warnings && cargo test --workspace && cargo run -p castalia-cli -- validate"
+        "command": "cargo fmt --all -- --check && cargo check --workspace && cargo clippy --workspace --all-targets -- -D warnings && cargo test --workspace && cargo run -p castalia -- validate --prompt-dir prompts"
       },
       "outputs": ["{projectRoot}/target"],
       "dependsOn": ["^build"]

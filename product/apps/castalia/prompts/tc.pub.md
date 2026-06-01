@@ -4,12 +4,17 @@ title: Thinking Compiler - Public Output Converter
 aliases: pub,public,convert
 tags: thinking-compiler,writing,publish
 mode: form
+slots:
+  - name: source
+    label: 元のメモ・会話・思想・設計
+    multiline: true
+    required: true
 ---
 Public Output Converter を実行して。
 
 対象:
 ---
-{元のメモ・会話・思想・設計を書く}
+{{source}}
 ---
 
 出力先候補:

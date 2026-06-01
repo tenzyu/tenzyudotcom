@@ -4,12 +4,17 @@ title: Thinking Compiler - Pre-Implementation Review
 aliases: pir,review,impl-review
 tags: thinking-compiler,implementation,review
 mode: form
+slots:
+  - name: change
+    label: 変更内容
+    multiline: true
+    required: true
 ---
 Pre-Implementation Review を実行して。
 
 これから入れようとしている変更:
 ---
-{ここに変更内容を書く}
+{{change}}
 ---
 
 前提:

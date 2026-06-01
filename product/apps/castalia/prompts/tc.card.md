@@ -4,12 +4,17 @@ title: Thinking Compiler - Thought Card
 aliases: card,thought
 tags: thinking-compiler,writing,thought
 mode: form
+slots:
+  - name: thought
+    label: 思想断片
+    multiline: true
+    required: true
 ---
 Thought Card を作成して。
 
 対象:
 ---
-{思想断片を書く}
+{{thought}}
 ---
 
 条件:

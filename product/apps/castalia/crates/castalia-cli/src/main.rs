@@ -1,4 +1,6 @@
-use castalia_core::{default_prompt_dir, render_prompt, CastaliaError, Prompt, PromptStore, SlotSource};
+use castalia_core::{
+    default_prompt_dir, render_prompt, CastaliaError, Prompt, PromptStore, SlotSource,
+};
 use std::collections::BTreeMap;
 use std::env;
 use std::fs;
@@ -42,7 +44,8 @@ fn run() -> castalia_core::Result<()> {
 }
 
 fn print_help() {
-    println!(r#"castalia {VERSION}
+    println!(
+        r#"castalia {VERSION}
 
 Local-first prompt and skill launcher for Linux.
 
@@ -60,7 +63,8 @@ Environment:
 
 Source of truth:
   Plain Markdown files with YAML-like frontmatter.
-"#);
+"#
+    );
 }
 
 fn prompt_dir_from_args(args: &[String]) -> PathBuf {
@@ -131,7 +135,13 @@ fn load_store(root: PathBuf) -> castalia_core::Result<PromptStore> {
 fn list(root: PathBuf) -> castalia_core::Result<()> {
     let store = load_store(root)?;
     for prompt in store.prompts {
-        println!("{}\t{}\t{}\t{}", prompt.id, prompt.title, prompt.aliases.join(","), prompt.tags.join(","));
+        println!(
+            "{}\t{}\t{}\t{}",
+            prompt.id,
+            prompt.title,
+            prompt.aliases.join(","),
+            prompt.tags.join(",")
+        );
     }
     Ok(())
 }
@@ -147,17 +157,26 @@ fn validate(root: PathBuf) -> castalia_core::Result<()> {
         }
     }
     if ok {
-        println!("ok: {} prompt(s) in {}", store.prompts.len(), store.root.display());
+        println!(
+            "ok: {} prompt(s) in {}",
+            store.prompts.len(),
+            store.root.display()
+        );
         Ok(())
     } else {
-        Err(CastaliaError::Parse { path: root, message: "validation failed".into() })
+        Err(CastaliaError::Parse {
+            path: root,
+            message: "validation failed".into(),
+        })
     }
 }
 
 fn render(args: &[String]) -> castalia_core::Result<()> {
     let root = prompt_dir_from_args(args);
     let args = strip_prompt_dir_args(args);
-    let query = args.first().ok_or_else(|| CastaliaError::NotFound { query: "missing query".into() })?;
+    let query = args.first().ok_or_else(|| CastaliaError::NotFound {
+        query: "missing query".into(),
+    })?;
     let store = load_store(root)?;
     let prompt = store.find(query)?;
     let values = values_from_args(&args[1..]);
@@ -169,7 +188,9 @@ fn render(args: &[String]) -> castalia_core::Result<()> {
 fn copy(args: &[String]) -> castalia_core::Result<()> {
     let root = prompt_dir_from_args(args);
     let args = strip_prompt_dir_args(args);
-    let query = args.first().ok_or_else(|| CastaliaError::NotFound { query: "missing query".into() })?;
+    let query = args.first().ok_or_else(|| CastaliaError::NotFound {
+        query: "missing query".into(),
+    })?;
     let store = load_store(root)?;
     let prompt = store.find(query)?;
     let values = values_from_args(&args[1..]);
@@ -200,10 +221,17 @@ fn values_from_args(args: &[String]) -> BTreeMap<String, String> {
 fn rofi(args: &[String]) -> castalia_core::Result<()> {
     let root = prompt_dir_from_args(args);
     let args = strip_prompt_dir_args(args);
-    let replace = args.iter().any(|arg| arg == "--replace" || arg == "-replace");
+    let replace = args
+        .iter()
+        .any(|arg| arg == "--replace" || arg == "-replace");
     let no_copy = args.iter().any(|arg| arg == "--no-copy");
     let store = load_store(root)?;
-    let rows = store.prompts.iter().map(Prompt::rofi_label).collect::<Vec<_>>().join("\n");
+    let rows = store
+        .prompts
+        .iter()
+        .map(Prompt::rofi_label)
+        .collect::<Vec<_>>()
+        .join("\n");
     let selected = run_rofi_dmenu(&rows, "castalia", replace)?;
     if selected.trim().is_empty() {
         return Ok(());
@@ -221,7 +249,10 @@ fn rofi(args: &[String]) -> castalia_core::Result<()> {
     Ok(())
 }
 
-fn collect_slot_values_with_rofi(prompt: &Prompt, replace: bool) -> castalia_core::Result<BTreeMap<String, String>> {
+fn collect_slot_values_with_rofi(
+    prompt: &Prompt,
+    replace: bool,
+) -> castalia_core::Result<BTreeMap<String, String>> {
     let mut values = BTreeMap::new();
     for slot in &prompt.slots {
         match slot.source {
@@ -244,7 +275,10 @@ fn collect_slot_values_with_rofi(prompt: &Prompt, replace: bool) -> castalia_cor
             if let Some(default) = &slot.default {
                 values.insert(slot.name.clone(), default.clone());
             } else if slot.required {
-                return Err(CastaliaError::MissingSlot { name: slot.name.clone(), label: slot.label.clone() });
+                return Err(CastaliaError::MissingSlot {
+                    name: slot.name.clone(),
+                    label: slot.label.clone(),
+                });
             }
         } else {
             values.insert(slot.name.clone(), value);
@@ -254,8 +288,9 @@ fn collect_slot_values_with_rofi(prompt: &Prompt, replace: bool) -> castalia_cor
 }
 
 fn run_rofi_dmenu(input: &str, prompt: &str, replace: bool) -> castalia_core::Result<String> {
-    let rofi = find_executable(&["rofi"])
-        .ok_or_else(|| CastaliaError::NotFound { query: "rofi executable".into() })?;
+    let rofi = find_executable(&["rofi"]).ok_or_else(|| CastaliaError::NotFound {
+        query: "rofi executable".into(),
+    })?;
     let mut command = Command::new(rofi);
     command.args(["-dmenu", "-i", "-p", prompt]);
     if replace {
@@ -270,7 +305,9 @@ fn run_rofi_dmenu(input: &str, prompt: &str, replace: bool) -> castalia_core::Re
     if !output.status.success() {
         return Ok(String::new());
     }
-    Ok(String::from_utf8_lossy(&output.stdout).trim_end_matches('\n').to_string())
+    Ok(String::from_utf8_lossy(&output.stdout)
+        .trim_end_matches('\n')
+        .to_string())
 }
 
 fn copy_to_clipboard(text: &str) -> castalia_core::Result<()> {
@@ -283,7 +320,9 @@ fn copy_to_clipboard(text: &str) -> castalia_core::Result<()> {
     if let Some(cmd) = find_executable(&["xsel"]) {
         return run_stdin(cmd, &["--clipboard", "--input"], text);
     }
-    Err(CastaliaError::NotFound { query: "wl-copy/xclip/xsel executable".into() })
+    Err(CastaliaError::NotFound {
+        query: "wl-copy/xclip/xsel executable".into(),
+    })
 }
 
 fn read_clipboard() -> castalia_core::Result<String> {
@@ -308,7 +347,9 @@ fn run_stdin(cmd: PathBuf, args: &[&str], text: &str) -> castalia_core::Result<(
     if status.success() {
         Ok(())
     } else {
-        Err(CastaliaError::Io(io::Error::new(io::ErrorKind::Other, "clipboard command failed")))
+        Err(CastaliaError::Io(io::Error::other(
+            "clipboard command failed",
+        )))
     }
 }
 
@@ -337,7 +378,11 @@ fn find_executable(names: &[&str]) -> Option<PathBuf> {
 #[cfg(unix)]
 fn is_executable_file(path: &Path) -> bool {
     use std::os::unix::fs::PermissionsExt;
-    path.is_file() && path.metadata().map(|meta| meta.permissions().mode() & 0o111 != 0).unwrap_or(false)
+    path.is_file()
+        && path
+            .metadata()
+            .map(|meta| meta.permissions().mode() & 0o111 != 0)
+            .unwrap_or(false)
 }
 
 #[cfg(not(unix))]

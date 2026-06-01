@@ -19,9 +19,15 @@ impl fmt::Display for CastaliaError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::Io(err) => write!(f, "I/O error: {err}"),
-            Self::Parse { path, message } => write!(f, "failed to parse {}: {message}", path.display()),
+            Self::Parse { path, message } => {
+                write!(f, "failed to parse {}: {message}", path.display())
+            }
             Self::NotFound { query } => write!(f, "no prompt matched query: {query}"),
-            Self::Ambiguous { query, matches } => write!(f, "query '{query}' matched multiple prompts: {}", matches.join(", ")),
+            Self::Ambiguous { query, matches } => write!(
+                f,
+                "query '{query}' matched multiple prompts: {}",
+                matches.join(", ")
+            ),
             Self::MissingSlot { name, label } => write!(f, "missing slot '{name}' ({label})"),
         }
     }
@@ -37,17 +43,12 @@ impl From<io::Error> for CastaliaError {
 
 pub type Result<T> = std::result::Result<T, CastaliaError>;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub enum PromptMode {
+    #[default]
     Text,
     Command,
     Form,
-}
-
-impl Default for PromptMode {
-    fn default() -> Self {
-        Self::Text
-    }
 }
 
 impl PromptMode {
@@ -60,16 +61,11 @@ impl PromptMode {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub enum SlotSource {
+    #[default]
     Manual,
     Clipboard,
-}
-
-impl Default for SlotSource {
-    fn default() -> Self {
-        Self::Manual
-    }
 }
 
 impl SlotSource {
@@ -138,10 +134,20 @@ impl Prompt {
         let tags = if self.tags.is_empty() {
             String::new()
         } else {
-            format!(" {}", self.tags.iter().map(|tag| format!("#{tag}")).collect::<Vec<_>>().join(" "))
+            format!(
+                " {}",
+                self.tags
+                    .iter()
+                    .map(|tag| format!("#{tag}"))
+                    .collect::<Vec<_>>()
+                    .join(" ")
+            )
         };
         let preview = body_preview(&self.body, 180);
-        format!("{}\t{}{}{} — {}", self.id, self.title, aliases, tags, preview)
+        format!(
+            "{}\t{}{}{} — {}",
+            self.id, self.title, aliases, tags, preview
+        )
     }
 }
 
@@ -167,26 +173,44 @@ impl PromptStore {
     pub fn find(&self, query: &str) -> Result<&Prompt> {
         let query = query.trim();
         if query.is_empty() {
-            return Err(CastaliaError::NotFound { query: query.to_string() });
+            return Err(CastaliaError::NotFound {
+                query: query.to_string(),
+            });
         }
 
-        let exact: Vec<&Prompt> = self.prompts.iter().filter(|prompt| prompt.id == query || prompt.aliases.iter().any(|alias| alias == query)).collect();
+        let exact: Vec<&Prompt> = self
+            .prompts
+            .iter()
+            .filter(|prompt| {
+                prompt.id == query || prompt.aliases.iter().any(|alias| alias == query)
+            })
+            .collect();
         if exact.len() == 1 {
             return Ok(exact[0]);
         }
         if exact.len() > 1 {
-            return Err(CastaliaError::Ambiguous { query: query.to_string(), matches: exact.iter().map(|p| p.id.clone()).collect() });
+            return Err(CastaliaError::Ambiguous {
+                query: query.to_string(),
+                matches: exact.iter().map(|p| p.id.clone()).collect(),
+            });
         }
 
         let needle = query.to_ascii_lowercase();
-        let contains: Vec<&Prompt> = self.prompts.iter().filter(|prompt| {
-            prompt.search_text().to_ascii_lowercase().contains(&needle)
-        }).collect();
+        let contains: Vec<&Prompt> = self
+            .prompts
+            .iter()
+            .filter(|prompt| prompt.search_text().to_ascii_lowercase().contains(&needle))
+            .collect();
 
         match contains.len() {
-            0 => Err(CastaliaError::NotFound { query: query.to_string() }),
+            0 => Err(CastaliaError::NotFound {
+                query: query.to_string(),
+            }),
             1 => Ok(contains[0]),
-            _ => Err(CastaliaError::Ambiguous { query: query.to_string(), matches: contains.iter().map(|p| p.id.clone()).collect() }),
+            _ => Err(CastaliaError::Ambiguous {
+                query: query.to_string(),
+                matches: contains.iter().map(|p| p.id.clone()).collect(),
+            }),
         }
     }
 }
@@ -212,8 +236,16 @@ pub fn parse_prompt_file(path: &Path) -> Result<Prompt> {
 pub fn parse_prompt(raw: &str, path: &Path) -> Result<Prompt> {
     let (frontmatter, body) = split_frontmatter(raw);
     let mut prompt = Prompt {
-        id: path.file_stem().and_then(|s| s.to_str()).unwrap_or("untitled").to_string(),
-        title: path.file_stem().and_then(|s| s.to_str()).unwrap_or("Untitled").to_string(),
+        id: path
+            .file_stem()
+            .and_then(|s| s.to_str())
+            .unwrap_or("untitled")
+            .to_string(),
+        title: path
+            .file_stem()
+            .and_then(|s| s.to_str())
+            .unwrap_or("Untitled")
+            .to_string(),
         aliases: Vec::new(),
         tags: Vec::new(),
         description: None,
@@ -228,7 +260,10 @@ pub fn parse_prompt(raw: &str, path: &Path) -> Result<Prompt> {
     }
 
     if prompt.id.trim().is_empty() {
-        return Err(CastaliaError::Parse { path: path.to_path_buf(), message: "id must not be empty".to_string() });
+        return Err(CastaliaError::Parse {
+            path: path.to_path_buf(),
+            message: "id must not be empty".to_string(),
+        });
     }
     if prompt.title.trim().is_empty() {
         prompt.title = prompt.id.clone();
@@ -278,16 +313,24 @@ fn parse_frontmatter(frontmatter: &str, prompt: &mut Prompt, path: &Path) -> Res
                         if key == "name" {
                             Slot::new(unquote(value).to_string())
                         } else {
-                            return Err(CastaliaError::Parse { path: path.to_path_buf(), message: format!("slot must start with name, got '{key}'") });
+                            return Err(CastaliaError::Parse {
+                                path: path.to_path_buf(),
+                                message: format!("slot must start with name, got '{key}'"),
+                            });
                         }
                     } else {
-                        return Err(CastaliaError::Parse { path: path.to_path_buf(), message: "slot item must start with name".to_string() });
+                        return Err(CastaliaError::Parse {
+                            path: path.to_path_buf(),
+                            message: "slot item must start with name".to_string(),
+                        });
                     };
                     i += 1;
                     while i < lines.len() {
                         let nested = lines[i];
                         let nested_trimmed = nested.trim();
-                        if nested_trimmed.starts_with("- ") || (!nested.starts_with("    ") && !nested.starts_with("  ")) {
+                        if nested_trimmed.starts_with("- ")
+                            || (!nested.starts_with("    ") && !nested.starts_with("  "))
+                        {
                             break;
                         }
                         if let Some((key, value)) = split_key_value(nested_trimmed) {
@@ -338,16 +381,22 @@ fn split_key_value(line: &str) -> Option<(&str, &str)> {
 
 fn parse_array(value: &str) -> Vec<String> {
     let value = value.trim();
-    if value.starts_with('[') && value.ends_with(']') {
-        value[1..value.len() - 1]
+    let items = if value.starts_with('[') && value.ends_with(']') {
+        &value[1..value.len() - 1]
+    } else {
+        value
+    };
+
+    if items.contains(',') {
+        items
             .split(',')
             .map(|item| unquote(item.trim()).trim().to_string())
             .filter(|item| !item.is_empty())
             .collect()
-    } else if value.is_empty() {
+    } else if items.is_empty() {
         Vec::new()
     } else {
-        vec![unquote(value).to_string()]
+        vec![unquote(items).to_string()]
     }
 }
 
@@ -355,7 +404,9 @@ fn unquote(value: &str) -> &str {
     let value = value.trim();
     if value.len() >= 2 {
         let bytes = value.as_bytes();
-        if (bytes[0] == b'\'' && bytes[value.len() - 1] == b'\'') || (bytes[0] == b'"' && bytes[value.len() - 1] == b'"') {
+        if (bytes[0] == b'\'' && bytes[value.len() - 1] == b'\'')
+            || (bytes[0] == b'"' && bytes[value.len() - 1] == b'"')
+        {
             return &value[1..value.len() - 1];
         }
     }
@@ -363,7 +414,10 @@ fn unquote(value: &str) -> &str {
 }
 
 fn parse_bool(value: &str) -> bool {
-    matches!(value.trim().to_ascii_lowercase().as_str(), "true" | "yes" | "1")
+    matches!(
+        value.trim().to_ascii_lowercase().as_str(),
+        "true" | "yes" | "1"
+    )
 }
 
 fn collect_markdown_files(root: &Path, out: &mut Vec<PathBuf>) -> Result<()> {
@@ -391,7 +445,10 @@ pub fn render_prompt(prompt: &Prompt, values: &BTreeMap<String, String>) -> Resu
             .or_else(|| slot.default.clone())
             .unwrap_or_default();
         if slot.required && replacement.is_empty() {
-            return Err(CastaliaError::MissingSlot { name: slot.name.clone(), label: slot.label.clone() });
+            return Err(CastaliaError::MissingSlot {
+                name: slot.name.clone(),
+                label: slot.label.clone(),
+            });
         }
         let marker = format!("{{{{{}}}}}", slot.name);
         rendered = rendered.replace(&marker, &replacement);
@@ -409,7 +466,10 @@ pub fn body_preview(body: &str, max_chars: usize) -> String {
         .join(" / ");
     normalized = normalized.replace('\t', " ");
     if normalized.chars().count() > max_chars {
-        let mut truncated = normalized.chars().take(max_chars.saturating_sub(1)).collect::<String>();
+        let mut truncated = normalized
+            .chars()
+            .take(max_chars.saturating_sub(1))
+            .collect::<String>();
         truncated.push('…');
         truncated
     } else {
@@ -457,11 +517,33 @@ TC:pir
             description: None,
             mode: PromptMode::Form,
             body: "Hello {{name}}".into(),
-            slots: vec![Slot { name: "name".into(), label: "Name".into(), multiline: false, required: true, default: None, source: SlotSource::Manual }],
+            slots: vec![Slot {
+                name: "name".into(),
+                label: "Name".into(),
+                multiline: false,
+                required: true,
+                default: None,
+                source: SlotSource::Manual,
+            }],
             path: PathBuf::from("x.md"),
         };
         let mut values = BTreeMap::new();
         values.insert("name".into(), "Castalia".into());
         assert_eq!(render_prompt(&prompt, &values).unwrap(), "Hello Castalia");
+    }
+
+    #[test]
+    fn parses_comma_separated_arrays_without_brackets() {
+        let raw = r#"---
+id: tc.pir
+title: Pre-Implementation Review
+aliases: pir,review
+tags: implementation,review
+---
+Body
+"#;
+        let prompt = parse_prompt(raw, Path::new("tc.pir.md")).unwrap();
+        assert_eq!(prompt.aliases, vec!["pir", "review"]);
+        assert_eq!(prompt.tags, vec!["implementation", "review"]);
     }
 }

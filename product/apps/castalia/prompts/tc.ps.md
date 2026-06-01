@@ -4,22 +4,35 @@ title: Thinking Compiler - Problem Split
 aliases: ps,split,debug
 tags: thinking-compiler,debug,triage
 mode: form
+slots:
+  - name: symptom
+    label: 現象
+    multiline: true
+    required: true
+  - name: previous_action
+    label: 直前にしたこと
+    multiline: true
+    required: true
+  - name: expected
+    label: 期待していたこと
+    multiline: true
+    required: false
 ---
 Problem Split を実行して。
 
 現象:
 ---
-{エラー・ログ・症状を書く}
+{{symptom}}
 ---
 
 直前にしたこと:
 ---
-{直前の変更を書く}
+{{previous_action}}
 ---
 
 期待していたこと:
 ---
-{期待結果を書く}
+{{expected}}
 ---
 
 出力:
