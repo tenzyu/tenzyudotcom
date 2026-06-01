@@ -13,7 +13,7 @@ product/apps/castalia/
     castalia-core/
       prompt schema, parser, renderer, search matching
     castalia-cli/
-      command dispatch, rofi adapter, clipboard adapter
+      command dispatch, launcher UI, clipboard adapter
 ```
 
 ## Source of truth
@@ -30,21 +30,30 @@ A prompt can be found by:
 
 This enables `tc.pir`, `pir`, and `implementation` to reach the same prompt.
 
-## Rofi adapter
+## Launcher
 
-`castalia rofi --replace` prints one visible row per prompt:
+`castalia launch` is the supported prompt-use surface as of v0.2.5. It is a
+short-lived terminal-native launcher that starts on demand, shows searchable
+prompt rows, collects slot values when needed, copies the rendered prompt, and
+exits.
 
-```text
-id<TAB>title [aliases] #tags — body preview
-```
+The launcher is separated into `castalia-cli/src/launcher.rs`. It reuses
+`castalia-core` for prompt loading, search, validation, and rendering; it does
+not manage prompt files.
 
-This keeps `rofi` searchable while preserving a stable id as the first token for selection resolution.
+`castalia rofi` is no longer a supported launch path. CLI commands such as
+`render`, `copy`, `inspect`, `new`, `edit`, and `validate` remain available for
+scripted workflows.
 
 ## Form slots
 
-Slots are declared in frontmatter and rendered from `{{slot_name}}` markers. The rofi adapter asks for manual slot values with `rofi -dmenu`. `source: clipboard` slots are filled from the clipboard when possible.
+Slots are declared in frontmatter and rendered from `{{slot_name}}` markers.
+The launcher asks for manual slot values in its built-in UI by default.
+`source: clipboard` slots are filled from the clipboard when possible.
 
-Rofi is not a multiline editor. Multiline slots are supported by paste/manual input, but a future dedicated launcher or Tauri UI should provide a real multiline editor.
+Slot input can be configured as `ui`, `editor`, or `clipboard-first`. The
+`editor` mode opens `$VISUAL` or `$EDITOR` as an escape hatch for users who want
+their normal key bindings.
 
 ## Validation model
 

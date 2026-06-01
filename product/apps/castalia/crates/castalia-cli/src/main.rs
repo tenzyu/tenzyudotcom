@@ -1,8 +1,10 @@
+mod launcher;
+
 use castalia_core::{
     body_preview, default_prompt_dir, is_safe_prompt_id, parse_prompt, prompt_file_name_for_id,
-    render_prompt, validate_prompt_dir, CastaliaError, Prompt, PromptStore, SlotSource,
-    ValidationReport,
+    render_prompt, validate_prompt_dir, CastaliaError, PromptStore, ValidationReport,
 };
+use launcher::{LaunchOptions, SlotInputMode};
 use std::collections::BTreeMap;
 use std::env;
 use std::fs::{self, OpenOptions};
@@ -34,7 +36,12 @@ fn run() -> castalia_core::Result<()> {
         "list" => list(prompt_dir_from_args(&args[1..]))?,
         "render" => render(&args[1..])?,
         "copy" => copy(&args[1..])?,
-        "rofi" => rofi(&args[1..])?,
+        "launch" => launch_cmd(&args[1..])?,
+        "rofi" => {
+            return Err(CastaliaError::InvalidInput {
+                message: "`castalia rofi` was removed in v0.2.5; use `castalia launch`".into(),
+            });
+        }
         "validate" => validate(prompt_dir_from_args(&args[1..]))?,
         "inspect" => inspect(&args[1..])?,
         "new" => new_prompt(&args[1..])?,
@@ -59,7 +66,7 @@ Usage:
   castalia list [--prompt-dir <dir>]
   castalia render <query> [--set key=value] [--prompt-dir <dir>]
   castalia copy <query> [--set key=value] [--prompt-dir <dir>]
-  castalia rofi [--replace] [--prompt-dir <dir>]
+  castalia launch [--query <query>] [--set key=value] [--slot-input ui|editor|clipboard-first] [--no-copy] [--prompt-dir <dir>]
   castalia validate [--prompt-dir <dir>]
   castalia inspect <query> [--prompt-dir <dir>]
   castalia new <id> [--title <title>] [--alias <alias>] [--tag <tag>] [--mode text|command|form] [--prompt-dir <dir>]
@@ -332,6 +339,36 @@ fn copy(args: &[String]) -> castalia_core::Result<()> {
     Ok(())
 }
 
+fn launch_cmd(args: &[String]) -> castalia_core::Result<()> {
+    let root = prompt_dir_from_args(args);
+    let args = strip_prompt_dir_args(args);
+    let no_copy = args.iter().any(|arg| arg == "--no-copy");
+    let query = value_after_flag(&args, "--query").cloned();
+    let slot_input_mode = value_after_flag(&args, "--slot-input")
+        .map(|value| SlotInputMode::parse(value))
+        .unwrap_or_else(SlotInputMode::from_env)?;
+    let clipboard = read_clipboard().ok();
+    let result = launcher::launch(LaunchOptions {
+        root,
+        query,
+        initial_values: values_from_args(&args),
+        slot_input_mode,
+        clipboard,
+    })?;
+
+    let Some(result) = result else {
+        return Ok(());
+    };
+
+    if no_copy {
+        print!("{}", result.rendered);
+    } else {
+        copy_to_clipboard(&result.rendered)?;
+        notify("Castalia", &format!("Copied {}", result.prompt_id));
+    }
+    Ok(())
+}
+
 fn values_from_args(args: &[String]) -> BTreeMap<String, String> {
     let mut values = BTreeMap::new();
     let mut i = 0;
@@ -450,98 +487,6 @@ fn print_validation_report(report: &ValidationReport) {
     for issue in &report.issues {
         eprintln!("{}: {}", issue.path.display(), issue.message);
     }
-}
-
-fn rofi(args: &[String]) -> castalia_core::Result<()> {
-    let root = prompt_dir_from_args(args);
-    let args = strip_prompt_dir_args(args);
-    let replace = args
-        .iter()
-        .any(|arg| arg == "--replace" || arg == "-replace");
-    let no_copy = args.iter().any(|arg| arg == "--no-copy");
-    let store = load_store(root)?;
-    let rows = store
-        .prompts
-        .iter()
-        .map(Prompt::rofi_label)
-        .collect::<Vec<_>>()
-        .join("\n");
-    let selected = run_rofi_dmenu(&rows, "castalia", replace)?;
-    if selected.trim().is_empty() {
-        return Ok(());
-    }
-    let id = selected.split_whitespace().next().unwrap_or_default();
-    let prompt = store.find(id)?;
-    let values = collect_slot_values_with_rofi(prompt, replace)?;
-    let rendered = render_prompt(prompt, &values)?;
-    if no_copy {
-        print!("{rendered}");
-    } else {
-        copy_to_clipboard(&rendered)?;
-        notify("Castalia", &format!("Copied {}", prompt.id));
-    }
-    Ok(())
-}
-
-fn collect_slot_values_with_rofi(
-    prompt: &Prompt,
-    replace: bool,
-) -> castalia_core::Result<BTreeMap<String, String>> {
-    let mut values = BTreeMap::new();
-    for slot in &prompt.slots {
-        match slot.source {
-            SlotSource::Clipboard => {
-                let value = read_clipboard().unwrap_or_default();
-                if !value.trim().is_empty() {
-                    values.insert(slot.name.clone(), value);
-                    continue;
-                }
-            }
-            SlotSource::Manual => {}
-        }
-        let label = if slot.multiline {
-            format!("{} (paste allowed)", slot.label)
-        } else {
-            slot.label.clone()
-        };
-        let value = run_rofi_dmenu("", &label, replace)?;
-        if value.trim().is_empty() {
-            if let Some(default) = &slot.default {
-                values.insert(slot.name.clone(), default.clone());
-            } else if slot.required {
-                return Err(CastaliaError::MissingSlot {
-                    name: slot.name.clone(),
-                    label: slot.label.clone(),
-                });
-            }
-        } else {
-            values.insert(slot.name.clone(), value);
-        }
-    }
-    Ok(values)
-}
-
-fn run_rofi_dmenu(input: &str, prompt: &str, replace: bool) -> castalia_core::Result<String> {
-    let rofi = find_executable(&["rofi"]).ok_or_else(|| CastaliaError::NotFound {
-        query: "rofi executable".into(),
-    })?;
-    let mut command = Command::new(rofi);
-    command.args(["-dmenu", "-i", "-p", prompt]);
-    if replace {
-        command.arg("-replace");
-    }
-    command.stdin(Stdio::piped()).stdout(Stdio::piped());
-    let mut child = command.spawn()?;
-    if let Some(mut stdin) = child.stdin.take() {
-        stdin.write_all(input.as_bytes())?;
-    }
-    let output = child.wait_with_output()?;
-    if !output.status.success() {
-        return Ok(String::new());
-    }
-    Ok(String::from_utf8_lossy(&output.stdout)
-        .trim_end_matches('\n')
-        .to_string())
 }
 
 fn copy_to_clipboard(text: &str) -> castalia_core::Result<()> {

@@ -2,7 +2,6 @@
   lib,
   rustPlatform,
   makeWrapper,
-  rofi,
   wl-clipboard,
   xclip,
   xsel,
@@ -10,7 +9,7 @@
 
 rustPlatform.buildRustPackage {
   pname = "castalia";
-  version = "0.2.0";
+  version = "0.2.5";
 
   src = lib.cleanSource ./..;
 
@@ -26,7 +25,6 @@ rustPlatform.buildRustPackage {
     wrapProgram $out/bin/castalia \
       --prefix PATH : ${
         lib.makeBinPath [
-          rofi
           wl-clipboard
           xclip
           xsel

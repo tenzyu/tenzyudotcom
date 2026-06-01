@@ -181,31 +181,6 @@ impl Prompt {
         parts.push(body_preview(&self.body, 200));
         parts.join(" ")
     }
-
-    pub fn rofi_label(&self) -> String {
-        let aliases = if self.aliases.is_empty() {
-            String::new()
-        } else {
-            format!(" [{}]", self.aliases.join(", "))
-        };
-        let tags = if self.tags.is_empty() {
-            String::new()
-        } else {
-            format!(
-                " {}",
-                self.tags
-                    .iter()
-                    .map(|tag| format!("#{tag}"))
-                    .collect::<Vec<_>>()
-                    .join(" ")
-            )
-        };
-        let preview = body_preview(&self.body, 180);
-        format!(
-            "{}\t{}{}{} — {}",
-            self.id, self.title, aliases, tags, preview
-        )
-    }
 }
 
 #[derive(Debug, Clone)]

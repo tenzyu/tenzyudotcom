@@ -24,7 +24,7 @@
       "executor": "nx:run-commands",
       "options": {
         "cwd": "product/apps/castalia",
-        "command": "cargo run -p castalia -- rofi --replace"
+        "command": "cargo run -p castalia -- launch"
       },
       "cache": false
     },
@@ -92,11 +92,11 @@
       },
       "cache": false
     },
-    "rofi": {
+    "launch": {
       "executor": "nx:run-commands",
       "options": {
         "cwd": "product/apps/castalia",
-        "command": "cargo run -p castalia -- rofi --replace"
+        "command": "cargo run -p castalia -- launch"
       },
       "cache": false
     },
@@ -115,7 +115,7 @@
         "cwd": ".",
         "command": "nix build .#castalia"
       },
-      "outputs": ["result"]
+      "outputs": ["{workspaceRoot}/result"]
     },
     "nix-run": {
       "executor": "nx:run-commands",

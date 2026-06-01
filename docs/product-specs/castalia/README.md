@@ -4,7 +4,8 @@ Castalia is a local-first prompt and skill launcher. It reduces the friction bet
 
 ## MVP goal
 
-A Linux user can press a Hyprland keybind, select a prompt in `rofi`, optionally fill form slots, and copy the rendered prompt to the clipboard.
+A Linux user can press a Hyprland keybind, select a prompt in `castalia launch`,
+optionally fill form slots, and copy the rendered prompt to the clipboard.
 
 ## Non-goals for MVP
 
@@ -21,5 +22,5 @@ A Linux user can press a Hyprland keybind, select a prompt in `rofi`, optionally
 ## Success condition
 
 ```text
-mod + p -> rofi -> select tc.pir -> fill change -> clipboard contains rendered prompt
+mod + p -> castalia launch -> select tc.pir -> fill change -> clipboard contains rendered prompt
 ```
