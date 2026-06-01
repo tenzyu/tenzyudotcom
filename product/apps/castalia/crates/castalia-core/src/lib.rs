@@ -9,10 +9,28 @@ pub const DEFAULT_PROMPT_DIR_RELATIVE: &str = ".local/share/castalia/prompts";
 #[derive(Debug)]
 pub enum CastaliaError {
     Io(io::Error),
-    Parse { path: PathBuf, message: String },
-    NotFound { query: String },
-    Ambiguous { query: String, matches: Vec<String> },
-    MissingSlot { name: String, label: String },
+    Parse {
+        path: PathBuf,
+        message: String,
+    },
+    NotFound {
+        query: String,
+    },
+    Ambiguous {
+        query: String,
+        matches: Vec<String>,
+    },
+    MissingSlot {
+        name: String,
+        label: String,
+    },
+    InvalidInput {
+        message: String,
+    },
+    Validation {
+        root: PathBuf,
+        issues: Vec<ValidationIssue>,
+    },
 }
 
 impl fmt::Display for CastaliaError {
@@ -29,6 +47,13 @@ impl fmt::Display for CastaliaError {
                 matches.join(", ")
             ),
             Self::MissingSlot { name, label } => write!(f, "missing slot '{name}' ({label})"),
+            Self::InvalidInput { message } => write!(f, "invalid input: {message}"),
+            Self::Validation { root, issues } => write!(
+                f,
+                "validation failed for {} with {} issue(s)",
+                root.display(),
+                issues.len()
+            ),
         }
     }
 }
@@ -43,6 +68,30 @@ impl From<io::Error> for CastaliaError {
 
 pub type Result<T> = std::result::Result<T, CastaliaError>;
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ValidationIssue {
+    pub path: PathBuf,
+    pub message: String,
+}
+
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct ValidationReport {
+    pub issues: Vec<ValidationIssue>,
+}
+
+impl ValidationReport {
+    pub fn is_ok(&self) -> bool {
+        self.issues.is_empty()
+    }
+
+    fn push(&mut self, path: impl Into<PathBuf>, message: impl Into<String>) {
+        self.issues.push(ValidationIssue {
+            path: path.into(),
+            message: message.into(),
+        });
+    }
+}
+
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub enum PromptMode {
     #[default]
@@ -52,11 +101,15 @@ pub enum PromptMode {
 }
 
 impl PromptMode {
-    fn parse(value: &str) -> Self {
-        match value.trim().to_ascii_lowercase().as_str() {
-            "command" => Self::Command,
-            "form" => Self::Form,
-            _ => Self::Text,
+    fn parse(value: &str, path: &Path) -> Result<Self> {
+        match unquote(value).trim().to_ascii_lowercase().as_str() {
+            "text" => Ok(Self::Text),
+            "command" => Ok(Self::Command),
+            "form" => Ok(Self::Form),
+            other => Err(CastaliaError::Parse {
+                path: path.to_path_buf(),
+                message: format!("unknown mode '{other}', expected text, command, or form"),
+            }),
         }
     }
 }
@@ -69,10 +122,14 @@ pub enum SlotSource {
 }
 
 impl SlotSource {
-    fn parse(value: &str) -> Self {
-        match value.trim().to_ascii_lowercase().as_str() {
-            "clipboard" => Self::Clipboard,
-            _ => Self::Manual,
+    fn parse(value: &str, path: &Path) -> Result<Self> {
+        match unquote(value).trim().to_ascii_lowercase().as_str() {
+            "manual" => Ok(Self::Manual),
+            "clipboard" => Ok(Self::Clipboard),
+            other => Err(CastaliaError::Parse {
+                path: path.to_path_buf(),
+                message: format!("unknown slot source '{other}', expected manual or clipboard"),
+            }),
         }
     }
 }
@@ -228,6 +285,171 @@ pub fn default_prompt_dir() -> PathBuf {
     PathBuf::from("./prompts")
 }
 
+pub fn prompt_file_name_for_id(id: &str) -> String {
+    format!("{id}.md")
+}
+
+pub fn is_safe_prompt_id(id: &str) -> bool {
+    let id = id.trim();
+    !id.is_empty()
+        && !id.starts_with('.')
+        && !id.ends_with('.')
+        && !id.contains("..")
+        && id
+            .chars()
+            .all(|ch| ch.is_ascii_alphanumeric() || matches!(ch, '.' | '_' | '-'))
+}
+
+pub fn validate_prompt_dir(root: impl AsRef<Path>) -> ValidationReport {
+    let root = root.as_ref();
+    let mut report = ValidationReport::default();
+    let mut files = Vec::new();
+    if let Err(err) = collect_markdown_files(root, &mut files) {
+        report.push(root, format!("failed to read prompt directory: {err}"));
+        return report;
+    }
+
+    let mut prompts = Vec::new();
+    for path in files {
+        match parse_prompt_file(&path) {
+            Ok(prompt) => {
+                validate_prompt(&prompt, &mut report);
+                prompts.push(prompt);
+            }
+            Err(CastaliaError::Parse { path, message }) => {
+                report.push(path, message);
+            }
+            Err(err) => {
+                report.push(path, err.to_string());
+            }
+        }
+    }
+
+    validate_prompt_conflicts(&prompts, &mut report);
+    report
+}
+
+pub fn validate_prompt(prompt: &Prompt, report: &mut ValidationReport) {
+    if !is_safe_prompt_id(&prompt.id) {
+        report.push(
+            &prompt.path,
+            format!(
+                "id '{}' must use only ASCII letters, numbers, '.', '_', or '-' and cannot start/end with '.' or contain '..'",
+                prompt.id
+            ),
+        );
+    }
+    if prompt.title.trim().is_empty() {
+        report.push(&prompt.path, "title must not be empty");
+    }
+    if prompt.body.trim().is_empty() {
+        report.push(&prompt.path, "body must not be empty");
+    }
+
+    let mut slot_names = std::collections::BTreeSet::new();
+    for slot in &prompt.slots {
+        if slot.name.trim().is_empty() {
+            report.push(&prompt.path, "slot name must not be empty");
+            continue;
+        }
+        if !is_safe_slot_name(&slot.name) {
+            report.push(
+                &prompt.path,
+                format!(
+                    "slot '{}' must use only ASCII letters, numbers, or '_' and cannot start with a number",
+                    slot.name
+                ),
+            );
+        }
+        if !slot_names.insert(slot.name.clone()) {
+            report.push(&prompt.path, format!("duplicate slot '{}'", slot.name));
+        }
+        let marker = format!("{{{{{}}}}}", slot.name);
+        if !prompt.body.contains(&marker) && slot.required && slot.default.is_none() {
+            report.push(
+                &prompt.path,
+                format!(
+                    "required slot '{}' has no default and is not used as {} in the body",
+                    slot.name, marker
+                ),
+            );
+        }
+    }
+
+    for marker in find_slot_markers(&prompt.body) {
+        if !prompt.slots.iter().any(|slot| slot.name == marker) {
+            report.push(
+                &prompt.path,
+                format!("body references undefined slot '{{{{{marker}}}}}'"),
+            );
+        }
+    }
+}
+
+fn validate_prompt_conflicts(prompts: &[Prompt], report: &mut ValidationReport) {
+    let mut ids = std::collections::BTreeMap::<String, Vec<PathBuf>>::new();
+    let mut aliases = std::collections::BTreeMap::<String, Vec<PathBuf>>::new();
+
+    for prompt in prompts {
+        ids.entry(prompt.id.clone())
+            .or_default()
+            .push(prompt.path.clone());
+        for alias in &prompt.aliases {
+            if alias.trim().is_empty() {
+                report.push(&prompt.path, "alias must not be empty");
+                continue;
+            }
+            aliases
+                .entry(alias.clone())
+                .or_default()
+                .push(prompt.path.clone());
+        }
+        for tag in &prompt.tags {
+            if tag.trim().is_empty() {
+                report.push(&prompt.path, "tag must not be empty");
+            }
+        }
+    }
+
+    for (id, paths) in ids.iter().filter(|(_, paths)| paths.len() > 1) {
+        for path in paths {
+            report.push(path, format!("duplicate id '{id}'"));
+        }
+    }
+
+    for (alias, paths) in aliases.iter().filter(|(_, paths)| paths.len() > 1) {
+        for path in paths {
+            report.push(path, format!("duplicate alias '{alias}'"));
+        }
+    }
+
+    for prompt in prompts {
+        if aliases.contains_key(&prompt.id) {
+            report.push(
+                &prompt.path,
+                format!("id '{}' conflicts with an existing alias", prompt.id),
+            );
+        }
+        for alias in &prompt.aliases {
+            if ids.contains_key(alias) {
+                report.push(
+                    &prompt.path,
+                    format!("alias '{alias}' conflicts with an existing id"),
+                );
+            }
+        }
+    }
+}
+
+fn is_safe_slot_name(name: &str) -> bool {
+    let mut chars = name.chars();
+    let Some(first) = chars.next() else {
+        return false;
+    };
+    (first.is_ascii_alphabetic() || first == '_')
+        && chars.all(|ch| ch.is_ascii_alphanumeric() || ch == '_')
+}
+
 pub fn parse_prompt_file(path: &Path) -> Result<Prompt> {
     let raw = fs::read_to_string(path)?;
     parse_prompt(&raw, path)
@@ -334,7 +556,12 @@ fn parse_frontmatter(frontmatter: &str, prompt: &mut Prompt, path: &Path) -> Res
                             break;
                         }
                         if let Some((key, value)) = split_key_value(nested_trimmed) {
-                            apply_slot_key(&mut slot, key, value);
+                            apply_slot_key(&mut slot, key, value, path)?;
+                        } else if !nested_trimmed.is_empty() && !nested_trimmed.starts_with('#') {
+                            return Err(CastaliaError::Parse {
+                                path: path.to_path_buf(),
+                                message: format!("invalid slot line '{nested_trimmed}'"),
+                            });
                         }
                         i += 1;
                     }
@@ -352,24 +579,40 @@ fn parse_frontmatter(frontmatter: &str, prompt: &mut Prompt, path: &Path) -> Res
                 "aliases" => prompt.aliases = parse_array(value),
                 "tags" => prompt.tags = parse_array(value),
                 "description" => prompt.description = Some(unquote(value).to_string()),
-                "mode" => prompt.mode = PromptMode::parse(value),
-                _ => {}
+                "mode" => prompt.mode = PromptMode::parse(value, path)?,
+                _ => {
+                    return Err(CastaliaError::Parse {
+                        path: path.to_path_buf(),
+                        message: format!("unknown frontmatter key '{key}'"),
+                    });
+                }
             }
+        } else {
+            return Err(CastaliaError::Parse {
+                path: path.to_path_buf(),
+                message: format!("invalid frontmatter line '{trimmed}'"),
+            });
         }
     }
     Ok(())
 }
 
-fn apply_slot_key(slot: &mut Slot, key: &str, value: &str) {
+fn apply_slot_key(slot: &mut Slot, key: &str, value: &str, path: &Path) -> Result<()> {
     match key {
         "name" => slot.name = unquote(value).to_string(),
         "label" => slot.label = unquote(value).to_string(),
-        "multiline" => slot.multiline = parse_bool(value),
-        "required" => slot.required = parse_bool(value),
+        "multiline" => slot.multiline = parse_bool(value, path, key)?,
+        "required" => slot.required = parse_bool(value, path, key)?,
         "default" => slot.default = Some(unquote(value).to_string()),
-        "source" => slot.source = SlotSource::parse(value),
-        _ => {}
+        "source" => slot.source = SlotSource::parse(value, path)?,
+        _ => {
+            return Err(CastaliaError::Parse {
+                path: path.to_path_buf(),
+                message: format!("unknown slot key '{key}'"),
+            });
+        }
     }
+    Ok(())
 }
 
 fn split_key_value(line: &str) -> Option<(&str, &str)> {
@@ -413,11 +656,32 @@ fn unquote(value: &str) -> &str {
     value
 }
 
-fn parse_bool(value: &str) -> bool {
-    matches!(
-        value.trim().to_ascii_lowercase().as_str(),
-        "true" | "yes" | "1"
-    )
+fn parse_bool(value: &str, path: &Path, key: &str) -> Result<bool> {
+    match unquote(value).trim().to_ascii_lowercase().as_str() {
+        "true" | "yes" | "1" => Ok(true),
+        "false" | "no" | "0" => Ok(false),
+        other => Err(CastaliaError::Parse {
+            path: path.to_path_buf(),
+            message: format!("'{key}' must be boolean, got '{other}'"),
+        }),
+    }
+}
+
+fn find_slot_markers(body: &str) -> Vec<String> {
+    let mut markers = Vec::new();
+    let mut rest = body;
+    while let Some(start) = rest.find("{{") {
+        let after_start = &rest[start + 2..];
+        let Some(end) = after_start.find("}}") else {
+            break;
+        };
+        let marker = after_start[..end].trim();
+        if !marker.is_empty() {
+            markers.push(marker.to_string());
+        }
+        rest = &after_start[end + 2..];
+    }
+    markers
 }
 
 fn collect_markdown_files(root: &Path, out: &mut Vec<PathBuf>) -> Result<()> {
@@ -545,5 +809,42 @@ Body
         let prompt = parse_prompt(raw, Path::new("tc.pir.md")).unwrap();
         assert_eq!(prompt.aliases, vec!["pir", "review"]);
         assert_eq!(prompt.tags, vec!["implementation", "review"]);
+    }
+
+    #[test]
+    fn rejects_unknown_mode() {
+        let raw = r#"---
+id: bad
+title: Bad
+mode: mystery
+---
+Body
+"#;
+        let err = parse_prompt(raw, Path::new("bad.md")).unwrap_err();
+        assert!(err.to_string().contains("unknown mode"));
+    }
+
+    #[test]
+    fn validation_reports_undefined_slots() {
+        let raw = r#"---
+id: tc.test
+title: Test
+---
+Hello {{name}}
+"#;
+        let prompt = parse_prompt(raw, Path::new("tc.test.md")).unwrap();
+        let mut report = ValidationReport::default();
+        validate_prompt(&prompt, &mut report);
+        assert_eq!(report.issues.len(), 1);
+        assert!(report.issues[0]
+            .message
+            .contains("body references undefined slot"));
+    }
+
+    #[test]
+    fn validates_prompt_id_safety() {
+        assert!(is_safe_prompt_id("tc.pir"));
+        assert!(!is_safe_prompt_id("../secret"));
+        assert!(!is_safe_prompt_id(".hidden"));
     }
 }

@@ -26,6 +26,9 @@ castalia render tc.pir --set 'change=flake input follows cleanup'
 castalia copy tc.pir --set 'change=flake input follows cleanup'
 castalia rofi --replace
 castalia validate
+castalia inspect tc.pir
+castalia new my.prompt --title 'My Prompt' --tag personal
+castalia edit tc.pir
 ```
 
 ## Prompt store
@@ -63,6 +66,23 @@ TC:pir
 変更:
 {{change}}
 ```
+
+## Prompt authoring
+
+Castalia v0.2 includes basic prompt authoring commands while keeping Markdown
+files as the source of truth:
+
+```sh
+castalia new my.prompt --title 'My Prompt' --alias mine --tag personal
+castalia inspect my.prompt
+castalia edit my.prompt
+castalia validate
+```
+
+`new` refuses unsafe ids and existing id/alias conflicts. `edit` opens the
+resolved prompt with `$VISUAL` or `$EDITOR`, then validates the prompt store
+after the editor exits. `validate` reports all discovered schema and conflict
+issues instead of stopping at the first invalid file.
 
 ## Castalia nixfiles integration
 

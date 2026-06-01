@@ -20,6 +20,9 @@
 - `castalia edit`
 - `castalia inspect`
 
+Implemented in `product/apps/castalia` as CLI authoring support while preserving
+plain Markdown prompt files as the source of truth.
+
 ## v0.3 Tauri desktop editor
 
 - file-backed prompt editor

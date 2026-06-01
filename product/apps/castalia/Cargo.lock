@@ -4,11 +4,11 @@ version = 3
 
 [[package]]
 name = "castalia"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "castalia-core",
 ]
 
 [[package]]
 name = "castalia-core"
-version = "0.1.0"
+version = "0.2.0"
