@@ -12,3 +12,4 @@ path = "src/main.rs"
 
 [dependencies]
 castalia-core = { path = "../castalia-core" }
+eframe = { version = "0.34.3", default-features = false, features = ["glow", "x11", "wayland", "default_fonts"] }

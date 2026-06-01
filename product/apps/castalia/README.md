@@ -3,7 +3,7 @@
 Castalia is a local-first invocation layer for personal AI workflows.
 
 It stores prompts as plain Markdown files, lets Linux users select them through
-the short-lived `castalia launch` UI, renders simple form slots, and copies the
+the short-lived `castalia launch` GUI, renders simple form slots, and copies the
 result to the clipboard. The launcher is intentionally Linux-first,
 low-overhead, and process-on-demand so it can be bound from Hyprland without
 Castalia owning window-manager configuration.
@@ -92,8 +92,9 @@ issues instead of stopping at the first invalid file.
 ## Launcher
 
 Castalia v0.2.5 replaces the supported `rofi` path with `castalia launch`.
-The launcher is terminal-native, starts on demand, and exits after rendering and
-copying. It does not run as a daemon.
+The launcher opens a standalone lightweight GUI window, starts on demand, and
+exits after rendering and copying. It does not run as a daemon and does not
+require `rofi` or a terminal emulator for the supported path.
 
 ```sh
 castalia launch
@@ -106,6 +107,9 @@ Slot input defaults to Castalia's own UI. Use `--slot-input editor` or
 `CASTALIA_SLOT_INPUT_MODE=editor` to open `$VISUAL` or `$EDITOR` for slot
 values. `clipboard-first` fills missing slot values from the clipboard before
 falling back to the built-in UI.
+
+`castalia launch-tui` is retained as a non-default fallback while v0.2.5 settles,
+but it is not the supported launcher surface.
 
 ## Castalia nixfiles integration
 
@@ -132,8 +136,8 @@ castalia = {
 
 ## Hyprland bind example
 
-Bind `castalia launch` through your preferred terminal emulator. For example:
+Bind `castalia launch` directly from your window manager. For example:
 
 ```nix
-(modBind "p" (luaExec "kitty --class castalia-launcher castalia launch"))
+(modBind "p" (luaExec "castalia launch"))
 ```

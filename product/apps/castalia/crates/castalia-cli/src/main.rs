@@ -36,7 +36,8 @@ fn run() -> castalia_core::Result<()> {
         "list" => list(prompt_dir_from_args(&args[1..]))?,
         "render" => render(&args[1..])?,
         "copy" => copy(&args[1..])?,
-        "launch" => launch_cmd(&args[1..])?,
+        "launch" => launch_cmd(&args[1..], false)?,
+        "launch-tui" => launch_cmd(&args[1..], true)?,
         "rofi" => {
             return Err(CastaliaError::InvalidInput {
                 message: "`castalia rofi` was removed in v0.2.5; use `castalia launch`".into(),
@@ -67,6 +68,7 @@ Usage:
   castalia render <query> [--set key=value] [--prompt-dir <dir>]
   castalia copy <query> [--set key=value] [--prompt-dir <dir>]
   castalia launch [--query <query>] [--set key=value] [--slot-input ui|editor|clipboard-first] [--no-copy] [--prompt-dir <dir>]
+  castalia launch-tui [--query <query>] [--set key=value] [--slot-input ui|editor|clipboard-first] [--no-copy] [--prompt-dir <dir>]
   castalia validate [--prompt-dir <dir>]
   castalia inspect <query> [--prompt-dir <dir>]
   castalia new <id> [--title <title>] [--alias <alias>] [--tag <tag>] [--mode text|command|form] [--prompt-dir <dir>]
@@ -339,7 +341,7 @@ fn copy(args: &[String]) -> castalia_core::Result<()> {
     Ok(())
 }
 
-fn launch_cmd(args: &[String]) -> castalia_core::Result<()> {
+fn launch_cmd(args: &[String], use_tui: bool) -> castalia_core::Result<()> {
     let root = prompt_dir_from_args(args);
     let args = strip_prompt_dir_args(args);
     let no_copy = args.iter().any(|arg| arg == "--no-copy");
@@ -348,13 +350,18 @@ fn launch_cmd(args: &[String]) -> castalia_core::Result<()> {
         .map(|value| SlotInputMode::parse(value))
         .unwrap_or_else(SlotInputMode::from_env)?;
     let clipboard = read_clipboard().ok();
-    let result = launcher::launch(LaunchOptions {
+    let options = LaunchOptions {
         root,
         query,
         initial_values: values_from_args(&args),
         slot_input_mode,
         clipboard,
-    })?;
+    };
+    let result = if use_tui {
+        launcher::launch_tui(options)
+    } else {
+        launcher::launch(options)
+    }?;
 
     let Some(result) = result else {
         return Ok(());

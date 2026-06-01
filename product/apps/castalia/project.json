@@ -100,6 +100,14 @@
       },
       "cache": false
     },
+    "launch-tui": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/castalia",
+        "command": "cargo run -p castalia -- launch-tui"
+      },
+      "cache": false
+    },
     "verify": {
       "executor": "nx:run-commands",
       "options": {

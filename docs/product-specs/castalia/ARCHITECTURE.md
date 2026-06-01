@@ -33,13 +33,15 @@ This enables `tc.pir`, `pir`, and `implementation` to reach the same prompt.
 ## Launcher
 
 `castalia launch` is the supported prompt-use surface as of v0.2.5. It is a
-short-lived terminal-native launcher that starts on demand, shows searchable
-prompt rows, collects slot values when needed, copies the rendered prompt, and
-exits.
+short-lived Linux GUI launcher that starts on demand, shows searchable prompt
+rows, collects slot values when needed, copies the rendered prompt, and exits.
 
 The launcher is separated into `castalia-cli/src/launcher.rs`. It reuses
 `castalia-core` for prompt loading, search, validation, and rendering; it does
 not manage prompt files.
+
+`castalia launch-tui` exists only as a non-default fallback for the rejected
+terminal-native implementation. It is not the supported v0.2.5 launch surface.
 
 `castalia rofi` is no longer a supported launch path. CLI commands such as
 `render`, `copy`, `inspect`, `new`, `edit`, and `validate` remain available for

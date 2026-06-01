@@ -74,9 +74,11 @@ Implementation direction:
   selection, multiline slot editing, clipboard copy, keyboard navigation, and
   predictable packaging
 
-Implemented in `product/apps/castalia` as a terminal-native launcher in
-`castalia-cli/src/launcher.rs`. It replaces `castalia rofi` as the supported
-launch path while keeping CLI commands as scriptable fallbacks.
+Implemented in `product/apps/castalia` as a lightweight Linux GUI launcher in
+`castalia-cli/src/launcher.rs`, using `eframe`/`egui` without Tauri or WebView.
+It replaces `castalia rofi` as the supported launch path while keeping CLI
+commands as scriptable fallbacks. The earlier terminal-native implementation is
+kept only behind `castalia launch-tui` as a non-default fallback.
 
 ## v0.3 Tauri desktop editor
 

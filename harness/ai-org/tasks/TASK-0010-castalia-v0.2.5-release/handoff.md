@@ -3,6 +3,9 @@
 ## Task Summary
 
 Implemented Castalia v0.2.5 as a lightweight terminal-native launcher release.
+This result was later rejected for the supported launch surface because the
+owner requested a standalone GUI launcher. TASK-0011 supersedes this handoff for
+v0.2.5 release status.
 
 ## What Changed
 
@@ -65,8 +68,10 @@ Passed:
 
 ## Remaining Risks
 
-- The launcher is terminal-native. A Hyprland keybind should invoke it through a
-  terminal emulator such as `kitty --class castalia-launcher castalia launch`.
+- Superseded by TASK-0011: `castalia launch` must be a standalone GUI window,
+  not a terminal-native UI.
+- The old terminal-native implementation should only remain behind a non-default
+  fallback command if retained.
 - Terminal raw mode depends on `stty` and `/dev/tty`.
 - Editor slot mode writes a temporary file and deletes it after reading; a crash
   during editing could leave a temporary slot file behind.
