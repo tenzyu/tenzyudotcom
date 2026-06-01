@@ -212,9 +212,16 @@ fn run_gui_slot_editor(
 fn run_egui_app(app: LauncherGuiApp, title: &str) -> castalia_core::Result<()> {
     let options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
-            .with_inner_size([760.0, 520.0])
-            .with_min_inner_size([520.0, 360.0])
-            .with_resizable(true),
+            .with_title(title)
+            .with_app_id("com.tenzyu.castalia.launcher")
+            .with_inner_size([720.0, 460.0])
+            .with_min_inner_size([520.0, 340.0])
+            .with_max_inner_size([900.0, 640.0])
+            .with_resizable(false)
+            .with_maximized(false)
+            .with_decorations(false)
+            .with_window_type(egui::X11WindowType::Dialog),
+        centered: true,
         ..Default::default()
     };
     if env::var_os("WAYLAND_DISPLAY").is_some() && env::var_os("DISPLAY").is_some() {

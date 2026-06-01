@@ -94,7 +94,9 @@ issues instead of stopping at the first invalid file.
 Castalia v0.2.5 replaces the supported `rofi` path with `castalia launch`.
 The launcher opens a standalone lightweight GUI window, starts on demand, and
 exits after rendering and copying. It does not run as a daemon and does not
-require `rofi` or a terminal emulator for the supported path.
+require `rofi` or a terminal emulator for the supported path. Castalia requests a
+small, centered, borderless dialog window so tiling window managers can treat it
+like an invoked launcher instead of a normal application.
 
 ```sh
 castalia launch
@@ -141,3 +143,15 @@ Bind `castalia launch` directly from your window manager. For example:
 ```nix
 (modBind "p" (luaExec "castalia launch"))
 ```
+
+Wayland compositors and tiling window managers may ignore client-side requests to
+float or center windows. If Hyprland still tiles Castalia, add a local window rule
+that matches the stable window title:
+
+```nix
+windowrulev2 = float,title:^(Castalia|Castalia slots)$
+windowrulev2 = center,title:^(Castalia|Castalia slots)$
+```
+
+Castalia documents this rule but does not own your Hyprland/Home Manager
+configuration.

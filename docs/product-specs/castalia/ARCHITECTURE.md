@@ -35,6 +35,9 @@ This enables `tc.pir`, `pir`, and `implementation` to reach the same prompt.
 `castalia launch` is the supported prompt-use surface as of v0.2.5. It is a
 short-lived Linux GUI launcher that starts on demand, shows searchable prompt
 rows, collects slot values when needed, copies the rendered prompt, and exits.
+It requests a small centered dialog-style window with a stable title so tiling
+window managers can apply local float/center rules when client-side hints are
+not enough.
 
 The launcher is separated into `castalia-cli/src/launcher.rs`. It reuses
 `castalia-core` for prompt loading, search, validation, and rendering; it does
