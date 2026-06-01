@@ -24,6 +24,7 @@
       "bunx tsc*": "allow",
       "bunx vite*": "allow",
       "bunx nx *": "allow",
+      "cargo *": "allow",
 
       "nix flake check*": "allow",
       "nix develop*": "allow",
