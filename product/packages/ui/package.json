@@ -74,6 +74,7 @@
     "typescript": "catalog:",
     "typescript-eslint": "catalog:",
     "vite": "catalog:",
-    "vitest": "catalog:"
+    "vitest": "catalog:",
+    "vite-plugin-dts": "catalog:"
   }
 }
