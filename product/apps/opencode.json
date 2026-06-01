@@ -1,0 +1,56 @@
+{
+  "permission": {
+    "edit": "allow",
+
+    "bash": {
+      "*": "ask",
+
+      "pwd": "allow",
+      "ls*": "allow",
+      "find *": "allow",
+      "rg *": "allow",
+      "grep *": "allow",
+      "cat *": "allow",
+      "sed -n *": "allow",
+
+      "git status*": "allow",
+      "git diff*": "allow",
+      "git log*": "allow",
+      "git show*": "allow",
+      "git branch*": "allow",
+
+      "bun run *": "allow",
+      "bun test*": "allow",
+      "bunx tsc*": "allow",
+      "bunx vite*": "allow",
+      "bunx nx *": "allow",
+
+      "nix flake check*": "allow",
+      "nix develop*": "allow",
+      "nh os build*": "allow",
+
+      "git add *": "ask",
+      "git commit*": "ask",
+      "git push*": "ask",
+      "git reset*": "ask",
+      "git clean*": "ask",
+
+      "bun install*": "ask",
+      "bun add*": "ask",
+      "bun remove*": "ask",
+
+      "rm *": "ask",
+      "mv *": "ask",
+      "cp *": "ask",
+      "chmod *": "ask",
+
+      "sudo *": "deny",
+      "chown *": "deny",
+      "curl *": "ask",
+      "wget *": "ask",
+      "ssh *": "ask"
+    },
+
+    "external_directory": "ask"
+  }
+}
