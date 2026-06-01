@@ -1,0 +1,129 @@
+{
+  "name": "castalia",
+  "projectType": "application",
+  "root": "product/apps/castalia",
+  "sourceRoot": "product/apps/castalia/crates",
+  "tags": [
+    "scope:castalia",
+    "type:app",
+    "runtime:rust",
+    "interface:cli",
+    "platform:linux"
+  ],
+  "implicitDependencies": [],
+  "targets": {
+    "run": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/castalia",
+        "command": "cargo run -p castalia-cli --"
+      },
+      "cache": false
+    },
+    "dev": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/castalia",
+        "command": "cargo run -p castalia-cli -- rofi --replace"
+      },
+      "cache": false
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/castalia",
+        "command": "cargo build --release"
+      },
+      "outputs": ["{projectRoot}/target"],
+      "dependsOn": ["^build"]
+    },
+    "check": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/castalia",
+        "command": "cargo check --workspace"
+      },
+      "outputs": ["{projectRoot}/target"]
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/castalia",
+        "command": "cargo test --workspace"
+      },
+      "outputs": ["{projectRoot}/target"]
+    },
+    "clippy": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/castalia",
+        "command": "cargo clippy --workspace --all-targets -- -D warnings"
+      },
+      "outputs": ["{projectRoot}/target"]
+    },
+    "fmt": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/castalia",
+        "command": "cargo fmt --all -- --check"
+      }
+    },
+    "validate": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/castalia",
+        "command": "cargo run -p castalia-cli -- validate"
+      },
+      "cache": false
+    },
+    "init": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/castalia",
+        "command": "cargo run -p castalia-cli -- init"
+      },
+      "cache": false
+    },
+    "list": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/castalia",
+        "command": "cargo run -p castalia-cli -- list"
+      },
+      "cache": false
+    },
+    "rofi": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/castalia",
+        "command": "cargo run -p castalia-cli -- rofi --replace"
+      },
+      "cache": false
+    },
+    "verify": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/castalia",
+        "command": "cargo fmt --all -- --check && cargo check --workspace && cargo clippy --workspace --all-targets -- -D warnings && cargo test --workspace && cargo run -p castalia-cli -- validate"
+      },
+      "outputs": ["{projectRoot}/target"],
+      "dependsOn": ["^build"]
+    },
+    "nix-build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": ".",
+        "command": "nix build .#castalia"
+      },
+      "outputs": ["result"]
+    },
+    "nix-run": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": ".",
+        "command": "nix run .#castalia --"
+      },
+      "cache": false
+    }
+  }
+}

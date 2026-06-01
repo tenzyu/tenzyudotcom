@@ -1,0 +1,14 @@
+[package]
+name = "castalia"
+description = "Local-first prompt and skill launcher for Linux"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+version.workspace = true
+
+[[bin]]
+name = "castalia"
+path = "src/main.rs"
+
+[dependencies]
+castalia-core = { path = "../castalia-core" }
