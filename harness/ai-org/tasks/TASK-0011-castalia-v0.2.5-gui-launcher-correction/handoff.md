@@ -2,44 +2,65 @@
 
 ## Task Summary
 
-Created the correction task for Castalia v0.2.5 because TASK-0010 implemented a
-TUI, while the owner requested a lightweight Linux GUI launcher similar to
-`rofi`.
+Completed the Castalia v0.2.5 correction so `castalia launch` is treated as a
+standalone lightweight Linux GUI launcher, not a terminal UI.
 
 ## What Changed
 
-- Added correction brief.
-- Added implementation plan for replacing the TUI launch surface with a GUI.
-- Added worklog, verification, and handoff records.
+- Confirmed the GUI implementation is present in `HEAD` at `a504184
+  feat(castalia): introduce GUI launcher for Castalia and remove TUI dependency`.
+- Kept the terminal fallback as `castalia launch-tui`; the supported path is
+  `castalia launch`.
+- Updated the Nix package wrapper to include GUI runtime dynamic libraries.
+- Added Nix-packaged Noto CJK font availability via `CASTALIA_GUI_FONT_PATH` so
+  Japanese prompt text renders in the egui launcher.
+- Updated task worklog, verification, and handoff records.
 
 ## Why It Changed
 
-The user clarified that the terminal-native launcher is not the intended product.
-The correct v0.2.5 release must provide a standalone Linux GUI launcher, not a
-terminal application.
+The owner clarified that the terminal-native launcher was not the intended
+product. The correct v0.2.5 release must provide a standalone Linux GUI
+launcher, not a terminal application.
 
 ## Affected Files
 
+- `product/apps/castalia/crates/castalia-cli/src/launcher.rs`
+- `product/apps/castalia/crates/castalia-cli/src/main.rs`
+- `product/apps/castalia/crates/castalia-cli/Cargo.toml`
+- `product/apps/castalia/Cargo.lock`
+- `product/apps/castalia/nix/package.nix`
+- `product/apps/castalia/project.json`
+- `product/apps/castalia/README.md`
+- `docs/product-specs/castalia/ARCHITECTURE.md`
+- `docs/product-specs/castalia/ROADMAP.md`
+- `harness/ai-org/tasks/TASK-0010-castalia-v0.2.5-release/handoff.md`
 - `harness/ai-org/tasks/TASK-0011-castalia-v0.2.5-gui-launcher-correction/*`
 
 ## Validation Result
 
-No source validation was run. This task only adds planning and handoff
-documentation.
+Passed:
+
+- `bun nx run castalia:check`
+- `bun nx run castalia:clippy`
+- `bun nx run castalia:verify`
+- `bun nx run castalia:build`
+- `bun nx run castalia:nix-build`
+- non-interactive `castalia launch --query tc.pir --set change=test --no-copy`
+- manual GUI open/close smoke test under Hyprland/Xwayland
 
 ## Remaining Risks
 
-- TASK-0010 source changes are still present in the working tree.
-- A GUI backend has not been implemented yet.
-- `egui` is recommended as the first backend to evaluate, but measurement has
-  not been performed.
+- The GUI uses `eframe`/`egui`; it is lighter than Tauri/WebView but still pulls
+  a larger runtime surface than the old terminal implementation.
+- Dev launches outside the Nix wrapper rely on local `fc-match` font discovery
+  or `CASTALIA_GUI_FONT_PATH` for Japanese rendering.
 
 ## Follow-Up Tasks
 
-- Implement TASK-0011.
-- Decide whether to remove the TUI code entirely or keep it under a non-default
-  fallback command.
-- Measure the selected GUI backend before claiming v0.2.5 complete.
+- Consider adding automated window smoke coverage if Castalia GUI behavior grows.
+- Consider switching from Xwayland fallback to native Wayland after confirming
+  all required Wayland dynamic libraries are reliably available in dev and
+  packaged environments.
 
 ## Memory Updates Made Or Proposed
 

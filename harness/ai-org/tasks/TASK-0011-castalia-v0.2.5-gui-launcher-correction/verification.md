@@ -2,36 +2,79 @@
 
 ## Commands Run
 
-- `git status --short`
-- `find harness/ai-org/tasks -maxdepth 1 -type d -name 'TASK-*castalia*' | sort`
-- `sed -n '1,220p' harness/ai-org/tasks/TASK-0010-castalia-v0.2.5-release/handoff.md`
-- `sed -n '1,220p' harness/ai-org/tasks/TASK-0010-castalia-v0.2.5-release/verification.md`
+- `bun nx show project castalia --json`
+- `bun nx run castalia:check`
+- `bun nx run castalia:clippy`
+- `bun nx run castalia:verify`
+- `bun nx run castalia:build`
+- `bun nx run castalia:nix-build`
+- `bun nx run castalia:run -- launch --query tc.pir --set change=test --no-copy --prompt-dir prompts`
+- `LD_LIBRARY_PATH=... bun nx run castalia:launch`
+- `hyprctl clients`
+- `ps -ef | rg 'target/debug/castalia|castalia launch|Castalia'`
+- `nix fmt product/apps/castalia/nix/package.nix`
 
 ## Command Results
 
-- Confirmed TASK-0010 exists and documents a terminal-native launcher.
-- Confirmed current worktree includes the TASK-0010 implementation.
-- Created TASK-0011 planning files only.
+- `castalia:check` passed, including 2 launcher tests and 6 core tests.
+- `castalia:clippy` passed with `-D warnings`.
+- `castalia:verify` passed: fmt check, cargo check, clippy, tests, and prompt
+  validation all succeeded.
+- `castalia:build` passed and produced the release binary.
+- `castalia:nix-build` initially failed inside the sandbox because the Nix
+  daemon socket was unavailable; the same Nx target passed with approved daemon
+  access.
+- `castalia:nix-build` passed again after adding GUI runtime library and Noto
+  CJK font wrapping. The only remaining Nix warning was the expected dirty tree
+  warning.
+- Non-interactive launch smoke passed for `tc.pir` with `--set change=test
+  --no-copy`.
+- `nix fmt product/apps/castalia/nix/package.nix` failed because this flake does
+  not define `formatter.x86_64-linux`; the file was kept in the existing Nix
+  style manually.
 
 ## Files Inspected
 
+- `product/apps/castalia/crates/castalia-cli/src/launcher.rs`
+- `product/apps/castalia/crates/castalia-cli/src/main.rs`
+- `product/apps/castalia/crates/castalia-cli/Cargo.toml`
+- `product/apps/castalia/nix/package.nix`
+- `product/apps/castalia/project.json`
+- `product/apps/castalia/README.md`
+- `docs/product-specs/castalia/ARCHITECTURE.md`
+- `docs/product-specs/castalia/ROADMAP.md`
 - `harness/ai-org/tasks/TASK-0010-castalia-v0.2.5-release/handoff.md`
-- `harness/ai-org/tasks/TASK-0010-castalia-v0.2.5-release/verification.md`
 
 ## Visual Checks Performed
 
-Not applicable. No GUI implementation was attempted in this task.
+- Confirmed `castalia launch` opens a standalone `Castalia` GUI window under
+  Hyprland/Xwayland.
+- User confirmed the GUI starts.
+- After closing the GUI, `hyprctl clients` and `ps` showed no remaining Castalia
+  window or Castalia process.
+- Japanese text initially rendered as missing glyph boxes. Root cause was egui's
+  default fonts lacking CJK coverage. The package now sets
+  `CASTALIA_GUI_FONT_PATH` to Noto Sans CJK and includes `fontconfig` for local
+  font discovery.
 
 ## Tests Added Or Not Added
 
-No tests were added because this task only creates correction planning docs.
+- No new automated GUI test was added. The GUI behavior was verified manually
+  because the acceptance criteria require opening and closing an actual window.
+- Existing launcher unit tests for prompt filtering and slot document parsing
+  were preserved and passed.
 
 ## Skipped Checks And Justification
 
-- Nx/Cargo checks were not run because no source files were changed for this
-  correction planning task.
+- Broad `bun nx run-many -t check` was not run because the scope is isolated to
+  Castalia and its Nix package.
+- `bun run policy:deps` was not run because no workspace package dependency
+  boundary changed.
 
 ## Failures And Follow-Up Recommendations
 
-- TASK-0010 should not be treated as a completed v0.2.5 GUI release.
-- Implement TASK-0011 before claiming v0.2.5 complete.
+- Sandbox GUI launch failed before approved graphical-session access, which is
+  expected for windowed applications.
+- Local dev launches without Nix wrapping need either system CJK fonts available
+  through `fc-match` or `CASTALIA_GUI_FONT_PATH` set manually. The packaged Nix
+  launcher sets this automatically.

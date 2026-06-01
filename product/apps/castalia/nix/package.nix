@@ -4,11 +4,15 @@
   fontconfig,
   makeWrapper,
   libGL,
+  libx11,
+  libxcb,
+  libxcursor,
+  libxi,
   libxkbcommon,
+  libxrandr,
   noto-fonts-cjk-sans,
   wayland,
   wl-clipboard,
-  xorg,
   xclip,
   xsel,
 }:
@@ -33,13 +37,13 @@ rustPlatform.buildRustPackage {
       --prefix LD_LIBRARY_PATH : ${
         lib.makeLibraryPath [
           libGL
+          libx11
+          libxcb
+          libxcursor
+          libxi
           libxkbcommon
+          libxrandr
           wayland
-          xorg.libX11
-          xorg.libXcursor
-          xorg.libXi
-          xorg.libXrandr
-          xorg.libxcb
         ]
       } \
       --prefix PATH : ${
