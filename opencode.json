@@ -6,6 +6,14 @@
     "bash": {
       "*": "ask",
 
+      "cargo run -p *": "allow",
+
+      "sleep *": "allow",
+      "hyprctl *": "allow",
+      "kill *": "allow",
+      "true *": "allow",
+      "wait *": "allow",
+
       "pwd": "allow",
       "ls*": "allow",
       "find *": "allow",
@@ -19,27 +27,24 @@
       "git log*": "allow",
       "git show*": "allow",
       "git branch*": "allow",
-
-      "bun run *": "allow",
-      "bun test*": "allow",
-      "bunx tsc*": "allow",
-      "bunx vite*": "allow",
-      "bunx nx *": "allow",
-      "cargo *": "allow",
-
-      "nix flake check*": "allow",
-      "nix develop*": "allow",
-      "nh os build*": "allow",
-
       "git add *": "ask",
       "git commit*": "ask",
       "git push*": "ask",
       "git reset*": "ask",
       "git clean*": "ask",
 
-      "bun install*": "ask",
-      "bun add*": "ask",
-      "bun remove*": "ask",
+      "bun run *": "allow",
+      "bun test *": "allow",
+      "bunx tsc *": "allow",
+      "bunx vite *": "allow",
+      "bunx nx *": "allow",
+      "bun install*": "allow",
+      "bun add *": "ask",
+      "bun remove *": "ask",
+
+      "nix flake check *": "allow",
+      "nix develop *": "allow",
+      "nh os build *": "allow",
 
       "rm *": "ask",
       "mv *": "ask",
