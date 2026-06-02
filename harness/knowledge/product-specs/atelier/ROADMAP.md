@@ -44,7 +44,7 @@ Only after this loop works should the project add MCP, GUI, bulk editing, or aut
 M0: Harness source contract
 M1: Doctor
 M2: Index compiler
-M3: Role-routed context preview
+M3: Role-routed context plan and render
 M4: Run init and context manifest
 M5: Run close and completion gate
 M6: Knowledge proposal and promotion
@@ -284,16 +284,23 @@ First version may include:
 - File moves do not change IDs.
 - ID collision fails.
 
-## M3: Role-Routed Context Preview
+## M3: Role-Routed Context Plan and Render
 
 ### Goal
 
-Create selected context from workflow + role + path + intent.
+Create selected context from workflow + role + path + intent, and render the agent-readable context pack without creating a run.
 
-### Command
+### Commands
 
 ```bash
-atelier context preview \
+atelier context plan \
+  --workflow workflow.isolated-run \
+  --role role.domain.web-app-engineer \
+  --path product/apps/web \
+  --intent "fix server action auth" \
+  --mode compact
+
+atelier context render \
   --workflow workflow.isolated-run \
   --role role.domain.web-app-engineer \
   --path product/apps/web \
@@ -324,29 +331,30 @@ Optional Context
 Skipped Context
 Diagnostics
 Token Estimate
-Next Command
+Next Render Command
+Next Run Init Command
 ```
 
 JSON output:
 
 ```bash
-atelier context preview ... --json
+atelier context plan ... --json
 ```
 
 ### Acceptance Criteria
 
-- Preview works without creating a run.
-- Preview explains why each selected document was included.
-- Preview lists skipped broad contexts.
-- Preview warns when selected context exceeds budget.
-- Preview supports `--required-only`.
-- Preview supports `--mode compact`, `--mode full`, and `--mode linked`.
+- Plan works without creating a run.
+- Plan explains why each selected document was included.
+- Plan lists skipped broad contexts.
+- Plan warns when selected context exceeds budget.
+- Plan supports `--required-only`.
+- Render supports `--mode compact`, `--mode full`, and `--mode linked`, and those modes visibly change the rendered context body.
 
 ## M4: Run Init and Context Manifest
 
 ### Goal
 
-Materialize a context preview into a run.
+Materialize the rendered context pack into a run.
 
 ### Command
 
@@ -413,7 +421,7 @@ Must include:
 - Generated `context.md` is readable by an agent without reading the entire harness.
 - Default `context.md` mode is `compact`.
 - `full` mode embeds larger required source bodies when practical.
-- `linked` mode remains available for low-cost human preview.
+- `linked` mode remains available for low-cost human plan review.
 - Generated manifest can be checked later for hash mismatch.
 - No full document bodies are copied into the manifest.
 
@@ -612,7 +620,7 @@ Expose Atelier operations to MCP-capable agents.
 ```text
 atelier.doctor
 atelier.index
-atelier.context.preview
+atelier.context.plan
 atelier.run.init
 atelier.run.status
 atelier.run.close
@@ -631,7 +639,7 @@ atelier.repo.owner
 
 ### Acceptance Criteria
 
-- MCP context preview matches CLI preview.
+- MCP context plan matches CLI plan.
 - MCP run init creates the same files as CLI.
 - MCP run close enforces the same gates as CLI.
 - MCP failure messages are actionable.
@@ -646,7 +654,7 @@ Provide a local GUI for inspection, approval, and bulk maintenance.
 
 1. Doctor
 2. Role Bundle Preview
-3. Context Preview
+3. Context Plan
 4. Knowledge Inbox
 5. ID Rename
 6. Bulk Edit
@@ -663,7 +671,7 @@ Provide a local GUI for inspection, approval, and bulk maintenance.
 - GUI can launch core operations.
 - GUI shows diffs before mutating source files.
 - GUI can approve or reject knowledge proposals.
-- GUI can preview context bundles.
+- GUI can plan and render context bundles.
 
 ## M11: Repo Map and Path Ownership Generation
 
@@ -727,7 +735,7 @@ Add recall support without replacing deterministic routing.
 
 - Required context remains deterministic.
 - Semantic results are labeled optional.
-- Context preview remains reproducible with semantic expansion disabled.
+- Context plan remains reproducible with semantic expansion disabled.
 
 ## Suggested Implementation Order
 
@@ -762,7 +770,7 @@ Contents:
 ### Third commit
 
 ```text
-feat(atelier): add role-routed context preview
+feat(atelier): add role-routed context plan and render
 ```
 
 Contents:
@@ -770,12 +778,12 @@ Contents:
 - role parser
 - workflow parser
 - context selector
-- preview output
+- plan output
 
 ### Fourth commit
 
 ```text
-feat(atelier): initialize runs from context previews
+feat(atelier): initialize runs from rendered context plans
 ```
 
 Contents:
@@ -851,7 +859,7 @@ Mitigation:
 Mitigation:
 
 - every selected document must have a reason
-- preview must show skipped context
+- context plan must show skipped context
 - generated role bundle is inspectable
 
 ### Risk: Agents Ignore Atelier
@@ -886,7 +894,7 @@ Atelier v1 is done when a non-trivial harness task can be performed through this
 
 ```text
 atelier doctor
-atelier context preview
+atelier context plan
 atelier run init
 agent reads context.md
 agent works

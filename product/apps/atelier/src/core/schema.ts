@@ -57,6 +57,7 @@ export type HarnessFrontmatter = {
   supersedes?: unknown
   superseded_by?: unknown
   phases?: unknown
+  conditional_phases?: unknown
   pinned?: unknown
   selectors?: unknown
   role_type?: unknown

@@ -1,4 +1,4 @@
-export { buildContextPreview, normalizeContextMode, type ContextMode, type ContextPreview, type ContextPreviewOptions } from './core/context'
+export { buildContextPlan, normalizeContextMode, type ContextMode, type ContextPlan, type ContextPlanOptions } from './core/context'
 export { runDoctor, type DoctorOptions } from './core/doctor'
 export { loadHarnessDocuments, strictnessForPath, extractMarkdownLinks, sha256Text, toPosixPath } from './core/docs'
 export { parseFrontmatter, type ParsedFrontmatter } from './core/frontmatter'
@@ -18,8 +18,11 @@ export {
   closeRun,
   expandRunContext,
   initRun,
+  renderContextForOptions,
   type ContextExpandOptions,
   type ContextExpandResult,
+  type ContextRenderOptions,
+  type ContextRenderResult,
   type RunCloseOptions,
   type RunCloseResult,
   type RunInitOptions,

@@ -315,7 +315,10 @@ function addReferenceDiagnostics(
   )
 
   for (const document of activeDocuments) {
-    const phases = asStringArray(document.frontmatter?.phases)
+    const phases = [
+      ...asStringArray(document.frontmatter?.phases),
+      ...asStringArray(document.frontmatter?.conditional_phases),
+    ]
     for (const phase of phases) {
       if (ids.has(phase)) continue
 

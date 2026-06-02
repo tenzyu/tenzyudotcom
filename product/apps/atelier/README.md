@@ -3,7 +3,7 @@
 Atelier is the local control plane for the repository harness.
 
 Atelier is CLI-first and file-backed. It reads Markdown under `harness/`, reports
-source-contract diagnostics, compiles generated indexes, previews role-routed
+source-contract diagnostics, compiles generated indexes, plans and renders role-routed
 context, initializes active run folders, closes runs through an evidence gate,
 and promotes durable knowledge only from explicit proposals.
 
@@ -19,7 +19,8 @@ bun nx run atelier:doctor
 bun nx run atelier:doctor -- --json
 bun nx run atelier:index
 bun nx run atelier:index-check
-bun nx run atelier:context-preview -- --workflow workflow.isolated-run --role role.domain.web-app-engineer --path product/apps/web --intent "fix server action auth" --mode compact
+bun nx run atelier:context-plan -- --workflow workflow.isolated-run --role role.domain.web-app-engineer --path product/apps/web --intent "fix server action auth" --mode compact
+bun nx run atelier:context-render -- --workflow workflow.isolated-run --role role.domain.web-app-engineer --path product/apps/web --intent "fix server action auth" --mode compact
 bun nx run atelier:run-init -- --workflow workflow.isolated-run --role role.domain.web-app-engineer --path product/apps/web --intent "fix server action auth" --mode compact
 bun nx run atelier:context-expand -- RUN-ID knowledge.rule.security.example
 bun nx run atelier:run-close -- RUN-ID
@@ -37,13 +38,13 @@ bun nx run atelier:test
 - Report missing IDs, invalid frontmatter, unknown kinds, duplicate IDs, broken
   Markdown links, stale `harness/ai-org` references, and missing phase references.
 - Compile stable generated indexes under `.harness/generated`.
-- Preview context from workflow, role, input path, intent, and context mode.
-- Initialize run folders with `brief.md`, compiled `context.md`, and
+- Plan context selection from workflow, role, input path, intent, and context mode.
+- Render compiled context packs and initialize run folders with `brief.md`, `context.md`, and
   provenance-only `context.manifest.json`.
 - Support context modes:
   - `compact`: default, embeds compiled excerpts of required context.
   - `full`: embeds larger required source bodies when practical.
-  - `linked`: keeps output link-centered for low-cost preview or human checks.
+  - `linked`: keeps output link-centered for low-cost plan review or human checks.
 - Expand active run context with manifest, context, and worklog records.
 - Close non-trivial runs only after required artifacts, context hashes,
   verification, handoff, review, and proposal state pass the completion gate.

@@ -80,7 +80,7 @@ Atelier selects context from the harness without requiring agents to manually se
 It must support queries such as:
 
 ```bash
-atelier context preview \
+atelier context plan \
   --workflow workflow.isolated-run \
   --role role.domain.web-app-engineer \
   --path product/apps/web \
@@ -141,7 +141,7 @@ full
   embed required source bodies when practical
 
 linked
-  link-centered mode for low-cost preview or human checks
+  link-centered mode for low-cost plan review or human checks
 ```
 
 Additional context may be expanded only when the context pack allows it, the
@@ -721,17 +721,17 @@ Build generated JSON indexes.
 
 `--check` fails if generated artifacts are stale.
 
-### 8.3 Context Preview
+### 8.3 Context Plan
 
 ```bash
-atelier context preview \
+atelier context plan \
   --workflow workflow.isolated-run \
   --role role.domain.web-app-engineer \
   --path product/apps/web \
   --intent "fix server action auth"
 ```
 
-The preview must not create a run by default.
+The plan command must not create a run by default.
 
 Output must include:
 
@@ -741,9 +741,31 @@ Output must include:
 - reasons
 - warnings
 - token estimate
+- command to render the context pack
 - command to materialize a run
 
-### 8.4 Run Init
+### 8.4 Context Render
+
+```bash
+atelier context render \
+  --workflow workflow.isolated-run \
+  --role role.domain.web-app-engineer \
+  --path product/apps/web \
+  --intent "fix server action auth" \
+  --mode compact
+```
+
+Render prints the actual agent-readable `context.md` body without creating a run.
+
+Modes must affect rendered output:
+
+- `linked`: links and reasons only.
+- `compact`: compiled excerpts of required context.
+- `full`: larger required source bodies when practical.
+
+Render is the command to use when a human wants to inspect what an agent will actually read.
+
+### 8.5 Run Init
 
 ```bash
 atelier run init \
@@ -958,7 +980,7 @@ Future tools:
 ```text
 atelier.doctor
 atelier.index
-atelier.context.preview
+atelier.context.plan
 atelier.run.init
 atelier.run.status
 atelier.run.close
@@ -1008,7 +1030,7 @@ Initial screens:
 - selectors
 - documents no longer reachable
 
-### Context Preview
+### Context Plan
 
 - workflow
 - role
@@ -1092,7 +1114,7 @@ It must not silently:
 
 Atelier must protect context windows.
 
-Context preview must show:
+Context plan must show:
 
 - estimated token count
 - required tokens
@@ -1103,9 +1125,9 @@ Context preview must show:
 Context selection must support limits:
 
 ```bash
-atelier context preview --budget 12000
-atelier context preview --required-only
-atelier context preview --include-optional known-problems
+atelier context plan --budget 12000
+atelier context plan --required-only
+atelier context plan --include-optional known-problems
 ```
 
 Large documents may later support generated summaries, but summaries must be traceable to source documents.
@@ -1118,7 +1140,7 @@ Atelier MVP is acceptable when:
 - `atelier index` generates `docs.json`, `ids.json`, and `diagnostics.json`
 - role files can be parsed into routable objects
 - workflow files can be parsed as callable objects
-- `atelier context preview` returns deterministic selected context for role + path + workflow
+- `atelier context plan` returns deterministic selected context for role + path + workflow
 - `atelier run init` creates `brief.md`, `context.md`, and `context.manifest.json`
 - `atelier run close` blocks missing verification and handoff for non-trivial runs
 - generated output is reproducible

@@ -2,10 +2,10 @@ import { afterAll, beforeEach, describe, expect, test } from 'bun:test'
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
-import { buildContextPreview } from '../core/context'
+import { buildContextPlan } from '../core/context'
 import { compileIndexes } from '../core/indexer'
 import { promoteKnowledgeProposal, proposeKnowledge, rejectKnowledgeProposal } from '../core/knowledge'
-import { closeRun, expandRunContext, initRun } from '../core/runs'
+import { closeRun, expandRunContext, initRun, renderContextForOptions } from '../core/runs'
 
 function writeMarkdown(root: string, relativePath: string, lines: string[]) {
   const target = path.join(root, relativePath)
@@ -119,6 +119,8 @@ function createFixture(root: string) {
     'status: active',
     'tags:',
     '  - example',
+    'read_when:',
+    '  - fix auth behavior',
     '---',
     '# Example Optional Spec',
     '',
@@ -172,8 +174,8 @@ describe('Atelier M2-M4', () => {
     expect(ids['workflow.example'].path).toBe('harness/actions/workflows/example.md')
   })
 
-  test('builds role-routed context preview with reasons', () => {
-    const preview = buildContextPreview({
+  test('builds role-routed context plan with reasons', () => {
+    const plan = buildContextPlan({
       projectRoot: tmpRoot,
       workflowId: 'workflow.example',
       roleIds: ['role.domain.example'],
@@ -181,8 +183,8 @@ describe('Atelier M2-M4', () => {
       intent: 'fix auth behavior',
     })
 
-    const requiredPaths = preview.required.map((document) => document.path)
-    const optionalPaths = preview.optional.map((document) => document.path)
+    const requiredPaths = plan.required.map((document) => document.path)
+    const optionalPaths = plan.optional.map((document) => document.path)
 
     expect(requiredPaths).toContain('harness/actions/workflows/example.md')
     expect(requiredPaths).toContain('harness/actions/phases/implementation.md')
@@ -190,12 +192,12 @@ describe('Atelier M2-M4', () => {
     expect(requiredPaths).toContain('harness/policies/repository.md')
     expect(requiredPaths).toContain('harness/knowledge/product-specs/example/README.md')
     expect(optionalPaths).toContain('harness/knowledge/product-specs/example/optional.md')
-    expect(preview.mode).toBe('compact')
-    expect(preview.diagnostics).toEqual([])
+    expect(plan.mode).toBe('compact')
+    expect(plan.diagnostics).toEqual([])
   })
 
-  test('supports linked context preview mode', () => {
-    const preview = buildContextPreview({
+  test('supports linked context plan mode', () => {
+    const plan = buildContextPlan({
       projectRoot: tmpRoot,
       workflowId: 'workflow.example',
       roleIds: ['role.domain.example'],
@@ -204,8 +206,35 @@ describe('Atelier M2-M4', () => {
       mode: 'linked',
     })
 
-    expect(preview.mode).toBe('linked')
-    expect(preview.nextCommand).toContain('--mode linked')
+    expect(plan.mode).toBe('linked')
+    expect(plan.nextRenderCommand).toContain('--mode linked')
+  })
+
+  test('renders context body without creating a run', () => {
+    const compact = renderContextForOptions({
+      projectRoot: tmpRoot,
+      workflowId: 'workflow.example',
+      roleIds: ['role.domain.example'],
+      inputPath: 'product/apps/example',
+      intent: 'fix auth behavior',
+      runId: 'RUN-render-compact',
+      mode: 'compact',
+    })
+    const linked = renderContextForOptions({
+      projectRoot: tmpRoot,
+      workflowId: 'workflow.example',
+      roleIds: ['role.domain.example'],
+      inputPath: 'product/apps/example',
+      intent: 'fix auth behavior',
+      runId: 'RUN-render-linked',
+      mode: 'linked',
+    })
+
+    expect(existsSync(path.join(tmpRoot, 'harness/runs/active/RUN-render-compact'))).toBe(false)
+    expect(compact.context).toContain('## Compiled Required Context')
+    expect(compact.context).toContain('Compiled context:')
+    expect(linked.context).toContain('## Required Context')
+    expect(linked.context).not.toContain('```md')
   })
 
   test('initializes a run with context and manifest files', () => {

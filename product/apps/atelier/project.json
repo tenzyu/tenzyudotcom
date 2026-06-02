@@ -38,11 +38,19 @@
       },
       "cache": false
     },
-    "context-preview": {
+    "context-plan": {
       "executor": "nx:run-commands",
       "options": {
         "cwd": "product/apps/atelier",
-        "command": "bun run ./src/cli.ts context preview --project-root ../../.."
+        "command": "bun run ./src/cli.ts context plan --project-root ../../.."
+      },
+      "cache": false
+    },
+    "context-render": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/atelier",
+        "command": "bun run ./src/cli.ts context render --project-root ../../.."
       },
       "cache": false
     },

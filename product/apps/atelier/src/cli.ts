@@ -2,9 +2,9 @@
 
 import path from 'node:path'
 import {
-  buildContextPreview,
+  buildContextPlan,
   normalizeContextMode,
-  type ContextPreview,
+  type ContextPlan,
 } from './core/context'
 import { runDoctor } from './core/doctor'
 import { compileIndexes, type IndexResult } from './core/indexer'
@@ -18,6 +18,7 @@ import {
   closeRun,
   expandRunContext,
   initRun,
+  renderContextForOptions,
   type ContextExpandResult,
   type RunCloseResult,
 } from './core/runs'
@@ -33,7 +34,8 @@ function usage() {
     'Usage:',
     '  atelier doctor [--json] [--fix] [--project-root <path>]',
     '  atelier index [--check] [--project-root <path>]',
-    '  atelier context preview --workflow <id> --role <id> [--role <id>] --path <path> --intent <text> [--mode compact|full|linked] [--required-only] [--json]',
+    '  atelier context plan --workflow <id> --role <id> [--role <id>] --path <path> --intent <text> [--mode compact|full|linked] [--required-only] [--json]',
+    '  atelier context render --workflow <id> --role <id> [--role <id>] --path <path> --intent <text> [--mode compact|full|linked] [--id <run-id>] [--json]',
     '  atelier context expand RUN-ID DOC-ID-OR-PATH [--json]',
     '  atelier run init --workflow <id> --role <id> [--role <id>] --path <path> --intent <text> [--mode compact|full|linked] [--id <run-id>] [--json]',
     '  atelier run close RUN-ID [--json]',
@@ -44,8 +46,8 @@ function usage() {
     'Commands:',
     '  doctor   Inspect harness Markdown for schema, link, ID, and stale path issues.',
     '  index    Compile generated harness indexes.',
-    '  context  Preview role-routed context without creating a run.',
-    '  run      Materialize a context preview into a run.',
+    '  context  Plan or render role-routed context without creating a run.',
+    '  run      Materialize a context render into a run.',
     '  knowledge Create, promote, or reject knowledge proposals from run evidence.',
   ].join('\n')
 }
@@ -163,47 +165,49 @@ function printIndexReport(result: IndexResult, check: boolean) {
   }
 }
 
-function printContextPreview(preview: ContextPreview) {
-  console.log('Atelier Context Preview')
-  console.log(`Workflow: ${preview.workflowId}`)
-  console.log(`Roles: ${preview.roleIds.join(', ')}`)
-  console.log(`Path: ${preview.inputPath}`)
-  console.log(`Intent: ${preview.intent}`)
-  console.log(`Mode: ${preview.mode}`)
+function printContextPlan(plan: ContextPlan) {
+  console.log('Atelier Context Plan')
+  console.log(`Workflow: ${plan.workflowId}`)
+  console.log(`Roles: ${plan.roleIds.join(', ')}`)
+  console.log(`Path: ${plan.inputPath}`)
+  console.log(`Intent: ${plan.intent}`)
+  console.log(`Mode: ${plan.mode}`)
   console.log(
-    `Token Estimate: ${preview.budgetEstimate.tokens}/${preview.budgetEstimate.limit}`
+    `Token Estimate: ${plan.budgetEstimate.tokens}/${plan.budgetEstimate.limit}`
   )
 
   console.log('\nRequired Context')
-  for (const document of preview.required) {
+  for (const document of plan.required) {
     console.log(`- ${document.path}: ${document.reasons.join('; ')}`)
   }
 
   console.log('\nOptional Context')
-  if (preview.optional.length === 0) console.log('- None')
-  for (const document of preview.optional) {
+  if (plan.optional.length === 0) console.log('- None')
+  for (const document of plan.optional) {
     console.log(`- ${document.path}: ${document.reasons.join('; ')}`)
   }
 
   console.log('\nSkipped Context')
-  if (preview.skipped.length === 0) console.log('- None')
-  for (const document of preview.skipped.slice(0, 40)) {
+  if (plan.skipped.length === 0) console.log('- None')
+  for (const document of plan.skipped.slice(0, 40)) {
     console.log(`- ${document.path}: ${document.reason}`)
   }
-  if (preview.skipped.length > 40) {
-    console.log(`- ... ${preview.skipped.length - 40} more skipped documents`)
+  if (plan.skipped.length > 40) {
+    console.log(`- ... ${plan.skipped.length - 40} more skipped documents`)
   }
 
   console.log('\nDiagnostics')
-  if (preview.diagnostics.length === 0) console.log('- None')
-  for (const diagnostic of preview.diagnostics) {
+  if (plan.diagnostics.length === 0) console.log('- None')
+  for (const diagnostic of plan.diagnostics) {
     console.log(
       `- ${diagnostic.severity.toUpperCase()} ${diagnostic.code}: ${diagnostic.message}`
     )
   }
 
-  console.log('\nNext Command')
-  console.log(preview.nextCommand)
+  console.log('\nNext Render Command')
+  console.log(plan.nextRenderCommand)
+  console.log('\nNext Run Init Command')
+  console.log(plan.nextRunInitCommand)
 }
 
 function printContextExpand(result: ContextExpandResult, projectRoot: string) {
@@ -331,12 +335,12 @@ export async function runCli(argv: readonly string[]) {
     return result.ok ? 0 : 1
   }
 
-  if (command === 'context' && subcommand === 'preview') {
+  if (command === 'context' && subcommand === 'plan') {
     const base = parseBase(restRaw)
     const roles = readRepeatedOption(base.remaining, '--role')
     if (roles.length === 0)
       throw new Error('--role requires at least one value')
-    const preview = buildContextPreview({
+    const plan = buildContextPlan({
       projectRoot: base.projectRoot,
       workflowId: readRequiredOption(base.remaining, '--workflow'),
       roleIds: roles,
@@ -347,12 +351,37 @@ export async function runCli(argv: readonly string[]) {
     })
 
     if (base.json) {
-      console.log(JSON.stringify(preview, null, 2))
+      console.log(JSON.stringify(plan, null, 2))
     } else {
-      printContextPreview(preview)
+      printContextPlan(plan)
     }
 
-    return hasErrorDiagnostic(preview.diagnostics) ? 1 : 0
+    return hasErrorDiagnostic(plan.diagnostics) ? 1 : 0
+  }
+
+  if (command === 'context' && subcommand === 'render') {
+    const base = parseBase(restRaw)
+    const roles = readRepeatedOption(base.remaining, '--role')
+    if (roles.length === 0)
+      throw new Error('--role requires at least one value')
+    const rendered = renderContextForOptions({
+      projectRoot: base.projectRoot,
+      workflowId: readRequiredOption(base.remaining, '--workflow'),
+      roleIds: roles,
+      inputPath: readRequiredOption(base.remaining, '--path'),
+      intent: readRequiredOption(base.remaining, '--intent'),
+      requiredOnly: base.remaining.includes('--required-only'),
+      mode: normalizeContextMode(readOptionalOption(base.remaining, '--mode')),
+      runId: readOptionalOption(base.remaining, '--id'),
+    })
+
+    if (base.json) {
+      console.log(JSON.stringify(rendered, null, 2))
+    } else {
+      console.log(rendered.context)
+    }
+
+    return hasErrorDiagnostic(rendered.plan.diagnostics) ? 1 : 0
   }
 
   if (command === 'context' && subcommand === 'expand') {
@@ -403,7 +432,7 @@ export async function runCli(argv: readonly string[]) {
             briefPath: result.briefPath,
             contextPath: result.contextPath,
             manifestPath: result.manifestPath,
-            diagnostics: result.preview.diagnostics,
+            diagnostics: result.plan.diagnostics,
           },
           null,
           2

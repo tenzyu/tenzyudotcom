@@ -2,7 +2,7 @@ import path from 'node:path'
 import { loadHarnessDocuments, toPosixPath } from './docs'
 import { asStringArray, type Diagnostic, type HarnessDocument } from './schema'
 
-export type ContextPreviewOptions = {
+export type ContextPlanOptions = {
   projectRoot?: string
   workflowId: string
   roleIds: string[]
@@ -29,9 +29,10 @@ export type SkippedContextDocument = {
   id: string | null
   path: string
   reason: string
+  count?: number
 }
 
-export type ContextPreview = {
+export type ContextPlan = {
   workflowId: string
   roleIds: string[]
   inputPath: string
@@ -46,16 +47,33 @@ export type ContextPreview = {
     limit: number
     exceeded: boolean
   }
-  nextCommand: string
+  nextRenderCommand: string
+  nextRunInitCommand: string
 }
 
 const TOKEN_BUDGET = 50_000
 const CONTEXT_MODES = new Set<ContextMode>(['compact', 'full', 'linked'])
+const REQUIRED_PHASE_IDS = new Set([
+  'phase.intake',
+  'phase.investigation',
+  'phase.implementation',
+  'phase.verification',
+  'phase.handoff',
+])
+const CONDITIONAL_PHASE_IDS = new Set([
+  'phase.worktree-isolation',
+  'phase.planning',
+  'phase.review',
+  'phase.knowledge-promotion',
+  'phase.adr-distillation',
+])
 
 export function normalizeContextMode(value: string | undefined): ContextMode {
   if (value === undefined) return 'compact'
   if (CONTEXT_MODES.has(value as ContextMode)) return value as ContextMode
-  throw new Error(`Unknown context mode '${value}'. Expected compact, full, or linked.`)
+  throw new Error(
+    `Unknown context mode '${value}'. Expected compact, full, or linked.`
+  )
 }
 
 function idOf(document: HarnessDocument) {
@@ -68,12 +86,21 @@ function textOf(value: unknown) {
 }
 
 function recordOf(value: unknown): Record<string, unknown> {
-  if (value === null || value === undefined || typeof value !== 'object' || Array.isArray(value)) return {}
+  if (
+    value === null ||
+    value === undefined ||
+    typeof value !== 'object' ||
+    Array.isArray(value)
+  )
+    return {}
   return value as Record<string, unknown>
 }
 
-function estimateTokens(document: HarnessDocument) {
-  return Math.ceil(document.raw.length / 4)
+function estimateTokens(document: HarnessDocument, mode: ContextMode) {
+  if (mode === 'linked') return 150
+  const rawEstimate = Math.ceil(document.raw.length / 4)
+  if (mode === 'compact') return Math.min(rawEstimate, 550)
+  return Math.min(rawEstimate, 3_000)
 }
 
 function globToRegExp(pattern: string) {
@@ -89,12 +116,27 @@ function matchesGlob(pattern: string, value: string) {
   return globToRegExp(pattern).test(value)
 }
 
+function matchesPathPattern(pattern: string, value: string) {
+  if (matchesGlob(pattern, value)) return true
+  if (pattern.endsWith('/**')) {
+    const prefix = pattern.slice(0, -3)
+    return value === prefix || value.startsWith(`${prefix}/`)
+  }
+  return false
+}
+
 function normalizedInputPath(projectRoot: string, inputPath: string) {
-  const resolved = path.isAbsolute(inputPath) ? inputPath : path.resolve(projectRoot, inputPath)
+  const resolved = path.isAbsolute(inputPath)
+    ? inputPath
+    : path.resolve(projectRoot, inputPath)
   return toPosixPath(path.relative(projectRoot, resolved))
 }
 
-function documentSummary(document: HarnessDocument, reasons: string[]): SelectedContextDocument {
+function documentSummary(
+  document: HarnessDocument,
+  reasons: string[],
+  mode: ContextMode
+): SelectedContextDocument {
   return {
     id: idOf(document),
     kind: textOf(document.frontmatter?.kind),
@@ -103,14 +145,14 @@ function documentSummary(document: HarnessDocument, reasons: string[]): Selected
     status: textOf(document.frontmatter?.status),
     sha256: document.sha256,
     reasons,
-    tokenEstimate: estimateTokens(document),
+    tokenEstimate: estimateTokens(document, mode),
   }
 }
 
 function addSelected(
   map: Map<string, { document: HarnessDocument; reasons: Set<string> }>,
   document: HarnessDocument | undefined,
-  reason: string,
+  reason: string
 ) {
   if (!document) return
   const existing = map.get(document.relativePath)
@@ -121,9 +163,26 @@ function addSelected(
   map.set(document.relativePath, { document, reasons: new Set([reason]) })
 }
 
+function addSkipped(
+  skipped: SkippedContextDocument[],
+  document: HarnessDocument | undefined,
+  pathOrId: string,
+  reason: string,
+  count?: number
+) {
+  skipped.push({
+    id: document ? idOf(document) : null,
+    path: document?.relativePath ?? pathOrId,
+    reason,
+    count,
+  })
+}
+
 function parseMarkdownListSection(body: string, heading: string) {
   const lines = body.split(/\r?\n/)
-  const start = lines.findIndex((line) => line.trim().toLowerCase() === `## ${heading.toLowerCase()}`)
+  const start = lines.findIndex(
+    (line) => line.trim().toLowerCase() === `## ${heading.toLowerCase()}`
+  )
   if (start === -1) return []
 
   const refs: string[] = []
@@ -140,21 +199,30 @@ function byId(documents: HarnessDocument[]) {
   return new Map(
     documents
       .map((document) => [idOf(document), document] as const)
-      .filter((entry): entry is readonly [string, HarnessDocument] => entry[0] !== null),
+      .filter(
+        (entry): entry is readonly [string, HarnessDocument] =>
+          entry[0] !== null
+      )
   )
 }
 
 function byPath(documents: HarnessDocument[]) {
-  return new Map(documents.map((document) => [document.relativePath, document] as const))
+  return new Map(
+    documents.map((document) => [document.relativePath, document] as const)
+  )
 }
 
 function resolveReference(
   reference: string,
   documentsById: Map<string, HarnessDocument>,
-  documentsByPath: Map<string, HarnessDocument>,
+  documentsByPath: Map<string, HarnessDocument>
 ) {
-  const clean = reference.replace(/^['"]|['"]$/g, '').replace(/\/$/, '')
-  return documentsById.get(clean) ?? documentsByPath.get(clean) ?? documentsByPath.get(`${clean}.md`)
+  const clean = reference.replace(/^[\'"]|[\'"]$/g, '').replace(/\/$/, '')
+  return (
+    documentsById.get(clean) ??
+    documentsByPath.get(clean) ??
+    documentsByPath.get(`${clean}.md`)
+  )
 }
 
 function relevantTokens(inputPath: string, intent: string) {
@@ -163,12 +231,35 @@ function relevantTokens(inputPath: string, intent: string) {
     raw
       .split(/[^a-z0-9_-]+/)
       .map((token) => token.trim())
-      .filter((token) => token.length >= 4),
+      .filter((token) => token.length >= 4)
   )
 }
 
-function documentMatchesTokens(document: HarnessDocument, tokens: Set<string>) {
-  const haystack = `${document.relativePath}\n${document.frontmatterRaw ?? ''}\n${document.body}`.toLowerCase()
+function metadataSignalText(document: HarnessDocument) {
+  const frontmatter = document.frontmatter ?? {}
+  const scope = recordOf(frontmatter.scope)
+  return [
+    document.relativePath,
+    textOf(frontmatter.id),
+    textOf(frontmatter.title),
+    textOf(frontmatter.summary),
+    textOf(frontmatter.knowledge_type),
+    ...asStringArray(frontmatter.tags),
+    ...asStringArray(frontmatter.read_when),
+    ...asStringArray(frontmatter.skip_when),
+    ...asStringArray(scope.paths),
+    ...document.headings,
+  ]
+    .filter((value): value is string => typeof value === 'string')
+    .join('\n')
+    .toLowerCase()
+}
+
+function documentMatchesMetadataSignals(
+  document: HarnessDocument,
+  tokens: Set<string>
+) {
+  const haystack = metadataSignalText(document)
   for (const token of tokens) {
     if (haystack.includes(token)) return true
   }
@@ -178,24 +269,66 @@ function documentMatchesTokens(document: HarnessDocument, tokens: Set<string>) {
 function knowledgeScopeMatches(document: HarnessDocument, inputPath: string) {
   const scope = recordOf(document.frontmatter?.scope)
   const scopePaths = asStringArray(scope.paths)
-  return scopePaths.some((pattern) => matchesGlob(pattern, inputPath) || inputPath.startsWith(pattern.replace(/\*\*?$/, '')))
+  return scopePaths.some((pattern) => matchesPathPattern(pattern, inputPath))
 }
 
-function productSpecMatchesPath(document: HarnessDocument, inputPath: string) {
-  const match = inputPath.match(/^product\/apps\/([^/]+)/)
-  if (!match?.[1]) return false
-  return document.relativePath.startsWith(`harness/knowledge/product-specs/${match[1]}/`)
+function roleSelectorPathActive(roleSelectorPaths: Set<string>, inputPath: string) {
+  return (
+    roleSelectorPaths.size === 0 ||
+    [...roleSelectorPaths].some((selectorPath) =>
+      matchesPathPattern(selectorPath, inputPath)
+    )
+  )
 }
 
-export function buildContextPreview(options: ContextPreviewOptions): ContextPreview {
+function roleSelectorTagsOverlap(
+  document: HarnessDocument,
+  roleSelectorTags: Set<string>
+) {
+  const tags = asStringArray(document.frontmatter?.tags)
+  return tags.some((tag) => roleSelectorTags.has(tag))
+}
+
+function roleSelectorTypeMatches(
+  document: HarnessDocument,
+  roleSelectorTypes: Set<string>
+) {
+  const knowledgeType = textOf(document.frontmatter?.knowledge_type)
+  return knowledgeType !== null && roleSelectorTypes.has(knowledgeType)
+}
+
+function requiredPhaseIds(workflow: HarnessDocument | undefined) {
+  const explicit = asStringArray(workflow?.frontmatter?.required_phases)
+  if (explicit.length > 0) return explicit
+  return asStringArray(workflow?.frontmatter?.phases).filter(
+    (phaseId) => !CONDITIONAL_PHASE_IDS.has(phaseId)
+  )
+}
+
+function conditionalPhaseIds(workflow: HarnessDocument | undefined) {
+  const explicit = asStringArray(workflow?.frontmatter?.conditional_phases)
+  if (explicit.length > 0) return explicit
+  return asStringArray(workflow?.frontmatter?.phases).filter(
+    (phaseId) =>
+      CONDITIONAL_PHASE_IDS.has(phaseId) || !REQUIRED_PHASE_IDS.has(phaseId)
+  )
+}
+
+export function buildContextPlan(options: ContextPlanOptions): ContextPlan {
   const projectRoot = path.resolve(options.projectRoot ?? process.cwd())
   const inputPath = normalizedInputPath(projectRoot, options.inputPath)
   const mode = normalizeContextMode(options.mode)
   const documents = loadHarnessDocuments(projectRoot)
   const documentsById = byId(documents)
   const documentsByPath = byPath(documents)
-  const required = new Map<string, { document: HarnessDocument; reasons: Set<string> }>()
-  const optional = new Map<string, { document: HarnessDocument; reasons: Set<string> }>()
+  const required = new Map<
+    string,
+    { document: HarnessDocument; reasons: Set<string> }
+  >()
+  const optional = new Map<
+    string,
+    { document: HarnessDocument; reasons: Set<string> }
+  >()
   const skipped: SkippedContextDocument[] = []
   const diagnostics: Diagnostic[] = []
 
@@ -222,13 +355,26 @@ export function buildContextPreview(options: ContextPreviewOptions): ContextPrev
       })
       continue
     }
-    addSelected(required, role, index === 0 ? 'requested primary role' : 'requested supporting role')
+    addSelected(
+      required,
+      role,
+      index === 0 ? 'requested primary role' : 'requested supporting role'
+    )
   }
 
   addSelected(required, documentsById.get('policy.repository'), 'repository policy')
 
-  for (const phaseId of asStringArray(workflow?.frontmatter?.phases)) {
-    addSelected(required, documentsById.get(phaseId), `workflow phase '${phaseId}'`)
+  for (const phaseId of requiredPhaseIds(workflow)) {
+    addSelected(required, documentsById.get(phaseId), `required workflow phase '${phaseId}'`)
+  }
+
+  for (const phaseId of conditionalPhaseIds(workflow)) {
+    addSkipped(
+      skipped,
+      documentsById.get(phaseId),
+      phaseId,
+      'conditional workflow phase is not loaded by default'
+    )
   }
 
   const tokens = relevantTokens(inputPath, options.intent)
@@ -236,75 +382,132 @@ export function buildContextPreview(options: ContextPreviewOptions): ContextPrev
   const roleSelectorTypes = new Set<string>()
   const roleSelectorPaths = new Set<string>()
 
-  for (const role of roles.filter((candidate): candidate is HarnessDocument => candidate !== undefined)) {
+  for (const role of roles.filter(
+    (candidate): candidate is HarnessDocument => candidate !== undefined
+  )) {
     for (const pinnedId of asStringArray(role.frontmatter?.pinned)) {
       addSelected(required, documentsById.get(pinnedId), `pinned by role '${idOf(role)}'`)
     }
 
     for (const reference of parseMarkdownListSection(role.body, 'Required knowledge')) {
-      addSelected(required, resolveReference(reference, documentsById, documentsByPath), `required by role '${idOf(role)}'`)
-    }
-
-    for (const reference of parseMarkdownListSection(role.body, 'Optional knowledge')) {
-      const resolved = resolveReference(reference, documentsById, documentsByPath)
-      if (resolved && !options.requiredOnly && documentMatchesTokens(resolved, tokens)) {
-        addSelected(optional, resolved, `optional role knowledge matched intent '${options.intent}'`)
-      } else if (resolved) {
-        skipped.push({ id: idOf(resolved), path: resolved.relativePath, reason: 'optional role knowledge did not match intent' })
-      } else {
-        skipped.push({ id: null, path: reference, reason: 'optional directory or unresolved reference was not expanded' })
-      }
+      addSelected(
+        required,
+        resolveReference(reference, documentsById, documentsByPath),
+        `required by role '${idOf(role)}'`
+      )
     }
 
     const selectors = recordOf(role.frontmatter?.selectors)
     for (const tag of asStringArray(selectors.tags)) roleSelectorTags.add(tag)
-    for (const type of asStringArray(selectors.knowledge_types)) roleSelectorTypes.add(type)
-    for (const selectorPath of asStringArray(selectors.paths)) roleSelectorPaths.add(selectorPath)
+    for (const type of asStringArray(selectors.knowledge_types))
+      roleSelectorTypes.add(type)
+    for (const selectorPath of asStringArray(selectors.paths))
+      roleSelectorPaths.add(selectorPath)
   }
 
-  const rolePathActive =
-    roleSelectorPaths.size === 0 || [...roleSelectorPaths].some((selectorPath) => matchesGlob(selectorPath, inputPath))
+  const rolePathActive = roleSelectorPathActive(roleSelectorPaths, inputPath)
 
-  for (const document of documents.filter((candidate) => candidate.frontmatter?.kind === 'knowledge')) {
+  for (const role of roles.filter(
+    (candidate): candidate is HarnessDocument => candidate !== undefined
+  )) {
+    for (const reference of parseMarkdownListSection(role.body, 'Optional knowledge')) {
+      const resolved = resolveReference(reference, documentsById, documentsByPath)
+      if (!resolved) {
+        addSkipped(
+          skipped,
+          undefined,
+          reference,
+          'optional directory or unresolved reference was not expanded'
+        )
+        continue
+      }
+
+      if (options.requiredOnly) {
+        addSkipped(skipped, resolved, resolved.relativePath, 'optional context suppressed by --required-only')
+        continue
+      }
+
+      const matchesSignals =
+        documentMatchesMetadataSignals(resolved, tokens) ||
+        (rolePathActive && roleSelectorTagsOverlap(resolved, roleSelectorTags)) ||
+        (rolePathActive &&
+          roleSelectorTypeMatches(resolved, roleSelectorTypes) &&
+          knowledgeScopeMatches(resolved, inputPath))
+
+      if (matchesSignals) {
+        addSelected(
+          optional,
+          resolved,
+          `optional role knowledge matched metadata signals for intent '${options.intent}'`
+        )
+      } else {
+        addSkipped(
+          skipped,
+          resolved,
+          resolved.relativePath,
+          'optional role knowledge did not match metadata signals'
+        )
+      }
+    }
+  }
+
+  for (const document of documents.filter(
+    (candidate) => candidate.frontmatter?.kind === 'knowledge'
+  )) {
     const knowledgeType = textOf(document.frontmatter?.knowledge_type)
-    const tags = asStringArray(document.frontmatter?.tags)
-    const isKnownProblemOrIncident = knowledgeType === 'known-problem' || knowledgeType === 'incident'
+    const isKnownProblemOrIncident =
+      knowledgeType === 'known-problem' || knowledgeType === 'incident'
 
-    if (rolePathActive && (knowledgeScopeMatches(document, inputPath) || productSpecMatchesPath(document, inputPath))) {
+    if (rolePathActive && knowledgeScopeMatches(document, inputPath)) {
       addSelected(required, document, `knowledge scope matched path '${inputPath}'`)
       continue
     }
 
     if (
       !options.requiredOnly &&
-      knowledgeType !== null &&
-      roleSelectorTypes.has(knowledgeType) &&
-      tags.some((tag) => roleSelectorTags.has(tag)) &&
-      documentMatchesTokens(document, tokens)
+      rolePathActive &&
+      roleSelectorTypeMatches(document, roleSelectorTypes) &&
+      roleSelectorTagsOverlap(document, roleSelectorTags) &&
+      documentMatchesMetadataSignals(document, tokens)
     ) {
-      addSelected(optional, document, 'role selectors matched tags, knowledge type, and intent')
+      addSelected(optional, document, 'role selectors matched tags, knowledge type, and metadata signals')
       continue
     }
 
-    if (!options.requiredOnly && isKnownProblemOrIncident && documentMatchesTokens(document, tokens)) {
-      addSelected(optional, document, 'known problem or incident matched intent')
+    if (
+      !options.requiredOnly &&
+      isKnownProblemOrIncident &&
+      documentMatchesMetadataSignals(document, tokens)
+    ) {
+      addSelected(optional, document, 'known problem or incident matched metadata signals')
       continue
     }
   }
 
-  for (const document of documents.filter((candidate) => candidate.relativePath.startsWith('harness/runs/completed/'))) {
-    skipped.push({ id: idOf(document), path: document.relativePath, reason: 'completed run history is skipped by default' })
+  const completedRunCount = documents.filter((candidate) =>
+    candidate.relativePath.startsWith('harness/runs/completed/')
+  ).length
+  if (completedRunCount > 0) {
+    skipped.push({
+      id: null,
+      path: 'harness/runs/completed/**',
+      reason: 'completed run history is skipped by default',
+      count: completedRunCount,
+    })
   }
 
   const requiredDocuments = [...required.values()]
-    .map(({ document, reasons }) => documentSummary(document, [...reasons].sort()))
+    .map(({ document, reasons }) => documentSummary(document, [...reasons].sort(), mode))
     .sort((left, right) => left.path.localeCompare(right.path))
   const optionalDocuments = [...optional.values()]
     .filter(({ document }) => !required.has(document.relativePath))
-    .map(({ document, reasons }) => documentSummary(document, [...reasons].sort()))
+    .map(({ document, reasons }) => documentSummary(document, [...reasons].sort(), mode))
     .sort((left, right) => left.path.localeCompare(right.path))
 
-  const tokensEstimate = [...requiredDocuments, ...optionalDocuments].reduce((sum, document) => sum + document.tokenEstimate, 0)
+  const tokensEstimate = [...requiredDocuments, ...optionalDocuments].reduce(
+    (sum, document) => sum + document.tokenEstimate,
+    0
+  )
   if (tokensEstimate > TOKEN_BUDGET) {
     diagnostics.push({
       code: 'CONTEXT_BUDGET_EXCEEDED',
@@ -312,6 +515,14 @@ export function buildContextPreview(options: ContextPreviewOptions): ContextPrev
       message: `Selected context estimate ${tokensEstimate} exceeds budget ${TOKEN_BUDGET}.`,
     })
   }
+
+  const commandArgs = [
+    `--workflow ${options.workflowId}`,
+    ...options.roleIds.map((roleId) => `--role ${roleId}`),
+    `--path ${inputPath}`,
+    `--intent ${JSON.stringify(options.intent)}`,
+    `--mode ${mode}`,
+  ].join(' ')
 
   return {
     workflowId: options.workflowId,
@@ -328,13 +539,7 @@ export function buildContextPreview(options: ContextPreviewOptions): ContextPrev
       limit: TOKEN_BUDGET,
       exceeded: tokensEstimate > TOKEN_BUDGET,
     },
-    nextCommand: [
-      'atelier run init',
-      `--workflow ${options.workflowId}`,
-      ...options.roleIds.map((roleId) => `--role ${roleId}`),
-      `--path ${inputPath}`,
-      `--intent ${JSON.stringify(options.intent)}`,
-      `--mode ${mode}`,
-    ].join(' '),
+    nextRenderCommand: `atelier context render ${commandArgs}`,
+    nextRunInitCommand: `atelier run init ${commandArgs}`,
   }
 }

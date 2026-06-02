@@ -163,6 +163,9 @@ function compileWorkflowIndex(documents: HarnessDocument[]) {
       ...docSummary(document),
       callable: booleanOf(document.frontmatter?.callable) ?? false,
       phases: asStringArray(document.frontmatter?.phases),
+      conditionalPhases: asStringArray(
+        document.frontmatter?.conditional_phases
+      ),
     }))
 }
 

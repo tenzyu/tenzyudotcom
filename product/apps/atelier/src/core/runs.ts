@@ -2,18 +2,18 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, writeFile
 import path from 'node:path'
 import { loadHarnessDocuments, sha256Text, toPosixPath } from './docs'
 import {
-  buildContextPreview,
+  buildContextPlan,
   normalizeContextMode,
   type ContextMode,
-  type ContextPreview,
-  type ContextPreviewOptions,
+  type ContextPlan,
+  type ContextPlanOptions,
   type SelectedContextDocument,
 } from './context'
 import { parseFrontmatter } from './frontmatter'
 import { runDoctor } from './doctor'
 import { asStringArray, type Diagnostic, type HarnessDocument } from './schema'
 
-export type RunInitOptions = ContextPreviewOptions & {
+export type RunInitOptions = ContextPlanOptions & {
   runId?: string
 }
 
@@ -23,7 +23,19 @@ export type RunInitResult = {
   manifestPath: string
   contextPath: string
   briefPath: string
-  preview: ContextPreview
+  plan: ContextPlan
+}
+
+export type ContextRenderOptions = ContextPlanOptions & {
+  runId?: string
+}
+
+export type ContextRenderResult = {
+  runId: string
+  runPath: string
+  context: string
+  manifest: ReturnType<typeof manifest>
+  plan: ContextPlan
 }
 
 export type RunCloseOptions = {
@@ -82,7 +94,7 @@ function slug(value: string) {
   return normalized || 'run'
 }
 
-function deterministicRunId(options: ContextPreviewOptions) {
+function deterministicRunId(options: ContextPlanOptions) {
   const digest = sha256Text([options.workflowId, ...options.roleIds, options.inputPath, options.intent].join('\0')).slice(0, 10)
   return `RUN-${slug(options.inputPath)}-${slug(options.intent)}-${digest}`
 }
@@ -355,29 +367,29 @@ function renderBrief(runId: string, options: RunInitOptions) {
   ].join('\n')
 }
 
-function renderLinkedContext(preview: ContextPreview) {
+function renderLinkedContext(plan: ContextPlan) {
   return [
     '## Required Context',
     '',
-    markdownList(preview.required.map((document) => `\`${document.path}\` - ${document.reasons.join('; ')}`)),
+    markdownList(plan.required.map((document) => `\`${document.path}\` - ${document.reasons.join('; ')}`)),
     '',
     '## Optional Context',
     '',
-    markdownList(preview.optional.map((document) => `\`${document.path}\` - ${document.reasons.join('; ')}`)),
+    markdownList(plan.optional.map((document) => `\`${document.path}\` - ${document.reasons.join('; ')}`)),
     '',
     '## Skipped Context',
     '',
-    markdownList(preview.skipped.slice(0, 80).map((document) => `\`${document.path}\` - ${document.reason}`)),
+    markdownList(plan.skipped.slice(0, 80).map((document) => `\`${document.path}\` - ${document.reason}`)),
   ].join('\n')
 }
 
-function renderContext(projectRoot: string, runId: string, runPath: string, preview: ContextPreview) {
+function renderContext(projectRoot: string, runId: string, runPath: string, plan: ContextPlan) {
   const documentsByPath = byDocumentPath(loadHarnessDocuments(projectRoot))
-  const mode = normalizeContextMode(preview.mode)
+  const mode = normalizeContextMode(plan.mode)
   const requiredContext =
     mode === 'linked'
-      ? renderLinkedContext(preview)
-      : preview.required
+      ? renderLinkedContext(plan)
+      : plan.required
           .map((selected) => renderCompiledDocument(selected, resolveSelectedDocument(selected, documentsByPath), mode))
           .join('\n\n')
 
@@ -388,7 +400,7 @@ function renderContext(projectRoot: string, runId: string, runPath: string, prev
     `id: run.active.${runId.toLowerCase()}.context`,
     `title: ${yamlString(`${runId} Context`)}`,
     'status: active',
-    `summary: ${yamlString(`Compiled context pack for ${preview.intent}`)}`,
+    `summary: ${yamlString(`Compiled context pack for ${plan.intent}`)}`,
     'tags:',
     '  - harness',
     '  - context',
@@ -405,17 +417,17 @@ function renderContext(projectRoot: string, runId: string, runPath: string, prev
     '',
     '## Run',
     '',
-    `- Workflow: \`${preview.workflowId}\``,
-    `- Roles: ${preview.roleIds.map((roleId) => `\`${roleId}\``).join(', ')}`,
-    `- Target path: \`${preview.inputPath}\``,
-    `- Intent: ${preview.intent}`,
+    `- Workflow: \`${plan.workflowId}\``,
+    `- Roles: ${plan.roleIds.map((roleId) => `\`${roleId}\``).join(', ')}`,
+    `- Target path: \`${plan.inputPath}\``,
+    `- Intent: ${plan.intent}`,
     `- Context mode: \`${mode}\``,
     '',
     '## Scope',
     '',
     'Allowed by default:',
     '',
-    markdownList([preview.inputPath, toPosixPath(path.relative(projectRoot, runPath))].map((allowed) => `\`${allowed}\``)),
+    markdownList([plan.inputPath, toPosixPath(path.relative(projectRoot, runPath))].map((allowed) => `\`${allowed}\``)),
     '',
     'Forbidden by default:',
     '',
@@ -434,11 +446,11 @@ function renderContext(projectRoot: string, runId: string, runPath: string, prev
     '',
     'Optional sources are not embedded by default. Expand only when their reason matches the concrete task.',
     '',
-    markdownList(preview.optional.map((document) => `\`${document.path}\` - ${document.reasons.join('; ')}`)),
+    markdownList(plan.optional.map((document) => `\`${document.path}\` - ${document.reasons.join('; ')}`)),
     '',
     'Skipped sources:',
     '',
-    markdownList(preview.skipped.slice(0, 80).map((document) => `\`${document.path}\` - ${document.reason}`)),
+    markdownList(plan.skipped.slice(0, 80).map((document) => `\`${document.path}\` - ${document.reason}`)),
     '',
     '## Investigation Steps',
     '',
@@ -456,7 +468,7 @@ function renderContext(projectRoot: string, runId: string, runPath: string, prev
     '',
     '## Verification',
     '',
-    markdownList(recommendedVerification(preview.inputPath).map((command) => `\`${command}\``)),
+    markdownList(recommendedVerification(plan.inputPath).map((command) => `\`${command}\``)),
     '',
     '## Required Artifacts',
     '',
@@ -469,7 +481,7 @@ function renderContext(projectRoot: string, runId: string, runPath: string, prev
     '',
     '## Diagnostics',
     '',
-    markdownList(preview.diagnostics.map((diagnostic) => `${diagnostic.severity.toUpperCase()} ${diagnostic.code}: ${diagnostic.message}`)),
+    markdownList(plan.diagnostics.map((diagnostic) => `${diagnostic.severity.toUpperCase()} ${diagnostic.code}: ${diagnostic.message}`)),
     '',
     '## Closing Command',
     '',
@@ -477,35 +489,55 @@ function renderContext(projectRoot: string, runId: string, runPath: string, prev
   ].join('\n')
 }
 
-function manifest(runId: string, preview: ContextPreview) {
+function manifest(runId: string, plan: ContextPlan) {
   return {
     runId,
-    workflowId: preview.workflowId,
-    roleIds: preview.roleIds,
-    inputPath: preview.inputPath,
-    intent: preview.intent,
-    contextMode: preview.mode,
-    selectedDocuments: [...preview.required, ...preview.optional].map((document) => ({
+    workflowId: plan.workflowId,
+    roleIds: plan.roleIds,
+    inputPath: plan.inputPath,
+    intent: plan.intent,
+    contextMode: plan.mode,
+    selectedDocuments: [...plan.required, ...plan.optional].map((document) => ({
       id: document.id,
       kind: document.kind,
       path: document.path,
       status: document.status,
       sha256: document.sha256,
       reasons: document.reasons,
-      required: preview.required.some((required) => required.path === document.path),
+      required: plan.required.some((required) => required.path === document.path),
     })),
     expandedDocuments: [],
-    skippedDocuments: preview.skipped,
-    diagnostics: preview.diagnostics,
+    skippedDocuments: plan.skipped,
+    diagnostics: plan.diagnostics,
     generatedAt: new Date().toISOString(),
-    budgetEstimate: preview.budgetEstimate,
+    budgetEstimate: plan.budgetEstimate,
+  }
+}
+
+export function renderContextForOptions(options: ContextRenderOptions): ContextRenderResult {
+  const projectRoot = path.resolve(options.projectRoot ?? process.cwd())
+  const plan = buildContextPlan(options)
+  const blockingDiagnostic = plan.diagnostics.find((diagnostic) => diagnostic.severity === 'error')
+  if (blockingDiagnostic) {
+    throw new Error(`${blockingDiagnostic.code}: ${blockingDiagnostic.message}`)
+  }
+
+  const runId = options.runId ?? deterministicRunId(options)
+  const runPath = path.join(projectRoot, 'harness/runs/active', runId)
+
+  return {
+    runId,
+    runPath,
+    context: renderContext(projectRoot, runId, runPath, plan),
+    manifest: manifest(runId, plan),
+    plan,
   }
 }
 
 export function initRun(options: RunInitOptions): RunInitResult {
   const projectRoot = path.resolve(options.projectRoot ?? process.cwd())
-  const preview = buildContextPreview(options)
-  const blockingDiagnostic = preview.diagnostics.find((diagnostic) => diagnostic.severity === 'error')
+  const plan = buildContextPlan(options)
+  const blockingDiagnostic = plan.diagnostics.find((diagnostic) => diagnostic.severity === 'error')
   if (blockingDiagnostic) {
     throw new Error(`${blockingDiagnostic.code}: ${blockingDiagnostic.message}`)
   }
@@ -523,8 +555,8 @@ export function initRun(options: RunInitOptions): RunInitResult {
   const manifestPath = path.join(runPath, 'context.manifest.json')
 
   writeFileSync(briefPath, `${renderBrief(runId, options)}\n`)
-  writeFileSync(contextPath, `${renderContext(projectRoot, runId, runPath, preview)}\n`)
-  writeFileSync(manifestPath, `${JSON.stringify(manifest(runId, preview), null, 2)}\n`)
+  writeFileSync(contextPath, `${renderContext(projectRoot, runId, runPath, plan)}\n`)
+  writeFileSync(manifestPath, `${JSON.stringify(manifest(runId, plan), null, 2)}\n`)
 
   return {
     runId,
@@ -532,7 +564,7 @@ export function initRun(options: RunInitOptions): RunInitResult {
     manifestPath,
     contextPath,
     briefPath,
-    preview,
+    plan,
   }
 }
 

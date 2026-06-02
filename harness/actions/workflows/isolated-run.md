@@ -21,6 +21,18 @@ phases:
   - phase.handoff
   - phase.knowledge-promotion
   - phase.adr-distillation
+required_phases:
+  - phase.intake
+  - phase.investigation
+  - phase.implementation
+  - phase.verification
+  - phase.handoff
+conditional_phases:
+  - phase.worktree-isolation
+  - phase.planning
+  - phase.review
+  - phase.knowledge-promotion
+  - phase.adr-distillation
 ---
 
 # Workflow: Isolated Run
