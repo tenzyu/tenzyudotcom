@@ -144,6 +144,44 @@ describe('MCP server', () => {
       expect(payload.workflowId).toBe('workflow.isolated-run')
       expect(payload.roleIds).toEqual(['role.domain.harness-engineer'])
       expect(payload.required.length).toBeGreaterThan(0)
+      expect(payload.semantic).toBeDefined()
+      expect(payload.semantic.enabled).toBe(false)
+    } finally {
+      await transport.close()
+    }
+  })
+
+  test('atelier_context_plan returns semantic hits when semantic=true', async () => {
+    writeMarkdown('harness/knowledge/decisions/inspect-harness.md', [
+      '---',
+      'schema: harness/v1',
+      'kind: knowledge',
+      'knowledge_type: decision',
+      'id: knowledge.decision.inspect-harness',
+      'title: Inspect Harness Decision',
+      'status: active',
+      'tags: [harness]',
+      'summary: Inspect-harness routing decision for the harness engineer role.',
+      '---',
+      '# Inspect Harness Decision',
+    ])
+    const { client, transport } = await bootClient()
+    try {
+      const result = await client.callTool({
+        name: 'atelier_context_plan',
+        arguments: {
+          workflowId: 'workflow.isolated-run',
+          roleIds: ['role.domain.harness-engineer'],
+          inputPath: 'product/apps/atelier',
+          intent: 'inspect harness',
+          semantic: true,
+        },
+      })
+      const text = (result.content as Array<{ type: string; text: string }>)[0]?.text ?? '{}'
+      const payload = JSON.parse(text)
+      expect(payload.semantic.enabled).toBe(true)
+      const ids = (payload.semantic.hits ?? []).map((hit: { id: string }) => hit.id)
+      expect(ids).toContain('knowledge.decision.inspect-harness')
     } finally {
       await transport.close()
     }
@@ -241,6 +279,27 @@ describe('MCP server', () => {
       const payload = JSON.parse(text)
       expect(payload.path).toBe('product/apps/atelier/src')
       expect(payload.ownerRole).toBe('role.domain.harness-engineer')
+    } finally {
+      await transport.close()
+    }
+  })
+
+  test('atelier_index writes repo-map.json and path-ownership.json', async () => {
+    const { client, transport } = await bootClient(['--allow-mutations'])
+    try {
+      const result = await client.callTool({
+        name: 'atelier_index',
+        arguments: { write: true, confirm: true },
+      })
+      expect(result.isError).toBeFalsy()
+      const text = (result.content as Array<{ type: string; text: string }>)[0]?.text ?? '{}'
+      const payload = JSON.parse(text)
+      expect(payload.staleFiles).toBeDefined()
+      const writtenFiles = (payload.staleFiles as string[]).concat(
+        Object.keys(payload.files ?? {}),
+      )
+      expect(writtenFiles).toContain('repo-map.json')
+      expect(writtenFiles).toContain('path-ownership.json')
     } finally {
       await transport.close()
     }

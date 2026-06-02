@@ -94,6 +94,14 @@
       },
       "cache": false
     },
+    "repo-map": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/atelier",
+        "command": "bun run ./src/cli.ts repo map --project-root ../../.."
+      },
+      "cache": false
+    },
     "mcp": {
       "executor": "nx:run-commands",
       "options": {

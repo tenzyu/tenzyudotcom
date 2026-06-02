@@ -1,6 +1,11 @@
 import path from 'node:path'
 import { loadHarnessDocuments, toPosixPath } from './docs'
 import { asStringArray, type Diagnostic, type HarnessDocument } from './schema'
+import {
+  buildSemanticQuery,
+  runSemanticExpansion,
+  type SemanticHit,
+} from './semantic'
 
 export type ContextPlanOptions = {
   projectRoot?: string
@@ -10,6 +15,8 @@ export type ContextPlanOptions = {
   intent: string
   requiredOnly?: boolean
   mode?: ContextMode
+  semantic?: boolean
+  semanticMaxResults?: number
 }
 
 export type ContextMode = 'compact' | 'full' | 'linked'
@@ -48,6 +55,11 @@ export type ContextPlan = {
     exceeded: boolean
   }
   nextRenderCommand: string
+  semantic: {
+    enabled: boolean
+    hits: SemanticHit[]
+    unknownTerms: string[]
+  }
   nextRunInitCommand: string
 }
 
@@ -524,6 +536,15 @@ export function buildContextPlan(options: ContextPlanOptions): ContextPlan {
     `--mode ${mode}`,
   ].join(' ')
 
+  const semantic = runSemanticExpansion(
+    {
+      projectRoot,
+      enabled: options.semantic === true,
+      maxResults: options.semanticMaxResults,
+    },
+    buildSemanticQuery(options.intent, inputPath),
+  )
+
   return {
     workflowId: options.workflowId,
     roleIds: options.roleIds,
@@ -541,5 +562,10 @@ export function buildContextPlan(options: ContextPlanOptions): ContextPlan {
     },
     nextRenderCommand: `atelier context render ${commandArgs}`,
     nextRunInitCommand: `atelier run init ${commandArgs}`,
+    semantic: {
+      enabled: semantic.enabled,
+      hits: semantic.hits,
+      unknownTerms: semantic.unknownTerms,
+    },
   }
 }

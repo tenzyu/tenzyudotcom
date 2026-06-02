@@ -196,6 +196,31 @@ describe('Atelier M2-M4', () => {
     expect(plan.diagnostics).toEqual([])
   })
 
+  test('semantic expansion is disabled by default and stays optional', () => {
+    const withoutSemantic = buildContextPlan({
+      projectRoot: tmpRoot,
+      workflowId: 'workflow.example',
+      roleIds: ['role.domain.example'],
+      inputPath: 'product/apps/example',
+      intent: 'fix auth behavior',
+    })
+    const withSemantic = buildContextPlan({
+      projectRoot: tmpRoot,
+      workflowId: 'workflow.example',
+      roleIds: ['role.domain.example'],
+      inputPath: 'product/apps/example',
+      intent: 'fix auth behavior',
+      semantic: true,
+    })
+
+    expect(withoutSemantic.semantic.enabled).toBe(false)
+    expect(withoutSemantic.semantic.hits).toEqual([])
+    expect(withoutSemantic.required.map((d) => d.path)).toEqual(
+      withSemantic.required.map((d) => d.path),
+    )
+    expect(withSemantic.semantic.enabled).toBe(true)
+  })
+
   test('supports linked context plan mode', () => {
     const plan = buildContextPlan({
       projectRoot: tmpRoot,

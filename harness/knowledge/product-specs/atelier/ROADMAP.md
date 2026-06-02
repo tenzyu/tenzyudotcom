@@ -714,6 +714,8 @@ atelier repo owner --path product/apps/web/src/app/page.tsx
 - Generated facts are not manually edited.
 - Human-facing `harness/knowledge/repo-map.md` remains short.
 
+**Status (2026-06-02): shipped.** `src/core/repo-map.ts` produces `RepoMap` (workspace markers, projects, files, ownership hints, warnings) and `PathOwnership` (sorted lookup of project roots → owning role). Both are written to `.harness/generated/repo-map.json` and `.harness/generated/path-ownership.json` by `atelier index` and consumed by `repoOwner` (`src/core/owner.ts`) for fast path resolution. Manual ownership from `harness/knowledge/repo-map.md` is parsed and merged as `harness-repo-map` hints. New CLI: `atelier repo map`. New Nx target: `bun nx run atelier:repo-map`. New GUI endpoints: `GET /api/repo-map`, `GET /api/path-ownership`. Coverage: `src/__tests__/repo-map.test.ts` (6 tests), plus 2 GUI tests and 1 MCP test for the new outputs.
+
 ## M12: Optional Semantic Expansion
 
 ### Goal
@@ -740,6 +742,8 @@ Add recall support without replacing deterministic routing.
 - Required context remains deterministic.
 - Semantic results are labeled optional.
 - Context plan remains reproducible with semantic expansion disabled.
+
+**Status (2026-06-02): shipped.** `src/core/semantic.ts` provides a deterministic TF-style recall (no embeddings, no external deps) with optional flag. Functions: `runSemanticExpansion`, `buildSemanticQuery`, `findDuplicateKnowledgeCandidates`. Wired into `buildContextPlan` as the `plan.semantic` field (`{ enabled, hits, unknownTerms }`) — never affects `required`. The `atelier_context_plan` MCP tool gained `semantic: bool` and `semanticMaxResults` arguments. `duplicateCandidatesWithSemantic` is exported from `core/knowledge.ts` for future promotion-time duplicate detection. Coverage: `src/__tests__/semantic.test.ts` (6 tests) plus 1 MCP test for the wired `semantic` flag.
 
 ## Suggested Implementation Order
 

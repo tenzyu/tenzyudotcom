@@ -6,6 +6,7 @@ import { generateGeneratedFiles } from './generate'
 import { compileIndexes } from './indexer'
 import { listKnowledgeProposals, promoteKnowledgeProposal, proposeKnowledge, rejectKnowledgeProposal } from './knowledge'
 import { repoOwner } from './owner'
+import { compilePathOwnership, compileRepoMap } from './repo-map'
 import { renameId } from './rename'
 import { closeRun, initRun, runStatus } from './runs'
 
@@ -325,6 +326,15 @@ export function handleGuiRequest(
     const target = params.get('path')
     if (!target) return errorResponse(400, 'BAD_REQUEST', 'path query parameter is required.')
     return jsonResponse(repoOwner(target, projectRoot))
+  }
+
+  if (route.method === 'GET' && route.pathname === '/api/repo-map') {
+    return jsonResponse(compileRepoMap(projectRoot))
+  }
+
+  if (route.method === 'GET' && route.pathname === '/api/path-ownership') {
+    const repoMap = compileRepoMap(projectRoot)
+    return jsonResponse(compilePathOwnership(projectRoot, repoMap))
   }
 
   if (route.method === 'POST' && route.pathname === '/api/generate') {

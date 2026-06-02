@@ -187,6 +187,21 @@ describe('GUI HTTP API', () => {
     expect(response.json?.ownerRole).toBe('role.domain.harness-engineer')
   })
 
+  test('GET /api/repo-map returns the generated repo map', async () => {
+    server = startGuiServer({ projectRoot: PROJECT_ROOT, allowMutations: false, host: '127.0.0.1', port: 0 })
+    const response = await fetchFromServer(server, '/api/repo-map')
+    expect(response.status).toBe(200)
+    expect(Array.isArray(response.json?.projects)).toBe(true)
+    expect(Array.isArray(response.json?.ownershipHints)).toBe(true)
+  })
+
+  test('GET /api/path-ownership returns the generated ownership index', async () => {
+    server = startGuiServer({ projectRoot: PROJECT_ROOT, allowMutations: false, host: '127.0.0.1', port: 0 })
+    const response = await fetchFromServer(server, '/api/path-ownership')
+    expect(response.status).toBe(200)
+    expect(Array.isArray(response.json?.entries)).toBe(true)
+  })
+
   test('GET /api/knowledge lists proposals', async () => {
     server = startGuiServer({ projectRoot: PROJECT_ROOT, allowMutations: true, host: '127.0.0.1', port: 0 })
     const init = await fetchFromServer(server, '/api/runs/init', {

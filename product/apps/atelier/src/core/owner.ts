@@ -1,9 +1,13 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import path from 'node:path'
 import { loadHarnessDocuments, toPosixPath } from './docs'
+import {
+  lookupOwnership,
+  type PathOwnership,
+} from './repo-map'
 import { asStringArray as toStringArray, type HarnessDocument } from './schema'
 
-export type RepoOwnerSource = 'nx-project' | 'role-selector' | 'unknown'
+export type RepoOwnerSource = 'nx-project' | 'role-selector' | 'harness-repo-map' | 'unknown'
 
 export type RepoOwnerResult = {
   path: string
@@ -164,6 +168,25 @@ export function listNxProjects(projectRoot: string): NxProject[] {
 
 export function repoOwner(targetPath: string, projectRoot: string): RepoOwnerResult {
   const cleanTarget = toPosixPath(targetPath).replace(/^\.\//, '').replace(/\/$/, '')
+  const cached = loadPathOwnershipCache(projectRoot)
+  if (cached) {
+    const hit = lookupOwnership(cached, cleanTarget)
+    if (hit) {
+      const notes: string[] = []
+      if (hit.project) notes.push(`Matched Nx project '${hit.project}' at ${hit.path} (from generated path-ownership.json).`)
+      if (hit.ownerRole) notes.push(`Matched role '${hit.ownerRole}' via generated path-ownership.json.`)
+      if (!notes.length) notes.push(`Resolved via generated path-ownership.json (source: ${hit.source}).`)
+      return {
+        path: cleanTarget,
+        project: hit.project,
+        ownerRole: hit.ownerRole,
+        ownerRolePath: hit.ownerRolePath,
+        source: hit.source,
+        notes,
+      }
+    }
+  }
+
   const projects = loadNxProjects(projectRoot)
   const project = projectForPath(cleanTarget, projects)
   const roles = roleOwners(loadHarnessDocuments(projectRoot))
@@ -180,6 +203,7 @@ export function repoOwner(targetPath: string, projectRoot: string): RepoOwnerRes
         'No Nx project matched the path.',
         'No role selector matched the path.',
         'Add `selectors.paths` to the relevant role or declare a `project.json` so future queries can resolve it.',
+        'Run `bun nx run atelier:index` to refresh .harness/generated/path-ownership.json.',
       ],
     }
   }
@@ -195,6 +219,16 @@ export function repoOwner(targetPath: string, projectRoot: string): RepoOwnerRes
     ownerRolePath: role?.path ?? null,
     source: project ? 'nx-project' : 'role-selector',
     notes,
+  }
+}
+
+function loadPathOwnershipCache(projectRoot: string): PathOwnership | null {
+  const target = path.join(projectRoot, '.harness/generated/path-ownership.json')
+  if (!existsSync(target)) return null
+  try {
+    return JSON.parse(readFileSync(target, 'utf-8')) as PathOwnership
+  } catch {
+    return null
   }
 }
 

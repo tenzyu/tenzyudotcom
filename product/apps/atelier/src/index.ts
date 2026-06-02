@@ -16,6 +16,7 @@ export {
   promoteKnowledgeProposal,
   proposeKnowledge,
   rejectKnowledgeProposal,
+  duplicateCandidatesWithSemantic,
   type KnowledgePromotionOptions,
   type KnowledgePromotionResult,
   type KnowledgeProposalOptions,
@@ -26,6 +27,28 @@ export {
 } from './core/knowledge'
 export { MCP_TOOL_NAMES, buildMcpServer, runMcpServer, type McpServerOptions } from './core/mcp'
 export { listNxProjects, repoOwner, type NxProject, type RepoOwnerResult, type RepoOwnerSource } from './core/owner'
+export {
+  compilePathOwnership,
+  compileRepoMap,
+  lookupOwnership,
+  type OwnershipHint,
+  type PathOwnership,
+  type PathOwnershipEntry,
+  type RepoFile,
+  type RepoFileKind,
+  type RepoMap,
+  type RepoProject,
+} from './core/repo-map'
+export {
+  buildSemanticQuery,
+  findDuplicateKnowledgeCandidates,
+  runSemanticExpansion,
+  type SemanticHit,
+  type SemanticOptions,
+  type SemanticQuery,
+  type SemanticResult,
+  type SemanticSource,
+} from './core/semantic'
 export {
   renameId,
   type IdRenameChange,

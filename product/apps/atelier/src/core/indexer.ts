@@ -2,6 +2,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { loadHarnessDocuments } from './docs'
 import { runDoctor } from './doctor'
+import { compilePathOwnership, compileRepoMap } from './repo-map'
 import {
   asStringArray,
   type DoctorSummary,
@@ -15,6 +16,8 @@ export type GeneratedFileName =
   | 'workflow-index.json'
   | 'role-bundles.json'
   | 'diagnostics.json'
+  | 'repo-map.json'
+  | 'path-ownership.json'
 
 export type IndexOptions = {
   projectRoot?: string
@@ -228,6 +231,8 @@ export function compileIndexes(options: IndexOptions = {}): IndexResult {
   const generatedRoot = path.join(projectRoot, '.harness/generated')
   const documents = loadHarnessDocuments(projectRoot)
   const doctorReport = runDoctor({ projectRoot })
+  const repoMap = compileRepoMap(projectRoot)
+  const pathOwnership = compilePathOwnership(projectRoot, repoMap)
 
   const files: Record<GeneratedFileName, string> = {
     'docs.json': stringify(compileDocs(documents)),
@@ -236,6 +241,8 @@ export function compileIndexes(options: IndexOptions = {}): IndexResult {
     'workflow-index.json': stringify(compileWorkflowIndex(documents)),
     'role-bundles.json': stringify(compileRoleBundles(documents)),
     'diagnostics.json': stringify(doctorReport),
+    'repo-map.json': stringify(repoMap),
+    'path-ownership.json': stringify(pathOwnership),
   }
 
   const staleFiles = (Object.entries(files) as [GeneratedFileName, string][])

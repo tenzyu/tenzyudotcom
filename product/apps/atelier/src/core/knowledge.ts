@@ -211,6 +211,51 @@ function duplicateCandidates(documents: HarnessDocument[], proposal: ProposalDat
     .map((document) => document.relativePath)
 }
 
+export function duplicateCandidatesWithSemantic(options: {
+  documents: HarnessDocument[]
+  proposal: ProposalData
+  projectRoot: string
+  enabled: boolean
+}): { paths: string[]; semanticHits: Array<{ id: string; path: string; score: number }> } {
+  const paths = duplicateCandidates(options.documents, options.proposal)
+  if (!options.enabled) return { paths, semanticHits: [] }
+  const proposalText = [
+    options.proposal.title,
+    options.proposal.evidence ?? '',
+    options.proposal.whyRecur ?? '',
+    options.proposal.whyNotCovered ?? '',
+    options.proposal.tags.join(' '),
+  ]
+    .join(' ')
+    .toLowerCase()
+  const tokens = new Set(
+    proposalText
+      .replace(/[^a-z0-9_\-\s/.]/g, ' ')
+      .split(/\s+/)
+      .map((token) => token.replace(/^[/.-]+|[/.-]+$/g, ''))
+      .filter((token) => token.length >= 4),
+  )
+  if (tokens.size === 0) return { paths, semanticHits: [] }
+
+  const candidates: Array<{ id: string; path: string; score: number }> = []
+  for (const document of options.documents) {
+    if (document.frontmatter?.kind !== 'knowledge') continue
+    const id = textOf(document.frontmatter?.id)
+    if (!id) continue
+    const body = document.body
+    if (!body) continue
+    let score = 0
+    for (const token of tokens) {
+      if (body.toLowerCase().includes(token)) score += 1
+    }
+    if (score >= 3) {
+      candidates.push({ id, path: document.relativePath, score })
+    }
+  }
+  candidates.sort((left, right) => right.score - left.score)
+  return { paths, semanticHits: candidates.slice(0, 5) }
+}
+
 function destinationFor(projectRoot: string, knowledgeType: string, title: string) {
   const base = slug(title)
   const type = slug(knowledgeType)

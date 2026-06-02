@@ -40,13 +40,14 @@ function usage() {
     'Usage:',
     '  atelier doctor [--json] [--fix] [--project-root <path>]',
     '  atelier index [--check] [--project-root <path>]',
-    '  atelier context plan --workflow <id> --role <id> [--role <id>] --path <path> --intent <text> [--mode compact|full|linked] [--required-only] [--json]',
+    '  atelier context plan --workflow <id> --role <id> [--role <id>] --path <path> --intent <text> [--mode compact|full|linked] [--required-only] [--semantic] [--semantic-max-results <n>] [--json]',
     '  atelier context render --workflow <id> --role <id> [--role <id>] --path <path> --intent <text> [--mode compact|full|linked] [--id <run-id>] [--json]',
     '  atelier context expand RUN-ID DOC-ID-OR-PATH [--json]',
     '  atelier run init --workflow <id> --role <id> [--role <id>] --path <path> --intent <text> [--mode compact|full|linked] [--id <run-id>] [--json]',
     '  atelier run status RUN-ID [--json]',
     '  atelier run close RUN-ID [--json]',
     '  atelier repo owner --path <path> [--json]',
+    '  atelier repo map [--json]',
     '  atelier knowledge propose --from-run RUN-ID --kind <type> --title <title> [--tag <tag>] [--evidence <text>] [--why-recur <text>] [--why-not-covered <text>] [--json]',
     '  atelier knowledge promote PROPOSAL_PATH [--json]',
     '  atelier knowledge reject PROPOSAL_PATH [--reason <text>] [--json]',
@@ -219,6 +220,23 @@ function printContextPlan(plan: ContextPlan) {
     console.log(
       `- ${diagnostic.severity.toUpperCase()} ${diagnostic.code}: ${diagnostic.message}`
     )
+  }
+
+  console.log('\nSemantic Recall (optional)')
+  console.log(`Enabled: ${plan.semantic.enabled}`)
+  if (!plan.semantic.enabled) {
+    console.log('Pass --semantic to enable.')
+  } else {
+    if (plan.semantic.hits.length === 0) console.log('- No semantic hits.')
+    for (const hit of plan.semantic.hits) {
+      console.log(
+        `- ${hit.path} (score=${hit.score}, source=${hit.source}, matched=${hit.matchedTerms.join(',') || '∅'})`
+      )
+      console.log(`    ${hit.reason}`)
+    }
+    if (plan.semantic.unknownTerms.length > 0) {
+      console.log(`Unknown terms: ${plan.semantic.unknownTerms.join(', ')}`)
+    }
   }
 
   console.log('\nNext Render Command')
@@ -436,6 +454,15 @@ export async function runCli(argv: readonly string[]) {
     const roles = readRepeatedOption(base.remaining, '--role')
     if (roles.length === 0)
       throw new Error('--role requires at least one value')
+    const semanticMaxResultsRaw = readOptionalOption(base.remaining, '--semantic-max-results')
+    const semanticMaxResults = semanticMaxResultsRaw === undefined ? undefined : Number(semanticMaxResultsRaw)
+    if (
+      semanticMaxResultsRaw !== undefined &&
+      (!Number.isFinite(semanticMaxResults) || (semanticMaxResults as number) < 1)
+    ) {
+      throw new Error('--semantic-max-results must be a positive integer')
+    }
+    const semantic = base.remaining.includes('--semantic')
     const plan = buildContextPlan({
       projectRoot: base.projectRoot,
       workflowId: readRequiredOption(base.remaining, '--workflow'),
@@ -444,6 +471,8 @@ export async function runCli(argv: readonly string[]) {
       intent: readRequiredOption(base.remaining, '--intent'),
       requiredOnly: base.remaining.includes('--required-only'),
       mode: normalizeContextMode(readOptionalOption(base.remaining, '--mode')),
+      semantic,
+      semanticMaxResults: semanticMaxResults as number | undefined,
     })
 
     if (base.json) {
@@ -630,6 +659,28 @@ export async function runCli(argv: readonly string[]) {
       }
     }
 
+    return 0
+  }
+
+  if (command === 'repo' && subcommand === 'map') {
+    const base = parseBase(restRaw)
+    const { compileRepoMap, compilePathOwnership } = await import('./core/repo-map')
+    const map = compileRepoMap(base.projectRoot)
+    const ownership = compilePathOwnership(base.projectRoot, map)
+    if (base.json) {
+      console.log(JSON.stringify({ repoMap: map, pathOwnership: ownership }, null, 2))
+    } else {
+      console.log('Atelier Repo Map')
+      console.log(`Workspace: packageManager=${map.workspace.packageManager ?? '?'} taskRunner=${map.workspace.taskRunner ?? '?'}`)
+      console.log(`Projects: ${map.projects.length}`)
+      for (const project of map.projects) {
+        console.log(
+          `  - ${project.relativeRoot} (${project.name}, ${project.type}, ${project.files} files, ${project.languages.join(',') || 'no-detected-language'})`
+        )
+      }
+      console.log(`Files: ${map.files.length}`)
+      console.log(`Path ownership entries: ${ownership.entries.length}`)
+    }
     return 0
   }
 

@@ -135,6 +135,17 @@ export function buildMcpServer(options: McpServerOptions): McpServer {
           .boolean()
           .default(false)
           .describe('Skip optional context when true.'),
+        semantic: z
+          .boolean()
+          .default(false)
+          .describe('Enable optional semantic recall (TF-style) without affecting required context.'),
+        semanticMaxResults: z
+          .number()
+          .int()
+          .min(1)
+          .max(50)
+          .optional()
+          .describe('Maximum semantic hits to surface (default 10).'),
       },
     },
     async (args) => {
@@ -146,6 +157,9 @@ export function buildMcpServer(options: McpServerOptions): McpServer {
         intent: text(args.intent),
         mode: normalizeContextMode(text(args.mode) || 'compact'),
         requiredOnly: bool(args.requiredOnly),
+        semantic: bool(args.semantic),
+        semanticMaxResults:
+          typeof args.semanticMaxResults === 'number' ? args.semanticMaxResults : undefined,
       })
       const hasError = plan.diagnostics.some((d) => d.severity === 'error')
       return toJsonResult(plan, !hasError)
