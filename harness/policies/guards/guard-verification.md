@@ -2,12 +2,17 @@
 schema: harness/v1
 kind: policy
 id: policy.guard.verification
+title: Verification Guard
 status: active
-title: "Verification Guard"
+tags:
+  - verification
+  - test
+  - ci
 impact: CRITICAL
-impactDescription: デプロイ不可能なコードの混入を防ぎ、変更の正しさを客観的に証明する。
-tags: verification, test, ci
-chapter: Security & Safety
+x:
+  legacy:
+    impactDescription: デプロイ不可能なコードの混入を防ぎ、変更の正しさを客観的に証明する。
+    chapter: Security & Safety
 ---
 
 # Verification Guard

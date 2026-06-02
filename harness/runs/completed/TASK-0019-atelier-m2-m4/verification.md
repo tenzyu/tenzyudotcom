@@ -1,15 +1,3 @@
----
-schema: harness/v1
-kind: run
-id: run.active.task-0019-atelier-m2-m4.verification
-title: Atelier M2-M4 Verification
-status: active
-summary: Verification evidence for Atelier M2 through M4.
-tags:
-  - atelier
-  - verification
----
-
 # Verification: Atelier M2-M4
 
 ## Commands

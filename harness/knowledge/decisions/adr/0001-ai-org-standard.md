@@ -3,7 +3,7 @@ schema: harness/v1
 kind: knowledge
 knowledge_type: adr
 id: knowledge.decision.adr.ai-org-standard
-title: "ADR 0001: AI Organization Standard"
+title: 'ADR 0001: AI Organization Standard'
 status: active
 summary: Establishes harness as the canonical Markdown-based AI organization layer.
 tags:

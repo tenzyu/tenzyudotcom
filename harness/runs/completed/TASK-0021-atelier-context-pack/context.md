@@ -1,15 +1,3 @@
----
-schema: harness/v1
-kind: run
-id: run.active.task-0021-atelier-context-pack.context
-title: "TASK-0021-atelier-context-pack Context"
-status: active
-summary: "Context manifest for implement compiled context pack modes and expansion logging for Atelier"
-tags:
-  - harness
-  - context
----
-
 # Context: TASK-0021-atelier-context-pack
 
 ## Assignment

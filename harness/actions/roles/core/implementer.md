@@ -4,12 +4,12 @@ kind: role
 id: role.core.implementer
 title: Implementer
 status: active
-role_type: core
 summary: Make source or documentation changes inside approved scope.
 tags:
   - harness
   - role
   - implementation
+role_type: core
 selectors:
   tags:
     - implementation

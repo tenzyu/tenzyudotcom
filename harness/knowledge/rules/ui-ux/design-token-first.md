@@ -3,12 +3,17 @@ schema: harness/v1
 kind: knowledge
 knowledge_type: rule
 id: knowledge.rule.ui-ux.token-first
+title: Token-first Styling
 status: active
-title: "Token-first Styling"
+tags:
+  - design
+  - css
+  - tailwind
 impact: HIGH
-impactDescription: デザインの一貫性を保ち、マジックナンバーによる保守性の低下を防ぐ。
-tags: design, css, tailwind
-chapter: UI & UX
+x:
+  legacy:
+    impactDescription: デザインの一貫性を保ち、マジックナンバーによる保守性の低下を防ぐ。
+    chapter: UI & UX
 ---
 
 # Token-first Styling

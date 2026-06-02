@@ -1,7 +1,11 @@
 #!/usr/bin/env bun
 
 import path from 'node:path'
-import { buildContextPreview, normalizeContextMode, type ContextPreview } from './core/context'
+import {
+  buildContextPreview,
+  normalizeContextMode,
+  type ContextPreview,
+} from './core/context'
 import { runDoctor } from './core/doctor'
 import { compileIndexes, type IndexResult } from './core/indexer'
 import {
@@ -10,7 +14,13 @@ import {
   rejectKnowledgeProposal,
   type KnowledgePromotionResult,
 } from './core/knowledge'
-import { closeRun, expandRunContext, initRun, type ContextExpandResult, type RunCloseResult } from './core/runs'
+import {
+  closeRun,
+  expandRunContext,
+  initRun,
+  type ContextExpandResult,
+  type RunCloseResult,
+} from './core/runs'
 import type { Diagnostic, DoctorReport } from './core/schema'
 
 type BaseOptions = {
@@ -40,7 +50,9 @@ function usage() {
   ].join('\n')
 }
 
-function parseBase(rest: readonly string[]): BaseOptions & { remaining: string[] } {
+function parseBase(
+  rest: readonly string[]
+): BaseOptions & { remaining: string[] } {
   let projectRoot = path.resolve(process.cwd())
   let json = false
   const remaining: string[] = []
@@ -109,11 +121,13 @@ function printHumanReport(report: DoctorReport, fix: boolean) {
   console.log('Atelier Doctor')
   console.log(`Documents: ${report.summary.documentCount}`)
   console.log(
-    `Diagnostics: ${report.summary.errorCount} errors, ${report.summary.warningCount} warnings, ${report.summary.infoCount} info`,
+    `Diagnostics: ${report.summary.errorCount} errors, ${report.summary.warningCount} warnings, ${report.summary.infoCount} info`
   )
 
   if (fix) {
-    console.log('--fix requested: no safe automatic fixes are implemented in this version.')
+    console.log(
+      '--fix requested: no safe automatic fixes are implemented in this version.'
+    )
   }
 
   if (report.diagnostics.length === 0) {
@@ -129,12 +143,21 @@ function printHumanReport(report: DoctorReport, fix: boolean) {
 
 function printIndexReport(result: IndexResult, check: boolean) {
   console.log('Atelier Index')
-  console.log(`Generated root: ${path.relative(process.cwd(), result.generatedRoot)}`)
+  console.log(
+    `Generated root: ${path.relative(process.cwd(), result.generatedRoot)}`
+  )
   if (check) {
-    console.log(result.staleFiles.length === 0 ? 'Generated indexes are fresh.' : 'Generated indexes are stale.')
+    console.log(
+      result.staleFiles.length === 0
+        ? 'Generated indexes are fresh.'
+        : 'Generated indexes are stale.'
+    )
   } else {
     console.log('Generated indexes written.')
   }
+  console.log(
+    `Doctor diagnostics: ${result.diagnosticSummary.errorCount} errors, ${result.diagnosticSummary.warningCount} warnings, ${result.diagnosticSummary.infoCount} info`
+  )
   if (result.staleFiles.length > 0) {
     console.log(`Stale files: ${result.staleFiles.join(', ')}`)
   }
@@ -147,7 +170,9 @@ function printContextPreview(preview: ContextPreview) {
   console.log(`Path: ${preview.inputPath}`)
   console.log(`Intent: ${preview.intent}`)
   console.log(`Mode: ${preview.mode}`)
-  console.log(`Token Estimate: ${preview.budgetEstimate.tokens}/${preview.budgetEstimate.limit}`)
+  console.log(
+    `Token Estimate: ${preview.budgetEstimate.tokens}/${preview.budgetEstimate.limit}`
+  )
 
   console.log('\nRequired Context')
   for (const document of preview.required) {
@@ -172,7 +197,9 @@ function printContextPreview(preview: ContextPreview) {
   console.log('\nDiagnostics')
   if (preview.diagnostics.length === 0) console.log('- None')
   for (const diagnostic of preview.diagnostics) {
-    console.log(`- ${diagnostic.severity.toUpperCase()} ${diagnostic.code}: ${diagnostic.message}`)
+    console.log(
+      `- ${diagnostic.severity.toUpperCase()} ${diagnostic.code}: ${diagnostic.message}`
+    )
   }
 
   console.log('\nNext Command')
@@ -182,7 +209,9 @@ function printContextPreview(preview: ContextPreview) {
 function printContextExpand(result: ContextExpandResult, projectRoot: string) {
   console.log('Atelier Context Expand')
   console.log(`Run: ${result.runId}`)
-  console.log(`Status: ${result.alreadyExpanded ? 'already expanded' : 'expanded'}`)
+  console.log(
+    `Status: ${result.alreadyExpanded ? 'already expanded' : 'expanded'}`
+  )
   console.log(`Document: ${result.expandedDocument.path}`)
   console.log(`Context: ${path.relative(projectRoot, result.contextPath)}`)
   console.log(`Manifest: ${path.relative(projectRoot, result.manifestPath)}`)
@@ -191,7 +220,9 @@ function printContextExpand(result: ContextExpandResult, projectRoot: string) {
 function printCloseReport(result: RunCloseResult, projectRoot: string) {
   console.log('Atelier Run Close')
   console.log(`Run: ${result.runId}`)
-  console.log(`Status: ${result.ok ? (result.alreadyClosed ? 'already closed' : 'closed') : 'blocked'}`)
+  console.log(
+    `Status: ${result.ok ? (result.alreadyClosed ? 'already closed' : 'closed') : 'blocked'}`
+  )
   console.log(`Non-trivial: ${result.nonTrivial ? 'yes' : 'no'}`)
   console.log(`Review required: ${result.reviewRequired ? 'yes' : 'no'}`)
   if (result.moved) {
@@ -205,15 +236,22 @@ function printCloseReport(result: RunCloseResult, projectRoot: string) {
   }
 }
 
-function printKnowledgePromotion(result: KnowledgePromotionResult, projectRoot: string) {
+function printKnowledgePromotion(
+  result: KnowledgePromotionResult,
+  projectRoot: string
+) {
   console.log('Atelier Knowledge Promote')
   console.log(`Status: ${result.ok ? 'promoted' : 'blocked'}`)
   if (result.promotedId) console.log(`ID: ${result.promotedId}`)
-  if (result.destinationPath) console.log(`Destination: ${path.relative(projectRoot, result.destinationPath)}`)
+  if (result.destinationPath)
+    console.log(
+      `Destination: ${path.relative(projectRoot, result.destinationPath)}`
+    )
 
   console.log('\nDuplicate Candidates')
   if (result.duplicateCandidates.length === 0) console.log('- None')
-  for (const candidate of result.duplicateCandidates) console.log(`- ${candidate}`)
+  for (const candidate of result.duplicateCandidates)
+    console.log(`- ${candidate}`)
 
   console.log('\nRole Bundle Impact')
   if (result.roleBundleImpact.length === 0) console.log('- None')
@@ -221,7 +259,8 @@ function printKnowledgePromotion(result: KnowledgePromotionResult, projectRoot: 
 
   console.log('\nDiagnostics')
   if (result.diagnostics.length === 0) console.log('- None')
-  for (const diagnostic of result.diagnostics) console.log(`- ${formatDiagnostic(diagnostic)}`)
+  for (const diagnostic of result.diagnostics)
+    console.log(`- ${formatDiagnostic(diagnostic)}`)
 }
 
 function hasErrorDiagnostic(diagnostics: readonly Diagnostic[]) {
@@ -237,7 +276,11 @@ export async function runCli(argv: readonly string[]) {
   }
 
   if (command === 'doctor') {
-    const base = parseBase([subcommand, ...restRaw].filter((value): value is string => value !== undefined))
+    const base = parseBase(
+      [subcommand, ...restRaw].filter(
+        (value): value is string => value !== undefined
+      )
+    )
     const fix = base.remaining.includes('--fix')
     const unknown = base.remaining.filter((arg) => arg !== '--fix')
     if (unknown.length > 0) throw new Error(`Unknown argument: ${unknown[0]}`)
@@ -254,14 +297,33 @@ export async function runCli(argv: readonly string[]) {
   }
 
   if (command === 'index') {
-    const base = parseBase([subcommand, ...restRaw].filter((value): value is string => value !== undefined))
+    const base = parseBase(
+      [subcommand, ...restRaw].filter(
+        (value): value is string => value !== undefined
+      )
+    )
     const check = base.remaining.includes('--check')
     const unknown = base.remaining.filter((arg) => arg !== '--check')
     if (unknown.length > 0) throw new Error(`Unknown argument: ${unknown[0]}`)
-    const result = compileIndexes({ projectRoot: base.projectRoot, check, write: !check })
+    const result = compileIndexes({
+      projectRoot: base.projectRoot,
+      check,
+      write: !check,
+    })
 
     if (base.json) {
-      console.log(JSON.stringify({ ok: result.ok, generatedRoot: result.generatedRoot, staleFiles: result.staleFiles }, null, 2))
+      console.log(
+        JSON.stringify(
+          {
+            ok: result.ok,
+            generatedRoot: result.generatedRoot,
+            staleFiles: result.staleFiles,
+            diagnosticSummary: result.diagnosticSummary,
+          },
+          null,
+          2
+        )
+      )
     } else {
       printIndexReport(result, check)
     }
@@ -272,7 +334,8 @@ export async function runCli(argv: readonly string[]) {
   if (command === 'context' && subcommand === 'preview') {
     const base = parseBase(restRaw)
     const roles = readRepeatedOption(base.remaining, '--role')
-    if (roles.length === 0) throw new Error('--role requires at least one value')
+    if (roles.length === 0)
+      throw new Error('--role requires at least one value')
     const preview = buildContextPreview({
       projectRoot: base.projectRoot,
       workflowId: readRequiredOption(base.remaining, '--workflow'),
@@ -296,8 +359,10 @@ export async function runCli(argv: readonly string[]) {
     const base = parseBase(restRaw)
     const runId = base.remaining[0]
     const reference = base.remaining[1]
-    if (!runId || !reference) throw new Error('context expand requires RUN-ID and DOC-ID-OR-PATH')
-    if (base.remaining.length > 2) throw new Error(`Unknown argument: ${base.remaining[2]}`)
+    if (!runId || !reference)
+      throw new Error('context expand requires RUN-ID and DOC-ID-OR-PATH')
+    if (base.remaining.length > 2)
+      throw new Error(`Unknown argument: ${base.remaining[2]}`)
 
     const result = expandRunContext({
       projectRoot: base.projectRoot,
@@ -317,7 +382,8 @@ export async function runCli(argv: readonly string[]) {
   if (command === 'run' && subcommand === 'init') {
     const base = parseBase(restRaw)
     const roles = readRepeatedOption(base.remaining, '--role')
-    if (roles.length === 0) throw new Error('--role requires at least one value')
+    if (roles.length === 0)
+      throw new Error('--role requires at least one value')
     const result = initRun({
       projectRoot: base.projectRoot,
       workflowId: readRequiredOption(base.remaining, '--workflow'),
@@ -340,15 +406,19 @@ export async function runCli(argv: readonly string[]) {
             diagnostics: result.preview.diagnostics,
           },
           null,
-          2,
-        ),
+          2
+        )
       )
     } else {
       console.log('Atelier Run Init')
       console.log(`Run: ${result.runId}`)
       console.log(`Path: ${path.relative(base.projectRoot, result.runPath)}`)
-      console.log(`Context: ${path.relative(base.projectRoot, result.contextPath)}`)
-      console.log(`Manifest: ${path.relative(base.projectRoot, result.manifestPath)}`)
+      console.log(
+        `Context: ${path.relative(base.projectRoot, result.contextPath)}`
+      )
+      console.log(
+        `Manifest: ${path.relative(base.projectRoot, result.manifestPath)}`
+      )
     }
 
     return 0
@@ -358,7 +428,8 @@ export async function runCli(argv: readonly string[]) {
     const base = parseBase(restRaw)
     const runId = base.remaining[0]
     if (!runId) throw new Error('run close requires RUN-ID')
-    if (base.remaining.length > 1) throw new Error(`Unknown argument: ${base.remaining[1]}`)
+    if (base.remaining.length > 1)
+      throw new Error(`Unknown argument: ${base.remaining[1]}`)
 
     const result = closeRun({
       projectRoot: base.projectRoot,
@@ -391,7 +462,9 @@ export async function runCli(argv: readonly string[]) {
       console.log(JSON.stringify(result, null, 2))
     } else {
       console.log('Atelier Knowledge Propose')
-      console.log(`Proposal: ${path.relative(base.projectRoot, result.proposalPath)}`)
+      console.log(
+        `Proposal: ${path.relative(base.projectRoot, result.proposalPath)}`
+      )
     }
 
     return 0
@@ -400,8 +473,10 @@ export async function runCli(argv: readonly string[]) {
   if (command === 'knowledge' && subcommand === 'promote') {
     const base = parseBase(restRaw)
     const proposalPath = base.remaining[0]
-    if (!proposalPath) throw new Error('knowledge promote requires PROPOSAL_PATH')
-    if (base.remaining.length > 1) throw new Error(`Unknown argument: ${base.remaining[1]}`)
+    if (!proposalPath)
+      throw new Error('knowledge promote requires PROPOSAL_PATH')
+    if (base.remaining.length > 1)
+      throw new Error(`Unknown argument: ${base.remaining[1]}`)
 
     const result = promoteKnowledgeProposal({
       projectRoot: base.projectRoot,
@@ -420,7 +495,8 @@ export async function runCli(argv: readonly string[]) {
   if (command === 'knowledge' && subcommand === 'reject') {
     const base = parseBase(restRaw)
     const proposalPath = base.remaining[0]
-    if (!proposalPath) throw new Error('knowledge reject requires PROPOSAL_PATH')
+    if (!proposalPath)
+      throw new Error('knowledge reject requires PROPOSAL_PATH')
     const reason = readOptionalOption(base.remaining, '--reason')
 
     const result = rejectKnowledgeProposal({
@@ -433,7 +509,9 @@ export async function runCli(argv: readonly string[]) {
       console.log(JSON.stringify(result, null, 2))
     } else {
       console.log('Atelier Knowledge Reject')
-      console.log(`Archived: ${path.relative(base.projectRoot, result.archivedPath)}`)
+      console.log(
+        `Archived: ${path.relative(base.projectRoot, result.archivedPath)}`
+      )
     }
 
     return 0

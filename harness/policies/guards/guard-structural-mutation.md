@@ -2,12 +2,17 @@
 schema: harness/v1
 kind: policy
 id: policy.guard.structural-mutation
+title: Structural & Mutation Guards
 status: active
-title: "Structural & Mutation Guards"
+tags:
+  - security
+  - safety
+  - execution
 impact: HIGH
-impactDescription: 破壊的な操作や意図しない変更を最小限に抑え、リポジトリの整合性を守る。
-tags: security, safety, execution
-chapter: Security & Safety
+x:
+  legacy:
+    impactDescription: 破壊的な操作や意図しない変更を最小限に抑え、リポジトリの整合性を守る。
+    chapter: Security & Safety
 ---
 
 # Structural & Mutation Guards

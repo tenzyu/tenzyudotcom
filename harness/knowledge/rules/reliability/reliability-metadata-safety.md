@@ -3,12 +3,18 @@ schema: harness/v1
 kind: knowledge
 knowledge_type: rule
 id: knowledge.rule.reliability.metadata-safety
+title: 'Reliability: Metadata & i18n Safety'
 status: active
-title: "Reliability: Metadata & i18n Safety"
+tags:
+  - reliability
+  - seo
+  - metadata
+  - i18n
 impact: HIGH
-impactDescription: 検索エンジンのインデックスや、各ロケールでの SEO 情報を確実に生成・反映させる。
-tags: reliability, seo, metadata, i18n
-chapter: Reliability
+x:
+  legacy:
+    impactDescription: 検索エンジンのインデックスや、各ロケールでの SEO 情報を確実に生成・反映させる。
+    chapter: Reliability
 ---
 
 # Reliability: Metadata & i18n Safety

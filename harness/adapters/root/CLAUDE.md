@@ -4,7 +4,7 @@ kind: adapter
 id: adapter.root.claude
 title: Root Claude Adapter
 status: active
-summary: Root Claude adapter that routes work to harness workflows, roles, and artifacts.
+summary: Root Claude adapter that routes work through Atelier before mutable work.
 tags:
   - harness
   - adapter
@@ -15,28 +15,38 @@ tags:
 
 Use `harness` as the canonical project memory and workflow system.
 
-Start with:
+For non-trivial work, do not manually discover harness context first. Use Atelier.
 
-- `harness/canon/model.md`
-- `harness/policies/repository.md`
-- `harness/actions/workflows/README.md`
-- `harness/actions/roles/README.md`
+## Required Start
 
-For non-trivial tasks, produce or update:
+```bash
+atelier run init --workflow isolated-run --intent "<request>"
+```
 
-- `brief.md`
-- `plan.md`, when needed
-- `worklog.md`
-- `verification.md`
-- `review.md`, when acting as reviewer
-- `handoff.md`
+Then read the generated `context.md` and follow its workflow, role, phase, and artifact instructions.
 
-Durable discoveries should be proposed as updates to:
+For small docs/config/reference repairs, use:
 
-- `harness/knowledge/decisions/`
-- `harness/knowledge/lessons/`
-- `harness/knowledge/component-notes/`
-- `harness/knowledge/repo-map.md`
-- assigned role files when knowledge routing changes
+```bash
+atelier run init --workflow direct-run --intent "<request>"
+```
+
+## Completion Gate
+
+Before claiming completion, run:
+
+```bash
+atelier run close <RUN-ID>
+```
 
 Do not treat tool-local memory as the repository source of truth.
+
+## Knowledge Updates
+
+Small direct edits to existing knowledge are allowed when the correction is narrow and obvious. New durable knowledge or non-trivial routing changes should be proposed through Atelier:
+
+```bash
+atelier knowledge propose --from-run <RUN-ID>
+```
+
+Stable knowledge should not be copied from raw logs without proposal, evidence, and review.

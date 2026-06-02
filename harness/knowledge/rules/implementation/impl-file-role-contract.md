@@ -3,12 +3,17 @@ schema: harness/v1
 kind: knowledge
 knowledge_type: rule
 id: knowledge.rule.implementation.file-role-contract
-status: active
 title: File Role Contract
+status: active
+tags:
+  - architecture
+  - dependency-inversion
+  - naming
 impact: MEDIUM
-impactDescription: "`*.domain.ts` などの suffix に役割を固定し、境界の読み違いを防ぐ。"
-tags: architecture, dependency-inversion, naming
-chapter: Implementation
+x:
+  legacy:
+    impactDescription: '`*.domain.ts` などの suffix に役割を固定し、境界の読み違いを防ぐ。'
+    chapter: Implementation
 ---
 
 ## File Role Contract

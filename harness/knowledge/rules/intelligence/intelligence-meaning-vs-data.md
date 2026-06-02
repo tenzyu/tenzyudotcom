@@ -3,12 +3,17 @@ schema: harness/v1
 kind: knowledge
 knowledge_type: rule
 id: knowledge.rule.intelligence.meaning-vs-data
+title: Meaning Vs Data Separation
 status: active
-title: "Meaning Vs Data Separation"
+tags:
+  - i18n
+  - intlayer
+  - data
 impact: HIGH
-impactDescription: 識別子と翻訳文を分離し、データ更新と多言語化を疎結合にする。
-tags: i18n, intlayer, data
-chapter: Intelligence
+x:
+  legacy:
+    impactDescription: 識別子と翻訳文を分離し、データ更新と多言語化を疎結合にする。
+    chapter: Intelligence
 ---
 
 ## Meaning Vs Data Separation

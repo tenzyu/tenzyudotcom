@@ -4,12 +4,12 @@ kind: workflow
 id: workflow.run-to-pr
 title: Run To PR
 status: active
-callable: true
 summary: Package a completed or nearly completed run into a reviewable pull request.
 tags:
   - harness
   - workflow
   - pull-request
+callable: true
 phases:
   - phase.review
   - phase.verification

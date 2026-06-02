@@ -3,12 +3,16 @@ schema: harness/v1
 kind: knowledge
 knowledge_type: rule
 id: knowledge.template.design-rule
-status: draft
 title: Rule Title Here
+status: draft
+tags:
+  - composition
+  - components
 impact: MEDIUM
-impactDescription: brief description of impact
-tags: composition, components
-chapter: Implementation
+x:
+  legacy:
+    impactDescription: brief description of impact
+    chapter: Implementation
 ---
 
 ## Rule Title Here

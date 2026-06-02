@@ -1,16 +1,3 @@
----
-schema: harness/v1
-kind: run
-id: run.active.task-0021-atelier-context-pack.handoff
-title: "TASK-0021 Atelier Context Pack Handoff"
-status: active
-summary: Handoff for compiled context pack implementation.
-tags:
-  - harness
-  - run
-  - atelier
----
-
 # Handoff: TASK-0021 Atelier Context Pack
 
 ## Changed

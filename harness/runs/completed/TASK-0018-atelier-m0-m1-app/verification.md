@@ -1,16 +1,3 @@
----
-schema: harness/v1
-kind: run
-id: run.task-0018-atelier-m0-m1-app.verification
-title: Verification
-status: active
-summary: Verification evidence for the initial Atelier app and doctor.
-tags:
-  - run
-  - verification
-  - atelier
----
-
 # Verification
 
 ## Commands Run

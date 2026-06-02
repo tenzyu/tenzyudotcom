@@ -3,12 +3,17 @@ schema: harness/v1
 kind: knowledge
 knowledge_type: reference
 id: knowledge.rule-reference.symbol-ownership
-status: active
 title: Symbol Ownership Repair Guide
+status: active
+tags:
+  - reference
+  - lint
+  - ownership
 impact: HIGH
-impactDescription: lint-symbol-ownership の promote / demote 判断を、owner tree と least common owner の観点で直せるようにする。
-tags: reference, lint, ownership
-chapter: References
+x:
+  legacy:
+    impactDescription: lint-symbol-ownership の promote / demote 判断を、owner tree と least common owner の観点で直せるようにする。
+    chapter: References
 ---
 
 - [](/harness/knowledge/rules/foundations/foundation-owner-placement-layers.md)

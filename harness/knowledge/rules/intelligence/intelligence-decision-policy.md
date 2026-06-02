@@ -3,12 +3,17 @@ schema: harness/v1
 kind: knowledge
 knowledge_type: rule
 id: knowledge.rule.intelligence.decision-policy
+title: Decision Policy
 status: active
-title: "Decision Policy"
+tags:
+  - architecture
+  - decision
+  - strategy
 impact: HIGH
-impactDescription: 優先順位と target architecture を同時に固定し、現状追認による判断ブレを防ぐ。
-tags: architecture, decision, strategy
-chapter: Intelligence
+x:
+  legacy:
+    impactDescription: 優先順位と target architecture を同時に固定し、現状追認による判断ブレを防ぐ。
+    chapter: Intelligence
 ---
 
 ## Decision Policy

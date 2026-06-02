@@ -69,8 +69,8 @@ Create or update:
 ```text
 harness/knowledge/product-specs/atelier/README.md
 harness/knowledge/product-specs/atelier/ROADMAP.md
-repo-ops/harness/core/schema.ts
-repo-ops/harness/core/frontmatter.ts
+product/apps/atelier/src/core/schema.ts
+product/apps/atelier/src/core/frontmatter.ts
 ```
 
 ### Requirements
@@ -78,6 +78,11 @@ repo-ops/harness/core/frontmatter.ts
 - Define common frontmatter fields.
 - Support `schema: harness/v1`.
 - Support `kind`.
+- Treat completed run history as loose historical text; it should not require stable IDs.
+- Preserve legacy metadata under `x.legacy` when it should not become routing metadata.
+- Require YAML array tags for deterministic indexing.
+- Keep Knowledge-to-Role links one-way by forbidding hand-maintained `knowledge.roles`.
+- Require domain roles to provide routing metadata through `selectors` and `pinned`.
 - Support stable symbolic `id`.
 - Support permissive parsing with unknown extension fields.
 - Do not require completed runs to pass strict schema.
@@ -167,10 +172,14 @@ Errors:
 Warnings:
 
 - missing metadata in indexed documents
+- completed run history that still has generated frontmatter
+- legacy metadata left at top level instead of under `x.legacy`
 - orphan knowledge
 - old paths in completed run history
 - broad selectors
 - low-value optional context
+
+Current harness guidance outside completed run history should treat removed legacy paths as errors.
 
 ### Safe Fixes
 
@@ -190,7 +199,7 @@ Warnings:
 
 ### Acceptance Criteria
 
-- `atelier doctor` reports old `harness/ai-org` references.
+- `atelier doctor` reports old `legacy ai-org path` references.
 - `atelier doctor` reports broken local Markdown links.
 - `atelier doctor` reports duplicate IDs.
 - `atelier doctor --json` produces stable machine-readable diagnostics.

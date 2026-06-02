@@ -4,12 +4,12 @@ kind: workflow
 id: workflow.review-change
 title: Review Change
 status: active
-callable: true
 summary: Independently review an existing diff or completed run.
 tags:
   - harness
   - workflow
   - review
+callable: true
 phases:
   - phase.review
   - phase.verification

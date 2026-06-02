@@ -3,12 +3,17 @@ schema: harness/v1
 kind: knowledge
 knowledge_type: rule
 id: knowledge.rule.product.core-values
+title: Product Core Values
 status: active
-title: "Product Core Values"
+tags:
+  - product
+  - sense
+  - strategy
 impact: MEDIUM
-impactDescription: サイトの長期的価値を保護し、不要な機能の肥大化を防ぐ。
-tags: product, sense, strategy
-chapter: Intelligence
+x:
+  legacy:
+    impactDescription: サイトの長期的価値を保護し、不要な機能の肥大化を防ぐ。
+    chapter: Intelligence
 ---
 
 # Product Core Values

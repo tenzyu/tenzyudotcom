@@ -5,17 +5,20 @@ knowledge_type: product-spec
 id: knowledge.product-spec.template
 title: template
 status: draft
-description: template
 summary: Template for product specification documents.
 tags:
   - product-spec
   - template
+x:
+  legacy:
+    description: template
 ---
 
 # Template Spec
 
 ## References
-- [Authored Content Management](../design-docs/rules/authored-content-management.md)
+
+- [Authored Content Management](../rules/foundations/foundation-authored-content-management.md)
 
 ## Goal
 

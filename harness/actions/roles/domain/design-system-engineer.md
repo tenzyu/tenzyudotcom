@@ -4,12 +4,12 @@ kind: role
 id: role.domain.design-system-engineer
 title: Design System Engineer
 status: active
-role_type: domain
 summary: Maintain @tenzyu/ui as a reusable, Storybook-verifiable shared UI package.
 tags:
   - harness
   - role
   - design-system
+role_type: domain
 activation:
   paths:
     - product/packages/ui/**

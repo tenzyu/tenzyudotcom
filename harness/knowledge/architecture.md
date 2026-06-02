@@ -28,7 +28,7 @@ product/apps/*          -> product applications
 product/packages/*      -> reusable libraries and tooling
 repo-ops/*              -> repository operations and harness engineering
 docs/*                  -> repository and product contracts
-harness/ai-org/*        -> AI organization workflow, roles, memory, templates
+harness/*        -> AI organization workflow, roles, memory, templates
 ```
 
 ## Dependency Rules

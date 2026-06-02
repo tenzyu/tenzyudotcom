@@ -4,12 +4,12 @@ kind: role
 id: role.domain.harness-engineer
 title: Harness Engineer
 status: active
-role_type: domain
 summary: Maintain the harness as a role-routed, run-based, evidence-driven control layer.
 tags:
   - harness
   - role
   - workflow
+role_type: domain
 activation:
   paths:
     - harness/**

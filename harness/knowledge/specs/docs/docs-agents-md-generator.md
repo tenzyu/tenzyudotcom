@@ -3,18 +3,20 @@ schema: harness/v1
 kind: knowledge
 knowledge_type: product-spec
 id: knowledge.spec.docs.agents-md-generator
-status: active
 title: agents-md-generator-spec
-description: harness/ai-org/knowledge/design-docs/rules/** から AGENTS.md を自動生成するコンパイラの仕様。
+status: active
+x:
+  legacy:
+    description: harness/knowledge/rules/** から AGENTS.md を自動生成するコンパイラの仕様。
 ---
 
 # AGENTS.md Generator Spec
 
 ## Goal
-`harness/ai-org/knowledge/design-docs/rules/*.md` に散らばっている個別のルールを収集・結合し、LLM が一括で読み込みやすく、かつ構造化された `harness/knowledge/rules/compiled/AGENTS.md` を自動生成する。
+`harness/knowledge/rules/*.md` に散らばっている個別のルールを収集・結合し、LLM が一括で読み込みやすく、かつ構造化された `harness/knowledge/rules/compiled/AGENTS.md` を自動生成する。
 
 ## Inputs
-- **Source**: `harness/ai-org/knowledge/design-docs/rules/*.md`
+- **Source**: `harness/knowledge/rules/*.md`
 - **Metadata**: 各ルールの YAML Frontmatter
   - `title`: ルールのタイトル
   - `impact`: 影響度 (LOW, MEDIUM, HIGH, CRITICAL)

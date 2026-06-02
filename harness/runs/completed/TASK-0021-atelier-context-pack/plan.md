@@ -1,16 +1,3 @@
----
-schema: harness/v1
-kind: run
-id: run.active.task-0021-atelier-context-pack.plan
-title: "TASK-0021 Atelier Context Pack Plan"
-status: active
-summary: Plan for implementing compiled context packs and expansion logging.
-tags:
-  - harness
-  - run
-  - atelier
----
-
 # Plan: TASK-0021 Atelier Context Pack
 
 ## Scope

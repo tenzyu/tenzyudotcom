@@ -1,15 +1,3 @@
----
-schema: harness/v1
-kind: run
-id: run.active.task-0019-atelier-m2-m4.plan
-title: Atelier M2-M4 Plan
-status: active
-summary: Implementation plan for Atelier generated indexes, context preview, and run init.
-tags:
-  - atelier
-  - plan
----
-
 # Plan: Atelier M2-M4
 
 ## Role Assignment

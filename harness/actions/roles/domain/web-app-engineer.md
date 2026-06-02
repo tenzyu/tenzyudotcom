@@ -4,13 +4,13 @@ kind: role
 id: role.domain.web-app-engineer
 title: Web App Engineer
 status: active
-role_type: domain
 summary: Maintain product/apps/web without leaking route-local concerns into shared packages.
 tags:
   - harness
   - role
   - web
   - nextjs
+role_type: domain
 activation:
   paths:
     - product/apps/web/**

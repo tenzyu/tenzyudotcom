@@ -5,8 +5,6 @@ knowledge_type: product-spec
 id: knowledge.product-spec.site.tools
 title: Tools Product Spec
 status: active
-name: tools-product-spec
-description: 独立したユーティリティツール機能のための、リポジトリ固有のプロダクト仕様。
 summary: /toolsルートにおけるミニアプリの境界、UIの期待値、およびアーキテクチャ上の配置を定義する。
 tags:
   - site
@@ -18,7 +16,11 @@ read_when:
   - ウィジェットが /tools に属するか、サイトの共有UIコンポーネントかを決定する時
 skip_when:
   - 一般的なレイアウトパターンやサイト全体のコンポーネントだけが必要な時
-user-invocable: false
+x:
+  legacy:
+    name: tools-product-spec
+    description: 独立したユーティリティツール機能のための、リポジトリ固有のプロダクト仕様。
+    user_invocable: false
 ---
 
 # Tools Product Spec

@@ -15,18 +15,66 @@ export type DoctorOptions = {
   projectRoot?: string
 }
 
+const KNOWLEDGE_LEGACY_FIELDS = [
+  'impactDescription',
+  'chapter',
+  'name',
+  'description',
+  'user-invocable',
+]
+const CURRENT_HARNESS_PREFIXES = [
+  'harness/actions/',
+  'harness/adapters/',
+  'harness/canon/',
+  'harness/knowledge/',
+  'harness/observations/',
+  'harness/policies/',
+  'harness/runs/backlog/',
+  'harness/runs/active/',
+]
+
 function idOf(document: HarnessDocument) {
   const id = document.frontmatter?.id
   return typeof id === 'string' && id.trim() ? id.trim() : null
 }
 
-function severityForMissingMetadata(document: HarnessDocument): DiagnosticSeverity {
+function kindOf(document: HarnessDocument) {
+  const kind = document.frontmatter?.kind
+  return typeof kind === 'string' ? kind : null
+}
+
+function recordOf(value: unknown): Record<string, unknown> {
+  if (
+    value === null ||
+    value === undefined ||
+    typeof value !== 'object' ||
+    Array.isArray(value)
+  )
+    return {}
+  return value as Record<string, unknown>
+}
+
+function isCompletedRunHistory(document: HarnessDocument) {
+  return document.relativePath.startsWith('harness/runs/completed/')
+}
+
+function isCurrentHarnessDocument(document: HarnessDocument) {
+  if (isCompletedRunHistory(document)) return false
+  return CURRENT_HARNESS_PREFIXES.some((prefix) =>
+    document.relativePath.startsWith(prefix)
+  )
+}
+
+function severityForMissingMetadata(
+  document: HarnessDocument
+): DiagnosticSeverity {
   return document.strictness === 'strict' ? 'error' : 'warning'
 }
 
 function diagnosticSort(left: Diagnostic, right: Diagnostic) {
   return (
-    diagnosticSeverityRank(left.severity) - diagnosticSeverityRank(right.severity) ||
+    diagnosticSeverityRank(left.severity) -
+      diagnosticSeverityRank(right.severity) ||
     (left.path ?? '').localeCompare(right.path ?? '') ||
     (left.line ?? 0) - (right.line ?? 0) ||
     left.code.localeCompare(right.code) ||
@@ -41,7 +89,112 @@ function lineNumbersContaining(raw: string, needle: string) {
     .filter((line): line is number => line !== null)
 }
 
-function addFrontmatterDiagnostics(document: HarnessDocument, diagnostics: Diagnostic[]) {
+function addCompletedRunDiagnostics(
+  document: HarnessDocument,
+  diagnostics: Diagnostic[]
+) {
+  if (!document.frontmatter && !document.frontmatterError) return
+
+  diagnostics.push({
+    code: 'RUN_FRONTMATTER_IN_COMPLETED',
+    severity: 'warning',
+    path: document.relativePath,
+    message:
+      'Completed run history should remain loose historical text. Strip generated frontmatter instead of migrating old run records.',
+  })
+}
+
+function addTagsDiagnostics(
+  document: HarnessDocument,
+  diagnostics: Diagnostic[]
+) {
+  if (!document.frontmatter || document.frontmatter.tags === undefined) return
+  if (Array.isArray(document.frontmatter.tags)) return
+
+  diagnostics.push({
+    code: 'NON_ARRAY_TAGS',
+    severity: document.strictness === 'strict' ? 'error' : 'warning',
+    path: document.relativePath,
+    message: 'Frontmatter tags must be a YAML sequence, not a scalar string.',
+  })
+}
+
+function addKnowledgeDiagnostics(
+  document: HarnessDocument,
+  diagnostics: Diagnostic[]
+) {
+  if (!document.frontmatter || kindOf(document) !== 'knowledge') return
+
+  if (Array.isArray(document.frontmatter.roles)) {
+    diagnostics.push({
+      code: 'KNOWLEDGE_ROLE_REFERENCE',
+      severity: 'warning',
+      path: document.relativePath,
+      message:
+        'Knowledge must not manually point back to roles. Keep role routing in role selectors and generated indexes.',
+    })
+  }
+
+  for (const field of KNOWLEDGE_LEGACY_FIELDS) {
+    if (!(field in document.frontmatter)) continue
+
+    diagnostics.push({
+      code: 'DISALLOWED_FRONTMATTER_FIELD',
+      severity: 'warning',
+      path: document.relativePath,
+      message: `Knowledge field '${field}' is legacy metadata. Move it under x.legacy or remove it.`,
+      details: { field },
+    })
+  }
+}
+
+function addRoleDiagnostics(
+  document: HarnessDocument,
+  diagnostics: Diagnostic[]
+) {
+  if (!document.frontmatter || kindOf(document) !== 'role') return
+  if (document.frontmatter.role_type !== 'domain') return
+
+  const selectors = recordOf(document.frontmatter.selectors)
+  const selectorPaths = asStringArray(selectors.paths)
+  const selectorTags = asStringArray(selectors.tags)
+  const selectorTypes = asStringArray(selectors.knowledge_types)
+  const pinned = asStringArray(document.frontmatter.pinned)
+
+  if (
+    selectorPaths.length === 0 &&
+    selectorTags.length === 0 &&
+    selectorTypes.length === 0
+  ) {
+    diagnostics.push({
+      code: 'ROLE_ROUTING_MISSING',
+      severity: 'error',
+      path: document.relativePath,
+      message:
+        'Domain roles must declare selectors so Atelier can route context deterministically.',
+    })
+  }
+
+  if (pinned.length === 0) {
+    diagnostics.push({
+      code: 'ROLE_ROUTING_MISSING',
+      severity: 'error',
+      path: document.relativePath,
+      message:
+        'Domain roles must declare pinned context for stable required knowledge.',
+    })
+  }
+}
+
+function addFrontmatterDiagnostics(
+  document: HarnessDocument,
+  diagnostics: Diagnostic[]
+) {
+  if (isCompletedRunHistory(document)) {
+    addCompletedRunDiagnostics(document, diagnostics)
+    return
+  }
+
   if (document.frontmatterError) {
     diagnostics.push({
       code: 'INVALID_FRONTMATTER',
@@ -70,12 +223,20 @@ function addFrontmatterDiagnostics(document: HarnessDocument, diagnostics: Diagn
       message: `Unknown harness kind: ${String(kind)}`,
     })
   }
+
+  addTagsDiagnostics(document, diagnostics)
+  addKnowledgeDiagnostics(document, diagnostics)
+  addRoleDiagnostics(document, diagnostics)
 }
 
-function addDuplicateIdDiagnostics(documents: HarnessDocument[], diagnostics: Diagnostic[]) {
+function addDuplicateIdDiagnostics(
+  documents: HarnessDocument[],
+  diagnostics: Diagnostic[]
+) {
   const byId = new Map<string, HarnessDocument[]>()
 
   for (const document of documents) {
+    if (isCompletedRunHistory(document)) continue
     const id = idOf(document)
     if (!id) continue
     const existing = byId.get(id) ?? []
@@ -101,13 +262,18 @@ function addDuplicateIdDiagnostics(documents: HarnessDocument[], diagnostics: Di
   }
 }
 
-function addLinkDiagnostics(projectRoot: string, document: HarnessDocument, diagnostics: Diagnostic[]) {
+function addLinkDiagnostics(
+  projectRoot: string,
+  document: HarnessDocument,
+  diagnostics: Diagnostic[]
+) {
   for (const link of document.links) {
-    if (markdownLinkExists(projectRoot, document.absolutePath, link.target)) continue
+    if (markdownLinkExists(projectRoot, document.absolutePath, link.target))
+      continue
 
     diagnostics.push({
       code: 'BROKEN_MARKDOWN_LINK',
-      severity: 'warning',
+      severity: isCurrentHarnessDocument(document) ? 'error' : 'warning',
       path: document.relativePath,
       line: link.line,
       message: `Broken Markdown link target '${link.target}'.`,
@@ -115,11 +281,14 @@ function addLinkDiagnostics(projectRoot: string, document: HarnessDocument, diag
   }
 }
 
-function addOldPathDiagnostics(document: HarnessDocument, diagnostics: Diagnostic[]) {
+function addOldPathDiagnostics(
+  document: HarnessDocument,
+  diagnostics: Diagnostic[]
+) {
   for (const line of lineNumbersContaining(document.raw, 'harness/ai-org')) {
     diagnostics.push({
       code: 'OLD_HARNESS_AI_ORG_REFERENCE',
-      severity: 'warning',
+      severity: isCurrentHarnessDocument(document) ? 'error' : 'warning',
       path: document.relativePath,
       line,
       message: 'Document still references old harness/ai-org path.',
@@ -127,21 +296,33 @@ function addOldPathDiagnostics(document: HarnessDocument, diagnostics: Diagnosti
   }
 }
 
-function addReferenceDiagnostics(documents: HarnessDocument[], diagnostics: Diagnostic[]) {
-  const ids = new Set(documents.map(idOf).filter((id): id is string => id !== null))
+function addReferenceDiagnostics(
+  documents: HarnessDocument[],
+  diagnostics: Diagnostic[]
+) {
+  const activeDocuments = documents.filter(
+    (document) => !isCompletedRunHistory(document)
+  )
+  const ids = new Set(
+    activeDocuments.map(idOf).filter((id): id is string => id !== null)
+  )
   const phasePaths = new Set(
-    documents
-      .filter((document) => document.relativePath.startsWith('harness/actions/phases/'))
-      .map((document) => document.relativePath),
+    activeDocuments
+      .filter((document) =>
+        document.relativePath.startsWith('harness/actions/phases/')
+      )
+      .map((document) => document.relativePath)
   )
 
-  for (const document of documents) {
+  for (const document of activeDocuments) {
     const phases = asStringArray(document.frontmatter?.phases)
     for (const phase of phases) {
       if (ids.has(phase)) continue
 
       const phasePath = phase.endsWith('.md')
-        ? path.posix.normalize(path.posix.join(path.posix.dirname(document.relativePath), phase))
+        ? path.posix.normalize(
+            path.posix.join(path.posix.dirname(document.relativePath), phase)
+          )
         : ''
 
       if (phasePath && phasePaths.has(phasePath)) continue
@@ -151,6 +332,17 @@ function addReferenceDiagnostics(documents: HarnessDocument[], diagnostics: Diag
         severity: document.strictness === 'strict' ? 'error' : 'warning',
         path: document.relativePath,
         message: `Referenced phase '${phase}' was not found.`,
+      })
+    }
+
+    const pinned = asStringArray(document.frontmatter?.pinned)
+    for (const pinnedId of pinned) {
+      if (ids.has(pinnedId)) continue
+      diagnostics.push({
+        code: 'UNRESOLVED_ID_REFERENCE',
+        severity: document.strictness === 'strict' ? 'error' : 'warning',
+        path: document.relativePath,
+        message: `Pinned context '${pinnedId}' was not found.`,
       })
     }
   }
@@ -184,10 +376,19 @@ export function runDoctor(options: DoctorOptions = {}): DoctorReport {
   return summarize(documents.length, diagnostics.sort(diagnosticSort))
 }
 
-function summarize(documentCount: number, diagnostics: Diagnostic[]): DoctorReport {
-  const errorCount = diagnostics.filter((diagnostic) => diagnostic.severity === 'error').length
-  const warningCount = diagnostics.filter((diagnostic) => diagnostic.severity === 'warning').length
-  const infoCount = diagnostics.filter((diagnostic) => diagnostic.severity === 'info').length
+function summarize(
+  documentCount: number,
+  diagnostics: Diagnostic[]
+): DoctorReport {
+  const errorCount = diagnostics.filter(
+    (diagnostic) => diagnostic.severity === 'error'
+  ).length
+  const warningCount = diagnostics.filter(
+    (diagnostic) => diagnostic.severity === 'warning'
+  ).length
+  const infoCount = diagnostics.filter(
+    (diagnostic) => diagnostic.severity === 'info'
+  ).length
 
   return {
     summary: {
@@ -200,4 +401,3 @@ function summarize(documentCount: number, diagnostics: Diagnostic[]): DoctorRepo
     diagnostics,
   }
 }
-

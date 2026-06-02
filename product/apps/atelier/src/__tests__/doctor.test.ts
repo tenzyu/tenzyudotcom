@@ -1,5 +1,11 @@
 import { afterAll, beforeEach, describe, expect, test } from 'bun:test'
-import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { runDoctor } from '../core/doctor'
@@ -9,8 +15,12 @@ describe('runDoctor', () => {
 
   beforeEach(() => {
     rmSync(path.join(tmpRoot, 'harness'), { recursive: true, force: true })
-    mkdirSync(path.join(tmpRoot, 'harness/knowledge/rules'), { recursive: true })
-    mkdirSync(path.join(tmpRoot, 'harness/actions/workflows'), { recursive: true })
+    mkdirSync(path.join(tmpRoot, 'harness/knowledge/rules'), {
+      recursive: true,
+    })
+    mkdirSync(path.join(tmpRoot, 'harness/actions/workflows'), {
+      recursive: true,
+    })
   })
 
   afterAll(() => {
@@ -32,13 +42,19 @@ describe('runDoctor', () => {
         '# A',
         '[missing](./missing.md)',
         'old harness/ai-org/reference',
-      ].join('\n'),
+      ].join('\n')
     )
     writeFileSync(
       path.join(tmpRoot, 'harness/knowledge/rules/b.md'),
-      ['---', 'schema: harness/v1', 'kind: knowledge', 'id: knowledge.rule.duplicate', 'title: B', '---', '# B'].join(
-        '\n',
-      ),
+      [
+        '---',
+        'schema: harness/v1',
+        'kind: knowledge',
+        'id: knowledge.rule.duplicate',
+        'title: B',
+        '---',
+        '# B',
+      ].join('\n')
     )
 
     const report = runDoctor({ projectRoot: tmpRoot })
@@ -47,15 +63,22 @@ describe('runDoctor', () => {
     expect(codes).toContain('DUPLICATE_ID')
     expect(codes).toContain('BROKEN_MARKDOWN_LINK')
     expect(codes).toContain('OLD_HARNESS_AI_ORG_REFERENCE')
-    expect(report.summary.errorCount).toBe(2)
+    expect(report.summary.errorCount).toBe(4)
   })
 
   test('treats missing strict role metadata as an error', () => {
-    mkdirSync(path.join(tmpRoot, 'harness/actions/roles/domain'), { recursive: true })
-    writeFileSync(path.join(tmpRoot, 'harness/actions/roles/domain/example.md'), '# Role')
+    mkdirSync(path.join(tmpRoot, 'harness/actions/roles/domain'), {
+      recursive: true,
+    })
+    writeFileSync(
+      path.join(tmpRoot, 'harness/actions/roles/domain/example.md'),
+      '# Role'
+    )
 
     const report = runDoctor({ projectRoot: tmpRoot })
-    const missingId = report.diagnostics.find((diagnostic) => diagnostic.code === 'MISSING_ID')
+    const missingId = report.diagnostics.find(
+      (diagnostic) => diagnostic.code === 'MISSING_ID'
+    )
 
     expect(missingId?.severity).toBe('error')
   })
@@ -73,13 +96,14 @@ describe('runDoctor', () => {
         '  - phase.missing',
         '---',
         '# Workflow',
-      ].join('\n'),
+      ].join('\n')
     )
 
     const report = runDoctor({ projectRoot: tmpRoot })
-    const missingPhase = report.diagnostics.find((diagnostic) => diagnostic.code === 'MISSING_PHASE')
+    const missingPhase = report.diagnostics.find(
+      (diagnostic) => diagnostic.code === 'MISSING_PHASE'
+    )
 
     expect(missingPhase?.severity).toBe('error')
   })
 })
-

@@ -46,7 +46,7 @@ Without a compiler and operation layer, the harness tends to decay through:
 - stale paths
 - broken Markdown links
 - duplicated guidance
-- old `harness/ai-org` references
+- old `legacy ai-org path` references
 - inconsistent role and workflow references
 - knowledge that no role ever selects
 - role files that require broad manual search
@@ -172,7 +172,7 @@ Atelier must detect corruption and drift.
 - unresolved symbolic references
 - broken Markdown links
 - old path references
-- stale `harness/ai-org` references
+- stale `legacy ai-org path` references
 - workflows referencing missing phases
 - roles referencing missing documents
 - context manifests with hash mismatches
@@ -341,6 +341,21 @@ Level 3: Generated Data
 
 Completed run history should be readable and searchable, but it should not be forced through every future schema migration.
 
+
+### 4.7 Maintainer Decisions For Source Contracts
+
+The current source-contract policy is intentionally asymmetric. It minimizes manual maintenance while preserving reproducibility.
+
+- Completed run history is loose historical text. It should not be forced through future frontmatter migrations.
+- Knowledge must not manually point back to roles. Role-to-knowledge relationships are produced by role selectors and generated indexes.
+- Knowledge may keep intrinsic signals such as `read_when` and `skip_when`, but not callable-skill fields.
+- Legacy display fields such as `impactDescription`, `chapter`, `name`, `description`, and `user-invocable` belong under `x.legacy` when preservation is useful. They are not routing fields.
+- Tags must be YAML arrays. Scalar comma-separated tags are invalid for deterministic indexing.
+- Domain roles must declare routing metadata with `selectors` and `pinned` context.
+- Root and tool adapters must route non-trivial work through `atelier run init` and `atelier run close`.
+- Small direct edits to existing knowledge are allowed when the correction is narrow and obvious. New durable knowledge should go through proposal and promotion.
+- Current harness guidance must not reference removed legacy paths. Historical completed runs may keep historical text.
+
 ## 5. Source Layout
 
 ### 5.1 Authored Sources
@@ -380,33 +395,24 @@ Generated files are cache artifacts. They must be reproducible from repository s
 
 ### 5.3 Implementation Location
 
-Atelier implementation should live under repository tooling first:
-
-```text
-repo-ops/
-  harness/
-    core/
-      docs.ts
-      frontmatter.ts
-      index.ts
-      doctor.ts
-      context.ts
-      runs.ts
-      knowledge.ts
-      ids.ts
-      repo-map.ts
-    cli.ts
-```
-
-If the code becomes reusable across products, it may later be promoted to a package.
-
-The future UI may live under:
+Atelier currently lives as a CLI-first application under:
 
 ```text
 product/apps/atelier/
+  src/core/
+    docs.ts
+    frontmatter.ts
+    indexer.ts
+    doctor.ts
+    context.ts
+    runs.ts
+    knowledge.ts
+  src/cli.ts
 ```
 
-The UI must call the same core operations and must not become a separate source of truth.
+The app must keep core operations reusable from CLI, future MCP tools, and future GUI surfaces.
+
+If the code becomes useful outside the app boundary, only the shared core may later be promoted to a package. The UI, when added, must call the same core operations and must not become a separate source of truth.
 
 ## 6. Document Model
 

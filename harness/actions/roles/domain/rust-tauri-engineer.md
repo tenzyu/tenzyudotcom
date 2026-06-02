@@ -4,13 +4,13 @@ kind: role
 id: role.domain.rust-tauri-engineer
 title: Rust/Tauri Engineer
 status: active
-role_type: domain
 summary: Maintain the native Tauri shell and Rust backend for the workbench.
 tags:
   - harness
   - role
   - tauri
   - rust
+role_type: domain
 activation:
   paths:
     - product/apps/osu-skin-workbench/src-tauri/**

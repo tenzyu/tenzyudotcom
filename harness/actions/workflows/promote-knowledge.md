@@ -4,12 +4,12 @@ kind: workflow
 id: workflow.promote-knowledge
 title: Promote Knowledge
 status: active
-callable: true
 summary: Promote durable reusable knowledge from run evidence into harness knowledge.
 tags:
   - harness
   - workflow
   - knowledge
+callable: true
 phases:
   - phase.knowledge-promotion
   - phase.verification

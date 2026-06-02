@@ -1,16 +1,3 @@
----
-schema: harness/v1
-kind: run
-id: run.active.task-0021-atelier-context-pack.worklog
-title: "TASK-0021 Atelier Context Pack Worklog"
-status: active
-summary: Worklog for compiled context pack implementation.
-tags:
-  - harness
-  - run
-  - atelier
----
-
 # Worklog: TASK-0021 Atelier Context Pack
 
 ## Notes

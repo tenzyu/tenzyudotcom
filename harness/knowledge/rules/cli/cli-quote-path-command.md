@@ -3,12 +3,17 @@ schema: harness/v1
 kind: knowledge
 knowledge_type: rule
 id: knowledge.rule.cli.quote-path-command
-status: active
 title: Quote Path Commands
+status: active
+tags:
+  - cli
+  - shell
+  - paths
 impact: LOW
-impactDescription: shell command で path 展開やシンタックスエラーを起こさない。
-tags: cli, shell, paths
-chapter: CLI
+x:
+  legacy:
+    impactDescription: shell command で path 展開やシンタックスエラーを起こさない。
+    chapter: CLI
 ---
 
 ## Quote Path Commands

@@ -1,16 +1,3 @@
----
-schema: harness/v1
-kind: run
-id: run.task-0018-atelier-m0-m1-app.handoff
-title: Handoff
-status: active
-summary: Handoff for the initial Atelier app and doctor slice.
-tags:
-  - run
-  - handoff
-  - atelier
----
-
 # Handoff
 
 ## Run Summary

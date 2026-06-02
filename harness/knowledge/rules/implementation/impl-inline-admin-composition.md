@@ -3,12 +3,17 @@ schema: harness/v1
 kind: knowledge
 knowledge_type: rule
 id: knowledge.rule.implementation.inline-admin-composition
-status: active
 title: Inline Admin Composition
+status: active
+tags:
+  - admin
+  - composition
+  - ui
 impact: HIGH
-impactDescription: public UI を保ったまま admin affordance を leaf へ差し込み、page-level wrapper 化を防ぐ。
-tags: admin, composition, ui
-chapter: Implementation
+x:
+  legacy:
+    impactDescription: public UI を保ったまま admin affordance を leaf へ差し込み、page-level wrapper 化を防ぐ。
+    chapter: Implementation
 ---
 
 ## Inline Admin Composition
@@ -25,7 +30,7 @@ export function NotesPageCollection() {
   // edit dialog
 }
 
-<AdminGate>
+;<AdminGate>
   <LargeAdminAreaForWholePage />
 </AdminGate>
 ```

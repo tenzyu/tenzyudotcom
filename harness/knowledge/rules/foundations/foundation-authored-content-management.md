@@ -3,12 +3,17 @@ schema: harness/v1
 kind: knowledge
 knowledge_type: rule
 id: knowledge.rule.foundation.authored-content-management
-status: active
 title: Authored Content Management
+status: active
+tags:
+  - content
+  - storage
+  - architecture
 impact: HIGH
-impactDescription: code と人間が管理する content data を分離し、更新を deploy 依存にしない。
-tags: content, storage, architecture
-chapter: Foundations
+x:
+  legacy:
+    impactDescription: code と人間が管理する content data を分離し、更新を deploy 依存にしない。
+    chapter: Foundations
 ---
 
 ## Authored Content Management

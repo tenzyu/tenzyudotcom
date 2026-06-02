@@ -3,12 +3,17 @@ schema: harness/v1
 kind: knowledge
 knowledge_type: rule
 id: knowledge.rule.reliability.content-version-normalization
-status: active
 title: Content Version Normalization
+status: active
+tags:
+  - reliability
+  - storage
+  - versioning
 impact: HIGH
-impactDescription: avoids false conflict detection caused by newline and serialization drift
-tags: reliability, storage, versioning
-chapter: Reliability
+x:
+  legacy:
+    impactDescription: avoids false conflict detection caused by newline and serialization drift
+    chapter: Reliability
 ---
 
 ## Content Version Normalization
@@ -30,6 +35,6 @@ const normalizeVersionSource = (value: string) => value.trimEnd()
 
 const loadedVersion = createContentVersion(normalizeVersionSource(serialized))
 const saveVersion = createContentVersion(
-  normalizeVersionSource(current?.content ?? ''),
+  normalizeVersionSource(current?.content ?? '')
 )
 ```

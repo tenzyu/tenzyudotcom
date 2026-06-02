@@ -70,8 +70,7 @@ editor environment:
 - Castalia-owned slot editor UI for low-friction form filling
 - `$EDITOR`/`$VISUAL` slot editing path for users who want Vim bindings or their
   normal editor environment
-- clipboard-first slot values where prompt metadata declares `source:
-  clipboard`
+- clipboard-first slot values where prompt metadata declares `source: clipboard`
 
 Implementation direction:
 

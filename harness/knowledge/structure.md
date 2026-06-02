@@ -26,7 +26,7 @@ tenzyudotcom is a Bun + Nx monorepo.
 - Nx workspace apps directory: `product/apps`.
 - Nx workspace libraries directory: `product/packages`.
 - Repository engineering and harness files live under `repo-ops/`.
-- The AI organization operating layer lives under `harness/ai-org/`.
+- The AI organization operating layer lives under `harness/`.
 - Human-and-AI-readable repository contracts live under `docs/`.
 
 ## Applications
@@ -50,9 +50,9 @@ tenzyudotcom is a Bun + Nx monorepo.
 | Path | Responsibility |
 | --- | --- |
 | `docs/` | Human-facing repository structure, architecture, quality gates, and durable product contracts |
-| `harness/ai-org/` | AI role, workflow, task, memory, ADR, tool guardrail, and handoff standards |
-| `harness/ai-org/knowledge/design-docs/` | LLM-facing architecture rule index, granular rules, and repair references |
-| `harness/ai-org/exec-plans/` | Active and completed execution plans |
+| `harness/` | AI role, workflow, task, memory, ADR, tool guardrail, and handoff standards |
+| `harness/knowledge/` | LLM-facing architecture rule index, granular rules, and repair references |
+| `harness/runs/` | Active and completed execution plans |
 | `harness/knowledge/product-specs/` | Product and route-specific requirements |
 | `harness/legacy/ai-org/workflows/` | Legacy workflow references that are not AI-org canonical workflows |
 | `harness/knowledge/references/` | External tool and verification references |

@@ -4,14 +4,16 @@ kind: observation
 id: observation.audit.infra-domain-port-assemble-migration-plan
 title: Infra Domain Port Assemble Migration Plan
 status: active
-name: infra-domain-port-assemble-migration-plan
-description: contract という広すぎる suffix を廃止し、infra/domain/port/assemble に責務を再配置する移行方針。
 summary: env と editor storage は infra + assemble + port に分け、schema/parse は assemble、純粋ルールは domain、外部 I/O は infra に寄せる。descriptor は当面 special-case として残す。
 read_when:
   - contract 命名を廃止するとき
   - DIP と storage 切替の責務を整理するとき
   - import boundary lint と docs を新命名に合わせて更新するとき
-user-invocable: false
+x:
+  legacy:
+    name: infra-domain-port-assemble-migration-plan
+    description: contract という広すぎる suffix を廃止し、infra/domain/port/assemble に責務を再配置する移行方針。
+    user_invocable: false
 ---
 
 # Infra Domain Port Assemble Migration Plan

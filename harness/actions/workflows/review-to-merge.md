@@ -4,13 +4,13 @@ kind: workflow
 id: workflow.review-to-merge
 title: Review To Merge
 status: active
-callable: true
 summary: Address review findings and prepare reviewed work for merge.
 tags:
   - harness
   - workflow
   - review
   - merge
+callable: true
 phases:
   - phase.implementation
   - phase.verification

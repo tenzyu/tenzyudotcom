@@ -1097,8 +1097,8 @@ session: 作業中のみ
 repo/structural: AGENTS.md や構造そのもの
 durable: design-docs と exec-plans/completed
 
-構造変更時は harness/ai-org/knowledge/design-docs/*.md も更新する
-複雑な判断の経緯は harness/ai-org/exec-plans/completed/ に残す
+構造変更時は harness/knowledge/*.md も更新する
+複雑な判断の経緯は harness/runs/completed/ に残す
 ```
 
 ### 5.2 Meaning Vs Data Separation <a id="52-meaning-vs-data-separation"></a>

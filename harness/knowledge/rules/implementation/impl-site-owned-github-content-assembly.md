@@ -3,12 +3,18 @@ schema: harness/v1
 kind: knowledge
 knowledge_type: rule
 id: knowledge.rule.implementation.site-owned-github-content-assembly
-status: active
 title: Site Owned GitHub Content Assembly
+status: active
+tags:
+  - architecture
+  - storage
+  - github
+  - packages
 impact: MEDIUM
-impactDescription: keeps package boundaries clean by separating generic GitHub clients from site-specific caching and schemas
-tags: architecture, storage, github, packages
-chapter: Implementation
+x:
+  legacy:
+    impactDescription: keeps package boundaries clean by separating generic GitHub clients from site-specific caching and schemas
+    chapter: Implementation
 ---
 
 ## Site Owned GitHub Content Assembly

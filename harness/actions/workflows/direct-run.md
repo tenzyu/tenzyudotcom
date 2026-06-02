@@ -4,12 +4,12 @@ kind: workflow
 id: workflow.direct-run
 title: Direct Run
 status: active
-callable: true
 summary: Execute small scoped changes where full isolation and planning would cost more than the change.
 tags:
   - harness
   - workflow
   - direct
+callable: true
 phases:
   - phase.intake
   - phase.implementation

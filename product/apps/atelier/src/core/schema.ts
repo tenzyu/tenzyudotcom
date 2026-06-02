@@ -40,6 +40,11 @@ export type DiagnosticCode =
   | 'RUN_KNOWLEDGE_PROPOSAL_OPEN'
   | 'INVALID_KNOWLEDGE_PROPOSAL'
   | 'DUPLICATE_KNOWLEDGE_CANDIDATE'
+  | 'RUN_FRONTMATTER_IN_COMPLETED'
+  | 'DISALLOWED_FRONTMATTER_FIELD'
+  | 'NON_ARRAY_TAGS'
+  | 'ROLE_ROUTING_MISSING'
+  | 'KNOWLEDGE_ROLE_REFERENCE'
 
 export type HarnessFrontmatter = {
   schema?: unknown
@@ -54,6 +59,13 @@ export type HarnessFrontmatter = {
   phases?: unknown
   pinned?: unknown
   selectors?: unknown
+  role_type?: unknown
+  knowledge_type?: unknown
+  callable?: unknown
+  scope?: unknown
+  read_when?: unknown
+  skip_when?: unknown
+  x?: unknown
   [key: string]: unknown
 }
 

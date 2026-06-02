@@ -5,8 +5,6 @@ knowledge_type: reference
 id: knowledge.reference.error-analysis
 title: Error Analysis Skill and Workflow
 status: active
-name: harness-error-analysis
-description: Next.jsのビルド/ランタイムエラーの根本分析を行い、ナレッジとして蓄積するためのスキルと手順。
 summary: エラーに直面した際の場当たり的な修正を防ぎ、RELIABILITY規約に基づいた検証と自動的なケーススタディ（ドキュメント）作成を行う。
 tags:
   - reliability
@@ -17,7 +15,11 @@ read_when:
   - バグ修正後に再発防止策を考え、ナレッジベースを更新する時
 skip_when:
   - エラーを伴わない純粋な機能追加や軽微なスタイル修正の時
-user-invocable: true
+x:
+  legacy:
+    name: harness-error-analysis
+    description: Next.jsのビルド/ランタイムエラーの根本分析を行い、ナレッジとして蓄積するためのスキルと手順。
+    user_invocable: true
 ---
 
 # Error Analysis Skill & Workflow
@@ -41,6 +43,6 @@ user-invocable: true
 ## 4. ナレッジ化（Case Study の作成）
 最も重要なステップとして、修正が完了した後に同じ過ちをエージェントが繰り返さないよう、今回のエラーと解決の軌跡を「ケーススタディ」として永続化させます。
 
-- `harness/ai-org/exec-plans/completed/` ディレクトリに新しいMarkdownファイル（例: `fix-hydration-error.md`）を作成する。
+- `harness/runs/completed/` ディレクトリに新しいMarkdownファイル（例: `fix-hydration-error.md`）を作成する。
 - 発生した問題、取られた戦略、そして参考になった公式ドキュメント（Sources）を記載する。
 - これにより、プロジェクトの自己改善ループ（Small Start Harness）が成立します。

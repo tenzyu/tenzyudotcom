@@ -4,14 +4,18 @@ kind: observation
 id: observation.audit.app-ownership-tree-spec
 title: App Ownership Tree Spec
 status: active
-name: app-ownership-tree-spec
-description: src/app の directory tree を ownership の正本にし、symbol の promote/demote を least common owner で判定する仕様。
 summary: src/features は app tree で自然表現できない cross-branch shared の例外層とし、lint-symbol-ownership を owner tree ベースへ拡張する。
 read_when:
   - ownership の整理整頓を進めるとき
   - src/features の必要性を参照事実で見直したいとき
   - promote / demote の自動検知ルールを確認したいとき
-user-invocable: false
+x:
+  legacy:
+    name: app-ownership-tree-spec
+    description:
+      src/app の directory tree を ownership の正本にし、symbol の promote/demote
+      を least common owner で判定する仕様。
+    user_invocable: false
 ---
 
 # App Ownership Tree Spec

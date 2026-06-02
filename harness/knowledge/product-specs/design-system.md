@@ -5,7 +5,7 @@ knowledge_type: product-spec
 id: knowledge.product-spec.design-system
 title: Design System
 status: active
-summary: "@tenzyu/ui responsibilities, non-responsibilities, and component standard."
+summary: '@tenzyu/ui responsibilities, non-responsibilities, and component standard.'
 tags:
   - design-system
   - ui

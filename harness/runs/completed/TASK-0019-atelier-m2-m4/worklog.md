@@ -1,15 +1,3 @@
----
-schema: harness/v1
-kind: run
-id: run.active.task-0019-atelier-m2-m4.worklog
-title: Atelier M2-M4 Worklog
-status: active
-summary: Worklog for implementing Atelier M2 through M4.
-tags:
-  - atelier
-  - worklog
----
-
 # Worklog: Atelier M2-M4
 
 ## 2026-06-02

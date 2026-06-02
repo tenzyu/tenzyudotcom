@@ -3,14 +3,16 @@ schema: harness/v1
 kind: knowledge
 knowledge_type: product-spec
 id: knowledge.product-spec.detect-local-first-and-di-violations
-title: "detect local-first, promote-later, dependency-inversion violations"
+title: detect local-first, promote-later, dependency-inversion violations
 status: draft
-description: "local-first, promote-later 違反と dependency-inversion 違反を検知できるようにする。"
 summary: Specification for detecting local-first, promote-later, and dependency-inversion violations.
 tags:
   - linter
   - dependency-inversion
   - local-first
+x:
+  legacy:
+    description: local-first, promote-later 違反と dependency-inversion 違反を検知できるようにする。
 ---
 
 # The Linter for Detecting Local-First, Promote-Later, and Dependency-Inversion Violations

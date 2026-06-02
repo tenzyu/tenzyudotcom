@@ -1,16 +1,3 @@
----
-schema: harness/v1
-kind: run
-id: run.task-0018-atelier-m0-m1-app.worklog
-title: Worklog
-status: active
-summary: Worklog for the initial Atelier app and doctor implementation.
-tags:
-  - run
-  - worklog
-  - atelier
----
-
 # Worklog
 
 ## 2026-06-02

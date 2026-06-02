@@ -1,16 +1,3 @@
----
-schema: harness/v1
-kind: run
-id: run.active.task-0020-atelier-m5-m6.review
-title: "TASK-0020 Atelier M5-M6 Review"
-status: active
-summary: Review notes for Atelier M5-M6 implementation.
-tags:
-  - harness
-  - run
-  - atelier
----
-
 # Review: TASK-0020 Atelier M5-M6
 
 ## Findings

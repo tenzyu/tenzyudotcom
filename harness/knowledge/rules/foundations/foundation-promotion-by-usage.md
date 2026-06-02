@@ -3,12 +3,16 @@ schema: harness/v1
 kind: knowledge
 knowledge_type: rule
 id: knowledge.rule.foundation.promotion-by-usage
-status: active
 title: Promotion By Usage
+status: active
+tags:
+  - architecture
+  - ownership
 impact: HIGH
-impactDescription: 再利用の事実に基づいて promote し、早すぎる抽象化を防ぐ。
-tags: architecture, ownership
-chapter: Foundations
+x:
+  legacy:
+    impactDescription: 再利用の事実に基づいて promote し、早すぎる抽象化を防ぐ。
+    chapter: Foundations
 ---
 
 ## Promotion By Usage

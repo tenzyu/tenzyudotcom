@@ -5,8 +5,6 @@ knowledge_type: reference
 id: knowledge.reference.ui-verification
 title: UI Verification Strategy
 status: active
-name: harness-ui-verification
-description: ブラウザサブエージェントを通じたフロントエンド/UI変更の自動視覚検証フロー。
 summary: アクセシビリティ違反、レスポンシブ崩れ、デザイン規約（DESIGN.md）違反を視覚的に検知し、エージェントが自律テストを行う手順。
 tags:
   - ui
@@ -18,7 +16,11 @@ read_when:
   - ユーザーからUIのバグ修正や改善を依頼された時
 skip_when:
   - UI変更を一切伴わないサーバーサイドロジックやドキュメントのみの修正時
-user-invocable: true
+x:
+  legacy:
+    name: harness-ui-verification
+    description: ブラウザサブエージェントを通じたフロントエンド/UI変更の自動視覚検証フロー。
+    user_invocable: true
 ---
 
 # UI Verification Strategy (Browser Automation)

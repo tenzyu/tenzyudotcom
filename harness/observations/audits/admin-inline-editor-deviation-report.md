@@ -4,13 +4,15 @@ kind: observation
 id: observation.audit.admin-inline-editor-deviation-report
 title: Admin Inline Editor Deviation Report
 status: active
-name: admin-inline-editor-deviation-report
-description: 今回の inline admin 実装が repo のルールとユーザー期待から逸脱した理由を記録する。
 summary: dependency inversion を適用せず page-level collection component で解決したこと、AdminGate を勝手に変更したこと、leaf affordance を作らなかったことを反省点としてまとめる。
 read_when:
   - inline admin 実装をやり直すとき
   - 同じ逸脱を防ぐガードレールを定義するとき
-user-invocable: false
+x:
+  legacy:
+    name: admin-inline-editor-deviation-report
+    description: 今回の inline admin 実装が repo のルールとユーザー期待から逸脱した理由を記録する。
+    user_invocable: false
 ---
 
 # Admin Inline Editor Deviation Report

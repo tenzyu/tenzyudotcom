@@ -5,8 +5,6 @@ knowledge_type: product-spec
 id: knowledge.product-spec.site.links
 title: Links Product Spec
 status: active
-name: links-product-spec
-description: リンクコレクションのための、リポジトリ固有のプロダクト仕様。
 summary: /links機能のためのカテゴリ化戦略、動作、および構造的なルールを定義する。
 tags:
   - site
@@ -18,7 +16,11 @@ read_when:
   - 外部リンクのレンダリング方法や追跡方法を変更する時
 skip_when:
   - 一般的なUIコンポーネントのスタイリングルールだけが必要な時
-user-invocable: false
+x:
+  legacy:
+    name: links-product-spec
+    description: リンクコレクションのための、リポジトリ固有のプロダクト仕様。
+    user_invocable: false
 ---
 
 # Links Product Spec

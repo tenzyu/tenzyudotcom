@@ -2,7 +2,11 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { loadHarnessDocuments } from './docs'
 import { runDoctor } from './doctor'
-import { asStringArray, type HarnessDocument } from './schema'
+import {
+  asStringArray,
+  type DoctorSummary,
+  type HarnessDocument,
+} from './schema'
 
 export type GeneratedFileName =
   | 'docs.json'
@@ -22,6 +26,7 @@ export type IndexResult = {
   ok: boolean
   generatedRoot: string
   staleFiles: string[]
+  diagnosticSummary: DoctorSummary
   files: Record<GeneratedFileName, string>
 }
 
@@ -39,18 +44,28 @@ function booleanOf(value: unknown) {
 }
 
 function recordOf(value: unknown): Record<string, unknown> {
-  if (value === null || value === undefined || typeof value !== 'object' || Array.isArray(value)) return {}
+  if (
+    value === null ||
+    value === undefined ||
+    typeof value !== 'object' ||
+    Array.isArray(value)
+  )
+    return {}
   return value as Record<string, unknown>
 }
 
 function sortedObject<T>(entries: Iterable<[string, T]>) {
-  return Object.fromEntries([...entries].sort(([left], [right]) => left.localeCompare(right)))
+  return Object.fromEntries(
+    [...entries].sort(([left], [right]) => left.localeCompare(right))
+  )
 }
 
 function stable(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(stable)
   if (value === null || typeof value !== 'object') return value
-  return sortedObject(Object.entries(value).map(([key, inner]) => [key, stable(inner)]))
+  return sortedObject(
+    Object.entries(value).map(([key, inner]) => [key, stable(inner)])
+  )
 }
 
 function stringify(value: unknown) {
@@ -88,7 +103,10 @@ function compileIds(documents: HarnessDocument[]) {
   return sortedObject(
     documents
       .map((document) => [idOf(document), document] as const)
-      .filter((entry): entry is readonly [string, HarnessDocument] => entry[0] !== null)
+      .filter(
+        (entry): entry is readonly [string, HarnessDocument] =>
+          entry[0] !== null
+      )
       .map(([id, document]) => [
         id,
         {
@@ -97,7 +115,7 @@ function compileIds(documents: HarnessDocument[]) {
           status: textOf(document.frontmatter?.status),
           sha256: document.sha256,
         },
-      ]),
+      ])
   )
 }
 
@@ -108,9 +126,12 @@ function compileKnowledgeIndex(documents: HarnessDocument[]) {
   const byStatus = new Map<string, ReturnType<typeof docSummary>[]>()
   const byImpact = new Map<string, ReturnType<typeof docSummary>[]>()
 
-  for (const document of documents.filter((candidate) => candidate.frontmatter?.kind === 'knowledge')) {
+  for (const document of documents.filter(
+    (candidate) => candidate.frontmatter?.kind === 'knowledge'
+  )) {
     const summary = docSummary(document)
-    const knowledgeType = textOf(document.frontmatter?.knowledge_type) ?? 'unknown'
+    const knowledgeType =
+      textOf(document.frontmatter?.knowledge_type) ?? 'unknown'
     const status = textOf(document.frontmatter?.status) ?? 'unknown'
     const impact = textOf(document.frontmatter?.impact) ?? 'unspecified'
     const scope = recordOf(document.frontmatter?.scope)
@@ -120,8 +141,10 @@ function compileKnowledgeIndex(documents: HarnessDocument[]) {
     groupedPush(byStatus, status, summary)
     groupedPush(byImpact, impact, summary)
 
-    for (const tag of asStringArray(document.frontmatter?.tags)) groupedPush(byTag, tag, summary)
-    for (const scopePath of scopePaths) groupedPush(byScopePath, scopePath, summary)
+    for (const tag of asStringArray(document.frontmatter?.tags))
+      groupedPush(byTag, tag, summary)
+    for (const scopePath of scopePaths)
+      groupedPush(byScopePath, scopePath, summary)
   }
 
   return {
@@ -147,9 +170,14 @@ function compileRoleBundles(documents: HarnessDocument[]) {
   const byId = new Map(
     documents
       .map((document) => [idOf(document), document] as const)
-      .filter((entry): entry is readonly [string, HarnessDocument] => entry[0] !== null),
+      .filter(
+        (entry): entry is readonly [string, HarnessDocument] =>
+          entry[0] !== null
+      )
   )
-  const knowledge = documents.filter((document) => document.frontmatter?.kind === 'knowledge')
+  const knowledge = documents.filter(
+    (document) => document.frontmatter?.kind === 'knowledge'
+  )
 
   return documents
     .filter((document) => document.frontmatter?.kind === 'role')
@@ -185,7 +213,9 @@ function compileRoleBundles(documents: HarnessDocument[]) {
         selectors,
         pinned,
         matchedDocuments: matched,
-        warnings: pinned.filter((item) => !item.found).map((item) => `Pinned document was not found: ${item.id}`),
+        warnings: pinned
+          .filter((item) => !item.found)
+          .map((item) => `Pinned document was not found: ${item.id}`),
       }
     })
 }
@@ -220,9 +250,10 @@ export function compileIndexes(options: IndexOptions = {}): IndexResult {
   }
 
   return {
-    ok: doctorReport.summary.ok && (!options.check || staleFiles.length === 0),
+    ok: !options.check || staleFiles.length === 0,
     generatedRoot,
     staleFiles,
+    diagnosticSummary: doctorReport.summary,
     files,
   }
 }

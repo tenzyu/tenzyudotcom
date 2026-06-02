@@ -3,12 +3,18 @@ schema: harness/v1
 kind: knowledge
 knowledge_type: rule
 id: knowledge.rule.security.editor-session-boundary
-status: active
 title: Editor Session Boundary
+status: active
+tags:
+  - security
+  - admin
+  - auth
+  - env
 impact: HIGH
-impactDescription: editor 認証情報の owner を 1 か所に寄せ、session 検証を安定した境界として保つ。
-tags: security, admin, auth, env
-chapter: Security & Safety
+x:
+  legacy:
+    impactDescription: editor 認証情報の owner を 1 か所に寄せ、session 検証を安定した境界として保つ。
+    chapter: Security & Safety
 ---
 
 ## Editor Session Boundary

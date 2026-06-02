@@ -5,13 +5,15 @@ knowledge_type: product-spec
 id: knowledge.product-spec.site.editor-architecture
 title: Editor Architecture
 status: active
-name: editor-architecture
-description: 著者主導のEditorコレクションのための、リポジトリ固有のアーキテクチャノート。
 summary: Repository-specific architecture notes for author-curated collections and editor admin.
 tags:
   - site
   - editor
   - architecture
+x:
+  legacy:
+    name: editor-architecture
+    description: 著者主導のEditorコレクションのための、リポジトリ固有のアーキテクチャノート。
 ---
 
 # Editor Architecture

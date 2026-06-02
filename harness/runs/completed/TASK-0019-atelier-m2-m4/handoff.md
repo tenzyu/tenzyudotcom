@@ -1,15 +1,3 @@
----
-schema: harness/v1
-kind: run
-id: run.active.task-0019-atelier-m2-m4.handoff
-title: Atelier M2-M4 Handoff
-status: active
-summary: Handoff notes for Atelier M2 through M4.
-tags:
-  - atelier
-  - handoff
----
-
 # Handoff: Atelier M2-M4
 
 ## Changed

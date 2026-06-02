@@ -1,16 +1,3 @@
----
-schema: harness/v1
-kind: run
-id: run.active.task-0019-atelier-m2-m4.brief
-title: Atelier M2-M4 Brief
-status: active
-summary: Implement Atelier M2 index compiler, M3 context preview, and M4 run init.
-tags:
-  - atelier
-  - run
-  - implementation
----
-
 # Brief: Atelier M2-M4
 
 ## Request

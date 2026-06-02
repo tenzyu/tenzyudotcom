@@ -4,12 +4,12 @@ kind: role
 id: role.core.librarian
 title: Librarian
 status: active
-role_type: core
 summary: Preserve durable run history, handoff, and shared knowledge without dumping transient notes.
 tags:
   - harness
   - role
   - knowledge
+role_type: core
 selectors:
   tags:
     - knowledge

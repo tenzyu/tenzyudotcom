@@ -3,12 +3,17 @@ schema: harness/v1
 kind: knowledge
 knowledge_type: rule
 id: knowledge.rule.intelligence.harness-memory-model
+title: Harness Memory Model
 status: active
-title: "Harness Memory Model"
+tags:
+  - harness
+  - memory
+  - documentation
 impact: HIGH
-impactDescription: ハーネス更新と知識保存先の判断を一体で定義し、暗黙知とコンテキスト汚染を防ぐ。
-tags: harness, memory, documentation
-chapter: Intelligence
+x:
+  legacy:
+    impactDescription: ハーネス更新と知識保存先の判断を一体で定義し、暗黙知とコンテキスト汚染を防ぐ。
+    chapter: Intelligence
 ---
 
 ## Harness Memory Model
@@ -30,6 +35,6 @@ session: 作業中のみ
 repo/structural: AGENTS.md や構造そのもの
 durable: design-docs と exec-plans/completed
 
-構造変更時は harness/ai-org/knowledge/design-docs/*.md も更新する
-複雑な判断の経緯は harness/ai-org/exec-plans/completed/ に残す
+構造変更時は harness/knowledge/*.md も更新する
+複雑な判断の経緯は harness/runs/completed/ に残す
 ```

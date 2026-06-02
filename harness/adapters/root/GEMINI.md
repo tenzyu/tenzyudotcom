@@ -4,7 +4,7 @@ kind: adapter
 id: adapter.root.gemini
 title: Root Gemini Adapter
 status: active
-summary: Root Gemini adapter that routes work to canonical harness context.
+summary: Root Gemini adapter that routes work through Atelier before mutable work.
 tags:
   - harness
   - adapter
@@ -13,27 +13,38 @@ tags:
 
 # GEMINI.md
 
-Canonical AI organization files live under `harness`.
+Canonical AI work instructions live under `harness`.
 
-Also read `harness/policies/repository.md` for repository-local engineering constraints.
+For non-trivial work, do not manually discover harness context first. Use Atelier.
 
-Relevant starting points:
+## Required Start
 
-@./harness/canon/model.md
-@./harness/canon/charter.md
-@./harness/policies/decision.md
-@./harness/policies/context-budget.md
-@./harness/actions/README.md
-@./harness/actions/workflows/README.md
-@./harness/actions/roles/README.md
-@./harness/policies/tools/git.md
-@./harness/policies/tools/nx.md
-@./harness/policies/tools/tenzyu-linter.md
+```bash
+atelier run init --workflow isolated-run --intent "<request>"
+```
 
-For non-trivial work:
+Then read the generated `context.md` and follow its workflow, role, phase, and artifact instructions.
 
-1. choose a workflow from `harness/actions/workflows/README.md`
-2. assign roles from `harness/actions/roles/README.md`
-3. load only the knowledge required by assigned roles
-4. execute the workflow phases
-5. record verification and handoff evidence
+For small docs/config/reference repairs, use:
+
+```bash
+atelier run init --workflow direct-run --intent "<request>"
+```
+
+## Completion Gate
+
+Before claiming completion, run:
+
+```bash
+atelier run close <RUN-ID>
+```
+
+If Atelier is unavailable, manually start with:
+
+- `harness/canon/model.md`
+- `harness/policies/repository.md`
+- `harness/actions/workflows/README.md`
+- `harness/actions/roles/README.md`
+- `harness/policies/context-budget.md`
+
+Record any fallback in `worklog.md`.

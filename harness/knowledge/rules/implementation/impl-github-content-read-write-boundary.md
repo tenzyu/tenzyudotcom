@@ -3,12 +3,18 @@ schema: harness/v1
 kind: knowledge
 knowledge_type: rule
 id: knowledge.rule.implementation.github-content-read-write-boundary
-status: active
 title: GitHub Content Read Write Boundary
+status: active
+tags:
+  - storage
+  - github
+  - cache
+  - editor
 impact: HIGH
-impactDescription: prevents stale reads, false conflicts, and excessive GitHub API traffic
-tags: storage, github, cache, editor
-chapter: Implementation
+x:
+  legacy:
+    impactDescription: prevents stale reads, false conflicts, and excessive GitHub API traffic
+    chapter: Implementation
 ---
 
 ## GitHub Content Read Write Boundary
@@ -31,7 +37,9 @@ if (createContentVersion(current?.content ?? '') !== expectedVersion) {
 ```ts
 const current = await loadGitHubTextFileFresh(pathname)
 
-if (createContentVersion((current?.content ?? '').trimEnd()) !== expectedVersion) {
+if (
+  createContentVersion((current?.content ?? '').trimEnd()) !== expectedVersion
+) {
   throw new StorageVersionConflictError('conflict')
 }
 

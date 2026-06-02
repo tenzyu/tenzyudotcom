@@ -4,13 +4,13 @@ kind: role
 id: role.domain.repo-ops-engineer
 title: Repo Ops Engineer
 status: active
-role_type: domain
 summary: Maintain workspace automation, policy checks, Nx, Bun, Nix, scripts, and CI behavior.
 tags:
   - harness
   - role
   - repo-ops
   - nx
+role_type: domain
 activation:
   paths:
     - repo-ops/**

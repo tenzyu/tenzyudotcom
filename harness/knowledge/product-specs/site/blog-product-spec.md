@@ -5,8 +5,6 @@ knowledge_type: product-spec
 id: knowledge.product-spec.site.blog
 title: Blog Product Spec
 status: active
-name: blog-product-spec
-description: ブログセクションのための、リポジトリ固有のプロダクト仕様。
 summary: /blog機能のためのレイアウト制約、執筆プロセス、および編集構造に関するルールを定義する。
 tags:
   - site
@@ -18,7 +16,11 @@ read_when:
   - ブログ記事の機能（目次の追加、MDXの機能など）を拡張する時
 skip_when:
   - 既存の独立したブログ記事の実際のコンテンツを編集している時
-user-invocable: false
+x:
+  legacy:
+    name: blog-product-spec
+    description: ブログセクションのための、リポジトリ固有のプロダクト仕様。
+    user_invocable: false
 ---
 
 # Blog Product Spec

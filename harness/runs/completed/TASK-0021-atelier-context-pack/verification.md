@@ -1,16 +1,3 @@
----
-schema: harness/v1
-kind: run
-id: run.active.task-0021-atelier-context-pack.verification
-title: "TASK-0021 Atelier Context Pack Verification"
-status: active
-summary: Verification evidence for compiled context pack implementation.
-tags:
-  - harness
-  - run
-  - atelier
----
-
 # Verification: TASK-0021 Atelier Context Pack
 
 ## Commands

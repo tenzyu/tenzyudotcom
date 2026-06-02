@@ -5,8 +5,6 @@ knowledge_type: known-problem
 id: knowledge.known-problem.harness-known-gaps
 title: Known Gaps
 status: active
-name: harness-known-gaps
-description: リポジトリのharnessにおける既知のギャップと保留された決定事項。
 summary: Tracks known harness gaps and intentionally deferred boundary decisions.
 tags:
   - harness
@@ -16,7 +14,11 @@ read_when:
   - harnessをレビューする時
   - 拡張する時
   - 意図的にまだ完全に指定されていない境界付近で作業する時
-user-invocable: false
+x:
+  legacy:
+    name: harness-known-gaps
+    description: リポジトリのharnessにおける既知のギャップと保留された決定事項。
+    user_invocable: false
 ---
 
 # Known Gaps
@@ -105,7 +107,7 @@ user-invocable: false
 
 ### Active plan migration
 
-- `harness/ai-org/exec-plans/active/*.md` には、軽量メモ型の follow-up と
+- `harness/runs/active/*.md` には、軽量メモ型の follow-up と
   サブエージェントへそのまま渡す execution-ready plan がまだ混在している
 - 現状は `execution-ready: true` が付いた plan だけを厳格 lint 対象にしている
 - legacy plan を即座に全面移行するのではなく、

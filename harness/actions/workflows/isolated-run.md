@@ -4,12 +4,12 @@ kind: workflow
 id: workflow.isolated-run
 title: Isolated Run
 status: active
-callable: true
 summary: Execute non-trivial mutable work through one bounded run with evidence and handoff.
 tags:
   - harness
   - workflow
   - isolated-run
+callable: true
 phases:
   - phase.intake
   - phase.worktree-isolation

@@ -3,9 +3,11 @@ schema: harness/v1
 kind: knowledge
 knowledge_type: product-spec
 id: knowledge.spec.docs.linter
-status: active
 title: harness-doc-linter-spec
-description: 進行中のタスク：ドキュメントリンターの要件定義と仕様策定。
+status: active
+x:
+  legacy:
+    description: 進行中のタスク：ドキュメントリンターの要件定義と仕様策定。
 ---
 
 # ドキュメント整備（Doc-Gardening）リンター仕様
@@ -29,7 +31,7 @@ description: 進行中のタスク：ドキュメントリンターの要件定�
 
 ### 検証要件
 - **Last Modified Check**: `.ts` や `.tsx` などの主要なソースファイル群の最終更新日と、関連する `docs/` 側の設計ドキュメントの最終更新日を比較します。ソース全体が大きく変化しているにも関わらず、特定の設計ドキュメントが長期間（例: 半年以上）更新されていない場合、警告（Warning）を出力します。
-- **AI-Driven Doc-Gardening**: 定期（例: 週1回）で実行されるCIジョブにより、LLMエージェントが `harness/ai-org/knowledge/design-docs/` などの主要なドキュメントと最新のコードベースを比較スキャンします。乖離を発見した場合は、自動でドキュメント修正用のプルリクエスト（PR）を作成します。
+- **AI-Driven Doc-Gardening**: 定期（例: 週1回）で実行されるCIジョブにより、LLMエージェントが `harness/knowledge/` などの主要なドキュメントと最新のコードベースを比較スキャンします。乖離を発見した場合は、自動でドキュメント修正用のプルリクエスト（PR）を作成します。
 
 ## 3. Markdown 構文・フォーマットチェッカー (Markdown Syntax & Format Checker)
 
@@ -55,14 +57,14 @@ description: 進行中のタスク：ドキュメントリンターの要件定�
 - `read_when` (必須): LLMエージェントが「どのようなタスクの時にこのドキュメントを読むべきか」の具体的なトリガー条件のリスト（日本語）。
 - `skip_when` (任意): 逆にファイルを読まなくてよい・無関係な状況のリスト（日本語）。
 - `user-invocable` (任意): ユーザーが直接呼び出すスキルかどうかの真偽値（boolean）。
-- `execution-ready` (任意): `harness/ai-org/exec-plans/active/*.md` がサブエージェント委譲可能な実行契約を満たす時だけ `true` を付与する。
+- `execution-ready` (任意): `harness/runs/active/*.md` がサブエージェント委譲可能な実行契約を満たす時だけ `true` を付与する。
 
 ## 5. Execution-Ready Plan Checker
 
 **目的**: `execution-ready: true` の active plan が、会話に依存せずサブエージェントへ渡せる最小情報を持つか検証します。
 
 ### 検証要件
-- 対象は `harness/ai-org/exec-plans/active/*.md` かつ frontmatter に `execution-ready: true` を持つファイルのみ。
+- 対象は `harness/runs/active/*.md` かつ frontmatter に `execution-ready: true` を持つファイルのみ。
 - 次の見出しが存在しなければエラー:
   - `## Goal`
   - `## Scope`

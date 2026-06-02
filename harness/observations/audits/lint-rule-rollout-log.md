@@ -4,14 +4,16 @@ kind: observation
 id: observation.audit.lint-rule-rollout-log
 title: Lint Rule Rollout Log
 status: active
-name: lint-rule-rollout-log
-description: 追加するプロジェクト lint ルール 1-7 の実装ログと到達状態。
 summary: import boundary lint 3件、lint-site-rules 4件を順に導入し、必要なコード寄せと例外条件を記録する。
 read_when:
   - lint ルール 1-7 の進捗を確認したいとき
   - import boundary lint と lint-site-rules の責務分担を確認したいとき
   - lint 追加に伴うコード寄せの理由を追いたいとき
-user-invocable: false
+x:
+  legacy:
+    name: lint-rule-rollout-log
+    description: 追加するプロジェクト lint ルール 1-7 の実装ログと到達状態。
+    user_invocable: false
 ---
 
 # Lint Rule Rollout Log

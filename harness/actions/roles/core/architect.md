@@ -4,12 +4,12 @@ kind: role
 id: role.core.architect
 title: Architect
 status: active
-role_type: core
 summary: Own boundaries, dependency direction, design impact, migration risk, and implementation strategy.
 tags:
   - harness
   - role
   - architecture
+role_type: core
 selectors:
   tags:
     - architecture

@@ -1,16 +1,3 @@
----
-schema: harness/v1
-kind: run
-id: run.active.task-0020-atelier-m5-m6.plan
-title: "TASK-0020 Atelier M5-M6 Plan"
-status: active
-summary: Plan for implementing Atelier run close and knowledge proposal promotion.
-tags:
-  - harness
-  - run
-  - atelier
----
-
 # Plan: TASK-0020 Atelier M5-M6
 
 ## Scope

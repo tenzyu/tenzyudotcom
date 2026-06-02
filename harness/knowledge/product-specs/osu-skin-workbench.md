@@ -5,13 +5,15 @@ knowledge_type: product-spec
 id: knowledge.product-spec.osu-skin-workbench
 title: osu-skin-workbench Spec
 status: active
-name: osu-skin-workbench
-description: osu! skin workbench の確定仕様と未決事項を分離した製品仕様ノート。
 summary: Desktop-first osu! skin workbench confirmed specification and open questions.
 tags:
   - workbench
   - osu-skin
   - product-spec
+x:
+  legacy:
+    name: osu-skin-workbench
+    description: osu! skin workbench の確定仕様と未決事項を分離した製品仕様ノート。
 ---
 
 # osu-skin-workbench Spec v0.1

@@ -4,12 +4,12 @@ kind: role
 id: role.domain.workbench-app-engineer
 title: Workbench App Engineer
 status: active
-role_type: domain
 summary: Maintain the osu! skin workbench frontend and workflow UX.
 tags:
   - harness
   - role
   - workbench
+role_type: domain
 activation:
   paths:
     - product/apps/osu-skin-workbench/src/**

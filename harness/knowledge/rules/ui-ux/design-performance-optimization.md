@@ -3,12 +3,17 @@ schema: harness/v1
 kind: knowledge
 knowledge_type: rule
 id: knowledge.rule.ui-ux.performance-optimization
+title: Performance Optimization
 status: active
-title: "Performance Optimization"
+tags:
+  - performance
+  - nextjs
+  - bundle
 impact: HIGH
-impactDescription: 初期ロードの高速化と、インタラクションの応答性を限界まで高める。
-tags: performance, nextjs, bundle
-chapter: UI & UX
+x:
+  legacy:
+    impactDescription: 初期ロードの高速化と、インタラクションの応答性を限界まで高める。
+    chapter: UI & UX
 ---
 
 ## Performance Optimization

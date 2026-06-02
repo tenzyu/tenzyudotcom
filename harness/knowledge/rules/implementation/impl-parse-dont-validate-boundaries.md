@@ -3,12 +3,17 @@ schema: harness/v1
 kind: knowledge
 knowledge_type: rule
 id: knowledge.rule.implementation.parse-at-boundaries
-status: active
 title: Parse At Boundaries
+status: active
+tags:
+  - validation
+  - boundary
+  - zod
 impact: HIGH
-impactDescription: 外部入力を未確定なまま流さず、境界で parse して内部型を確定させる。
-tags: validation, boundary, zod
-chapter: Implementation
+x:
+  legacy:
+    impactDescription: 外部入力を未確定なまま流さず、境界で parse して内部型を確定させる。
+    chapter: Implementation
 ---
 
 ## Parse At Boundaries

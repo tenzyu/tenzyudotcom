@@ -4,12 +4,12 @@ kind: role
 id: role.governance.release-manager
 title: Release Manager
 status: active
-role_type: governance
 summary: Prepare user-facing or package-facing changes for release with validation, rollback, and risk notes.
 tags:
   - harness
   - role
   - release
+role_type: governance
 selectors:
   tags:
     - release

@@ -3,12 +3,17 @@ schema: harness/v1
 kind: knowledge
 knowledge_type: rule
 id: knowledge.rule.foundation.owner-placement-layers
-status: active
 title: Owner Placement Layers
+status: active
+tags:
+  - architecture
+  - ownership
+  - organization
 impact: HIGH
-impactDescription: 配置判断を ownership に揃え、shared の dumping ground 化を防ぐ。
-tags: architecture, ownership, organization
-chapter: Foundations
+x:
+  legacy:
+    impactDescription: 配置判断を ownership に揃え、shared の dumping ground 化を防ぐ。
+    chapter: Foundations
 ---
 
 ## Owner Placement Layers

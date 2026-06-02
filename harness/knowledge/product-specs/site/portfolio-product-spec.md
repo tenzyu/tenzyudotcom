@@ -5,8 +5,6 @@ knowledge_type: product-spec
 id: knowledge.product-spec.site.portfolio
 title: Portfolio Product Spec
 status: active
-name: portfolio-product-spec
-description: ポートフォリオ機能のための、リポジトリ固有のプロダクト仕様。
 summary: /portfolioページの構造とプレゼンテーション・ルールを定義する。
 tags:
   - site
@@ -17,7 +15,11 @@ read_when:
   - ポートフォリオに新しいプロジェクトやエントリを追加する時
 skip_when:
   - 一般的なレイアウトパターンだけが必要な時
-user-invocable: false
+x:
+  legacy:
+    name: portfolio-product-spec
+    description: ポートフォリオ機能のための、リポジトリ固有のプロダクト仕様。
+    user_invocable: false
 ---
 
 # Portfolio Product Spec

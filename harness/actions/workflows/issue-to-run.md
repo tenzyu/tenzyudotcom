@@ -4,12 +4,12 @@ kind: workflow
 id: workflow.issue-to-run
 title: Issue To Run
 status: active
-callable: true
 summary: Convert an issue, request, or vague problem into a bounded executable run.
 tags:
   - harness
   - workflow
   - intake
+callable: true
 phases:
   - phase.intake
   - phase.investigation

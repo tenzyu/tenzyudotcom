@@ -3,12 +3,17 @@ schema: harness/v1
 kind: knowledge
 knowledge_type: rule
 id: knowledge.rule.foundation.tool-boundaries
-status: active
 title: Tool Boundaries
+status: active
+tags:
+  - tools
+  - boundaries
+  - dependency
 impact: HIGH
-impactDescription: 道具ごとの責務を固定し、交換不可能な密結合を防ぐ。
-tags: tools, boundaries, dependency
-chapter: Foundations
+x:
+  legacy:
+    impactDescription: 道具ごとの責務を固定し、交換不可能な密結合を防ぐ。
+    chapter: Foundations
 ---
 
 ## Tool Boundaries

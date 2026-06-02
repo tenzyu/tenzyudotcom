@@ -1,15 +1,3 @@
----
-schema: harness/v1
-kind: run
-id: run.active.task-0020-atelier-m5-m6.context
-title: "TASK-0020-atelier-m5-m6 Context"
-status: active
-summary: "Context manifest for implement Atelier ROADMAP M5 run close and M6 knowledge proposal promotion"
-tags:
-  - harness
-  - context
----
-
 # Context: TASK-0020-atelier-m5-m6
 
 ## Assignment

@@ -4,12 +4,12 @@ kind: workflow
 id: workflow.distill-adr
 title: Distill ADR
 status: active
-callable: true
 summary: Turn a material decision into an architecture decision record.
 tags:
   - harness
   - workflow
   - adr
+callable: true
 phases:
   - phase.adr-distillation
   - phase.verification

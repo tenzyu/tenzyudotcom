@@ -3,7 +3,7 @@ schema: harness/v1
 kind: knowledge
 knowledge_type: adr
 id: knowledge.decision.adr.tauri-as-desktop-shell
-title: "ADR 0003: Tauri as Desktop Shell"
+title: 'ADR 0003: Tauri as Desktop Shell'
 status: draft
 summary: Records Tauri as the desktop shell for osu! skin workbench with native behavior isolated under src-tauri.
 tags:

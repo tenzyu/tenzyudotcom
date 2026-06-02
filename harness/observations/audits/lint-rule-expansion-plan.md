@@ -4,14 +4,16 @@ kind: observation
 id: observation.audit.lint-rule-expansion-plan
 title: Lint Rule Expansion Plan
 status: active
-name: lint-rule-expansion-plan
-description: lint で自動検知すべきルール候補を、実装手段ごとに優先順位付きで整理する。
 summary: まず Biome と custom import boundary lint で取れる静的境界違反を先に実装し、取り切れない認可や registry 整合性は専用スクリプトで補完する方針をまとめる。
 read_when:
   - lint を追加するとき
   - 設計ルールを自動検知へ落とし込みたいとき
   - Biome と custom lint と専用スクリプトの責務分担を見直すとき
-user-invocable: false
+x:
+  legacy:
+    name: lint-rule-expansion-plan
+    description: lint で自動検知すべきルール候補を、実装手段ごとに優先順位付きで整理する。
+    user_invocable: false
 ---
 
 # Lint Rule Expansion Plan

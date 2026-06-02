@@ -3,12 +3,17 @@ schema: harness/v1
 kind: knowledge
 knowledge_type: reference
 id: knowledge.rule-reference.import-boundaries
-status: active
 title: Import Boundaries Repair Guide
+status: active
+tags:
+  - reference
+  - lint
+  - boundaries
 impact: HIGH
-impactDescription: lint-import-boundaries の修正導線を短くし、境界違反の直し方を即座に判断できるようにする。
-tags: reference, lint, boundaries
-chapter: References
+x:
+  legacy:
+    impactDescription: lint-import-boundaries の修正導線を短くし、境界違反の直し方を即座に判断できるようにする。
+    chapter: References
 ---
 
 - [](/harness/knowledge/rules/foundations/foundation-owner-placement-layers.md)

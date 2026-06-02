@@ -1,15 +1,3 @@
----
-schema: harness/v1
-kind: run
-id: run.active.task-0019-atelier-m2-m4.review
-title: Atelier M2-M4 Review
-status: active
-summary: Review notes for Atelier M2 through M4 implementation.
-tags:
-  - atelier
-  - review
----
-
 # Review: Atelier M2-M4
 
 ## Findings

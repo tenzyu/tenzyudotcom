@@ -5,17 +5,22 @@ knowledge_type: product-spec
 id: knowledge.product-spec.site.lint-symbol-ownership
 title: lint symbol ownership
 status: active
-description: exported symbol が本当に shared かどうかを owner 単位の参照事実で判定し、demote 候補を検出する linter の仕様
 summary: Specification for detecting promote and demote candidates through symbol ownership references.
 tags:
   - site
   - linter
   - symbol-ownership
+x:
+  legacy:
+    description:
+      exported symbol が本当に shared かどうかを owner 単位の参照事実で判定し、demote 候補を検出する
+      linter の仕様
 ---
 
 # Lint Symbol Ownership
 
 ## References
+
 - [](/harness/knowledge/rules/foundations/foundation-dependency-inversion.md)
 - [](/harness/knowledge/rules/compiled/AGENTS.md)
 

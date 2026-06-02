@@ -4,13 +4,13 @@ kind: role
 id: role.governance.cost-controller
 title: Cost Controller
 status: active
-role_type: governance
 summary: Keep agent work context-efficient and prevent duplicate research.
 tags:
   - harness
   - role
   - cost
   - context
+role_type: governance
 selectors:
   tags:
     - context-budget

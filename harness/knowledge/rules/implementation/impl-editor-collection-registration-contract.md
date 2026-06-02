@@ -3,12 +3,17 @@ schema: harness/v1
 kind: knowledge
 knowledge_type: rule
 id: knowledge.rule.implementation.editor-collection-registration-contract
-status: active
 title: Editor Collection Registration
+status: active
+tags:
+  - editor
+  - contracts
+  - admin
 impact: HIGH
-impactDescription: editor collection 追加時の registry 漏れを防ぎ、admin editor の読込経路を壊さない。
-tags: editor, contracts, admin
-chapter: Implementation
+x:
+  legacy:
+    impactDescription: editor collection 追加時の registry 漏れを防ぎ、admin editor の読込経路を壊さない。
+    chapter: Implementation
 ---
 
 ## Editor Collection Registration

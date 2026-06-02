@@ -5,8 +5,6 @@ knowledge_type: reference
 id: knowledge.reference.github-pr-workflow
 title: GitHub PR Workflow
 status: active
-name: harness-github-pr-workflow
-description: GitHub CLI (gh) を用いた develop 向けPR作成とレビューの標準フロー定義。
 summary: サブエージェントが自身の task branch を push し、`develop` を base にした PR を作成してメインエージェントと人間へレビュー依頼する手順。
 tags:
   - github
@@ -17,7 +15,11 @@ read_when:
   - 差分のチェックやコードレビューのプロセスを行う時
 skip_when:
   - まだ作業の初期〜中期段階であり、ローカルでの検証が終わっていない時
-user-invocable: false
+x:
+  legacy:
+    name: harness-github-pr-workflow
+    description: GitHub CLI (gh) を用いた develop 向けPR作成とレビューの標準フロー定義。
+    user_invocable: false
 ---
 
 # GitHub PR Workflow (gh integration)
@@ -31,7 +33,7 @@ user-invocable: false
   - `git log develop..HEAD` などで差分を確認し、意図しないブランチ（`main`など）が混じっていないかチェックします。
 - **必ず `bun run verify` を実行し、すべてのチェック（Lint, Docs, Tests）が Pass していること** を最終確認します。
 - 変更がすべて Commit されていることを `git status` で確認します。
-- 対象の `harness/ai-org/exec-plans/active/*.md` に書かれた完了条件を満たしていることを確認します。
+- 対象の `harness/runs/active/*.md` に書かれた完了条件を満たしていることを確認します。
 
 ## 2. セルフチェック (Self-Review Checklist)
 PR作成前に、サブエージェントは以下の項目を自問自答してください。

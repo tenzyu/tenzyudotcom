@@ -1,15 +1,3 @@
----
-schema: harness/v1
-kind: run
-id: run.task-0018-atelier-m0-m1-app.brief
-title: "TASK-0018: Atelier M0/M1 App"
-status: active
-summary: Brief for creating the initial Atelier app and doctor.
-tags:
-  - run
-  - atelier
----
-
 # TASK-0018: Atelier M0/M1 App
 
 ## Background

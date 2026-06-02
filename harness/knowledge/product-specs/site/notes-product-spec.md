@@ -5,8 +5,6 @@ knowledge_type: product-spec
 id: knowledge.product-spec.site.notes
 title: Notes Product Spec
 status: active
-name: notes-product-spec
-description: ノーツ機能のための、リポジトリ固有のプロダクト仕様。
 summary: ノーツコレクションの役割、ルートの表面、ソースの形状、UX、およびadminスコープを定義する。
 tags:
   - site
@@ -18,7 +16,11 @@ read_when:
   - ノーツ機能が現在必要か、それとも明示的にスコープ外かを決定する時
 skip_when:
   - 一般的なルートローカルの実装ルールだけが必要な時
-user-invocable: false
+x:
+  legacy:
+    name: notes-product-spec
+    description: ノーツ機能のための、リポジトリ固有のプロダクト仕様。
+    user_invocable: false
 ---
 
 # Notes Product Spec

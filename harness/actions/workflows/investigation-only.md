@@ -4,12 +4,12 @@ kind: workflow
 id: workflow.investigation-only
 title: Investigation Only
 status: active
-callable: true
 summary: Produce findings or prepare a later run without implementing changes.
 tags:
   - harness
   - workflow
   - investigation
+callable: true
 phases:
   - phase.intake
   - phase.investigation

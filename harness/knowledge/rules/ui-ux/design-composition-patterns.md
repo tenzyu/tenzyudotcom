@@ -3,12 +3,17 @@ schema: harness/v1
 kind: knowledge
 knowledge_type: rule
 id: knowledge.rule.ui-ux.composition-patterns
+title: Composition Patterns
 status: active
-title: "Composition Patterns"
+tags:
+  - react
+  - composition
+  - rsc
 impact: HIGH
-impactDescription: プロップ・ドリリングを抑制し、RSC ペイロードを最小化することで、保守性とパフォーマンスを向上させる。
-tags: react, composition, rsc
-chapter: UI & UX
+x:
+  legacy:
+    impactDescription: プロップ・ドリリングを抑制し、RSC ペイロードを最小化することで、保守性とパフォーマンスを向上させる。
+    chapter: UI & UX
 ---
 
 ## Composition Patterns

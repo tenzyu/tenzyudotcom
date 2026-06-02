@@ -4,7 +4,7 @@ kind: adapter
 id: adapter.tool.gemini
 title: Tool Gemini Adapter
 status: active
-summary: Generator source for Gemini root adapter routing.
+summary: Generator source for Gemini root adapter routing through Atelier.
 tags:
   - harness
   - adapter
@@ -13,13 +13,14 @@ tags:
 
 # Adapter: GEMINI.md
 
-Root `GEMINI.md` should route Gemini to `harness` for canonical workflows, roles, policies, and role-routed knowledge.
+Root `GEMINI.md` should route Gemini through Atelier.
+
+Required behavior:
+
+- start non-trivial work with `atelier run init`
+- read generated `context.md`
+- avoid manual broad search of `harness/knowledge/**`
+- finish with `atelier run close <RUN-ID>`
+- use `atelier knowledge propose` for new durable knowledge
 
 Do not duplicate the complete knowledge base in this adapter.
-
-Preferred starting points:
-
-- `harness/actions/workflows/README.md`
-- `harness/actions/roles/README.md`
-- `harness/policies/repository.md`
-- `harness/policies/context-budget.md`

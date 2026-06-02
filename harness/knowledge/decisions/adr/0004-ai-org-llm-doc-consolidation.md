@@ -3,7 +3,7 @@ schema: harness/v1
 kind: knowledge
 knowledge_type: adr
 id: knowledge.decision.adr.ai-org-llm-doc-consolidation
-title: "ADR 0004: Consolidate LLM-Facing Harness Documents Under AI Org"
+title: 'ADR 0004: Consolidate LLM-Facing Harness Documents Under AI Org'
 status: active
 summary: Historical decision record for consolidating LLM-facing harness documents.
 tags:
@@ -20,16 +20,16 @@ Accepted
 
 ## Context
 
-The harness had become fragmented across `docs/`, `harness/ai-org/`, and `repo-ops/harness/`. Human-facing docs still belong in `docs/`, but LLM-facing workflows, rules, execution plans, reports, references, and ADRs need one canonical home so agents can load context predictably.
+The harness had become fragmented across `docs/`, `harness/`, and `repo-ops/harness/`. Human-facing docs still belong in `docs/`, but LLM-facing workflows, rules, execution plans, reports, references, and ADRs need one canonical home so agents can load context predictably.
 
 The owner was interviewed during `TASK-0013-ai-org-harness-rebuild` and chose:
 
-- Move all LLM-facing documents into `harness/ai-org/`.
-- Move ADRs into `harness/ai-org/` instead of keeping `docs/ADR` canonical.
+- Move all LLM-facing documents into `harness/`.
+- Move ADRs into `harness/` instead of keeping `docs/ADR` canonical.
 
 ## Decision
 
-Use `harness/ai-org/` as the canonical root for LLM-facing harness material, including ADRs.
+Use `harness/` as the canonical root for LLM-facing harness material, including ADRs.
 
 Formal ADRs live under:
 
@@ -41,7 +41,7 @@ Human-facing repository and product documentation may remain under `docs/`.
 
 ## Alternatives Considered
 
-- Keep `docs/ADR` canonical and only mirror AI summaries under `harness/ai-org/memory/decisions`.
+- Keep `docs/ADR` canonical and only mirror AI summaries under `harness/knowledge/decisions`.
 - Move only obvious harness documents and leave design rules, reports, and execution plans in `docs/`.
 - Keep `repo-ops/harness` as a redirect.
 
@@ -54,6 +54,6 @@ Human-facing repository and product documentation may remain under `docs/`.
 
 ## Follow-Ups
 
-- Keep root adapter files short and pointed at `harness/ai-org/`.
+- Keep root adapter files short and pointed at `harness/`.
 - Update linter and docs generation paths when harness document structure changes.
 - Interview the owner before future ADR-location or harness-root changes.
