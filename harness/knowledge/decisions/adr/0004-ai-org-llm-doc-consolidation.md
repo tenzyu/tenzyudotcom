@@ -20,7 +20,7 @@ Use `harness/ai-org/` as the canonical root for LLM-facing harness material, inc
 Formal ADRs live under:
 
 ```txt
-harness/ai-org/memory/decisions/adr/
+harness/knowledge/decisions/adr/
 ```
 
 Human-facing repository and product documentation may remain under `docs/`.

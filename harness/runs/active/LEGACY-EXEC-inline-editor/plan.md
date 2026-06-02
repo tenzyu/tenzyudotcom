@@ -101,13 +101,13 @@ execution-ready: true
 
 ## Subagent Contract
 
-- plan path: `harness/ai-org/exec-plans/active/inline-editor.md`
+- plan path: `harness/runs/active/LEGACY-EXEC-inline-editor/plan.md`
 - allowed file scope:
 - `src/app/[locale]/(main)/**`
   - `src/app/[locale]/(admin)/editor/**`
   - `src/features/admin/**`
   - `src/features/links/**`
-  - `docs/product-specs/site/**`
+  - `harness/knowledge/product-specs/site/**`
   - `harness/ai-org/knowledge/design-docs/rules/**`
 - required verification:
   - `bun run lint`
@@ -138,9 +138,9 @@ execution-ready: true
 
 ## References
 
-- [](/docs/product-specs/site/admin-editor-spec.md)
-- [](/docs/product-specs/site/notes-product-spec.md)
-- [](/docs/product-specs/site/blog-product-spec.md)
-- [](/docs/product-specs/site/links-product-spec.md)
-- [](/docs/product-specs/site/architecture.md)
+- [](/harness/knowledge/product-specs/site/admin-editor-spec.md)
+- [](/harness/knowledge/product-specs/site/notes-product-spec.md)
+- [](/harness/knowledge/product-specs/site/blog-product-spec.md)
+- [](/harness/knowledge/product-specs/site/links-product-spec.md)
+- [](/harness/knowledge/product-specs/site/architecture.md)
 - [](/harness/ai-org/knowledge/design-docs/rules/admin-gate-pattern.md)

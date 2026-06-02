@@ -13,9 +13,9 @@ Convert a human request into a bounded, reviewable task before broad implementat
 ## Required Inputs
 
 - user request
-- `harness/ai-org/org/charter.md`
-- `harness/ai-org/memory/repo-map.md`
-- `harness/ai-org/workflows/task-intake.md`
+- `harness/canon/charter.md`
+- `harness/knowledge/repo-map.md`
+- `harness/actions/workflows/task-intake.md`
 
 ## Required Outputs
 

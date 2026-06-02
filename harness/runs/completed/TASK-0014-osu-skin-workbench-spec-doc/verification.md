@@ -9,15 +9,15 @@
 ## command results
 
 - Main checkout status after moving the file: only pre-existing `opencode.json` modification remains.
-- Isolated worktree status: new `docs/product-specs/osu-skin-workbench.md` plus task record files.
+- Isolated worktree status: new `harness/knowledge/product-specs/osu-skin-workbench.md` plus task record files.
 - Readback confirmed the spec exists and separates confirmed specification from design candidates/open questions.
 
 ## files inspected
 
-- `harness/ai-org/workflows/task-intake.md`
-- `harness/ai-org/workflows/worktree-task-isolation.md`
-- `docs/product-specs/osu-skin-workbench.md`
-- `harness/ai-org/tasks/TASK-0014-osu-skin-workbench-spec-doc/brief.md`
+- `harness/actions/workflows/task-intake.md`
+- `harness/actions/workflows/worktree-task-isolation.md`
+- `harness/knowledge/product-specs/osu-skin-workbench.md`
+- `harness/runs/completed/TASK-0014-osu-skin-workbench-spec-doc/brief.md`
 
 ## visual checks performed, when relevant
 

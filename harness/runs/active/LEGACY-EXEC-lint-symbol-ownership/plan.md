@@ -39,13 +39,13 @@ execution-ready: true
 
 ## Subagent Contract
 
-- plan path: `harness/ai-org/exec-plans/active/lint-symbol-ownership.md`
+- plan path: `harness/runs/active/LEGACY-EXEC-lint-symbol-ownership/plan.md`
 - allowed file scope:
   - `scripts/**`
   - `src/**`
   - `package.json`
-  - `docs/product-specs/site/lint-symbol-ownership.md`
-  - `harness/ai-org/exec-plans/active/lint-symbol-ownership.md`
+  - `harness/knowledge/product-specs/site/lint-symbol-ownership.md`
+  - `harness/runs/active/LEGACY-EXEC-lint-symbol-ownership/plan.md`
 - required verification:
   - `bun test scripts/lint-symbol-ownership.test.ts`
   - `bun run lint`

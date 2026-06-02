@@ -6,12 +6,12 @@ Consolidated the LLM-facing harness into `harness/ai-org/`, added the root opera
 
 ## What Changed
 
-- Added `HARNESS.md` as the top-level operating guide.
+- Added `harness/canon/legacy/root-HARNESS.md` as the top-level operating guide.
 - Added new AI-org roles for task intake, work, review, and ADR distillation.
 - Added `task-lifecycle.md` and `adr-distillation.md` workflows.
 - Added Git, Nx, and `@tenzyu/linter` guardrail skills.
 - Moved LLM-facing docs into `harness/ai-org/` and removed `repo-ops/harness`.
-- Moved ADRs into `harness/ai-org/memory/decisions/adr/`.
+- Moved ADRs into `harness/knowledge/decisions/adr/`.
 - Updated repo docs and repo-ops scripts to use the new paths.
 - Recorded the consolidation decision as ADR 0004.
 
@@ -21,30 +21,30 @@ The repository harness had split across multiple roots, which made context loadi
 
 ## Affected Files
 
-- `HARNESS.md`
+- `harness/canon/legacy/root-HARNESS.md`
 - `AGENTS.md`
 - `CLAUDE.md`
 - `GEMINI.md`
 - `README.md`
 - `PLANS.md`
-- `docs/STRUCTURE.md`
-- `docs/AGENTS.md`
-- `docs/product-specs/site/architecture.md`
-- `docs/product-specs/site/lint-symbol-ownership.md`
-- `harness/ai-org/README.md`
-- `harness/ai-org/org/charter.md`
-- `harness/ai-org/memory/index.md`
-- `harness/ai-org/memory/repo-map.md`
-- `harness/ai-org/memory/decisions/README.md`
-- `harness/ai-org/memory/decisions/adr/*`
-- `harness/ai-org/agents/*`
-- `harness/ai-org/workflows/*`
-- `harness/ai-org/skills/*`
+- `harness/knowledge/structure.md`
+- `harness/policies/repository.md`
+- `harness/knowledge/product-specs/site/architecture.md`
+- `harness/knowledge/product-specs/site/lint-symbol-ownership.md`
+- `harness/canon/legacy/ai-org-readme.md`
+- `harness/canon/charter.md`
+- `harness/knowledge/index.md`
+- `harness/knowledge/repo-map.md`
+- `harness/knowledge/decisions/README.md`
+- `harness/knowledge/decisions/adr/*`
+- `harness/actions/roles/*`
+- `harness/actions/workflows/*`
+- `harness/policies/tools/*`
 - `harness/ai-org/exec-plans/*`
 - `harness/ai-org/knowledge/design-docs/*`
-- `harness/ai-org/references/*`
-- `harness/ai-org/reports/*`
-- `harness/ai-org/specs/docs/*`
+- `harness/knowledge/references/*`
+- `harness/observations/audits/*`
+- `harness/knowledge/specs/docs/*`
 - `repo-ops/scripts/compile-agents-md.ts`
 - `repo-ops/scripts/compile-agents-md.test.ts`
 - `repo-ops/scripts/docs-rename.ts`
@@ -70,7 +70,7 @@ The repository harness had split across multiple roots, which made context loadi
 
 - Fix or separately triage existing broad check failures in `osu-skin-core`, `skin-workbench`, and `web`.
 - Decide whether any remaining human-facing docs should point to the new harness reference roots.
-- Consider adding an index file for `harness/ai-org/skills/` if future tool guardrails grow.
+- Consider adding an index file for `harness/policies/tools/` if future tool guardrails grow.
 
 ## Memory Updates
 

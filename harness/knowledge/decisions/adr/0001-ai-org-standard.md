@@ -6,7 +6,7 @@ Accepted
 
 ## Decision
 
-Use `harness/ai-org` as the canonical Markdown-based AI organization layer for
+Use `harness` as the canonical Markdown-based AI organization layer for
 tenzyudotcom. Root AI files are adapters only.
 
 ## Context
@@ -19,6 +19,6 @@ durable memory.
 
 - Non-trivial work should create task artifacts.
 - Verification and handoff are required before claiming completion.
-- Durable memory lives under `harness/ai-org/memory`.
-- LLM-facing workflows, rules, execution plans, references, and ADRs live under `harness/ai-org`.
+- Durable memory lives under `harness/knowledge`.
+- LLM-facing workflows, rules, execution plans, references, and ADRs live under `harness`.
 - Human-facing repository and product contracts stay under `docs`.

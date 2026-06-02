@@ -14,10 +14,10 @@ into shared packages.
 
 Allowed files:
 
-- `docs/UI_MIGRATION_GUIDE.md`, if created
-- `docs/DESIGN_SYSTEM.md`, if updated
+- `harness/knowledge/rules/ui-ux/ui-migration-guide.md`, if created
+- `harness/knowledge/product-specs/design-system.md`, if updated
 - relevant app files for investigation only, unless implementation is explicitly approved
-- relevant task docs under `harness/ai-org/tasks/TASK-0005-app-side-ui-migration-guide/`
+- relevant task docs under `harness/runs/backlog/TASK-0005-app-side-ui-migration-guide`
 
 Forbidden files:
 

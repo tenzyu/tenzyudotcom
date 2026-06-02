@@ -1,6 +1,6 @@
 # tenzyudotcom AI Organization
 
-`harness/ai-org` is the canonical AI organization system for this repository.
+`harness` is the canonical AI organization system for this repository.
 It defines how AI agents receive work, bound scope, coordinate roles, verify
 changes, preserve handoff, update durable memory, and consult LLM-facing rules.
 
@@ -12,7 +12,7 @@ product documentation may remain under `docs/`.
 
 1. Read `org/charter.md`.
 2. Read `memory/repo-map.md`.
-3. Read `HARNESS.md` at the repository root when you need the operating overview.
+3. Read `harness/canon/legacy/root-HARNESS.md` at the repository root when you need the operating overview.
 4. Read the role file that matches the work.
 5. Read the workflow file that matches the next phase.
 6. Read tool guardrail skills before using Git, Nx, or `@tenzyu/linter`.

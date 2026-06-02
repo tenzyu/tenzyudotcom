@@ -78,7 +78,7 @@ user-invocable: false
 
 ## Ownership Follow-up
 
-- owner tree spec は `harness/ai-org/reports/app-ownership-tree-spec.md` に記録済み
+- owner tree spec は `harness/observations/audits/app-ownership-tree-spec.md` に記録済み
 - `src/components/shell/*`
 - `src/components/site-ui/page-header.tsx`
 - `src/components/site-ui/section-header.tsx`

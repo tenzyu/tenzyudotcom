@@ -15,9 +15,9 @@ tokens or CSS should be validated.
 Allowed files:
 
 - `product/packages/ui/**`, if evidence is needed
-- `docs/DESIGN_SYSTEM.md`, if created or updated
-- `docs/ARCHITECTURE.md`, if boundary wording needs refinement
-- relevant task docs under `harness/ai-org/tasks/TASK-0003-define-ui-styling-boundary/`
+- `harness/knowledge/product-specs/design-system.md`, if created or updated
+- `harness/knowledge/architecture.md`, if boundary wording needs refinement
+- relevant task docs under `harness/runs/backlog/TASK-0003-define-ui-styling-boundary`
 
 Forbidden files:
 

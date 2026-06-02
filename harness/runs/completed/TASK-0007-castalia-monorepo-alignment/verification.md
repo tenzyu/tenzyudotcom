@@ -34,14 +34,14 @@
 ## Files Inspected
 
 - `AGENTS.md`
-- `docs/AGENTS.md`
-- `harness/ai-org/org/charter.md`
-- `harness/ai-org/memory/repo-map.md`
-- `harness/ai-org/agents/implementer.md`
-- `harness/ai-org/agents/repo-ops-engineer.md`
-- `harness/ai-org/workflows/implementation.md`
-- `harness/ai-org/workflows/verification.md`
-- `harness/ai-org/workflows/handoff.md`
+- `harness/policies/repository.md`
+- `harness/canon/charter.md`
+- `harness/knowledge/repo-map.md`
+- `harness/actions/roles/implementer.md`
+- `harness/actions/roles/repo-ops-engineer.md`
+- `harness/actions/workflows/implementation.md`
+- `harness/actions/workflows/verification.md`
+- `harness/actions/workflows/handoff.md`
 - `repo-ops/scripts/check-dependency-policy.ts`
 - `product/apps/castalia/project.json`
 - `product/apps/castalia/Cargo.toml`

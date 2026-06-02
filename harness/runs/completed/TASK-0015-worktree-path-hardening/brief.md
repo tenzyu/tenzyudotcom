@@ -14,10 +14,10 @@ Fix the harness docs so worktree isolation always uses `projectRoot/.worktrees/<
 
 ## scope
 
-- `harness/ai-org/workflows/worktree-task-isolation.md`
-- `harness/ai-org/workflows/task-intake.md`
-- `harness/ai-org/workflows/implementation.md`
-- `harness/ai-org/skills/git.md`
+- `harness/actions/workflows/worktree-task-isolation.md`
+- `harness/actions/workflows/task-intake.md`
+- `harness/actions/workflows/implementation.md`
+- `harness/policies/tools/git.md`
 - `.gitignore`
 - `AGENTS.md`
 
@@ -37,7 +37,7 @@ Product runtime code.
 
 ## constraints
 
-- Keep canonical policy in `harness/ai-org`
+- Keep canonical policy in `harness`
 - Avoid adding comments
 - Preserve existing task history unless the current guidance must change
 

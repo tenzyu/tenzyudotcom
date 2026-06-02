@@ -20,7 +20,7 @@ Allowed files:
 - `product/packages/ui/src/stories/**`
 - `product/packages/ui/src/testing/**`
 - `product/packages/ui/.storybook/**` only if Storybook catalog behavior requires it
-- task documentation under `harness/ai-org/tasks/TASK-0013-ui-storybook-component-catalog/`
+- task documentation under `harness/runs/completed/TASK-0013-ui-storybook-component-catalog`
 
 Forbidden files:
 

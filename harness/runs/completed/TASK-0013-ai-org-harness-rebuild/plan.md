@@ -6,8 +6,8 @@ TASK-0013
 
 ## Investigation
 
-- Affected files: `harness/ai-org/**`, `HARNESS.md`, root adapters, docs indexes, repo-ops docs references, linter/document-rule paths.
-- Existing conventions: root adapters remain short; `harness/ai-org` is canonical; non-trivial work requires task artifacts, verification, and handoff.
+- Affected files: `harness/ai-org/**`, `harness/canon/legacy/root-HARNESS.md`, root adapters, docs indexes, repo-ops docs references, linter/document-rule paths.
+- Existing conventions: root adapters remain short; `harness` is canonical; non-trivial work requires task artifacts, verification, and handoff.
 - Current behavior: LLM-facing docs were split between `docs/`, `harness/ai-org/`, and `repo-ops/harness/`.
 - Uncertain areas: owner was interviewed for ADR location and LLM-doc consolidation scope.
 
@@ -16,7 +16,7 @@ TASK-0013
 1. Create an isolated worktree and task folder.
 2. Move LLM-facing docs and ADRs under `harness/ai-org/`.
 3. Remove `repo-ops/harness`.
-4. Add developer-facing `HARNESS.md`.
+4. Add developer-facing `harness/canon/legacy/root-HARNESS.md`.
 5. Add focused agent roles for intake, work, review, and ADR distillation.
 6. Add lifecycle and ADR workflows.
 7. Add tool guardrail skills for Git, Nx, and `@tenzyu/linter`.
@@ -27,16 +27,16 @@ TASK-0013
 
 | File | Planned change |
 | --- | --- |
-| `HARNESS.md` | Add top-level harness operating guide |
-| `harness/ai-org/README.md` | Update directory map and start sequence |
-| `harness/ai-org/agents/*.md` | Add intake/work/review/ADR roles |
-| `harness/ai-org/workflows/*.md` | Add lifecycle and ADR distillation workflows |
-| `harness/ai-org/skills/*.md` | Add Git, Nx, and linter guardrails |
+| `harness/canon/legacy/root-HARNESS.md` | Add top-level harness operating guide |
+| `harness/canon/legacy/ai-org-readme.md` | Update directory map and start sequence |
+| `harness/actions/roles/*.md` | Add intake/work/review/ADR roles |
+| `harness/actions/workflows/*.md` | Add lifecycle and ADR distillation workflows |
+| `harness/policies/tools/*.md` | Add Git, Nx, and linter guardrails |
 | `harness/ai-org/memory/**` | Move ADRs and update memory routing |
 | `harness/ai-org/knowledge/**` | Move design-doc rules and references |
 | `harness/ai-org/exec-plans/**` | Move active/completed plans |
-| `harness/ai-org/references/**` | Move workflow references |
-| `harness/ai-org/reports/**` | Move AI reports |
+| `harness/knowledge/references/**` | Move workflow references |
+| `harness/observations/audits/**` | Move AI reports |
 | `repo-ops/harness/**` | Delete legacy redirect |
 | `repo-ops/scripts/compile-agents-md.ts` | Update generated design-doc path |
 | `product/packages/linter/src/rules/document-rules.ts` | Update document linter target path |

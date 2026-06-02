@@ -28,4 +28,4 @@ git diff --check
 
 ## Worktree Reference
 
-Follow `harness/ai-org/workflows/worktree-task-isolation.md` for setup, merge, and cleanup.
+Follow `harness/actions/workflows/worktree-task-isolation.md` for setup, merge, and cleanup.

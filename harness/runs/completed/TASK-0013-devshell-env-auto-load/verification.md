@@ -3,7 +3,7 @@
 ## commands run
 
 - `nix flake check`
-- `git status --short && git diff -- nix/shell-hooks.nix harness/ai-org/tasks/TASK-0013-devshell-env-auto-load/brief.md`
+- `git status --short && git diff -- nix/shell-hooks.nix harness/runs/completed/TASK-0013-devshell-env-auto-load/brief.md`
 
 ## command results
 
@@ -13,15 +13,15 @@
 ## files inspected
 
 - `AGENTS.md`
-- `docs/AGENTS.md`
-- `harness/ai-org/org/charter.md`
-- `harness/ai-org/memory/repo-map.md`
-- `harness/ai-org/agents/repo-ops-engineer.md`
-- `harness/ai-org/workflows/task-intake.md`
-- `harness/ai-org/workflows/worktree-task-isolation.md`
-- `harness/ai-org/workflows/implementation.md`
-- `harness/ai-org/workflows/verification.md`
-- `harness/ai-org/workflows/handoff.md`
+- `harness/policies/repository.md`
+- `harness/canon/charter.md`
+- `harness/knowledge/repo-map.md`
+- `harness/actions/roles/repo-ops-engineer.md`
+- `harness/actions/workflows/task-intake.md`
+- `harness/actions/workflows/worktree-task-isolation.md`
+- `harness/actions/workflows/implementation.md`
+- `harness/actions/workflows/verification.md`
+- `harness/actions/workflows/handoff.md`
 - `nix/devshells.nix`
 - `nix/shell-hooks.nix`
 

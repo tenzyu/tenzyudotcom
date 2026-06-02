@@ -2,11 +2,11 @@
 
 ## Investigation
 
-- `goal.md` defines `harness/ai-org` as canonical and gives a first implementation prompt.
-- `docs/AGENTS.md` defines existing Bun + Nx repository constraints.
+- `goal.md` defines `harness` as canonical and gives a first implementation prompt.
+- `harness/policies/repository.md` defines existing Bun + Nx repository constraints.
 - Existing root `AGENTS.md` contained a generated Nx guidance block that should be preserved.
-- Existing root `CLAUDE.md` only pointed at `docs/AGENTS.md`.
-- `GEMINI.md`, `docs/STRUCTURE.md`, `docs/ARCHITECTURE.md`, `docs/QUALITY_GATES.md`, and `harness/ai-org/` did not exist.
+- Existing root `CLAUDE.md` only pointed at `harness/policies/repository.md`.
+- `GEMINI.md`, `harness/knowledge/structure.md`, `harness/knowledge/architecture.md`, `harness/policies/quality-gates.md`, and `harness/ai-org/` did not exist.
 - `bun nx show projects --json` failed before returning project data, so visible project files were used as fallback evidence.
 
 ## Strategy
@@ -22,16 +22,16 @@
 
 | File area | Planned change |
 | --- | --- |
-| Root adapters | Route agents to `harness/ai-org` and `docs/AGENTS.md` |
+| Root adapters | Route agents to `harness` and `harness/policies/repository.md` |
 | `docs/` | Add structure, architecture, and quality gates |
 | `harness/ai-org/org/` | Add charter, decision, cost, quality, and context policy |
-| `harness/ai-org/workflows/` | Add task, plan, verification, handoff, and memory workflows |
-| `harness/ai-org/agents/` | Add initial role definitions |
-| `harness/ai-org/templates/` | Add copyable task artifact templates |
+| `harness/actions/workflows/` | Add task, plan, verification, handoff, and memory workflows |
+| `harness/actions/roles/` | Add initial role definitions |
+| `harness/actions/templates/` | Add copyable task artifact templates |
 | `harness/ai-org/memory/` | Add index, repo map, and known problems |
 | `harness/ai-org/tasks/` | Add this task and initial pilot task briefs |
-| `harness/ai-org/adapters/` | Add adapter guidance for root tool files |
-| `harness/ai-org/memory/decisions/adr/` | Add initial ADRs named by the standard |
+| `harness/adapters/tool/` | Add adapter guidance for root tool files |
+| `harness/knowledge/decisions/adr/` | Add initial ADRs named by the standard |
 
 ## Public API Impact
 

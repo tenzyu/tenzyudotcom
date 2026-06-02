@@ -32,7 +32,7 @@ Fix the build failures with minimal source changes from the root checkout.
 - `product/packages/ui/src/components/ui/pagination.tsx`
 - `product/apps/web/src/app/[locale]/(admin)/editor/_features/blog-editor.tsx`
 - `tsconfig.json`
-- `harness/ai-org/tasks/TASK-0017-build-failure-fix/*`
+- `harness/runs/completed/TASK-0017-build-failure-fix*`
 
 ## forbidden files
 

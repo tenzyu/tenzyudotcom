@@ -68,4 +68,4 @@ Failed:
 ## Memory Updates Made Or Proposed
 
 - No durable repo memory update was made. Proposed: confirm `ui-react` ownership
-  in `harness/ai-org/memory/repo-map.md` if this package is now active.
+  in `harness/knowledge/repo-map.md` if this package is now active.

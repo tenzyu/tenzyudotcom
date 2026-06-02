@@ -35,7 +35,7 @@ Storybook provides complete component coverage for `src/components/ui/*.tsx` wit
 | `product/packages/ui/src/testing/story-helpers.tsx` | Improve reusable story layout helpers if needed. |
 | `product/packages/ui/src/testing/fixtures.ts` | Add reusable sample data if needed. |
 | `product/packages/ui/src/stories/**` | Keep pattern/regression docs separate; adjust only if they conflict with catalog. |
-| `harness/ai-org/tasks/TASK-0013-ui-storybook-component-catalog/*` | Record task brief, plan, verification, handoff, and worklog. |
+| `harness/runs/completed/TASK-0013-ui-storybook-component-catalog*` | Record task brief, plan, verification, handoff, and worklog. |
 
 ## Dependency and Boundary Impact
 

@@ -3,7 +3,7 @@
 Large changes should land as short execution plans before implementation.
 
 Use this file as the human-facing index for active plans. Detailed AI execution
-plans live under `harness/ai-org/exec-plans`.
+plans live under `harness/runs`.
 
 Current foundation track:
 

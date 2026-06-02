@@ -6,7 +6,7 @@ repository operations, and a Markdown-based AI organization layer.
 ## Primary Boundaries
 
 Applications are product surfaces. Packages are reusable implementation units.
-Repository operations are automation and policy. `harness/ai-org` is the
+Repository operations are automation and policy. `harness` is the
 operating layer for AI agents.
 
 ```txt
@@ -58,7 +58,7 @@ quality gate surface for boundary enforcement.
 
 ## AI Organization Architecture
 
-`harness/ai-org` is the canonical source for how AI agents work in this repo.
+`harness` is the canonical source for how AI agents work in this repo.
 Root files such as `AGENTS.md`, `CLAUDE.md`, and `GEMINI.md` are adapters that
 route tools to the canonical files. They must not become separate memory stores.
 

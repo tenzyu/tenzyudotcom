@@ -6,10 +6,10 @@ Initial AI organization documents were created for the tenzyudotcom monorepo.
 
 ## What Changed
 
-- Root adapter files now route agents to `harness/ai-org` and `docs/AGENTS.md`.
-- `docs/STRUCTURE.md`, `docs/ARCHITECTURE.md`, and `docs/QUALITY_GATES.md` describe repository contracts.
-- `docs/PRODUCT_MAP.md`, `docs/ROADMAP.md`, `docs/DESIGN_SYSTEM.md`, `docs/UI_MIGRATION_GUIDE.md`, `docs/RELEASE.md`, and initial ADRs were added as lightweight standard docs.
-- `harness/ai-org` now contains organization policy, workflows, role definitions, templates, memory, and task history.
+- Root adapter files now route agents to `harness` and `harness/policies/repository.md`.
+- `harness/knowledge/structure.md`, `harness/knowledge/architecture.md`, and `harness/policies/quality-gates.md` describe repository contracts.
+- `harness/knowledge/product-map.md`, `harness/knowledge/roadmap.md`, `harness/knowledge/product-specs/design-system.md`, `harness/knowledge/rules/ui-ux/ui-migration-guide.md`, `harness/policies/release.md`, and initial ADRs were added as lightweight standard docs.
+- `harness` now contains organization policy, workflows, role definitions, templates, memory, and task history.
 - `harness/ai-org/adapters` now records adapter expectations for root tool files.
 - The initial design-system pilot task briefs were seeded for future work.
 
@@ -24,15 +24,15 @@ handoff, and minimize repeated context cost.
 - `AGENTS.md`
 - `CLAUDE.md`
 - `GEMINI.md`
-- `docs/STRUCTURE.md`
-- `docs/ARCHITECTURE.md`
-- `docs/QUALITY_GATES.md`
-- `docs/PRODUCT_MAP.md`
-- `docs/ROADMAP.md`
-- `docs/DESIGN_SYSTEM.md`
-- `docs/UI_MIGRATION_GUIDE.md`
-- `docs/RELEASE.md`
-- `harness/ai-org/memory/decisions/adr/**`
+- `harness/knowledge/structure.md`
+- `harness/knowledge/architecture.md`
+- `harness/policies/quality-gates.md`
+- `harness/knowledge/product-map.md`
+- `harness/knowledge/roadmap.md`
+- `harness/knowledge/product-specs/design-system.md`
+- `harness/knowledge/rules/ui-ux/ui-migration-guide.md`
+- `harness/policies/release.md`
+- `harness/knowledge/decisions/adr/**`
 - `harness/ai-org/**`
 
 ## Validation

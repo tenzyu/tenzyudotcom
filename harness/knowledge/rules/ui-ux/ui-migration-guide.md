@@ -16,5 +16,5 @@ No broad app migration is approved by the initial AI organization rollout.
 
 ## Next Task
 
-Use `harness/ai-org/tasks/TASK-0005-app-side-ui-migration-guide/` to expand this
+Use `harness/runs/backlog/TASK-0005-app-side-ui-migration-guide` to expand this
 guide before implementation work begins.

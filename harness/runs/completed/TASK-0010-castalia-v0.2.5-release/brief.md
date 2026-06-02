@@ -13,8 +13,8 @@ Implement and verify the v0.2.5 launcher release.
 ## Scope
 
 - `product/apps/castalia/**`
-- `docs/product-specs/castalia/**`
-- `harness/ai-org/tasks/TASK-0010-castalia-v0.2.5-release/**`
+- `harness/knowledge/product-specs/castalia/**`
+- `harness/runs/completed/TASK-0010-castalia-v0.2.5-release**`
 
 ## Non-Goals
 

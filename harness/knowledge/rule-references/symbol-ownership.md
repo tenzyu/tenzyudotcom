@@ -6,6 +6,6 @@ tags: reference, lint, ownership
 chapter: References
 ---
 
-- [](/harness/ai-org/knowledge/design-docs/rules/foundation-owner-placement-layers.md)
-- [](/harness/ai-org/knowledge/design-docs/rules/foundation-promotion-by-usage.md)
-- [](/harness/ai-org/knowledge/design-docs/rules/foundation-feature-slice-structure.md)
+- [](/harness/knowledge/rules/foundations/foundation-owner-placement-layers.md)
+- [](/harness/knowledge/rules/foundations/foundation-promotion-by-usage.md)
+- [](/harness/knowledge/rules/foundations/foundation-feature-slice-structure.md)

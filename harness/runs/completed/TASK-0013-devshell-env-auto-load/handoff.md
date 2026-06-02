@@ -19,9 +19,9 @@ The owner did not want to manually run `set -a; source .env; set +a` after enter
 ## affected files
 
 - `nix/shell-hooks.nix`
-- `harness/ai-org/tasks/TASK-0013-devshell-env-auto-load/brief.md`
-- `harness/ai-org/tasks/TASK-0013-devshell-env-auto-load/verification.md`
-- `harness/ai-org/tasks/TASK-0013-devshell-env-auto-load/handoff.md`
+- `harness/runs/completed/TASK-0013-devshell-env-auto-load/brief.md`
+- `harness/runs/completed/TASK-0013-devshell-env-auto-load/verification.md`
+- `harness/runs/completed/TASK-0013-devshell-env-auto-load/handoff.md`
 
 ## validation result
 

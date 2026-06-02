@@ -2,7 +2,7 @@
 
 ## Background
 
-The owner reported that the current harness is fragmented across `docs/`, `harness/ai-org/`, and `harness/ai-org/legacy/docs/`. Human-facing docs may remain in `docs/`, but LLM-facing material should be consolidated into `harness/ai-org/`. `harness/ai-org/legacy/docs` should be removed.
+The owner reported that the current harness is fragmented across `docs/`, `harness/ai-org/`, and `harness/legacy/ai-org/docs/`. Human-facing docs may remain in `docs/`, but LLM-facing material should be consolidated into `harness/ai-org/`. `harness/legacy/ai-org/docs` should be removed.
 
 ## Problem
 
@@ -10,17 +10,17 @@ AI workflow, role, ADR, execution-plan, rule, reference, and report documents ar
 
 ## Goal
 
-Make `harness/ai-org/` the single canonical location for LLM-facing harness material, define a developer-friendly operating model, add agent roles for task creation, work, review, and ADR distillation, document usage in `HARNESS.md`, and add tool guardrail skills for Git, Nx, and the custom linter.
+Make `harness/ai-org/` the single canonical location for LLM-facing harness material, define a developer-friendly operating model, add agent roles for task creation, work, review, and ADR distillation, document usage in `harness/canon/legacy/root-HARNESS.md`, and add tool guardrail skills for Git, Nx, and the custom linter.
 
 ## Scope
 
 Allowed files:
 
 - `harness/ai-org/**`
-- `HARNESS.md`
+- `harness/canon/legacy/root-HARNESS.md`
 - root AI adapter files when needed
 - documentation indexes that reference moved LLM-facing docs
-- `harness/ai-org/legacy/docs/**` for deletion
+- `harness/legacy/ai-org/docs/**` for deletion
 - package/workspace docs only when references need updating
 
 Forbidden files:
@@ -68,10 +68,10 @@ Forbidden files:
 ## Acceptance Criteria
 
 - LLM-facing docs currently under `docs/` are moved or indexed under `harness/ai-org/`.
-- Existing ADRs are moved to `harness/ai-org/memory/decisions/adr/`.
-- `harness/ai-org/legacy/docs` is removed.
+- Existing ADRs are moved to `harness/knowledge/decisions/adr/`.
+- `harness/legacy/ai-org/docs` is removed.
 - Agents and workflows are reorganized enough that developers can find task intake, implementation, review, and ADR distillation paths.
-- `HARNESS.md` explains how to use the harness.
+- `harness/canon/legacy/root-HARNESS.md` explains how to use the harness.
 - Tool guardrail skill files exist for Git, Nx, and `@tenzyu/linter`.
 - Verification and handoff are recorded.
 

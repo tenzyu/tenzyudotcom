@@ -3,10 +3,10 @@
 ## Commands Run
 
 - `git status --short`
-- `sed -n '1,220p' docs/product-specs/castalia/ROADMAP.md`
-- `sed -n '1,240p' docs/product-specs/castalia/ARCHITECTURE.md`
-- `sed -n '1,180p' docs/product-specs/castalia/README.md`
-- `git diff -- docs/product-specs/castalia/ROADMAP.md`
+- `sed -n '1,220p' harness/knowledge/product-specs/castalia/ROADMAP.md`
+- `sed -n '1,240p' harness/knowledge/product-specs/castalia/ARCHITECTURE.md`
+- `sed -n '1,180p' harness/knowledge/product-specs/castalia/README.md`
+- `git diff -- harness/knowledge/product-specs/castalia/ROADMAP.md`
 - `git diff --check`
 
 ## Command Results
@@ -20,12 +20,12 @@
 
 ## Files Inspected
 
-- `harness/ai-org/agents/architect.md`
-- `harness/ai-org/workflows/investigation.md`
-- `harness/ai-org/workflows/implementation.md`
-- `docs/product-specs/castalia/ROADMAP.md`
-- `docs/product-specs/castalia/ARCHITECTURE.md`
-- `docs/product-specs/castalia/README.md`
+- `harness/actions/roles/architect.md`
+- `harness/actions/workflows/investigation.md`
+- `harness/actions/workflows/implementation.md`
+- `harness/knowledge/product-specs/castalia/ROADMAP.md`
+- `harness/knowledge/product-specs/castalia/ARCHITECTURE.md`
+- `harness/knowledge/product-specs/castalia/README.md`
 
 ## Visual Checks Performed
 

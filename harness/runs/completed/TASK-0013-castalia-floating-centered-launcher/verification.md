@@ -28,23 +28,23 @@
 
 ## Files Inspected
 
-- `harness/ai-org/org/charter.md`
-- `harness/ai-org/memory/repo-map.md`
-- `docs/AGENTS.md`
-- `harness/ai-org/workflows/task-intake.md`
-- `harness/ai-org/workflows/worktree-task-isolation.md`
-- `harness/ai-org/workflows/implementation.md`
-- `harness/ai-org/workflows/verification.md`
-- `harness/ai-org/workflows/handoff.md`
-- `harness/ai-org/agents/chief-of-staff.md`
-- `harness/ai-org/agents/implementer.md`
-- `harness/ai-org/agents/rust-tauri-engineer.md`
-- `harness/ai-org/agents/test-engineer.md`
+- `harness/canon/charter.md`
+- `harness/knowledge/repo-map.md`
+- `harness/policies/repository.md`
+- `harness/actions/workflows/task-intake.md`
+- `harness/actions/workflows/worktree-task-isolation.md`
+- `harness/actions/workflows/implementation.md`
+- `harness/actions/workflows/verification.md`
+- `harness/actions/workflows/handoff.md`
+- `harness/actions/roles/chief-of-staff.md`
+- `harness/actions/roles/implementer.md`
+- `harness/actions/roles/rust-tauri-engineer.md`
+- `harness/actions/roles/test-engineer.md`
 - `product/apps/castalia/crates/castalia-cli/src/launcher.rs`
 - `product/apps/castalia/crates/castalia-cli/Cargo.toml`
 - `product/apps/castalia/nix/package.nix`
 - `product/apps/castalia/README.md`
-- `docs/product-specs/castalia/ARCHITECTURE.md`
+- `harness/knowledge/product-specs/castalia/ARCHITECTURE.md`
 
 ## Visual Checks Performed
 

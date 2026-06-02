@@ -13,10 +13,10 @@ Create a practical checklist for validating shared UI components and stories.
 
 Allowed files:
 
-- `docs/QUALITY_GATES.md`
-- `docs/DESIGN_SYSTEM.md`, if created or updated
+- `harness/policies/quality-gates.md`
+- `harness/knowledge/product-specs/design-system.md`, if created or updated
 - `product/packages/ui/**`, only if existing Storybook metadata needs minimal updates
-- relevant task docs under `harness/ai-org/tasks/TASK-0004-storybook-validation-checklist/`
+- relevant task docs under `harness/runs/backlog/TASK-0004-storybook-validation-checklist`
 
 Forbidden files:
 

@@ -9,8 +9,8 @@
 - Created task folder and initial brief.
 - Moved ADRs, design-doc rules, exec plans, legacy workflows, references, AI reports, legacy harness docs, and docs harness/linter specs into `harness/ai-org/`.
 - Removed `repo-ops/harness`.
-- Added `HARNESS.md`, task/work/review/ADR roles, lifecycle/ADR workflows, and Git/Nx/linter guardrail skills.
-- Updated repo-ops docs generation and document-linter paths for the new `harness/ai-org/knowledge/design-docs` location.
+- Added `harness/canon/legacy/root-HARNESS.md`, task/work/review/ADR roles, lifecycle/ADR workflows, and Git/Nx/linter guardrail skills.
+- Updated repo-ops docs generation and document-linter paths for the new `harness/knowledge/rules` location.
 - Fixed repo-ops script tests to resolve scripts relative to their actual location.
 - Fixed `migrate-notes-threading.ts` import path to the current `product/apps/web` location.
 - Ran validation and recorded partial verification; Nx graph checks are blocked by dependency resolution in the isolated worktree.

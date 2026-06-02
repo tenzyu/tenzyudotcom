@@ -16,10 +16,10 @@ The previous wording left room for inconsistent parent-sibling worktree layouts,
 
 ## affected files
 
-- `harness/ai-org/workflows/worktree-task-isolation.md`
-- `harness/ai-org/workflows/task-intake.md`
-- `harness/ai-org/workflows/implementation.md`
-- `harness/ai-org/skills/git.md`
+- `harness/actions/workflows/worktree-task-isolation.md`
+- `harness/actions/workflows/task-intake.md`
+- `harness/actions/workflows/implementation.md`
+- `harness/policies/tools/git.md`
 - `.gitignore`
 - `AGENTS.md`
 

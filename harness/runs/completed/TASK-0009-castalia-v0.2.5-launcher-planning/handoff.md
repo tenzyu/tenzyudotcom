@@ -8,7 +8,7 @@ Added Castalia v0.2.5 roadmap and planning notes for replacing the primary
 ## What Changed
 
 - Added `v0.2.5 Castalia launcher` to
-  `docs/product-specs/castalia/ROADMAP.md`.
+  `harness/knowledge/product-specs/castalia/ROADMAP.md`.
 - Captured launcher rationale, user experience, boundaries, implementation
   direction, simulation, risks, and interview questions in this task folder.
 - Recorded owner decisions: do not keep `rofi`, default slot input to Castalia
@@ -23,8 +23,8 @@ friction while avoiding assumptions that block future Windows and macOS support.
 
 ## Affected Files
 
-- `docs/product-specs/castalia/ROADMAP.md`
-- `harness/ai-org/tasks/TASK-0009-castalia-v0.2.5-launcher-planning/*`
+- `harness/knowledge/product-specs/castalia/ROADMAP.md`
+- `harness/runs/completed/TASK-0009-castalia-v0.2.5-launcher-planning*`
 
 ## Validation Result
 

@@ -22,8 +22,8 @@ implementation strategy for non-trivial changes.
 ## Required Inputs
 
 - `brief.md`
-- `docs/STRUCTURE.md`
-- `docs/ARCHITECTURE.md`
+- `harness/knowledge/structure.md`
+- `harness/knowledge/architecture.md`
 - relevant source or project config
 
 ## Required Outputs

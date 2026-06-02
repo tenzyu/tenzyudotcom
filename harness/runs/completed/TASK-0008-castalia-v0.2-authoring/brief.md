@@ -20,7 +20,7 @@ Implement the Castalia v0.2 roadmap items:
 ## Scope
 
 - `product/apps/castalia/**`
-- `docs/product-specs/castalia/**`
+- `harness/knowledge/product-specs/castalia/**`
 - this task folder
 
 ## Non-Goals

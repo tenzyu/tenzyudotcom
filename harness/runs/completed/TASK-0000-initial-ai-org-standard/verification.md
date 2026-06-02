@@ -4,17 +4,17 @@
 
 | Command | Result | Notes |
 | --- | --- | --- |
-| `bun nx show projects --json` | Failed | Nx plugin workers exited before connection. Recorded in `harness/ai-org/memory/known-problems.md`. |
+| `bun nx show projects --json` | Failed | Nx plugin workers exited before connection. Recorded in `harness/knowledge/known-problems/index.md`. |
 | `NX_DAEMON=false bun nx show projects --json` | Failed | Same plugin-worker failure with daemon disabled. |
 | required file `test -f ...` check | Passed | Confirmed first-prompt deliverables exist. |
 | expanded standard file `test -f ...` check | Passed | Confirmed additional standard layout files exist. |
-| `find docs harness/ai-org -type f | sort` | Passed | Confirmed docs and canonical AI organization files are present. |
-| `git status --short -- AGENTS.md CLAUDE.md GEMINI.md docs harness/ai-org product/apps product/packages package.json bun.lock nx.json tsconfig.base.json tsconfig.json` | Reviewed | Shows this task's adapter/docs/harness files plus pre-existing unrelated dirty files under root config, app/package files, and `product/packages/ui-react`. |
+| `find docs harness -type f | sort` | Passed | Confirmed docs and canonical AI organization files are present. |
+| `git status --short -- AGENTS.md CLAUDE.md GEMINI.md docs harness product/apps product/packages package.json bun.lock nx.json tsconfig.base.json tsconfig.json` | Reviewed | Shows this task's adapter/docs/harness files plus pre-existing unrelated dirty files under root config, app/package files, and `product/packages/ui-react`. |
 
 ## Files Inspected
 
 - `goal.md`
-- `docs/AGENTS.md`
+- `harness/policies/repository.md`
 - `AGENTS.md`
 - `CLAUDE.md`
 - `package.json`
@@ -25,14 +25,14 @@
 - `product/packages/osu-skin-core/project.json`
 - `product/packages/linter/project.json`
 - `product/packages/ui-react/project.json`
-- `docs/STRUCTURE.md`
-- `docs/ARCHITECTURE.md`
-- `docs/QUALITY_GATES.md`
-- `docs/PRODUCT_MAP.md`
-- `docs/ROADMAP.md`
-- `docs/DESIGN_SYSTEM.md`
-- `docs/UI_MIGRATION_GUIDE.md`
-- `docs/RELEASE.md`
+- `harness/knowledge/structure.md`
+- `harness/knowledge/architecture.md`
+- `harness/policies/quality-gates.md`
+- `harness/knowledge/product-map.md`
+- `harness/knowledge/roadmap.md`
+- `harness/knowledge/product-specs/design-system.md`
+- `harness/knowledge/rules/ui-ux/ui-migration-guide.md`
+- `harness/policies/release.md`
 - `harness/ai-org/**`
 
 ## Visual Checks

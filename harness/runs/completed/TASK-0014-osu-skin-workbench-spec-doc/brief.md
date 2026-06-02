@@ -23,8 +23,8 @@ Create a concise product spec for `osu-skin-workbench` that distinguishes confir
 
 ## allowed files
 
-- `docs/product-specs/osu-skin-workbench.md`
-- `harness/ai-org/tasks/TASK-0014-osu-skin-workbench-spec-doc/*`
+- `harness/knowledge/product-specs/osu-skin-workbench.md`
+- `harness/runs/completed/TASK-0014-osu-skin-workbench-spec-doc*`
 
 ## forbidden files
 
@@ -62,7 +62,7 @@ Docs Librarian
 
 ## acceptance criteria
 
-- `docs/product-specs/osu-skin-workbench.md` exists in the isolated worktree.
+- `harness/knowledge/product-specs/osu-skin-workbench.md` exists in the isolated worktree.
 - The document separates confirmed facts, non-goals, design candidates, and open questions.
 - No source code changes are made.
 

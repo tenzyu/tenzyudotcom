@@ -5,7 +5,7 @@
 | Command | Result | Notes |
 | --- | --- | --- |
 | Read root docs and config | Passed | Verified repo structure, workspace, and CI facts from source files |
-| Read existing AI instructions | Passed | Aligned with `HARNESS.md`, `docs/AGENTS.md`, and `harness/ai-org/README.md` |
+| Read existing AI instructions | Passed | Aligned with `harness/canon/legacy/root-HARNESS.md`, `harness/policies/repository.md`, and `harness/canon/legacy/ai-org-readme.md` |
 
 ## Files Inspected
 
@@ -13,12 +13,12 @@
 - `package.json`
 - `nx.json`
 - `.github/workflows/ci.yml`
-- `docs/AGENTS.md`
-- `HARNESS.md`
-- `harness/ai-org/README.md`
-- `harness/ai-org/org/charter.md`
-- `harness/ai-org/memory/repo-map.md`
-- `harness/ai-org/skills/*.md`
+- `harness/policies/repository.md`
+- `harness/canon/legacy/root-HARNESS.md`
+- `harness/canon/legacy/ai-org-readme.md`
+- `harness/canon/charter.md`
+- `harness/knowledge/repo-map.md`
+- `harness/policies/tools/*.md`
 - representative project manifests under `product/apps` and `product/packages`
 
 ## Visual Checks

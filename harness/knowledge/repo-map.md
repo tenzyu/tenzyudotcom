@@ -9,9 +9,9 @@ before editing because this file may lag behind active work.
 - Task runner: Nx, invoked through Bun.
 - Apps root: `product/apps`.
 - Packages root: `product/packages`.
-- AI organization root: `harness/ai-org`.
+- AI organization root: `harness`.
 - Repository operations root: `repo-ops`.
-- Legacy repo-ops harness content was moved into `harness/ai-org/legacy/docs`; `harness/ai-org/legacy/docs` is a redirect only.
+- Legacy repo-ops harness content was moved into `harness/legacy/ai-org/docs`; `harness/legacy/ai-org/docs` is a redirect only.
 
 ## Projects
 

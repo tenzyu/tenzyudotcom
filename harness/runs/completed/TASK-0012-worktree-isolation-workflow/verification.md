@@ -10,14 +10,14 @@
 
 ## Files Inspected
 
-- `harness/ai-org/org/charter.md`
-- `harness/ai-org/memory/repo-map.md`
-- `docs/AGENTS.md`
-- `harness/ai-org/agents/harness-engineer.md`
-- `harness/ai-org/workflows/task-intake.md`
-- `harness/ai-org/workflows/implementation.md`
-- `harness/ai-org/workflows/verification.md`
-- `harness/ai-org/workflows/handoff.md`
+- `harness/canon/charter.md`
+- `harness/knowledge/repo-map.md`
+- `harness/policies/repository.md`
+- `harness/actions/roles/harness-engineer.md`
+- `harness/actions/workflows/task-intake.md`
+- `harness/actions/workflows/implementation.md`
+- `harness/actions/workflows/verification.md`
+- `harness/actions/workflows/handoff.md`
 
 ## Visual Checks Performed
 

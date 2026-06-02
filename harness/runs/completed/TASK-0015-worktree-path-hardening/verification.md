@@ -4,7 +4,7 @@
 
 - `git status --short`
 - `git branch --show-current`
-- `git diff -- harness/ai-org/workflows/worktree-task-isolation.md harness/ai-org/workflows/task-intake.md harness/ai-org/workflows/implementation.md harness/ai-org/skills/git.md .gitignore AGENTS.md`
+- `git diff -- harness/actions/workflows/worktree-task-isolation.md harness/actions/workflows/task-intake.md harness/actions/workflows/implementation.md harness/policies/tools/git.md .gitignore AGENTS.md`
 
 ## command results
 
@@ -14,10 +14,10 @@
 
 ## files inspected
 
-- `harness/ai-org/workflows/worktree-task-isolation.md`
-- `harness/ai-org/workflows/task-intake.md`
-- `harness/ai-org/workflows/implementation.md`
-- `harness/ai-org/skills/git.md`
+- `harness/actions/workflows/worktree-task-isolation.md`
+- `harness/actions/workflows/task-intake.md`
+- `harness/actions/workflows/implementation.md`
+- `harness/policies/tools/git.md`
 - `.gitignore`
 - `AGENTS.md`
 

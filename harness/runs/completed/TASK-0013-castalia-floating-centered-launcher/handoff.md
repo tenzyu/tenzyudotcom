@@ -27,8 +27,8 @@ The current GUI is treated as a normal tiled window by the window manager. The d
 
 - `product/apps/castalia/crates/castalia-cli/src/launcher.rs`
 - `product/apps/castalia/README.md`
-- `docs/product-specs/castalia/ARCHITECTURE.md`
-- `harness/ai-org/tasks/TASK-0013-castalia-floating-centered-launcher/*`
+- `harness/knowledge/product-specs/castalia/ARCHITECTURE.md`
+- `harness/runs/completed/TASK-0013-castalia-floating-centered-launcher*`
 
 ## Validation Result
 

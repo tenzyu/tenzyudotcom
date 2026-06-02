@@ -24,7 +24,7 @@ Ask the owner before writing or changing an ADR when:
 
 ## Output
 
-Create or update an ADR under `harness/ai-org/memory/decisions/adr/`.
+Create or update an ADR under `harness/knowledge/decisions/adr/`.
 
 ## Required Sections
 

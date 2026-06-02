@@ -27,7 +27,7 @@
 - `product/packages/ui/src/testing/*.tsx`
 - `product/packages/ui/src/stories/patterns/*.stories.tsx`
 - `product/packages/ui/src/stories/regression/*.stories.tsx`
-- `harness/ai-org/tasks/TASK-0013-ui-storybook-component-catalog/*`
+- `harness/runs/completed/TASK-0013-ui-storybook-component-catalog*`
 
 ## Visual Checks
 

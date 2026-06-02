@@ -35,7 +35,7 @@ Every shared component should define:
 
 ## Pilot Tasks
 
-- `harness/ai-org/tasks/TASK-0001-normalize-ui-button-variants/`
-- `harness/ai-org/tasks/TASK-0002-inventory-ui-components-and-stories/`
-- `harness/ai-org/tasks/TASK-0003-define-ui-styling-boundary/`
-- `harness/ai-org/tasks/TASK-0004-storybook-validation-checklist/`
+- `harness/runs/backlog/TASK-0001-normalize-ui-button-variants`
+- `harness/runs/backlog/TASK-0002-inventory-ui-components-and-stories`
+- `harness/runs/backlog/TASK-0003-define-ui-styling-boundary`
+- `harness/runs/backlog/TASK-0004-storybook-validation-checklist`

@@ -26,8 +26,8 @@ This plan covers the removal of legacy "Editorial" terminology and code paths th
   - Rename `harness/ai-org/knowledge/design-docs/rules/editorial-role-separation.md` to `editor-role-separation.md`.
 - [x] **Update Documentation Content**
   - Search and replace "Editorial" with "Editor" in `docs/` where it refers to the admin feature/system.
-  - Update `docs/product-specs/site/architecture.md` (Header and content).
-  - Update `harness/ai-org/knowledge/design-docs/AGENTS.md` (Table of contents and links).
+  - Update `harness/knowledge/product-specs/site/architecture.md` (Header and content).
+  - Update `harness/knowledge/rules/compiled/AGENTS.md` (Table of contents and links).
 - [x] **Update Project Memories**
   - Update `project_overview` memory.
   - Update `style_and_conventions` memory.

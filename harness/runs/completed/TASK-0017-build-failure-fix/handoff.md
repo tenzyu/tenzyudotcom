@@ -23,7 +23,7 @@ The UI package export map pointed TypeScript at missing declaration files. After
 - `product/packages/ui/src/components/ui/pagination.tsx`
 - `product/apps/web/src/app/[locale]/(admin)/editor/_features/blog-editor.tsx`
 - `tsconfig.json`
-- `harness/ai-org/tasks/TASK-0017-build-failure-fix/*`
+- `harness/runs/completed/TASK-0017-build-failure-fix*`
 
 ## Validation
 

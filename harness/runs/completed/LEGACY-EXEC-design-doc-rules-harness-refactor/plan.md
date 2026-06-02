@@ -13,7 +13,7 @@ execution-ready: true
 
 ## Goal
 
-`harness/ai-org/knowledge/design-docs/AGENTS.md` と `harness/ai-org/knowledge/design-docs/rules/*.md` を、短いコンテキストで追える構造へ再編する。各ルールは `_template.md` 準拠で境界と prefix が明示され、密結合なルール群は過不足なく統合され、各種 linter のエラーメッセージから参照すべき `references` markdown へ到達できる状態にする。
+`harness/knowledge/rules/compiled/AGENTS.md` と `harness/ai-org/knowledge/design-docs/rules/*.md` を、短いコンテキストで追える構造へ再編する。各ルールは `_template.md` 準拠で境界と prefix が明示され、密結合なルール群は過不足なく統合され、各種 linter のエラーメッセージから参照すべき `references` markdown へ到達できる状態にする。
 
 ## Scope
 
@@ -32,8 +32,8 @@ execution-ready: true
 - 番号ごとにレビュー可能な実行計画
 - `_template.md` 準拠に再編された `harness/ai-org/knowledge/design-docs/rules/*.md`
 - 境界と責務が明示された rule prefix 命名
-- 統合後の rule 群と更新済み `harness/ai-org/knowledge/design-docs/AGENTS.md`
-- `harness/ai-org/knowledge/design-docs/references/*.md`
+- 統合後の rule 群と更新済み `harness/knowledge/rules/compiled/AGENTS.md`
+- `harness/knowledge/rule-references/*.md`
 - reference markdown を案内する linter error message
 - `scripts/lint-rules.ts` とその test / script rename
 
@@ -43,8 +43,8 @@ execution-ready: true
 2. ルール本文を `_template.md` 形式へ寄せるための分解方針を決め、長文 rule を「思想」「実装」「制約」に切り分ける
 3. boundary を跨いでいる rule を是正し、prefix を付与して rename する
 4. 密結合前提でまとめて読ませるべき rule を統合する
-5. `harness/ai-org/knowledge/design-docs/AGENTS.md` を新しい prefix / grouping 前提で再編する
-6. `harness/ai-org/knowledge/design-docs/references/*.md` を追加し、各 linter のエラーから読むべき参照先を定義する
+5. `harness/knowledge/rules/compiled/AGENTS.md` を新しい prefix / grouping 前提で再編する
+6. `harness/knowledge/rule-references/*.md` を追加し、各 linter のエラーから読むべき参照先を定義する
 7. `scripts/lint-rules.ts` へ改名し、責務を rules 配下に限定し、関連 test と `package.json` scripts を更新する
 8. `lint:rules` を再実行し、常時グリーン化に必要な docs/rules 修正を完了させる
 
@@ -228,7 +228,7 @@ execution-ready: true
 
 - `impl-component-separation.md`
   - implementation cluster との重なりはあるが、slice 3 で editor / admin 実装群と一緒に扱う
-- `docs/product-specs/**` と `harness/ai-org/legacy/workflows/**` の古い rule link
+- `harness/knowledge/product-specs/**` と `harness/legacy/ai-org/workflows/**` の古い rule link
   - 現在の guardrail では作業スコープ外なのでこの slice では更新していない
 
 ### Slice 2 Exit Criteria
@@ -281,7 +281,7 @@ execution-ready: true
 
 - `bun run build:docs-map`
   - passed
-- `harness/ai-org/knowledge/design-docs/AGENTS.md`
+- `harness/knowledge/rules/compiled/AGENTS.md`
   - design / intelligence 節の index が新 filename 群へ追随して再生成されることを確認
 
 ### Slice 2 Retry Exit Criteria
@@ -368,8 +368,8 @@ execution-ready: true
 ### Current Status
 
 - completed
-- `harness/ai-org/knowledge/design-docs/references/*.md` を追加した
-- `harness/ai-org/knowledge/design-docs/AGENTS.md` の末尾に repair references 導線を生成するようにした
+- `harness/knowledge/rule-references/*.md` を追加した
+- `harness/knowledge/rules/compiled/AGENTS.md` の末尾に repair references 導線を生成するようにした
 
 ### Added References
 
@@ -381,7 +381,7 @@ execution-ready: true
 ### Script Change
 
 - `scripts/compile-agents-md.ts`
-  - `harness/ai-org/knowledge/design-docs/references/*.md` を読み、`AGENTS.md` の末尾に `Repair References` section を追加する
+  - `harness/knowledge/rule-references/*.md` を読み、`AGENTS.md` の末尾に `Repair References` section を追加する
 
 ### Deliberately Deferred
 
@@ -394,7 +394,7 @@ execution-ready: true
 
 - `bun run build:docs-map`
   - passed
-- `harness/ai-org/knowledge/design-docs/AGENTS.md`
+- `harness/knowledge/rules/compiled/AGENTS.md`
   - `Repair References` section が生成されることを確認
 
 ### Slice 4 Exit Criteria
@@ -420,7 +420,7 @@ execution-ready: true
   - `lint:docs` -> `lint:rules`
   - `verify:quick` も `lint:rules` 前提へ更新
 - lint-rules behavior
-  - 対象を `harness/ai-org/knowledge/design-docs/**` と `harness/ai-org/knowledge/design-docs/AGENTS.md` のみに限定
+  - 対象を `harness/ai-org/knowledge/design-docs/**` と `harness/knowledge/rules/compiled/AGENTS.md` のみに限定
   - first heading が `##` から始まる `_template.md` 準拠 rule を MD001 違反扱いしない
   - orphan detection も design-docs subtree に限定
 - custom linter messages
@@ -440,7 +440,7 @@ execution-ready: true
 
 ### Remaining Out Of Scope
 
-- `harness/ai-org/references/github-pr-workflow.md`
+- `harness/knowledge/references/github-pr-workflow.md`
   - `lint:docs` 表記が残るが、今回の guardrail では作業スコープ外
 
 ### Slice 5 Exit Criteria
@@ -451,7 +451,7 @@ execution-ready: true
 ## Guardrails
 
 - `lint-rules` 以外の既存 linter は、error message 変更以外のルールロジックを変えない
-- `harness/ai-org/knowledge/design-docs/_template.md` の書式は変えない
+- `harness/knowledge/templates/design-rule.md` の書式は変えない
 - 作業スコープを `harness/ai-org/knowledge/design-docs/` と `scripts/` から外さない
 - rule の削除は行わず、削除が必要なら根拠を示してユーザー確認を取る
 - 言葉とコードが同時に多い rule は、統合ではなく再分割も含めて解消する
@@ -493,5 +493,5 @@ execution-ready: true
 
 - すべての rule が `_template.md` 準拠で、boundary と prefix が一意に読める
 - 密結合前提な rule 群が適切に統合され、言葉もコードも多すぎる rule が残っていない
-- `harness/ai-org/knowledge/design-docs/references/*.md` から linter error の修正導線を辿れる
+- `harness/knowledge/rule-references/*.md` から linter error の修正導線を辿れる
 - `scripts/lint-rules.ts` へ rename された docs/rules lint が green である

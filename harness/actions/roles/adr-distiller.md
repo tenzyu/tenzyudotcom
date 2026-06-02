@@ -6,8 +6,8 @@ Turn architecture decisions from tasks, reviews, and owner interviews into conci
 
 ## Primary Scope
 
-- `harness/ai-org/memory/decisions/adr/`
-- `harness/ai-org/memory/decisions/`
+- `harness/knowledge/decisions/adr/`
+- `harness/knowledge/decisions/`
 - task handoff notes that propose decisions
 
 ## Required Inputs

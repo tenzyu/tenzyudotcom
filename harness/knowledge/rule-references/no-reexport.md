@@ -6,5 +6,5 @@ tags: reference, lint, exports
 chapter: References
 ---
 
-- [](/harness/ai-org/knowledge/design-docs/rules/foundation-tool-boundaries.md)
-- [](/harness/ai-org/knowledge/design-docs/rules/foundation-feature-slice-structure.md)
+- [](/harness/knowledge/rules/foundations/foundation-tool-boundaries.md)
+- [](/harness/knowledge/rules/foundations/foundation-feature-slice-structure.md)

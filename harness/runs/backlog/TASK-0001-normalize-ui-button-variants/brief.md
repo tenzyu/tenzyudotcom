@@ -22,7 +22,7 @@ Allowed files:
 - `product/packages/ui/src/components/ui/button.tsx`
 - `product/packages/ui/src/stories/**`
 - `product/packages/ui/src/styles.css`, only if token or styling responsibility is documented
-- relevant task docs under `harness/ai-org/tasks/TASK-0001-normalize-ui-button-variants/`
+- relevant task docs under `harness/runs/backlog/TASK-0001-normalize-ui-button-variants`
 
 Forbidden files:
 

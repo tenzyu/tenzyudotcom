@@ -15,8 +15,8 @@ obvious documentation gaps.
 Allowed files:
 
 - `product/packages/ui/**`
-- `docs/DESIGN_SYSTEM.md`, if created or updated by the task
-- relevant task docs under `harness/ai-org/tasks/TASK-0002-inventory-ui-components-and-stories/`
+- `harness/knowledge/product-specs/design-system.md`, if created or updated by the task
+- relevant task docs under `harness/runs/backlog/TASK-0002-inventory-ui-components-and-stories`
 
 Forbidden files:
 

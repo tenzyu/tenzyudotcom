@@ -39,10 +39,10 @@ tenzyudotcom is a Bun + Nx monorepo.
 | `harness/ai-org/` | AI role, workflow, task, memory, ADR, tool guardrail, and handoff standards |
 | `harness/ai-org/knowledge/design-docs/` | LLM-facing architecture rule index, granular rules, and repair references |
 | `harness/ai-org/exec-plans/` | Active and completed execution plans |
-| `docs/product-specs/` | Product and route-specific requirements |
-| `harness/ai-org/legacy/workflows/` | Legacy workflow references that are not AI-org canonical workflows |
-| `harness/ai-org/references/` | External tool and verification references |
-| `harness/ai-org/reports/` | Opt-in AI reports and audits |
+| `harness/knowledge/product-specs/` | Product and route-specific requirements |
+| `harness/legacy/ai-org/workflows/` | Legacy workflow references that are not AI-org canonical workflows |
+| `harness/knowledge/references/` | External tool and verification references |
+| `harness/observations/audits/` | Opt-in AI reports and audits |
 | `repo-ops/scripts/` | Repository automation such as docs compilation and dependency policy checks |
 | `product/apps/osu-skin-workbench/src-tauri/` | Rust/Tauri native shell for the workbench app |
 

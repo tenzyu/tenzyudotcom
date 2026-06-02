@@ -1,22 +1,22 @@
 # GEMINI.md
 
-Canonical AI organization files live under `harness/ai-org`.
+Canonical AI organization files live under `harness`.
 
-Also read `docs/AGENTS.md` for repository-local engineering constraints.
+Also read `harness/policies/repository.md` for repository-local engineering constraints.
 
 Relevant starting points:
 
-@./HARNESS.md
-@./harness/ai-org/org/charter.md
-@./harness/ai-org/org/decision-policy.md
-@./harness/ai-org/org/context-budget.md
-@./harness/ai-org/workflows/task-intake.md
-@./harness/ai-org/workflows/exec-plan.md
-@./harness/ai-org/workflows/verification.md
-@./harness/ai-org/workflows/handoff.md
-@./harness/ai-org/workflows/memory-update.md
-@./harness/ai-org/skills/git.md
-@./harness/ai-org/skills/nx.md
-@./harness/ai-org/skills/tenzyu-linter.md
+@./harness/canon/legacy/root-HARNESS.md
+@./harness/canon/charter.md
+@./harness/policies/decision.md
+@./harness/policies/context-budget.md
+@./harness/actions/workflows/task-intake.md
+@./harness/actions/workflows/exec-plan.md
+@./harness/actions/workflows/verification.md
+@./harness/actions/workflows/handoff.md
+@./harness/actions/workflows/memory-update.md
+@./harness/policies/tools/git.md
+@./harness/policies/tools/nx.md
+@./harness/policies/tools/tenzyu-linter.md
 
-Use role-specific files from `harness/ai-org/agents/` depending on task scope.
+Use role-specific files from `harness/actions/roles/` depending on task scope.

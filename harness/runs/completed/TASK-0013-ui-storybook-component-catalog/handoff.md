@@ -10,7 +10,7 @@ Built a comprehensive Storybook catalog for `@tenzyu/ui`, including a high-densi
 - Added/rewrote colocated component stories so every `product/packages/ui/src/components/ui/*.tsx` component has a matching `.stories.tsx`.
 - Covered primitives, forms, overlays, navigation, data display, charts, layout, feedback, and compound component compositions.
 - Fixed story type issues discovered during Storybook TypeScript validation, including `input-otp.stories.tsx`.
-- Recorded task brief, plan, worklog, verification, and handoff under `harness/ai-org/tasks/TASK-0013-ui-storybook-component-catalog/`.
+- Recorded task brief, plan, worklog, verification, and handoff under `harness/runs/completed/TASK-0013-ui-storybook-component-catalog`.
 
 ## Why It Changed
 
@@ -20,7 +20,7 @@ The package needed a useful Storybook surface that shows variants, states, compo
 
 - `product/packages/ui/src/stories/components/overview.stories.tsx`
 - `product/packages/ui/src/components/ui/*.stories.tsx`
-- `harness/ai-org/tasks/TASK-0013-ui-storybook-component-catalog/*`
+- `harness/runs/completed/TASK-0013-ui-storybook-component-catalog*`
 
 ## Validation
 

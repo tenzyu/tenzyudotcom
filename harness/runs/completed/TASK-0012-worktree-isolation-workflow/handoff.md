@@ -6,8 +6,8 @@ Added a canonical workflow for isolating non-trivial AI work in one branch, one 
 
 ## What Changed
 
-- Added `harness/ai-org/workflows/worktree-task-isolation.md`.
-- Updated `harness/ai-org/workflows/task-intake.md` to require worktree isolation metadata and point mutable non-trivial work at the new workflow.
+- Added `harness/actions/workflows/worktree-task-isolation.md`.
+- Updated `harness/actions/workflows/task-intake.md` to require worktree isolation metadata and point mutable non-trivial work at the new workflow.
 - Created task records for briefing, worklog, verification, and handoff.
 
 ## Why It Changed
@@ -16,9 +16,9 @@ The owner wants parallel AI work to use separate worktrees so review, merge, and
 
 ## Affected Files
 
-- `harness/ai-org/workflows/worktree-task-isolation.md`
-- `harness/ai-org/workflows/task-intake.md`
-- `harness/ai-org/tasks/TASK-0012-worktree-isolation-workflow/*`
+- `harness/actions/workflows/worktree-task-isolation.md`
+- `harness/actions/workflows/task-intake.md`
+- `harness/runs/completed/TASK-0012-worktree-isolation-workflow*`
 
 ## Validation Result
 

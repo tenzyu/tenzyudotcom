@@ -19,22 +19,22 @@
 
 ## Files Inspected
 
-- `harness/ai-org/org/charter.md`
-- `harness/ai-org/memory/repo-map.md`
-- `harness/ai-org/workflows/task-intake.md`
-- `harness/ai-org/workflows/worktree-task-isolation.md`
-- `harness/ai-org/workflows/verification.md`
-- `harness/ai-org/workflows/handoff.md`
-- `harness/ai-org/templates/*`
+- `harness/canon/charter.md`
+- `harness/knowledge/repo-map.md`
+- `harness/actions/workflows/task-intake.md`
+- `harness/actions/workflows/worktree-task-isolation.md`
+- `harness/actions/workflows/verification.md`
+- `harness/actions/workflows/handoff.md`
+- `harness/actions/templates/*`
 - `repo-ops/scripts/compile-agents-md.ts`
 - `repo-ops/scripts/docs-rename.ts`
 - `repo-ops/scripts/migrate-notes-threading.ts`
 - `product/packages/linter/src/rules/document-rules.ts`
 - `product/packages/linter/src/rules/*.ts`
-- `docs/AGENTS.md`
-- `docs/STRUCTURE.md`
-- `docs/product-specs/site/architecture.md`
-- `docs/product-specs/site/lint-symbol-ownership.md`
+- `harness/policies/repository.md`
+- `harness/knowledge/structure.md`
+- `harness/knowledge/product-specs/site/architecture.md`
+- `harness/knowledge/product-specs/site/lint-symbol-ownership.md`
 
 ## Visual Checks
 

@@ -24,7 +24,7 @@ When entering repository devshells, root `.env` values are automatically exporte
 ## allowed files
 
 - `nix/shell-hooks.nix`
-- `harness/ai-org/tasks/TASK-0013-devshell-env-auto-load/*`
+- `harness/runs/completed/TASK-0013-devshell-env-auto-load*`
 
 ## forbidden files
 

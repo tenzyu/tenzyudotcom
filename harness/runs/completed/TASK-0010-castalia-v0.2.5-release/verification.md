@@ -57,13 +57,13 @@
 
 ## Files Inspected
 
-- `harness/ai-org/agents/implementer.md`
-- `harness/ai-org/workflows/implementation.md`
-- `harness/ai-org/workflows/verification.md`
-- `harness/ai-org/tasks/TASK-0009-castalia-v0.2.5-launcher-planning/plan.md`
-- `docs/product-specs/castalia/README.md`
-- `docs/product-specs/castalia/ARCHITECTURE.md`
-- `docs/product-specs/castalia/ROADMAP.md`
+- `harness/actions/roles/implementer.md`
+- `harness/actions/workflows/implementation.md`
+- `harness/actions/workflows/verification.md`
+- `harness/runs/completed/TASK-0009-castalia-v0.2.5-launcher-planning/plan.md`
+- `harness/knowledge/product-specs/castalia/README.md`
+- `harness/knowledge/product-specs/castalia/ARCHITECTURE.md`
+- `harness/knowledge/product-specs/castalia/ROADMAP.md`
 - `product/apps/castalia/README.md`
 - `product/apps/castalia/project.json`
 - `product/apps/castalia/Cargo.toml`

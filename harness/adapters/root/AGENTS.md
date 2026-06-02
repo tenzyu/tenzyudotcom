@@ -1,8 +1,8 @@
 # AGENTS.md
 
-`harness/ai-org` is the canonical AI organization system for this repository.
-Root adapter files are pointers only; durable policy, workflow, memory, and handoff live under `harness/ai-org`.
-Read `HARNESS.md` and `docs/AGENTS.md` before changing code.
+`harness` is the canonical AI organization system for this repository.
+Root adapter files are pointers only; durable policy, workflow, memory, and handoff live under `harness`.
+Read `harness/canon/legacy/root-HARNESS.md` and `harness/policies/repository.md` before changing code.
 
 ## High-signal facts
 
@@ -19,7 +19,7 @@ Read `HARNESS.md` and `docs/AGENTS.md` before changing code.
 ## Workflow expectations
 
 - For non-trivial work, create or update a task folder under `harness/ai-org/tasks/`.
-- Use the smallest relevant role and workflow files from `harness/ai-org/agents/` and `harness/ai-org/workflows/`.
+- Use the smallest relevant role and workflow files from `harness/actions/roles/` and `harness/actions/workflows/`.
 - Record `verification.md` and `handoff.md` before claiming completion.
 - Preserve existing features unless explicitly requested otherwise.
 - Do not change public component APIs without migration notes.

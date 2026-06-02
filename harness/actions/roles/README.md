@@ -25,7 +25,7 @@ the task forward.
 | Workbench App Engineer | `product/apps/osu-skin-workbench` frontend |
 | Rust/Tauri Engineer | `product/apps/osu-skin-workbench/src-tauri` |
 | Repo Ops Engineer | Nx, Bun, Nix, CI, scripts, linter |
-| Harness Engineer | `harness/ai-org` |
+| Harness Engineer | `harness` |
 
 ## Initial Operating Set
 

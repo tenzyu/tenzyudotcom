@@ -44,10 +44,10 @@ introducing a daemon.
 - `product/apps/castalia/Cargo.lock`
 - `product/apps/castalia/nix/package.nix`
 - `product/apps/castalia/README.md`
-- `docs/product-specs/castalia/README.md`
-- `docs/product-specs/castalia/ARCHITECTURE.md`
-- `docs/product-specs/castalia/ROADMAP.md`
-- `harness/ai-org/tasks/TASK-0010-castalia-v0.2.5-release/*`
+- `harness/knowledge/product-specs/castalia/README.md`
+- `harness/knowledge/product-specs/castalia/ARCHITECTURE.md`
+- `harness/knowledge/product-specs/castalia/ROADMAP.md`
+- `harness/runs/completed/TASK-0010-castalia-v0.2.5-release*`
 
 ## Validation Result
 

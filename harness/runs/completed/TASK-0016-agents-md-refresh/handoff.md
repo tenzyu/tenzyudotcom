@@ -17,9 +17,9 @@ The previous file duplicated harness guidance and left out key repo-specific con
 ## Affected Files
 
 - `AGENTS.md`
-- `harness/ai-org/tasks/TASK-0016-agents-md-refresh/brief.md`
-- `harness/ai-org/tasks/TASK-0016-agents-md-refresh/worklog.md`
-- `harness/ai-org/tasks/TASK-0016-agents-md-refresh/verification.md`
+- `harness/runs/completed/TASK-0016-agents-md-refresh/brief.md`
+- `harness/runs/completed/TASK-0016-agents-md-refresh/worklog.md`
+- `harness/runs/completed/TASK-0016-agents-md-refresh/verification.md`
 
 ## Validation
 

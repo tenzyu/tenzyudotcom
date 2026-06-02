@@ -36,9 +36,9 @@ source of truth while making authoring safer from the CLI.
 - `product/apps/castalia/Cargo.lock`
 - `product/apps/castalia/nix/package.nix`
 - `product/apps/castalia/README.md`
-- `docs/product-specs/castalia/ARCHITECTURE.md`
-- `docs/product-specs/castalia/ROADMAP.md`
-- `harness/ai-org/tasks/TASK-0008-castalia-v0.2-authoring/*`
+- `harness/knowledge/product-specs/castalia/ARCHITECTURE.md`
+- `harness/knowledge/product-specs/castalia/ROADMAP.md`
+- `harness/runs/completed/TASK-0008-castalia-v0.2-authoring*`
 
 ## Validation Result
 
@@ -74,4 +74,4 @@ Passed:
 ## Memory Updates Made Or Proposed
 
 No durable repo memory update was made. Proposed: add Castalia ownership to
-`harness/ai-org/memory/repo-map.md` once its long-term owner role is decided.
+`harness/knowledge/repo-map.md` once its long-term owner role is decided.

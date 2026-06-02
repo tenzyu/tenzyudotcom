@@ -2,7 +2,7 @@
 
 ## 2026-05-21
 
-- Read repository charter, repo map, `docs/AGENTS.md`, Design System Engineer
+- Read repository charter, repo map, `harness/policies/repository.md`, Design System Engineer
   role, and implementation/verification/handoff workflows.
 - Used `nx-generate` guidance and inspected the `@nx/storybook:configuration`
   generator before running it.

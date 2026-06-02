@@ -31,10 +31,10 @@ launcher, not a terminal application.
 - `product/apps/castalia/nix/package.nix`
 - `product/apps/castalia/project.json`
 - `product/apps/castalia/README.md`
-- `docs/product-specs/castalia/ARCHITECTURE.md`
-- `docs/product-specs/castalia/ROADMAP.md`
-- `harness/ai-org/tasks/TASK-0010-castalia-v0.2.5-release/handoff.md`
-- `harness/ai-org/tasks/TASK-0011-castalia-v0.2.5-gui-launcher-correction/*`
+- `harness/knowledge/product-specs/castalia/ARCHITECTURE.md`
+- `harness/knowledge/product-specs/castalia/ROADMAP.md`
+- `harness/runs/completed/TASK-0010-castalia-v0.2.5-release/handoff.md`
+- `harness/runs/completed/TASK-0011-castalia-v0.2.5-gui-launcher-correction*`
 
 ## Validation Result
 

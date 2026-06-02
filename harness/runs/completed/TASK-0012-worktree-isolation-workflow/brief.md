@@ -14,15 +14,15 @@ Add a canonical workflow that makes `git worktree` the default isolation mechani
 
 ## Scope
 
-- Add a worktree task isolation workflow under `harness/ai-org/workflows`.
+- Add a worktree task isolation workflow under `harness/actions/workflows`.
 - Link task intake to the new workflow where useful.
 - Record task verification and handoff.
 
 ## Allowed Files
 
-- `harness/ai-org/workflows/worktree-task-isolation.md`
-- `harness/ai-org/workflows/task-intake.md`
-- `harness/ai-org/tasks/TASK-0012-worktree-isolation-workflow/*`
+- `harness/actions/workflows/worktree-task-isolation.md`
+- `harness/actions/workflows/task-intake.md`
+- `harness/runs/completed/TASK-0012-worktree-isolation-workflow*`
 
 ## Forbidden Files
 

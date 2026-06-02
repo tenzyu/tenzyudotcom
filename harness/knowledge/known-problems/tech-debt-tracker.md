@@ -98,7 +98,7 @@ user-invocable: false
   サブエージェントへそのまま渡す execution-ready plan がまだ混在している
 - 現状は `execution-ready: true` が付いた plan だけを厳格 lint 対象にしている
 - legacy plan を即座に全面移行するのではなく、
-  実際に委譲対象になった時点で `harness/ai-org/legacy/workflows/exec-plan-contract.md` に従って昇格する
+  実際に委譲対象になった時点で `harness/legacy/ai-org/workflows/exec-plan-contract.md` に従って昇格する
 - 同じ lightweight plan に対して handoff 情報を会話で補うのが 2 回以上発生したら、
   individual fix ではなく plan 自体を execution-ready 化する
 

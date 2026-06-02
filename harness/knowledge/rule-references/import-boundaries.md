@@ -6,7 +6,7 @@ tags: reference, lint, boundaries
 chapter: References
 ---
 
-- [](/harness/ai-org/knowledge/design-docs/rules/foundation-owner-placement-layers.md)
-- [](/harness/ai-org/knowledge/design-docs/rules/foundation-promotion-by-usage.md)
-- [](/harness/ai-org/knowledge/design-docs/rules/foundation-dependency-inversion.md)
-- [](/harness/ai-org/knowledge/design-docs/rules/impl-file-role-contract.md)
+- [](/harness/knowledge/rules/foundations/foundation-owner-placement-layers.md)
+- [](/harness/knowledge/rules/foundations/foundation-promotion-by-usage.md)
+- [](/harness/knowledge/rules/foundations/foundation-dependency-inversion.md)
+- [](/harness/knowledge/rules/implementation/impl-file-role-contract.md)

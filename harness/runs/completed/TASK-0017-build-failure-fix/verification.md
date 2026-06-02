@@ -12,15 +12,15 @@
 
 ## Files Inspected
 
-- `HARNESS.md`
-- `docs/AGENTS.md`
-- `harness/ai-org/README.md`
-- `harness/ai-org/agents/work-agent.md`
-- `harness/ai-org/workflows/task-lifecycle.md`
-- `harness/ai-org/workflows/implementation.md`
-- `harness/ai-org/workflows/verification.md`
-- `harness/ai-org/workflows/handoff.md`
-- `harness/ai-org/skills/nx.md`
+- `harness/canon/legacy/root-HARNESS.md`
+- `harness/policies/repository.md`
+- `harness/canon/legacy/ai-org-readme.md`
+- `harness/actions/roles/work-agent.md`
+- `harness/actions/workflows/task-lifecycle.md`
+- `harness/actions/workflows/implementation.md`
+- `harness/actions/workflows/verification.md`
+- `harness/actions/workflows/handoff.md`
+- `harness/policies/tools/nx.md`
 - `tsconfig.json`
 - `tsconfig.base.json`
 - `tsconfig.next.json`

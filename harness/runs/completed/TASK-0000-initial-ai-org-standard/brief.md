@@ -9,7 +9,7 @@ verification, handoff, and durable memory.
 
 ## Problem
 
-The repository did not have a canonical `harness/ai-org` operating layer or root
+The repository did not have a canonical `harness` operating layer or root
 adapter files that point Codex, Claude, Gemini, and future agents to shared
 workflow and memory documents.
 
@@ -26,9 +26,9 @@ Allowed files:
 - `AGENTS.md`
 - `CLAUDE.md`
 - `GEMINI.md`
-- `docs/STRUCTURE.md`
-- `docs/ARCHITECTURE.md`
-- `docs/QUALITY_GATES.md`
+- `harness/knowledge/structure.md`
+- `harness/knowledge/architecture.md`
+- `harness/policies/quality-gates.md`
 - `harness/ai-org/**`
 
 Forbidden files:

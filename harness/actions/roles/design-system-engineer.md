@@ -7,7 +7,7 @@ Maintain `@tenzyu/ui` as a reusable, Storybook-verifiable shared UI package.
 ## Primary Scope
 
 - `product/packages/ui`
-- `docs/DESIGN_SYSTEM.md`
+- `harness/knowledge/product-specs/design-system.md`
 - design-system task artifacts
 
 ## Forbidden Scope

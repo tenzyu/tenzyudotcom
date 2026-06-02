@@ -37,7 +37,7 @@ and hermetic.
 - `product/apps/castalia/prompts/tc.pir.md`
 - `product/apps/castalia/prompts/tc.ps.md`
 - `product/apps/castalia/prompts/tc.pub.md`
-- `harness/ai-org/tasks/TASK-0007-castalia-monorepo-alignment/*`
+- `harness/runs/completed/TASK-0007-castalia-monorepo-alignment*`
 
 ## Validation Result
 
@@ -65,4 +65,4 @@ Passed:
 ## Memory Updates Made Or Proposed
 
 No durable memory update was made. Proposed: add castalia ownership to
-`harness/ai-org/memory/repo-map.md` once its long-term owner role is decided.
+`harness/knowledge/repo-map.md` once its long-term owner role is decided.

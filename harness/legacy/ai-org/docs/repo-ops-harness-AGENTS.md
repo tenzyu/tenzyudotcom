@@ -1,6 +1,6 @@
 # Legacy AGENTS: Repo-Ops Harness Map
 
-This file was moved out of `harness/ai-org/legacy/docs` during the legacy harness cleanup.
+This file was moved out of `harness/legacy/ai-org/docs` during the legacy harness cleanup.
 It is retained as historical routing context only. Active AI organization
 instructions live under `harness/ai-org/`; active repository contracts live under
 `docs/`.
@@ -16,25 +16,25 @@ Read the smallest next document that can unblock the task.
 - [Rules Index](./design-docs/AGENTS.md): searchable rule collection
 
 ## Product Specs
-- `/docs/product-specs/**/*.md`: route-specific or product-area-specific requirements
+- `/harness/knowledge/product-specs/**/*.md`: route-specific or product-area-specific requirements
 
 ## Plans And Workflows
 - `/harness/ai-org/exec-plans/active/*.md`: active plans, follow-ups, and execution-ready work in one place
 - `/harness/ai-org/exec-plans/completed/*.md`: completed work logs
 - `/harness/ai-org/exec-plans/archive/*.md`: archived older plans
-- `/harness/ai-org/exec-plans/tech-debt-tracker.md`: known gaps that are not durable rules yet
+- `/harness/knowledge/known-problems/tech-debt-tracker.md`: known gaps that are not durable rules yet
 - [plan-authoring-workflow](./workflows/plan-authoring-workflow.md): how to draft a plan
 - [exec-plan-contract](./workflows/exec-plan-contract.md): minimum contract for execution-ready plans
 - [agent-orchestration-workflow](./workflows/agent-orchestration-workflow.md): delegate, review, integrate, archive
 
 ## External References
-- `/harness/ai-org/references/*.md`: external tools and environments
+- `/harness/knowledge/references/*.md`: external tools and environments
 - [github-pr-workflow](./references/github-pr-workflow.md): GitHub CLI and PR flow
 - [error-analysis](./references/error-analysis.md): runtime error investigation flow
 - [ui-verification](./references/ui-verification.md): browser automation and UI checks
 
 ## GeneratedReports
-- `/harness/ai-org/reports/*.md`: opt-in reports and audits, not default reading
+- `/harness/observations/audits/*.md`: opt-in reports and audits, not default reading
 
 ## Routing
 - New task: Start here, then open one relevant granular rule or spec.

@@ -2,10 +2,10 @@
 
 Root `AGENTS.md` should route Codex-style agents to:
 
-- `harness/ai-org/org/charter.md`
-- `harness/ai-org/memory/repo-map.md`
+- `harness/canon/charter.md`
+- `harness/knowledge/repo-map.md`
 - relevant role files
 - relevant workflow files
-- `docs/AGENTS.md`
+- `harness/policies/repository.md`
 
 Do not duplicate long policy text in root adapters.

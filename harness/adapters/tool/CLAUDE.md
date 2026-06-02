@@ -1,6 +1,6 @@
 # Adapter: CLAUDE.md
 
-Root `CLAUDE.md` should route Claude Code to `harness/ai-org` for repository
+Root `CLAUDE.md` should route Claude Code to `harness` for repository
 memory and workflow rules.
 
 Durable discoveries should be proposed under `harness/ai-org/memory/`, not kept

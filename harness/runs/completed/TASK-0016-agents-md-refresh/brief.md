@@ -17,7 +17,7 @@ Keep `AGENTS.md` compact while preserving only verified, repo-specific guidance 
 Allowed files:
 
 - `AGENTS.md`
-- `harness/ai-org/tasks/TASK-0016-agents-md-refresh/*`
+- `harness/runs/completed/TASK-0016-agents-md-refresh*`
 
 Forbidden files:
 

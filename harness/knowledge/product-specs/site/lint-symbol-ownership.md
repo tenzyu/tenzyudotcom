@@ -6,8 +6,8 @@ description: exported symbol が本当に shared かどうかを owner 単位の
 # Lint Symbol Ownership
 
 ## References
-- [](/harness/ai-org/knowledge/design-docs/rules/foundation-dependency-inversion.md)
-- [](/harness/ai-org/knowledge/design-docs/AGENTS.md)
+- [](/harness/knowledge/rules/foundations/foundation-dependency-inversion.md)
+- [](/harness/knowledge/rules/compiled/AGENTS.md)
 
 ## Goal
 

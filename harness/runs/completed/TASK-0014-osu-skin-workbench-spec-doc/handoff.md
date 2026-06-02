@@ -6,8 +6,8 @@ Created a durable product spec for `osu-skin-workbench` in an isolated worktree.
 
 ## what changed
 
-- Added `docs/product-specs/osu-skin-workbench.md`.
-- Added task records under `harness/ai-org/tasks/TASK-0014-osu-skin-workbench-spec-doc/`.
+- Added `harness/knowledge/product-specs/osu-skin-workbench.md`.
+- Added task records under `harness/runs/completed/TASK-0014-osu-skin-workbench-spec-doc`.
 - Removed the accidentally-created untracked spec file from the main checkout after copying it into the worktree.
 
 ## why it changed
@@ -16,10 +16,10 @@ The owner asked to preserve the consolidated `osu-skin-workbench` specification 
 
 ## affected files
 
-- `docs/product-specs/osu-skin-workbench.md`
-- `harness/ai-org/tasks/TASK-0014-osu-skin-workbench-spec-doc/brief.md`
-- `harness/ai-org/tasks/TASK-0014-osu-skin-workbench-spec-doc/verification.md`
-- `harness/ai-org/tasks/TASK-0014-osu-skin-workbench-spec-doc/handoff.md`
+- `harness/knowledge/product-specs/osu-skin-workbench.md`
+- `harness/runs/completed/TASK-0014-osu-skin-workbench-spec-doc/brief.md`
+- `harness/runs/completed/TASK-0014-osu-skin-workbench-spec-doc/verification.md`
+- `harness/runs/completed/TASK-0014-osu-skin-workbench-spec-doc/handoff.md`
 
 ## validation result
 
@@ -33,7 +33,7 @@ The owner asked to preserve the consolidated `osu-skin-workbench` specification 
 
 ## follow-up tasks
 
-- Review whether product specs should use a directory form such as `docs/product-specs/osu-skin-workbench/README.md` before merge.
+- Review whether product specs should use a directory form such as `harness/knowledge/product-specs/osu-skin-workbench/README.md` before merge.
 - Optionally expand the spec into roadmap/security/architecture files later, following the Castalia pattern.
 
 ## memory updates made or proposed

@@ -6,7 +6,7 @@ description: harness/ai-org/knowledge/design-docs/rules/** から AGENTS.md を�
 # AGENTS.md Generator Spec
 
 ## Goal
-`harness/ai-org/knowledge/design-docs/rules/*.md` に散らばっている個別のルールを収集・結合し、LLM が一括で読み込みやすく、かつ構造化された `harness/ai-org/knowledge/design-docs/AGENTS.md` を自動生成する。
+`harness/ai-org/knowledge/design-docs/rules/*.md` に散らばっている個別のルールを収集・結合し、LLM が一括で読み込みやすく、かつ構造化された `harness/knowledge/rules/compiled/AGENTS.md` を自動生成する。
 
 ## Inputs
 - **Source**: `harness/ai-org/knowledge/design-docs/rules/*.md`
@@ -18,7 +18,7 @@ description: harness/ai-org/knowledge/design-docs/rules/** から AGENTS.md を�
   - `chapter`: (追加予定) AGENTS.md 内での章立て
 
 ## Output
-- **Target**: `harness/ai-org/knowledge/design-docs/AGENTS.md`
+- **Target**: `harness/knowledge/rules/compiled/AGENTS.md`
 - **Format**: 以下の構成を持つ単一の Markdown ファイル
   1. **Header**: タイトル、バージョン、日付、LLM 向けノート
   2. **Abstract**: サイトの設計思想の要約

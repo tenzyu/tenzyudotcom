@@ -1,13 +1,13 @@
-# HARNESS.md
+# harness/canon/legacy/root-HARNESS.md
 
-`harness/ai-org` is the canonical operating system for AI-assisted work in this repository.
+`harness` is the canonical operating system for AI-assisted work in this repository.
 
 ## Start
 
 1. Read `AGENTS.md`.
-2. Read `harness/ai-org/README.md`.
-3. Pick the smallest role from `harness/ai-org/agents/`.
-4. Follow the current phase workflow from `harness/ai-org/workflows/`.
+2. Read `harness/canon/legacy/ai-org-readme.md`.
+3. Pick the smallest role from `harness/actions/roles/`.
+4. Follow the current phase workflow from `harness/actions/workflows/`.
 5. For non-trivial work, create `harness/ai-org/tasks/TASK-XXXX-*/`.
 6. Before claiming completion, write `verification.md` and `handoff.md`.
 
@@ -15,14 +15,14 @@
 
 | Path | Purpose |
 | --- | --- |
-| `harness/ai-org/agents/` | Role boundaries for task intake, implementation, review, docs, and repo operations |
-| `harness/ai-org/workflows/` | Canonical task procedures |
-| `harness/ai-org/skills/` | Tool-triggered guardrails for Git, Nx, and repo linters |
+| `harness/actions/roles/` | Role boundaries for task intake, implementation, review, docs, and repo operations |
+| `harness/actions/workflows/` | Canonical task procedures |
+| `harness/policies/tools/` | Tool-triggered guardrails for Git, Nx, and repo linters |
 | `harness/ai-org/memory/` | Durable memory, decisions, ADRs, lessons, and repo map |
 | `harness/ai-org/knowledge/` | LLM-facing architecture rules and references |
 | `harness/ai-org/exec-plans/` | Active/completed execution plans and tech-debt planning |
-| `harness/ai-org/references/` | External workflow and verification references |
-| `harness/ai-org/reports/` | AI audits and generated investigation reports |
+| `harness/knowledge/references/` | External workflow and verification references |
+| `harness/observations/audits/` | AI audits and generated investigation reports |
 | `harness/ai-org/tasks/` | Concrete task artifacts |
 | `docs/` | Human-facing repository and product documentation |
 
@@ -32,7 +32,7 @@
 Task intake -> Investigation -> Plan -> Implementation -> Verification -> Review -> Handoff -> Memory update
 ```
 
-Use `harness/ai-org/workflows/task-lifecycle.md` as the top-level checklist.
+Use `harness/actions/workflows/task-lifecycle.md` as the top-level checklist.
 
 ## Required Task Files
 
@@ -60,10 +60,10 @@ Specialized roles remain available for product, design system, repo ops, and har
 
 Before using these tools, read the matching skill:
 
-- Git: `harness/ai-org/skills/git.md`
-- Nx: `harness/ai-org/skills/nx.md`
-- Custom linter: `harness/ai-org/skills/tenzyu-linter.md`
+- Git: `harness/policies/tools/git.md`
+- Nx: `harness/policies/tools/nx.md`
+- Custom linter: `harness/policies/tools/tenzyu-linter.md`
 
 ## ADRs
 
-Formal ADRs live in `harness/ai-org/memory/decisions/adr/`. If a task requires a material architecture decision, interview the owner before recording the ADR.
+Formal ADRs live in `harness/knowledge/decisions/adr/`. If a task requires a material architecture decision, interview the owner before recording the ADR.

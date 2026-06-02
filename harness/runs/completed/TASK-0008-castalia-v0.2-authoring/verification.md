@@ -46,17 +46,17 @@
 ## Files Inspected
 
 - `AGENTS.md`
-- `docs/AGENTS.md`
-- `harness/ai-org/org/charter.md`
-- `harness/ai-org/memory/repo-map.md`
-- `harness/ai-org/agents/implementer.md`
-- `harness/ai-org/workflows/implementation.md`
-- `harness/ai-org/workflows/verification.md`
-- `harness/ai-org/workflows/handoff.md`
-- `docs/product-specs/castalia/README.md`
-- `docs/product-specs/castalia/ARCHITECTURE.md`
-- `docs/product-specs/castalia/ROADMAP.md`
-- `docs/product-specs/castalia/SECURITY.md`
+- `harness/policies/repository.md`
+- `harness/canon/charter.md`
+- `harness/knowledge/repo-map.md`
+- `harness/actions/roles/implementer.md`
+- `harness/actions/workflows/implementation.md`
+- `harness/actions/workflows/verification.md`
+- `harness/actions/workflows/handoff.md`
+- `harness/knowledge/product-specs/castalia/README.md`
+- `harness/knowledge/product-specs/castalia/ARCHITECTURE.md`
+- `harness/knowledge/product-specs/castalia/ROADMAP.md`
+- `harness/knowledge/product-specs/castalia/SECURITY.md`
 - `product/apps/castalia/README.md`
 - `product/apps/castalia/project.json`
 - `product/apps/castalia/Cargo.toml`

@@ -13,7 +13,7 @@ implementation.
 
 ## Scope
 
-- Add v0.2.5 to `docs/product-specs/castalia/ROADMAP.md`.
+- Add v0.2.5 to `harness/knowledge/product-specs/castalia/ROADMAP.md`.
 - Capture design, implementation approach, simulation, risks, and user interview
   questions in this task folder.
 

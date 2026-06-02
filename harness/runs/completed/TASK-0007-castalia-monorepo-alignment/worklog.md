@@ -2,7 +2,7 @@
 
 ## 2026-06-02
 
-- Read repository charter, repo map, `docs/AGENTS.md`, Implementer and
+- Read repository charter, repo map, `harness/policies/repository.md`, Implementer and
   Repo Ops Engineer roles, plus implementation/verification/handoff workflows.
 - Confirmed castalia is an Nx application at `product/apps/castalia` and has no
   project graph dependencies.

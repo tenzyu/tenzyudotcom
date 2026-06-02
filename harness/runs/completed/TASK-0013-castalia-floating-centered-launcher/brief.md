@@ -27,8 +27,8 @@ Make the supported Castalia GUI launcher request and document a floating, center
 - `product/apps/castalia/crates/castalia-cli/Cargo.toml` and `product/apps/castalia/Cargo.lock` only if a narrowly justified GUI/window hint dependency or feature is required.
 - `product/apps/castalia/nix/**` only if runtime packaging changes are required by the GUI/window behavior.
 - `product/apps/castalia/README.md`
-- `docs/product-specs/castalia/**`
-- `harness/ai-org/tasks/TASK-0013-castalia-floating-centered-launcher/**`
+- `harness/knowledge/product-specs/castalia/**`
+- `harness/runs/completed/TASK-0013-castalia-floating-centered-launcher**`
 
 ## Forbidden Files
 
@@ -65,7 +65,7 @@ Make the supported Castalia GUI launcher request and document a floating, center
 
 ## Worktree Isolation
 
-Implementation must apply `harness/ai-org/workflows/worktree-task-isolation.md` before mutable product work.
+Implementation must apply `harness/actions/workflows/worktree-task-isolation.md` before mutable product work.
 
 Recommended implementation branch: `ai/castalia/floating-centered-launcher`.
 Recommended external worktree path: `/home/tenzyu/Documents/.worktrees/tenzyudotcom/castalia-floating-centered-launcher`.
