@@ -7,15 +7,15 @@
   ],
   "main": "./dist/index.js",
   "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "types": "./dist/src/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
+      "types": "./dist/src/index.d.ts",
       "import": "./dist/index.js"
     },
     "./styles.css": "./dist/styles.css",
     "./*": {
-      "types": "./dist/components/ui/*.d.ts",
+      "types": "./dist/src/components/ui/*.d.ts",
       "import": "./dist/*.js"
     }
   },

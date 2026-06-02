@@ -285,7 +285,7 @@ export function BlogEditor({
           </Card>
         ))}
         {filteredPosts.length === 0 ? (
-          <Card>
+          <Card className="overflow-hidden">
             <CardContent className="py-6 text-sm text-muted-foreground">
               No posts matched your search.
             </CardContent>

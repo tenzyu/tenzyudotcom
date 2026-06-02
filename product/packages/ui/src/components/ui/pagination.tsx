@@ -1,7 +1,7 @@
 import * as React from 'react'
 
 import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
+import { Button, type ButtonProps } from './button'
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -39,7 +39,7 @@ function PaginationItem({ ...props }: React.ComponentProps<'li'>) {
 
 type PaginationLinkProps = {
   isActive?: boolean
-} & Pick<React.ComponentProps<typeof Button>, 'size'> &
+} & Partial<Pick<ButtonProps, 'size'>> &
   React.ComponentProps<'a'>
 
 function PaginationLink({
