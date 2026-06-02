@@ -26,6 +26,7 @@
     "@vercel/speed-insights": "catalog:",
     "embla-carousel-react": "catalog:",
     "gray-matter": "catalog:",
+    "radix-ui": "catalog:",
     "intlayer": "catalog:",
     "intlayer-editor": "catalog:",
     "lucide-react": "catalog:",
