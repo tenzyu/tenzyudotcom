@@ -45,6 +45,6 @@ as the only evidence of completion.
 
 ## Canonical Sources
 
-- `harness/ai-org/` defines how AI agents work and stores LLM-facing workflows, rules, ADRs, execution plans, references, reports, memory, and task history.
+- `harness/` defines how AI agents work and stores LLM-facing workflows, rules, ADRs, execution plans, references, reports, memory, and task history.
 - `docs/` defines human-facing repository and product documentation.
 - Root tool files are adapters and must not become independent policy stores.
