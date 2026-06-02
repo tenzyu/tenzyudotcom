@@ -398,7 +398,7 @@ export function formatOwnershipIssue(issue: OwnershipIssue) {
   const refs = issue.referenceOwners.length > 0
     ? issue.referenceOwners.join(', ')
     : '(no external owners)'
-  return `${issue.kind} ${issue.declarationFile}#${issue.symbolName} owner=${issue.declarationOwner} target=${issue.targetOwner} refs=${refs}. Read: /docs/design-docs/references/symbol-ownership.md`
+  return `${issue.kind} ${issue.declarationFile}#${issue.symbolName} owner=${issue.declarationOwner} target=${issue.targetOwner} refs=${refs}. Read: /harness/ai-org/knowledge/design-docs/references/symbol-ownership.md`
 }
 
 if (import.meta.main) {

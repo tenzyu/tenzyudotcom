@@ -3,9 +3,9 @@ import { join } from "node:path";
 import matter from "gray-matter";
 
 const ROOT = process.cwd();
-const RULES_DIR = join(ROOT, "docs/design-docs/rules");
-const REFERENCES_DIR = join(ROOT, "docs/design-docs/references");
-const OUTPUT_PATH = join(ROOT, "docs/design-docs/AGENTS.md");
+const RULES_DIR = join(ROOT, "harness/ai-org/knowledge/design-docs/rules");
+const REFERENCES_DIR = join(ROOT, "harness/ai-org/knowledge/design-docs/references");
+const OUTPUT_PATH = join(ROOT, "harness/ai-org/knowledge/design-docs/AGENTS.md");
 
 interface RuleMetadata {
   title: string;
@@ -170,7 +170,7 @@ function compile() {
       });
   }
 
-  mkdirSync(join(ROOT, "docs/design-docs"), { recursive: true });
+  mkdirSync(join(ROOT, "harness/ai-org/knowledge/design-docs"), { recursive: true });
   writeFileSync(OUTPUT_PATH, output);
   console.log(`Generated: ${OUTPUT_PATH}`);
 }

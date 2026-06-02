@@ -7,13 +7,19 @@ general log.
 
 - `repo-map.md`: stable repository areas, ownership, and package responsibilities.
 - `known-problems.md`: recurring workflow, tooling, or environment problems.
-
-## Future Memory Areas
-
-- `decisions/`: durable design decisions and ADR-adjacent notes.
+- `decisions/`: durable design decisions and formal ADRs.
+- `decisions/adr/`: accepted architecture decision records.
 - `lessons/`: repeated mistakes or failed paths worth avoiding.
 - `component-notes/`: stable notes for shared UI components.
 - `incidents/`: production, CI, or release incidents worth preserving.
+
+## LLM-Facing Knowledge Roots
+
+- `../knowledge/design-docs/`: architecture rules and repair references.
+- `../exec-plans/`: active and completed execution plans.
+- `../references/`: external workflow and verification references.
+- `../reports/`: AI audits and investigation reports.
+- `../skills/`: tool guardrails for Git, Nx, and repository linters.
 
 ## Memory Rules
 

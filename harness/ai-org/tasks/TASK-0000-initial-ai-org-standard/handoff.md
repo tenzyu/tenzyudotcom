@@ -32,7 +32,7 @@ handoff, and minimize repeated context cost.
 - `docs/DESIGN_SYSTEM.md`
 - `docs/UI_MIGRATION_GUIDE.md`
 - `docs/RELEASE.md`
-- `docs/ADR/**`
+- `harness/ai-org/memory/decisions/adr/**`
 - `harness/ai-org/**`
 
 ## Validation

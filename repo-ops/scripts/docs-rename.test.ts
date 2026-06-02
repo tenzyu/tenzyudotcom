@@ -25,7 +25,7 @@ describe('docs-rename script', () => {
   }
 
   const runScript = (args: string[]) => {
-    const scriptPath = resolve(process.cwd(), 'scripts/docs-rename.ts')
+    const scriptPath = resolve(import.meta.dir, 'docs-rename.ts')
     return Bun.spawnSync(['bun', scriptPath, ...args], {
       cwd: tmpDir,
       env: { ...process.env },
@@ -166,13 +166,13 @@ describe('docs-rename script', () => {
     })
 
     // old exists, but the link is "broken" (should be [G](./GUARDRAILS.md) but is [G](./docs/GUARDRAILS.md))
-    const result = runScript(['docs/GUARDRAILS.md', 'docs/design-docs/GUARDRAILS.md'])
+    const result = runScript(['docs/GUARDRAILS.md', 'harness/ai-org/knowledge/design-docs/GUARDRAILS.md'])
 
     expect(result.success).toBe(true)
     const content = readFileSync(join(tmpDir, 'docs/AGENTS.md'), 'utf-8')
     // It should correctly identify that ./docs/GUARDRAILS.md meant ROOT/docs/GUARDRAILS.md
     // And update it to the new location relative to docs/AGENTS.md
-    expect(content).toContain('[G](./design-docs/GUARDRAILS.md)')
+    expect(content).toContain('[G](../harness/ai-org/knowledge/design-docs/GUARDRAILS.md)')
   })
 
   test('should update directory-level references when a directory is moved', () => {

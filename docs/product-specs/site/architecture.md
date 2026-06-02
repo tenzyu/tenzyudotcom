@@ -20,7 +20,7 @@ description: 著者主導のEditorコレクションのための、リポジト�
 
 ## Boundary Baseline
 
-Editor の一般語彙は `docs/design-docs/tools-boundary.md` を正とする。
+Editor の一般語彙は `harness/ai-org/knowledge/design-docs/rules/foundation-tool-boundaries.md` を正とする。
 この文書では、この repo 固有の運用前提だけを追加する。
 
 ## Ownership

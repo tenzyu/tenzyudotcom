@@ -173,5 +173,5 @@ export function analyzeServerActionGuards(options: AnalyzeOptions = {}) {
 }
 
 export function formatServerActionGuardIssue(issue: ServerActionGuardIssue) {
-  return `${issue.filePath}#${issue.symbolName}: ${issue.message}. Read: /docs/design-docs/references/site-rules.md`
+  return `${issue.filePath}#${issue.symbolName}: ${issue.message}. Read: /harness/ai-org/knowledge/design-docs/references/site-rules.md`
 }

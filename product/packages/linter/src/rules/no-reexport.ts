@@ -130,7 +130,7 @@ export function formatPureReexportIssue(issue: PureReexportIssue) {
     issue.reason === 'port-export-from'
       ? 'port modules must not re-export from other modules; import the source module directly instead.'
       : 'pure re-export files are prohibited; import the source module directly instead.'
-  return `${issue.filePath}: ${message} Read: /docs/design-docs/references/no-reexport.md`
+  return `${issue.filePath}: ${message} Read: /harness/ai-org/knowledge/design-docs/references/no-reexport.md`
 }
 
 if (import.meta.main) {

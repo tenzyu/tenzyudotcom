@@ -135,5 +135,5 @@ export function analyzeRestrictedImportUsage(options: AnalyzeOptions = {}) {
 }
 
 export function formatRestrictedImportUsageIssue(issue: RestrictedImportUsageIssue) {
-  return `${issue.filePath}: [${issue.ruleName}] ${issue.message}. Read: /docs/design-docs/references/site-rules.md`
+  return `${issue.filePath}: [${issue.ruleName}] ${issue.message}. Read: /harness/ai-org/knowledge/design-docs/references/site-rules.md`
 }

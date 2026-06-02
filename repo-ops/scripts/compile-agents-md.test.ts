@@ -24,9 +24,10 @@ describe("compile-agents-md script", () => {
     references?: Record<string, string>;
   }) => {
     rmSync(join(tmpDir, "docs"), { recursive: true, force: true });
+    rmSync(join(tmpDir, "harness"), { recursive: true, force: true });
 
     if (rules) {
-      const rulesDir = join(tmpDir, "docs/design-docs/rules");
+      const rulesDir = join(tmpDir, "harness/ai-org/knowledge/design-docs/rules");
       mkdirSync(rulesDir, { recursive: true });
       for (const [name, content] of Object.entries(rules)) {
         writeFileSync(join(rulesDir, name), content);
@@ -34,7 +35,7 @@ describe("compile-agents-md script", () => {
     }
 
     if (Object.keys(references).length > 0) {
-      const referencesDir = join(tmpDir, "docs/design-docs/references");
+      const referencesDir = join(tmpDir, "harness/ai-org/knowledge/design-docs/references");
       mkdirSync(referencesDir, { recursive: true });
       for (const [name, content] of Object.entries(references)) {
         writeFileSync(join(referencesDir, name), content);
@@ -43,7 +44,7 @@ describe("compile-agents-md script", () => {
   };
 
   const runCompiler = () => {
-    const scriptPath = resolve(process.cwd(), "scripts/compile-agents-md.ts");
+    const scriptPath = resolve(import.meta.dir, 'compile-agents-md.ts');
     return Bun.spawnSync(["bun", scriptPath], {
       cwd: tmpDir,
       env: { ...process.env },
@@ -64,7 +65,7 @@ describe("compile-agents-md script", () => {
     const result = runCompiler();
     expect(result.success).toBe(true);
 
-    const agentsPath = join(tmpDir, "docs/design-docs/AGENTS.md");
+    const agentsPath = join(tmpDir, "harness/ai-org/knowledge/design-docs/AGENTS.md");
     expect(existsSync(agentsPath)).toBe(true);
 
     const content = readFileSync(agentsPath, "utf-8");
@@ -87,7 +88,7 @@ describe("compile-agents-md script", () => {
     const stderr = result.stderr.toString();
     expect(stderr).toContain("Missing rules directory:");
     expect(stderr).toContain("Expected project structure:");
-    expect(stderr).toContain("docs/design-docs/rules");
-    expect(stderr).toContain("docs/design-docs/references");
+    expect(stderr).toContain("harness/ai-org/knowledge/design-docs/rules");
+    expect(stderr).toContain("harness/ai-org/knowledge/design-docs/references");
   });
 });

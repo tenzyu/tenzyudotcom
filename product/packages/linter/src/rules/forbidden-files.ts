@@ -30,5 +30,5 @@ export function analyzeForbiddenFiles(options: AnalyzeOptions = {}) {
 }
 
 export function formatForbiddenFileIssue(issue: ForbiddenFileIssue) {
-  return `${issue.filePath}: ${issue.message}. Read: /docs/design-docs/references/site-rules.md`
+  return `${issue.filePath}: ${issue.message}. Read: /harness/ai-org/knowledge/design-docs/references/site-rules.md`
 }

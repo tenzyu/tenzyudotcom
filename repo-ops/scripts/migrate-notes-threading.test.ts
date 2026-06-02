@@ -23,7 +23,7 @@ describe('migrate-notes-threading script', () => {
   })
 
   const runScript = (args: string[]) => {
-    const scriptPath = resolve(process.cwd(), 'scripts/migrate-notes-threading.ts')
+    const scriptPath = resolve(import.meta.dir, 'migrate-notes-threading.ts')
     return Bun.spawnSync(['bun', scriptPath, ...args], {
       cwd: tmpDir,
       env: { ...process.env },

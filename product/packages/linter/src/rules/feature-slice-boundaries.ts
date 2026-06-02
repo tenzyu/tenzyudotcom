@@ -376,7 +376,7 @@ function main() {
 }
 
 export function formatImportBoundaryIssue(issue: ImportBoundaryIssue) {
-  return `${issue.ruleName}: ${issue.from} -> ${issue.to}. Read: /docs/design-docs/references/import-boundaries.md`
+  return `${issue.ruleName}: ${issue.from} -> ${issue.to}. Read: /harness/ai-org/knowledge/design-docs/references/import-boundaries.md`
 }
 
 if (import.meta.main) {

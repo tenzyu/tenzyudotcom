@@ -534,5 +534,5 @@ export function analyzeWorkspaceBoundaries(options: AnalyzeOptions = {}) {
 }
 
 export function formatWorkspaceBoundaryIssue(issue: WorkspaceBoundaryIssue) {
-  return `${issue.from}: [${issue.ruleName}] ${issue.message}: ${issue.to}. Read: /docs/design-docs/references/import-boundaries.md`
+  return `${issue.from}: [${issue.ruleName}] ${issue.message}: ${issue.to}. Read: /harness/ai-org/knowledge/design-docs/references/import-boundaries.md`
 }

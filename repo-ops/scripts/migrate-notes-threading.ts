@@ -3,7 +3,7 @@ import { resolve } from 'node:path'
 import {
   createNoteSnowflakeId,
   compareNotesByCreatedAtAsc,
-} from '../packages/site/src/app/[locale]/(main)/notes/_features/notes.domain'
+} from '../../product/apps/web/src/app/[locale]/(main)/notes/_features/notes.domain'
 
 type LegacyLocalizedText = {
   ja: string

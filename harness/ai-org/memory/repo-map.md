@@ -11,7 +11,7 @@ before editing because this file may lag behind active work.
 - Packages root: `product/packages`.
 - AI organization root: `harness/ai-org`.
 - Repository operations root: `repo-ops`.
-- Legacy repo-ops harness content was moved into `docs/`; `repo-ops/harness` is a redirect only.
+- Legacy repo-ops harness content was moved into `harness/ai-org/legacy/docs`; `harness/ai-org/legacy/docs` is a redirect only.
 
 ## Projects
 

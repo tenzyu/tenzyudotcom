@@ -35,15 +35,14 @@ tenzyudotcom is a Bun + Nx monorepo.
 
 | Path | Responsibility |
 | --- | --- |
-| `docs/` | Repository structure, architecture, quality gates, and durable product contracts |
-| `harness/ai-org/` | AI role, workflow, task, memory, cost, and handoff standards |
-| `docs/design-docs/` | Architecture rule index, granular rules, and repair references |
-| `docs/exec-plans/` | Active and completed execution plans |
+| `docs/` | Human-facing repository structure, architecture, quality gates, and durable product contracts |
+| `harness/ai-org/` | AI role, workflow, task, memory, ADR, tool guardrail, and handoff standards |
+| `harness/ai-org/knowledge/design-docs/` | LLM-facing architecture rule index, granular rules, and repair references |
+| `harness/ai-org/exec-plans/` | Active and completed execution plans |
 | `docs/product-specs/` | Product and route-specific requirements |
-| `docs/workflows/` | Legacy workflow references that are not AI-org canonical workflows |
-| `docs/references/` | External tool and verification references |
-| `docs/.ai-reports/` | Opt-in AI reports and audits |
-| `repo-ops/harness/` | Legacy redirect only; do not add new active documents |
+| `harness/ai-org/legacy/workflows/` | Legacy workflow references that are not AI-org canonical workflows |
+| `harness/ai-org/references/` | External tool and verification references |
+| `harness/ai-org/reports/` | Opt-in AI reports and audits |
 | `repo-ops/scripts/` | Repository automation such as docs compilation and dependency policy checks |
 | `product/apps/osu-skin-workbench/src-tauri/` | Rust/Tauri native shell for the workbench app |
 

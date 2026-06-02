@@ -31,7 +31,7 @@
 | `harness/ai-org/memory/` | Add index, repo map, and known problems |
 | `harness/ai-org/tasks/` | Add this task and initial pilot task briefs |
 | `harness/ai-org/adapters/` | Add adapter guidance for root tool files |
-| `docs/ADR/` | Add initial ADRs named by the standard |
+| `harness/ai-org/memory/decisions/adr/` | Add initial ADRs named by the standard |
 
 ## Public API Impact
 

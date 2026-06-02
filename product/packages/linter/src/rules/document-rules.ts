@@ -142,7 +142,7 @@ async function validateReachability(designDocsDir: string) {
       continue
     }
 
-    const linkRegex = /\[.*?\]\((?!http)(.*?)\)|`(\/docs\/design-docs\/.*?)`/g
+    const linkRegex = /\[.*?\]\((?!http)(.*?)\)|`(\/harness\/ai-org\/knowledge\/design-docs\/.*?)`/g
     let match: RegExpExecArray | null
     while ((match = linkRegex.exec(content)) !== null) {
       let linkPath = match[1] || match[2]
@@ -222,7 +222,7 @@ async function validateReachability(designDocsDir: string) {
 }
 
 async function run() {
-  const designDocsDir = path.resolve(REPORT_ROOT, 'docs/design-docs')
+  const designDocsDir = path.resolve(REPORT_ROOT, 'harness/ai-org/knowledge/design-docs')
   const agentsMd = path.join(designDocsDir, 'AGENTS.md')
   let hasErrors = false
   const filesToLint: string[] = []

@@ -77,27 +77,24 @@ repo-ops/scripts/
 
 ### `docs/`
 
-Repository and product contracts.
+Human-facing repository and product contracts.
 
 ```txt
-docs/design-docs/
-  Architecture rules and generated rules index
-
-docs/exec-plans/
-  Active and completed execution plans
-
 docs/product-specs/
   Product and route-specific requirements
 
-docs/workflows/ and docs/references/
-  Supporting workflow and external tool references
+docs/*.md
+  Human-readable repository architecture, structure, quality, release, and roadmap notes
 ```
+
+LLM-facing workflow, rule, ADR, execution-plan, reference, and report material lives under `harness/ai-org/`.
 
 ### `harness/ai-org/`
 
-Canonical AI organization system for role definitions, task workflow, handoff,
-and durable memory. Root AI files such as `AGENTS.md`, `CLAUDE.md`, and
-`GEMINI.md` are adapters into this directory.
+Canonical AI organization system for role definitions, task workflow, tool guardrails,
+ADR memory, handoff, and durable LLM-facing knowledge. Root AI files such as
+`AGENTS.md`, `CLAUDE.md`, and `GEMINI.md` are adapters into this directory.
+See `HARNESS.md` for the operating guide.
 
 ## Root Files
 

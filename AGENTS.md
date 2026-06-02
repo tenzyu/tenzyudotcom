@@ -10,10 +10,12 @@ Before changing code:
 
 1. Read `harness/ai-org/org/charter.md`.
 2. Read `harness/ai-org/memory/repo-map.md`.
-3. Read the relevant role file under `harness/ai-org/agents/`.
-4. Read the relevant workflow under `harness/ai-org/workflows/`.
-5. Create or update a task folder under `harness/ai-org/tasks/` for non-trivial work.
-6. Do not claim completion without `verification.md` and `handoff.md`.
+3. Read `HARNESS.md` for the AI organization operating overview.
+4. Read the relevant role file under `harness/ai-org/agents/`.
+5. Read the relevant workflow under `harness/ai-org/workflows/`.
+6. Read relevant tool guardrail skills under `harness/ai-org/skills/` before using Git, Nx, or `@tenzyu/linter`.
+7. Create or update a task folder under `harness/ai-org/tasks/` for non-trivial work.
+8. Do not claim completion without `verification.md` and `handoff.md`.
 
 Hard rules:
 

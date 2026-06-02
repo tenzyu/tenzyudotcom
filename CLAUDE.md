@@ -1,6 +1,7 @@
 # CLAUDE.md
 
 Use `harness/ai-org` as the canonical project memory and workflow system.
+Read `HARNESS.md` for the operating guide.
 
 Also read `docs/AGENTS.md` for repository-local engineering constraints. Do not
 treat local auto-memory as the repository source of truth.

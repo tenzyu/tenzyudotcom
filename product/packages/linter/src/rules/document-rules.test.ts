@@ -43,8 +43,8 @@ describe('lint-rules script', () => {
 
   test('should exempt design-docs AGENTS.md from frontmatter check', () => {
     setupProject({
-      'docs/design-docs/AGENTS.md': '# AGENTS\n- [Rule](./rules/rule.md)',
-      'docs/design-docs/rules/rule.md': '---\ntitle: Rule\nimpact: HIGH\nimpactDescription: test\ntags: a\nchapter: Foundations\n---\n# Rule',
+      'harness/ai-org/knowledge/design-docs/AGENTS.md': '# AGENTS\n- [Rule](./rules/rule.md)',
+      'harness/ai-org/knowledge/design-docs/rules/rule.md': '---\ntitle: Rule\nimpact: HIGH\nimpactDescription: test\ntags: a\nchapter: Foundations\n---\n# Rule',
     })
 
     const result = runLinter()
@@ -53,8 +53,8 @@ describe('lint-rules script', () => {
 
   test('should fail if rule frontmatter is missing', () => {
     setupProject({
-      'docs/design-docs/AGENTS.md': '# AGENTS\n- [Rule](./rules/rule.md)',
-      'docs/design-docs/rules/rule.md': '# Rule',
+      'harness/ai-org/knowledge/design-docs/AGENTS.md': '# AGENTS\n- [Rule](./rules/rule.md)',
+      'harness/ai-org/knowledge/design-docs/rules/rule.md': '# Rule',
     })
 
     const result = runLinter()
@@ -64,8 +64,8 @@ describe('lint-rules script', () => {
 
   test('should detect orphaned design-doc markdown', () => {
     setupProject({
-      'docs/design-docs/AGENTS.md': '# AGENTS',
-      'docs/design-docs/rules/orphan.md': '---\ntitle: Orphan\nimpact: HIGH\nimpactDescription: test\ntags: a\nchapter: Foundations\n---\n# Orphan',
+      'harness/ai-org/knowledge/design-docs/AGENTS.md': '# AGENTS',
+      'harness/ai-org/knowledge/design-docs/rules/orphan.md': '---\ntitle: Orphan\nimpact: HIGH\nimpactDescription: test\ntags: a\nchapter: Foundations\n---\n# Orphan',
     })
 
     const result = runLinter()
@@ -75,7 +75,7 @@ describe('lint-rules script', () => {
 
   test('should detect broken links', () => {
     setupProject({
-      'docs/design-docs/AGENTS.md': '# AGENTS\n- [Dead](./rules/missing.md)',
+      'harness/ai-org/knowledge/design-docs/AGENTS.md': '# AGENTS\n- [Dead](./rules/missing.md)',
     })
 
     const result = runLinter()
@@ -85,8 +85,8 @@ describe('lint-rules script', () => {
 
   test('should allow first heading to start at H2 for template-shaped rules', () => {
     setupProject({
-      'docs/design-docs/AGENTS.md': '# AGENTS\n- [Rule](./rules/rule.md)',
-      'docs/design-docs/rules/rule.md': '---\ntitle: Rule\nimpact: HIGH\nimpactDescription: test\ntags: a\nchapter: Foundations\n---\n\n## Rule\n\nbody',
+      'harness/ai-org/knowledge/design-docs/AGENTS.md': '# AGENTS\n- [Rule](./rules/rule.md)',
+      'harness/ai-org/knowledge/design-docs/rules/rule.md': '---\ntitle: Rule\nimpact: HIGH\nimpactDescription: test\ntags: a\nchapter: Foundations\n---\n\n## Rule\n\nbody',
     })
 
     const result = runLinter()
