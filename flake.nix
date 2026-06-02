@@ -35,14 +35,15 @@
         };
 
         castalia = pkgs.callPackage ./product/apps/castalia/nix/package.nix { };
+        atelier = pkgs.callPackage ./product/apps/atelier/nix/package.nix { };
       in
       {
         inherit devShells;
 
         # Convenience for monorepo developers.
-        # External users should consume product/apps/castalia as a subflake.
+        # External users should consume product/apps/<name> as a subflake.
         packages = {
-          inherit castalia;
+          inherit castalia atelier;
         };
 
         apps = {
@@ -50,10 +51,15 @@
             type = "app";
             program = "${castalia}/bin/castalia";
           };
+          atelier = {
+            type = "app";
+            program = "${atelier}/bin/atelier";
+          };
         };
 
         checks = {
           castalia = castalia;
+          atelier = atelier;
         };
       }
     );

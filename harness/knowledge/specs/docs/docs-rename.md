@@ -29,7 +29,7 @@ x:
 ## Reference Update Logic
 ### 1. Matchers
 - **@docs Mentions**: `@docs/path/to/file` (拡張子なし/あり両対応)。
-- **Markdown Links**: `[text](path)` 形式。外部URL、ハッシュリンク、`/docs/` 以外の `src` 参照などは除外。
+- **Markdown Links**: `[text]\(path\)` 形式。外部URL、ハッシュリンク、`/docs/` 以外の `src` 参照などは除外。
 
 ### 2. Path Resolution
 - **Relative Fallback**: ファイルが `docs/` 内にあるのに `./docs/` で始まるリンク（技術的に壊れたリンク）がある場合、プロジェクトルートからのパスとしてフォールバック解決を試みる。
