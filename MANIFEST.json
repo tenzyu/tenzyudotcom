@@ -1,0 +1,12 @@
+{
+  "harness/knowledge/product-specs/atelier/README.md": {
+    "bytes": 22438,
+    "lines": 1102,
+    "sha256": "2e01b06b955e0b10b9044d0f75e4c4bbc0cc01c432344c81918ab5f2f203f699"
+  },
+  "harness/knowledge/product-specs/atelier/ROADMAP.md": {
+    "bytes": 16630,
+    "lines": 873,
+    "sha256": "6810c581d89b73e75c4011cb9288c80e76c6ec50fee673405a1a44cbe6f7c103"
+  }
+}
