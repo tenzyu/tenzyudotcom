@@ -2,11 +2,15 @@
 
 Use this workflow when the task is to understand a problem, produce findings, or prepare a later run without implementing changes.
 
+## Role assignment
+
+Assign the role that owns the affected domain. Add `roles/core/architect.md` when the investigation affects boundaries or future implementation strategy.
+
 ## Required phases
 
-- `../parts/phases/intake.md`
-- `../parts/phases/investigation.md`
-- `../parts/phases/handoff.md`
+- `../phases/intake.md`
+- `../phases/investigation.md`
+- `../phases/handoff.md`
 
 ## Outputs
 

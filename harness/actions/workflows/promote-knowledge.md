@@ -2,9 +2,19 @@
 
 Use this workflow when a run produced durable reusable knowledge.
 
+## Role assignment
+
+Use:
+
+```txt
+primary: roles/core/librarian.md
+support: original domain role when domain-specific knowledge is promoted
+support: roles/core/architect.md when promoting architecture decisions
+```
+
 ## Required phase
 
-- `../parts/phases/knowledge-promotion.md`
+- `../phases/knowledge-promotion.md`
 
 ## Sources
 

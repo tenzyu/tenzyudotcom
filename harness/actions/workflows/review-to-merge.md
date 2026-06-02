@@ -2,6 +2,10 @@
 
 Use this workflow after review findings are available.
 
+## Role assignment
+
+Use the role that owns the fix area. Keep `roles/core/reviewer.md` available for final confirmation when findings were blocking.
+
 ## Steps
 
 1. Address required findings or document why they need human decision.

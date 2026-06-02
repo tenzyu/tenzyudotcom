@@ -16,13 +16,23 @@ Use this file as the callable workflow entrypoint.
 | Durable lesson or decision should be promoted | `promote-knowledge.md` |
 | Architecture decision should become ADR | `distill-adr.md` |
 
+## Required invocation sequence
+
+1. Select one workflow from this registry.
+2. Assign one primary role from `../roles/`.
+3. Add supporting roles only when their knowledge bundle or review criteria are needed.
+4. Load role files before broad knowledge exploration.
+5. Load required knowledge listed by the assigned roles.
+6. Execute only the phases named by the workflow.
+
 ## Rule
 
-Workflows are callable.
-Parts are not called directly unless a workflow explicitly asks for them.
+Workflows are callable. Roles route context. Phases are lifecycle modules.
 
-## Parts
+Do not call phase files directly unless a workflow explicitly names them.
 
-- phases: `../parts/phases/`
-- roles: `../parts/roles/`
-- artifact templates: `../parts/artifacts/templates/`
+## References
+
+- roles: `../roles/`
+- phases: `../phases/`
+- artifact templates: `../artifacts/templates/`

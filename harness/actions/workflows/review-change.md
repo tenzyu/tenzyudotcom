@@ -2,19 +2,29 @@
 
 Use this workflow for independent review of an existing diff or completed run.
 
+## Role assignment
+
+Required:
+
+```txt
+primary: roles/core/reviewer.md
+```
+
+Add the relevant domain role when domain-specific knowledge is needed.
+
 ## Required phases
 
-- `../parts/phases/review.md`
-- `../parts/phases/verification.md`, when validation evidence is missing or suspicious
-- `../parts/phases/handoff.md`, when review produces follow-up work
+- `../phases/review.md`
+- `../phases/verification.md`, when validation evidence is missing or suspicious
+- `../phases/handoff.md`, when review produces follow-up work
 
 ## Required inputs
 
-- task brief or request
+- run brief or request
 - changed file list or diff
 - verification evidence
 - handoff draft, if present
-- relevant knowledge and policies
+- assigned role knowledge and policies
 
 ## Output
 

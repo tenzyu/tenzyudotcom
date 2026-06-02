@@ -2,6 +2,14 @@
 
 Move a completed or nearly completed run into a reviewable pull request.
 
+## Role assignment
+
+Use:
+
+- primary: role that owns the changed domain
+- support: `roles/governance/release-manager.md` when rollout, packaging, or public API risk exists
+- review: `roles/core/reviewer.md` when not already reviewed
+
 ## Required inputs
 
 - run folder

@@ -2,9 +2,19 @@
 
 Use this workflow when a material decision should become an architecture decision record.
 
+## Role assignment
+
+Use:
+
+```txt
+primary: roles/core/architect.md
+support: roles/core/librarian.md
+support: relevant domain role
+```
+
 ## Required phase
 
-- `../parts/phases/adr-distillation.md`
+- `../phases/adr-distillation.md`
 
 ## Use when a run affects
 

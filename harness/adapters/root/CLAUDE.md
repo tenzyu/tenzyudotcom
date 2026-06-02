@@ -1,18 +1,21 @@
 # CLAUDE.md
 
 Use `harness` as the canonical project memory and workflow system.
-Read `harness/canon/legacy/root-HARNESS.md` for the operating guide.
 
-Also read `harness/policies/repository.md` for repository-local engineering constraints. Do not
-treat local auto-memory as the repository source of truth.
+Start with:
+
+- `harness/canon/model.md`
+- `harness/policies/repository.md`
+- `harness/actions/workflows/README.md`
+- `harness/actions/roles/README.md`
 
 For non-trivial tasks, produce or update:
 
 - `brief.md`
-- `plan.md`
+- `plan.md`, when needed
 - `worklog.md`
 - `verification.md`
-- `review.md` when acting as reviewer
+- `review.md`, when acting as reviewer
 - `handoff.md`
 
 Durable discoveries should be proposed as updates to:
@@ -21,3 +24,6 @@ Durable discoveries should be proposed as updates to:
 - `harness/knowledge/lessons/`
 - `harness/knowledge/component-notes/`
 - `harness/knowledge/repo-map.md`
+- assigned role files when knowledge routing changes
+
+Do not treat tool-local memory as the repository source of truth.
