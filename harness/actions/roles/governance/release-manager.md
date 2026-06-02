@@ -1,3 +1,27 @@
+---
+schema: harness/v1
+kind: role
+id: role.governance.release-manager
+title: Release Manager
+status: active
+role_type: governance
+summary: Prepare user-facing or package-facing changes for release with validation, rollback, and risk notes.
+tags:
+  - harness
+  - role
+  - release
+selectors:
+  tags:
+    - release
+    - rollout
+    - migration
+  knowledge_types:
+    - policy
+    - reference
+pinned:
+  - policy.release
+---
+
 # Role: Release Manager
 
 ## Mission

@@ -1,4 +1,9 @@
 ---
+schema: harness/v1
+kind: observation
+id: observation.audit.app-ownership-tree-spec
+title: App Ownership Tree Spec
+status: active
 name: app-ownership-tree-spec
 description: src/app の directory tree を ownership の正本にし、symbol の promote/demote を least common owner で判定する仕様。
 summary: src/features は app tree で自然表現できない cross-branch shared の例外層とし、lint-symbol-ownership を owner tree ベースへ拡張する。

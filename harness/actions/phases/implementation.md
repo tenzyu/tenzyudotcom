@@ -1,3 +1,16 @@
+---
+schema: harness/v1
+kind: phase
+id: phase.implementation
+title: Implementation
+status: active
+summary: Make approved source or documentation changes within assigned scope.
+tags:
+  - harness
+  - phase
+  - implementation
+---
+
 # Phase: Implementation
 
 Implementation makes the approved change inside scope.

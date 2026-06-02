@@ -1,7 +1,17 @@
 ---
+schema: harness/v1
+kind: knowledge
+knowledge_type: reference
+id: knowledge.reference.ui-verification
+title: UI Verification Strategy
+status: active
 name: harness-ui-verification
 description: ブラウザサブエージェントを通じたフロントエンド/UI変更の自動視覚検証フロー。
 summary: アクセシビリティ違反、レスポンシブ崩れ、デザイン規約（DESIGN.md）違反を視覚的に検知し、エージェントが自律テストを行う手順。
+tags:
+  - ui
+  - verification
+  - reference
 read_when:
   - ページやコンポーネントのUIを大幅に変更した時
   - アクセシビリティ（a11y）対応が必要な視覚的要素を追加した時

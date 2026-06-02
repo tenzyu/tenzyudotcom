@@ -1,3 +1,16 @@
+---
+schema: harness/v1
+kind: policy
+id: policy.release
+title: Release
+status: active
+summary: Release ownership, required notes, rollback, and rollout risk policy.
+tags:
+  - policy
+  - release
+  - rollout
+---
+
 # Release
 
 Release work is owned by the Release Manager role when a task affects packaging,

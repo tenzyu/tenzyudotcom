@@ -1,3 +1,34 @@
+---
+schema: harness/v1
+kind: role
+id: role.domain.harness-engineer
+title: Harness Engineer
+status: active
+role_type: domain
+summary: Maintain the harness as a role-routed, run-based, evidence-driven control layer.
+tags:
+  - harness
+  - role
+  - workflow
+activation:
+  paths:
+    - harness/**
+selectors:
+  paths:
+    - harness/**
+  tags:
+    - harness
+    - workflow
+    - knowledge
+  knowledge_types:
+    - rule
+    - product-spec
+    - reference
+pinned:
+  - policy.repository
+  - knowledge.repo-map
+---
+
 # Role: Harness Engineer
 
 ## Mission

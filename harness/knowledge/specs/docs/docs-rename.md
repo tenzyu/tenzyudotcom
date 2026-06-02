@@ -1,4 +1,9 @@
 ---
+schema: harness/v1
+kind: knowledge
+knowledge_type: product-spec
+id: knowledge.spec.docs.rename
+status: active
 title: docs-rename
 description: ドキュメントの移動と参照の自動更新を行うスクリプトの仕様。
 ---

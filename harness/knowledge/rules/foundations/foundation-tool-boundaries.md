@@ -1,4 +1,9 @@
 ---
+schema: harness/v1
+kind: knowledge
+knowledge_type: rule
+id: knowledge.rule.foundation.tool-boundaries
+status: active
 title: Tool Boundaries
 impact: HIGH
 impactDescription: 道具ごとの責務を固定し、交換不可能な密結合を防ぐ。
@@ -25,4 +30,3 @@ src/components: presentation primitive
 src/app/**/_features: app-owned feature
 src/features: app tree で自然に置けない cross-branch shared
 ```
-

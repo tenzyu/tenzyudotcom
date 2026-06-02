@@ -1,4 +1,9 @@
 ---
+schema: harness/v1
+kind: knowledge
+knowledge_type: rule
+id: knowledge.rule.implementation.editor-errors-and-blog-saving-should-cross-boundaries-via-port
+status: active
 title: Editor Errors And Blog Saving Should Cross Boundaries Via Port
 impact: MEDIUM
 impactDescription: application 層が infra 定義の例外型や特別保存処理に直接依存すると、JSON collection と blog の差分処理が infrastructure に引きずられる。

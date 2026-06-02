@@ -1,3 +1,16 @@
+---
+schema: harness/v1
+kind: canon
+id: canon.completion-standard
+title: Completion Standard
+status: active
+summary: Defines the evidence required before a non-trivial run can be considered complete.
+tags:
+  - harness
+  - canon
+  - completion
+---
+
 # Completion Standard
 
 A non-trivial run may be closed only when all of the following are true or explicitly deferred by the human owner:

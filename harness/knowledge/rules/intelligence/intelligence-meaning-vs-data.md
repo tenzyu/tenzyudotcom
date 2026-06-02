@@ -1,4 +1,9 @@
 ---
+schema: harness/v1
+kind: knowledge
+knowledge_type: rule
+id: knowledge.rule.intelligence.meaning-vs-data
+status: active
 title: "Meaning Vs Data Separation"
 impact: HIGH
 impactDescription: 識別子と翻訳文を分離し、データ更新と多言語化を疎結合にする。

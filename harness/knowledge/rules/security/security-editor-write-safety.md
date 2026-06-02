@@ -1,4 +1,9 @@
 ---
+schema: harness/v1
+kind: knowledge
+knowledge_type: rule
+id: knowledge.rule.security.editor-write-safety
+status: active
 title: Editor Write Safety
 impact: HIGH
 impactDescription: editor 保存処理で path 汚染と後勝ち上書きを防ぎ、安全な write 境界を保つ。

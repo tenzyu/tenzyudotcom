@@ -1,3 +1,27 @@
+---
+schema: harness/v1
+kind: role
+id: role.governance.cost-controller
+title: Cost Controller
+status: active
+role_type: governance
+summary: Keep agent work context-efficient and prevent duplicate research.
+tags:
+  - harness
+  - role
+  - cost
+  - context
+selectors:
+  tags:
+    - context-budget
+    - knowledge-routing
+  knowledge_types:
+    - policy
+    - known-problem
+pinned:
+  - policy.context-budget
+---
+
 # Role: Cost Controller
 
 ## Mission

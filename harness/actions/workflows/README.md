@@ -1,3 +1,16 @@
+---
+schema: harness/v1
+kind: canon
+id: workflows.registry
+title: Workflow Registry
+status: active
+summary: Callable workflow registry and invocation sequence for harness runs.
+tags:
+  - harness
+  - workflows
+  - registry
+---
+
 # Workflow Registry
 
 Use this file as the callable workflow entrypoint.

@@ -1,3 +1,18 @@
+---
+schema: harness/v1
+kind: knowledge
+knowledge_type: reference
+id: knowledge.monorepo.nx
+title: Nx Monorepo Operations
+status: active
+summary: Nx project names, task conventions, cache boundaries, and dependency policy.
+tags:
+  - nx
+  - bun
+  - monorepo
+  - repo-ops
+---
+
 # Nx monorepo operations
 
 ## Purpose

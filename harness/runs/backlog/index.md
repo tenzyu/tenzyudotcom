@@ -1,3 +1,15 @@
+---
+schema: harness/v1
+kind: run
+id: run.backlog.index
+title: Plans
+status: active
+summary: Human-facing index for backlog and active plan tracks.
+tags:
+  - run
+  - backlog
+---
+
 # Plans
 
 Large changes should land as short execution plans before implementation.

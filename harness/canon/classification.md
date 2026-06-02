@@ -1,3 +1,16 @@
+---
+schema: harness/v1
+kind: canon
+id: canon.classification
+title: Harness Classification Rules
+status: active
+summary: Decision tree for placing Markdown in harness directories.
+tags:
+  - harness
+  - canon
+  - classification
+---
+
 # Harness Classification Rules
 
 Use this decision tree for Markdown placement.

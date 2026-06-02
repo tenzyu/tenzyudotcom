@@ -1,4 +1,9 @@
 ---
+schema: harness/v1
+kind: observation
+id: observation.audit.admin-inline-editor-deviation-report
+title: Admin Inline Editor Deviation Report
+status: active
 name: admin-inline-editor-deviation-report
 description: 今回の inline admin 実装が repo のルールとユーザー期待から逸脱した理由を記録する。
 summary: dependency inversion を適用せず page-level collection component で解決したこと、AdminGate を勝手に変更したこと、leaf affordance を作らなかったことを反省点としてまとめる。

@@ -1,3 +1,17 @@
+---
+schema: harness/v1
+kind: knowledge
+knowledge_type: repo-map
+id: knowledge.architecture
+title: Architecture
+status: active
+summary: Stable repository architecture, product boundaries, and AI organization architecture.
+tags:
+  - architecture
+  - repository
+  - boundaries
+---
+
 # Architecture
 
 This repository is organized around product applications, reusable packages,

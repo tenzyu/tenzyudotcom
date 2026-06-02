@@ -1,4 +1,9 @@
 ---
+schema: harness/v1
+kind: knowledge
+knowledge_type: rule
+id: knowledge.rule.implementation.route-entrypoint-contracts
+status: active
 title: Route Entrypoint Contracts
 impact: HIGH
 impactDescription: route entrypoint を薄く保ち、locale/static 化の共通契約を外さないようにする。
@@ -38,4 +43,3 @@ const FooPage: NextPageIntlayer = async ({ params }) => {
   )
 }
 ```
-

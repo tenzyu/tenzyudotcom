@@ -1,3 +1,22 @@
+---
+schema: harness/v1
+kind: workflow
+id: workflow.issue-to-run
+title: Issue To Run
+status: active
+callable: true
+summary: Convert an issue, request, or vague problem into a bounded executable run.
+tags:
+  - harness
+  - workflow
+  - intake
+phases:
+  - phase.intake
+  - phase.investigation
+  - phase.planning
+  - phase.handoff
+---
+
 # Workflow: Issue To Run
 
 Convert an issue, request, or vague problem into a bounded executable run.

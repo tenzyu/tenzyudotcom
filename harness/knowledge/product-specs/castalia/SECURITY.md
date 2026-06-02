@@ -1,3 +1,17 @@
+---
+schema: harness/v1
+kind: knowledge
+knowledge_type: product-spec
+id: knowledge.product-spec.castalia-security
+title: Castalia Security Notes
+status: active
+summary: Local-first security expectations for prompt files, sync, and browser-extension avoidance.
+tags:
+  - castalia
+  - security
+  - product-spec
+---
+
 # Castalia Security Notes
 
 Castalia is local-first. The CLI does not create accounts, send telemetry, upload prompts, or provide cloud sync.

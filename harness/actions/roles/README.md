@@ -1,3 +1,16 @@
+---
+schema: harness/v1
+kind: canon
+id: roles.registry
+title: Roles
+status: active
+summary: Registry and schema for harness role routing profiles.
+tags:
+  - harness
+  - roles
+  - registry
+---
+
 # Roles
 
 Roles are context routing profiles and responsibility boundaries.

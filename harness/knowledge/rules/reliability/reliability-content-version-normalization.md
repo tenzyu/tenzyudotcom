@@ -1,4 +1,9 @@
 ---
+schema: harness/v1
+kind: knowledge
+knowledge_type: rule
+id: knowledge.rule.reliability.content-version-normalization
+status: active
 title: Content Version Normalization
 impact: HIGH
 impactDescription: avoids false conflict detection caused by newline and serialization drift

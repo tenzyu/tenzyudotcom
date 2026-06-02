@@ -1,4 +1,9 @@
 ---
+schema: harness/v1
+kind: knowledge
+knowledge_type: reference
+id: knowledge.rule-reference.import-boundaries
+status: active
 title: Import Boundaries Repair Guide
 impact: HIGH
 impactDescription: lint-import-boundaries の修正導線を短くし、境界違反の直し方を即座に判断できるようにする。

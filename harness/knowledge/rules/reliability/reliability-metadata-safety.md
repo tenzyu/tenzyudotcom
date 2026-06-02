@@ -1,4 +1,9 @@
 ---
+schema: harness/v1
+kind: knowledge
+knowledge_type: rule
+id: knowledge.rule.reliability.metadata-safety
+status: active
 title: "Reliability: Metadata & i18n Safety"
 impact: HIGH
 impactDescription: 検索エンジンのインデックスや、各ロケールでの SEO 情報を確実に生成・反映させる。

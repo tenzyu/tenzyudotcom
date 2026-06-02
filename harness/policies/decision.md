@@ -1,3 +1,16 @@
+---
+schema: harness/v1
+kind: policy
+id: policy.decision
+title: Decision Policy
+status: active
+summary: Separates human-owned decisions from agent-owned execution decisions.
+tags:
+  - policy
+  - decision
+  - governance
+---
+
 # Decision Policy
 
 This policy separates human decisions from agent decisions.

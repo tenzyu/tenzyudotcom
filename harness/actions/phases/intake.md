@@ -1,3 +1,16 @@
+---
+schema: harness/v1
+kind: phase
+id: phase.intake
+title: Intake
+status: active
+summary: Convert a human request into a bounded run brief.
+tags:
+  - harness
+  - phase
+  - intake
+---
+
 # Phase: Intake
 
 Intake converts a human request into a bounded run.

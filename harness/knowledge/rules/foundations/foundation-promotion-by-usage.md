@@ -1,4 +1,9 @@
 ---
+schema: harness/v1
+kind: knowledge
+knowledge_type: rule
+id: knowledge.rule.foundation.promotion-by-usage
+status: active
 title: Promotion By Usage
 impact: HIGH
 impactDescription: 再利用の事実に基づいて promote し、早すぎる抽象化を防ぐ。
@@ -23,4 +28,3 @@ chapter: Foundations
 default promote 先は src/features ではなく src/app の ancestor owner
 lint-symbol-ownership の targetOwner を promote / demote の基準に使う
 ```
-

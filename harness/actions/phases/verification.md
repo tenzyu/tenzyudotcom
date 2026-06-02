@@ -1,3 +1,16 @@
+---
+schema: harness/v1
+kind: phase
+id: phase.verification
+title: Verification
+status: active
+summary: Record validation evidence and skipped checks for a run.
+tags:
+  - harness
+  - phase
+  - verification
+---
+
 # Phase: Verification
 
 Verification proves that the run requirements were checked with relevant evidence.

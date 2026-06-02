@@ -1,4 +1,9 @@
 ---
+schema: harness/v1
+kind: knowledge
+knowledge_type: rule
+id: knowledge.rule.foundation.owner-placement-layers
+status: active
 title: Owner Placement Layers
 impact: HIGH
 impactDescription: 配置判断を ownership に揃え、shared の dumping ground 化を防ぐ。
@@ -27,4 +32,3 @@ app owner を持つコードを、慣性で src/features や src/components へ�
 5. src/config, src/lib
 6. src/features は app tree で自然に置けない cross-branch shared のみ
 ```
-

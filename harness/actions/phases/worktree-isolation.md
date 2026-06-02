@@ -1,3 +1,17 @@
+---
+schema: harness/v1
+kind: phase
+id: phase.worktree-isolation
+title: Worktree Isolation
+status: active
+summary: Keep non-trivial mutable runs isolated by branch and worktree.
+tags:
+  - harness
+  - phase
+  - git
+  - worktree
+---
+
 # Phase: Worktree Isolation
 
 Worktree isolation makes one run execute in one branch, one working tree, and one AI session.

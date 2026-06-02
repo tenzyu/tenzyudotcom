@@ -1,3 +1,16 @@
+---
+schema: harness/v1
+kind: policy
+id: policy.tool.nx
+title: Nx Guardrails
+status: active
+summary: Nx invocation, inspection, and validation guardrails.
+tags:
+  - policy
+  - nx
+  - tool
+---
+
 # Skill: Nx Guardrails
 
 Read this before using Nx.

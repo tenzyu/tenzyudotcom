@@ -1,7 +1,17 @@
 ---
+schema: harness/v1
+kind: knowledge
+knowledge_type: product-spec
+id: knowledge.product-spec.site.admin-editor
+title: Admin Spec
+status: active
 name: admin-spec
 description: 自分専用の、軽くて安全な編集画面を持つ
 summary: 公開ページの閲覧体験を崩さず、管理者だけ item 単位で編集できる admin 仕様を定義する。
+tags:
+  - site
+  - admin
+  - editor
 read_when:
   - admin UX を変更するとき
   - 公開ページに編集 affordance を載せるとき

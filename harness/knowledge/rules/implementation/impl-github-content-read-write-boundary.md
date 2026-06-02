@@ -1,4 +1,9 @@
 ---
+schema: harness/v1
+kind: knowledge
+knowledge_type: rule
+id: knowledge.rule.implementation.github-content-read-write-boundary
+status: active
 title: GitHub Content Read Write Boundary
 impact: HIGH
 impactDescription: prevents stale reads, false conflicts, and excessive GitHub API traffic

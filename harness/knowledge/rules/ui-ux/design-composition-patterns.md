@@ -1,4 +1,9 @@
 ---
+schema: harness/v1
+kind: knowledge
+knowledge_type: rule
+id: knowledge.rule.ui-ux.composition-patterns
+status: active
 title: "Composition Patterns"
 impact: HIGH
 impactDescription: プロップ・ドリリングを抑制し、RSC ペイロードを最小化することで、保守性とパフォーマンスを向上させる。
@@ -24,4 +29,3 @@ Server Components で取得したデータは、Client Components へ最小限�
   <ServerChild data={neededPart} />
 </ClientParent>
 ```
-

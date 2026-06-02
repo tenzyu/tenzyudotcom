@@ -1,3 +1,17 @@
+---
+schema: harness/v1
+kind: knowledge
+knowledge_type: reference
+id: knowledge.index
+title: Knowledge Index
+status: active
+summary: Routing index for durable harness knowledge.
+tags:
+  - knowledge
+  - index
+  - routing
+---
+
 # Knowledge Index
 
 Use this file to route agents to durable knowledge. Do not turn it into a general log.

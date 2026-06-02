@@ -1,3 +1,16 @@
+---
+schema: harness/v1
+kind: policy
+id: policy.tool.tenzyu-linter
+title: Tenzyu Linter Guardrails
+status: active
+summary: Guardrails for running and changing @tenzyu/linter.
+tags:
+  - policy
+  - linter
+  - tool
+---
+
 # Skill: Tenzyu Linter Guardrails
 
 Read this before using or changing `@tenzyu/linter`.

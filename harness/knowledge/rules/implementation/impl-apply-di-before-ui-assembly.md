@@ -1,4 +1,9 @@
 ---
+schema: harness/v1
+kind: knowledge
+knowledge_type: rule
+id: knowledge.rule.implementation.apply-di-before-ui-assembly
+status: active
 title: Apply DI Before UI Assembly
 impact: HIGH
 impactDescription: UI に取得・保存・整形を抱え込ませず、leaf affordance に閉じ込める。

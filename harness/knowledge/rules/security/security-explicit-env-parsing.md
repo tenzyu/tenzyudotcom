@@ -1,4 +1,9 @@
 ---
+schema: harness/v1
+kind: knowledge
+knowledge_type: rule
+id: knowledge.rule.security.explicit-env-parsing
+status: active
 title: "Security: Explicit Env Parsing & Centralization"
 impact: CRITICAL
 impactDescription: ブラウザへの機密情報の漏洩を防ぎ、すべての環境変数の型安全性を確保する。

@@ -1,4 +1,9 @@
 ---
+schema: harness/v1
+kind: knowledge
+knowledge_type: rule
+id: knowledge.rule.implementation.actions-mount-through-assemble
+status: active
 title: Actions Mount Through Assemble
 impact: HIGH
 impactDescription: "`actions.ts` を薄い mount point に保ち、infra 依存の漏出を防ぐ。"

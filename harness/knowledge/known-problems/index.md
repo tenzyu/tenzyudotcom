@@ -1,3 +1,17 @@
+---
+schema: harness/v1
+kind: knowledge
+knowledge_type: known-problem
+id: knowledge.known-problems.index
+title: Known Problems
+status: active
+summary: Recurring problems future agents should know before spending context or time.
+tags:
+  - known-problems
+  - nx
+  - troubleshooting
+---
+
 # Known Problems
 
 Use this file for recurring problems that future agents should know before

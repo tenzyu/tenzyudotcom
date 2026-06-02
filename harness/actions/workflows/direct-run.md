@@ -1,3 +1,22 @@
+---
+schema: harness/v1
+kind: workflow
+id: workflow.direct-run
+title: Direct Run
+status: active
+callable: true
+summary: Execute small scoped changes where full isolation and planning would cost more than the change.
+tags:
+  - harness
+  - workflow
+  - direct
+phases:
+  - phase.intake
+  - phase.implementation
+  - phase.verification
+  - phase.handoff
+---
+
 # Workflow: Direct Run
 
 Use this workflow for small scoped changes where full worktree isolation and planning would cost more than the change.

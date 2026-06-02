@@ -1,3 +1,16 @@
+---
+schema: harness/v1
+kind: policy
+id: policy.context-budget
+title: Context Budget
+status: active
+summary: Controls progressive context loading by workflow, role, and phase.
+tags:
+  - policy
+  - context
+  - cost
+---
+
 # Context Budget
 
 Agents should load only the context needed for the current workflow, role, and phase.

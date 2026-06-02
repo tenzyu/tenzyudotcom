@@ -1,4 +1,9 @@
 ---
+schema: harness/v1
+kind: knowledge
+knowledge_type: rule
+id: knowledge.rule.security.editor-session-boundary
+status: active
 title: Editor Session Boundary
 impact: HIGH
 impactDescription: editor 認証情報の owner を 1 か所に寄せ、session 検証を安定した境界として保つ。
@@ -31,4 +36,3 @@ export async function loginEditorAdminAction(formData: FormData) {
   if (!verifyEditorAdminPassword(input)) return
 }
 ```
-

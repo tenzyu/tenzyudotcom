@@ -1,3 +1,16 @@
+---
+schema: harness/v1
+kind: artifact-template
+id: artifact.plan
+title: Plan Template
+status: active
+summary: Template for non-trivial run implementation plans.
+tags:
+  - harness
+  - artifact-template
+  - planning
+---
+
 # Plan: Title
 
 ## Run

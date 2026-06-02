@@ -1,3 +1,17 @@
+---
+schema: harness/v1
+kind: knowledge
+knowledge_type: product-spec
+id: knowledge.product-spec.castalia
+title: Castalia Product Spec
+status: active
+summary: Local-first prompt and skill launcher product specification.
+tags:
+  - castalia
+  - product-spec
+  - prompt-launcher
+---
+
 # Castalia Product Spec
 
 Castalia is a local-first prompt and skill launcher. It reduces the friction between deciding to use an AI workflow and placing the right prompt invocation into an input field.

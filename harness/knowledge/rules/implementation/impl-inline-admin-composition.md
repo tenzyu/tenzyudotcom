@@ -1,4 +1,9 @@
 ---
+schema: harness/v1
+kind: knowledge
+knowledge_type: rule
+id: knowledge.rule.implementation.inline-admin-composition
+status: active
 title: Inline Admin Composition
 impact: HIGH
 impactDescription: public UI を保ったまま admin affordance を leaf へ差し込み、page-level wrapper 化を防ぐ。
@@ -39,4 +44,3 @@ export function NotesPageCollection() {
   </AdminGate>
 </NoteCard>
 ```
-

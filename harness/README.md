@@ -1,3 +1,15 @@
+---
+schema: harness/v1
+kind: canon
+id: harness.readme
+title: tenzyudotcom Harness
+status: active
+summary: Canonical local harness overview for AI-assisted work in tenzyudotcom.
+tags:
+  - harness
+  - overview
+---
+
 # tenzyudotcom Harness
 
 This directory is the canonical local harness for AI-assisted work in `tenzyudotcom`.

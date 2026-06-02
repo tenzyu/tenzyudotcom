@@ -1,4 +1,9 @@
 ---
+schema: harness/v1
+kind: knowledge
+knowledge_type: rule
+id: knowledge.rule.ui-ux.a11y-default
+status: active
 title: "Accessibility by Default"
 impact: MEDIUM
 impactDescription: 全てのユーザーが利用可能で、かつ検証しやすい UI 構造を維持する。

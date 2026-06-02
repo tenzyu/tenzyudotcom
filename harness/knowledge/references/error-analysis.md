@@ -1,7 +1,17 @@
 ---
+schema: harness/v1
+kind: knowledge
+knowledge_type: reference
+id: knowledge.reference.error-analysis
+title: Error Analysis Skill and Workflow
+status: active
 name: harness-error-analysis
 description: Next.jsのビルド/ランタイムエラーの根本分析を行い、ナレッジとして蓄積するためのスキルと手順。
 summary: エラーに直面した際の場当たり的な修正を防ぎ、RELIABILITY規約に基づいた検証と自動的なケーススタディ（ドキュメント）作成を行う。
+tags:
+  - reliability
+  - error-analysis
+  - reference
 read_when:
   - ビルドエラー、ランタイムエラー、またはサーバーエラー（500等）が発生した時
   - バグ修正後に再発防止策を考え、ナレッジベースを更新する時

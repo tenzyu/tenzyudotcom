@@ -1,6 +1,17 @@
 ---
+schema: harness/v1
+kind: knowledge
+knowledge_type: known-problem
+id: knowledge.known-problem.harness-known-gaps
+title: Known Gaps
+status: active
 name: harness-known-gaps
 description: リポジトリのharnessにおける既知のギャップと保留された決定事項。
+summary: Tracks known harness gaps and intentionally deferred boundary decisions.
+tags:
+  - harness
+  - known-problems
+  - tech-debt
 read_when:
   - harnessをレビューする時
   - 拡張する時

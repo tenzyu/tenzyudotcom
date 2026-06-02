@@ -1,3 +1,21 @@
+---
+schema: harness/v1
+kind: workflow
+id: workflow.distill-adr
+title: Distill ADR
+status: active
+callable: true
+summary: Turn a material decision into an architecture decision record.
+tags:
+  - harness
+  - workflow
+  - adr
+phases:
+  - phase.adr-distillation
+  - phase.verification
+  - phase.handoff
+---
+
 # Workflow: Distill ADR
 
 Use this workflow when a material decision should become an architecture decision record.

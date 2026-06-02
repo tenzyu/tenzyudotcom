@@ -1,3 +1,16 @@
+---
+schema: harness/v1
+kind: phase
+id: phase.investigation
+title: Investigation
+status: active
+summary: Gather enough evidence to plan or decide safely.
+tags:
+  - harness
+  - phase
+  - investigation
+---
+
 # Phase: Investigation
 
 Investigation gathers enough evidence to plan safely.

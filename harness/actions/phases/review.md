@@ -1,3 +1,16 @@
+---
+schema: harness/v1
+kind: phase
+id: phase.review
+title: Review
+status: active
+summary: Check requirement satisfaction, risk, verification, and scope compliance.
+tags:
+  - harness
+  - phase
+  - review
+---
+
 # Phase: Review
 
 Review checks the diff, run artifacts, and verification evidence.

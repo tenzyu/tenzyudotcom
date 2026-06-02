@@ -1,3 +1,16 @@
+---
+schema: harness/v1
+kind: policy
+id: policy.cost
+title: Cost Policy
+status: active
+summary: Controls AI cost through role-routed context and duplicate-work prevention.
+tags:
+  - policy
+  - cost
+  - context
+---
+
 # Cost Policy
 
 AI cost is controlled mainly by role-routed context, avoiding unnecessary knowledge loading, and preventing duplicate work.

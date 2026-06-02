@@ -1,4 +1,9 @@
 ---
+schema: harness/v1
+kind: knowledge
+knowledge_type: rule
+id: knowledge.rule.ui-ux.locale-switcher-single-flow
+status: active
 title: Locale Switcher Single Flow
 impact: HIGH
 impactDescription: locale 永続化と遷移を二重化すると、ユーザー選択 locale が端末言語判定に負けることがある。
@@ -26,4 +31,3 @@ chapter: UI & UX
   }}
 />
 ```
-

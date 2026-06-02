@@ -1,3 +1,16 @@
+---
+schema: harness/v1
+kind: policy
+id: policy.tool.git
+title: Git Guardrails
+status: active
+summary: Git safety rules for status, diff, worktree, branch, commit, and PR operations.
+tags:
+  - policy
+  - git
+  - tool
+---
+
 # Skill: Git Guardrails
 
 Read this before using Git for repository work.

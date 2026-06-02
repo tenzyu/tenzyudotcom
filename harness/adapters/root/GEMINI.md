@@ -1,3 +1,16 @@
+---
+schema: harness/v1
+kind: adapter
+id: adapter.root.gemini
+title: Root Gemini Adapter
+status: active
+summary: Root Gemini adapter that routes work to canonical harness context.
+tags:
+  - harness
+  - adapter
+  - gemini
+---
+
 # GEMINI.md
 
 Canonical AI organization files live under `harness`.

@@ -1,3 +1,17 @@
+---
+schema: harness/v1
+kind: knowledge
+knowledge_type: generated-summary
+id: knowledge.rules.compiled-agents
+title: Project Architecture Rules
+status: active
+summary: Generated compiled rule document for agent consumption.
+tags:
+  - rules
+  - generated
+  - agents
+---
+
 # Project Architecture Rules
 
 **Version 1.0.0**

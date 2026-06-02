@@ -1,7 +1,17 @@
 ---
+schema: harness/v1
+kind: knowledge
+knowledge_type: product-spec
+id: knowledge.product-spec.site.links
+title: Links Product Spec
+status: active
 name: links-product-spec
 description: リンクコレクションのための、リポジトリ固有のプロダクト仕様。
 summary: /links機能のためのカテゴリ化戦略、動作、および構造的なルールを定義する。
+tags:
+  - site
+  - links
+  - product-spec
 read_when:
   - リンクページまたはリンクデータのスキーマを変更する時
   - リンクの新しいカテゴリを追加する時

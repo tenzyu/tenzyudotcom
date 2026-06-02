@@ -1,7 +1,17 @@
 ---
+schema: harness/v1
+kind: knowledge
+knowledge_type: product-spec
+id: knowledge.product-spec.site.notes
+title: Notes Product Spec
+status: active
 name: notes-product-spec
 description: ノーツ機能のための、リポジトリ固有のプロダクト仕様。
 summary: ノーツコレクションの役割、ルートの表面、ソースの形状、UX、およびadminスコープを定義する。
+tags:
+  - site
+  - notes
+  - product-spec
 read_when:
   - ノーツの動作、情報設計、または編集モデルを変更する時
   - ノーツのソースの形状やルートの露出を評価する時

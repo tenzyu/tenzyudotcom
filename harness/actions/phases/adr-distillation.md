@@ -1,3 +1,16 @@
+---
+schema: harness/v1
+kind: phase
+id: phase.adr-distillation
+title: ADR Distillation
+status: active
+summary: Turn material architecture decisions into durable ADR knowledge.
+tags:
+  - harness
+  - phase
+  - adr
+---
+
 # Phase: ADR Distillation
 
 ADR distillation turns a material decision into durable architecture knowledge.

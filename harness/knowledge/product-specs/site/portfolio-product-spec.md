@@ -1,7 +1,17 @@
 ---
+schema: harness/v1
+kind: knowledge
+knowledge_type: product-spec
+id: knowledge.product-spec.site.portfolio
+title: Portfolio Product Spec
+status: active
 name: portfolio-product-spec
 description: ポートフォリオ機能のための、リポジトリ固有のプロダクト仕様。
 summary: /portfolioページの構造とプレゼンテーション・ルールを定義する。
+tags:
+  - site
+  - portfolio
+  - product-spec
 read_when:
   - ポートフォリオのレイアウトや構造を変更する時
   - ポートフォリオに新しいプロジェクトやエントリを追加する時

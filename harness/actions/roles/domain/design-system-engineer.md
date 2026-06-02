@@ -1,3 +1,33 @@
+---
+schema: harness/v1
+kind: role
+id: role.domain.design-system-engineer
+title: Design System Engineer
+status: active
+role_type: domain
+summary: Maintain @tenzyu/ui as a reusable, Storybook-verifiable shared UI package.
+tags:
+  - harness
+  - role
+  - design-system
+activation:
+  paths:
+    - product/packages/ui/**
+selectors:
+  paths:
+    - product/packages/ui/**
+  tags:
+    - ui
+    - design-system
+  knowledge_types:
+    - product-spec
+    - rule
+pinned:
+  - knowledge.repo-map
+  - policy.repository
+  - knowledge.product-spec.design-system
+---
+
 # Role: Design System Engineer
 
 ## Mission

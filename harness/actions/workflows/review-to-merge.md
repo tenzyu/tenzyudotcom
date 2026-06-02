@@ -1,3 +1,23 @@
+---
+schema: harness/v1
+kind: workflow
+id: workflow.review-to-merge
+title: Review To Merge
+status: active
+callable: true
+summary: Address review findings and prepare reviewed work for merge.
+tags:
+  - harness
+  - workflow
+  - review
+  - merge
+phases:
+  - phase.implementation
+  - phase.verification
+  - phase.handoff
+  - phase.review
+---
+
 # Workflow: Review To Merge
 
 Use this workflow after review findings are available.

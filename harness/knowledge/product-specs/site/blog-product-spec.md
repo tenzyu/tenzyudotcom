@@ -1,7 +1,17 @@
 ---
+schema: harness/v1
+kind: knowledge
+knowledge_type: product-spec
+id: knowledge.product-spec.site.blog
+title: Blog Product Spec
+status: active
 name: blog-product-spec
 description: ブログセクションのための、リポジトリ固有のプロダクト仕様。
 summary: /blog機能のためのレイアウト制約、執筆プロセス、および編集構造に関するルールを定義する。
+tags:
+  - site
+  - blog
+  - product-spec
 read_when:
   - ブログのレイアウト、コンポーネント、またはカテゴリ構造を修正する時
   - ブログのレンダリング問題を修正する時

@@ -1,3 +1,16 @@
+---
+schema: harness/v1
+kind: adapter
+id: adapter.root.agents
+title: Root AGENTS Adapter
+status: active
+summary: Root Codex-style adapter that routes agents to canonical harness instructions.
+tags:
+  - harness
+  - adapter
+  - agents
+---
+
 # AGENTS.md
 
 Use `harness` as the canonical project memory and workflow system.

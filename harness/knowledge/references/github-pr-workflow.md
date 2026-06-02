@@ -1,7 +1,17 @@
 ---
+schema: harness/v1
+kind: knowledge
+knowledge_type: reference
+id: knowledge.reference.github-pr-workflow
+title: GitHub PR Workflow
+status: active
 name: harness-github-pr-workflow
 description: GitHub CLI (gh) を用いた develop 向けPR作成とレビューの標準フロー定義。
 summary: サブエージェントが自身の task branch を push し、`develop` を base にした PR を作成してメインエージェントと人間へレビュー依頼する手順。
+tags:
+  - github
+  - pull-request
+  - reference
 read_when:
   - 機能の実装やバグ修正が完了し、ユーザーへ変更内容をPRとして提出する時
   - 差分のチェックやコードレビューのプロセスを行う時

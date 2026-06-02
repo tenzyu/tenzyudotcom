@@ -1,3 +1,17 @@
+---
+schema: harness/v1
+kind: knowledge
+knowledge_type: repo-map
+id: knowledge.repo-map
+title: Repository Map
+status: active
+summary: Stable repository ownership, boundaries, and validation memory.
+tags:
+  - repository
+  - repo-map
+  - ownership
+---
+
 # Repository Map
 
 This memory summarizes stable repository ownership. Inspect the current tree
@@ -17,6 +31,7 @@ before editing because this file may lag behind active work.
 
 | Project | Path | Owner role |
 | --- | --- | --- |
+| `atelier` | `product/apps/atelier` | Repo Ops Engineer / Harness Engineer |
 | `web` | `product/apps/web` | Web App Engineer |
 | `skin-workbench` | `product/apps/osu-skin-workbench` | Workbench App Engineer and Rust/Tauri Engineer |
 | `ui` | `product/packages/ui` | Design System Engineer |

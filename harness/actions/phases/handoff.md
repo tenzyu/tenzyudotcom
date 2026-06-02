@@ -1,3 +1,16 @@
+---
+schema: harness/v1
+kind: phase
+id: phase.handoff
+title: Handoff
+status: active
+summary: Record concise continuity evidence for the next human or agent.
+tags:
+  - harness
+  - phase
+  - handoff
+---
+
 # Phase: Handoff
 
 Handoff is the minimum unit of cross-agent continuity.

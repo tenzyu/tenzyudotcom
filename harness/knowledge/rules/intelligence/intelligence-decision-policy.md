@@ -1,4 +1,9 @@
 ---
+schema: harness/v1
+kind: knowledge
+knowledge_type: rule
+id: knowledge.rule.intelligence.decision-policy
+status: active
 title: "Decision Policy"
 impact: HIGH
 impactDescription: 優先順位と target architecture を同時に固定し、現状追認による判断ブレを防ぐ。

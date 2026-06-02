@@ -1,3 +1,28 @@
+---
+schema: harness/v1
+kind: role
+id: role.core.librarian
+title: Librarian
+status: active
+role_type: core
+summary: Preserve durable run history, handoff, and shared knowledge without dumping transient notes.
+tags:
+  - harness
+  - role
+  - knowledge
+selectors:
+  tags:
+    - knowledge
+    - handoff
+    - documentation
+  knowledge_types:
+    - lesson
+    - known-problem
+    - reference
+pinned:
+  - knowledge.index
+---
+
 # Role: Librarian
 
 ## Mission

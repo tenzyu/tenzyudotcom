@@ -1,3 +1,16 @@
+---
+schema: harness/v1
+kind: adapter
+id: adapter.tool.gemini
+title: Tool Gemini Adapter
+status: active
+summary: Generator source for Gemini root adapter routing.
+tags:
+  - harness
+  - adapter
+  - gemini
+---
+
 # Adapter: GEMINI.md
 
 Root `GEMINI.md` should route Gemini to `harness` for canonical workflows, roles, policies, and role-routed knowledge.

@@ -1,4 +1,8 @@
 ---
+schema: harness/v1
+kind: policy
+id: policy.guard.verification
+status: active
 title: "Verification Guard"
 impact: CRITICAL
 impactDescription: デプロイ不可能なコードの混入を防ぎ、変更の正しさを客観的に証明する。

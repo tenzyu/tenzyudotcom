@@ -1,3 +1,17 @@
+---
+schema: harness/v1
+kind: knowledge
+knowledge_type: repo-map
+id: knowledge.product-map
+title: Product Map
+status: active
+summary: Visible products and shared product infrastructure in the repository.
+tags:
+  - product
+  - repo-map
+  - architecture
+---
+
 # Product Map
 
 This map lists visible products in the current repository.
@@ -8,6 +22,7 @@ This map lists visible products in the current repository.
 | --- | --- | --- |
 | tenzyu.com web | `product/apps/web` | Next.js site and public web surface |
 | osu! skin workbench | `product/apps/osu-skin-workbench` | Tauri desktop app for osu! skin workflows |
+| Atelier | `product/apps/atelier` | CLI-first harness control plane and doctor |
 
 ## Shared Product Infrastructure
 

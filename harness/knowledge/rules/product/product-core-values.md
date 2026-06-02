@@ -1,4 +1,9 @@
 ---
+schema: harness/v1
+kind: knowledge
+knowledge_type: rule
+id: knowledge.rule.product.core-values
+status: active
 title: "Product Core Values"
 impact: MEDIUM
 impactDescription: サイトの長期的価値を保護し、不要な機能の肥大化を防ぐ。

@@ -1,4 +1,9 @@
 ---
+schema: harness/v1
+kind: knowledge
+knowledge_type: reference
+id: knowledge.rule-reference.symbol-ownership
+status: active
 title: Symbol Ownership Repair Guide
 impact: HIGH
 impactDescription: lint-symbol-ownership の promote / demote 判断を、owner tree と least common owner の観点で直せるようにする。

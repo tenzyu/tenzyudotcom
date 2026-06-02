@@ -1,4 +1,9 @@
 ---
+schema: harness/v1
+kind: knowledge
+knowledge_type: rule
+id: knowledge.rule.implementation.tool-bundle-hygiene
+status: active
 title: Bundle Hygiene
 impact: HIGH
 impactDescription: バンドルサイズの肥大化を防ぎ、import 経路の ownership を明示する。
@@ -21,4 +26,3 @@ import { a, b, c } from "@/features/notes"
 ```typescript
 import { a } from "@/features/notes/components/a"
 ```
-

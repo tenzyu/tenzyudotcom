@@ -1,4 +1,9 @@
 ---
+schema: harness/v1
+kind: knowledge
+knowledge_type: rule
+id: knowledge.rule.product.content-role-separation
+status: active
 title: "Content Role Separation"
 impact: MEDIUM
 impactDescription: 文言の役割を分離し、SEO と UX の両方で適切な粒度を保つ。
@@ -26,4 +31,3 @@ header: 訪問者への導入
 lead: ページ内容の短い説明
 nav/tile: 行き先判断のための短いラベル
 ```
-

@@ -1,4 +1,9 @@
 ---
+schema: harness/v1
+kind: knowledge
+knowledge_type: rule
+id: knowledge.rule.implementation.admin-gate-contract
+status: active
 title: Admin Gate Contract
 impact: CRITICAL
 impactDescription: Admin UI の認可境界を安定させ、個別タスク都合の変更で security と hydration を壊さない。
@@ -38,4 +43,3 @@ export default function Page() {
   )
 }
 ```
-

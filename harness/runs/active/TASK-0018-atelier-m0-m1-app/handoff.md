@@ -1,3 +1,16 @@
+---
+schema: harness/v1
+kind: run
+id: run.task-0018-atelier-m0-m1-app.handoff
+title: Handoff
+status: active
+summary: Handoff for the initial Atelier app and doctor slice.
+tags:
+  - run
+  - handoff
+  - atelier
+---
+
 # Handoff
 
 ## Run Summary
@@ -20,6 +33,8 @@ Created the first `product/apps/atelier` implementation as a Bun/TypeScript CLI 
 
 - Added `product/apps/atelier` with package metadata, Nx project targets, README, TypeScript configs, CLI entrypoint, core parser/doctor modules, and tests.
 - Added run records for this implementation.
+- Added harness frontmatter to current authored harness documents where the ID, kind, title, and status were clear from context.
+- Updated product and repo maps to include Atelier at `product/apps/atelier`.
 
 ## Why It Changed
 
@@ -48,15 +63,22 @@ Passed:
 - `bun run policy:deps`
 - `git diff --check`
 
+Latest `atelier doctor --json` result:
+
+- 233 documents
+- 0 errors
+- 144 warnings
+
 ## Remaining Risks
 
-- `atelier doctor` intentionally reports current harness debt: 33 errors and 268 warnings on the current tree. Most errors are strict missing IDs in workflow/role/phase docs.
+- `atelier doctor` still reports warnings for old `harness/ai-org` references, broken links in generated/template docs, and loose completed run history without IDs.
 - `--fix` is accepted but dry behavior only; no automatic fixes are implemented yet.
 - M2 index generation, M3 context preview, and M4 run init are not implemented in this slice.
 
 ## Follow-Up Tasks
 
-- Add stable frontmatter IDs to strict workflow/role/phase documents.
+- Decide policy for completed run history IDs.
+- Repair remaining old `harness/ai-org` references and generated/template broken links.
 - Implement `atelier index` and generated `.harness/generated/*.json` files.
 - Implement role-routed context preview.
 - Implement run init and context manifests.

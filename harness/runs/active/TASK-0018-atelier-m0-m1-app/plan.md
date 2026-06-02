@@ -1,3 +1,16 @@
+---
+schema: harness/v1
+kind: run
+id: run.task-0018-atelier-m0-m1-app.plan
+title: "Plan: Atelier M0/M1 App"
+status: active
+summary: Implementation plan for the initial Atelier app and doctor.
+tags:
+  - run
+  - plan
+  - atelier
+---
+
 # Plan: Atelier M0/M1 App
 
 ## Run
@@ -71,4 +84,3 @@ Remove `product/apps/atelier` and this active run directory.
 - context preview
 - run init
 - generated indexes
-

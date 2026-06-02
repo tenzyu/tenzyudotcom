@@ -1,3 +1,16 @@
+---
+schema: harness/v1
+kind: canon
+id: canon.charter
+title: AI Organization Charter
+status: active
+summary: Defines the target operating model for AI-maintainable development in tenzyudotcom.
+tags:
+  - harness
+  - canon
+  - charter
+---
+
 # AI Organization Charter
 
 tenzyudotcom is operated as an AI-maintainable development organization.

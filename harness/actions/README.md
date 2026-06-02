@@ -1,3 +1,16 @@
+---
+schema: harness/v1
+kind: canon
+id: actions.index
+title: Actions
+status: active
+summary: Entry point for harness workflows, roles, phases, and artifact templates.
+tags:
+  - harness
+  - actions
+  - index
+---
+
 # Actions
 
 Actions define how AI-assisted work moves through the harness.

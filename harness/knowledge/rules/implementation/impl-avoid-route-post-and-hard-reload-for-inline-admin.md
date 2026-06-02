@@ -1,4 +1,9 @@
 ---
+schema: harness/v1
+kind: knowledge
+knowledge_type: rule
+id: knowledge.rule.implementation.avoid-route-post-and-hard-reload-for-inline-admin
+status: active
 title: Avoid Route POST And Hard Reload For Inline Admin
 impact: MEDIUM
 impactDescription: inline admin で route POST や `window.location.reload()` を使うと、一瞬のエラーフラッシュや体験悪化を招く。

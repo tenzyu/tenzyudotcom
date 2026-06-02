@@ -1,7 +1,17 @@
 ---
+schema: harness/v1
+kind: knowledge
+knowledge_type: product-spec
+id: knowledge.product-spec.site.tools
+title: Tools Product Spec
+status: active
 name: tools-product-spec
 description: 独立したユーティリティツール機能のための、リポジトリ固有のプロダクト仕様。
 summary: /toolsルートにおけるミニアプリの境界、UIの期待値、およびアーキテクチャ上の配置を定義する。
+tags:
+  - site
+  - tools
+  - product-spec
 read_when:
   - サイトに新しいツールを追加する時
   - toolsセクション内で発生するエラーを調査または解決する時

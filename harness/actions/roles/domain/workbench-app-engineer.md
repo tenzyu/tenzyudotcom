@@ -1,3 +1,33 @@
+---
+schema: harness/v1
+kind: role
+id: role.domain.workbench-app-engineer
+title: Workbench App Engineer
+status: active
+role_type: domain
+summary: Maintain the osu! skin workbench frontend and workflow UX.
+tags:
+  - harness
+  - role
+  - workbench
+activation:
+  paths:
+    - product/apps/osu-skin-workbench/src/**
+selectors:
+  paths:
+    - product/apps/osu-skin-workbench/src/**
+  tags:
+    - workbench
+    - ui
+  knowledge_types:
+    - product-spec
+    - rule
+pinned:
+  - knowledge.repo-map
+  - policy.repository
+  - knowledge.product-spec.osu-skin-workbench
+---
+
 # Role: Workbench App Engineer
 
 ## Mission

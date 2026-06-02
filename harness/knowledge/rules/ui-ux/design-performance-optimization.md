@@ -1,4 +1,9 @@
 ---
+schema: harness/v1
+kind: knowledge
+knowledge_type: rule
+id: knowledge.rule.ui-ux.performance-optimization
+status: active
 title: "Performance Optimization"
 impact: HIGH
 impactDescription: 初期ロードの高速化と、インタラクションの応答性を限界まで高める。
@@ -22,4 +27,3 @@ const b = await getB()
 ```tsx
 const [a, b] = await Promise.all([getA(), getB()])
 ```
-

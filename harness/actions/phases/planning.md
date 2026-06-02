@@ -1,3 +1,16 @@
+---
+schema: harness/v1
+kind: phase
+id: phase.planning
+title: Planning
+status: active
+summary: Define non-trivial implementation strategy before broad changes begin.
+tags:
+  - harness
+  - phase
+  - planning
+---
+
 # Phase: Planning
 
 Planning defines how a non-trivial run will be implemented before broad changes begin.

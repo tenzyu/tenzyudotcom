@@ -1,3 +1,17 @@
+---
+schema: harness/v1
+kind: knowledge
+knowledge_type: product-spec
+id: knowledge.product-spec.castalia-roadmap
+title: Castalia Roadmap
+status: active
+summary: Castalia implementation roadmap from Rust Linux MVP through launcher and authoring milestones.
+tags:
+  - castalia
+  - roadmap
+  - product-spec
+---
+
 # Castalia Roadmap
 
 ## v0.1 Rust Linux MVP

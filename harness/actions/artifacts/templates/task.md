@@ -1,3 +1,16 @@
+---
+schema: harness/v1
+kind: artifact-template
+id: artifact.task
+title: Task Brief Template
+status: active
+summary: Template for bounded run briefs.
+tags:
+  - harness
+  - artifact-template
+  - intake
+---
+
 # RUN-XXXX: Title
 
 ## Background

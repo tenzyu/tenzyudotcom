@@ -1,4 +1,9 @@
 ---
+schema: harness/v1
+kind: knowledge
+knowledge_type: reference
+id: knowledge.rule-reference.ui-package
+status: active
 title: UI Package Boundary Repair Guide
 impact: HIGH
 impactDescription: "@tenzyu/ui の責務境界と Storybook 検証面を短く参照できるようにする。"

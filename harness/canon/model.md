@@ -1,3 +1,16 @@
+---
+schema: harness/v1
+kind: canon
+id: canon.model
+title: Harness Model
+status: active
+summary: Defines the core Knowledge, Action, Observation, Policy, and Run model.
+tags:
+  - harness
+  - canon
+  - model
+---
+
 # Harness Model
 
 ## Core equation

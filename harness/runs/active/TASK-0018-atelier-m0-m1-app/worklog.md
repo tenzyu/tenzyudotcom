@@ -1,3 +1,16 @@
+---
+schema: harness/v1
+kind: run
+id: run.task-0018-atelier-m0-m1-app.worklog
+title: Worklog
+status: active
+summary: Worklog for the initial Atelier app and doctor implementation.
+tags:
+  - run
+  - worklog
+  - atelier
+---
+
 # Worklog
 
 ## 2026-06-02
@@ -12,3 +25,6 @@
 - Implemented frontmatter parsing, harness Markdown loading, doctor diagnostics, CLI output, and tests.
 - Verified that the owner-provided spec files and `MANIFEST.json` are tracked inputs in the current checkout.
 - `atelier doctor --json` currently reports 232 harness Markdown documents, 33 errors, and 268 warnings. The errors are expected from strict workflow/role/phase files that do not yet have frontmatter IDs.
+- Added harness frontmatter to current authored documents where the document role was clear from path, title, or body: canon, actions, roles, workflows, phases, artifact templates, adapters, key knowledge, rules, product specs, policies, observations, backlog, and this active run.
+- Left completed run history without frontmatter because M0 explicitly treats completed runs as loose historical records.
+- After frontmatter additions, `atelier doctor --json` reports 233 documents, 0 errors, and 144 warnings.

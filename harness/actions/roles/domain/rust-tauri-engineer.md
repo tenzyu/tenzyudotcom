@@ -1,3 +1,36 @@
+---
+schema: harness/v1
+kind: role
+id: role.domain.rust-tauri-engineer
+title: Rust/Tauri Engineer
+status: active
+role_type: domain
+summary: Maintain the native Tauri shell and Rust backend for the workbench.
+tags:
+  - harness
+  - role
+  - tauri
+  - rust
+activation:
+  paths:
+    - product/apps/osu-skin-workbench/src-tauri/**
+selectors:
+  paths:
+    - product/apps/osu-skin-workbench/src-tauri/**
+  tags:
+    - tauri
+    - rust
+    - workbench
+  knowledge_types:
+    - adr
+    - product-spec
+    - rule
+pinned:
+  - knowledge.repo-map
+  - policy.repository
+  - knowledge.decision.adr.tauri-as-desktop-shell
+---
+
 # Role: Rust/Tauri Engineer
 
 ## Mission

@@ -1,3 +1,17 @@
+---
+schema: harness/v1
+kind: knowledge
+knowledge_type: rule
+id: knowledge.rule.ui-ux.ui-migration-guide
+title: UI Migration Guide
+status: active
+summary: Rules for moving app UI toward @tenzyu/ui while preserving package boundaries.
+tags:
+  - ui
+  - migration
+  - design-system
+---
+
 # UI Migration Guide
 
 This guide defines how app UI should move toward `@tenzyu/ui`.

@@ -1,4 +1,9 @@
 ---
+schema: harness/v1
+kind: knowledge
+knowledge_type: product-spec
+id: knowledge.spec.docs.agents-md-generator
+status: active
 title: agents-md-generator-spec
 description: harness/ai-org/knowledge/design-docs/rules/** から AGENTS.md を自動生成するコンパイラの仕様。
 ---

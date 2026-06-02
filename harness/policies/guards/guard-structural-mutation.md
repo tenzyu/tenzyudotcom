@@ -1,4 +1,8 @@
 ---
+schema: harness/v1
+kind: policy
+id: policy.guard.structural-mutation
+status: active
 title: "Structural & Mutation Guards"
 impact: HIGH
 impactDescription: 破壊的な操作や意図しない変更を最小限に抑え、リポジトリの整合性を守る。

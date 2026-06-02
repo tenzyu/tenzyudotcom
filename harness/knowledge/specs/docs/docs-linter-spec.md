@@ -1,4 +1,9 @@
 ---
+schema: harness/v1
+kind: knowledge
+knowledge_type: product-spec
+id: knowledge.spec.docs.linter
+status: active
 title: harness-doc-linter-spec
 description: 進行中のタスク：ドキュメントリンターの要件定義と仕様策定。
 ---

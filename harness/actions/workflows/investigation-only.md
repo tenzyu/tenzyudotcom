@@ -1,3 +1,21 @@
+---
+schema: harness/v1
+kind: workflow
+id: workflow.investigation-only
+title: Investigation Only
+status: active
+callable: true
+summary: Produce findings or prepare a later run without implementing changes.
+tags:
+  - harness
+  - workflow
+  - investigation
+phases:
+  - phase.intake
+  - phase.investigation
+  - phase.handoff
+---
+
 # Workflow: Investigation Only
 
 Use this workflow when the task is to understand a problem, produce findings, or prepare a later run without implementing changes.

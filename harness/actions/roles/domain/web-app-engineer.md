@@ -1,3 +1,36 @@
+---
+schema: harness/v1
+kind: role
+id: role.domain.web-app-engineer
+title: Web App Engineer
+status: active
+role_type: domain
+summary: Maintain product/apps/web without leaking route-local concerns into shared packages.
+tags:
+  - harness
+  - role
+  - web
+  - nextjs
+activation:
+  paths:
+    - product/apps/web/**
+selectors:
+  paths:
+    - product/apps/web/**
+  tags:
+    - web
+    - nextjs
+    - server-actions
+    - admin
+  knowledge_types:
+    - product-spec
+    - rule
+    - known-problem
+pinned:
+  - knowledge.repo-map
+  - policy.repository
+---
+
 # Role: Web App Engineer
 
 ## Mission

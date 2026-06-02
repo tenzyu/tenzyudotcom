@@ -1,3 +1,16 @@
+---
+schema: harness/v1
+kind: policy
+id: policy.quality
+title: Quality Policy
+status: active
+summary: Defines evidence-based quality and completion expectations.
+tags:
+  - policy
+  - quality
+  - completion
+---
+
 # Quality Policy
 
 Quality means satisfying the task requirements with evidence, not merely

@@ -1,3 +1,17 @@
+---
+schema: harness/v1
+kind: knowledge
+knowledge_type: product-spec
+id: knowledge.product-spec.castalia-architecture
+title: Castalia Architecture
+status: active
+summary: Castalia product boundary, components, source of truth, and search model.
+tags:
+  - castalia
+  - architecture
+  - product-spec
+---
+
 # Castalia Architecture
 
 ## Boundary

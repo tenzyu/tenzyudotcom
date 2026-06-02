@@ -1,3 +1,17 @@
+---
+schema: harness/v1
+kind: knowledge
+knowledge_type: repo-map
+id: knowledge.structure
+title: Repository Structure
+status: active
+summary: Visible repository layout for agents and humans.
+tags:
+  - repository
+  - structure
+  - repo-map
+---
+
 # Repository Structure
 
 This document describes the visible repository layout for agents and humans.

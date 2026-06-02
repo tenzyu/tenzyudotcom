@@ -1,3 +1,16 @@
+---
+schema: harness/v1
+kind: policy
+id: policy.repository
+title: Repository Instructions
+status: active
+summary: Repository-level Bun, Nx, dependency, and boundary instructions.
+tags:
+  - policy
+  - repository
+  - nx
+---
+
 # Repository Instructions
 
 This repository is a Bun + Nx monorepo for tenzyu.com products.

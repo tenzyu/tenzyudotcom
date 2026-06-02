@@ -1,3 +1,17 @@
+---
+schema: harness/v1
+kind: knowledge
+knowledge_type: adr
+id: knowledge.decision.adr.ui-package-boundary
+title: "ADR 0002: @tenzyu/ui Package Boundary"
+status: draft
+summary: Defines @tenzyu/ui ownership and app-boundary constraints.
+tags:
+  - adr
+  - ui
+  - package-boundary
+---
+
 # ADR 0002: `@tenzyu/ui` Package Boundary
 
 ## Status

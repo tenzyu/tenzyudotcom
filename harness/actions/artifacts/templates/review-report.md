@@ -1,3 +1,16 @@
+---
+schema: harness/v1
+kind: artifact-template
+id: artifact.review-report
+title: Review Report Template
+status: active
+summary: Template for structured review findings and requirement checks.
+tags:
+  - harness
+  - artifact-template
+  - review
+---
+
 # Review Report: RUN-XXXX
 
 ## Scope Reviewed

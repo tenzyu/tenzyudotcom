@@ -1,3 +1,16 @@
+---
+schema: harness/v1
+kind: adapter
+id: adapter.root.claude
+title: Root Claude Adapter
+status: active
+summary: Root Claude adapter that routes work to harness workflows, roles, and artifacts.
+tags:
+  - harness
+  - adapter
+  - claude
+---
+
 # CLAUDE.md
 
 Use `harness` as the canonical project memory and workflow system.

@@ -1,3 +1,17 @@
+---
+schema: harness/v1
+kind: knowledge
+knowledge_type: adr
+id: knowledge.decision.adr.ai-org-llm-doc-consolidation
+title: "ADR 0004: Consolidate LLM-Facing Harness Documents Under AI Org"
+status: active
+summary: Historical decision record for consolidating LLM-facing harness documents.
+tags:
+  - adr
+  - harness
+  - migration
+---
+
 # ADR 0004: Consolidate LLM-Facing Harness Documents Under AI Org
 
 ## Status

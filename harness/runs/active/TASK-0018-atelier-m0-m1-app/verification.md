@@ -1,3 +1,16 @@
+---
+schema: harness/v1
+kind: run
+id: run.task-0018-atelier-m0-m1-app.verification
+title: Verification
+status: active
+summary: Verification evidence for the initial Atelier app and doctor.
+tags:
+  - run
+  - verification
+  - atelier
+---
+
 # Verification
 
 ## Commands Run
@@ -11,6 +24,7 @@
 - `bun run policy:deps`
 - `git diff --check`
 - `git status --short --untracked-files=all`
+- `bun nx run atelier:doctor -- --json` after frontmatter additions
 
 ## Command Results
 
@@ -22,7 +36,8 @@
 - `bun nx run atelier:check`: passed; Nx ran the app check target and reused cached typecheck/test outputs for dependencies.
 - `bun run policy:deps`: passed.
 - `git diff --check`: passed.
-- `git status --short --untracked-files=all`: shows new `product/apps/atelier/**` and this run's active artifacts only.
+- `git status --short --untracked-files=all`: shows modified harness frontmatter files and tracked `product/apps/atelier/**` files.
+- `bun nx run atelier:doctor -- --json` after frontmatter additions: passed; 233 documents, 0 errors, 144 warnings, 0 info.
 
 ## Files Inspected
 
@@ -58,7 +73,8 @@ Added Bun unit tests:
 ## Failures And Follow-Up Recommendations
 
 - No verification command failed.
-- Follow-up: add frontmatter IDs to strict harness workflow/role/phase docs or tune strictness once the source contract is adopted.
+- Follow-up: decide whether completed run history should stay loose forever or receive lightweight generated IDs later.
+- Follow-up: repair remaining non-ID warnings such as old `harness/ai-org` references and broken links in generated/legacy-style documents.
 - Follow-up: implement `atelier index` and context preview after doctor diagnostics are useful enough.
 
 ## Conclusion

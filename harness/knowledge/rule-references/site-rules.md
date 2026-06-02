@@ -1,4 +1,9 @@
 ---
+schema: harness/v1
+kind: knowledge
+knowledge_type: reference
+id: knowledge.rule-reference.site-rules
+status: active
 title: Site Rules Repair Guide
 impact: HIGH
 impactDescription: lint-site-rules の各違反を rule 名へ対応付け、修正時の読み直しコストを減らす。

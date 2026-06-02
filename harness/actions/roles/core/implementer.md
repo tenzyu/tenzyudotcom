@@ -1,3 +1,25 @@
+---
+schema: harness/v1
+kind: role
+id: role.core.implementer
+title: Implementer
+status: active
+role_type: core
+summary: Make source or documentation changes inside approved scope.
+tags:
+  - harness
+  - role
+  - implementation
+selectors:
+  tags:
+    - implementation
+  knowledge_types:
+    - rule
+    - product-spec
+pinned:
+  - policy.repository
+---
+
 # Role: Implementer
 
 ## Mission

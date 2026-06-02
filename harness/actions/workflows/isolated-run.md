@@ -1,3 +1,28 @@
+---
+schema: harness/v1
+kind: workflow
+id: workflow.isolated-run
+title: Isolated Run
+status: active
+callable: true
+summary: Execute non-trivial mutable work through one bounded run with evidence and handoff.
+tags:
+  - harness
+  - workflow
+  - isolated-run
+phases:
+  - phase.intake
+  - phase.worktree-isolation
+  - phase.investigation
+  - phase.planning
+  - phase.implementation
+  - phase.verification
+  - phase.review
+  - phase.handoff
+  - phase.knowledge-promotion
+  - phase.adr-distillation
+---
+
 # Workflow: Isolated Run
 
 Use this workflow for non-trivial mutable work.

@@ -1,3 +1,17 @@
+---
+schema: harness/v1
+kind: knowledge
+knowledge_type: product-spec
+id: knowledge.product-spec.design-system
+title: Design System
+status: active
+summary: "@tenzyu/ui responsibilities, non-responsibilities, and component standard."
+tags:
+  - design-system
+  - ui
+  - product-spec
+---
+
 # Design System
 
 `@tenzyu/ui` is the shared design-system package and the first controlled AI

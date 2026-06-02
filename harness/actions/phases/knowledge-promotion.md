@@ -1,3 +1,16 @@
+---
+schema: harness/v1
+kind: phase
+id: phase.knowledge-promotion
+title: Knowledge Promotion
+status: active
+summary: Promote durable run evidence into reusable harness knowledge only when justified.
+tags:
+  - harness
+  - phase
+  - knowledge
+---
+
 # Phase: Knowledge Promotion
 
 Knowledge promotion preserves durable knowledge after a run.

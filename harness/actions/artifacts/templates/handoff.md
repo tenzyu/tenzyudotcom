@@ -1,3 +1,16 @@
+---
+schema: harness/v1
+kind: artifact-template
+id: artifact.handoff
+title: Handoff Template
+status: active
+summary: Template for concise run handoff records.
+tags:
+  - harness
+  - artifact-template
+  - handoff
+---
+
 # Handoff: RUN-XXXX
 
 ## Summary

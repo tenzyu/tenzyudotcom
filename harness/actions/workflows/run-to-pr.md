@@ -1,3 +1,21 @@
+---
+schema: harness/v1
+kind: workflow
+id: workflow.run-to-pr
+title: Run To PR
+status: active
+callable: true
+summary: Package a completed or nearly completed run into a reviewable pull request.
+tags:
+  - harness
+  - workflow
+  - pull-request
+phases:
+  - phase.review
+  - phase.verification
+  - phase.handoff
+---
+
 # Workflow: Run To PR
 
 Move a completed or nearly completed run into a reviewable pull request.

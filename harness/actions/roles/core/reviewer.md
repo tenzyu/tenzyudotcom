@@ -1,3 +1,26 @@
+---
+schema: harness/v1
+kind: role
+id: role.core.reviewer
+title: Reviewer
+status: active
+role_type: core
+summary: Independently check whether a change satisfies the run without regressions or weak verification.
+tags:
+  - harness
+  - role
+  - review
+selectors:
+  tags:
+    - review
+    - verification
+  knowledge_types:
+    - rule
+    - policy
+pinned:
+  - policy.repository
+---
+
 # Role: Reviewer
 
 ## Mission

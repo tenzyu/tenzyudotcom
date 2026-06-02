@@ -1,3 +1,39 @@
+---
+schema: harness/v1
+kind: role
+id: role.domain.repo-ops-engineer
+title: Repo Ops Engineer
+status: active
+role_type: domain
+summary: Maintain workspace automation, policy checks, Nx, Bun, Nix, scripts, and CI behavior.
+tags:
+  - harness
+  - role
+  - repo-ops
+  - nx
+activation:
+  paths:
+    - repo-ops/**
+    - product/packages/linter/**
+selectors:
+  paths:
+    - repo-ops/**
+    - product/packages/linter/**
+  tags:
+    - nx
+    - bun
+    - linter
+    - policy
+  knowledge_types:
+    - repo-map
+    - rule
+    - reference
+pinned:
+  - knowledge.repo-map
+  - policy.repository
+  - knowledge.monorepo.nx
+---
+
 # Role: Repo Ops Engineer
 
 ## Mission

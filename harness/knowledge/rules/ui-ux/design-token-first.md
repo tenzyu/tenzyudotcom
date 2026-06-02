@@ -1,4 +1,9 @@
 ---
+schema: harness/v1
+kind: knowledge
+knowledge_type: rule
+id: knowledge.rule.ui-ux.token-first
+status: active
 title: "Token-first Styling"
 impact: HIGH
 impactDescription: デザインの一貫性を保ち、マジックナンバーによる保守性の低下を防ぐ。

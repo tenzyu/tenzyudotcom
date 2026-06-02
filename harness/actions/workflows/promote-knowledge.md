@@ -1,3 +1,21 @@
+---
+schema: harness/v1
+kind: workflow
+id: workflow.promote-knowledge
+title: Promote Knowledge
+status: active
+callable: true
+summary: Promote durable reusable knowledge from run evidence into harness knowledge.
+tags:
+  - harness
+  - workflow
+  - knowledge
+phases:
+  - phase.knowledge-promotion
+  - phase.verification
+  - phase.handoff
+---
+
 # Workflow: Promote Knowledge
 
 Use this workflow when a run produced durable reusable knowledge.

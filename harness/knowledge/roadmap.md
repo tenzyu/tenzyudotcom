@@ -1,3 +1,16 @@
+---
+schema: harness/v1
+kind: knowledge
+knowledge_type: reference
+id: knowledge.roadmap
+title: Roadmap
+status: active
+summary: Small AI organization rollout roadmap and rules for converting roadmap items into tasks.
+tags:
+  - roadmap
+  - harness
+---
+
 # Roadmap
 
 This roadmap is intentionally small. Use task folders for executable work.

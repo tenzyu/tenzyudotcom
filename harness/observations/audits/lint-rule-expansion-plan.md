@@ -1,4 +1,9 @@
 ---
+schema: harness/v1
+kind: observation
+id: observation.audit.lint-rule-expansion-plan
+title: Lint Rule Expansion Plan
+status: active
 name: lint-rule-expansion-plan
 description: lint で自動検知すべきルール候補を、実装手段ごとに優先順位付きで整理する。
 summary: まず Biome と custom import boundary lint で取れる静的境界違反を先に実装し、取り切れない認可や registry 整合性は専用スクリプトで補完する方針をまとめる。

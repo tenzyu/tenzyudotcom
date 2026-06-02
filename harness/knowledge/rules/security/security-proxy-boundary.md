@@ -1,4 +1,9 @@
 ---
+schema: harness/v1
+kind: knowledge
+knowledge_type: rule
+id: knowledge.rule.security.proxy-boundary
+status: active
 title: Proxy Boundary
 impact: HIGH
 impactDescription: "`proxy.ts` を薄い入口に保ち、重い検証は server 側へ残して静的最適化と安全性を両立する。"

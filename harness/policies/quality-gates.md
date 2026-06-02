@@ -1,3 +1,16 @@
+---
+schema: harness/v1
+kind: policy
+id: policy.quality-gates
+title: Quality Gates
+status: active
+summary: Defines validation gates selected by affected scope.
+tags:
+  - policy
+  - quality
+  - verification
+---
+
 # Quality Gates
 
 Quality gates are selected by the affected scope. Passing a broad command is not

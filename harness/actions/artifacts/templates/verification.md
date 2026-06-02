@@ -1,3 +1,16 @@
+---
+schema: harness/v1
+kind: artifact-template
+id: artifact.verification
+title: Verification Template
+status: active
+summary: Template for validation evidence and skipped-check records.
+tags:
+  - harness
+  - artifact-template
+  - verification
+---
+
 # Verification: RUN-XXXX
 
 ## Commands
