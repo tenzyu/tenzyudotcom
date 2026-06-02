@@ -19,6 +19,41 @@
       },
       "cache": false
     },
+    "index": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/atelier",
+        "command": "bun run index -- --project-root ../../.."
+      },
+      "outputs": [
+        ".harness/generated"
+      ],
+      "cache": false
+    },
+    "index-check": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/atelier",
+        "command": "bun run index -- --project-root ../../.. --check"
+      },
+      "cache": false
+    },
+    "context-preview": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/atelier",
+        "command": "bun run ./src/cli.ts context preview --project-root ../../.."
+      },
+      "cache": false
+    },
+    "run-init": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/atelier",
+        "command": "bun run ./src/cli.ts run init --project-root ../../.."
+      },
+      "cache": false
+    },
     "build": {
       "executor": "nx:run-commands",
       "options": {
@@ -62,4 +97,3 @@
     }
   }
 }
-

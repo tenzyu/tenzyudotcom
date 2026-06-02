@@ -7,11 +7,11 @@ import type { HarnessDocument, MarkdownLink, Strictness } from './schema'
 const MARKDOWN_LINK_PATTERN = /\[[^\]]+\]\(([^)]+)\)/g
 const HEADING_PATTERN = /^(#{1,6})\s+(.+)$/gm
 
-function toPosixPath(value: string) {
+export function toPosixPath(value: string) {
   return value.split(path.sep).join('/')
 }
 
-function sha256(value: string) {
+export function sha256Text(value: string) {
   return createHash('sha256').update(value).digest('hex')
 }
 
@@ -98,7 +98,7 @@ export function loadHarnessDocuments(projectRoot: string): HarnessDocument[] {
       frontmatter: parsed.frontmatter,
       frontmatterRaw: parsed.frontmatterRaw,
       frontmatterError: parsed.error,
-      sha256: sha256(raw),
+      sha256: sha256Text(raw),
       headings: extractHeadings(parsed.body),
       links: extractMarkdownLinks(raw),
       strictness: strictnessForPath(relativePath),
@@ -141,4 +141,3 @@ export function markdownLinkExists(projectRoot: string, documentPath: string, ta
     }
   })
 }
-

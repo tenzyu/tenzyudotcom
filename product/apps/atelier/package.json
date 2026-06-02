@@ -11,11 +11,13 @@
     "typecheck": "tsc --noEmit",
     "test": "bun test",
     "check": "bun run typecheck && bun run test",
-    "doctor": "bun run ./src/cli.ts doctor"
+    "doctor": "bun run ./src/cli.ts doctor",
+    "index": "bun run ./src/cli.ts index",
+    "context": "bun run ./src/cli.ts context",
+    "run:init": "bun run ./src/cli.ts run init"
   },
   "devDependencies": {
     "@types/bun": "catalog:",
     "typescript": "catalog:"
   }
 }
-
