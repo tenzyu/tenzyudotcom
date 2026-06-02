@@ -1,0 +1,21 @@
+{
+  "name": "@tenzyu/atelier",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "atelier": "./src/cli.ts"
+  },
+  "scripts": {
+    "build": "bun build ./src/index.ts ./src/cli.ts --outdir dist --target bun && bun x tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test",
+    "check": "bun run typecheck && bun run test",
+    "doctor": "bun run ./src/cli.ts doctor"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "typescript": "catalog:"
+  }
+}
+

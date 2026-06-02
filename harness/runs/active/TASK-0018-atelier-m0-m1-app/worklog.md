@@ -1,0 +1,14 @@
+# Worklog
+
+## 2026-06-02
+
+- Loaded root harness instructions and selected `isolated-run` with Repo Ops Engineer + Implementer.
+- Found existing untracked files: `MANIFEST.json` and `harness/knowledge/product-specs/atelier/**`; treated them as owner-provided inputs.
+- Initially considered `repo-ops/harness` because the spec lists it as first implementation location.
+- Owner clarified the product should live under `product/apps`; changed target to `product/apps/atelier`.
+- Checked installed Nx generators. `@nx/js` does not provide an application generator, so the app will be registered manually using existing `project.json` conventions.
+- Worktree isolation exception: not creating a separate worktree because the required spec files are currently untracked in this checkout. Working on `develop` and preserving owner files.
+- Added `product/apps/atelier` as a Bun/TypeScript CLI app with Nx targets.
+- Implemented frontmatter parsing, harness Markdown loading, doctor diagnostics, CLI output, and tests.
+- Verified that the owner-provided spec files and `MANIFEST.json` are tracked inputs in the current checkout.
+- `atelier doctor --json` currently reports 232 harness Markdown documents, 33 errors, and 268 warnings. The errors are expected from strict workflow/role/phase files that do not yet have frontmatter IDs.

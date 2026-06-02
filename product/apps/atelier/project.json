@@ -1,0 +1,65 @@
+{
+  "name": "atelier",
+  "projectType": "application",
+  "root": "product/apps/atelier",
+  "sourceRoot": "product/apps/atelier/src",
+  "tags": [
+    "scope:atelier",
+    "type:app",
+    "runtime:bun",
+    "interface:cli"
+  ],
+  "implicitDependencies": [],
+  "targets": {
+    "doctor": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/atelier",
+        "command": "bun run doctor -- --project-root ../../.."
+      },
+      "cache": false
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/atelier",
+        "command": "bun run build"
+      },
+      "outputs": [
+        "{projectRoot}/dist"
+      ]
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/atelier",
+        "command": "bun run typecheck"
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/atelier",
+        "command": "bun run test"
+      }
+    },
+    "check": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/atelier",
+        "command": "bun run check"
+      }
+    },
+    "verify": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/atelier",
+        "command": "bun run check && bun run doctor -- --project-root ../../.. --json"
+      },
+      "outputs": [
+        "{projectRoot}/dist"
+      ]
+    }
+  }
+}
+
