@@ -1,51 +1,34 @@
 # AGENTS.md
 
-This repository uses `harness/ai-org` as the canonical AI organization system.
-Tool-specific root files are adapters only; durable policy, workflow, memory,
-and handoff rules live under `harness/ai-org`.
+`harness/ai-org` is the canonical AI organization system for this repository.
+Root adapter files are pointers only; durable policy, workflow, memory, and handoff live under `harness/ai-org`.
+Read `HARNESS.md` and `docs/AGENTS.md` before changing code.
 
-Also read `docs/AGENTS.md` for repository-local engineering constraints.
+## High-signal facts
 
-Before changing code:
+- Workspace package manager: Bun 1.3.10.
+- Task runner: Nx, invoked as `bun nx ...`.
+- Apps live in `product/apps`; packages live in `product/packages`.
+- `product/apps/*` may depend on `product/packages/*`; packages must not depend on apps.
+- `repo-ops/` is for repository automation and may inspect or transform `product/`, but product runtime code must not import from it.
+- `@tenzyu/osu-skin-core` must stay runtime-pure.
+- `@tenzyu/ui` must not absorb app-specific logic.
+- Root AI files (`AGENTS.md`, `CLAUDE.md`, `GEMINI.md`) are adapters, not separate policy stores.
+- `projectRoot/.worktrees/<task-slug>` is the required worktree location.
 
-1. Read `harness/ai-org/org/charter.md`.
-2. Read `harness/ai-org/memory/repo-map.md`.
-3. Read `HARNESS.md` for the AI organization operating overview.
-4. Read the relevant role file under `harness/ai-org/agents/`.
-5. Read the relevant workflow under `harness/ai-org/workflows/`.
-6. Read relevant tool guardrail skills under `harness/ai-org/skills/` before using Git, Nx, or `@tenzyu/linter`.
-7. Create or update a task folder under `harness/ai-org/tasks/` for non-trivial work.
-8. Do not claim completion without `verification.md` and `handoff.md`.
+## Workflow expectations
 
-Hard rules:
-
-- Do not remove existing features unless explicitly requested.
-- Do not rewrite large areas without an ExecPlan.
+- For non-trivial work, create or update a task folder under `harness/ai-org/tasks/`.
+- Use the smallest relevant role and workflow files from `harness/ai-org/agents/` and `harness/ai-org/workflows/`.
+- Record `verification.md` and `handoff.md` before claiming completion.
+- Preserve existing features unless explicitly requested otherwise.
 - Do not change public component APIs without migration notes.
-- Do not introduce app-specific logic into `@tenzyu/ui`.
 - Do not bypass typecheck, lint, tests, build, Storybook, or affected Nx validation when relevant.
 
-<!-- nx configuration start-->
-<!-- Leave the start & end comments to automatically receive updates. -->
+## Nx and validation
 
-# General Guidelines for working with Nx
-
-- For navigating/exploring the workspace, invoke the `nx-workspace` skill first - it has patterns for querying projects, targets, and dependencies
-- When running tasks (for example build, lint, test, e2e, etc.), always prefer running the task through `nx` (i.e. `nx run`, `nx run-many`, `nx affected`) instead of using the underlying tooling directly
-- Prefix nx commands with the workspace's package manager (e.g., `pnpm nx build`, `npm exec nx test`) - avoids using globally installed CLI
-- You have access to the Nx MCP server and its tools, use them to help the user
-- For Nx plugin best practices, check `node_modules/@nx/<plugin>/PLUGIN.md`. Not all plugins have this file - proceed without it if unavailable.
-- NEVER guess CLI flags - always check nx_docs or `--help` first when unsure
-
-## Scaffolding & Generators
-
-- For scaffolding tasks (creating apps, libs, project structure, setup), ALWAYS invoke the `nx-generate` skill FIRST before exploring or calling MCP tools
-
-## When to use nx_docs
-
-- USE for: advanced config options, unfamiliar flags, migration guides, plugin configuration, edge cases
-- DON'T USE for: basic generator syntax (`nx g @nx/react:app`), standard commands, things you already know
-- The `nx-generate` skill handles generator discovery internally - don't call nx_docs just to look up generator syntax
-
-
-<!-- nx configuration end-->
+- Prefer `bun nx run <project>:<target>` and `bun nx affected -t <target>` over direct tool invocations.
+- Check Nx config with `bun nx show projects` or `bun nx show project <name> --json` when needed.
+- Do not guess unfamiliar Nx flags.
+- For broad changes, `bun run policy:deps` and `bun nx run-many -t check` are the repo-standard checks.
+- If Nx loading fails, record that in verification instead of silently switching tools.

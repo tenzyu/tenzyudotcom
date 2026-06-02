@@ -32,4 +32,5 @@ Create or update `brief.md` in the task folder.
 - Prefer a small first task over a broad rewrite.
 - If an ADR-relevant decision is needed, interview the owner before implementation.
 - For non-trivial mutable work, apply `workflows/worktree-task-isolation.md` before implementation or parallel AI handoff.
+- Require `projectRoot/.worktrees/<task-slug>` for the worktree path; do not use `../.worktrees`.
 - If the request is trivial documentation or formatting, record a lightweight brief in the worklog or handoff.

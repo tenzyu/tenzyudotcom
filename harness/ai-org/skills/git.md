@@ -16,6 +16,7 @@ Use when running `git status`, `git diff`, `git worktree`, `git add`, `git commi
 - Stage only intended files.
 - Never commit secrets.
 - Do not hide tracked changes with `skip-worktree` except for narrow temporary local config.
+- Use `projectRoot/.worktrees/<task-slug>` for worktree paths; do not use `../.worktrees`.
 
 ## Standard Checks
 

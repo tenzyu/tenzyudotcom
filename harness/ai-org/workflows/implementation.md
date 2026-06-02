@@ -14,3 +14,4 @@ Implementation makes the approved change inside scope.
 - Do not remove existing features unless explicitly approved.
 - Do not silently change public APIs.
 - Record follow-ups instead of broadening the task.
+- If mutable work is happening, keep it inside `projectRoot/.worktrees/<task-slug>` as required by `workflows/worktree-task-isolation.md`.

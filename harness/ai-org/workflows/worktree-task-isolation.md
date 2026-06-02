@@ -14,22 +14,17 @@ The stable unit of parallel AI work is:
 
 ## Default Location
 
-Prefer placing worktrees outside the repository root so search tools, watchers, Nx, TypeScript, editors, and linters do not scan sibling working trees.
+Use the repository root as `projectRoot`.
 
-Recommended pattern:
+Always place worktrees under `projectRoot/.worktrees/` so search tools, watchers, Nx, TypeScript, editors, and linters do not scan sibling working trees.
 
-```txt
-~/src/tenzyudotcom
-~/src/.worktrees/tenzyudotcom/<task-slug>
-```
-
-If the main checkout is elsewhere, use the nearest equivalent external directory:
+Required pattern:
 
 ```txt
-<parent>/.worktrees/<repo-name>/<task-slug>
+projectRoot/.worktrees/<task-slug>
 ```
 
-Only use an in-repository location such as `.local/worktrees/<task-slug>` when an external worktree root is not practical. If used, `.local/` must be excluded locally through `.git/info/exclude`, not repository `.gitignore`, unless the owner explicitly wants a shared ignore rule.
+Do not use `../.worktrees` or any parent-sibling worktree root.
 
 ## Branch Naming
 
@@ -57,7 +52,7 @@ From the main repository checkout:
 git status --short
 git branch --show-current
 git pull --ff-only
-git worktree add <external-worktree-path> -b ai/<domain>/<task>
+git worktree add .worktrees/<task-slug> -b ai/<domain>/<task>
 ```
 
 If `git pull --ff-only` is unsafe because the current tree has local changes, stop and ask the owner how to handle them.
@@ -69,7 +64,7 @@ After creating the worktree, continue the task from the new worktree path, not t
 If the branch already exists:
 
 ```bash
-git worktree add <external-worktree-path> ai/<domain>/<task>
+git worktree add .worktrees/<task-slug> ai/<domain>/<task>
 ```
 
 Do not attach two active worktrees to the same branch.
@@ -102,7 +97,7 @@ From the main checkout after review:
 
 ```bash
 git merge ai/<domain>/<task>
-git worktree remove <external-worktree-path>
+git worktree remove .worktrees/<task-slug>
 git branch -d ai/<domain>/<task>
 ```
 

@@ -7,6 +7,7 @@
 .intlayer
 .ai-studio/
 .cursor/
+.worktrees/
 dist/
 storage/.sync-state/
 
