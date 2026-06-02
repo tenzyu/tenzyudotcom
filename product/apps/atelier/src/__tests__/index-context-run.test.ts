@@ -4,7 +4,8 @@ import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { buildContextPreview } from '../core/context'
 import { compileIndexes } from '../core/indexer'
-import { initRun } from '../core/runs'
+import { promoteKnowledgeProposal, proposeKnowledge, rejectKnowledgeProposal } from '../core/knowledge'
+import { closeRun, initRun } from '../core/runs'
 
 function writeMarkdown(root: string, relativePath: string, lines: string[]) {
   const target = path.join(root, relativePath)
@@ -196,5 +197,116 @@ describe('Atelier M2-M4', () => {
       true,
     )
     expect(readFileSync(result.contextPath, 'utf-8')).toContain('## Required Context')
+  })
+
+  test('blocks closing non-trivial runs without verification and handoff evidence', () => {
+    initRun({
+      projectRoot: tmpRoot,
+      workflowId: 'workflow.example',
+      roleIds: ['role.domain.example'],
+      inputPath: 'product/apps/example',
+      intent: 'fix auth behavior',
+      runId: 'RUN-close-missing-evidence',
+    })
+
+    const result = closeRun({
+      projectRoot: tmpRoot,
+      runId: 'RUN-close-missing-evidence',
+    })
+
+    expect(result.ok).toBe(false)
+    expect(result.moved).toBe(false)
+    expect(result.diagnostics.map((diagnostic) => diagnostic.code)).toContain('MISSING_RUN_ARTIFACT')
+    expect(result.diagnostics.some((diagnostic) => diagnostic.message.includes('verification.md'))).toBe(true)
+    expect(result.diagnostics.some((diagnostic) => diagnostic.message.includes('handoff.md'))).toBe(true)
+  })
+
+  test('closes a run with required evidence and reports context hash drift', () => {
+    const result = initRun({
+      projectRoot: tmpRoot,
+      workflowId: 'workflow.example',
+      roleIds: ['role.domain.example'],
+      inputPath: 'product/apps/example',
+      intent: 'fix auth behavior',
+      runId: 'RUN-close-complete',
+    })
+    writeFileSync(path.join(result.runPath, 'verification.md'), '# Verification\n\n- bun test passed.\n- Skipped checks: none.\n')
+    writeFileSync(path.join(result.runPath, 'handoff.md'), '# Handoff\n\nKnowledge proposals: none.\n')
+    writeFileSync(path.join(tmpRoot, 'harness/policies/repository.md'), '# Repository Policy changed\n')
+
+    const closeResult = closeRun({
+      projectRoot: tmpRoot,
+      runId: 'RUN-close-complete',
+    })
+
+    expect(closeResult.ok).toBe(true)
+    expect(closeResult.moved).toBe(true)
+    expect(existsSync(path.join(tmpRoot, 'harness/runs/completed/RUN-close-complete'))).toBe(true)
+    expect(closeResult.diagnostics.map((diagnostic) => diagnostic.code)).toContain('CONTEXT_HASH_MISMATCH')
+  })
+
+  test('promotes a complete knowledge proposal and archives the proposal', () => {
+    const run = initRun({
+      projectRoot: tmpRoot,
+      workflowId: 'workflow.example',
+      roleIds: ['role.domain.example'],
+      inputPath: 'product/apps/example',
+      intent: 'fix auth behavior',
+      runId: 'RUN-knowledge-promote',
+    })
+    writeFileSync(path.join(run.runPath, 'verification.md'), '# Verification\n\n- bun test passed.\n')
+    writeFileSync(path.join(run.runPath, 'handoff.md'), '# Handoff\n\nKnowledge proposals: handled.\n')
+
+    const proposal = proposeKnowledge({
+      projectRoot: tmpRoot,
+      fromRun: 'RUN-knowledge-promote',
+      knowledgeType: 'rule',
+      title: 'Example Auth Rule',
+      tags: ['example'],
+      evidence: 'Fixture verification showed this rule is needed.',
+      whyRecur: 'Future auth work should keep this constraint visible.',
+      whyNotCovered: 'No existing rule document in the fixture covers it.',
+    })
+
+    const promotion = promoteKnowledgeProposal({
+      projectRoot: tmpRoot,
+      proposalPath: proposal.proposalPath,
+    })
+
+    expect(promotion.ok).toBe(true)
+    expect(promotion.promotedId).toBe('knowledge.rule.example_auth_rule')
+    expect(promotion.destinationPath).not.toBeNull()
+    expect(existsSync(promotion.destinationPath!)).toBe(true)
+    expect(readFileSync(proposal.proposalPath, 'utf-8')).toContain('status: archived')
+    expect(readFileSync(path.join(tmpRoot, '.harness/generated/docs.json'), 'utf-8')).toContain('knowledge.rule.example_auth_rule')
+    expect(promotion.roleBundleImpact).toContain('role.domain.example')
+  })
+
+  test('rejects a proposal without deleting run evidence', () => {
+    initRun({
+      projectRoot: tmpRoot,
+      workflowId: 'workflow.example',
+      roleIds: ['role.domain.example'],
+      inputPath: 'product/apps/example',
+      intent: 'fix auth behavior',
+      runId: 'RUN-knowledge-reject',
+    })
+    const proposal = proposeKnowledge({
+      projectRoot: tmpRoot,
+      fromRun: 'RUN-knowledge-reject',
+      knowledgeType: 'rule',
+      title: 'Rejected Example Rule',
+    })
+
+    const rejection = rejectKnowledgeProposal({
+      projectRoot: tmpRoot,
+      proposalPath: proposal.proposalPath,
+      reason: 'Fixture rejection.',
+    })
+
+    expect(existsSync(proposal.proposalPath)).toBe(false)
+    expect(existsSync(rejection.archivedPath)).toBe(true)
+    expect(readFileSync(rejection.archivedPath, 'utf-8')).toContain('status: archived')
+    expect(readFileSync(rejection.archivedPath, 'utf-8')).toContain('Fixture rejection.')
   })
 })

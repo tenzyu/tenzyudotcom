@@ -26,7 +26,7 @@
         "command": "bun run index -- --project-root ../../.."
       },
       "outputs": [
-        ".harness/generated"
+        "{workspaceRoot}/.harness/generated"
       ],
       "cache": false
     },
@@ -51,6 +51,22 @@
       "options": {
         "cwd": "product/apps/atelier",
         "command": "bun run ./src/cli.ts run init --project-root ../../.."
+      },
+      "cache": false
+    },
+    "run-close": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/atelier",
+        "command": "bun run ./src/cli.ts run close --project-root ../../.."
+      },
+      "cache": false
+    },
+    "knowledge": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/atelier",
+        "command": "bun run ./src/cli.ts knowledge --project-root ../../.."
       },
       "cache": false
     },

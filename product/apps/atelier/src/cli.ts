@@ -4,7 +4,13 @@ import path from 'node:path'
 import { buildContextPreview, type ContextPreview } from './core/context'
 import { runDoctor } from './core/doctor'
 import { compileIndexes, type IndexResult } from './core/indexer'
-import { initRun } from './core/runs'
+import {
+  promoteKnowledgeProposal,
+  proposeKnowledge,
+  rejectKnowledgeProposal,
+  type KnowledgePromotionResult,
+} from './core/knowledge'
+import { closeRun, initRun, type RunCloseResult } from './core/runs'
 import type { Diagnostic, DoctorReport } from './core/schema'
 
 type BaseOptions = {
@@ -19,12 +25,17 @@ function usage() {
     '  atelier index [--check] [--project-root <path>]',
     '  atelier context preview --workflow <id> --role <id> [--role <id>] --path <path> --intent <text> [--required-only] [--json]',
     '  atelier run init --workflow <id> --role <id> [--role <id>] --path <path> --intent <text> [--id <run-id>] [--json]',
+    '  atelier run close RUN-ID [--json]',
+    '  atelier knowledge propose --from-run RUN-ID --kind <type> --title <title> [--tag <tag>] [--evidence <text>] [--why-recur <text>] [--why-not-covered <text>] [--json]',
+    '  atelier knowledge promote PROPOSAL_PATH [--json]',
+    '  atelier knowledge reject PROPOSAL_PATH [--reason <text>] [--json]',
     '',
     'Commands:',
     '  doctor   Inspect harness Markdown for schema, link, ID, and stale path issues.',
     '  index    Compile generated harness indexes.',
     '  context  Preview role-routed context without creating a run.',
     '  run      Materialize a context preview into a run.',
+    '  knowledge Create, promote, or reject knowledge proposals from run evidence.',
   ].join('\n')
 }
 
@@ -166,6 +177,42 @@ function printContextPreview(preview: ContextPreview) {
   console.log(preview.nextCommand)
 }
 
+function printCloseReport(result: RunCloseResult, projectRoot: string) {
+  console.log('Atelier Run Close')
+  console.log(`Run: ${result.runId}`)
+  console.log(`Status: ${result.ok ? (result.alreadyClosed ? 'already closed' : 'closed') : 'blocked'}`)
+  console.log(`Non-trivial: ${result.nonTrivial ? 'yes' : 'no'}`)
+  console.log(`Review required: ${result.reviewRequired ? 'yes' : 'no'}`)
+  if (result.moved) {
+    console.log(`Moved: ${path.relative(projectRoot, result.completedPath)}`)
+  }
+
+  console.log('\nDiagnostics')
+  if (result.diagnostics.length === 0) console.log('- None')
+  for (const diagnostic of result.diagnostics) {
+    console.log(`- ${formatDiagnostic(diagnostic)}`)
+  }
+}
+
+function printKnowledgePromotion(result: KnowledgePromotionResult, projectRoot: string) {
+  console.log('Atelier Knowledge Promote')
+  console.log(`Status: ${result.ok ? 'promoted' : 'blocked'}`)
+  if (result.promotedId) console.log(`ID: ${result.promotedId}`)
+  if (result.destinationPath) console.log(`Destination: ${path.relative(projectRoot, result.destinationPath)}`)
+
+  console.log('\nDuplicate Candidates')
+  if (result.duplicateCandidates.length === 0) console.log('- None')
+  for (const candidate of result.duplicateCandidates) console.log(`- ${candidate}`)
+
+  console.log('\nRole Bundle Impact')
+  if (result.roleBundleImpact.length === 0) console.log('- None')
+  for (const roleId of result.roleBundleImpact) console.log(`- ${roleId}`)
+
+  console.log('\nDiagnostics')
+  if (result.diagnostics.length === 0) console.log('- None')
+  for (const diagnostic of result.diagnostics) console.log(`- ${formatDiagnostic(diagnostic)}`)
+}
+
 function hasErrorDiagnostic(diagnostics: readonly Diagnostic[]) {
   return diagnostics.some((diagnostic) => diagnostic.severity === 'error')
 }
@@ -267,6 +314,91 @@ export async function runCli(argv: readonly string[]) {
       console.log(`Path: ${path.relative(base.projectRoot, result.runPath)}`)
       console.log(`Context: ${path.relative(base.projectRoot, result.contextPath)}`)
       console.log(`Manifest: ${path.relative(base.projectRoot, result.manifestPath)}`)
+    }
+
+    return 0
+  }
+
+  if (command === 'run' && subcommand === 'close') {
+    const base = parseBase(restRaw)
+    const runId = base.remaining[0]
+    if (!runId) throw new Error('run close requires RUN-ID')
+    if (base.remaining.length > 1) throw new Error(`Unknown argument: ${base.remaining[1]}`)
+
+    const result = closeRun({
+      projectRoot: base.projectRoot,
+      runId,
+    })
+
+    if (base.json) {
+      console.log(JSON.stringify(result, null, 2))
+    } else {
+      printCloseReport(result, base.projectRoot)
+    }
+
+    return result.ok ? 0 : 1
+  }
+
+  if (command === 'knowledge' && subcommand === 'propose') {
+    const base = parseBase(restRaw)
+    const result = proposeKnowledge({
+      projectRoot: base.projectRoot,
+      fromRun: readRequiredOption(base.remaining, '--from-run'),
+      knowledgeType: readRequiredOption(base.remaining, '--kind'),
+      title: readRequiredOption(base.remaining, '--title'),
+      tags: readRepeatedOption(base.remaining, '--tag'),
+      evidence: readOptionalOption(base.remaining, '--evidence'),
+      whyRecur: readOptionalOption(base.remaining, '--why-recur'),
+      whyNotCovered: readOptionalOption(base.remaining, '--why-not-covered'),
+    })
+
+    if (base.json) {
+      console.log(JSON.stringify(result, null, 2))
+    } else {
+      console.log('Atelier Knowledge Propose')
+      console.log(`Proposal: ${path.relative(base.projectRoot, result.proposalPath)}`)
+    }
+
+    return 0
+  }
+
+  if (command === 'knowledge' && subcommand === 'promote') {
+    const base = parseBase(restRaw)
+    const proposalPath = base.remaining[0]
+    if (!proposalPath) throw new Error('knowledge promote requires PROPOSAL_PATH')
+    if (base.remaining.length > 1) throw new Error(`Unknown argument: ${base.remaining[1]}`)
+
+    const result = promoteKnowledgeProposal({
+      projectRoot: base.projectRoot,
+      proposalPath,
+    })
+
+    if (base.json) {
+      console.log(JSON.stringify(result, null, 2))
+    } else {
+      printKnowledgePromotion(result, base.projectRoot)
+    }
+
+    return result.ok ? 0 : 1
+  }
+
+  if (command === 'knowledge' && subcommand === 'reject') {
+    const base = parseBase(restRaw)
+    const proposalPath = base.remaining[0]
+    if (!proposalPath) throw new Error('knowledge reject requires PROPOSAL_PATH')
+    const reason = readOptionalOption(base.remaining, '--reason')
+
+    const result = rejectKnowledgeProposal({
+      projectRoot: base.projectRoot,
+      proposalPath,
+      reason,
+    })
+
+    if (base.json) {
+      console.log(JSON.stringify(result, null, 2))
+    } else {
+      console.log('Atelier Knowledge Reject')
+      console.log(`Archived: ${path.relative(base.projectRoot, result.archivedPath)}`)
     }
 
     return 0

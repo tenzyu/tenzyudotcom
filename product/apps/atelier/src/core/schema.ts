@@ -5,6 +5,7 @@ export type HarnessKind =
   | 'phase'
   | 'policy'
   | 'artifact-template'
+  | 'knowledge-proposal'
   | 'run'
   | 'observation'
   | 'adapter'
@@ -32,6 +33,13 @@ export type DiagnosticCode =
   | 'ROLE_SELECTOR_EMPTY'
   | 'ROLE_SELECTOR_TOO_BROAD'
   | 'CONTEXT_BUDGET_EXCEEDED'
+  | 'MISSING_RUN_ARTIFACT'
+  | 'CONTEXT_HASH_MISMATCH'
+  | 'RUN_REVIEW_REQUIRED'
+  | 'RUN_SKIPPED_CHECK_UNJUSTIFIED'
+  | 'RUN_KNOWLEDGE_PROPOSAL_OPEN'
+  | 'INVALID_KNOWLEDGE_PROPOSAL'
+  | 'DUPLICATE_KNOWLEDGE_CANDIDATE'
 
 export type HarnessFrontmatter = {
   schema?: unknown
@@ -97,6 +105,7 @@ const KNOWN_KINDS = new Set<HarnessKind>([
   'phase',
   'policy',
   'artifact-template',
+  'knowledge-proposal',
   'run',
   'observation',
   'adapter',
@@ -117,4 +126,3 @@ export function diagnosticSeverityRank(severity: DiagnosticSeverity) {
   if (severity === 'warning') return 1
   return 2
 }
-
