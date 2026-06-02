@@ -2,6 +2,7 @@
   pkgs,
   serena,
   system,
+  atelier,
 }: let
   lib = pkgs.lib;
 
@@ -50,6 +51,6 @@ in {
 
   productWeb = common ++ web;
   productSkinWorkbench = common ++ web ++ native ++ tauriLinux;
-  repoOpsShell = common ++ repoOps;
-  all = common ++ web ++ repoOps ++ native ++ tauriLinux;
+  repoOpsShell = common ++ repoOps ++ [atelier];
+  all = common ++ web ++ repoOps ++ native ++ tauriLinux ++ [atelier];
 }

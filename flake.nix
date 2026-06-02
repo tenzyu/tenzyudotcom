@@ -27,7 +27,7 @@
         };
 
         packageSets = import ./nix/packages.nix {
-          inherit pkgs serena system;
+          inherit pkgs serena system atelier;
         };
 
         devShells = import ./nix/devshells.nix {
