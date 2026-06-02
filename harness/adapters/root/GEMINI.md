@@ -2,49 +2,33 @@
 schema: harness/v1
 kind: adapter
 id: adapter.root.gemini
-title: Root Gemini Adapter
+title: "Root GEMINI Adapter"
 status: active
-summary: Root Gemini adapter that routes work through Atelier before mutable work.
+summary: "Root Gemini adapter that routes work through Atelier."
 tags:
   - harness
   - adapter
-  - gemini
+  - root
+generated: true
+generator: atelier generate
+tool_source: "harness/adapters/tool/GEMINI.md"
+generated_at: "2026-06-02T12:43:05.317Z"
 ---
 
 # GEMINI.md
 
-Canonical AI work instructions live under `harness`.
+Do not manually discover harness context first.
 
-For non-trivial work, do not manually discover harness context first. Use Atelier.
-
-## Required Start
+Use Atelier.
 
 ```bash
 atelier run init --workflow isolated-run --intent "<request>"
 ```
 
-Then read the generated `context.md` and follow its workflow, role, phase, and artifact instructions.
-
-For small docs/config/reference repairs, use:
-
-```bash
-atelier run init --workflow direct-run --intent "<request>"
-```
-
-## Completion Gate
-
-Before claiming completion, run:
+Read `harness/runs/active/<RUN-ID>/context.md`.
 
 ```bash
 atelier run close <RUN-ID>
 ```
 
-If Atelier is unavailable, manually start with:
-
-- `harness/canon/model.md`
-- `harness/policies/repository.md`
-- `harness/actions/workflows/README.md`
-- `harness/actions/roles/README.md`
-- `harness/policies/context-budget.md`
-
-Record any fallback in `worklog.md`.
+Stable knowledge lives in `harness/`. Root adapters stay short and route agents into Atelier.

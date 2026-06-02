@@ -86,6 +86,26 @@
       },
       "cache": false
     },
+    "id-rename": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/atelier",
+        "command": "bun run ./src/cli.ts id rename --project-root ../../.."
+      },
+      "cache": false
+    },
+    "generate": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/atelier",
+        "command": "bun run ./src/cli.ts generate --project-root ../../.. --write"
+      },
+      "outputs": [
+        "{workspaceRoot}/.harness/generated/skills",
+        "{workspaceRoot}/harness/adapters/root"
+      ],
+      "cache": false
+    },
     "build": {
       "executor": "nx:run-commands",
       "options": {

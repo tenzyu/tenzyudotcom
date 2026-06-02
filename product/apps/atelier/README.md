@@ -27,6 +27,9 @@ bun nx run atelier:run-close -- RUN-ID
 bun nx run atelier:knowledge -- propose --from-run RUN-ID --kind rule --title "..."
 bun nx run atelier:knowledge -- promote harness/runs/active/RUN-ID/knowledge-proposals/example.md
 bun nx run atelier:knowledge -- reject harness/runs/active/RUN-ID/knowledge-proposals/example.md --reason "..."
+bun nx run atelier:id-rename -- knowledge.rule.example knowledge.rule.example-v2
+bun nx run atelier:id-rename -- knowledge.rule.example knowledge.rule.example-v2 --write
+bun nx run atelier:generate
 bun nx run atelier:typecheck
 bun nx run atelier:test
 ```
@@ -50,6 +53,9 @@ bun nx run atelier:test
   verification, handoff, review, and proposal state pass the completion gate.
 - Create, promote, and reject knowledge proposals without automatically turning
   raw run logs into durable knowledge.
+- Rename symbolic ids across frontmatter, body references, and generated indexes
+  with a preview-first safety model.
+- Refresh generated skills and root adapters from the current harness.
 
 ## Non-Goals
 

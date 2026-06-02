@@ -7,6 +7,7 @@ import {
   type ContextPlan,
 } from './core/context'
 import { runDoctor } from './core/doctor'
+import { generateGeneratedFiles, type GenerateResult } from './core/generate'
 import { compileIndexes, type IndexResult } from './core/indexer'
 import {
   promoteKnowledgeProposal,
@@ -14,6 +15,11 @@ import {
   rejectKnowledgeProposal,
   type KnowledgePromotionResult,
 } from './core/knowledge'
+import {
+  renameId,
+  type IdRenameChange,
+  type IdRenameResult,
+} from './core/rename'
 import {
   closeRun,
   expandRunContext,
@@ -42,6 +48,8 @@ function usage() {
     '  atelier knowledge propose --from-run RUN-ID --kind <type> --title <title> [--tag <tag>] [--evidence <text>] [--why-recur <text>] [--why-not-covered <text>] [--json]',
     '  atelier knowledge promote PROPOSAL_PATH [--json]',
     '  atelier knowledge reject PROPOSAL_PATH [--reason <text>] [--json]',
+    '  atelier id rename OLD_ID NEW_ID [--write] [--json]',
+    '  atelier generate [--write] [--json]',
     '',
     'Commands:',
     '  doctor   Inspect harness Markdown for schema, link, ID, and stale path issues.',
@@ -49,6 +57,8 @@ function usage() {
     '  context  Plan or render role-routed context without creating a run.',
     '  run      Materialize a context render into a run.',
     '  knowledge Create, promote, or reject knowledge proposals from run evidence.',
+    '  id       Rename symbolic ids across the harness.',
+    '  generate Refresh generated skills and root adapters.',
   ].join('\n')
 }
 
@@ -265,6 +275,85 @@ function printKnowledgePromotion(
   if (result.diagnostics.length === 0) console.log('- None')
   for (const diagnostic of result.diagnostics)
     console.log(`- ${formatDiagnostic(diagnostic)}`)
+}
+
+function printRenameChanges(label: string, changes: readonly IdRenameChange[]) {
+  console.log(`\n${label}`)
+  if (changes.length === 0) {
+    console.log('- None')
+    return
+  }
+  for (const change of changes) {
+    const fieldSuffix = change.field ? ` (${change.field})` : ''
+    console.log(
+      `- ${change.path}${fieldSuffix}: ${change.kind} x${change.count}`
+    )
+    for (const sample of change.samples) console.log(`    ${sample}`)
+  }
+}
+
+function printIdRename(
+  result: IdRenameResult,
+  projectRoot: string,
+  write: boolean
+) {
+  const mode = write ? (result.written ? 'written' : 'preview') : 'preview'
+  console.log('Atelier ID Rename')
+  console.log(`Mode: ${mode}`)
+  console.log(`Old ID: ${result.oldId}`)
+  console.log(`New ID: ${result.newId}`)
+  if (result.oldPath) {
+    console.log(`Owner: ${result.oldPath}`)
+  }
+
+  const sourceChanges = (result.written ? result.changes : result.preview).filter(
+    (change) =>
+      change.kind !== 'json-string' && change.kind !== 'manifest'
+  )
+  const generatedChanges = (result.written ? result.changes : result.preview).filter(
+    (change) =>
+      change.kind === 'json-string' || change.kind === 'manifest'
+  )
+
+  printRenameChanges('Source File Changes', sourceChanges)
+  printRenameChanges('Generated File Changes', generatedChanges)
+
+  console.log('\nDiagnostics')
+  if (result.diagnostics.length === 0) console.log('- None')
+  for (const diagnostic of result.diagnostics) {
+    console.log(`- ${formatDiagnostic({ ...diagnostic, path: diagnostic.path ?? path.relative(projectRoot, diagnostic.path ?? '.') })}`)
+  }
+
+  if (!result.written && result.preview.length > 0) {
+    console.log('\nNext Commands')
+    for (const command of result.nextCommands) console.log(command)
+  }
+}
+
+function printGenerate(
+  result: GenerateResult,
+  projectRoot: string,
+  write: boolean
+) {
+  console.log('Atelier Generate')
+  console.log(`Mode: ${write ? 'written' : 'preview'}`)
+  console.log(`Generated root: ${path.relative(projectRoot, result.generatedRoot)}`)
+  console.log(`Adapter root: ${path.relative(projectRoot, result.adapterRoot)}`)
+  console.log(`Files: ${result.files.length}`)
+
+  for (const file of result.files) {
+    console.log(`- ${path.relative(projectRoot, file.absolutePath)} (${file.kind})`)
+  }
+
+  console.log('\nDiagnostics')
+  if (result.diagnostics.length === 0) console.log('- None')
+  for (const diagnostic of result.diagnostics)
+    console.log(`- ${formatDiagnostic(diagnostic)}`)
+
+  if (!write && result.files.length > 0) {
+    console.log('\nNext Commands')
+    for (const command of result.nextCommands) console.log(command)
+  }
 }
 
 function hasErrorDiagnostic(diagnostics: readonly Diagnostic[]) {
@@ -544,6 +633,58 @@ export async function runCli(argv: readonly string[]) {
     }
 
     return 0
+  }
+
+  if (command === 'id' && subcommand === 'rename') {
+    const base = parseBase(restRaw)
+    const oldId = base.remaining[0]
+    const newId = base.remaining[1]
+    if (!oldId || !newId)
+      throw new Error('id rename requires OLD_ID and NEW_ID')
+    const write = base.remaining.includes('--write')
+    const unknown = base.remaining
+      .slice(2)
+      .filter((arg) => arg !== '--write')
+    if (unknown.length > 0) throw new Error(`Unknown argument: ${unknown[0]}`)
+
+    const result = renameId({
+      projectRoot: base.projectRoot,
+      oldId,
+      newId,
+      write,
+    })
+
+    if (base.json) {
+      console.log(JSON.stringify(result, null, 2))
+    } else {
+      printIdRename(result, base.projectRoot, write)
+    }
+
+    return result.ok ? 0 : 1
+  }
+
+  if (command === 'generate') {
+    const base = parseBase(
+      [subcommand, ...restRaw].filter(
+        (value): value is string => value !== undefined
+      )
+    )
+    const write = base.remaining.includes('--write')
+    const unknown = base.remaining.filter((arg) => arg !== '--write')
+    if (unknown.length > 0) throw new Error(`Unknown argument: ${unknown[0]}`)
+
+    const result = generateGeneratedFiles({
+      projectRoot: base.projectRoot,
+      write,
+    })
+
+    if (base.json) {
+      console.log(JSON.stringify(result, null, 2))
+    } else {
+      printGenerate(result, base.projectRoot, write)
+    }
+
+    return result.ok ? 0 : 1
   }
 
   console.log(usage())
