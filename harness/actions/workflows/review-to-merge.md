@@ -1,4 +1,4 @@
-# Workflow: Review to Merge
+# Workflow: Review To Merge
 
 Use this workflow after review findings are available.
 
@@ -14,3 +14,4 @@ Use this workflow after review findings are available.
 
 - Do not merge with unresolved blocking findings.
 - Do not treat reviewer approval as a replacement for verification evidence.
+- Do not hide follow-up work inside the merge.
