@@ -11,6 +11,10 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "paths": {
+      "@tenzyu/ui": ["./product/packages/ui/src/index.ts"],
+      "@tenzyu/osu-skin-core": ["./product/packages/osu-skin-core/src/index.ts"]
+    }
   }
 }
