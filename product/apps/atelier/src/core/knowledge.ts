@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, readdirSync, renameSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { loadHarnessDocuments, sha256Text, toPosixPath } from './docs'
 import { parseFrontmatter } from './frontmatter'
@@ -46,6 +46,16 @@ export type KnowledgeRejectOptions = {
 export type KnowledgeRejectResult = {
   proposalPath: string
   archivedPath: string
+}
+
+export type KnowledgeProposalSummary = {
+  path: string
+  runId: string | null
+  status: 'draft' | 'archived' | 'promoted' | 'rejected' | 'unknown'
+  knowledgeType: string | null
+  title: string | null
+  id: string | null
+  proposedAt: string | null
 }
 
 type ProposalData = {
@@ -463,5 +473,70 @@ export function rejectKnowledgeProposal(options: KnowledgeRejectOptions): Knowle
   return {
     proposalPath,
     archivedPath,
+  }
+}
+
+export function listKnowledgeProposals(projectRootInput: string): KnowledgeProposalSummary[] {
+  const projectRoot = path.resolve(projectRootInput)
+  const runsRoot = path.join(projectRoot, 'harness/runs')
+  if (!existsSync(runsRoot)) return []
+  const summaries: KnowledgeProposalSummary[] = []
+  const visits = [path.join(runsRoot, 'active'), path.join(runsRoot, 'completed')]
+
+  for (const root of visits) {
+    if (!existsSync(root)) continue
+    for (const runEntry of readdirSync(root, { withFileTypes: true })) {
+      if (!runEntry.isDirectory()) continue
+      const runId = runEntry.name
+      const proposalsRoot = path.join(root, runId, 'knowledge-proposals')
+      if (!existsSync(proposalsRoot)) continue
+      collectProposalSummaries(projectRoot, proposalsRoot, runId, summaries)
+    }
+  }
+
+  const crossRunRoot = path.join(projectRoot, '.harness/proposals/knowledge')
+  if (existsSync(crossRunRoot)) {
+    collectProposalSummaries(projectRoot, crossRunRoot, null, summaries)
+  }
+
+  return summaries.sort((left, right) => left.path.localeCompare(right.path))
+}
+
+function collectProposalSummaries(
+  projectRoot: string,
+  dir: string,
+  runId: string | null,
+  summaries: KnowledgeProposalSummary[]
+) {
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const target = path.join(dir, entry.name)
+    if (entry.isDirectory()) {
+      collectProposalSummaries(projectRoot, target, runId, summaries)
+      continue
+    }
+    if (!entry.isFile() || !entry.name.endsWith('.md')) continue
+    const summary = readProposalSummary(projectRoot, target, runId)
+    summaries.push(summary)
+  }
+}
+
+function readProposalSummary(
+  projectRoot: string,
+  proposalPath: string,
+  runId: string | null
+): KnowledgeProposalSummary {
+  const raw = readFileSync(proposalPath, 'utf-8')
+  const parsed = parseFrontmatter(raw)
+  const frontmatter = parsed.frontmatter ?? {}
+  const status = textOf(frontmatter.status) ?? 'unknown'
+  const knowledgeType = textOf(frontmatter.proposed_knowledge_type) ?? textOf(frontmatter.knowledge_type)
+  return {
+    path: toPosixPath(path.relative(projectRoot, proposalPath)),
+    runId: textOf(frontmatter.source_run) ?? runId,
+    status: status as KnowledgeProposalSummary['status'],
+    knowledgeType,
+    title: textOf(frontmatter.title),
+    id: textOf(frontmatter.id),
+    proposedAt: textOf(frontmatter.proposed_at),
   }
 }

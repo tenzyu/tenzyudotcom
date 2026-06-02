@@ -9,8 +9,10 @@ export {
   type GeneratedFile,
   type GeneratedFileKind,
 } from './core/generate'
+export { handleGuiRequest, listGuiStaticFiles, type GuiResponse, type GuiRoute, type GuiServerOptions } from './core/gui'
 export { compileIndexes, type GeneratedFileName, type IndexOptions, type IndexResult } from './core/indexer'
 export {
+  listKnowledgeProposals,
   promoteKnowledgeProposal,
   proposeKnowledge,
   rejectKnowledgeProposal,
@@ -18,9 +20,12 @@ export {
   type KnowledgePromotionResult,
   type KnowledgeProposalOptions,
   type KnowledgeProposalResult,
+  type KnowledgeProposalSummary,
   type KnowledgeRejectOptions,
   type KnowledgeRejectResult,
 } from './core/knowledge'
+export { MCP_TOOL_NAMES, buildMcpServer, runMcpServer, type McpServerOptions } from './core/mcp'
+export { listNxProjects, repoOwner, type NxProject, type RepoOwnerResult, type RepoOwnerSource } from './core/owner'
 export {
   renameId,
   type IdRenameChange,
@@ -33,6 +38,7 @@ export {
   expandRunContext,
   initRun,
   renderContextForOptions,
+  runStatus,
   type ContextExpandOptions,
   type ContextExpandResult,
   type ContextRenderOptions,
@@ -41,6 +47,8 @@ export {
   type RunCloseResult,
   type RunInitOptions,
   type RunInitResult,
+  type RunStatusOptions,
+  type RunStatusResult,
 } from './core/runs'
 export type {
   Diagnostic,

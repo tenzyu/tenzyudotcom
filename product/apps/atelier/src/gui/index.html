@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Atelier</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <h1>Atelier</h1>
+      <p class="tagline" id="tagline">Local harness control plane</p>
+      <nav class="tabs" role="tablist">
+        <button data-screen="doctor" class="tab" role="tab">Doctor</button>
+        <button data-screen="bundles" class="tab" role="tab">Role Bundles</button>
+        <button data-screen="plan" class="tab" role="tab">Context Plan</button>
+        <button data-screen="inbox" class="tab" role="tab">Knowledge Inbox</button>
+        <button data-screen="rename" class="tab" role="tab">ID Rename</button>
+      </nav>
+    </header>
+    <main id="main">
+      <section id="screen-doctor" class="screen" hidden>
+        <h2>Doctor</h2>
+        <button class="primary" data-action="refresh-doctor">Refresh</button>
+        <div id="doctor-summary" class="summary"></div>
+        <h3>Diagnostics</h3>
+        <ul id="doctor-list" class="diagnostics"></ul>
+      </section>
+
+      <section id="screen-bundles" class="screen" hidden>
+        <h2>Role Bundles</h2>
+        <p class="muted">Generated role context from <code>.harness/generated/role-bundles.json</code>.</p>
+        <div id="bundles" class="bundles"></div>
+      </section>
+
+      <section id="screen-plan" class="screen" hidden>
+        <h2>Context Plan</h2>
+        <form id="plan-form" class="form">
+          <label>Workflow
+            <input name="workflowId" value="workflow.isolated-run" required />
+          </label>
+          <label>Roles (comma separated)
+            <input name="roleIds" value="role.domain.harness-engineer" required />
+          </label>
+          <label>Path
+            <input name="inputPath" value="product/apps/atelier" required />
+          </label>
+          <label>Intent
+            <input name="intent" value="inspect context" required />
+          </label>
+          <label>Mode
+            <select name="mode">
+              <option value="compact">compact</option>
+              <option value="full">full</option>
+              <option value="linked">linked</option>
+            </select>
+          </label>
+          <button class="primary" type="submit">Plan</button>
+        </form>
+        <div id="plan-output" class="plan-output"></div>
+      </section>
+
+      <section id="screen-inbox" class="screen" hidden>
+        <h2>Knowledge Inbox</h2>
+        <p class="muted">Open proposals. Promote or reject by writing back to the CLI; this screen reflects on-disk state.</p>
+        <ul id="inbox" class="inbox"></ul>
+      </section>
+
+      <section id="screen-rename" class="screen" hidden>
+        <h2>ID Rename</h2>
+        <form id="rename-form" class="form">
+          <label>Old ID <input name="oldId" required /></label>
+          <label>New ID <input name="newId" required /></label>
+          <label class="checkbox">
+            <input type="checkbox" name="write" />
+            <span>Apply (uncheck for preview)</span>
+          </label>
+          <label class="checkbox">
+            <input type="checkbox" name="confirm" />
+            <span>Confirm mutation</span>
+          </label>
+          <button class="primary" type="submit">Run</button>
+        </form>
+        <pre id="rename-output" class="output"></pre>
+      </section>
+    </main>
+    <footer class="app-footer">
+      <span id="mutations-status" class="mutations-status">mutations: unknown</span>
+      <span class="muted">Local only. Same core as the CLI.</span>
+    </footer>
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

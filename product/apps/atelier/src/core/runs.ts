@@ -43,6 +43,36 @@ export type RunCloseOptions = {
   runId: string
 }
 
+export type RunStatusOptions = {
+  projectRoot?: string
+  runId: string
+}
+
+export type RunStatusResult = {
+  runId: string
+  runPath: string
+  completed: boolean
+  workflowId: string | null
+  roleIds: string[]
+  inputPath: string | null
+  intent: string | null
+  contextMode: string | null
+  artifacts: {
+    brief: boolean
+    context: boolean
+    manifest: boolean
+    worklog: boolean
+    verification: boolean
+    handoff: boolean
+    review: boolean
+    plan: boolean
+  }
+  missingArtifacts: string[]
+  requiredArtifacts: string[]
+  openKnowledgeProposals: string[]
+  diagnostics: Diagnostic[]
+}
+
 export type RunCloseResult = {
   ok: boolean
   runId: string
@@ -75,6 +105,7 @@ type RunManifest = {
   workflowId?: unknown
   roleIds?: unknown
   inputPath?: unknown
+  intent?: unknown
   contextMode?: unknown
   selectedDocuments?: unknown
   expandedDocuments?: unknown
@@ -628,6 +659,131 @@ export function expandRunContext(options: ContextExpandOptions): ContextExpandRe
     manifestPath,
     expandedDocument: selected,
     alreadyExpanded,
+  }
+}
+
+export function runStatus(options: RunStatusOptions): RunStatusResult {
+  const projectRoot = path.resolve(options.projectRoot ?? process.cwd())
+  const activePath = path.join(projectRoot, 'harness/runs/active', options.runId)
+  const completedPath = path.join(projectRoot, 'harness/runs/completed', options.runId)
+  const runPath = existsSync(activePath)
+    ? activePath
+    : existsSync(completedPath)
+      ? completedPath
+      : activePath
+  const runRelativePath = toPosixPath(path.relative(projectRoot, runPath))
+  const diagnostics: Diagnostic[] = []
+
+  if (!existsSync(runPath)) {
+    diagnostics.push({
+      code: 'MISSING_RUN_ARTIFACT',
+      severity: 'error',
+      message: `Run was not found under harness/runs/active or harness/runs/completed: ${options.runId}`,
+    })
+    return {
+      runId: options.runId,
+      runPath,
+      completed: false,
+      workflowId: null,
+      roleIds: [],
+      inputPath: null,
+      intent: null,
+      contextMode: null,
+      artifacts: {
+        brief: false,
+        context: false,
+        manifest: false,
+        worklog: false,
+        verification: false,
+        handoff: false,
+        review: false,
+        plan: false,
+      },
+      missingArtifacts: [],
+      requiredArtifacts: [],
+      openKnowledgeProposals: [],
+      diagnostics,
+    }
+  }
+
+  const manifestPath = artifactPath(runPath, 'context.manifest.json')
+  const manifest: RunManifest = existsSync(manifestPath)
+    ? safeReadJson(manifestPath)
+    : {}
+
+  const artifacts = {
+    brief: artifactExists(runPath, 'brief.md'),
+    context: artifactExists(runPath, 'context.md'),
+    manifest: artifactExists(runPath, 'context.manifest.json'),
+    worklog: artifactExists(runPath, 'worklog.md'),
+    verification: artifactExists(runPath, 'verification.md'),
+    handoff: artifactExists(runPath, 'handoff.md'),
+    review: artifactExists(runPath, 'review.md'),
+    plan: artifactExists(runPath, 'plan.md'),
+  }
+
+  const workflowId = textOf(manifest.workflowId)
+  const roleIds = asStringArray(manifest.roleIds)
+  const nonTrivial = workflowId !== 'workflow.direct-run'
+  const requiredArtifacts = nonTrivial
+    ? ['brief.md', 'context.md', 'context.manifest.json', 'verification.md', 'handoff.md']
+    : ['context.manifest.json']
+  const missingArtifacts = requiredArtifacts.filter((artifact) => !artifactExists(runPath, artifact))
+
+  if (missingArtifacts.length > 0) {
+    diagnostics.push({
+      code: 'MISSING_RUN_ARTIFACT',
+      severity: nonTrivial ? 'error' : 'warning',
+      path: runRelativePath,
+      message: `Run is missing required artifacts: ${missingArtifacts.join(', ')}`,
+      details: { missingArtifacts },
+    })
+  }
+
+  const proposalRoot = path.join(runPath, 'knowledge-proposals')
+  const openKnowledgeProposals = listMarkdownFiles(proposalRoot).filter(isOpenKnowledgeProposal)
+  for (const proposalPath of openKnowledgeProposals) {
+    diagnostics.push({
+      code: 'RUN_KNOWLEDGE_PROPOSAL_OPEN',
+      severity: 'warning',
+      path: toPosixPath(path.relative(projectRoot, proposalPath)),
+      message: 'Knowledge proposal is still open; promote, reject, or archive it before closing the run.',
+    })
+  }
+
+  if (nonTrivial && workflowRequiresReview(projectRoot, workflowId) && !artifacts.review) {
+    diagnostics.push({
+      code: 'RUN_REVIEW_REQUIRED',
+      severity: 'warning',
+      path: toPosixPath(path.relative(projectRoot, artifactPath(runPath, 'review.md'))),
+      message: 'This run requires review evidence, but review.md is missing.',
+    })
+  }
+
+  return {
+    runId: options.runId,
+    runPath,
+    completed: !existsSync(activePath) && existsSync(completedPath),
+    workflowId,
+    roleIds,
+    inputPath: textOf(manifest.inputPath),
+    intent: typeof manifest.intent === 'string' ? manifest.intent : null,
+    contextMode: textOf(manifest.contextMode),
+    artifacts,
+    missingArtifacts,
+    requiredArtifacts,
+    openKnowledgeProposals: openKnowledgeProposals.map((p) =>
+      toPosixPath(path.relative(projectRoot, p))
+    ),
+    diagnostics,
+  }
+}
+
+function safeReadJson(filePath: string): RunManifest {
+  try {
+    return readJsonFile(filePath) as RunManifest
+  } catch {
+    return {}
   }
 }
 

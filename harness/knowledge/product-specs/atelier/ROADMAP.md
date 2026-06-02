@@ -644,6 +644,8 @@ atelier.repo.owner
 - MCP run close enforces the same gates as CLI.
 - MCP failure messages are actionable.
 
+**Status (2026-06-02): shipped.** The MCP server lives at `product/apps/atelier/src/core/mcp.ts` and is launched via `atelier mcp` (stdio). It exposes 12 tools (`atelier_doctor`, `atelier_index`, `atelier_context_plan`, `atelier_run_init`, `atelier_run_status`, `atelier_run_close`, `atelier_knowledge_propose`, `atelier_knowledge_promote`, `atelier_knowledge_reject`, `atelier_id_rename`, `atelier_repo_owner`, `atelier_generate`). Every mutating tool requires `confirm: true` or the server being launched with `--allow-mutations`. Coverage: `src/__tests__/mcp.test.ts` (8 tests).
+
 ## M10: Atelier GUI
 
 ### Goal
@@ -672,6 +674,8 @@ Provide a local GUI for inspection, approval, and bulk maintenance.
 - GUI shows diffs before mutating source files.
 - GUI can approve or reject knowledge proposals.
 - GUI can plan and render context bundles.
+
+**Status (2026-06-02): shipped.** The GUI server lives at `product/apps/atelier/src/core/gui-server.ts` and is launched via `atelier gui` (Bun.serve on 127.0.0.1). Static assets live in `product/apps/atelier/src/gui/` (no build step). It serves 5 screens (Doctor, Role Bundles, Context Plan, Knowledge Inbox, ID Rename) and a JSON API at `/api/*`. Mutations follow the same `confirm: true` / `--allow-mutations` policy as MCP. Coverage: `src/__tests__/gui.test.ts` (11 tests).
 
 ## M11: Repo Map and Path Ownership Generation
 

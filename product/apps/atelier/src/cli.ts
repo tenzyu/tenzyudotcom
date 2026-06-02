@@ -44,21 +44,28 @@ function usage() {
     '  atelier context render --workflow <id> --role <id> [--role <id>] --path <path> --intent <text> [--mode compact|full|linked] [--id <run-id>] [--json]',
     '  atelier context expand RUN-ID DOC-ID-OR-PATH [--json]',
     '  atelier run init --workflow <id> --role <id> [--role <id>] --path <path> --intent <text> [--mode compact|full|linked] [--id <run-id>] [--json]',
+    '  atelier run status RUN-ID [--json]',
     '  atelier run close RUN-ID [--json]',
+    '  atelier repo owner --path <path> [--json]',
     '  atelier knowledge propose --from-run RUN-ID --kind <type> --title <title> [--tag <tag>] [--evidence <text>] [--why-recur <text>] [--why-not-covered <text>] [--json]',
     '  atelier knowledge promote PROPOSAL_PATH [--json]',
     '  atelier knowledge reject PROPOSAL_PATH [--reason <text>] [--json]',
     '  atelier id rename OLD_ID NEW_ID [--write] [--json]',
     '  atelier generate [--write] [--json]',
+    '  atelier mcp [--allow-mutations] [--project-root <path>]',
+    '  atelier gui [--port <port>] [--host <host>] [--allow-mutations] [--project-root <path>]',
     '',
     'Commands:',
     '  doctor   Inspect harness Markdown for schema, link, ID, and stale path issues.',
     '  index    Compile generated harness indexes.',
     '  context  Plan or render role-routed context without creating a run.',
-    '  run      Materialize a context render into a run.',
+    '  run      Materialize, inspect, and close a run.',
+    '  repo     Query repository facts (path ownership).',
     '  knowledge Create, promote, or reject knowledge proposals from run evidence.',
     '  id       Rename symbolic ids across the harness.',
     '  generate Refresh generated skills and root adapters.',
+    '  mcp      Start a stdio Model Context Protocol server. Mutations require --allow-mutations or a confirm flag from the client.',
+    '  gui      Start the local HTTP GUI. Binds to 127.0.0.1 by default. Mutations require --allow-mutations or a confirm flag from the UI.',
   ].join('\n')
 }
 
@@ -542,6 +549,46 @@ export async function runCli(argv: readonly string[]) {
     return 0
   }
 
+  if (command === 'run' && subcommand === 'status') {
+    const base = parseBase(restRaw)
+    const runId = base.remaining[0]
+    if (!runId) throw new Error('run status requires RUN-ID')
+    if (base.remaining.length > 1)
+      throw new Error(`Unknown argument: ${base.remaining[1]}`)
+
+    const { runStatus } = await import('./core/runs')
+    const result = runStatus({ projectRoot: base.projectRoot, runId })
+
+    if (base.json) {
+      console.log(JSON.stringify(result, null, 2))
+    } else {
+      console.log('Atelier Run Status')
+      console.log(`Run: ${result.runId}`)
+      console.log(`Completed: ${result.completed ? 'yes' : 'no'}`)
+      console.log(`Workflow: ${result.workflowId ?? '(unknown)'}`)
+      console.log(`Roles: ${result.roleIds.join(', ') || '(none)'}`)
+      console.log(`Input path: ${result.inputPath ?? '(unknown)'}`)
+      console.log(`Context mode: ${result.contextMode ?? '(unknown)'}`)
+      console.log(
+        `Artifacts: brief=${result.artifacts.brief ? 'y' : 'n'} context=${result.artifacts.context ? 'y' : 'n'} manifest=${result.artifacts.manifest ? 'y' : 'n'} worklog=${result.artifacts.worklog ? 'y' : 'n'} verification=${result.artifacts.verification ? 'y' : 'n'} handoff=${result.artifacts.handoff ? 'y' : 'n'} review=${result.artifacts.review ? 'y' : 'n'} plan=${result.artifacts.plan ? 'y' : 'n'}`
+      )
+      if (result.missingArtifacts.length > 0) {
+        console.log(`Missing: ${result.missingArtifacts.join(', ')}`)
+      }
+      if (result.openKnowledgeProposals.length > 0) {
+        console.log(`Open proposals: ${result.openKnowledgeProposals.join(', ')}`)
+      }
+      if (result.diagnostics.length > 0) {
+        console.log('\nDiagnostics')
+        for (const diagnostic of result.diagnostics) {
+          console.log(`- ${formatDiagnostic(diagnostic)}`)
+        }
+      }
+    }
+
+    return result.diagnostics.some((d) => d.severity === 'error') ? 1 : 0
+  }
+
   if (command === 'run' && subcommand === 'close') {
     const base = parseBase(restRaw)
     const runId = base.remaining[0]
@@ -561,6 +608,29 @@ export async function runCli(argv: readonly string[]) {
     }
 
     return result.ok ? 0 : 1
+  }
+
+  if (command === 'repo' && subcommand === 'owner') {
+    const base = parseBase(restRaw)
+    const target = readRequiredOption(base.remaining, '--path')
+    const { repoOwner } = await import('./core/owner')
+    const result = repoOwner(target, base.projectRoot)
+
+    if (base.json) {
+      console.log(JSON.stringify(result, null, 2))
+    } else {
+      console.log('Atelier Repo Owner')
+      console.log(`Path: ${result.path}`)
+      console.log(`Project: ${result.project ?? '(none)'}`)
+      console.log(`Owner role: ${result.ownerRole ?? '(none)'}`)
+      console.log(`Source: ${result.source}`)
+      if (result.notes.length > 0) {
+        console.log('\nNotes')
+        for (const note of result.notes) console.log(`- ${note}`)
+      }
+    }
+
+    return 0
   }
 
   if (command === 'knowledge' && subcommand === 'propose') {
@@ -685,6 +755,69 @@ export async function runCli(argv: readonly string[]) {
     }
 
     return result.ok ? 0 : 1
+  }
+
+  if (command === 'mcp') {
+    const base = parseBase(
+      [subcommand, ...restRaw].filter(
+        (value): value is string => value !== undefined
+      )
+    )
+    const allowMutations = base.remaining.includes('--allow-mutations')
+    const unknown = base.remaining.filter((arg) => arg !== '--allow-mutations')
+    if (unknown.length > 0) throw new Error(`Unknown argument: ${unknown[0]}`)
+
+    process.stderr.write(
+      `[atelier] starting MCP server (projectRoot=${base.projectRoot}, allowMutations=${allowMutations})\n`
+    )
+    const { runMcpServer } = await import('./core/mcp')
+    await runMcpServer({ projectRoot: base.projectRoot, allowMutations })
+    return 0
+  }
+
+  if (command === 'gui') {
+    const base = parseBase(
+      [subcommand, ...restRaw].filter(
+        (value): value is string => value !== undefined
+      )
+    )
+    const allowMutations = base.remaining.includes('--allow-mutations')
+    const portArgIndex = base.remaining.indexOf('--port')
+    const portValue = portArgIndex >= 0 ? base.remaining[portArgIndex + 1] : undefined
+    const hostArgIndex = base.remaining.indexOf('--host')
+    const hostValue = hostArgIndex >= 0 ? base.remaining[hostArgIndex + 1] : undefined
+    const unknown = base.remaining.filter(
+      (arg, index) =>
+        arg !== '--allow-mutations' &&
+        arg !== '--port' &&
+        arg !== '--host' &&
+        !(portArgIndex >= 0 && index === portArgIndex + 1) &&
+        !(hostArgIndex >= 0 && index === hostArgIndex + 1)
+    )
+    if (unknown.length > 0) throw new Error(`Unknown argument: ${unknown[0]}`)
+
+    const port = portValue ? Number.parseInt(portValue, 10) : 4173
+    if (!Number.isFinite(port)) throw new Error(`Invalid port: ${portValue}`)
+    const host = hostValue ?? '127.0.0.1'
+    const projectRoot = base.projectRoot
+
+    const { startGuiServer } = await import('./core/gui-server')
+    const server = startGuiServer({
+      projectRoot,
+      allowMutations,
+      host,
+      port,
+    })
+    process.stderr.write(
+      `[atelier] GUI server listening at http://${host}:${server.port} (projectRoot=${projectRoot}, allowMutations=${allowMutations})\n`
+    )
+    const shutdown = () => {
+      server.stop()
+      process.exit(0)
+    }
+    process.on('SIGINT', shutdown)
+    process.on('SIGTERM', shutdown)
+    await new Promise(() => {})
   }
 
   console.log(usage())

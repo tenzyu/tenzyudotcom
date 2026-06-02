@@ -70,11 +70,43 @@
       },
       "cache": false
     },
+    "run-status": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/atelier",
+        "command": "bun run ./src/cli.ts run status --project-root ../../.."
+      },
+      "cache": false
+    },
     "run-close": {
       "executor": "nx:run-commands",
       "options": {
         "cwd": "product/apps/atelier",
         "command": "bun run ./src/cli.ts run close --project-root ../../.."
+      },
+      "cache": false
+    },
+    "repo-owner": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/atelier",
+        "command": "bun run ./src/cli.ts repo owner --project-root ../../.."
+      },
+      "cache": false
+    },
+    "mcp": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/atelier",
+        "command": "bun run ./src/cli.ts mcp --project-root ../../.."
+      },
+      "cache": false
+    },
+    "gui": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/atelier",
+        "command": "bun run ./src/cli.ts gui --project-root ../../.."
       },
       "cache": false
     },

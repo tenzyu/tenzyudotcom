@@ -24,6 +24,21 @@
         "ts-node": "10.9.2",
       },
     },
+    "product/apps/atelier": {
+      "name": "@tenzyu/atelier",
+      "version": "0.1.0",
+      "bin": {
+        "atelier": "./src/cli.ts",
+      },
+      "dependencies": {
+        "@modelcontextprotocol/sdk": "catalog:",
+        "zod": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "product/apps/osu-skin-workbench": {
       "name": "@tenzyu/osu-skin-workbench",
       "version": "0.1.0",
@@ -170,6 +185,7 @@
     "@mdx-js/loader": "^3.1.1",
     "@mdx-js/mdx": "^3.1.1",
     "@mdx-js/react": "^3.1.1",
+    "@modelcontextprotocol/sdk": "1.29.0",
     "@next/mdx": "^16.2.6",
     "@storybook/addon-a11y": "10.4.0",
     "@storybook/addon-docs": "10.4.0",
@@ -1424,6 +1440,8 @@
     "@tauri-apps/cli-win32-x64-msvc": ["@tauri-apps/cli-win32-x64-msvc@2.11.2", "", { "os": "win32", "cpu": "x64" }, "sha512-d2JchlFIpZevZVReyqhQOekJmb1UH3rhZ5VX6sH3ty9ETE0TKQavpihvoScUXfKKpW6HZC0MrFGRU0ZtD+w3gA=="],
 
     "@tauri-apps/plugin-dialog": ["@tauri-apps/plugin-dialog@2.7.1", "", { "dependencies": { "@tauri-apps/api": "^2.11.0" } }, "sha512-OK1UBXYt+ojcmxMktzzuyonYIFta8CmAASpX+CA+DTGK24KlHjhYI6x2iOJ/TjZF4N7/ACK1oFmEOjIY9IhzOQ=="],
+
+    "@tenzyu/atelier": ["@tenzyu/atelier@workspace:product/apps/atelier"],
 
     "@tenzyu/linter": ["@tenzyu/linter@workspace:product/packages/linter"],
 

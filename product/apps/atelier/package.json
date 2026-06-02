@@ -6,6 +6,10 @@
   "bin": {
     "atelier": "./src/cli.ts"
   },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "catalog:",
+    "zod": "catalog:"
+  },
   "scripts": {
     "build": "bun build ./src/index.ts ./src/cli.ts --outdir dist --target bun && bun x tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
