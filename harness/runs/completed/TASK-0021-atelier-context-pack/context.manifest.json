@@ -1,0 +1,922 @@
+{
+  "runId": "TASK-0021-atelier-context-pack",
+  "workflowId": "workflow.isolated-run",
+  "roleIds": [
+    "role.domain.harness-engineer",
+    "role.domain.repo-ops-engineer"
+  ],
+  "inputPath": "product/apps/atelier",
+  "intent": "implement compiled context pack modes and expansion logging for Atelier",
+  "selectedDocuments": [
+    {
+      "id": "phase.adr-distillation",
+      "kind": "phase",
+      "path": "harness/actions/phases/adr-distillation.md",
+      "status": "active",
+      "sha256": "4e03b73dde6ee4cd60f87ed21a5315333a2d7df5ab478ef41d2c4db39d7a2ea3",
+      "reasons": [
+        "workflow phase 'phase.adr-distillation'"
+      ],
+      "required": true
+    },
+    {
+      "id": "phase.handoff",
+      "kind": "phase",
+      "path": "harness/actions/phases/handoff.md",
+      "status": "active",
+      "sha256": "bfb6c38ffcc555b5d734348d292049bf952861842c6043be5053b6033045ab3c",
+      "reasons": [
+        "workflow phase 'phase.handoff'"
+      ],
+      "required": true
+    },
+    {
+      "id": "phase.implementation",
+      "kind": "phase",
+      "path": "harness/actions/phases/implementation.md",
+      "status": "active",
+      "sha256": "6125ebb2f2c1e1aaa143e8d151d62aba04ef478a8a088ba94ce3643de0ccbd2a",
+      "reasons": [
+        "workflow phase 'phase.implementation'"
+      ],
+      "required": true
+    },
+    {
+      "id": "phase.intake",
+      "kind": "phase",
+      "path": "harness/actions/phases/intake.md",
+      "status": "active",
+      "sha256": "b4cb7ec034df393cdf421efc499355ed1834976a4287d4be3fc121c5e84a90f3",
+      "reasons": [
+        "workflow phase 'phase.intake'"
+      ],
+      "required": true
+    },
+    {
+      "id": "phase.investigation",
+      "kind": "phase",
+      "path": "harness/actions/phases/investigation.md",
+      "status": "active",
+      "sha256": "5e798c81e0fbc51560fd5339c9eb58cd6a3099799bd23dd9b208031ca6086be5",
+      "reasons": [
+        "workflow phase 'phase.investigation'"
+      ],
+      "required": true
+    },
+    {
+      "id": "phase.knowledge-promotion",
+      "kind": "phase",
+      "path": "harness/actions/phases/knowledge-promotion.md",
+      "status": "active",
+      "sha256": "95707ce8307097e96d33c4517c7939c29a0cfd93479c94c623bad9084e4c661f",
+      "reasons": [
+        "workflow phase 'phase.knowledge-promotion'"
+      ],
+      "required": true
+    },
+    {
+      "id": "phase.planning",
+      "kind": "phase",
+      "path": "harness/actions/phases/planning.md",
+      "status": "active",
+      "sha256": "9a39aac410c2b76583db52841f03c49d931fef31371653606d9fa661ad8db76a",
+      "reasons": [
+        "workflow phase 'phase.planning'"
+      ],
+      "required": true
+    },
+    {
+      "id": "phase.review",
+      "kind": "phase",
+      "path": "harness/actions/phases/review.md",
+      "status": "active",
+      "sha256": "a6ea23562d72f74fbf9fe1470c13073c332f9d3b46e3a415a0f44697b56f69d3",
+      "reasons": [
+        "workflow phase 'phase.review'"
+      ],
+      "required": true
+    },
+    {
+      "id": "phase.verification",
+      "kind": "phase",
+      "path": "harness/actions/phases/verification.md",
+      "status": "active",
+      "sha256": "1d6e74a0a6239629797f9a1b1cc51c197f053a2495b029606f52b7a8023dbd0e",
+      "reasons": [
+        "workflow phase 'phase.verification'"
+      ],
+      "required": true
+    },
+    {
+      "id": "phase.worktree-isolation",
+      "kind": "phase",
+      "path": "harness/actions/phases/worktree-isolation.md",
+      "status": "active",
+      "sha256": "cbe37ef2e33a4935897b6a14b6889419d716c07353bbc3634149ee7e190dca93",
+      "reasons": [
+        "workflow phase 'phase.worktree-isolation'"
+      ],
+      "required": true
+    },
+    {
+      "id": "actions.index",
+      "kind": "canon",
+      "path": "harness/actions/README.md",
+      "status": "active",
+      "sha256": "10adb697d91a26ac0466ea9ef9fb89a3bc913d7c55824a121f49d058ceab1867",
+      "reasons": [
+        "required by role 'role.domain.harness-engineer'"
+      ],
+      "required": true
+    },
+    {
+      "id": "role.domain.harness-engineer",
+      "kind": "role",
+      "path": "harness/actions/roles/domain/harness-engineer.md",
+      "status": "active",
+      "sha256": "e574cba6da955c75e8230d5e1b0dab2805f490c73a0602cbb5b434dd0ab86c50",
+      "reasons": [
+        "requested primary role"
+      ],
+      "required": true
+    },
+    {
+      "id": "role.domain.repo-ops-engineer",
+      "kind": "role",
+      "path": "harness/actions/roles/domain/repo-ops-engineer.md",
+      "status": "active",
+      "sha256": "b5206e0cda66b58337aadfeb6e406ff530159e9d351bfd78a2fee92174ef2471",
+      "reasons": [
+        "requested supporting role"
+      ],
+      "required": true
+    },
+    {
+      "id": "roles.registry",
+      "kind": "canon",
+      "path": "harness/actions/roles/README.md",
+      "status": "active",
+      "sha256": "340bcb5e8d9cc2743de936caed02571b7d63c603bf1bfc0becadfaa80c2c4ebf",
+      "reasons": [
+        "required by role 'role.domain.harness-engineer'"
+      ],
+      "required": true
+    },
+    {
+      "id": "workflow.isolated-run",
+      "kind": "workflow",
+      "path": "harness/actions/workflows/isolated-run.md",
+      "status": "active",
+      "sha256": "5fcd428c8c04e0638c868490127e0a6bad7d3a7e4a554debde051c7dd2d49a75",
+      "reasons": [
+        "requested workflow"
+      ],
+      "required": true
+    },
+    {
+      "id": "workflows.registry",
+      "kind": "canon",
+      "path": "harness/actions/workflows/README.md",
+      "status": "active",
+      "sha256": "55558ace2e78503cbd140d96dcf09cade189c1c29fbbb2b90d62285e4f5f642e",
+      "reasons": [
+        "required by role 'role.domain.harness-engineer'"
+      ],
+      "required": true
+    },
+    {
+      "id": "canon.classification",
+      "kind": "canon",
+      "path": "harness/canon/classification.md",
+      "status": "active",
+      "sha256": "a89f39a02cb0d43208c60cfee36ad2ce32f95677c72501fcd4efb4365812f835",
+      "reasons": [
+        "required by role 'role.domain.harness-engineer'"
+      ],
+      "required": true
+    },
+    {
+      "id": "canon.completion-standard",
+      "kind": "canon",
+      "path": "harness/canon/completion-standard.md",
+      "status": "active",
+      "sha256": "96e09ab868b170e354feac1c8e6ac01046da55015e091a38e236e0582874a3b4",
+      "reasons": [
+        "required by role 'role.domain.harness-engineer'"
+      ],
+      "required": true
+    },
+    {
+      "id": "canon.model",
+      "kind": "canon",
+      "path": "harness/canon/model.md",
+      "status": "active",
+      "sha256": "dfdf85770eaee552a33f9a3427889e02a3a208cd2df6b5888c57e57b981ade89",
+      "reasons": [
+        "required by role 'role.domain.harness-engineer'"
+      ],
+      "required": true
+    },
+    {
+      "id": "knowledge.monorepo.nx",
+      "kind": "knowledge",
+      "path": "harness/knowledge/monorepo/nx.md",
+      "status": "active",
+      "sha256": "6d2191bd8d1283efd0ec1c5343e36ac73e3a208fe3be8cbd19af612316cfd49d",
+      "reasons": [
+        "pinned by role 'role.domain.repo-ops-engineer'",
+        "required by role 'role.domain.repo-ops-engineer'"
+      ],
+      "required": true
+    },
+    {
+      "id": "knowledge.repo-map",
+      "kind": "knowledge",
+      "path": "harness/knowledge/repo-map.md",
+      "status": "active",
+      "sha256": "20e333e5b06a128e10f02ffaf10f1400d54fa756be71b778ecc8ece6d0a83e15",
+      "reasons": [
+        "pinned by role 'role.domain.harness-engineer'",
+        "pinned by role 'role.domain.repo-ops-engineer'",
+        "required by role 'role.domain.repo-ops-engineer'"
+      ],
+      "required": true
+    },
+    {
+      "id": "knowledge.spec.docs.linter",
+      "kind": "knowledge",
+      "path": "harness/knowledge/specs/docs/docs-linter-spec.md",
+      "status": "active",
+      "sha256": "09953707536e50affadb7f2043e79be5a24a6cd47709a68da613e777731cd749",
+      "reasons": [
+        "required by role 'role.domain.repo-ops-engineer'"
+      ],
+      "required": true
+    },
+    {
+      "id": "policy.context-budget",
+      "kind": "policy",
+      "path": "harness/policies/context-budget.md",
+      "status": "active",
+      "sha256": "0eaff0dab4f45aa154dae23f793cc8699935a26732c6821b0e93ba43eae7e28c",
+      "reasons": [
+        "required by role 'role.domain.harness-engineer'"
+      ],
+      "required": true
+    },
+    {
+      "id": "policy.repository",
+      "kind": "policy",
+      "path": "harness/policies/repository.md",
+      "status": "active",
+      "sha256": "414bb888f00de352fe99a0def05def43706cc3a042d7e264b7f98976815a2063",
+      "reasons": [
+        "pinned by role 'role.domain.harness-engineer'",
+        "pinned by role 'role.domain.repo-ops-engineer'",
+        "repository policy",
+        "required by role 'role.domain.harness-engineer'",
+        "required by role 'role.domain.repo-ops-engineer'"
+      ],
+      "required": true
+    },
+    {
+      "id": "policy.tool.git",
+      "kind": "policy",
+      "path": "harness/policies/tools/git.md",
+      "status": "active",
+      "sha256": "6897a04dda3ca6e3e5686856f3ef59075f3954fbb06c0fdb214a2118906f592a",
+      "reasons": [
+        "required by role 'role.domain.repo-ops-engineer'"
+      ],
+      "required": true
+    },
+    {
+      "id": "policy.tool.nx",
+      "kind": "policy",
+      "path": "harness/policies/tools/nx.md",
+      "status": "active",
+      "sha256": "5be8e81d870f87d1ac319e7de68d4104e698809231bafdc42f873c132797e8f9",
+      "reasons": [
+        "required by role 'role.domain.repo-ops-engineer'"
+      ],
+      "required": true
+    },
+    {
+      "id": "policy.tool.tenzyu-linter",
+      "kind": "policy",
+      "path": "harness/policies/tools/tenzyu-linter.md",
+      "status": "active",
+      "sha256": "74866401aa0437b9e3fe53d573ba092bf3495652ab073b2b6835c77deec09cc2",
+      "reasons": [
+        "required by role 'role.domain.repo-ops-engineer'"
+      ],
+      "required": true
+    },
+    {
+      "id": "harness.readme",
+      "kind": "canon",
+      "path": "harness/README.md",
+      "status": "active",
+      "sha256": "ee41a1ff2a78965b4177166a740b11a9f0fd58795c7a8bbe42ffc57fefada082",
+      "reasons": [
+        "required by role 'role.domain.harness-engineer'"
+      ],
+      "required": true
+    },
+    {
+      "id": "knowledge.decision.adr.ai-org-standard",
+      "kind": "knowledge",
+      "path": "harness/knowledge/decisions/adr/0001-ai-org-standard.md",
+      "status": "active",
+      "sha256": "19fae909ce4555d497a1820f7e95d5d26163594bab853319cd47d0a7e722d1c4",
+      "reasons": [
+        "optional role knowledge matched intent 'implement compiled context pack modes and expansion logging for Atelier'"
+      ],
+      "required": false
+    },
+    {
+      "id": "knowledge.decision.adr.ai-org-llm-doc-consolidation",
+      "kind": "knowledge",
+      "path": "harness/knowledge/decisions/adr/0004-ai-org-llm-doc-consolidation.md",
+      "status": "active",
+      "sha256": "145e44cda6275d634919ca67326dcdd90867e8a6ed71199091627e6ae29cdfc0",
+      "reasons": [
+        "optional role knowledge matched intent 'implement compiled context pack modes and expansion logging for Atelier'"
+      ],
+      "required": false
+    },
+    {
+      "id": "knowledge.incidents.index",
+      "kind": "knowledge",
+      "path": "harness/knowledge/incidents/README.md",
+      "status": "active",
+      "sha256": "60dc71d3f5e5a42e5cee0957e4ebf0e4fd1e938b245122dcd48552ec817f6d82",
+      "reasons": [
+        "known problem or incident matched intent"
+      ],
+      "required": false
+    },
+    {
+      "id": "knowledge.index",
+      "kind": "knowledge",
+      "path": "harness/knowledge/index.md",
+      "status": "active",
+      "sha256": "1b881f7f229df116669198497e0a4b1127027868a23d58232e017373376d29c0",
+      "reasons": [
+        "role selectors matched tags, knowledge type, and intent"
+      ],
+      "required": false
+    },
+    {
+      "id": "knowledge.known-problems.index",
+      "kind": "knowledge",
+      "path": "harness/knowledge/known-problems/index.md",
+      "status": "active",
+      "sha256": "046ceee109c05c1fb3948330a1acd6a3cb991a9789c7055144d4861e978c3987",
+      "reasons": [
+        "known problem or incident matched intent"
+      ],
+      "required": false
+    },
+    {
+      "id": "knowledge.product-spec.atelier",
+      "kind": "knowledge",
+      "path": "harness/knowledge/product-specs/atelier/README.md",
+      "status": "active",
+      "sha256": "2e01b06b955e0b10b9044d0f75e4c4bbc0cc01c432344c81918ab5f2f203f699",
+      "reasons": [
+        "role selectors matched tags, knowledge type, and intent"
+      ],
+      "required": false
+    },
+    {
+      "id": "knowledge.product-spec.atelier-roadmap",
+      "kind": "knowledge",
+      "path": "harness/knowledge/product-specs/atelier/ROADMAP.md",
+      "status": "active",
+      "sha256": "6810c581d89b73e75c4011cb9288c80e76c6ec50fee673405a1a44cbe6f7c103",
+      "reasons": [
+        "role selectors matched tags, knowledge type, and intent"
+      ],
+      "required": false
+    },
+    {
+      "id": "knowledge.product-spec.detect-local-first-and-di-violations",
+      "kind": "knowledge",
+      "path": "harness/knowledge/product-specs/others/detect-local-first-and-di-violations.md",
+      "status": "draft",
+      "sha256": "61c08239943dff585ddbfa6a5a07274bb738f0ac3d87ee862b4ce477af880c35",
+      "reasons": [
+        "role selectors matched tags, knowledge type, and intent"
+      ],
+      "required": false
+    },
+    {
+      "id": "knowledge.product-spec.site.lint-symbol-ownership",
+      "kind": "knowledge",
+      "path": "harness/knowledge/product-specs/site/lint-symbol-ownership.md",
+      "status": "active",
+      "sha256": "ee86b8be38714eee993cdd0a7c14d72adaafaeb4d6499096209f91686aea5939",
+      "reasons": [
+        "role selectors matched tags, knowledge type, and intent"
+      ],
+      "required": false
+    },
+    {
+      "id": "knowledge.roadmap",
+      "kind": "knowledge",
+      "path": "harness/knowledge/roadmap.md",
+      "status": "active",
+      "sha256": "c31ec83d8715c2ef85c39ec46dc0ea549ffd7b12fadf850969ca5fd248b12f90",
+      "reasons": [
+        "role selectors matched tags, knowledge type, and intent"
+      ],
+      "required": false
+    },
+    {
+      "id": "knowledge.spec.docs.agents-md-generator",
+      "kind": "knowledge",
+      "path": "harness/knowledge/specs/docs/docs-agents-md-generator.md",
+      "status": "active",
+      "sha256": "0a6cd5623a5d794a048b15281b70b668c92650e1be0ed5e47221172b45cfaa40",
+      "reasons": [
+        "optional role knowledge matched intent 'implement compiled context pack modes and expansion logging for Atelier'"
+      ],
+      "required": false
+    },
+    {
+      "id": "knowledge.spec.docs.rename",
+      "kind": "knowledge",
+      "path": "harness/knowledge/specs/docs/docs-rename.md",
+      "status": "active",
+      "sha256": "948a0b397386b94d380571691dbff614559eb8a4a7c038c362033b82d8973e47",
+      "reasons": [
+        "optional role knowledge matched intent 'implement compiled context pack modes and expansion logging for Atelier'"
+      ],
+      "required": false
+    }
+  ],
+  "skippedDocuments": [
+    {
+      "id": null,
+      "path": "harness/knowledge/known-problems/",
+      "reason": "optional directory or unresolved reference was not expanded"
+    },
+    {
+      "id": "knowledge.rule.intelligence.decision-policy",
+      "path": "harness/knowledge/rules/intelligence/intelligence-decision-policy.md",
+      "reason": "optional role knowledge did not match intent"
+    },
+    {
+      "id": "knowledge.rule.intelligence.harness-memory-model",
+      "path": "harness/knowledge/rules/intelligence/intelligence-harness-memory-model.md",
+      "reason": "optional role knowledge did not match intent"
+    },
+    {
+      "id": null,
+      "path": "harness/legacy/ai-org/",
+      "reason": "optional directory or unresolved reference was not expanded"
+    },
+    {
+      "id": null,
+      "path": "harness/observations/audits/",
+      "reason": "optional directory or unresolved reference was not expanded"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0000-initial-ai-org-standard/brief.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0000-initial-ai-org-standard/handoff.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0000-initial-ai-org-standard/plan.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0000-initial-ai-org-standard/verification.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0000-initial-ai-org-standard/worklog.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0006-ui-react-storybook/brief.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0006-ui-react-storybook/handoff.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0006-ui-react-storybook/verification.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0006-ui-react-storybook/worklog.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0007-castalia-monorepo-alignment/brief.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0007-castalia-monorepo-alignment/handoff.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0007-castalia-monorepo-alignment/verification.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0007-castalia-monorepo-alignment/worklog.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0008-castalia-v0.2-authoring/brief.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0008-castalia-v0.2-authoring/handoff.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0008-castalia-v0.2-authoring/plan.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0008-castalia-v0.2-authoring/verification.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0008-castalia-v0.2-authoring/worklog.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0009-castalia-v0.2.5-launcher-planning/brief.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0009-castalia-v0.2.5-launcher-planning/handoff.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0009-castalia-v0.2.5-launcher-planning/plan.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0009-castalia-v0.2.5-launcher-planning/verification.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0009-castalia-v0.2.5-launcher-planning/worklog.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0010-castalia-v0.2.5-release/brief.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0010-castalia-v0.2.5-release/handoff.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0010-castalia-v0.2.5-release/plan.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0010-castalia-v0.2.5-release/verification.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0010-castalia-v0.2.5-release/worklog.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0011-castalia-v0.2.5-gui-launcher-correction/brief.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0011-castalia-v0.2.5-gui-launcher-correction/handoff.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0011-castalia-v0.2.5-gui-launcher-correction/plan.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0011-castalia-v0.2.5-gui-launcher-correction/verification.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0011-castalia-v0.2.5-gui-launcher-correction/worklog.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0012-worktree-isolation-workflow/brief.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0012-worktree-isolation-workflow/handoff.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0012-worktree-isolation-workflow/verification.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0012-worktree-isolation-workflow/worklog.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0013-ai-org-harness-rebuild/brief.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0013-ai-org-harness-rebuild/handoff.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0013-ai-org-harness-rebuild/plan.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0013-ai-org-harness-rebuild/verification.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0013-ai-org-harness-rebuild/worklog.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0013-castalia-floating-centered-launcher/brief.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0013-castalia-floating-centered-launcher/handoff.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0013-castalia-floating-centered-launcher/verification.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0013-castalia-floating-centered-launcher/worklog.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0013-devshell-env-auto-load/brief.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0013-devshell-env-auto-load/handoff.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0013-devshell-env-auto-load/verification.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0013-ui-storybook-component-catalog/brief.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0013-ui-storybook-component-catalog/handoff.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0013-ui-storybook-component-catalog/plan.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0013-ui-storybook-component-catalog/verification.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0013-ui-storybook-component-catalog/worklog.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0014-osu-skin-workbench-spec-doc/brief.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0014-osu-skin-workbench-spec-doc/handoff.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0014-osu-skin-workbench-spec-doc/verification.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0015-worktree-path-hardening/brief.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0015-worktree-path-hardening/handoff.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0015-worktree-path-hardening/verification.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0015-worktree-path-hardening/worklog.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0016-agents-md-refresh/brief.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0016-agents-md-refresh/handoff.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0016-agents-md-refresh/verification.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0016-agents-md-refresh/worklog.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0017-build-failure-fix/brief.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0017-build-failure-fix/handoff.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0017-build-failure-fix/review.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0017-build-failure-fix/verification.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/TASK-0017-build-failure-fix/worklog.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": "run.task-0018-atelier-m0-m1-app.brief",
+      "path": "harness/runs/completed/TASK-0018-atelier-m0-m1-app/brief.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": "run.task-0018-atelier-m0-m1-app.handoff",
+      "path": "harness/runs/completed/TASK-0018-atelier-m0-m1-app/handoff.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": "run.task-0018-atelier-m0-m1-app.plan",
+      "path": "harness/runs/completed/TASK-0018-atelier-m0-m1-app/plan.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": "run.task-0018-atelier-m0-m1-app.review",
+      "path": "harness/runs/completed/TASK-0018-atelier-m0-m1-app/review.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": "run.task-0018-atelier-m0-m1-app.verification",
+      "path": "harness/runs/completed/TASK-0018-atelier-m0-m1-app/verification.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": "run.task-0018-atelier-m0-m1-app.worklog",
+      "path": "harness/runs/completed/TASK-0018-atelier-m0-m1-app/worklog.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": "run.active.task-0020-atelier-m5-m6.brief",
+      "path": "harness/runs/completed/TASK-0020-atelier-m5-m6/brief.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": "run.active.task-0020-atelier-m5-m6.context",
+      "path": "harness/runs/completed/TASK-0020-atelier-m5-m6/context.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": "run.active.task-0020-atelier-m5-m6.handoff",
+      "path": "harness/runs/completed/TASK-0020-atelier-m5-m6/handoff.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": "run.active.task-0020-atelier-m5-m6.plan",
+      "path": "harness/runs/completed/TASK-0020-atelier-m5-m6/plan.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": "run.active.task-0020-atelier-m5-m6.review",
+      "path": "harness/runs/completed/TASK-0020-atelier-m5-m6/review.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": "run.active.task-0020-atelier-m5-m6.verification",
+      "path": "harness/runs/completed/TASK-0020-atelier-m5-m6/verification.md",
+      "reason": "completed run history is skipped by default"
+    },
+    {
+      "id": "run.active.task-0020-atelier-m5-m6.worklog",
+      "path": "harness/runs/completed/TASK-0020-atelier-m5-m6/worklog.md",
+      "reason": "completed run history is skipped by default"
+    }
+  ],
+  "diagnostics": [],
+  "generatedAt": "2026-06-02T09:36:36.481Z",
+  "budgetEstimate": {
+    "tokens": 25388,
+    "limit": 50000,
+    "exceeded": false
+  },
+  "expandedDocuments": [
+    {
+      "id": "knowledge.product-spec.castalia",
+      "kind": "knowledge",
+      "path": "harness/knowledge/product-specs/castalia/README.md",
+      "status": "active",
+      "sha256": "edf3f8a149921976d4b69c7f1f5240bfe88b9a951ccd417d7c0deb5338aaf569",
+      "reasons": [
+        "expanded by command for run 'TASK-0021-atelier-context-pack'"
+      ],
+      "required": false,
+      "expandedAt": "2026-06-02T09:43:55.890Z"
+    }
+  ]
+}

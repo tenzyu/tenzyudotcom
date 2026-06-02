@@ -9,7 +9,10 @@ export type ContextPreviewOptions = {
   inputPath: string
   intent: string
   requiredOnly?: boolean
+  mode?: ContextMode
 }
+
+export type ContextMode = 'compact' | 'full' | 'linked'
 
 export type SelectedContextDocument = {
   id: string | null
@@ -33,6 +36,7 @@ export type ContextPreview = {
   roleIds: string[]
   inputPath: string
   intent: string
+  mode: ContextMode
   required: SelectedContextDocument[]
   optional: SelectedContextDocument[]
   skipped: SkippedContextDocument[]
@@ -46,6 +50,13 @@ export type ContextPreview = {
 }
 
 const TOKEN_BUDGET = 50_000
+const CONTEXT_MODES = new Set<ContextMode>(['compact', 'full', 'linked'])
+
+export function normalizeContextMode(value: string | undefined): ContextMode {
+  if (value === undefined) return 'compact'
+  if (CONTEXT_MODES.has(value as ContextMode)) return value as ContextMode
+  throw new Error(`Unknown context mode '${value}'. Expected compact, full, or linked.`)
+}
 
 function idOf(document: HarnessDocument) {
   const id = document.frontmatter?.id
@@ -179,6 +190,7 @@ function productSpecMatchesPath(document: HarnessDocument, inputPath: string) {
 export function buildContextPreview(options: ContextPreviewOptions): ContextPreview {
   const projectRoot = path.resolve(options.projectRoot ?? process.cwd())
   const inputPath = normalizedInputPath(projectRoot, options.inputPath)
+  const mode = normalizeContextMode(options.mode)
   const documents = loadHarnessDocuments(projectRoot)
   const documentsById = byId(documents)
   const documentsByPath = byPath(documents)
@@ -306,6 +318,7 @@ export function buildContextPreview(options: ContextPreviewOptions): ContextPrev
     roleIds: options.roleIds,
     inputPath,
     intent: options.intent,
+    mode,
     required: requiredDocuments,
     optional: optionalDocuments,
     skipped: skipped.sort((left, right) => left.path.localeCompare(right.path)),
@@ -321,6 +334,7 @@ export function buildContextPreview(options: ContextPreviewOptions): ContextPrev
       ...options.roleIds.map((roleId) => `--role ${roleId}`),
       `--path ${inputPath}`,
       `--intent ${JSON.stringify(options.intent)}`,
+      `--mode ${mode}`,
     ].join(' '),
   }
 }

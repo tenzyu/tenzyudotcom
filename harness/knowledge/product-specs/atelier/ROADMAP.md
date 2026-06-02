@@ -288,7 +288,8 @@ atelier context preview \
   --workflow workflow.isolated-run \
   --role role.domain.web-app-engineer \
   --path product/apps/web \
-  --intent "fix server action auth"
+  --intent "fix server action auth" \
+  --mode compact
 ```
 
 ### Selection Phases
@@ -330,6 +331,7 @@ atelier context preview ... --json
 - Preview lists skipped broad contexts.
 - Preview warns when selected context exceeds budget.
 - Preview supports `--required-only`.
+- Preview supports `--mode compact`, `--mode full`, and `--mode linked`.
 
 ## M4: Run Init and Context Manifest
 
@@ -344,7 +346,8 @@ atelier run init \
   --workflow workflow.isolated-run \
   --role role.domain.web-app-engineer \
   --path product/apps/web \
-  --intent "fix server action auth"
+  --intent "fix server action auth" \
+  --mode compact
 ```
 
 ### Generated Run Structure
@@ -358,15 +361,24 @@ harness/runs/active/<RUN-ID>/
 
 ### context.md
 
-Must be optimized for agents.
+Must be optimized for agents as the first file they read for the run.
+
+It is not only a selected-source link list and it is not a raw copy of all
+selected source documents. It is a compiled context pack that embeds the
+required constraints, excerpts, procedures, and judgment material needed to
+start the task.
 
 It should include:
 
 - workflow
 - assigned roles
+- agent contract
+- scope
+- compiled required context
 - selected context files
 - exact instructions
 - skipped context
+- expansion policy
 - required artifacts
 - closing command
 
@@ -383,13 +395,27 @@ Must include:
 - sha256 of selected documents
 - generated timestamp
 - budget estimate
+- context mode
+- expansion records
 
 ### Acceptance Criteria
 
 - `run init` creates a deterministic run ID unless a custom ID is provided.
 - Generated `context.md` is readable by an agent without reading the entire harness.
+- Default `context.md` mode is `compact`.
+- `full` mode embeds larger required source bodies when practical.
+- `linked` mode remains available for low-cost human preview.
 - Generated manifest can be checked later for hash mismatch.
 - No full document bodies are copied into the manifest.
+
+### Context Expansion
+
+```bash
+atelier context expand RUN-ID knowledge.rule.example
+```
+
+Expansion must append the new context to `context.md`, record provenance and
+hashes in `context.manifest.json`, and update `worklog.md` when it exists.
 
 ## M5: Run Close and Completion Gate
 

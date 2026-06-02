@@ -1,7 +1,14 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { loadHarnessDocuments, sha256Text, toPosixPath } from './docs'
-import { buildContextPreview, type ContextPreview, type ContextPreviewOptions } from './context'
+import {
+  buildContextPreview,
+  normalizeContextMode,
+  type ContextMode,
+  type ContextPreview,
+  type ContextPreviewOptions,
+  type SelectedContextDocument,
+} from './context'
 import { parseFrontmatter } from './frontmatter'
 import { runDoctor } from './doctor'
 import { asStringArray, type Diagnostic, type HarnessDocument } from './schema'
@@ -36,12 +43,29 @@ export type RunCloseResult = {
   diagnostics: Diagnostic[]
 }
 
+export type ContextExpandOptions = {
+  projectRoot?: string
+  runId: string
+  reference: string
+}
+
+export type ContextExpandResult = {
+  runId: string
+  runPath: string
+  contextPath: string
+  manifestPath: string
+  expandedDocument: SelectedContextDocument
+  alreadyExpanded: boolean
+}
+
 type RunManifest = {
   runId?: unknown
   workflowId?: unknown
   roleIds?: unknown
   inputPath?: unknown
+  contextMode?: unknown
   selectedDocuments?: unknown
+  expandedDocuments?: unknown
 }
 
 type ManifestDocument = {
@@ -68,12 +92,112 @@ function markdownList(items: readonly string[]) {
   return items.map((item) => `- ${item}`).join('\n')
 }
 
+function documentId(document: HarnessDocument) {
+  const id = document.frontmatter?.id
+  return typeof id === 'string' && id.trim() ? id.trim() : null
+}
+
 function yamlString(value: string) {
   return JSON.stringify(value)
 }
 
 function textOf(value: unknown) {
   return typeof value === 'string' ? value : null
+}
+
+function byDocumentPath(documents: HarnessDocument[]) {
+  return new Map(documents.map((document) => [document.relativePath, document] as const))
+}
+
+function resolveSelectedDocument(
+  selected: SelectedContextDocument,
+  documentsByPath: Map<string, HarnessDocument>,
+) {
+  return documentsByPath.get(selected.path)
+}
+
+function truncate(value: string, limit: number) {
+  if (value.length <= limit) return value
+  return `${value.slice(0, limit).trimEnd()}\n\n[Excerpt truncated. Expand the source when this task needs more detail.]`
+}
+
+function extractHeadingSections(body: string, headings: readonly string[]) {
+  const wanted = new Set(headings.map((heading) => heading.toLowerCase()))
+  const lines = body.split(/\r?\n/)
+  const sections: string[] = []
+
+  for (let index = 0; index < lines.length; index += 1) {
+    const match = lines[index]?.match(/^(#{1,6})\s+(.+)$/)
+    if (!match?.[1] || !match[2]) continue
+    const heading = match[2].trim().toLowerCase()
+    if (!wanted.has(heading)) continue
+
+    const level = match[1].length
+    const section = [lines[index]]
+    for (const line of lines.slice(index + 1)) {
+      const next = line.match(/^(#{1,6})\s+(.+)$/)
+      if (next?.[1] && next[1].length <= level) break
+      section.push(line)
+    }
+    sections.push(section.join('\n').trim())
+  }
+
+  return sections.join('\n\n').trim()
+}
+
+function compactDocumentBody(document: HarnessDocument) {
+  const kind = textOf(document.frontmatter?.kind)
+  const body = document.body.trim()
+  const preferred =
+    kind === 'role'
+      ? extractHeadingSections(body, ['Mission', 'Primary scope', 'Forbidden default scope', 'Outputs', 'Review criteria'])
+      : kind === 'workflow'
+        ? extractHeadingSections(body, ['Purpose', 'Completion standard'])
+        : kind === 'policy'
+          ? extractHeadingSections(body, ['Rules', 'Core boundaries', 'Standard checks', 'Broad Validation'])
+          : kind === 'knowledge'
+            ? extractHeadingSections(body, ['Rule', 'Rules', 'Requirements', 'Required behavior', 'Implementation Notes', 'Completion standard'])
+            : ''
+
+  return truncate((preferred || body || document.raw).trim(), 2200)
+}
+
+function fullDocumentBody(document: HarnessDocument) {
+  return truncate((document.body.trim() || document.raw).trim(), 12_000)
+}
+
+function renderCompiledDocument(
+  selected: SelectedContextDocument,
+  document: HarnessDocument | undefined,
+  mode: ContextMode,
+) {
+  const title = selected.title ?? selected.id ?? selected.path
+  const source = [
+    `Source: \`${selected.path}\``,
+    selected.id ? `ID: \`${selected.id}\`` : null,
+    `Reason: ${selected.reasons.join('; ')}`,
+  ]
+    .filter((line): line is string => line !== null)
+    .join('\n')
+
+  if (mode === 'linked') {
+    return [`### ${title}`, '', source, '', 'Expand this source only when the task needs more detail.'].join('\n')
+  }
+
+  if (!document) {
+    return [`### ${title}`, '', source, '', 'Selected source was not available while rendering this context pack.'].join('\n')
+  }
+
+  const compiled = mode === 'full' ? fullDocumentBody(document) : compactDocumentBody(document)
+  return [`### ${title}`, '', source, '', 'Compiled context:', '', '```md', compiled, '```'].join('\n')
+}
+
+function recommendedVerification(inputPath: string) {
+  const app = inputPath.match(/^product\/apps\/([^/]+)/)?.[1]
+  if (!app) {
+    return ['bun nx affected -t check', 'bun run policy:deps']
+  }
+  return [`bun nx run ${app}:check`, `bun nx run ${app}:build`, 'bun run policy:deps when the change is broad']
 }
 
 function readJsonFile(filePath: string): unknown {
@@ -85,8 +209,11 @@ function isSha256(value: unknown): value is string {
 }
 
 function manifestDocuments(manifest: RunManifest): ManifestDocument[] {
-  if (!Array.isArray(manifest.selectedDocuments)) return []
-  return manifest.selectedDocuments
+  const rawDocuments = [
+    ...(Array.isArray(manifest.selectedDocuments) ? manifest.selectedDocuments : []),
+    ...(Array.isArray(manifest.expandedDocuments) ? manifest.expandedDocuments : []),
+  ]
+  return rawDocuments
     .map((document) => {
       if (document === null || typeof document !== 'object') return null
       const record = document as Record<string, unknown>
@@ -96,6 +223,10 @@ function manifestDocuments(manifest: RunManifest): ManifestDocument[] {
       return { path: documentPath, sha256 }
     })
     .filter((document): document is ManifestDocument => document !== null)
+}
+
+function manifestRecord(filePath: string): RunManifest {
+  return readJsonFile(filePath) as RunManifest
 }
 
 function artifactPath(runPath: string, artifact: string) {
@@ -140,6 +271,36 @@ function documentById(documents: HarnessDocument[]) {
       })
       .filter((entry): entry is readonly [string, HarnessDocument] => entry !== null),
   )
+}
+
+function resolveDocumentReference(projectRoot: string, reference: string, documents: HarnessDocument[]) {
+  const byId = documentById(documents)
+  const byPath = byDocumentPath(documents)
+  const clean = reference.replace(/^['"]|['"]$/g, '').replace(/\/$/, '')
+  const relative = path.isAbsolute(clean) ? toPosixPath(path.relative(projectRoot, clean)) : clean
+  return byId.get(clean) ?? byPath.get(relative) ?? byPath.get(`${relative}.md`)
+}
+
+function selectedFromDocument(document: HarnessDocument, reasons: string[]): SelectedContextDocument {
+  return {
+    id: documentId(document),
+    kind: textOf(document.frontmatter?.kind),
+    path: document.relativePath,
+    title: textOf(document.frontmatter?.title),
+    status: textOf(document.frontmatter?.status),
+    sha256: document.sha256,
+    reasons,
+    tokenEstimate: Math.ceil(document.raw.length / 4),
+  }
+}
+
+function renderExpandedContext(document: SelectedContextDocument, source: HarnessDocument, mode: ContextMode) {
+  return [
+    '',
+    `## Expanded Context: ${document.title ?? document.id ?? document.path}`,
+    '',
+    renderCompiledDocument(document, source, mode),
+  ].join('\n')
 }
 
 function workflowRequiresReview(projectRoot: string, workflowId: string | null) {
@@ -194,37 +355,8 @@ function renderBrief(runId: string, options: RunInitOptions) {
   ].join('\n')
 }
 
-function renderContext(runId: string, preview: ContextPreview) {
+function renderLinkedContext(preview: ContextPreview) {
   return [
-    '---',
-    'schema: harness/v1',
-    'kind: run',
-    `id: run.active.${runId.toLowerCase()}.context`,
-    `title: ${yamlString(`${runId} Context`)}`,
-    'status: active',
-    `summary: ${yamlString(`Context manifest for ${preview.intent}`)}`,
-    'tags:',
-    '  - harness',
-    '  - context',
-    '---',
-    '',
-    `# Context: ${runId}`,
-    '',
-    '## Assignment',
-    '',
-    `- Workflow: \`${preview.workflowId}\``,
-    `- Roles: ${preview.roleIds.map((roleId) => `\`${roleId}\``).join(', ')}`,
-    `- Path: \`${preview.inputPath}\``,
-    `- Intent: ${preview.intent}`,
-    '',
-    '## Exact Instructions',
-    '',
-    '- Read only the required context first.',
-    '- Load optional context only when the reason matches the concrete task.',
-    '- Keep edits scoped to the input path and selected role boundaries unless investigation proves a broader change is required.',
-    '- Record verification evidence before claiming completion.',
-    '- Update `handoff.md` with changed files, validation, risks, and follow-ups.',
-    '',
     '## Required Context',
     '',
     markdownList(preview.required.map((document) => `\`${document.path}\` - ${document.reasons.join('; ')}`)),
@@ -236,6 +368,95 @@ function renderContext(runId: string, preview: ContextPreview) {
     '## Skipped Context',
     '',
     markdownList(preview.skipped.slice(0, 80).map((document) => `\`${document.path}\` - ${document.reason}`)),
+  ].join('\n')
+}
+
+function renderContext(projectRoot: string, runId: string, runPath: string, preview: ContextPreview) {
+  const documentsByPath = byDocumentPath(loadHarnessDocuments(projectRoot))
+  const mode = normalizeContextMode(preview.mode)
+  const requiredContext =
+    mode === 'linked'
+      ? renderLinkedContext(preview)
+      : preview.required
+          .map((selected) => renderCompiledDocument(selected, resolveSelectedDocument(selected, documentsByPath), mode))
+          .join('\n\n')
+
+  return [
+    '---',
+    'schema: harness/v1',
+    'kind: run',
+    `id: run.active.${runId.toLowerCase()}.context`,
+    `title: ${yamlString(`${runId} Context`)}`,
+    'status: active',
+    `summary: ${yamlString(`Compiled context pack for ${preview.intent}`)}`,
+    'tags:',
+    '  - harness',
+    '  - context',
+    '---',
+    '',
+    `# Context: ${runId}`,
+    '',
+    '## Agent Contract',
+    '',
+    '- Read this file first and use it as the initial working context pack.',
+    '- Do not manually scan `harness/knowledge/**` before following this context.',
+    '- Read additional files only when this context says to expand, investigation proves this pack is insufficient, or a command/error references uncovered context.',
+    '- When expanding context, run `atelier context expand <RUN-ID> <DOC-ID-OR-PATH>` when possible and record the reason in `worklog.md`.',
+    '',
+    '## Run',
+    '',
+    `- Workflow: \`${preview.workflowId}\``,
+    `- Roles: ${preview.roleIds.map((roleId) => `\`${roleId}\``).join(', ')}`,
+    `- Target path: \`${preview.inputPath}\``,
+    `- Intent: ${preview.intent}`,
+    `- Context mode: \`${mode}\``,
+    '',
+    '## Scope',
+    '',
+    'Allowed by default:',
+    '',
+    markdownList([preview.inputPath, toPosixPath(path.relative(projectRoot, runPath))].map((allowed) => `\`${allowed}\``)),
+    '',
+    'Forbidden by default:',
+    '',
+    markdownList([
+      'unrelated product apps or packages',
+      'dependency changes unless the task requires them',
+      'broad harness restructuring outside this run',
+      'completed run history unless diagnosing a repeated harness problem',
+    ]),
+    '',
+    '## Compiled Required Context',
+    '',
+    requiredContext || '- None',
+    '',
+    '## Expansion Policy',
+    '',
+    'Optional sources are not embedded by default. Expand only when their reason matches the concrete task.',
+    '',
+    markdownList(preview.optional.map((document) => `\`${document.path}\` - ${document.reasons.join('; ')}`)),
+    '',
+    'Skipped sources:',
+    '',
+    markdownList(preview.skipped.slice(0, 80).map((document) => `\`${document.path}\` - ${document.reason}`)),
+    '',
+    '## Investigation Steps',
+    '',
+    '- Identify the concrete files and exported surfaces involved.',
+    '- Check whether selected constraints apply before editing.',
+    '- Record findings and any context expansion in `worklog.md`.',
+    '- Update `brief.md` or `plan.md` before expanding scope materially.',
+    '',
+    '## Implementation Steps',
+    '',
+    '- Keep edits scoped to the target path and assigned role boundaries.',
+    '- Preserve repository dependency boundaries and local project conventions.',
+    '- Avoid unrelated refactors.',
+    '- Record verification evidence before claiming completion.',
+    '',
+    '## Verification',
+    '',
+    markdownList(recommendedVerification(preview.inputPath).map((command) => `\`${command}\``)),
     '',
     '## Required Artifacts',
     '',
@@ -263,6 +484,7 @@ function manifest(runId: string, preview: ContextPreview) {
     roleIds: preview.roleIds,
     inputPath: preview.inputPath,
     intent: preview.intent,
+    contextMode: preview.mode,
     selectedDocuments: [...preview.required, ...preview.optional].map((document) => ({
       id: document.id,
       kind: document.kind,
@@ -272,6 +494,7 @@ function manifest(runId: string, preview: ContextPreview) {
       reasons: document.reasons,
       required: preview.required.some((required) => required.path === document.path),
     })),
+    expandedDocuments: [],
     skippedDocuments: preview.skipped,
     diagnostics: preview.diagnostics,
     generatedAt: new Date().toISOString(),
@@ -300,7 +523,7 @@ export function initRun(options: RunInitOptions): RunInitResult {
   const manifestPath = path.join(runPath, 'context.manifest.json')
 
   writeFileSync(briefPath, `${renderBrief(runId, options)}\n`)
-  writeFileSync(contextPath, `${renderContext(runId, preview)}\n`)
+  writeFileSync(contextPath, `${renderContext(projectRoot, runId, runPath, preview)}\n`)
   writeFileSync(manifestPath, `${JSON.stringify(manifest(runId, preview), null, 2)}\n`)
 
   return {
@@ -310,6 +533,69 @@ export function initRun(options: RunInitOptions): RunInitResult {
     contextPath,
     briefPath,
     preview,
+  }
+}
+
+export function expandRunContext(options: ContextExpandOptions): ContextExpandResult {
+  const projectRoot = path.resolve(options.projectRoot ?? process.cwd())
+  const runPath = path.join(projectRoot, 'harness/runs/active', options.runId)
+  if (!existsSync(runPath)) {
+    throw new Error(`Active run was not found: harness/runs/active/${options.runId}`)
+  }
+
+  const manifestPath = artifactPath(runPath, 'context.manifest.json')
+  const contextPath = artifactPath(runPath, 'context.md')
+  if (!existsSync(manifestPath)) {
+    throw new Error(`Run context manifest is missing: harness/runs/active/${options.runId}/context.manifest.json`)
+  }
+  if (!existsSync(contextPath)) {
+    throw new Error(`Run context file is missing: harness/runs/active/${options.runId}/context.md`)
+  }
+
+  const documents = loadHarnessDocuments(projectRoot)
+  const source = resolveDocumentReference(projectRoot, options.reference, documents)
+  if (!source) {
+    throw new Error(`Context expansion source was not found: ${options.reference}`)
+  }
+
+  const currentManifest = manifestRecord(manifestPath)
+  const mode = normalizeContextMode(textOf(currentManifest.contextMode) ?? undefined)
+  const selected = selectedFromDocument(source, [`expanded by command for run '${options.runId}'`])
+  const alreadyExpanded = manifestDocuments(currentManifest).some((document) => document.path === selected.path)
+
+  if (!alreadyExpanded) {
+    const expandedDocuments = Array.isArray(currentManifest.expandedDocuments) ? [...currentManifest.expandedDocuments] : []
+    expandedDocuments.push({
+      id: selected.id,
+      kind: selected.kind,
+      path: selected.path,
+      status: selected.status,
+      sha256: selected.sha256,
+      reasons: selected.reasons,
+      required: false,
+      expandedAt: new Date().toISOString(),
+    })
+    writeFileSync(manifestPath, `${JSON.stringify({ ...currentManifest, expandedDocuments }, null, 2)}\n`)
+    writeFileSync(contextPath, `${readFileSync(contextPath, 'utf-8').trimEnd()}\n${renderExpandedContext(selected, source, mode)}\n`)
+  }
+
+  const worklogPath = artifactPath(runPath, 'worklog.md')
+  if (existsSync(worklogPath)) {
+    const expansionLine = `- Expanded context \`${selected.path}\` via \`atelier context expand ${options.runId} ${options.reference}\`.`
+    const current = readFileSync(worklogPath, 'utf-8')
+    if (!current.includes(expansionLine)) {
+      const separator = current.includes('## Context Expansions') ? '\n' : '\n\n## Context Expansions\n\n'
+      writeFileSync(worklogPath, `${current.trimEnd()}${separator}${expansionLine}\n`)
+    }
+  }
+
+  return {
+    runId: options.runId,
+    runPath,
+    contextPath,
+    manifestPath,
+    expandedDocument: selected,
+    alreadyExpanded,
   }
 }
 

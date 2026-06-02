@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 
 import path from 'node:path'
-import { buildContextPreview, type ContextPreview } from './core/context'
+import { buildContextPreview, normalizeContextMode, type ContextPreview } from './core/context'
 import { runDoctor } from './core/doctor'
 import { compileIndexes, type IndexResult } from './core/indexer'
 import {
@@ -10,7 +10,7 @@ import {
   rejectKnowledgeProposal,
   type KnowledgePromotionResult,
 } from './core/knowledge'
-import { closeRun, initRun, type RunCloseResult } from './core/runs'
+import { closeRun, expandRunContext, initRun, type ContextExpandResult, type RunCloseResult } from './core/runs'
 import type { Diagnostic, DoctorReport } from './core/schema'
 
 type BaseOptions = {
@@ -23,8 +23,9 @@ function usage() {
     'Usage:',
     '  atelier doctor [--json] [--fix] [--project-root <path>]',
     '  atelier index [--check] [--project-root <path>]',
-    '  atelier context preview --workflow <id> --role <id> [--role <id>] --path <path> --intent <text> [--required-only] [--json]',
-    '  atelier run init --workflow <id> --role <id> [--role <id>] --path <path> --intent <text> [--id <run-id>] [--json]',
+    '  atelier context preview --workflow <id> --role <id> [--role <id>] --path <path> --intent <text> [--mode compact|full|linked] [--required-only] [--json]',
+    '  atelier context expand RUN-ID DOC-ID-OR-PATH [--json]',
+    '  atelier run init --workflow <id> --role <id> [--role <id>] --path <path> --intent <text> [--mode compact|full|linked] [--id <run-id>] [--json]',
     '  atelier run close RUN-ID [--json]',
     '  atelier knowledge propose --from-run RUN-ID --kind <type> --title <title> [--tag <tag>] [--evidence <text>] [--why-recur <text>] [--why-not-covered <text>] [--json]',
     '  atelier knowledge promote PROPOSAL_PATH [--json]',
@@ -145,6 +146,7 @@ function printContextPreview(preview: ContextPreview) {
   console.log(`Roles: ${preview.roleIds.join(', ')}`)
   console.log(`Path: ${preview.inputPath}`)
   console.log(`Intent: ${preview.intent}`)
+  console.log(`Mode: ${preview.mode}`)
   console.log(`Token Estimate: ${preview.budgetEstimate.tokens}/${preview.budgetEstimate.limit}`)
 
   console.log('\nRequired Context')
@@ -175,6 +177,15 @@ function printContextPreview(preview: ContextPreview) {
 
   console.log('\nNext Command')
   console.log(preview.nextCommand)
+}
+
+function printContextExpand(result: ContextExpandResult, projectRoot: string) {
+  console.log('Atelier Context Expand')
+  console.log(`Run: ${result.runId}`)
+  console.log(`Status: ${result.alreadyExpanded ? 'already expanded' : 'expanded'}`)
+  console.log(`Document: ${result.expandedDocument.path}`)
+  console.log(`Context: ${path.relative(projectRoot, result.contextPath)}`)
+  console.log(`Manifest: ${path.relative(projectRoot, result.manifestPath)}`)
 }
 
 function printCloseReport(result: RunCloseResult, projectRoot: string) {
@@ -269,6 +280,7 @@ export async function runCli(argv: readonly string[]) {
       inputPath: readRequiredOption(base.remaining, '--path'),
       intent: readRequiredOption(base.remaining, '--intent'),
       requiredOnly: base.remaining.includes('--required-only'),
+      mode: normalizeContextMode(readOptionalOption(base.remaining, '--mode')),
     })
 
     if (base.json) {
@@ -278,6 +290,28 @@ export async function runCli(argv: readonly string[]) {
     }
 
     return hasErrorDiagnostic(preview.diagnostics) ? 1 : 0
+  }
+
+  if (command === 'context' && subcommand === 'expand') {
+    const base = parseBase(restRaw)
+    const runId = base.remaining[0]
+    const reference = base.remaining[1]
+    if (!runId || !reference) throw new Error('context expand requires RUN-ID and DOC-ID-OR-PATH')
+    if (base.remaining.length > 2) throw new Error(`Unknown argument: ${base.remaining[2]}`)
+
+    const result = expandRunContext({
+      projectRoot: base.projectRoot,
+      runId,
+      reference,
+    })
+
+    if (base.json) {
+      console.log(JSON.stringify(result, null, 2))
+    } else {
+      printContextExpand(result, base.projectRoot)
+    }
+
+    return 0
   }
 
   if (command === 'run' && subcommand === 'init') {
@@ -290,6 +324,7 @@ export async function runCli(argv: readonly string[]) {
       roleIds: roles,
       inputPath: readRequiredOption(base.remaining, '--path'),
       intent: readRequiredOption(base.remaining, '--intent'),
+      mode: normalizeContextMode(readOptionalOption(base.remaining, '--mode')),
       runId: readOptionalOption(base.remaining, '--id'),
     })
 

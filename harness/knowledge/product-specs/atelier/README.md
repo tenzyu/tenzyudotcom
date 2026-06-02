@@ -112,6 +112,16 @@ A run must preserve:
 - generated time
 - required artifacts
 
+`context.md` is the first file an agent should read for a run. It is an
+agent-readable compiled context pack, not a simple link list and not a raw copy
+of every selected source document. It must embed the constraints, procedures,
+excerpts, and judgment material needed to start the task, while preserving paths
+and IDs for provenance and expansion.
+
+`context.manifest.json` is the machine evidence for the pack. It stores source
+paths, IDs, hashes, selection reasons, generated time, budget estimates, and
+later expansion records. It must not become a duplicate body store.
+
 Atelier must generate:
 
 ```text
@@ -120,6 +130,24 @@ harness/runs/active/<RUN-ID>/
   context.md
   context.manifest.json
 ```
+
+Context generation modes:
+
+```text
+compact
+  default mode; embed required constraints and excerpts
+
+full
+  embed required source bodies when practical
+
+linked
+  link-centered mode for low-cost preview or human checks
+```
+
+Additional context may be expanded only when the context pack allows it, the
+investigation proves the pack is insufficient, or a command/error references
+uncovered context. Expansions should be recorded in `context.manifest.json` and
+`worklog.md`.
 
 Additional run artifacts are created or completed later:
 

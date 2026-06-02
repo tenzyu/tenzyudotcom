@@ -5,7 +5,7 @@ import path from 'node:path'
 import { buildContextPreview } from '../core/context'
 import { compileIndexes } from '../core/indexer'
 import { promoteKnowledgeProposal, proposeKnowledge, rejectKnowledgeProposal } from '../core/knowledge'
-import { closeRun, initRun } from '../core/runs'
+import { closeRun, expandRunContext, initRun } from '../core/runs'
 
 function writeMarkdown(root: string, relativePath: string, lines: string[]) {
   const target = path.join(root, relativePath)
@@ -124,6 +124,22 @@ function createFixture(root: string) {
     '',
     'Auth behavior for product/apps/example.',
   ])
+
+  writeMarkdown(root, 'harness/knowledge/rules/example-expand.md', [
+    '---',
+    'schema: harness/v1',
+    'kind: knowledge',
+    'knowledge_type: rule',
+    'id: knowledge.rule.example-expand',
+    'title: Example Expansion Rule',
+    'status: active',
+    'tags:',
+    '  - expansion',
+    '---',
+    '# Example Expansion Rule',
+    '',
+    'Expand-only rule body.',
+  ])
 }
 
 describe('Atelier M2-M4', () => {
@@ -174,7 +190,22 @@ describe('Atelier M2-M4', () => {
     expect(requiredPaths).toContain('harness/policies/repository.md')
     expect(requiredPaths).toContain('harness/knowledge/product-specs/example/README.md')
     expect(optionalPaths).toContain('harness/knowledge/product-specs/example/optional.md')
+    expect(preview.mode).toBe('compact')
     expect(preview.diagnostics).toEqual([])
+  })
+
+  test('supports linked context preview mode', () => {
+    const preview = buildContextPreview({
+      projectRoot: tmpRoot,
+      workflowId: 'workflow.example',
+      roleIds: ['role.domain.example'],
+      inputPath: 'product/apps/example',
+      intent: 'fix auth behavior',
+      mode: 'linked',
+    })
+
+    expect(preview.mode).toBe('linked')
+    expect(preview.nextCommand).toContain('--mode linked')
   })
 
   test('initializes a run with context and manifest files', () => {
@@ -193,10 +224,62 @@ describe('Atelier M2-M4', () => {
 
     const manifest = JSON.parse(readFileSync(result.manifestPath, 'utf-8'))
     expect(manifest.runId).toBe('RUN-example-auth')
+    expect(manifest.contextMode).toBe('compact')
+    expect(manifest.expandedDocuments).toEqual([])
     expect(manifest.selectedDocuments.some((document: { path: string }) => document.path === 'harness/actions/workflows/example.md')).toBe(
       true,
     )
-    expect(readFileSync(result.contextPath, 'utf-8')).toContain('## Required Context')
+    const context = readFileSync(result.contextPath, 'utf-8')
+    expect(context).toContain('## Agent Contract')
+    expect(context).toContain('## Compiled Required Context')
+    expect(context).toContain('Compiled context:')
+    expect(context).toContain('# Repository Policy')
+  })
+
+  test('initializes linked mode runs without embedding compiled excerpts', () => {
+    const result = initRun({
+      projectRoot: tmpRoot,
+      workflowId: 'workflow.example',
+      roleIds: ['role.domain.example'],
+      inputPath: 'product/apps/example',
+      intent: 'fix auth behavior',
+      runId: 'RUN-linked-context',
+      mode: 'linked',
+    })
+
+    const manifest = JSON.parse(readFileSync(result.manifestPath, 'utf-8'))
+    const context = readFileSync(result.contextPath, 'utf-8')
+    expect(manifest.contextMode).toBe('linked')
+    expect(context).toContain('## Required Context')
+    expect(context).not.toContain('```md')
+  })
+
+  test('expands run context and records the expansion in manifest and worklog', () => {
+    const result = initRun({
+      projectRoot: tmpRoot,
+      workflowId: 'workflow.example',
+      roleIds: ['role.domain.example'],
+      inputPath: 'product/apps/example',
+      intent: 'fix auth behavior',
+      runId: 'RUN-expand-context',
+    })
+    writeFileSync(path.join(result.runPath, 'worklog.md'), '# Worklog\n')
+
+    const expansion = expandRunContext({
+      projectRoot: tmpRoot,
+      runId: 'RUN-expand-context',
+      reference: 'knowledge.rule.example-expand',
+    })
+
+    expect(expansion.alreadyExpanded).toBe(false)
+    expect(expansion.expandedDocument.path).toBe('harness/knowledge/rules/example-expand.md')
+
+    const manifest = JSON.parse(readFileSync(result.manifestPath, 'utf-8'))
+    expect(manifest.expandedDocuments.some((document: { path: string }) => document.path === 'harness/knowledge/rules/example-expand.md')).toBe(
+      true,
+    )
+    expect(readFileSync(result.contextPath, 'utf-8')).toContain('## Expanded Context: Example Expansion Rule')
+    expect(readFileSync(path.join(result.runPath, 'worklog.md'), 'utf-8')).toContain('Expanded context')
   })
 
   test('blocks closing non-trivial runs without verification and handoff evidence', () => {
