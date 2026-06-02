@@ -1,18 +1,18 @@
-# Workflow: Worktree Task Isolation
+# Phase: Worktree Isolation
 
-Worktree task isolation makes one task run in one branch, one working tree, and one AI session.
+Worktree isolation makes one task run in one branch, one working tree, and one AI session.
 
-## When To Use
+## When to use
 
-Use this workflow before non-trivial investigation, planning, implementation, review, or validation that may create file changes.
+Use this phase before non-trivial investigation, planning, implementation, review, or validation that may create file changes.
 
 The stable unit of parallel AI work is:
 
 ```txt
-1 task = 1 branch = 1 worktree = 1 AI session
+1 run = 1 branch = 1 worktree = 1 AI session
 ```
 
-## Default Location
+## Default location
 
 Use the repository root as `projectRoot`.
 
@@ -26,7 +26,7 @@ projectRoot/.worktrees/<task-slug>
 
 Do not use `../.worktrees` or any parent-sibling worktree root.
 
-## Branch Naming
+## Branch naming
 
 Use predictable AI task branches:
 
@@ -41,10 +41,10 @@ ai/ui/storybook-normalize
 ai/nix/flake-split
 ai/castalia/prompt-loader
 ai/checks/typecheck-harness
-ai/harness/worktree-task-isolation
+ai/harness/actions-restructure
 ```
 
-## Setup Procedure
+## Setup procedure
 
 From the main repository checkout:
 
@@ -59,7 +59,7 @@ If `git pull --ff-only` is unsafe because the current tree has local changes, st
 
 After creating the worktree, continue the task from the new worktree path, not the original checkout.
 
-## Existing Branch Procedure
+## Existing branch procedure
 
 If the branch already exists:
 
@@ -69,9 +69,9 @@ git worktree add .worktrees/<task-slug> ai/<domain>/<task>
 
 Do not attach two active worktrees to the same branch.
 
-## Required Task Records
+## Required run records
 
-In the task folder, record:
+In the run folder, record:
 
 - branch name
 - worktree path
@@ -80,9 +80,9 @@ In the task folder, record:
 - expected merge target
 - cleanup expectation
 
-`brief.md` or `worklog.md` is enough for this metadata unless the task has a separate plan.
+`brief.md` or `worklog.md` is enough for this metadata unless the run has a separate plan.
 
-## Operating Rules
+## Operating rules
 
 - Do not run multiple unrelated AI tasks in the same working tree.
 - Do not mix unrelated scopes in one task branch.
@@ -91,7 +91,7 @@ In the task folder, record:
 - Treat worktree deletion as cleanup only after useful changes are merged, abandoned, or otherwise preserved.
 - Prefer worktree isolation over creating full local clones for normal same-repository parallel work.
 
-## Merge And Cleanup
+## Merge and cleanup
 
 From the main checkout after review:
 
@@ -103,13 +103,13 @@ git branch -d ai/<domain>/<task>
 
 Use `git branch -D` only when deliberately abandoning an unmerged branch.
 
-## When To Use Local Clones Instead
+## When to use local clones instead
 
 Use a separate local clone only when the task needs stronger isolation than a worktree provides, such as independent `node_modules`, build caches, hooks, `.env` files, or destructive long-running experiments.
 
 Use a bare mirror plus clones only for many repeated clones or agent-farm style automation.
 
-## Local Ignore Guidance
+## Local ignore guidance
 
 For local-only untracked files:
 

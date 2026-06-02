@@ -1,12 +1,18 @@
-# Workflow: Handoff
+# Phase: Handoff
 
 Handoff is the minimum unit of cross-agent continuity.
 
 ## Output
 
-Create or update `handoff.md` in the task folder.
+Create or update:
 
-## Required Sections
+```txt
+handoff.md
+```
+
+Use `../artifacts/templates/handoff.md` when creating a new handoff file.
+
+## Required sections
 
 - task summary
 - what changed
@@ -15,7 +21,7 @@ Create or update `handoff.md` in the task folder.
 - validation result
 - remaining risks
 - follow-up tasks
-- memory updates made or proposed
+- memory or knowledge updates made or proposed
 
 ## Rules
 
@@ -24,3 +30,4 @@ Create or update `handoff.md` in the task folder.
 - Include skipped checks and known failures.
 - Separate completed work from follow-ups.
 - Do not copy raw command noise unless it is needed to diagnose a failure.
+- Handoff should make the next human or agent cheaper.
