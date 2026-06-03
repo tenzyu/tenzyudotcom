@@ -5,7 +5,7 @@ knowledge_type: product-spec
 id: knowledge.product-spec.atelier
 title: Atelier Product Spec
 status: active
-summary: Local harness console and compiler for role-routed agent work in tenzyudotcom.
+summary: Agentic software development control plane for artifact graph reconciliation, governance, verification, and role-routed agent work in tenzyudotcom.
 tags:
   - atelier
   - harness
@@ -26,14 +26,39 @@ freshness:
 
 # Atelier Product Spec
 
-Atelier is the local control plane for the `tenzyudotcom` harness.
+Atelier is an **Agentic Software Development Control Plane**.
 
 It is not an autonomous agent.  
 It is not a generic RAG system.  
 It is not a Markdown CMS.  
-It is not the source of truth for repository policy.
+It is not a standalone source of truth outside the repository.
 
-Atelier exists to make the Markdown-based harness executable, inspectable, reproducible, and difficult to corrupt.
+Atelier manages project knowledge, governance, tasks, agents, checks, skills,
+permissions, hooks, and runtime traces as a continuously reconciled artifact
+graph.
+
+Humans act as product owners. Agents perform implementation work. Atelier keeps
+the system coherent, governed, observable, and progressively automatable.
+
+In Japanese:
+
+```text
+Atelier は、LLMエージェントによるソフトウェア開発を、
+知識・権限・タスク・検証・実行・協調の面から制御する
+Agentic Software Development Control Plane である。
+```
+
+The previous model, "Markdown as source of truth / Atelier as compiler", remains
+useful as the v1 adoption path. It is no longer the final product definition.
+The final model is:
+
+```text
+system state = Git working tree + Atelier Artifact Graph + Event Log
+```
+
+Markdown, checks, skills, linters, hooks, permissions, roles, tasks, runs, and
+traces are all artifacts that Atelier observes, relates, reconciles, and may
+materialize.
 
 ## 1. Problem
 
@@ -79,6 +104,56 @@ Atelier is the tool that makes this loop operational.
 ## 2. Goals
 
 Atelier must reduce the cost of using and maintaining the harness.
+
+Atelier must grow from the current Knowledge Plane and Role Context Compiler
+into a control system composed of:
+
+```text
+Atelier =
+  Knowledge Plane
+  + Governance Plane
+  + Verification Plane
+  + Task / Product Plane
+  + Swarm Coordination Plane
+  + Agent Runtime Plane
+  + Human Product Owner UI
+```
+
+The kernel underneath those planes is:
+
+```text
+Core Kernel:
+  Artifact Graph
+  Event Log
+  Reconciler
+  Selector
+  Policy Engine
+  Materializer
+  Trace
+```
+
+The current implementation covers the first useful slice of this system:
+Knowledge Plane, Verification Plane, Role Context Compiler, run lifecycle, MCP,
+and an initial GUI.
+
+### 2.0 Control Plane Coherence
+
+Atelier must continuously reconcile project control artifacts instead of only
+compiling Markdown into generated files.
+
+It must:
+
+- observe source files, generated files, control files, run records, and task
+  records
+- identify which Artifact each change affects
+- preserve lineage across moves, renames, edits, and deletions
+- classify risk before asking humans for decisions
+- auto-reconcile low-risk changes
+- create advisory findings or tasks for medium-risk drift
+- require human decisions only for product intent, high-risk policy changes,
+  destructive operations, and unresolved ambiguity
+- block operations that violate explicit path, command, secret, or permission
+  policy
 
 ### 2.1 Context Selection
 
@@ -211,8 +286,8 @@ Atelier must be usable by humans, shell scripts, and agents.
 The same core operations must be available through:
 
 - CLI
-- future MCP server
-- future GUI
+- MCP server
+- GUI
 - generated skills or adapter documents
 
 Atelier must not require a specific agent runtime.
@@ -221,20 +296,44 @@ Atelier must not require a specific agent runtime.
 
 Atelier must not become:
 
-- a generic autonomous agent runtime
+- an uncontrolled generic autonomous agent runtime
 - a chat UI
 - a vector database first system
 - a generic note-taking app
 - a replacement for Git
 - a replacement for Nx, Bun, or existing repo tooling
-- a source of truth separate from the repository
+- a source of truth outside Git and the repository artifact graph
 - a UI-only stateful database
 - a system that requires all completed runs to be migrated to a strict schema
 - a system that forces every small code change to create new durable knowledge
 
-Atelier may later expose MCP tools or a GUI, but the first implementation must be CLI-first and file-backed.
+Atelier may expose CLI, MCP, GUI, hooks, and agent-runtime surfaces, but those
+surfaces must call the same core operations and must not create independent
+state.
 
 ## 4. Core Principles
+
+### 4.0 System State Is Not Markdown Alone
+
+Markdown is one important artifact type, not the complete source of truth.
+
+The final Atelier state model is:
+
+```text
+source of truth = Git working tree + Atelier Artifact Graph + Event Log
+```
+
+This matters because real projects change through many channels:
+
+- Markdown is edited, moved, or deleted.
+- Checks, skills, linters, hooks, permissions, and roles are edited by humans or
+  agents.
+- Tasks are created, delegated, completed, or abandoned.
+- LLM runs produce traces, failures, proposals, and generated files.
+- Directory structure changes may touch hundreds of files at once.
+
+Atelier must treat all of those as artifact events and reconcile the project
+state from the combined evidence.
 
 ### 4.1 Markdown Is Authoring Source, Not the Database
 
@@ -259,6 +358,17 @@ Markdown should not manually carry derived data such as:
 - generated role bundles
 
 Derived data belongs under `.harness/generated`.
+
+Durable Atelier control state belongs under tracked repository paths, not under
+the ignored generated cache. The initial durable state root is:
+
+```text
+harness/atelier/
+  graph.json
+  events.ndjson
+```
+
+`.harness/generated` remains a rebuildable projection/cache.
 
 ### 4.2 One-Way Authored References
 
@@ -369,6 +479,9 @@ The current source-contract policy is intentionally asymmetric. It minimizes man
 
 ```text
 harness/
+  atelier/
+    graph.json
+    events.ndjson
   canon/
   knowledge/
   policies/
@@ -417,13 +530,205 @@ product/apps/atelier/
   src/cli.ts
 ```
 
-The app must keep core operations reusable from CLI, future MCP tools, and future GUI surfaces.
+The app must keep core operations reusable from CLI, MCP tools, and GUI surfaces.
 
 If the code becomes useful outside the app boundary, only the shared core may later be promoted to a package. The UI, when added, must call the same core operations and must not become a separate source of truth.
 
+### 5.4 Artifact Graph Kernel
+
+The central data structure is the Artifact Graph.
+
+Minimum artifact shape:
+
+```text
+Artifact:
+  id
+  kind
+  path
+  contentHash
+  metadata
+  ownership
+  status
+```
+
+Initial artifact kinds:
+
+```text
+markdown
+knowledge
+check
+skill
+linter
+role
+task
+permission
+hook
+agent
+team
+run
+trace
+source-file
+generated-file
+decision
+product-intent
+control-mechanism
+```
+
+Minimum edge shape:
+
+```text
+Edge:
+  from
+  to
+  kind
+  confidence
+  source
+```
+
+Initial edge kinds:
+
+```text
+derives_from
+implements
+satisfies
+guards
+validates
+selects
+scopes
+supersedes
+conflicts_with
+observed_from
+emitted_as
+edited_by
+```
+
+Atelier must not assume Markdown is the only parent of operational controls. A
+linter rule, hook, permission file, CI gate, check, test, skill, or run trace can
+also reveal project knowledge.
+
+### 5.5 Event Log
+
+The Event Log records observations that explain graph state.
+
+Initial events:
+
+```text
+file_changed
+file_moved
+file_deleted
+artifact_observed
+artifact_edited
+artifact_deleted
+artifact_emitted
+run_started
+run_completed
+rule_changed
+policy_decision
+reconciliation_finding
+```
+
+The event log must be append-only for durable history. Rebuildable graph
+snapshots may be materialized from the working tree and event log.
+
+### 5.6 Ownership Modes
+
+Every artifact has an ownership mode:
+
+```text
+observed
+  Atelier reads the artifact but does not write it.
+
+generated
+  Atelier may fully regenerate it.
+
+managed
+  Atelier owns specific marked ranges or records.
+
+curated
+  Humans or agents may edit it; Atelier rereads it and reconciles downstream effects.
+
+external
+  External tools own it; Atelier observes and respects it.
+
+deprecated
+  Kept for history but not selected for new work by default.
+```
+
+Checks, skills, linters, hooks, and permission rules should usually become
+`curated`, not permanently `generated`. A curated edit is not automatically
+drift; it may be new knowledge.
+
+### 5.7 Reconciler
+
+The Reconciler interprets change and chooses the lowest-friction safe action.
+
+Risk actions:
+
+```text
+silent
+  No user-facing action or automatic lineage update only.
+
+auto-reconcile
+  Update graph state and derived projections automatically.
+
+advisory
+  Surface a warning without blocking work.
+
+task
+  Create or suggest a follow-up task.
+
+human-decision
+  Ask a human product owner or maintainer for a specific decision.
+
+block
+  Stop execution because explicit policy would be violated.
+```
+
+Deletion is first-class. A deleted Markdown file, check, skill, linter, hook,
+role, or permission can mean:
+
+```text
+intentional removal
+move / rename
+replacement
+accidental deletion
+policy violation
+```
+
+Atelier must use deterministic signals before semantic interpretation:
+
+```text
+Level 0: Exact
+  hash, id, path, schema, AST, git diff
+
+Level 1: Structural
+  markdown AST, import graph, package graph, command graph, dependency graph
+
+Level 2: Rule-based
+  selectors, path rules, command rules, permission rules
+
+Level 3: Heuristic
+  similarity, rename detection, scope inference, stale detection
+
+Level 4: Cached Semantic
+  previous summaries, block embeddings, known classifications
+
+Level 5: LLM Semantic
+  ambiguous classification, meaning diff, intent inference
+
+Level 6: Human
+  product judgment, priority, risk tolerance, dangerous change approval
+```
+
+Programmatic certainty wins over LLM interpretation. Human attention is reserved
+for product value, high-risk governance, destructive operations, and unresolved
+intent.
+
 ## 6. Document Model
 
-Atelier treats harness Markdown as Markdown-backed objects.
+Atelier v1 treats harness Markdown as Markdown-backed objects. This remains the
+current Knowledge Plane and Role Context Compiler implementation, but it is now
+one projection of the broader Artifact Graph model.
 
 ```text
 Markdown document =
@@ -510,6 +815,10 @@ Atelier must preview the change before writing.
 
 Knowledge は **Markdown-backed 意味ノード**であり、本文の意味解釈は LLM に委ねる。
 frontmatter はその知識の**型・接続・選択条件**を宣言する索引兼型注釈である。
+
+This model is the v1 Markdown-backed Knowledge Plane. In v2, Knowledge may also
+be extracted from checks, linters, hooks, CI, package scripts, code structure,
+import graphs, failed runs, review comments, traces, and human decisions.
 
 #### 6.3.1 設計原則
 
@@ -1184,11 +1493,102 @@ atelier repo owner --path product/apps/web
 
 Generates or queries derived repository facts.
 
+### 8.11 Artifact Graph
+
+```bash
+atelier scan
+atelier graph
+atelier impact --path product/packages/ui
+atelier blame ARTIFACT_ID
+atelier status
+```
+
+These commands observe the working tree, build or print the current Artifact
+Graph projection, explain impact, show artifact lineage, and summarize
+reconciliation state.
+
+`scan` must be read-only by default. It may write `harness/atelier/graph.json`
+only through an explicit write mode once the graph schema is stable.
+
+### 8.12 Reconciliation
+
+```bash
+atelier reconcile
+atelier repair --dry-run
+```
+
+`reconcile` reports drift, orphaned controls, deleted sources, replacement
+candidates, and policy risks.
+
+`repair --dry-run` previews safe deterministic repairs. It must not change
+policy semantics, promote knowledge, delete history, or approve dangerous
+permission relaxation.
+
+### 8.13 Control Mechanisms
+
+```bash
+atelier controls list
+atelier controls coverage
+atelier controls missing
+```
+
+Control Mechanism is the umbrella concept for ways Atelier makes knowledge and
+governance operational:
+
+```text
+check
+linter
+typecheck
+test
+hook
+permission
+generator
+codemod
+template
+runtime-guard
+review-rule
+context-selector
+ci-gate
+ui-constraint
+```
+
+Coverage output must answer which knowledge or product intent is guarded by
+which mechanisms, and where enforcement disappeared or became orphaned.
+
 ## 9. Context Selection Algorithm
 
 Atelier context selection must be deterministic first.
 It operates on the **Knowledge Card Model** (6.3): each knowledge document is a typed node in a DAG,
 and the algorithm projects a task-specific tree from an entrypoint by resolving selectors, patterns, relations, and conditions.
+
+In the v2 control-plane model, context selection is a Selector query over the
+Artifact Graph:
+
+```text
+Context = f(role, task, phase, scope, diff, risk, permissions, budget)
+```
+
+Role, Task, Agent, Phase, and Scope must remain separate concepts:
+
+```text
+Role:
+  perspective, responsibility, and knowledge/control set
+
+Task:
+  work to accomplish
+
+Agent:
+  execution subject
+
+Phase:
+  work stage
+
+Scope:
+  affected paths, packages, features, or domains
+```
+
+The existing Knowledge Card selector is the v1 implementation of this broader
+Selector.
 
 ### 9.1 Selection Priority
 
@@ -1358,6 +1758,116 @@ If MCP is unavailable, agents should use CLI.
 
 Root adapters and generated skills must route agents into this protocol.
 
+Future Atelier-controlled agent loops must pass every tool call through
+Governance and Trace:
+
+```text
+1. receive task
+2. resolve role/context/permission
+3. plan
+4. request tools
+5. PreToolUse governance check
+6. execute tool
+7. PostToolUse observation
+8. update artifact graph
+9. run relevant checks
+10. decide continue / delegate / ask / stop
+11. emit trace
+```
+
+The value of Atelier's agent loop is not the ReAct loop itself; it is the
+integration with Artifact Graph, Policy Engine, Task state, and Trace.
+
+### 11.1 Governance Plane
+
+Governance is a peer of Knowledge, not a subfeature.
+
+Initial governance concepts:
+
+```text
+PermissionMode:
+  observe
+  suggest
+  edit
+  restricted-edit
+  autonomous
+  maintainer
+  emergency-stop
+
+PathRule:
+  path glob
+  allowed operations
+  required role
+  required checks
+  approval policy
+
+CommandRule:
+  command pattern
+  risk level
+  allow / deny / ask / sandbox
+  required context
+
+Hook:
+  trigger
+  condition
+  action
+  severity
+
+ApprovalPolicy:
+  when to ask
+  who can approve
+  batchable or not
+  expires or persistent
+```
+
+Approval dialogs are exceptional. Normal flow should be policy-based,
+auto-reconciled, advisory, or task-producing.
+
+### 11.2 Swarm Coordination Plane
+
+Swarm means permissioned division of labor, not uncontrolled parallelism.
+
+Initial concepts:
+
+```text
+Team:
+  available agents
+  capabilities
+  cost profile
+  permission mode
+  preferred tasks
+
+Task:
+  intent
+  scope
+  role
+  phase
+  dependencies
+  status
+  owner
+  assigned agent
+  artifacts
+  checks
+  required outputs
+
+DelegationRule:
+  when to spawn subagent
+  what context to give
+  what tools are allowed
+  expected handoff format
+
+BackgroundRun:
+  lifecycle
+  logs
+  cost
+  retries
+  cancellation
+  stale detection
+```
+
+Subagents should receive reduced context and narrower permissions than the
+parent task whenever possible.
+
 ## 12. MCP Interface
 
 MCP is an adapter, not the core.
@@ -1396,60 +1906,96 @@ They must not duplicate full policies or knowledge bodies.
 
 ## 14. GUI Requirements
 
-A future Atelier GUI should be an inspector and operation launcher.
+The current Atelier GUI is a v1 inspector and operation launcher.
 
-Initial screens:
+The target GUI is an **Artifact Graph Editor** for humans acting as product
+owners and maintainers.
 
-### Doctor
+Target views:
 
-- errors
-- warnings
-- quick fixes
-- affected files
-- stale generated artifacts
+### Knowledge Inventory
 
-### Role Bundle Preview
+- knowledge list
+- source artifacts
+- scope
+- freshness
+- conflicts
+- enforcement coverage
 
-- role
-- pinned docs
-- selected docs
-- optional docs
-- selectors
-- documents no longer reachable
+### Role Matrix
 
-### Context Plan
+- rows: knowledge, skill, rule, or scope
+- columns: role
+- cells: include, exclude, conditional, inherited, deprecated
+- bulk assignment across paths, packages, phases, and roles
 
-- workflow
-- role
-- path
-- intent
-- selected context
-- skipped context
-- token estimate
-- manifest preview
+### Scope Map
 
-### Knowledge Inbox
+- path, package, feature, and domain scopes
+- assigned knowledge
+- assigned controls
+- owner role
+- risk state
 
-- proposals from runs
-- duplicate candidates
-- promote / reject / edit actions
-- impact preview
+### Task Builder
 
-### ID Rename
+- product intent capture
+- task graph creation
+- phase and role assignment
+- agent assignment
+- required outputs and checks
 
-- old ID
-- new ID
-- affected files
-- dry-run diff
-- apply
+### Control Coverage
 
-### Bulk Edit
+- knowledge and intent coverage by checks, linters, hooks, tests, permissions,
+  review rules, context selectors, and CI gates
+- missing controls
+- orphaned controls
+- conflicting controls
 
-- tags
-- status
-- superseded_by
-- scope paths
-- migration preview
+### Drift Dashboard
+
+- edits
+- deletions
+- moves
+- replacements
+- stale derived artifacts
+- reconciliation findings
+- tasks requiring follow-up
+
+### Permission Console
+
+- path-level rules
+- command-level rules
+- tool-level policies
+- approval policy
+- emergency stop state
+
+### Run Trace Viewer
+
+- what agents read
+- what tools they requested
+- what commands ran
+- what policy decisions happened
+- why checks failed
+- graph changes emitted by the run
+
+### Team Registry
+
+- agents
+- roles
+- capabilities
+- cost profiles
+- permission modes
+- delegation rules
+
+### Context Preview
+
+- exact task/role/phase/scope query
+- selected knowledge and controls
+- skipped artifacts
+- token budget
+- permission envelope
 
 The GUI must use Atelier commands or core APIs. It must not store independent source-of-truth state.
 
@@ -1533,7 +2079,7 @@ Large documents may later support generated summaries, but summaries must be tra
 
 ## 17. Acceptance Criteria
 
-Atelier MVP is acceptable when:
+Atelier v1 is acceptable when:
 
 - `atelier doctor` detects broken links, duplicate IDs, stale old paths, and missing references
 - `atelier index` generates `docs.json`, `ids.json`, and `diagnostics.json`
@@ -1546,12 +2092,31 @@ Atelier MVP is acceptable when:
 - root adapters can instruct agents to use Atelier without duplicating long harness policy
 - no completed run history migration is required for MVP
 
+Atelier v2 becomes acceptable when:
+
+- `atelier scan` can observe Markdown, roles, runs, generated files, controls,
+  and source files as artifacts
+- `atelier graph` can emit a stable Artifact Graph projection
+- `atelier status` can summarize graph drift and reconciliation findings
+- `atelier reconcile` can classify move, rename, deletion, replacement,
+  orphaned control, missing enforcement, and dangerous policy relaxation cases
+- `atelier controls coverage` can show which knowledge and product intent is
+  guarded by which control mechanisms
+- context selection can be explained as a Selector query over role, task, phase,
+  scope, diff, risk, permissions, and budget
+- governance rules can block explicit path, command, secret, and permission
+  violations before an agent tool call runs
+- traces explain why Atelier selected context, allowed or blocked a tool call,
+  emitted a task, or asked for human decision
+
 ## 18. Open Questions
 
 - Should generated files be committed or rebuilt locally?
-- Should context manifests store document hashes for generated files only or all selected Markdown?
 - Should `atelier run init` create Git worktrees directly or only instruct the agent to follow the worktree phase?
 - How strict should `doctor` be in CI?
 - Should knowledge proposals live under `.harness/proposals` or under each run folder?
-- Should MCP ship before GUI?
-- Should role selector scoring be deterministic-only in v1, or include optional full-text matching?
+- Which Artifact Graph projections should be committed versus rebuilt locally?
+- Which Event Log events are mandatory for v2 and which are optional trace
+  details?
+- When should curated control edits update durable Knowledge versus remain
+  observed graph facts?

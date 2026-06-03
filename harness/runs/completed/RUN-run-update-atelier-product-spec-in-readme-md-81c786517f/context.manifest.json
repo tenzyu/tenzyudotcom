@@ -1,0 +1,371 @@
+{
+  "runId": "RUN-run-update-atelier-product-spec-in-readme-md-81c786517f",
+  "workflowId": "workflow.isolated-run",
+  "roleIds": [
+    "role.core.implementer"
+  ],
+  "inputPath": ".",
+  "intent": "Update Atelier Product Spec in README.md and ROADMAP.md to position Atelier as an Agentic Software Development Control Plane centered on Artifact Graph, Reconciler, Policy Engine, and Agent Runtime, and prepare the work for implementation.",
+  "contextMode": "compact",
+  "selectedDocuments": [
+    {
+      "id": "phase.handoff",
+      "kind": "phase",
+      "path": "harness/actions/phases/handoff.md",
+      "status": "active",
+      "sha256": "bfb6c38ffcc555b5d734348d292049bf952861842c6043be5053b6033045ab3c",
+      "reasons": [
+        "required workflow phase 'phase.handoff'"
+      ],
+      "required": true
+    },
+    {
+      "id": "phase.implementation",
+      "kind": "phase",
+      "path": "harness/actions/phases/implementation.md",
+      "status": "active",
+      "sha256": "6125ebb2f2c1e1aaa143e8d151d62aba04ef478a8a088ba94ce3643de0ccbd2a",
+      "reasons": [
+        "required workflow phase 'phase.implementation'"
+      ],
+      "required": true
+    },
+    {
+      "id": "phase.intake",
+      "kind": "phase",
+      "path": "harness/actions/phases/intake.md",
+      "status": "active",
+      "sha256": "b4cb7ec034df393cdf421efc499355ed1834976a4287d4be3fc121c5e84a90f3",
+      "reasons": [
+        "required workflow phase 'phase.intake'"
+      ],
+      "required": true
+    },
+    {
+      "id": "phase.investigation",
+      "kind": "phase",
+      "path": "harness/actions/phases/investigation.md",
+      "status": "active",
+      "sha256": "5e798c81e0fbc51560fd5339c9eb58cd6a3099799bd23dd9b208031ca6086be5",
+      "reasons": [
+        "required workflow phase 'phase.investigation'"
+      ],
+      "required": true
+    },
+    {
+      "id": "phase.verification",
+      "kind": "phase",
+      "path": "harness/actions/phases/verification.md",
+      "status": "active",
+      "sha256": "1d6e74a0a6239629797f9a1b1cc51c197f053a2495b029606f52b7a8023dbd0e",
+      "reasons": [
+        "required workflow phase 'phase.verification'"
+      ],
+      "required": true
+    },
+    {
+      "id": "role.core.implementer",
+      "kind": "role",
+      "path": "harness/actions/roles/core/implementer.md",
+      "status": "active",
+      "sha256": "0d636c4e481a8862de3c27cf70d20ab77cc03a98fe807870e75e247d8c905199",
+      "reasons": [
+        "requested primary role"
+      ],
+      "required": true
+    },
+    {
+      "id": "workflow.isolated-run",
+      "kind": "workflow",
+      "path": "harness/actions/workflows/isolated-run.md",
+      "status": "active",
+      "sha256": "0099def4159098554566ef92c7e943c07f707aae68fe619d59cb50eea09b06b7",
+      "reasons": [
+        "requested workflow"
+      ],
+      "required": true
+    },
+    {
+      "id": "policy.repository",
+      "kind": "policy",
+      "path": "harness/policies/repository.md",
+      "status": "active",
+      "sha256": "414bb888f00de352fe99a0def05def43706cc3a042d7e264b7f98976815a2063",
+      "reasons": [
+        "pinned by role 'role.core.implementer'",
+        "repository policy",
+        "required by role 'role.core.implementer'"
+      ],
+      "required": true
+    },
+    {
+      "id": "knowledge.incidents.index",
+      "kind": "knowledge",
+      "path": "harness/knowledge/incidents/README.md",
+      "status": "active",
+      "sha256": "60dc71d3f5e5a42e5cee0957e4ebf0e4fd1e938b245122dcd48552ec817f6d82",
+      "reasons": [
+        "known problem or incident matched metadata signals"
+      ],
+      "required": false
+    },
+    {
+      "id": "knowledge.known-problems.index",
+      "kind": "knowledge",
+      "path": "harness/knowledge/known-problems/index.md",
+      "status": "active",
+      "sha256": "046ceee109c05c1fb3948330a1acd6a3cb991a9789c7055144d4861e978c3987",
+      "reasons": [
+        "known problem or incident matched metadata signals"
+      ],
+      "required": false
+    },
+    {
+      "id": "knowledge.known-problem.harness-known-gaps",
+      "kind": "knowledge",
+      "path": "harness/knowledge/known-problems/tech-debt-tracker.md",
+      "status": "active",
+      "sha256": "65a0bdca1ce8ac3d51b1bb6b9517e0614bbc0c873a4427a8340bebdc75a6c4e9",
+      "reasons": [
+        "known problem or incident matched metadata signals"
+      ],
+      "required": false
+    },
+    {
+      "id": "knowledge.rule.foundation.authored-content-management",
+      "kind": "knowledge",
+      "path": "harness/knowledge/rules/foundations/foundation-authored-content-management.md",
+      "status": "active",
+      "sha256": "c19ce070552827a69c4c20dad2c51da76a41e38851877cab255925a6bf9761bd",
+      "reasons": [
+        "matched role selectors"
+      ],
+      "required": false
+    },
+    {
+      "id": "knowledge.rule.foundation.dependency-inversion",
+      "kind": "knowledge",
+      "path": "harness/knowledge/rules/foundations/foundation-dependency-inversion.md",
+      "status": "active",
+      "sha256": "1468f6421367e586be7a0f8bc5d543e63ea463c3d26885b94a6a55731bd05628",
+      "reasons": [
+        "matched role selectors"
+      ],
+      "required": false
+    },
+    {
+      "id": "knowledge.rule.foundation.owner-placement-layers",
+      "kind": "knowledge",
+      "path": "harness/knowledge/rules/foundations/foundation-owner-placement-layers.md",
+      "status": "active",
+      "sha256": "e57b1bcfc1dea214b2842838a5285f2c54460c7a850bf4dd504ea531313d3d3f",
+      "reasons": [
+        "matched role selectors"
+      ],
+      "required": false
+    },
+    {
+      "id": "knowledge.rule.foundation.promotion-by-usage",
+      "kind": "knowledge",
+      "path": "harness/knowledge/rules/foundations/foundation-promotion-by-usage.md",
+      "status": "active",
+      "sha256": "cc0dfb94342caad84a0278bc8b112c057b71019858a1ea9b3f2c98d29ec06095",
+      "reasons": [
+        "matched role selectors"
+      ],
+      "required": false
+    },
+    {
+      "id": "knowledge.rule.foundation.tool-boundaries",
+      "kind": "knowledge",
+      "path": "harness/knowledge/rules/foundations/foundation-tool-boundaries.md",
+      "status": "active",
+      "sha256": "835bb334098b8e5fff6cd339bbd0869365975907da1176051dc50b36bfec16bf",
+      "reasons": [
+        "matched role selectors"
+      ],
+      "required": false
+    },
+    {
+      "id": "knowledge.rule.implementation.actions-mount-through-assemble",
+      "kind": "knowledge",
+      "path": "harness/knowledge/rules/implementation/impl-actions-mount-through-assemble.md",
+      "status": "active",
+      "sha256": "3aa5dba55ea5aeac65a5d7389439621cd808ae62edcf234104c68795edc6ea66",
+      "reasons": [
+        "matched role selectors"
+      ],
+      "required": false
+    },
+    {
+      "id": "knowledge.rule.implementation.apply-di-before-ui-assembly",
+      "kind": "knowledge",
+      "path": "harness/knowledge/rules/implementation/impl-apply-di-before-ui-assembly.md",
+      "status": "active",
+      "sha256": "ebd2d77e81d4fd9544fff5f3de946621e33b126561064f250ef1ebce4525f6a3",
+      "reasons": [
+        "matched role selectors"
+      ],
+      "required": false
+    },
+    {
+      "id": "knowledge.rule.implementation.component-separation",
+      "kind": "knowledge",
+      "path": "harness/knowledge/rules/implementation/impl-component-separation.md",
+      "status": "active",
+      "sha256": "0829421f0df8619b82edb390147df782915a05db6ba19acfe798d05ec2dd956b",
+      "reasons": [
+        "matched role selectors"
+      ],
+      "required": false
+    },
+    {
+      "id": "knowledge.rule.implementation.editor-errors-and-blog-saving-should-cross-boundaries-via-port",
+      "kind": "knowledge",
+      "path": "harness/knowledge/rules/implementation/impl-editor-errors-and-blog-saving-should-cross-boundaries-via-port.md",
+      "status": "active",
+      "sha256": "6dc28c3637d24edb1e3ab174d669759ce5e2e0b4fb1003fdd927f0c20f54bdf3",
+      "reasons": [
+        "matched role selectors"
+      ],
+      "required": false
+    },
+    {
+      "id": "knowledge.rule.implementation.file-role-contract",
+      "kind": "knowledge",
+      "path": "harness/knowledge/rules/implementation/impl-file-role-contract.md",
+      "status": "active",
+      "sha256": "5fba6b9c92da57fcfa9e3f78297a336c4c43aeb8d86b9f87f93909d9c145ba84",
+      "reasons": [
+        "matched role selectors"
+      ],
+      "required": false
+    },
+    {
+      "id": "knowledge.rule.implementation.site-owned-github-content-assembly",
+      "kind": "knowledge",
+      "path": "harness/knowledge/rules/implementation/impl-site-owned-github-content-assembly.md",
+      "status": "active",
+      "sha256": "e1ca5b9b8cccd98013093e076b0521a2e9526590f727e9098f7dcea3d58a5314",
+      "reasons": [
+        "matched role selectors"
+      ],
+      "required": false
+    },
+    {
+      "id": "knowledge.rule.intelligence.decision-policy",
+      "kind": "knowledge",
+      "path": "harness/knowledge/rules/intelligence/intelligence-decision-policy.md",
+      "status": "active",
+      "sha256": "84476130dc3bdbcd488e082f9469546001becc8093b6b5f424eabcf4fee68582",
+      "reasons": [
+        "matched role selectors"
+      ],
+      "required": false
+    },
+    {
+      "id": "knowledge.rule.reliability.content-version-normalization",
+      "kind": "knowledge",
+      "path": "harness/knowledge/rules/reliability/reliability-content-version-normalization.md",
+      "status": "active",
+      "sha256": "b7816b77110fef4c6d15b051aa0c089cf6ee4e0d4d88f8a52c4bc720446401fa",
+      "reasons": [
+        "matched role selectors"
+      ],
+      "required": false
+    },
+    {
+      "id": "knowledge.rule.reliability.fault-tolerance",
+      "kind": "knowledge",
+      "path": "harness/knowledge/rules/reliability/reliability-fault-tolerance.md",
+      "status": "active",
+      "sha256": "29de3e2019f9f292a152ca31173279f1436542886e6e0d2c39e191225bcecac4",
+      "reasons": [
+        "matched role selectors"
+      ],
+      "required": false
+    },
+    {
+      "id": "knowledge.rule.reliability.metadata-safety",
+      "kind": "knowledge",
+      "path": "harness/knowledge/rules/reliability/reliability-metadata-safety.md",
+      "status": "active",
+      "sha256": "1c4fc60ca4a27f4fe15c52cf41d5f15b9803764c7b106de16bcdbed30041bc20",
+      "reasons": [
+        "matched role selectors"
+      ],
+      "required": false
+    }
+  ],
+  "expandedDocuments": [],
+  "skippedDocuments": [
+    {
+      "id": null,
+      "path": "domain-specific product specs",
+      "reason": "optional directory or unresolved reference was not expanded"
+    },
+    {
+      "id": null,
+      "path": "domain-specific rules named by the assigned domain role",
+      "reason": "optional directory or unresolved reference was not expanded"
+    },
+    {
+      "id": "phase.adr-distillation",
+      "path": "harness/actions/phases/adr-distillation.md",
+      "reason": "conditional workflow phase is not loaded by default"
+    },
+    {
+      "id": "phase.knowledge-promotion",
+      "path": "harness/actions/phases/knowledge-promotion.md",
+      "reason": "conditional workflow phase is not loaded by default"
+    },
+    {
+      "id": "phase.planning",
+      "path": "harness/actions/phases/planning.md",
+      "reason": "conditional workflow phase is not loaded by default"
+    },
+    {
+      "id": "phase.review",
+      "path": "harness/actions/phases/review.md",
+      "reason": "conditional workflow phase is not loaded by default"
+    },
+    {
+      "id": "phase.worktree-isolation",
+      "path": "harness/actions/phases/worktree-isolation.md",
+      "reason": "conditional workflow phase is not loaded by default"
+    },
+    {
+      "id": null,
+      "path": "harness/knowledge/known-problems/",
+      "reason": "optional directory or unresolved reference was not expanded"
+    },
+    {
+      "id": null,
+      "path": "harness/knowledge/lessons/",
+      "reason": "optional directory or unresolved reference was not expanded"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/**",
+      "reason": "completed run history is skipped by default",
+      "count": 167
+    }
+  ],
+  "diagnostics": [],
+  "policy": {
+    "editAllowed": true,
+    "purpose": "implementation"
+  },
+  "nextActions": [
+    {
+      "kind": "read_file",
+      "path": "harness/runs/active/RUN-run-update-atelier-product-spec-in-readme-md-81c786517f/context.md"
+    }
+  ],
+  "generatedAt": "2026-06-03T12:04:31.391Z",
+  "budgetEstimate": {
+    "tokens": 7915,
+    "limit": 50000,
+    "exceeded": false
+  }
+}

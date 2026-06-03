@@ -6,7 +6,7 @@ pattern: simple
 id: knowledge.product-spec.atelier-roadmap
 title: Atelier Roadmap
 status: active
-summary: Implementation roadmap for the local harness compiler, doctor, context router, and run control plane.
+summary: Implementation roadmap for Atelier as an Agentic Software Development Control Plane, from the shipped harness compiler baseline to Artifact Graph, Reconciler, Policy Engine, Agent Runtime, and Swarm.
 tags:
   - atelier
   - roadmap
@@ -29,25 +29,31 @@ affordances:
 
 This roadmap defines the implementation path for Atelier.
 
-The order matters. Atelier must first make the existing harness safer before it attempts to become a GUI, MCP server, or automatic knowledge growth system.
+The order matters. Atelier v1 first made the existing harness safer and
+agent-usable. The next phase turns that baseline into an Agentic Software
+Development Control Plane centered on Artifact Graph, Event Log, Reconciler,
+Selector, Policy Engine, Materializer, and Trace.
 
 ## Guiding Rule
 
-Do not build a general platform first.
+Do not build a generic agent runtime first.
 
-Build the minimum system that makes the current harness:
+Build the minimum control kernel that keeps project artifacts coherent:
 
 ```text
-inspectable
-validatable
-queryable
-reproducible
-agent-usable
+observable
+reconciled
+governed
+traceable
+progressively automatable
 ```
 
-Only after this loop works should the project add MCP, GUI, bulk editing, or automatic promotion.
+LLM semantics are the last resort before human decision. Programmatic evidence,
+structural analysis, rules, and heuristics must handle the common cases.
 
 ## Milestone Overview
+
+v1 baseline:
 
 ```text
 M0: Harness source contract
@@ -63,6 +69,19 @@ M9: MCP server
 M10: Atelier GUI
 M11: Repo-map and path ownership generation
 M12: Optional semantic expansion
+```
+
+v2 control-plane roadmap:
+
+```text
+M13: Artifact Graph Kernel
+M14: Event Log and Reconciler
+M15: Selector v2
+M16: Control Mechanism Registry
+M17: Artifact Graph UI
+M18: Governance Runtime
+M19: Agent Loop
+M20: Swarm Coordination
 ```
 
 ## M0: Harness Source Contract
@@ -754,112 +773,468 @@ Add recall support without replacing deterministic routing.
 
 **Status (2026-06-02): shipped.** `src/core/semantic.ts` provides a deterministic TF-style recall (no embeddings, no external deps) with optional flag. Functions: `runSemanticExpansion`, `buildSemanticQuery`, `findDuplicateKnowledgeCandidates`. Wired into `buildContextPlan` as the `plan.semantic` field (`{ enabled, hits, unknownTerms }`) — never affects `required`. The `atelier_context_plan` MCP tool gained `semantic: bool` and `semanticMaxResults` arguments. `duplicateCandidatesWithSemantic` is exported from `core/knowledge.ts` for future promotion-time duplicate detection. Coverage: `src/__tests__/semantic.test.ts` (6 tests) plus 1 MCP test for the wired `semantic` flag.
 
-## Suggested Implementation Order
+## M13: Artifact Graph Kernel
 
-### First commit
+### Goal
+
+Make the Artifact Graph the central projection over repository knowledge,
+controls, runs, source files, generated files, and traces.
+
+### Initial Types
 
 ```text
-feat(atelier): add harness document parser and doctor
+Artifact:
+  id
+  kind
+  path
+  contentHash
+  metadata
+  ownership
+  status
+
+Edge:
+  from
+  to
+  kind
+  confidence
+  source
+```
+
+Initial artifact kinds:
+
+```text
+markdown
+knowledge
+check
+skill
+linter
+role
+task
+permission
+hook
+agent
+team
+run
+trace
+source-file
+generated-file
+decision
+product-intent
+control-mechanism
+```
+
+Initial edge kinds:
+
+```text
+derives_from
+implements
+satisfies
+guards
+validates
+selects
+scopes
+supersedes
+conflicts_with
+observed_from
+emitted_as
+edited_by
+```
+
+### Commands
+
+```bash
+atelier scan
+atelier graph
+atelier impact --path product/packages/ui
+atelier blame ARTIFACT_ID
+atelier status
+```
+
+### Storage
+
+Durable state belongs under tracked repository paths:
+
+```text
+harness/atelier/graph.json
+harness/atelier/events.ndjson
+```
+
+`.harness/generated` remains a rebuildable cache/projection.
+
+### Acceptance Criteria
+
+- `atelier scan` observes Markdown, generated files, run records, repo-map facts,
+  source files, and known controls without requiring new frontmatter.
+- `atelier graph` emits stable JSON sorted by artifact id and edge tuple.
+- `atelier status` summarizes graph counts, stale artifacts, orphaned controls,
+  and unresolved findings.
+- Graph generation is deterministic for an unchanged working tree.
+- Existing v1 commands keep working.
+
+## M14: Event Log and Reconciler
+
+### Goal
+
+Treat change, deletion, drift, and replacement as events that can be interpreted
+and reconciled continuously.
+
+### Event Kinds
+
+```text
+file_changed
+file_moved
+file_deleted
+artifact_observed
+artifact_edited
+artifact_deleted
+artifact_emitted
+run_started
+run_completed
+rule_changed
+policy_decision
+reconciliation_finding
+```
+
+### Reconciliation Actions
+
+```text
+silent
+auto-reconcile
+advisory
+task
+human-decision
+block
+```
+
+### Commands
+
+```bash
+atelier reconcile
+atelier repair --dry-run
+```
+
+### Requirements
+
+- Classify deleted artifacts as intentional removal, move/rename, replacement,
+  accidental deletion, or policy violation.
+- Detect when knowledge remains but enforcement disappeared.
+- Detect when enforcement remains but its authored source disappeared.
+- Detect stricter curated controls as candidate knowledge updates, not drift by
+  default.
+- Block only explicit high-risk policy violations; create advisory or task
+  findings for medium-risk cases.
+
+### Acceptance Criteria
+
+- Moved Markdown with stable content preserves lineage without human approval.
+- Deleted Markdown with active enforcement produces an orphan-source finding.
+- Deleted enforcement for active knowledge produces a missing-control task
+  finding.
+- Dangerous permission relaxation produces `human-decision` or `block`.
+- `repair --dry-run` previews changes and never mutates policy semantics.
+
+## M15: Selector v2
+
+### Goal
+
+Generalize role-routed context selection into graph selection.
+
+### Selector Inputs
+
+```text
+role
+task
+phase
+scope
+diff
+risk
+permissions
+budget
+```
+
+### Requirements
+
+- Keep Role, Task, Agent, Phase, and Scope as separate concepts.
+- Preserve v1 Knowledge Card context selection as a compatibility path.
+- Add trace entries that explain graph-based selection, skipped artifacts, and
+  permission envelope.
+- Support context preview without creating a run.
+
+### Acceptance Criteria
+
+- Existing `atelier context plan` output can be explained as a Selector v2 query.
+- Role Matrix and Context Preview data can be derived from Selector v2 output.
+- Required context remains deterministic without semantic expansion.
+
+## M16: Control Mechanism Registry
+
+### Goal
+
+Unify checks, linters, hooks, permissions, tests, templates, review rules, and CI
+gates under one registry.
+
+### Control Mechanism Types
+
+```text
+check
+linter
+typecheck
+test
+hook
+permission
+generator
+codemod
+template
+runtime-guard
+review-rule
+context-selector
+ci-gate
+ui-constraint
+```
+
+### Commands
+
+```bash
+atelier controls list
+atelier controls coverage
+atelier controls missing
+```
+
+### Acceptance Criteria
+
+- Controls can be observed from existing generated checks, linter config, hooks,
+  package scripts, CI files, and role/context selectors.
+- Coverage output maps knowledge and product intent to control mechanisms.
+- Missing and orphaned controls are reported as reconciliation findings.
+- Curated control edits can update graph facts without immediately rewriting
+  Markdown.
+
+## M17: Artifact Graph UI
+
+### Goal
+
+Turn the GUI from a v1 inspector into an Artifact Graph Editor.
+
+### Views
+
+```text
+Knowledge Inventory
+Role Matrix
+Scope Map
+Task Builder
+Control Coverage
+Drift Dashboard
+Permission Console
+Run Trace Viewer
+Team Registry
+Context Preview
+```
+
+### Acceptance Criteria
+
+- GUI reads the same graph, selector, controls, and reconciler core APIs as CLI
+  and MCP.
+- Role Matrix supports bulk include/exclude/conditional/deprecated edits through
+  previewed mutations.
+- Drift Dashboard shows silent, advisory, task, human-decision, and block
+  findings distinctly.
+- Permission Console cannot create invalid path or command rules.
+
+## M18: Governance Runtime
+
+### Goal
+
+Evaluate path, command, tool, hook, approval, and permission policy before and
+after tool use.
+
+### Concepts
+
+```text
+PermissionMode
+PathRule
+CommandRule
+Hook
+ApprovalPolicy
+```
+
+### Acceptance Criteria
+
+- Low-risk operations can be allowed automatically.
+- Medium-risk operations can produce post-run advisories or tasks.
+- High-risk operations require human decision.
+- Explicitly forbidden operations block before execution.
+- Policy decisions are recorded in Trace and Event Log.
+
+## M19: Agent Loop
+
+### Goal
+
+Provide an Atelier-controlled tool-call loop integrated with graph,
+governance, tasks, checks, and trace.
+
+### Loop
+
+```text
+1. receive task
+2. resolve role/context/permission
+3. plan
+4. request tools
+5. PreToolUse governance check
+6. execute tool
+7. PostToolUse observation
+8. update artifact graph
+9. run relevant checks
+10. decide continue / delegate / ask / stop
+11. emit trace
+```
+
+### Acceptance Criteria
+
+- Tool calls pass through Policy Engine.
+- Tool results update Trace and may update Artifact Graph.
+- Token and cost accounting are recorded.
+- Retry and timeout behavior is explicit.
+- The loop can run in observe/suggest modes before autonomous editing modes.
+
+## M20: Swarm Coordination
+
+### Goal
+
+Add permissioned delegation and background task lifecycle.
+
+### Concepts
+
+```text
+Team
+Task
+DelegationRule
+BackgroundRun
+```
+
+### Acceptance Criteria
+
+- Subagents receive reduced context and narrower permissions than parent tasks by
+  default.
+- Delegation records expected handoff format and allowed tools.
+- Background runs expose lifecycle, logs, cost, retries, cancellation, and stale
+  detection.
+- Swarm coordination is integrated with Task Graph, Selector, Policy Engine, and
+  Trace.
+
+## Next Implementation Order
+
+### First v2 commit
+
+```text
+feat(atelier): add artifact graph kernel
 ```
 
 Contents:
 
-- schema parser
-- frontmatter reader
-- doctor diagnostics
-- old path checker
-- broken link checker
-- duplicate ID checker
+- graph types
+- artifact identity
+- Markdown/run/generated/source-file observers
+- edge extraction from existing v1 indexes and manifests
+- `atelier scan`, `atelier graph`, and `atelier status`
+- tests for deterministic graph output
 
-### Second commit
+### Second v2 commit
 
 ```text
-feat(atelier): compile harness indexes
+feat(atelier): add event log and reconciliation findings
 ```
 
 Contents:
 
-- docs.json
-- ids.json
-- diagnostics.json
-- index check mode
+- append-only event types
+- delete/move/replacement classification
+- orphan-source and missing-control findings
+- `atelier reconcile`
+- dry-run repair preview
 
-### Third commit
+### Third v2 commit
 
 ```text
-feat(atelier): add role-routed context plan and render
+feat(atelier): add control mechanism registry
 ```
 
 Contents:
 
-- role parser
-- workflow parser
-- context selector
-- plan output
+- control mechanism types
+- observers for checks, linters, hooks, package scripts, CI, and selectors
+- `atelier controls list`
+- `atelier controls coverage`
+- `atelier controls missing`
 
-### Fourth commit
+### Fourth v2 commit
 
 ```text
-feat(atelier): initialize runs from rendered context plans
+feat(atelier): generalize context selector over graph inputs
 ```
 
 Contents:
 
-- run ID generation
-- brief generation
-- context.md
-- context.manifest.json
+- Selector v2 types
+- graph-backed context preview
+- role/task/phase/scope/risk/budget trace
+- compatibility layer for existing `context plan`
 
-### Fifth commit
+### Fifth v2 commit
 
 ```text
-feat(atelier): enforce run close checks
+feat(atelier): surface graph and drift in gui and mcp
 ```
 
 Contents:
 
-- run status
-- run close
-- verification/handoff gates
-- scoped doctor checks
+- MCP tools for graph/status/reconcile/controls
+- GUI views for Artifact Graph Overview, Control Coverage, Drift Dashboard, and
+  Context Preview
+- read-only defaults with explicit mutation confirmation
 
-### Sixth commit
+### Later v2 commits
 
 ```text
-feat(atelier): add knowledge proposal workflow
+feat(atelier): add governance runtime
+feat(atelier): add governed agent loop
+feat(atelier): add swarm coordination
 ```
 
 Contents:
 
-- proposal generation
-- promotion
-- duplicate detection
-- index update
+- path and command policy
+- PreToolUse and PostToolUse hooks
+- trace-integrated tool loop
+- team registry and delegation rules
 
 ## CI Strategy
 
-Start with non-blocking CI.
+Keep v1 CI stable while adding v2 checks incrementally.
 
 Phase 1:
 
 ```bash
 atelier doctor --json
+atelier scan --json
 ```
 
-runs in CI and uploads diagnostics, but does not fail on warnings.
+runs in CI and uploads diagnostics/graph summaries, but does not fail on
+warnings.
 
 Phase 2:
 
 ```bash
 atelier doctor --ci
 atelier index --check
+atelier graph --check
 ```
 
 fails only on errors.
 
 Phase 3:
 
-selected policies become hard gates.
+selected governance policies and reconciliation `block` findings become hard
+gates.
 
 ## Risks
 
@@ -905,6 +1280,43 @@ Mitigation:
 - optional non-committed mode
 - `index --check` for reproducibility
 
+### Risk: Graph Becomes A Second Hidden Truth
+
+Mitigation:
+
+- durable graph state lives under tracked `harness/atelier`
+- generated projections stay under ignored `.harness/generated`
+- every graph edge records source and confidence
+- graph can be rebuilt or explained from working tree plus event log
+
+### Risk: Reconciler Asks Too Often
+
+Mitigation:
+
+- use risk actions instead of approval as the normal flow
+- auto-reconcile low-risk moves and deterministic lineage updates
+- create advisory/task findings for medium risk
+- reserve human decisions for product judgment, dangerous policy changes, and
+  unresolved ambiguity
+
+### Risk: LLM Handles Too Much
+
+Mitigation:
+
+- enforce the decision hierarchy: exact, structural, rule-based, heuristic,
+  cached semantic, LLM semantic, human
+- test deterministic classification before adding LLM interpretation
+- trace every LLM judgment with confidence and source evidence
+
+### Risk: Agent Runtime Arrives Before Governance
+
+Mitigation:
+
+- implement Artifact Graph, Reconciler, Selector, and Control Mechanism Registry
+  before the agent loop
+- require Policy Engine decisions around tool calls
+- ship observe/suggest modes before autonomous mutation modes
+
 ## Done Definition for v1
 
 Atelier v1 is done when a non-trivial harness task can be performed through this loop:
@@ -931,3 +1343,35 @@ and the following are true:
 - run completion is gated by evidence
 - knowledge proposals do not immediately pollute durable knowledge
 - root adapters remain short
+
+## Done Definition for v2 Kernel
+
+Atelier v2 kernel is done when this loop works without relying on Markdown as
+the only source of truth:
+
+```text
+atelier scan
+atelier graph
+atelier status
+atelier reconcile
+atelier controls coverage
+atelier context plan
+atelier run init
+agent works through selected context and policy envelope
+atelier run close
+atelier status
+```
+
+and the following are true:
+
+- Artifact Graph contains Markdown, knowledge, controls, roles, runs, generated
+  files, and source files.
+- Event Log records file changes, artifact observations, run lifecycle, policy
+  decisions, and reconciliation findings.
+- Reconciler classifies moved, deleted, replaced, orphaned, missing-control, and
+  dangerous-policy cases.
+- Control coverage maps knowledge and product intent to enforcement mechanisms.
+- Selector output explains role, task, phase, scope, diff, risk, permission, and
+  budget decisions.
+- Human decisions are reserved for product intent, high-risk governance, and
+  ambiguous value judgments.
