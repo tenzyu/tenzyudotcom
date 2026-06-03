@@ -169,6 +169,46 @@
       },
       "cache": false
     },
+    "task-create": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/atelier",
+        "command": "bun run ./src/cli.ts task create --project-root ../../.."
+      },
+      "cache": false
+    },
+    "task-status": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/atelier",
+        "command": "bun run ./src/cli.ts task status --project-root ../../.."
+      },
+      "cache": false
+    },
+    "task-close": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/atelier",
+        "command": "bun run ./src/cli.ts task close --project-root ../../.."
+      },
+      "cache": false
+    },
+    "role-create": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/atelier",
+        "command": "bun run ./src/cli.ts role create --project-root ../../.."
+      },
+      "cache": false
+    },
+    "role-edit": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/atelier",
+        "command": "bun run ./src/cli.ts role edit --project-root ../../.."
+      },
+      "cache": false
+    },
     "controls-list": {
       "executor": "nx:run-commands",
       "options": {

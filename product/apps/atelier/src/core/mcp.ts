@@ -16,6 +16,7 @@ import {
 import { compileIndexes } from './indexer'
 import { promoteKnowledgeProposal, proposeKnowledge, rejectKnowledgeProposal } from './knowledge'
 import { listAtelierRegistryEntries } from './llm-protocol'
+import { createTask, assignTask, taskStatus, closeTask, createRole, editRole } from './tasks'
 import { listControls, buildCoverageReport, findMissingControls } from './controls'
 import { repoOwner } from './owner'
 import { renameId } from './rename'
@@ -471,6 +472,119 @@ export function buildMcpServer(options: McpServerOptions): McpServer {
 
   registerTool(
     server,
+    'atelier_task_create',
+    {
+      title: 'Atelier Task Create',
+      description: 'Create a new task artifact. Requires confirm=true.',
+      inputSchema: {
+        title: z.string().describe('Task title.'),
+        description: z.string().describe('Task description.'),
+        phase: z.string().optional().describe('Phase identifier.'),
+        scope: z.string().optional().describe('Scope path.'),
+        roleIds: z.array(z.string()).optional().describe('Assigned role IDs.'),
+        parentTask: z.string().optional().describe('Parent task ID.'),
+        confirm: z.boolean().optional(),
+      },
+    },
+    async (args) => {
+      requireMutation(options.allowMutations, 'atelier_task_create', boolOptional(args.confirm))
+      const task = createTask({
+        projectRoot,
+        title: text(args.title),
+        description: text(args.description),
+        phase: text(args.phase) || undefined,
+        scope: text(args.scope) || undefined,
+        assignedRoles: textArray(args.roleIds),
+        parentTask: text(args.parentTask) || null,
+      })
+      return toJsonResult(task)
+    }
+  )
+
+  registerTool(
+    server,
+    'atelier_task_status',
+    {
+      title: 'Atelier Task Status',
+      description: 'Inspect a task artifact. Read-only.',
+      inputSchema: {
+        taskId: z.string().describe('Task ID to inspect.'),
+      },
+    },
+    async (args) => toJsonResult(taskStatus(projectRoot, text(args.taskId)))
+  )
+
+  registerTool(
+    server,
+    'atelier_task_assign',
+    {
+      title: 'Atelier Task Assign',
+      description: 'Assign roles or agent to a task. Requires confirm=true.',
+      inputSchema: {
+        taskId: z.string().describe('Task ID to assign.'),
+        roleIds: z.array(z.string()).optional().describe('Role IDs to assign.'),
+        agent: z.string().optional().describe('Agent name to assign.'),
+        confirm: z.boolean().optional(),
+      },
+    },
+    async (args) => {
+      requireMutation(options.allowMutations, 'atelier_task_assign', boolOptional(args.confirm))
+      return toJsonResult(assignTask({ projectRoot, taskId: text(args.taskId), roleIds: textArray(args.roleIds), agent: text(args.agent) || undefined }))
+    }
+  )
+
+  registerTool(
+    server,
+    'atelier_task_close',
+    {
+      title: 'Atelier Task Close',
+      description: 'Close a task as completed or cancelled. Requires confirm=true.',
+      inputSchema: {
+        taskId: z.string().describe('Task ID to close.'),
+        outcome: z.enum(['completed', 'cancelled']).optional().describe('Close outcome.'),
+        confirm: z.boolean().optional(),
+      },
+    },
+    async (args) => {
+      requireMutation(options.allowMutations, 'atelier_task_close', boolOptional(args.confirm))
+      return toJsonResult(closeTask(projectRoot, text(args.taskId), text(args.outcome) as 'completed' | 'cancelled' | undefined))
+    }
+  )
+
+  registerTool(
+    server,
+    'atelier_role_create',
+    {
+      title: 'Atelier Role Create',
+      description: 'Create a new role harness document. Requires confirm=true.',
+      inputSchema: {
+        id: z.string().describe('Role symbolic ID.'),
+        title: z.string().describe('Role title.'),
+        pinned: z.array(z.string()).optional().describe('Pinned document IDs.'),
+        confirm: z.boolean().optional(),
+      },
+    },
+    async (args) => {
+      requireMutation(options.allowMutations, 'atelier_role_create', boolOptional(args.confirm))
+      return toJsonResult({ id: createRole({ projectRoot, id: text(args.id), title: text(args.title), pinned: textArray(args.pinned) }) })
+    }
+  )
+
+  registerTool(
+    server,
+    'atelier_role_edit',
+    {
+      title: 'Atelier Role Edit',
+      description: 'Preview role edits (selector impact, pinned changes). Read-only preview.',
+      inputSchema: {
+        roleId: z.string().describe('Role ID to edit.'),
+      },
+    },
+    async (args) => toJsonResult(editRole(projectRoot, text(args.roleId), {}))
+  )
+
+  registerTool(
+    server,
     'atelier_controls_list',
     {
       title: 'Atelier Controls List',
@@ -594,4 +708,10 @@ export const MCP_TOOL_NAMES = [
   'atelier_controls_list',
   'atelier_controls_coverage',
   'atelier_controls_missing',
+  'atelier_task_create',
+  'atelier_task_status',
+  'atelier_task_assign',
+  'atelier_task_close',
+  'atelier_role_create',
+  'atelier_role_edit',
 ] as const

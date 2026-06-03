@@ -22,6 +22,7 @@ import {
 } from './core/graph'
 import { compileIndexes, type IndexResult } from './core/indexer'
 import { listControls, buildCoverageReport, findMissingControls } from './core/controls'
+import { createTask, assignTask, taskStatus, closeTask, createRole, editRole } from './core/tasks'
 import { reconcile, repairDryRun } from './core/reconciler'
 import {
   promoteKnowledgeProposal,
@@ -81,6 +82,13 @@ function usage() {
     '  atelier controls list [--json] [--project-root <path>]',
     '  atelier controls coverage [--json] [--project-root <path>]',
     '  atelier controls missing [--json] [--project-root <path>]',
+    '  atelier task create --title <text> --description <text> [--phase <phase>] [--scope <path>] [--role <id>] [--parent <id>] [--json]',
+    '  atelier task status TASK-ID [--json]',
+    '  atelier task assign TASK-ID [--role <id>] [--agent <name>] [--json]',
+    '  atelier task close TASK-ID [--outcome completed|cancelled] [--json]',
+    '  atelier task split TASK-ID [--json]',
+    '  atelier role create --id <id> --title <title> [--pinned <id>] [--json]',
+    '  atelier role edit ROLE-ID [--json]',
     '  atelier reconcile [--json] [--project-root <path>]',
     '  atelier repair --dry-run [--json] [--project-root <path>]',
     '  atelier id rename OLD_ID NEW_ID [--write] [--json]',
@@ -103,6 +111,8 @@ function usage() {
     '  repo     Query repository facts (path ownership).',
     '  knowledge Create, promote, or reject knowledge proposals from run evidence.',
     '  controls Observe and query control mechanisms (checks, linters, hooks, etc.).',
+    '  task     Create, inspect, assign, and close task artifacts.',
+    '  role     Create and edit role harness documents.',
     '  reconcile Reconcile the Artifact Graph against current filesystem state.',
     '  repair    Preview what reconcile would change (dry-run).',
     '  id       Rename symbolic ids across the harness.',
@@ -810,6 +820,134 @@ export async function runCli(argv: readonly string[]) {
       }
     }
 
+    return 0
+  }
+
+  if (command === 'task' && subcommand === 'create') {
+    const base = parseBase(restRaw)
+    const title = readRequiredOption(base.remaining, '--title')
+    const description = readRequiredOption(base.remaining, '--description')
+    const phase = readOptionalOption(base.remaining, '--phase') ?? 'unspecified'
+    const scope = readOptionalOption(base.remaining, '--scope') ?? '.'
+    const roles = readRepeatedOption(base.remaining, '--role')
+    const parent = readOptionalOption(base.remaining, '--parent')
+
+    const task = createTask({ projectRoot: base.projectRoot, title, description, phase, scope, assignedRoles: roles, parentTask: parent })
+    if (base.json) {
+      console.log(JSON.stringify(task, null, 2))
+    } else {
+      console.log('Atelier Task Create')
+      console.log(`ID: ${task.id}`)
+      console.log(`Title: ${task.title}`)
+      console.log(`Status: ${task.status}`)
+    }
+    return 0
+  }
+
+  if (command === 'task' && subcommand === 'status') {
+    const base = parseBase(restRaw)
+    const taskId = base.remaining[0]
+    if (!taskId) throw new Error('task status requires TASK-ID')
+    const result = taskStatus(base.projectRoot, taskId)
+    if (base.json) {
+      console.log(JSON.stringify(result, null, 2))
+    } else {
+      if (!result.exists) {
+        console.log(`Task not found: ${taskId}`)
+        return 1
+      }
+      console.log('Atelier Task Status')
+      console.log(`ID: ${result.task!.id}`)
+      console.log(`Title: ${result.task!.title}`)
+      console.log(`Status: ${result.task!.status}`)
+      console.log(`Phase: ${result.task!.phase}`)
+      console.log(`Assigned: ${result.task!.assignedRoles.join(', ') || '(none)'}`)
+    }
+    return 0
+  }
+
+  if (command === 'task' && subcommand === 'assign') {
+    const base = parseBase(restRaw)
+    const taskId = base.remaining[0]
+    if (!taskId) throw new Error('task assign requires TASK-ID')
+    const roles = readRepeatedOption(base.remaining, '--role')
+    const agent = readOptionalOption(base.remaining, '--agent')
+    const task = assignTask({ projectRoot: base.projectRoot, taskId, roleIds: roles, agent })
+    if (base.json) {
+      console.log(JSON.stringify(task, null, 2))
+    } else {
+      console.log('Atelier Task Assign')
+      console.log(`Task: ${task.id}`)
+      console.log(`Roles: ${task.assignedRoles.join(', ') || '(none)'}`)
+      console.log(`Agent: ${task.assignedAgent ?? '(none)'}`)
+    }
+    return 0
+  }
+
+  if (command === 'task' && subcommand === 'close') {
+    const base = parseBase(restRaw)
+    const taskId = base.remaining[0]
+    if (!taskId) throw new Error('task close requires TASK-ID')
+    const outcome = readOptionalOption(base.remaining, '--outcome') as 'completed' | 'cancelled' | undefined
+    if (outcome && outcome !== 'completed' && outcome !== 'cancelled') {
+      throw new Error("--outcome must be 'completed' or 'cancelled'")
+    }
+    const task = closeTask(base.projectRoot, taskId, outcome)
+    if (base.json) {
+      console.log(JSON.stringify(task, null, 2))
+    } else {
+      console.log('Atelier Task Close')
+      console.log(`Task: ${task.id}`)
+      console.log(`Status: ${task.status}`)
+    }
+    return 0
+  }
+
+  if (command === 'task' && subcommand === 'split') {
+    const base = parseBase(restRaw)
+    const taskId = base.remaining[0]
+    if (!taskId) throw new Error('task split requires TASK-ID')
+    console.log('Atelier Task Split')
+    console.log('Subtask creation via CLI requires JSON input (--json-body).')
+    console.log(`Parent: ${taskId}`)
+    return 0
+  }
+
+  if (command === 'role' && subcommand === 'create') {
+    const base = parseBase(restRaw)
+    const id = readRequiredOption(base.remaining, '--id')
+    const title = readRequiredOption(base.remaining, '--title')
+    const pinned = readRepeatedOption(base.remaining, '--pinned')
+    createRole({ projectRoot: base.projectRoot, id, title, pinned })
+    if (base.json) {
+      console.log(JSON.stringify({ id, title }, null, 2))
+    } else {
+      console.log('Atelier Role Create')
+      console.log(`Role: ${id}`)
+      console.log(`Title: ${title}`)
+    }
+    return 0
+  }
+
+  if (command === 'role' && subcommand === 'edit') {
+    const base = parseBase(restRaw)
+    const roleId = base.remaining[0]
+    if (!roleId) throw new Error('role edit requires ROLE-ID')
+    const result = editRole(base.projectRoot, roleId, {})
+    if (base.json) {
+      console.log(JSON.stringify(result, null, 2))
+    } else {
+      if (!result.role) {
+        console.log(`Role not found: ${roleId}`)
+        return 1
+      }
+      console.log('Atelier Role Edit')
+      console.log(`Role: ${roleId}`)
+      console.log('Preview:')
+      for (const line of result.preview) {
+        console.log(`  ${line}`)
+      }
+    }
     return 0
   }
 

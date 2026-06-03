@@ -144,6 +144,22 @@ export {
   type ControlType,
 } from './core/controls'
 export {
+  assignTask,
+  closeTask,
+  createRole,
+  createTask,
+  editRole,
+  splitTask,
+  taskStatus,
+  type RoleCreateOptions,
+  type RoleEditOptions,
+  type TaskArtifact,
+  type TaskAssignOptions,
+  type TaskCreateOptions,
+  type TaskSplitOptions,
+  type TaskStatus,
+} from './core/tasks'
+export {
   reconcile,
   repairDryRun,
   type ReconcilerOptions,

@@ -14,6 +14,7 @@ import {
   writeGraph,
 } from './graph'
 import { compileIndexes } from './indexer'
+import { createTask, assignTask, taskStatus, closeTask, createRole, editRole } from './tasks'
 import { listControls, buildCoverageReport, findMissingControls } from './controls'
 import { listKnowledgeProposals, promoteKnowledgeProposal, proposeKnowledge, rejectKnowledgeProposal } from './knowledge'
 import { repoOwner } from './owner'
@@ -393,6 +394,81 @@ export function handleGuiRequest(
   if (route.method === 'GET' && route.pathname === '/api/path-ownership') {
     const repoMap = compileRepoMap(projectRoot)
     return jsonResponse(compilePathOwnership(projectRoot, repoMap))
+  }
+
+  if (route.method === 'GET' && route.pathname === '/api/tasks/status') {
+    const queryIndex = route.pathname.indexOf('?')
+    const query = queryIndex >= 0 ? route.pathname.slice(queryIndex + 1) : ''
+    const params = new URLSearchParams(query)
+    const taskId = params.get('id')
+    if (!taskId) return errorResponse(400, 'BAD_REQUEST', 'id query parameter is required.')
+    return jsonResponse(taskStatus(projectRoot, taskId))
+  }
+
+  if (route.method === 'POST' && route.pathname === '/api/tasks/create') {
+    try {
+      const body = readJsonBody(rawBody) as Record<string, unknown>
+      const title = textOf(body.title)
+      const description = textOf(body.description)
+      if (!title || !description) return errorResponse(400, 'BAD_REQUEST', 'title and description are required.')
+      const task = createTask({
+        projectRoot,
+        title,
+        description,
+        phase: textOf(body.phase) ?? undefined,
+        scope: textOf(body.scope) ?? undefined,
+        assignedRoles: Array.isArray(body.roleIds) ? body.roleIds.filter((r): r is string => typeof r === 'string') : undefined,
+        parentTask: textOf(body.parentTask) ?? null,
+      })
+      return jsonResponse(task)
+    } catch (error) {
+      return errorResponse(400, 'BAD_REQUEST', error instanceof Error ? error.message : String(error))
+    }
+  }
+
+  if (route.method === 'POST' && route.pathname === '/api/tasks/assign') {
+    try {
+      const body = readJsonBody(rawBody) as Record<string, unknown>
+      const taskId = textOf(body.taskId)
+      if (!taskId) return errorResponse(400, 'BAD_REQUEST', 'taskId is required.')
+      return jsonResponse(assignTask({
+        projectRoot,
+        taskId,
+        roleIds: Array.isArray(body.roleIds) ? body.roleIds.filter((r): r is string => typeof r === 'string') : undefined,
+        agent: textOf(body.agent) ?? undefined,
+      }))
+    } catch (error) {
+      return errorResponse(400, 'BAD_REQUEST', error instanceof Error ? error.message : String(error))
+    }
+  }
+
+  if (route.method === 'POST' && route.pathname === '/api/tasks/close') {
+    try {
+      const body = readJsonBody(rawBody) as Record<string, unknown>
+      const taskId = textOf(body.taskId)
+      if (!taskId) return errorResponse(400, 'BAD_REQUEST', 'taskId is required.')
+      return jsonResponse(closeTask(projectRoot, taskId, textOf(body.outcome) as 'completed' | 'cancelled' | undefined))
+    } catch (error) {
+      return errorResponse(400, 'BAD_REQUEST', error instanceof Error ? error.message : String(error))
+    }
+  }
+
+  if (route.method === 'POST' && route.pathname === '/api/roles/create') {
+    try {
+      const body = readJsonBody(rawBody) as Record<string, unknown>
+      const id = textOf(body.id)
+      const title = textOf(body.title)
+      if (!id || !title) return errorResponse(400, 'BAD_REQUEST', 'id and title are required.')
+      return jsonResponse({ id: createRole({ projectRoot, id, title, pinned: Array.isArray(body.pinned) ? body.pinned.filter((p): p is string => typeof p === 'string') : undefined }) })
+    } catch (error) {
+      return errorResponse(400, 'BAD_REQUEST', error instanceof Error ? error.message : String(error))
+    }
+  }
+
+  if (route.method === 'GET' && route.pathname.startsWith('/api/roles/edit/')) {
+    const roleId = route.pathname.slice('/api/roles/edit/'.length)
+    if (!roleId) return errorResponse(400, 'BAD_REQUEST', 'roleId is required.')
+    return jsonResponse(editRole(projectRoot, roleId, {}))
   }
 
   if (route.method === 'GET' && route.pathname === '/api/controls/list') {
