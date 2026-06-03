@@ -103,6 +103,33 @@ export {
   type RunStatusOptions,
   type RunStatusResult,
 } from './core/runs'
+export {
+  appendEvent,
+  buildContentHashIndex,
+  classifyChange,
+  classifyCuratedEdit,
+  classifyDeletionIntent,
+  classifyMissingControl,
+  classifyOrphanSource,
+  createEvent,
+  createFileChangedEvent,
+  createFileDeletedEvent,
+  createFileMovedEvent,
+  createReconciliationFindingEvent,
+  createRunCompletedEvent,
+  createRunStartedEvent,
+  generateEventId,
+  readEvents,
+  type AtelierEvent,
+  type EventKind,
+} from './core/events'
+export {
+  reconcile,
+  repairDryRun,
+  type ReconcilerOptions,
+  type ReconcilerResult,
+  type RepairDryRunResult,
+} from './core/reconciler'
 export type {
   Diagnostic,
   DiagnosticCode,
@@ -121,4 +148,6 @@ export type {
   OwnershipMode,
   Artifact,
   Edge,
+  RiskAction,
+  ReconciliationFinding,
 } from './core/schema'

@@ -20,6 +20,7 @@ import {
   type GraphSnapshot,
 } from './core/graph'
 import { compileIndexes, type IndexResult } from './core/indexer'
+import { reconcile, repairDryRun } from './core/reconciler'
 import {
   promoteKnowledgeProposal,
   proposeKnowledge,
@@ -75,6 +76,8 @@ function usage() {
     '  atelier knowledge propose --from-run RUN-ID --kind <type> --title <title> [--tag <tag>] [--evidence <text>] [--why-recur <text>] [--why-not-covered <text>] [--json]',
     '  atelier knowledge promote PROPOSAL_PATH [--json]',
     '  atelier knowledge reject PROPOSAL_PATH [--reason <text>] [--json]',
+    '  atelier reconcile [--json] [--project-root <path>]',
+    '  atelier repair --dry-run [--json] [--project-root <path>]',
     '  atelier id rename OLD_ID NEW_ID [--write] [--json]',
     '  atelier generate [--write] [--json]',
     '  atelier mcp [--allow-mutations] [--project-root <path>]',
@@ -94,6 +97,8 @@ function usage() {
     '  run      Materialize, inspect, and close a run.',
     '  repo     Query repository facts (path ownership).',
     '  knowledge Create, promote, or reject knowledge proposals from run evidence.',
+    '  reconcile Reconcile the Artifact Graph against current filesystem state.',
+    '  repair    Preview what reconcile would change (dry-run).',
     '  id       Rename symbolic ids across the harness.',
     '  generate Refresh generated skills and root adapters.',
     '  mcp      Start a stdio Model Context Protocol server. Mutations require --allow-mutations or a confirm flag from the client.',
@@ -671,6 +676,61 @@ export async function runCli(argv: readonly string[]) {
       console.log(`\nOutgoing edges (${blame.outgoingEdges.length}):`)
       for (const edge of blame.outgoingEdges) {
         console.log(`  ${edge.from} --[${edge.kind}]--> ${edge.to}`)
+      }
+    }
+
+    return 0
+  }
+
+  if (command === 'reconcile') {
+    const base = parseBase(
+      [subcommand, ...restRaw].filter(
+        (value): value is string => value !== undefined
+      )
+    )
+    const unknown = base.remaining.filter((arg) => arg !== '')
+    if (unknown.length > 0) throw new Error(`Unknown argument: ${unknown[0]}`)
+
+    const result = reconcile({ projectRoot: base.projectRoot })
+
+    if (base.json) {
+      console.log(JSON.stringify(result, null, 2))
+    } else {
+      console.log('Atelier Reconcile')
+      console.log(`Findings: ${result.findings.length}`)
+      for (const finding of result.findings) {
+        console.log(`  [${finding.riskAction}] ${finding.kind}: ${finding.message}`)
+      }
+      console.log('\nRisk action counts:')
+      for (const [action, count] of Object.entries(result.riskActionCounts)) {
+        if (count > 0) console.log(`  ${action}: ${count}`)
+      }
+    }
+
+    return 0
+  }
+
+  if (command === 'repair') {
+    const base = parseBase(
+      [subcommand, ...restRaw].filter(
+        (value): value is string => value !== undefined
+      )
+    )
+    const dryRun = base.remaining.includes('--dry-run')
+    const unknown = base.remaining.filter((arg) => arg !== '--dry-run')
+    if (unknown.length > 0) throw new Error(`Unknown argument: ${unknown[0]}`)
+    if (!dryRun) throw new Error('repair requires --dry-run (safe mode)')
+
+    const result = repairDryRun({ projectRoot: base.projectRoot })
+
+    if (base.json) {
+      console.log(JSON.stringify(result, null, 2))
+    } else {
+      console.log('Atelier Repair (Dry Run)')
+      console.log(`Would change: ${result.wouldChange ? 'yes' : 'no'}`)
+      console.log(`Findings: ${result.findings.length}`)
+      for (const change of result.changes) {
+        console.log(`  ${change}`)
       }
     }
 

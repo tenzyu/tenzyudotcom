@@ -95,6 +95,39 @@ export type Strictness = 'strict' | 'indexed' | 'loose'
 
 export type DiagnosticSeverity = 'error' | 'warning' | 'info'
 
+export type EventKind =
+  | 'file_changed'
+  | 'file_moved'
+  | 'file_deleted'
+  | 'artifact_observed'
+  | 'artifact_edited'
+  | 'artifact_deleted'
+  | 'artifact_emitted'
+  | 'run_started'
+  | 'run_completed'
+  | 'rule_changed'
+  | 'policy_decision'
+  | 'reconciliation_finding'
+
+export type RiskAction = 'silent' | 'auto-reconcile' | 'advisory' | 'task' | 'human-decision' | 'block'
+
+export type AtelierEvent = {
+  id: string
+  timestamp: string
+  kind: EventKind
+  payload: Record<string, unknown>
+  source: string
+}
+
+export type ReconciliationFinding = {
+  kind: 'orphan-source' | 'missing-control' | 'moved-artifact' | 'deleted-artifact' | 'policy-violation' | 'curated-edit'
+  riskAction: RiskAction
+  artifactId: string
+  artifactPath: string
+  message: string
+  details?: Record<string, unknown>
+}
+
 export type DiagnosticCode =
   | 'DUPLICATE_ID'
   | 'MISSING_ID'

@@ -169,6 +169,24 @@
       },
       "cache": false
     },
+    "reconcile": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/atelier",
+        "command": "bun run ./src/cli.ts reconcile --project-root ../../.."
+      },
+      "outputs": [],
+      "cache": false
+    },
+    "repair": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/atelier",
+        "command": "bun run ./src/cli.ts repair --project-root ../../.. --dry-run"
+      },
+      "outputs": [],
+      "cache": false
+    },
     "generate": {
       "executor": "nx:run-commands",
       "options": {

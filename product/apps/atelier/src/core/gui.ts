@@ -18,6 +18,7 @@ import { listKnowledgeProposals, promoteKnowledgeProposal, proposeKnowledge, rej
 import { repoOwner } from './owner'
 import { compilePathOwnership, compileRepoMap } from './repo-map'
 import { renameId } from './rename'
+import { reconcile, repairDryRun } from './reconciler'
 import { closeRun, initRun, runStatus } from './runs'
 
 export type GuiServerOptions = {
@@ -391,6 +392,14 @@ export function handleGuiRequest(
   if (route.method === 'GET' && route.pathname === '/api/path-ownership') {
     const repoMap = compileRepoMap(projectRoot)
     return jsonResponse(compilePathOwnership(projectRoot, repoMap))
+  }
+
+  if (route.method === 'GET' && route.pathname === '/api/reconcile') {
+    return jsonResponse(reconcile({ projectRoot }))
+  }
+
+  if (route.method === 'GET' && route.pathname === '/api/repair') {
+    return jsonResponse(repairDryRun({ projectRoot }))
   }
 
   if (route.method === 'POST' && route.pathname === '/api/generate') {

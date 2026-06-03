@@ -19,6 +19,7 @@ import { listAtelierRegistryEntries } from './llm-protocol'
 import { repoOwner } from './owner'
 import { renameId } from './rename'
 import { closeRun, initRun, runStatus } from './runs'
+import { reconcile, repairDryRun } from './reconciler'
 
 export type McpServerOptions = {
   projectRoot: string
@@ -469,6 +470,30 @@ export function buildMcpServer(options: McpServerOptions): McpServer {
 
   registerTool(
     server,
+    'atelier_reconcile',
+    {
+      title: 'Atelier Reconcile',
+      description:
+        'Reconcile the Artifact Graph against the current filesystem state, identifying orphan sources, missing controls, policy violations, and curated-edit drifts. Read-only.',
+      inputSchema: {},
+    },
+    async () => toJsonResult(reconcile({ projectRoot }))
+  )
+
+  registerTool(
+    server,
+    'atelier_repair',
+    {
+      title: 'Atelier Repair (Dry Run)',
+      description:
+        'Preview what reconcile would change without applying any mutations. Read-only (dry-run only for now).',
+      inputSchema: {},
+    },
+    async () => toJsonResult(repairDryRun({ projectRoot }))
+  )
+
+  registerTool(
+    server,
     'atelier_generate',
     {
       title: 'Atelier Generate',
@@ -527,4 +552,6 @@ export const MCP_TOOL_NAMES = [
   'atelier_id_rename',
   'atelier_repo_owner',
   'atelier_generate',
+  'atelier_reconcile',
+  'atelier_repair',
 ] as const
