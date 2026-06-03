@@ -128,6 +128,56 @@ export type ReconciliationFinding = {
   details?: Record<string, unknown>
 }
 
+export type ControlType =
+  | 'check'
+  | 'linter'
+  | 'typecheck'
+  | 'test'
+  | 'hook'
+  | 'permission'
+  | 'generator'
+  | 'codemod'
+  | 'template'
+  | 'runtime-guard'
+  | 'review-rule'
+  | 'context-selector'
+  | 'ci-gate'
+  | 'ui-constraint'
+
+export type ControlOwnershipMode = 'observed' | 'generated' | 'curated' | 'inferred'
+
+export type ControlProvenance = 'generated-check' | 'eslint' | 'biome' | 'prettier' | 'nx-target' | 'package-script' | 'ci-file' | 'hook-script' | 'policy-file' | 'test-file' | 'selector' | 'manifest' | 'template-file' | 'runner-config'
+
+export type ControlMechanism = {
+  id: string
+  type: ControlType
+  name: string
+  path: string
+  ownership: ControlOwnershipMode
+  provenance: ControlProvenance
+  targets: string[]
+  targetIntents: string[]
+  metadata: Record<string, unknown>
+}
+
+export type ControlCoverageEntry = {
+  knowledgeId: string
+  knowledgePath: string
+  controls: ControlMechanism[]
+  missingTypes: ControlType[]
+  coverageScore: number
+}
+
+export type ControlCoverageReport = {
+  totalKnowledge: number
+  coveredKnowledge: number
+  uncoveredKnowledge: number
+  totalControls: number
+  orphanedControls: ControlMechanism[]
+  entries: ControlCoverageEntry[]
+  typeCounts: Record<string, number>
+}
+
 export type DiagnosticCode =
   | 'DUPLICATE_ID'
   | 'MISSING_ID'

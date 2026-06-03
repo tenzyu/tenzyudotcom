@@ -16,6 +16,7 @@ import {
 import { compileIndexes } from './indexer'
 import { promoteKnowledgeProposal, proposeKnowledge, rejectKnowledgeProposal } from './knowledge'
 import { listAtelierRegistryEntries } from './llm-protocol'
+import { listControls, buildCoverageReport, findMissingControls } from './controls'
 import { repoOwner } from './owner'
 import { renameId } from './rename'
 import { closeRun, initRun, runStatus } from './runs'
@@ -470,6 +471,42 @@ export function buildMcpServer(options: McpServerOptions): McpServer {
 
   registerTool(
     server,
+    'atelier_controls_list',
+    {
+      title: 'Atelier Controls List',
+      description:
+        'Observe and list all control mechanisms (checks, linters, hooks, tests, permissions, etc.) from the current project. Read-only.',
+      inputSchema: {},
+    },
+    async () => toJsonResult(listControls(projectRoot))
+  )
+
+  registerTool(
+    server,
+    'atelier_controls_coverage',
+    {
+      title: 'Atelier Controls Coverage',
+      description:
+        'Report which knowledge items have which control mechanisms. Highlights missing and orphaned controls. Read-only.',
+      inputSchema: {},
+    },
+    async () => toJsonResult(buildCoverageReport(projectRoot))
+  )
+
+  registerTool(
+    server,
+    'atelier_controls_missing',
+    {
+      title: 'Atelier Controls Missing',
+      description:
+        'List knowledge items that lack one or more control mechanism types. Read-only.',
+      inputSchema: {},
+    },
+    async () => toJsonResult(findMissingControls(projectRoot))
+  )
+
+  registerTool(
+    server,
     'atelier_reconcile',
     {
       title: 'Atelier Reconcile',
@@ -554,4 +591,7 @@ export const MCP_TOOL_NAMES = [
   'atelier_generate',
   'atelier_reconcile',
   'atelier_repair',
+  'atelier_controls_list',
+  'atelier_controls_coverage',
+  'atelier_controls_missing',
 ] as const

@@ -169,6 +169,30 @@
       },
       "cache": false
     },
+    "controls-list": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/atelier",
+        "command": "bun run ./src/cli.ts controls list --project-root ../../.."
+      },
+      "cache": false
+    },
+    "controls-coverage": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/atelier",
+        "command": "bun run ./src/cli.ts controls coverage --project-root ../../.."
+      },
+      "cache": false
+    },
+    "controls-missing": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/atelier",
+        "command": "bun run ./src/cli.ts controls missing --project-root ../../.."
+      },
+      "cache": false
+    },
     "reconcile": {
       "executor": "nx:run-commands",
       "options": {

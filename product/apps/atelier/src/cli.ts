@@ -20,6 +20,7 @@ import {
   type GraphSnapshot,
 } from './core/graph'
 import { compileIndexes, type IndexResult } from './core/indexer'
+import { listControls, buildCoverageReport, findMissingControls } from './core/controls'
 import { reconcile, repairDryRun } from './core/reconciler'
 import {
   promoteKnowledgeProposal,
@@ -76,6 +77,9 @@ function usage() {
     '  atelier knowledge propose --from-run RUN-ID --kind <type> --title <title> [--tag <tag>] [--evidence <text>] [--why-recur <text>] [--why-not-covered <text>] [--json]',
     '  atelier knowledge promote PROPOSAL_PATH [--json]',
     '  atelier knowledge reject PROPOSAL_PATH [--reason <text>] [--json]',
+    '  atelier controls list [--json] [--project-root <path>]',
+    '  atelier controls coverage [--json] [--project-root <path>]',
+    '  atelier controls missing [--json] [--project-root <path>]',
     '  atelier reconcile [--json] [--project-root <path>]',
     '  atelier repair --dry-run [--json] [--project-root <path>]',
     '  atelier id rename OLD_ID NEW_ID [--write] [--json]',
@@ -97,6 +101,7 @@ function usage() {
     '  run      Materialize, inspect, and close a run.',
     '  repo     Query repository facts (path ownership).',
     '  knowledge Create, promote, or reject knowledge proposals from run evidence.',
+    '  controls Observe and query control mechanisms (checks, linters, hooks, etc.).',
     '  reconcile Reconcile the Artifact Graph against current filesystem state.',
     '  repair    Preview what reconcile would change (dry-run).',
     '  id       Rename symbolic ids across the harness.',
@@ -676,6 +681,76 @@ export async function runCli(argv: readonly string[]) {
       console.log(`\nOutgoing edges (${blame.outgoingEdges.length}):`)
       for (const edge of blame.outgoingEdges) {
         console.log(`  ${edge.from} --[${edge.kind}]--> ${edge.to}`)
+      }
+    }
+
+    return 0
+  }
+
+  if (command === 'controls' && subcommand === 'list') {
+    const base = parseBase(restRaw)
+    const controls = listControls(base.projectRoot)
+
+    if (base.json) {
+      console.log(JSON.stringify(controls, null, 2))
+    } else {
+      console.log('Atelier Controls List')
+      console.log(`Total: ${controls.length}`)
+      const byType: Record<string, number> = {}
+      for (const c of controls) {
+        byType[c.type] = (byType[c.type] ?? 0) + 1
+      }
+      for (const [type, count] of Object.entries(byType).sort()) {
+        console.log(`  ${type}: ${count}`)
+      }
+    }
+
+    return 0
+  }
+
+  if (command === 'controls' && subcommand === 'coverage') {
+    const base = parseBase(restRaw)
+    const report = buildCoverageReport(base.projectRoot)
+
+    if (base.json) {
+      console.log(JSON.stringify(report, null, 2))
+    } else {
+      console.log('Atelier Controls Coverage')
+      console.log(`Knowledge: ${report.coveredKnowledge}/${report.totalKnowledge} covered`)
+      console.log(`Uncovered: ${report.uncoveredKnowledge}`)
+      console.log(`Controls: ${report.totalControls}`)
+      console.log(`Orphaned: ${report.orphanedControls.length}`)
+      console.log('\nType counts:')
+      for (const [type, count] of Object.entries(report.typeCounts).sort()) {
+        console.log(`  ${type}: ${count}`)
+      }
+      if (report.entries.length <= 5) {
+        for (const entry of report.entries) {
+          console.log(`\n${entry.knowledgeId}:`)
+          console.log(`  score: ${(entry.coverageScore * 100).toFixed(0)}%`)
+          console.log(`  controls: ${entry.controls.length}`)
+          console.log(`  missing: ${entry.missingTypes.join(', ') || 'none'}`)
+        }
+      }
+    }
+
+    return 0
+  }
+
+  if (command === 'controls' && subcommand === 'missing') {
+    const base = parseBase(restRaw)
+    const missing = findMissingControls(base.projectRoot)
+
+    if (base.json) {
+      console.log(JSON.stringify(missing, null, 2))
+    } else {
+      console.log('Atelier Controls Missing')
+      console.log(`Knowledge items with missing controls: ${missing.length}`)
+      for (const entry of missing.slice(0, 20)) {
+        console.log(`  ${entry.knowledgeId}: missing ${entry.missingTypes.join(', ')}`)
+      }
+      if (missing.length > 20) {
+        console.log(`  ... ${missing.length - 20} more`)
       }
     }
 

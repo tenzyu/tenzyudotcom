@@ -124,6 +124,18 @@ export {
   type EventKind,
 } from './core/events'
 export {
+  buildCoverageReport,
+  findMissingControls,
+  listControls,
+  observeControls,
+  type ControlCoverageEntry,
+  type ControlCoverageReport,
+  type ControlMechanism,
+  type ControlOwnershipMode,
+  type ControlProvenance,
+  type ControlType,
+} from './core/controls'
+export {
   reconcile,
   repairDryRun,
   type ReconcilerOptions,

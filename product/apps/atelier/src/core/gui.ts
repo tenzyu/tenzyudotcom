@@ -14,6 +14,7 @@ import {
   writeGraph,
 } from './graph'
 import { compileIndexes } from './indexer'
+import { listControls, buildCoverageReport, findMissingControls } from './controls'
 import { listKnowledgeProposals, promoteKnowledgeProposal, proposeKnowledge, rejectKnowledgeProposal } from './knowledge'
 import { repoOwner } from './owner'
 import { compilePathOwnership, compileRepoMap } from './repo-map'
@@ -392,6 +393,18 @@ export function handleGuiRequest(
   if (route.method === 'GET' && route.pathname === '/api/path-ownership') {
     const repoMap = compileRepoMap(projectRoot)
     return jsonResponse(compilePathOwnership(projectRoot, repoMap))
+  }
+
+  if (route.method === 'GET' && route.pathname === '/api/controls/list') {
+    return jsonResponse(listControls(projectRoot))
+  }
+
+  if (route.method === 'GET' && route.pathname === '/api/controls/coverage') {
+    return jsonResponse(buildCoverageReport(projectRoot))
+  }
+
+  if (route.method === 'GET' && route.pathname === '/api/controls/missing') {
+    return jsonResponse(findMissingControls(projectRoot))
   }
 
   if (route.method === 'GET' && route.pathname === '/api/reconcile') {
