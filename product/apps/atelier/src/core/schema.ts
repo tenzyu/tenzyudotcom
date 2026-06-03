@@ -178,6 +178,34 @@ export type ControlCoverageReport = {
   typeCounts: Record<string, number>
 }
 
+export type SelectorV2Input = {
+  projectRoot?: string
+  workflowId: string
+  roleIds: string[]
+  inputPath: string
+  intent: string
+  requiredOnly?: boolean
+  mode?: 'compact' | 'full' | 'linked'
+  semantic?: boolean
+  semanticMaxResults?: number
+  selectorV2?: boolean
+}
+
+export type SelectorV2Trace = {
+  type: 'role' | 'task' | 'phase' | 'scope' | 'diff' | 'risk' | 'permission' | 'budget'
+  decision: string
+  reason: string
+  sourceArtifacts: string[]
+}
+
+export type PermissionEnvelope = {
+  roleId: string
+  ownershipModes: string[]
+  allowedKinds: string[]
+  allowedPaths: string[]
+  sourceCount: number
+}
+
 export type DiagnosticCode =
   | 'DUPLICATE_ID'
   | 'MISSING_ID'

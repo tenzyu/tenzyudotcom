@@ -1,12 +1,13 @@
 import path from 'node:path'
 import { loadHarnessDocuments, toPosixPath } from './docs'
+import { readGraph } from './graph'
 import {
   buildContextRenderCommand,
   buildRunInitCommand,
   enrichMissingSymbolDiagnostic,
   inferRoleIds,
 } from './llm-protocol'
-import { asStringArray, type Diagnostic, type HarnessDocument } from './schema'
+import { asStringArray, type Diagnostic, type HarnessDocument, type SelectorV2Trace, type PermissionEnvelope } from './schema'
 import { suggestAffordances } from './knowledge'
 import {
   buildSemanticQuery,
@@ -113,7 +114,12 @@ export type ContextPlan = {
       }
     }>
   }
+  selectorV2?: {
+    traces: SelectorV2Trace[]
+  }
 }
+
+
 
 const TOKEN_BUDGET = 50_000
 const CONTEXT_MODES = new Set<ContextMode>(['compact', 'full', 'linked'])
@@ -1193,5 +1199,82 @@ export function buildContextPlan(options: ContextPlanOptions): ContextPlan {
     trace: {
       selections: traceEntries,
     },
+  }
+}
+
+export type SelectorV2PlanOptions = ContextPlanOptions & {
+  selectorV2?: boolean
+}
+
+function computeEnvelopeFromGraph(projectRoot: string, roleId: string): { ownershipModes: string[]; allowedKinds: string[]; allowedPaths: string[] } {
+  const graph = readGraph(projectRoot)
+  if (!graph) return { ownershipModes: ['observed'], allowedKinds: [], allowedPaths: [] }
+
+  const roleArtifacts = graph.artifacts.filter((a) => a.metadata?.ownerRole === roleId || a.ownership === 'observed')
+  const ownershipModes = [...new Set(roleArtifacts.map((a) => a.ownership))]
+  const allowedKinds = [...new Set(roleArtifacts.map((a) => a.kind))]
+  const allowedPaths = [...new Set(roleArtifacts.map((a) => a.path).filter((p): p is string => !!p))]
+
+  return { ownershipModes, allowedKinds, allowedPaths }
+}
+
+export function computePermissionEnvelope(projectRoot: string, roleIds: string[]): PermissionEnvelope[] {
+  return roleIds.map((roleId) => {
+    const envelope = computeEnvelopeFromGraph(projectRoot, roleId)
+    return {
+      roleId,
+      ownershipModes: envelope.ownershipModes,
+      allowedKinds: envelope.allowedKinds,
+      allowedPaths: envelope.allowedPaths,
+      sourceCount: envelope.allowedPaths.length,
+    }
+  })
+}
+
+export function buildGraphContextPlan(options: SelectorV2PlanOptions): ContextPlan {
+  const base = buildContextPlan(options)
+  const projectRoot = path.resolve(options.projectRoot ?? process.cwd())
+  const roleIds = options.roleIds
+  const selectorV2Traces: SelectorV2Trace[] = []
+
+  if (options.selectorV2) {
+    const envelopes = computePermissionEnvelope(projectRoot, roleIds)
+    for (const envelope of envelopes) {
+      selectorV2Traces.push({
+        type: 'permission',
+        decision: `ownership: ${envelope.ownershipModes.join(', ') || 'none'}`,
+        reason: `Role '${envelope.roleId}' has ${envelope.sourceCount} owned paths with modes [${envelope.ownershipModes.join(', ')}]`,
+        sourceArtifacts: envelope.allowedPaths,
+      })
+    }
+
+    selectorV2Traces.push({
+      type: 'phase',
+      decision: `required: ${base.required.filter((d) => d.kind === 'phase').length}, conditional: ${base.skipped.filter((s) => s.path.startsWith('phase.')).length}`,
+      reason: `${base.required.filter((d) => d.kind === 'phase').length} required phases, ${base.skipped.filter((s) => s.path.startsWith('phase.')).length} conditional phases`,
+      sourceArtifacts: base.required.filter((d) => d.kind === 'phase').map((d) => d.path),
+    })
+
+    selectorV2Traces.push({
+      type: 'budget',
+      decision: `${base.budgetEstimate.tokens}/${base.budgetEstimate.limit} tokens used`,
+      reason: base.budgetEstimate.exceeded ? 'Budget exceeded' : 'Within budget',
+      sourceArtifacts: [],
+    })
+
+    const traces = base.required.filter((d) => d.kind === 'role')
+    for (const trace of traces) {
+      selectorV2Traces.push({
+        type: 'role',
+        decision: `selected: ${trace.id}`,
+        reason: trace.reasons.join('; '),
+        sourceArtifacts: [trace.path],
+      })
+    }
+  }
+
+  return {
+    ...base,
+    selectorV2: options.selectorV2 ? { traces: selectorV2Traces } : undefined,
   }
 }

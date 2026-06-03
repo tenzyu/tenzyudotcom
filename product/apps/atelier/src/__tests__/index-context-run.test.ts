@@ -2,7 +2,7 @@ import { afterAll, beforeEach, describe, expect, test } from 'bun:test'
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
-import { buildContextPlan } from '../core/context'
+import { buildContextPlan, buildGraphContextPlan, computePermissionEnvelope } from '../core/context'
 import { compileIndexes } from '../core/indexer'
 import { promoteKnowledgeProposal, proposeKnowledge, rejectKnowledgeProposal } from '../core/knowledge'
 import { closeRun, expandRunContext, initRun, renderContextForOptions } from '../core/runs'
@@ -845,5 +845,101 @@ describe('Atelier M2-M4', () => {
         if (summaryRel) expect(summaryRel.resolved).toBe(true)
       }
     }
+  })
+
+  describe('Selector v2', () => {
+    let schemaDir: string
+
+    beforeEach(() => {
+      schemaDir = mkdtempSync(path.join(tmpdir(), 'atelier-selector-v2-'))
+      createFixture(schemaDir)
+      const generatedRoot = path.join(schemaDir, '.harness/generated')
+      mkdirSync(generatedRoot, { recursive: true })
+      writeFileSync(path.join(generatedRoot, 'docs.json'), '[]')
+      writeFileSync(path.join(generatedRoot, 'ids.json'), '{}')
+      writeFileSync(path.join(generatedRoot, 'diagnostics.json'), '{}')
+      writeFileSync(path.join(generatedRoot, 'role-bundles.json'), '[]')
+      writeFileSync(path.join(generatedRoot, 'knowledge-index.json'), JSON.stringify({ byKnowledgeType: {}, byStatus: {}, byImpact: {}, byTag: {}, byScopePath: {} }))
+      writeFileSync(path.join(generatedRoot, 'workflow-index.json'), '[]')
+      writeFileSync(path.join(generatedRoot, 'path-ownership.json'), JSON.stringify({ entries: [] }))
+      writeFileSync(path.join(generatedRoot, 'repo-map.json'), JSON.stringify({
+        projects: [],
+        files: [],
+        ownershipHints: [],
+        warnings: [],
+        workspace: { packageManager: 'bun', taskRunner: 'nx', appsRoot: 'product/apps', packagesRoot: 'product/packages', harnessRoot: 'harness' },
+      }))
+
+      mkdirSync(path.join(schemaDir, 'harness/atelier'), { recursive: true })
+      writeFileSync(path.join(schemaDir, 'harness/atelier/graph.json'), JSON.stringify({
+        version: 1,
+        generatedAt: new Date().toISOString(),
+        artifacts: [],
+        edges: [],
+      }))
+    })
+
+    test('buildGraphContextPlan without selectorV2 matches buildContextPlan output', () => {
+      const v1 = buildContextPlan({
+        projectRoot: schemaDir,
+        workflowId: 'workflow.example',
+        roleIds: ['role.domain.example'],
+        inputPath: '.',
+        intent: 'test selector v2 compatibility',
+      })
+
+      const v2 = buildGraphContextPlan({
+        projectRoot: schemaDir,
+        workflowId: 'workflow.example',
+        roleIds: ['role.domain.example'],
+        inputPath: '.',
+        intent: 'test selector v2 compatibility',
+        selectorV2: false,
+      })
+
+      expect(v2.selectorV2).toBeUndefined()
+      expect(v1.required.length).toBe(v2.required.length)
+      expect(v1.optional.length).toBe(v2.optional.length)
+      expect(v1.workflowId).toBe(v2.workflowId)
+      expect(v1.roleIds).toEqual(v2.roleIds)
+    })
+
+    test('buildGraphContextPlan with selectorV2 includes selectorV2 traces', () => {
+      const plan = buildGraphContextPlan({
+        projectRoot: schemaDir,
+        workflowId: 'workflow.example',
+        roleIds: ['role.domain.example'],
+        inputPath: '.',
+        intent: 'test selector v2 traces',
+        selectorV2: true,
+      })
+
+      expect(plan.selectorV2).toBeDefined()
+      expect(plan.selectorV2!.traces.length).toBeGreaterThan(0)
+      for (const trace of plan.selectorV2!.traces) {
+        expect(['role', 'task', 'phase', 'scope', 'diff', 'risk', 'permission', 'budget']).toContain(trace.type)
+        expect(typeof trace.decision).toBe('string')
+        expect(typeof trace.reason).toBe('string')
+        expect(Array.isArray(trace.sourceArtifacts)).toBe(true)
+      }
+
+      const budgetTrace = plan.selectorV2!.traces.find((t) => t.type === 'budget')
+      expect(budgetTrace).toBeDefined()
+      expect(budgetTrace!.decision).toContain('tokens')
+
+      const permissionTraces = plan.selectorV2!.traces.filter((t) => t.type === 'permission')
+      expect(permissionTraces.length).toBeGreaterThanOrEqual(1)
+    })
+
+    test('computePermissionEnvelope returns envelope for each role', () => {
+      const envelopes = computePermissionEnvelope(schemaDir, ['role.domain.example'])
+
+      expect(envelopes.length).toBe(1)
+      expect(envelopes[0]!.roleId).toBe('role.domain.example')
+      expect(Array.isArray(envelopes[0]!.ownershipModes)).toBe(true)
+      expect(Array.isArray(envelopes[0]!.allowedKinds)).toBe(true)
+      expect(Array.isArray(envelopes[0]!.allowedPaths)).toBe(true)
+      expect(typeof envelopes[0]!.sourceCount).toBe('number')
+    })
   })
 })

@@ -13,7 +13,15 @@ export {
   type ScanResult,
 } from './core/graph'
 export {
-  buildContextPlan, normalizeContextMode, type ContextMode, type ContextPlan, type ContextPlanOptions } from './core/context'
+  buildContextPlan,
+  buildGraphContextPlan,
+  computePermissionEnvelope,
+  normalizeContextMode,
+  type ContextMode,
+  type ContextPlan,
+  type ContextPlanOptions,
+  type SelectorV2PlanOptions,
+} from './core/context'
 export { runDoctor, type DoctorOptions } from './core/doctor'
 export { loadHarnessDocuments, strictnessForPath, extractMarkdownLinks, sha256Text, toPosixPath } from './core/docs'
 export { parseFrontmatter, type ParsedFrontmatter } from './core/frontmatter'
@@ -162,4 +170,7 @@ export type {
   Edge,
   RiskAction,
   ReconciliationFinding,
+  SelectorV2Input,
+  SelectorV2Trace,
+  PermissionEnvelope,
 } from './core/schema'

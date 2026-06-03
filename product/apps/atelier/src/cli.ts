@@ -3,6 +3,7 @@
 import path from 'node:path'
 import {
   buildContextPlan,
+  buildGraphContextPlan,
   normalizeContextMode,
   type ContextPlan,
 } from './core/context'
@@ -850,7 +851,8 @@ export async function runCli(argv: readonly string[]) {
       throw new Error('--semantic-max-results must be a positive integer')
     }
     const semantic = base.remaining.includes('--semantic')
-    const plan = buildContextPlan({
+    const selectorV2 = base.remaining.includes('--selector-v2')
+    const plan = (selectorV2 ? buildGraphContextPlan : buildContextPlan)({
       projectRoot: base.projectRoot,
       workflowId: readRequiredOption(base.remaining, '--workflow'),
       roleIds: roles,
@@ -860,6 +862,7 @@ export async function runCli(argv: readonly string[]) {
       mode: normalizeContextMode(readOptionalOption(base.remaining, '--mode')),
       semantic,
       semanticMaxResults: semanticMaxResults as number | undefined,
+      selectorV2,
     })
 
     if (base.json) {
