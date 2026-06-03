@@ -16,6 +16,7 @@ import {
 import { compileIndexes } from './indexer'
 import { promoteKnowledgeProposal, proposeKnowledge, rejectKnowledgeProposal } from './knowledge'
 import { listAtelierRegistryEntries } from './llm-protocol'
+import { checkPolicy, explainPolicy } from './policy'
 import { createTask, assignTask, taskStatus, closeTask, createRole, editRole } from './tasks'
 import { listControls, buildCoverageReport, findMissingControls } from './controls'
 import { repoOwner } from './owner'
@@ -585,6 +586,34 @@ export function buildMcpServer(options: McpServerOptions): McpServer {
 
   registerTool(
     server,
+    'atelier_policy_check',
+    {
+      title: 'Atelier Policy Check',
+      description: 'Evaluate governance policy for a path, command, or tool. Read-only.',
+      inputSchema: {
+        path: z.string().optional().describe('File path to evaluate.'),
+        command: z.string().optional().describe('Shell command to evaluate.'),
+        tool: z.string().optional().describe('Tool name to evaluate.'),
+      },
+    },
+    async (args) => toJsonResult(checkPolicy({ projectRoot, path: text(args.path), command: text(args.command), tool: text(args.tool) }))
+  )
+
+  registerTool(
+    server,
+    'atelier_policy_explain',
+    {
+      title: 'Atelier Policy Explain',
+      description: 'Explain policy rules and their decisions. Read-only.',
+      inputSchema: {
+        ruleId: z.string().optional().describe('Specific rule ID to explain.'),
+      },
+    },
+    async (args) => toJsonResult(explainPolicy(projectRoot, text(args.ruleId) || undefined))
+  )
+
+  registerTool(
+    server,
     'atelier_controls_list',
     {
       title: 'Atelier Controls List',
@@ -708,10 +737,6 @@ export const MCP_TOOL_NAMES = [
   'atelier_controls_list',
   'atelier_controls_coverage',
   'atelier_controls_missing',
-  'atelier_task_create',
-  'atelier_task_status',
-  'atelier_task_assign',
-  'atelier_task_close',
-  'atelier_role_create',
-  'atelier_role_edit',
+  'atelier_policy_check',
+  'atelier_policy_explain',
 ] as const

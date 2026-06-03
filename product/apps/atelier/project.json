@@ -169,6 +169,30 @@
       },
       "cache": false
     },
+    "policy-check": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/atelier",
+        "command": "bun run ./src/cli.ts policy check --project-root ../../.."
+      },
+      "cache": false
+    },
+    "policy-explain": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/atelier",
+        "command": "bun run ./src/cli.ts policy explain --project-root ../../.."
+      },
+      "cache": false
+    },
+    "policy-simulate": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/atelier",
+        "command": "bun run ./src/cli.ts policy simulate --project-root ../../.."
+      },
+      "cache": false
+    },
     "task-create": {
       "executor": "nx:run-commands",
       "options": {

@@ -16,6 +16,7 @@ import {
 import { compileIndexes } from './indexer'
 import { createTask, assignTask, taskStatus, closeTask, createRole, editRole } from './tasks'
 import { listControls, buildCoverageReport, findMissingControls } from './controls'
+import { checkPolicy, explainPolicy } from './policy'
 import { listKnowledgeProposals, promoteKnowledgeProposal, proposeKnowledge, rejectKnowledgeProposal } from './knowledge'
 import { repoOwner } from './owner'
 import { compilePathOwnership, compileRepoMap } from './repo-map'
@@ -469,6 +470,25 @@ export function handleGuiRequest(
     const roleId = route.pathname.slice('/api/roles/edit/'.length)
     if (!roleId) return errorResponse(400, 'BAD_REQUEST', 'roleId is required.')
     return jsonResponse(editRole(projectRoot, roleId, {}))
+  }
+
+  if (route.method === 'GET' && route.pathname.startsWith('/api/policy/check')) {
+    const queryIndex = route.pathname.indexOf('?')
+    const query = queryIndex >= 0 ? route.pathname.slice(queryIndex + 1) : ''
+    const params = new URLSearchParams(query)
+    return jsonResponse(checkPolicy({
+      projectRoot,
+      path: params.get('path') ?? undefined,
+      command: params.get('command') ?? undefined,
+      tool: params.get('tool') ?? undefined,
+    }))
+  }
+
+  if (route.method === 'GET' && route.pathname.startsWith('/api/policy/explain')) {
+    const queryIndex = route.pathname.indexOf('?')
+    const query = queryIndex >= 0 ? route.pathname.slice(queryIndex + 1) : ''
+    const params = new URLSearchParams(query)
+    return jsonResponse(explainPolicy(projectRoot, params.get('ruleId') ?? undefined))
   }
 
   if (route.method === 'GET' && route.pathname === '/api/controls/list') {

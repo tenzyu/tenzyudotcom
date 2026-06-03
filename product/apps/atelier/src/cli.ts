@@ -21,6 +21,7 @@ import {
   type GraphSnapshot,
 } from './core/graph'
 import { compileIndexes, type IndexResult } from './core/indexer'
+import { checkPolicy, explainPolicy, simulatePolicy } from './core/policy'
 import { listControls, buildCoverageReport, findMissingControls } from './core/controls'
 import { createTask, assignTask, taskStatus, closeTask, createRole, editRole } from './core/tasks'
 import { reconcile, repairDryRun } from './core/reconciler'
@@ -89,6 +90,9 @@ function usage() {
     '  atelier task split TASK-ID [--json]',
     '  atelier role create --id <id> --title <title> [--pinned <id>] [--json]',
     '  atelier role edit ROLE-ID [--json]',
+    '  atelier policy check [--path <path>] [--command <cmd>] [--tool <name>] [--json] [--project-root <path>]',
+    '  atelier policy explain [--rule-id <id>] [--json] [--project-root <path>]',
+    '  atelier policy simulate <changes-json> [--json] [--project-root <path>]',
     '  atelier reconcile [--json] [--project-root <path>]',
     '  atelier repair --dry-run [--json] [--project-root <path>]',
     '  atelier id rename OLD_ID NEW_ID [--write] [--json]',
@@ -111,6 +115,7 @@ function usage() {
     '  repo     Query repository facts (path ownership).',
     '  knowledge Create, promote, or reject knowledge proposals from run evidence.',
     '  controls Observe and query control mechanisms (checks, linters, hooks, etc.).',
+    '  policy   Check, explain, and simulate governance policy rules.',
     '  task     Create, inspect, assign, and close task artifacts.',
     '  role     Create and edit role harness documents.',
     '  reconcile Reconcile the Artifact Graph against current filesystem state.',
@@ -692,6 +697,72 @@ export async function runCli(argv: readonly string[]) {
       console.log(`\nOutgoing edges (${blame.outgoingEdges.length}):`)
       for (const edge of blame.outgoingEdges) {
         console.log(`  ${edge.from} --[${edge.kind}]--> ${edge.to}`)
+      }
+    }
+
+    return 0
+  }
+
+  if (command === 'policy' && subcommand === 'check') {
+    const base = parseBase(restRaw)
+    const pathArg = readOptionalOption(base.remaining, '--path')
+    const commandArg = readOptionalOption(base.remaining, '--command')
+    const toolArg = readOptionalOption(base.remaining, '--tool')
+    const results = checkPolicy({ projectRoot: base.projectRoot, path: pathArg, command: commandArg, tool: toolArg })
+
+    if (base.json) {
+      console.log(JSON.stringify(results, null, 2))
+    } else {
+      console.log('Atelier Policy Check')
+      for (const result of results) {
+        const icon = result.allowed ? (result.effectiveMode === 'allow' ? '✓' : result.effectiveMode === 'advisory' ? '⚠' : '✓') : '✗'
+        console.log(`  ${icon} ${result.effectiveMode.toUpperCase()}: allowed=${result.allowed}`)
+        for (const d of result.decisions.filter((dd) => dd.matched)) {
+          console.log(`      rule: ${d.ruleId} (${d.mode}) — ${d.reason}`)
+        }
+      }
+    }
+
+    return 0
+  }
+
+  if (command === 'policy' && subcommand === 'explain') {
+    const base = parseBase(restRaw)
+    const ruleId = readOptionalOption(base.remaining, '--rule-id')
+    const result = explainPolicy(base.projectRoot, ruleId)
+
+    if (base.json) {
+      console.log(JSON.stringify(result, null, 2))
+    } else {
+      console.log('Atelier Policy Explain')
+      console.log(`Path rules: ${result.config.pathRules.length}`)
+      console.log(`Command rules: ${result.config.commandRules.length}`)
+      console.log(`Tool rules: ${result.config.toolRules.length}`)
+      console.log(`Approval policies: ${result.config.approvalPolicies.length}`)
+      console.log('\nDecisions:')
+      for (const d of result.decisions) {
+        const matched = d.matched ? '✓' : '✗'
+        console.log(`  ${matched} [${d.ruleKind}] ${d.ruleId}: ${d.mode} — ${d.reason}`)
+      }
+    }
+
+    return 0
+  }
+
+  if (command === 'policy' && subcommand === 'simulate') {
+    const base = parseBase(restRaw)
+    const changesJson = base.remaining.find((arg) => arg.startsWith('{'))
+    if (!changesJson) throw new Error('simulate requires a JSON argument with policy changes')
+    const changes = JSON.parse(changesJson)
+    const results = simulatePolicy(base.projectRoot, changes)
+
+    if (base.json) {
+      console.log(JSON.stringify(results, null, 2))
+    } else {
+      console.log('Atelier Policy Simulate')
+      for (const result of results) {
+        const icon = result.allowed ? '✓' : '✗'
+        console.log(`  ${icon} ${result.effectiveMode.toUpperCase()}`)
       }
     }
 

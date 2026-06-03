@@ -144,6 +144,24 @@ export {
   type ControlType,
 } from './core/controls'
 export {
+  checkPolicy,
+  evaluateApproval,
+  evaluateCommand,
+  evaluatePath,
+  evaluateTool,
+  explainPolicy,
+  loadPolicyConfig,
+  simulatePolicy,
+  type ApprovalPolicy,
+  type CommandRule,
+  type PathRule,
+  type PolicyConfig,
+  type PolicyDecision,
+  type PolicyResult,
+  type PermissionMode,
+  type ToolRule,
+} from './core/policy'
+export {
   assignTask,
   closeTask,
   createRole,
