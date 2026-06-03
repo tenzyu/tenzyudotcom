@@ -1,0 +1,218 @@
+name: Release atelier
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to publish, e.g. atelier-v0.1.0. Leave blank for build/hash only."
+        required: false
+        default: ""
+      update_package_nix:
+        description: "Update product/apps/atelier/nix/package.nix with generated hashes."
+        required: true
+        type: boolean
+        default: true
+      publish_release:
+        description: "Commit hashes, create the tag, and publish a GitHub Release from these exact artifacts."
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-atelier-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  BUN_VERSION: 1.3.10
+
+jobs:
+  validate:
+    name: validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+
+      - name: Check atelier
+        working-directory: product/apps/atelier
+        run: |
+          bun install --frozen-lockfile
+          bun run check
+
+  build:
+    name: build ${{ matrix.label }}
+    needs: validate
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: bun-linux-x64
+            label: linux-x64
+          - os: ubuntu-latest
+            target: bun-linux-arm64
+            label: linux-arm64
+          - os: macos-latest
+            target: bun-darwin-x64
+            label: darwin-x64
+          - os: macos-latest
+            target: bun-darwin-arm64
+            label: darwin-arm64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+
+      - name: Build atelier
+        working-directory: product/apps/atelier
+        run: |
+          bun install --frozen-lockfile
+          mkdir -p release
+          bun build \
+            --compile \
+            --minify \
+            --target=${{ matrix.target }} \
+            --outfile release/atelier \
+            ./src/cli.ts
+
+      - name: Package and hash
+        run: |
+          set -euo pipefail
+
+          archive="atelier-${{ matrix.label }}.tar.gz"
+          mkdir -p staging
+          cp product/apps/atelier/release/atelier staging/atelier
+          chmod 755 staging/atelier
+
+          COPYFILE_DISABLE=1 tar -C staging -czf "$archive" atelier
+
+          sri_hash="sha256-$(openssl dgst -sha256 -binary "$archive" | base64 | tr -d '\n')"
+          printf '%s\n' "$sri_hash" > "atelier-${{ matrix.label }}.sha256"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: atelier-${{ matrix.label }}
+          path: |
+            atelier-${{ matrix.label }}.tar.gz
+            atelier-${{ matrix.label }}.sha256
+
+  finalize:
+    name: update hashes and publish
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: atelier-*
+          path: release-artifacts
+          merge-multiple: true
+
+      - name: Validate release inputs
+        if: ${{ inputs.publish_release }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${{ inputs.tag }}" ]; then
+            echo "publish_release requires a tag like atelier-v0.1.0" >&2
+            exit 1
+          fi
+
+          if [ "${{ inputs.update_package_nix }}" != "true" ]; then
+            echo "publish_release requires update_package_nix=true so the tag points at matching hashes" >&2
+            exit 1
+          fi
+
+          version="$(node -p "require('./product/apps/atelier/package.json').version")"
+          expected_tag="atelier-v${version}"
+          if [ "${{ inputs.tag }}" != "$expected_tag" ]; then
+            echo "tag '${{ inputs.tag }}' does not match package version '$expected_tag'" >&2
+            exit 1
+          fi
+
+          if git rev-parse -q --verify "refs/tags/${{ inputs.tag }}" >/dev/null; then
+            echo "local tag '${{ inputs.tag }}' already exists" >&2
+            exit 1
+          fi
+
+          if git ls-remote --exit-code --tags origin "refs/tags/${{ inputs.tag }}" >/dev/null 2>&1; then
+            echo "remote tag '${{ inputs.tag }}' already exists" >&2
+            exit 1
+          fi
+
+      - name: Update package.nix hashes
+        if: ${{ inputs.update_package_nix }}
+        run: |
+          set -euo pipefail
+
+          for hash_file in release-artifacts/atelier-*.sha256; do
+            label="$(basename "$hash_file" .sha256)"
+            label="${label#atelier-}"
+            hash="$(cat "$hash_file")"
+            LABEL="$label" HASH="$hash" perl -0pi -e 's/("$ENV{LABEL}" = )[^;]+(;)/$1 . "\"" . $ENV{HASH} . "\"" . $2/ge' product/apps/atelier/nix/package.nix
+          done
+
+          git diff -- product/apps/atelier/nix/package.nix
+
+      - name: Commit package hash update
+        if: ${{ inputs.update_package_nix && inputs.publish_release }}
+        run: |
+          set -euo pipefail
+
+          if git diff --quiet -- product/apps/atelier/nix/package.nix; then
+            echo "package.nix hashes already up to date"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add product/apps/atelier/nix/package.nix
+          git commit -m "chore(atelier): update release hashes"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
+
+      - name: Upload updated package.nix
+        if: ${{ inputs.update_package_nix && !inputs.publish_release }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: atelier-updated-package-nix
+          path: product/apps/atelier/nix/package.nix
+
+      - name: Create release tag
+        if: ${{ inputs.publish_release }}
+        run: |
+          set -euo pipefail
+
+          git tag "${{ inputs.tag }}"
+          git push origin "${{ inputs.tag }}"
+
+      - name: Publish GitHub Release
+        if: ${{ inputs.publish_release }}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.tag }}
+          files: release-artifacts/atelier-*.tar.gz
+
+      - name: Upload hash summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: atelier-release-hashes
+          path: release-artifacts/atelier-*.sha256

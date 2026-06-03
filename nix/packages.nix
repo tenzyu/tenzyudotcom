@@ -51,6 +51,9 @@ in {
 
   productWeb = common ++ web;
   productSkinWorkbench = common ++ web ++ native ++ tauriLinux;
+  # `atelier` is the local source runner supplied by the root flake. Keep it
+  # out of the release binary path so `nix develop` works before a release tag
+  # has published fixed-output artifacts.
   repoOpsShell = common ++ repoOps ++ [atelier];
   all = common ++ web ++ repoOps ++ native ++ tauriLinux ++ [atelier];
 }

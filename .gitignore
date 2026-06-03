@@ -10,6 +10,7 @@
 .worktrees/
 dist/
 storage/.sync-state/
+/product/apps/atelier/release/
 
 # dependencies
 **/node_modules

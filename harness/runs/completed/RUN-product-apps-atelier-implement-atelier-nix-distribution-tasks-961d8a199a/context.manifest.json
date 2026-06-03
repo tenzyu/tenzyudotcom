@@ -1,0 +1,301 @@
+{
+  "runId": "RUN-product-apps-atelier-implement-atelier-nix-distribution-tasks-961d8a199a",
+  "workflowId": "workflow.isolated-run",
+  "roleIds": [
+    "role.domain.harness-engineer"
+  ],
+  "inputPath": "product/apps/atelier",
+  "intent": "Implement Atelier Nix distribution tasks: keep external release binary surface, add local dogfood runner, and document source-build bun2nix path",
+  "contextMode": "compact",
+  "selectedDocuments": [
+    {
+      "id": "phase.handoff",
+      "kind": "phase",
+      "path": "harness/actions/phases/handoff.md",
+      "status": "active",
+      "sha256": "bfb6c38ffcc555b5d734348d292049bf952861842c6043be5053b6033045ab3c",
+      "reasons": [
+        "required workflow phase 'phase.handoff'"
+      ],
+      "required": true
+    },
+    {
+      "id": "phase.implementation",
+      "kind": "phase",
+      "path": "harness/actions/phases/implementation.md",
+      "status": "active",
+      "sha256": "6125ebb2f2c1e1aaa143e8d151d62aba04ef478a8a088ba94ce3643de0ccbd2a",
+      "reasons": [
+        "required workflow phase 'phase.implementation'"
+      ],
+      "required": true
+    },
+    {
+      "id": "phase.intake",
+      "kind": "phase",
+      "path": "harness/actions/phases/intake.md",
+      "status": "active",
+      "sha256": "b4cb7ec034df393cdf421efc499355ed1834976a4287d4be3fc121c5e84a90f3",
+      "reasons": [
+        "required workflow phase 'phase.intake'"
+      ],
+      "required": true
+    },
+    {
+      "id": "phase.investigation",
+      "kind": "phase",
+      "path": "harness/actions/phases/investigation.md",
+      "status": "active",
+      "sha256": "5e798c81e0fbc51560fd5339c9eb58cd6a3099799bd23dd9b208031ca6086be5",
+      "reasons": [
+        "required workflow phase 'phase.investigation'"
+      ],
+      "required": true
+    },
+    {
+      "id": "phase.verification",
+      "kind": "phase",
+      "path": "harness/actions/phases/verification.md",
+      "status": "active",
+      "sha256": "1d6e74a0a6239629797f9a1b1cc51c197f053a2495b029606f52b7a8023dbd0e",
+      "reasons": [
+        "required workflow phase 'phase.verification'"
+      ],
+      "required": true
+    },
+    {
+      "id": "actions.index",
+      "kind": "canon",
+      "path": "harness/actions/README.md",
+      "status": "active",
+      "sha256": "10adb697d91a26ac0466ea9ef9fb89a3bc913d7c55824a121f49d058ceab1867",
+      "reasons": [
+        "required by role 'role.domain.harness-engineer'"
+      ],
+      "required": true
+    },
+    {
+      "id": "role.domain.harness-engineer",
+      "kind": "role",
+      "path": "harness/actions/roles/domain/harness-engineer.md",
+      "status": "active",
+      "sha256": "f8bac550eaada6e521afce61aebcd467c6735666325402da0603b02ba43d498f",
+      "reasons": [
+        "requested primary role"
+      ],
+      "required": true
+    },
+    {
+      "id": "roles.registry",
+      "kind": "canon",
+      "path": "harness/actions/roles/README.md",
+      "status": "active",
+      "sha256": "340bcb5e8d9cc2743de936caed02571b7d63c603bf1bfc0becadfaa80c2c4ebf",
+      "reasons": [
+        "required by role 'role.domain.harness-engineer'"
+      ],
+      "required": true
+    },
+    {
+      "id": "workflow.isolated-run",
+      "kind": "workflow",
+      "path": "harness/actions/workflows/isolated-run.md",
+      "status": "active",
+      "sha256": "0099def4159098554566ef92c7e943c07f707aae68fe619d59cb50eea09b06b7",
+      "reasons": [
+        "requested workflow"
+      ],
+      "required": true
+    },
+    {
+      "id": "workflows.registry",
+      "kind": "canon",
+      "path": "harness/actions/workflows/README.md",
+      "status": "active",
+      "sha256": "55558ace2e78503cbd140d96dcf09cade189c1c29fbbb2b90d62285e4f5f642e",
+      "reasons": [
+        "required by role 'role.domain.harness-engineer'"
+      ],
+      "required": true
+    },
+    {
+      "id": "canon.classification",
+      "kind": "canon",
+      "path": "harness/canon/classification.md",
+      "status": "active",
+      "sha256": "a89f39a02cb0d43208c60cfee36ad2ce32f95677c72501fcd4efb4365812f835",
+      "reasons": [
+        "required by role 'role.domain.harness-engineer'"
+      ],
+      "required": true
+    },
+    {
+      "id": "canon.completion-standard",
+      "kind": "canon",
+      "path": "harness/canon/completion-standard.md",
+      "status": "active",
+      "sha256": "96e09ab868b170e354feac1c8e6ac01046da55015e091a38e236e0582874a3b4",
+      "reasons": [
+        "required by role 'role.domain.harness-engineer'"
+      ],
+      "required": true
+    },
+    {
+      "id": "canon.model",
+      "kind": "canon",
+      "path": "harness/canon/model.md",
+      "status": "active",
+      "sha256": "dfdf85770eaee552a33f9a3427889e02a3a208cd2df6b5888c57e57b981ade89",
+      "reasons": [
+        "required by role 'role.domain.harness-engineer'"
+      ],
+      "required": true
+    },
+    {
+      "id": "knowledge.repo-map",
+      "kind": "knowledge",
+      "path": "harness/knowledge/repo-map.md",
+      "status": "active",
+      "sha256": "20e333e5b06a128e10f02ffaf10f1400d54fa756be71b778ecc8ece6d0a83e15",
+      "reasons": [
+        "pinned by role 'role.domain.harness-engineer'"
+      ],
+      "required": true
+    },
+    {
+      "id": "policy.context-budget",
+      "kind": "policy",
+      "path": "harness/policies/context-budget.md",
+      "status": "active",
+      "sha256": "0eaff0dab4f45aa154dae23f793cc8699935a26732c6821b0e93ba43eae7e28c",
+      "reasons": [
+        "required by role 'role.domain.harness-engineer'"
+      ],
+      "required": true
+    },
+    {
+      "id": "policy.repository",
+      "kind": "policy",
+      "path": "harness/policies/repository.md",
+      "status": "active",
+      "sha256": "414bb888f00de352fe99a0def05def43706cc3a042d7e264b7f98976815a2063",
+      "reasons": [
+        "pinned by role 'role.domain.harness-engineer'",
+        "repository policy",
+        "required by role 'role.domain.harness-engineer'"
+      ],
+      "required": true
+    },
+    {
+      "id": "harness.readme",
+      "kind": "canon",
+      "path": "harness/README.md",
+      "status": "active",
+      "sha256": "ee41a1ff2a78965b4177166a740b11a9f0fd58795c7a8bbe42ffc57fefada082",
+      "reasons": [
+        "required by role 'role.domain.harness-engineer'"
+      ],
+      "required": true
+    },
+    {
+      "id": "knowledge.decision.adr.ai-org-llm-doc-consolidation",
+      "kind": "knowledge",
+      "path": "harness/knowledge/decisions/adr/0004-ai-org-llm-doc-consolidation.md",
+      "status": "active",
+      "sha256": "d9077f7843a9e5e41e48d3cf829a8678c2244c8085038ee9b9475bb482abe59b",
+      "reasons": [
+        "optional role knowledge matched metadata signals for intent 'Implement Atelier Nix distribution tasks: keep external release binary surface, add local dogfood runner, and document source-build bun2nix path'"
+      ],
+      "required": false
+    },
+    {
+      "id": "knowledge.incidents.index",
+      "kind": "knowledge",
+      "path": "harness/knowledge/incidents/README.md",
+      "status": "active",
+      "sha256": "60dc71d3f5e5a42e5cee0957e4ebf0e4fd1e938b245122dcd48552ec817f6d82",
+      "reasons": [
+        "known problem or incident matched metadata signals"
+      ],
+      "required": false
+    },
+    {
+      "id": "knowledge.known-problem.harness-known-gaps",
+      "kind": "knowledge",
+      "path": "harness/knowledge/known-problems/tech-debt-tracker.md",
+      "status": "active",
+      "sha256": "0af7352668ba06dfc03b56096959373106f2d06ef58294283f80e7920a2f5d08",
+      "reasons": [
+        "known problem or incident matched metadata signals"
+      ],
+      "required": false
+    },
+    {
+      "id": "knowledge.rule.intelligence.harness-memory-model",
+      "kind": "knowledge",
+      "path": "harness/knowledge/rules/intelligence/intelligence-harness-memory-model.md",
+      "status": "active",
+      "sha256": "cc436c445d55fae4333074f462f956cb81a35ac2afef539348a21973a5c57eb8",
+      "reasons": [
+        "optional role knowledge matched metadata signals for intent 'Implement Atelier Nix distribution tasks: keep external release binary surface, add local dogfood runner, and document source-build bun2nix path'"
+      ],
+      "required": false
+    }
+  ],
+  "expandedDocuments": [],
+  "skippedDocuments": [
+    {
+      "id": "phase.adr-distillation",
+      "path": "harness/actions/phases/adr-distillation.md",
+      "reason": "conditional workflow phase is not loaded by default"
+    },
+    {
+      "id": "phase.knowledge-promotion",
+      "path": "harness/actions/phases/knowledge-promotion.md",
+      "reason": "conditional workflow phase is not loaded by default"
+    },
+    {
+      "id": "phase.planning",
+      "path": "harness/actions/phases/planning.md",
+      "reason": "conditional workflow phase is not loaded by default"
+    },
+    {
+      "id": "phase.review",
+      "path": "harness/actions/phases/review.md",
+      "reason": "conditional workflow phase is not loaded by default"
+    },
+    {
+      "id": "phase.worktree-isolation",
+      "path": "harness/actions/phases/worktree-isolation.md",
+      "reason": "conditional workflow phase is not loaded by default"
+    },
+    {
+      "id": "knowledge.decision.adr.ai-org-standard",
+      "path": "harness/knowledge/decisions/adr/0001-ai-org-standard.md",
+      "reason": "optional role knowledge did not match metadata signals"
+    },
+    {
+      "id": "knowledge.rule.intelligence.decision-policy",
+      "path": "harness/knowledge/rules/intelligence/intelligence-decision-policy.md",
+      "reason": "optional role knowledge did not match metadata signals"
+    },
+    {
+      "id": null,
+      "path": "harness/legacy/ai-org/",
+      "reason": "optional directory or unresolved reference was not expanded"
+    },
+    {
+      "id": null,
+      "path": "harness/runs/completed/**",
+      "reason": "completed run history is skipped by default",
+      "count": 129
+    }
+  ],
+  "diagnostics": [],
+  "generatedAt": "2026-06-03T04:28:47.252Z",
+  "budgetEstimate": {
+    "tokens": 7805,
+    "limit": 50000,
+    "exceeded": false
+  }
+}
