@@ -14,7 +14,7 @@ import {
   writeGraph,
 } from './graph'
 import { compileIndexes } from './indexer'
-import { createTask, assignTask, taskStatus, closeTask, createRole, editRole } from './tasks'
+import { createTask, assignTask, taskStatus, closeTask, createRole, editRole, listTasks } from './tasks'
 import { listControls, buildCoverageReport, findMissingControls } from './controls'
 import { checkPolicy, explainPolicy } from './policy'
 import { listKnowledgeProposals, promoteKnowledgeProposal, proposeKnowledge, rejectKnowledgeProposal } from './knowledge'
@@ -406,6 +406,10 @@ export function handleGuiRequest(
   if (route.method === 'GET' && route.pathname === '/api/path-ownership') {
     const repoMap = compileRepoMap(projectRoot)
     return jsonResponse(compilePathOwnership(projectRoot, repoMap))
+  }
+
+  if (route.method === 'GET' && route.pathname === '/api/tasks') {
+    return jsonResponse(listTasks(projectRoot))
   }
 
   if (route.method === 'GET' && route.pathname === '/api/tasks/status') {

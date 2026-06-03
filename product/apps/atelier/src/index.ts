@@ -167,6 +167,7 @@ export {
   createRole,
   createTask,
   editRole,
+  listTasks,
   splitTask,
   taskStatus,
   type RoleCreateOptions,

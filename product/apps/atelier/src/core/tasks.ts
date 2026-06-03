@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { appendEvent, createEvent, createRunCompletedEvent, generateEventId } from './events'
 import { loadHarnessDocuments } from './docs'
@@ -367,6 +367,22 @@ function readTask(projectRoot: string, taskId: string): TaskArtifact | null {
   } catch {
     return null
   }
+}
+
+export function listTasks(projectRoot: string): TaskArtifact[] {
+  const dir = taskDir(projectRoot)
+  if (!existsSync(dir)) return []
+  const files = readdirSync(dir).filter((f) => f.endsWith('.md'))
+  const tasks: TaskArtifact[] = []
+  for (const file of files) {
+    try {
+      const task = readTask(projectRoot, file.replace(/\.md$/, ''))
+      if (task) tasks.push(task)
+    } catch {
+      // skip malformed task files
+    }
+  }
+  return tasks.sort((a, b) => b.createdAt.localeCompare(a.createdAt))
 }
 
 function writeTaskFile(projectRoot: string, task: TaskArtifact): void {

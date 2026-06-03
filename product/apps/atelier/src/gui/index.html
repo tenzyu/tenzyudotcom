@@ -10,18 +10,12 @@
     <header class="app-header">
       <h1>Atelier</h1>
       <p class="tagline" id="tagline">Local harness control plane</p>
-      <nav class="tabs" role="tablist">
-        <button data-screen="doctor" class="tab" role="tab">Doctor</button>
-        <button data-screen="bundles" class="tab" role="tab">Role Bundles</button>
-        <button data-screen="plan" class="tab" role="tab">Context Plan</button>
-        <button data-screen="inbox" class="tab" role="tab">Knowledge Inbox</button>
-        <button data-screen="rename" class="tab" role="tab">ID Rename</button>
-      </nav>
+      <nav class="tabs" role="tablist"></nav>
     </header>
     <main id="main">
       <section id="screen-doctor" class="screen" hidden>
         <h2>Doctor</h2>
-        <button class="primary" data-action="refresh-doctor">Refresh</button>
+        <button type="button" class="primary" data-action="refresh-doctor">Refresh</button>
         <div id="doctor-summary" class="summary"></div>
         <h3>Diagnostics</h3>
         <ul id="doctor-list" class="diagnostics"></ul>
@@ -55,7 +49,11 @@
               <option value="linked">linked</option>
             </select>
           </label>
-          <button class="primary" type="submit">Plan</button>
+          <label class="checkbox">
+            <input type="checkbox" name="selectorV2" />
+            <span>Selector v2 (graph-backed)</span>
+          </label>
+          <button type="submit">Plan</button>
         </form>
         <div id="plan-output" class="plan-output"></div>
       </section>
@@ -79,9 +77,96 @@
             <input type="checkbox" name="confirm" />
             <span>Confirm mutation</span>
           </label>
-          <button class="primary" type="submit">Run</button>
+          <button type="submit">Run</button>
         </form>
         <pre id="rename-output" class="output"></pre>
+      </section>
+
+      <!-- M17: Artifact Graph Overview -->
+      <section id="screen-graph" class="screen" hidden>
+        <h2>Artifact Graph</h2>
+        <div class="toolbar">
+          <button type="button" class="primary" data-action="refresh-graph">Scan & Refresh</button>
+        </div>
+        <div id="graph-summary" class="summary"></div>
+        <div id="graph-breakdown"></div>
+        <div id="graph-filter-bar"></div>
+        <div id="graph-list"></div>
+        <div id="graph-blame-panel"></div>
+      </section>
+
+      <!-- M17: Control Coverage -->
+      <section id="screen-controls" class="screen" hidden>
+        <h2>Control Coverage</h2>
+        <div class="toolbar">
+          <button type="button" class="primary" data-action="refresh-controls">Refresh</button>
+        </div>
+        <div id="controls-summary" class="summary"></div>
+        <div id="controls-filter-bar"></div>
+        <div id="controls-list"></div>
+        <div id="controls-orphaned"></div>
+      </section>
+
+      <!-- M17: Drift Dashboard -->
+      <section id="screen-drift" class="screen" hidden>
+        <h2>Drift Dashboard</h2>
+        <div class="toolbar">
+          <button type="button" class="primary" data-action="refresh-drift">Reconcile</button>
+        </div>
+        <div id="drift-summary" class="summary"></div>
+        <div id="drift-filter-bar"></div>
+        <div id="drift-findings"></div>
+      </section>
+
+      <!-- M17: Task Builder -->
+      <section id="screen-tasks" class="screen" hidden>
+        <h2>Task Builder</h2>
+        <div class="grid-2">
+          <div>
+            <h3>Create Task</h3>
+            <form id="task-create-form" class="form">
+              <label>Title <input name="title" required /></label>
+              <label>Description <input name="description" required /></label>
+              <label>Phase <input name="phase" placeholder="phase.explore" /></label>
+              <label>Scope <input name="scope" placeholder="product/apps/atelier" /></label>
+              <label>Role IDs (comma) <input name="roleIds" /></label>
+              <label>Parent Task ID <input name="parentTask" /></label>
+              <button type="submit">Create</button>
+            </form>
+          </div>
+          <div>
+            <h3>Create Role</h3>
+            <form id="role-create-form" class="form">
+              <label>ID <input name="id" required /></label>
+              <label>Title <input name="title" required /></label>
+              <label>Pinned IDs (comma) <input name="pinned" /></label>
+              <button type="submit">Create</button>
+            </form>
+          </div>
+        </div>
+        <div>
+          <h3>Tasks</h3>
+          <div id="task-list" class="bundles"></div>
+        </div>
+      </section>
+
+      <!-- M17: Permission Console -->
+      <section id="screen-policy" class="screen" hidden>
+        <h2>Permission Console</h2>
+        <div class="toolbar">
+          <button type="button" class="primary" data-action="refresh-policy">Refresh Rules</button>
+        </div>
+        <form id="policy-check-form" class="form">
+          <label>Path <input name="path" /></label>
+          <label>Command <input name="command" /></label>
+          <label>Tool <input name="tool" /></label>
+          <button type="submit">Check</button>
+        </form>
+        <div id="policy-output" class="output"></div>
+        <div>
+          <h3>Active Rules</h3>
+          <div id="policy-rules"></div>
+        </div>
       </section>
     </main>
     <footer class="app-footer">
