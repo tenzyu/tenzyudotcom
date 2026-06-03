@@ -1,6 +1,7 @@
 import path from 'node:path'
 import { loadHarnessDocuments, toPosixPath } from './docs'
 import { asStringArray, type Diagnostic, type HarnessDocument } from './schema'
+import { suggestAffordances } from './knowledge'
 import {
   buildSemanticQuery,
   runSemanticExpansion,
@@ -54,6 +55,20 @@ export type ConditionEvaluation = {
   confidence?: string
 }
 
+export type RelationResolveTrace = {
+  type: 'inherit' | 'require_context' | 'require_constant' | 'require_decision' | 'related' | 'conflicts'
+  target: string
+  mode: string
+  resolved: boolean
+  reason: string
+  inheritedTags?: string[]
+}
+
+export type RelationTarget = {
+  id: string
+  mode: 'full' | 'summary' | 'reference'
+}
+
 export type ContextPlan = {
   workflowId: string
   roleIds: string[]
@@ -82,6 +97,14 @@ export type ContextPlan = {
       path: string
       reasons: string[]
       selectorMatches: SelectorMatchTrace[]
+      pattern?: string | null
+      relations?: RelationResolveTrace[]
+      conditions?: ConditionEvaluation[]
+      affordances?: {
+        declared: string[]
+        inferred: string[]
+        accepted: string[]
+      }
     }>
   }
 }
@@ -338,28 +361,20 @@ function documentHasAllTags(document: HarnessDocument, requiredTags: string[]) {
   return requiredTags.every((tag) => tags.has(tag))
 }
 
-function documentHasAnyTag(document: HarnessDocument, candidateTags: string[]) {
-  if (candidateTags.length === 0) return true
-  const tags = new Set(asStringArray(document.frontmatter?.tags))
-  return candidateTags.some((tag) => tags.has(tag))
-}
-
-function documentExcludedByTags(document: HarnessDocument, excludeTags: string[]) {
-  if (excludeTags.length === 0) return false
-  const tags = new Set(asStringArray(document.frontmatter?.tags))
-  return excludeTags.some((tag) => tags.has(tag))
-}
-
-function parseSelectors(selectors: Record<string, unknown>) {
-  return {
-    requireAll: asStringArray(selectors.require_all),
-    requireAny: asStringArray(selectors.require_any),
-    exclude: asStringArray(selectors.exclude),
-    paths: asStringArray(selectors.paths),
-    // legacy fallback
-    tags: asStringArray(selectors.tags),
-    knowledgeTypes: asStringArray(selectors.knowledge_types),
-  }
+function parseRelationTargets(value: unknown): RelationTarget[] {
+  if (!Array.isArray(value)) return []
+  const VALID_MODES: readonly string[] = ['full', 'summary', 'reference']
+  return value
+    .filter((item): item is Record<string, unknown> =>
+      typeof item === 'object' && item !== null
+    )
+    .map((item) => ({
+      id: typeof item.id === 'string' ? item.id : '',
+      mode: VALID_MODES.includes(item.mode as string)
+        ? (item.mode as RelationTarget['mode'])
+        : 'full',
+    }))
+    .filter((target): target is RelationTarget => target.id !== '')
 }
 
 function recordSelectorTrace(
@@ -380,12 +395,349 @@ function requiredPhaseIds(workflow: HarnessDocument | undefined) {
 }
 
 function conditionalPhaseIds(workflow: HarnessDocument | undefined) {
-  const explicit = asStringArray(workflow?.frontmatter?.conditional_phases)
-  if (explicit.length > 0) return explicit
+  const fm = workflow?.frontmatter
+  if (fm && 'conditional_phases' in fm) {
+    return asStringArray(fm.conditional_phases)
+  }
   return asStringArray(workflow?.frontmatter?.phases).filter(
     (phaseId) =>
       CONDITIONAL_PHASE_IDS.has(phaseId) || !REQUIRED_PHASE_IDS.has(phaseId)
   )
+}
+
+function evaluateConditionalPattern(
+  document: HarnessDocument,
+  inputPath: string,
+): { matched: boolean; conditions: ConditionEvaluation[] } {
+  const fm = document.frontmatter ?? {}
+  if (textOf(fm.pattern) !== 'conditional') return { matched: true, conditions: [] }
+
+  const conditions = recordOf(fm.conditions)
+  const evaluations: ConditionEvaluation[] = []
+
+  // Deterministic: path_any
+  const pathAny = asStringArray(recordOf(conditions.deterministic).path_any)
+  let pathMatched = pathAny.length === 0
+  for (const pattern of pathAny) {
+    if (matchesPathPattern(pattern, inputPath)) {
+      pathMatched = true
+      break
+    }
+  }
+  if (pathAny.length > 0) {
+    evaluations.push({
+      type: 'deterministic',
+      condition: `path_any: [${pathAny.join(', ')}]`,
+      matched: pathMatched,
+      method: 'mechanical',
+    })
+  }
+
+  // Deterministic: tag_any
+  const tagAny = asStringArray(recordOf(conditions.deterministic).tag_any)
+  const docTags = new Set(asStringArray(document.frontmatter?.tags))
+  let tagMatched = tagAny.length === 0
+  for (const tag of tagAny) {
+    if (docTags.has(tag)) {
+      tagMatched = true
+      break
+    }
+  }
+  if (tagAny.length > 0) {
+    evaluations.push({
+      type: 'deterministic',
+      condition: `tag_any: [${tagAny.join(', ')}]`,
+      matched: tagMatched,
+      method: 'mechanical',
+    })
+  }
+
+  const deterministicMatched = pathMatched && tagMatched
+
+  // Semantic conditions
+  const semantic = recordOf(conditions.semantic)
+  const taskIntentAny = asStringArray(semantic.task_intent_any)
+  if (!deterministicMatched && taskIntentAny.length > 0) {
+    evaluations.push({
+      type: 'semantic',
+      condition: `task_intent_any: [${taskIntentAny.join(', ')}]`,
+      matched: false,
+      method: 'llm',
+      confidence: 'none',
+    })
+  }
+
+  const matched = deterministicMatched
+  return { matched, conditions: evaluations }
+}
+
+function resolveRelations(
+  required: Map<string, { document: HarnessDocument; reasons: Set<string> }>,
+  optional: Map<string, { document: HarnessDocument; reasons: Set<string> }>,
+  documentsById: Map<string, HarnessDocument>,
+  diagnostics: Diagnostic[],
+): Array<{
+  id: string | null
+  path: string
+  relations: RelationResolveTrace[]
+}> {
+  const relationTraces: Array<{
+    id: string | null
+    path: string
+    relations: RelationResolveTrace[]
+  }> = []
+
+  const allSelected = new Set([...required.keys(), ...optional.keys()])
+  const processed = new Set<string>()
+  const worklist = [...allSelected]
+
+  while (worklist.length > 0) {
+    const relPath = worklist.shift()!
+    if (processed.has(relPath)) continue
+    processed.add(relPath)
+
+    const entry = required.get(relPath) ?? optional.get(relPath)
+    if (!entry) continue
+
+    const document = entry.document
+    const frontmatter = document.frontmatter ?? {}
+    const pattern = textOf(frontmatter.pattern)
+    const relations = recordOf(frontmatter.relations)
+    const docId = idOf(document)
+    const docRelations: RelationResolveTrace[] = []
+
+    // --- Inheritance ---
+    if (pattern === 'inheritance') {
+      const inheritIds = asStringArray(relations.inherit)
+      let maxDepth = 1
+      for (const baseId of inheritIds) {
+        const baseDoc = documentsById.get(baseId)
+        if (!baseDoc) {
+          docRelations.push({
+            type: 'inherit',
+            target: baseId,
+            mode: 'full',
+            resolved: false,
+            reason: `Base '${baseId}' was not found`,
+          })
+          diagnostics.push({
+            code: 'UNRESOLVED_ID_REFERENCE',
+            severity: 'warning',
+            path: document.relativePath,
+            message: `Inheritance base '${baseId}' was not found.`,
+          })
+          continue
+        }
+
+        let depth = 1
+        let current = baseDoc
+        while (current.frontmatter?.pattern === 'inheritance') {
+          const baseRelations = recordOf(current.frontmatter.relations)
+          const baseInherits = asStringArray(baseRelations.inherit)
+          if (baseInherits.length === 0) break
+          const nextBase = documentsById.get(baseInherits[0])
+          if (!nextBase) break
+          current = nextBase
+          depth++
+        }
+        maxDepth = Math.max(maxDepth, depth + 1)
+
+        const baseTags = asStringArray(baseDoc.frontmatter?.tags)
+        const childTags = asStringArray(document.frontmatter?.tags)
+        const inheritedTags = baseTags.filter((t) => !childTags.includes(t))
+
+        addSelected(required, baseDoc, `inherited base for '${docId}'`)
+        worklist.push(baseDoc.relativePath)
+
+        docRelations.push({
+          type: 'inherit',
+          target: baseId,
+          mode: 'full',
+          resolved: true,
+          reason: 'Base injected before child for inheritance pattern',
+          inheritedTags,
+        })
+      }
+
+      if (maxDepth > 2) {
+        diagnostics.push({
+          code: 'INVALID_FRONTMATTER',
+          severity: 'warning',
+          path: document.relativePath,
+          message: `Inheritance depth ${maxDepth} exceeds maximum of 2.`,
+        })
+      }
+    }
+
+    // --- require_context ---
+    const requireCtxTargets = parseRelationTargets(relations.require_context)
+    for (const target of requireCtxTargets) {
+      const targetDoc = documentsById.get(target.id)
+      if (!targetDoc) {
+        docRelations.push({
+          type: 'require_context',
+          target: target.id,
+          mode: target.mode,
+          resolved: false,
+          reason: `Target '${target.id}' was not found`,
+        })
+        diagnostics.push({
+          code: 'UNRESOLVED_ID_REFERENCE',
+          severity: 'warning',
+          path: document.relativePath,
+          message: `require_context target '${target.id}' was not found.`,
+        })
+        continue
+      }
+
+      if (target.mode === 'full') {
+        addSelected(
+          required,
+          targetDoc,
+          `require_context (full) for '${docId}'`,
+        )
+        worklist.push(targetDoc.relativePath)
+        docRelations.push({
+          type: 'require_context',
+          target: target.id,
+          mode: 'full',
+          resolved: true,
+          reason: 'Full context injected for require_context relation',
+        })
+      } else if (target.mode === 'summary') {
+        addSelected(
+          optional,
+          targetDoc,
+          `require_context (summary) for '${docId}'`,
+        )
+        worklist.push(targetDoc.relativePath)
+        docRelations.push({
+          type: 'require_context',
+          target: target.id,
+          mode: 'summary',
+          resolved: true,
+          reason: 'Summary mode: summary injection not implemented — included with full body as approximation',
+        })
+      } else if (target.mode === 'reference') {
+        docRelations.push({
+          type: 'require_context',
+          target: target.id,
+          mode: 'reference',
+          resolved: true,
+          reason: 'Reference mode: trace only, no body injection',
+        })
+      }
+    }
+
+    // --- require_constant ---
+    const constValues = asStringArray(relations.require_constant)
+    for (const constId of constValues) {
+      const constDoc = documentsById.get(constId)
+      if (!constDoc) {
+        docRelations.push({
+          type: 'require_constant',
+          target: constId,
+          mode: 'reference',
+          resolved: false,
+          reason: `Constant '${constId}' was not found`,
+        })
+        diagnostics.push({
+          code: 'UNRESOLVED_ID_REFERENCE',
+          severity: 'warning',
+          path: document.relativePath,
+          message: `require_constant target '${constId}' was not found.`,
+        })
+        continue
+      }
+      addSelected(optional, constDoc, `require_constant for '${docId}'`)
+      worklist.push(constDoc.relativePath)
+      docRelations.push({
+        type: 'require_constant',
+        target: constId,
+        mode: 'reference',
+        resolved: true,
+        reason: 'Constant value reference',
+      })
+    }
+
+    // --- require_decision ---
+    const decisionIds = asStringArray(relations.require_decision)
+    for (const decisionId of decisionIds) {
+      const decisionDoc = documentsById.get(decisionId)
+      if (!decisionDoc) {
+        docRelations.push({
+          type: 'require_decision',
+          target: decisionId,
+          mode: 'reference',
+          resolved: false,
+          reason: `Decision '${decisionId}' was not found`,
+        })
+        diagnostics.push({
+          code: 'UNRESOLVED_ID_REFERENCE',
+          severity: 'warning',
+          path: document.relativePath,
+          message: `require_decision target '${decisionId}' was not found.`,
+        })
+        continue
+      }
+      addSelected(optional, decisionDoc, `require_decision for '${docId}'`)
+      worklist.push(decisionDoc.relativePath)
+      docRelations.push({
+        type: 'require_decision',
+        target: decisionId,
+        mode: 'reference',
+        resolved: true,
+        reason: 'Decision reference for condition evaluation',
+      })
+    }
+
+    // --- conflicts ---
+    const conflictIds = asStringArray(relations.conflicts)
+    for (const conflictId of conflictIds) {
+      const conflictDoc = documentsById.get(conflictId)
+      if (!conflictDoc) continue
+      if (allSelected.has(conflictDoc.relativePath) || required.has(conflictDoc.relativePath) || optional.has(conflictDoc.relativePath)) {
+        docRelations.push({
+          type: 'conflicts',
+          target: conflictId,
+          mode: 'full',
+          resolved: true,
+          reason: 'Both documents are selected; may require conflict resolution',
+        })
+        diagnostics.push({
+          code: 'INVALID_FRONTMATTER',
+          severity: 'info',
+          path: document.relativePath,
+          message: `Conflicts with selected document '${conflictId}'.`,
+        })
+      }
+    }
+
+    // --- related (trace only) ---
+    const relatedIds = asStringArray(relations.related)
+    for (const relatedId of relatedIds) {
+      const relatedDoc = documentsById.get(relatedId)
+      docRelations.push({
+        type: 'related',
+        target: relatedId,
+        mode: 'reference',
+        resolved: relatedDoc !== undefined,
+        reason: relatedDoc
+          ? 'Related knowledge (exploration hint, no auto-injection)'
+          : `Related '${relatedId}' was not found`,
+      })
+    }
+
+    if (docRelations.length > 0) {
+      relationTraces.push({
+        id: docId,
+        path: document.relativePath,
+        relations: docRelations,
+      })
+    }
+  }
+
+  return relationTraces
 }
 
 export function buildContextPlan(options: ContextPlanOptions): ContextPlan {
@@ -463,6 +815,13 @@ export function buildContextPlan(options: ContextPlanOptions): ContextPlan {
     path: string
     reasons: string[]
     selectorMatches: SelectorMatchTrace[]
+    pattern?: string | null
+    relations?: RelationResolveTrace[]
+    affordances?: {
+      declared: string[]
+      inferred: string[]
+      accepted: string[]
+    }
   }> = []
 
   for (const role of roles.filter(
@@ -586,6 +945,18 @@ export function buildContextPlan(options: ContextPlanOptions): ContextPlan {
 
       if (allMet && anyMet) {
         traceSelectors(document, true, allMatch, anyMatch)
+        const cond = evaluateConditionalPattern(document, inputPath)
+        // Add conditions to the last matching trace entry
+        const matchingEntry = traceEntries.find(
+          (te) => te.path === document.relativePath && te.reasons.some((r) => r.startsWith('selector matched'))
+        )
+        if (matchingEntry && cond.conditions.length > 0) {
+          ;(matchingEntry as Record<string, unknown>).conditions = cond.conditions
+        }
+        if (!cond.matched) {
+          addSkipped(skipped, document, document.relativePath, 'conditional pattern conditions not met')
+          continue
+        }
         if (documentHasAllTags(document, ['criticality:fatal', 'criticality:high'])) {
           addSelected(required, document, 'required by role selectors (high criticality)')
         } else {
@@ -596,6 +967,14 @@ export function buildContextPlan(options: ContextPlanOptions): ContextPlan {
 
       if (!allMet || !anyMet) {
         traceSelectors(document, false, allMatch, anyMatch)
+        // Record conditions even for non-matching selectors
+        const cond = evaluateConditionalPattern(document, inputPath)
+        if (cond.conditions.length > 0) {
+          const entry = traceEntries.find((te) => te.path === document.relativePath)
+          if (entry) {
+            ;(entry as Record<string, unknown>).conditions = cond.conditions
+          }
+        }
       }
     }
 
@@ -638,6 +1017,76 @@ export function buildContextPlan(options: ContextPlanOptions): ContextPlan {
       reason: 'completed run history is skipped by default',
       count: completedRunCount,
     })
+  }
+
+  // Step 7: Relation Resolution — expand inheritance and require_context
+  const relationTraces = resolveRelations(required, optional, documentsById, diagnostics)
+
+  // Merge relation traces into selection trace entries
+  for (const relTrace of relationTraces) {
+    const existing = traceEntries.find(
+      (te) => te.path === relTrace.path
+    )
+    if (existing) {
+      (existing as Record<string, unknown>).relations = relTrace.relations
+      ;(existing as Record<string, unknown>).pattern = null
+      const doc = required.get(relTrace.path) ?? optional.get(relTrace.path)
+      if (doc) {
+        const fm = doc.document.frontmatter ?? {}
+        ;(existing as Record<string, unknown>).pattern = textOf(fm.pattern) ?? null
+      }
+    } else {
+      traceEntries.push({
+        id: relTrace.id,
+        path: relTrace.path,
+        reasons: ['relation expansion'],
+        selectorMatches: [],
+        pattern: null,
+        relations: relTrace.relations,
+      })
+    }
+  }
+
+  // Enrich all trace entries with pattern, affordances, and condition info
+  function enrichTraceEntry(path: string, entry: { document: HarnessDocument; reasons: Set<string> }) {
+    const fm = entry.document.frontmatter ?? {}
+    const existing = traceEntries.find((te) => te.path === path)
+    if (existing) {
+      if (!existing.pattern) existing.pattern = textOf(fm.pattern) ?? null
+      if (!(existing as Record<string, unknown>).affordances) {
+        const declared = asStringArray(recordOf(fm.affordances).declared)
+        const { suggested } = suggestAffordances(entry.document)
+        ;(existing as Record<string, unknown>).affordances = {
+          declared,
+          inferred: suggested,
+          accepted: [] as string[],
+        }
+      }
+      return
+    }
+    const declared = asStringArray(recordOf(fm.affordances).declared)
+    const { suggested } = suggestAffordances(entry.document)
+    traceEntries.push({
+      id: idOf(entry.document),
+      path,
+      reasons: [...entry.reasons],
+      selectorMatches: [],
+      pattern: textOf(fm.pattern) ?? null,
+      affordances: {
+        declared,
+        inferred: suggested,
+        accepted: [] as string[],
+      },
+    })
+  }
+
+  for (const [selPath] of required) {
+    const entry = required.get(selPath)
+    if (entry) enrichTraceEntry(selPath, entry)
+  }
+  for (const [selPath] of optional) {
+    const entry = optional.get(selPath)
+    if (entry) enrichTraceEntry(selPath, entry)
   }
 
   const requiredDocuments = [...required.values()]

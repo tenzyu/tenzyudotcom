@@ -1345,8 +1345,8 @@ sed -n '1,260p' 'packages/site/src/app/[locale]/(main)/puzzles/_features/puzzles
 
 Use these short guides when a linter points you at a specific repair path.
 
-- [Import Boundaries Repair Guide](./references/import-boundaries.md)
-- [No Re-export Repair Guide](./references/no-reexport.md)
-- [Site Rules Repair Guide](./references/site-rules.md)
-- [Symbol Ownership Repair Guide](./references/symbol-ownership.md)
-- [UI Package Boundary Repair Guide](./references/ui-package.md)
+- [Import Boundaries Repair Guide](../../rule-references/import-boundaries.md)
+- [No Re-export Repair Guide](../../rule-references/no-reexport.md)
+- [Site Rules Repair Guide](../../rule-references/site-rules.md)
+- [Symbol Ownership Repair Guide](../../rule-references/symbol-ownership.md)
+- [UI Package Boundary Repair Guide](../../rule-references/ui-package.md)

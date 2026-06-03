@@ -91,6 +91,17 @@ function textOf(value: unknown) {
   return typeof value === 'string' ? value.trim() : ''
 }
 
+function recordOf(value: unknown): Record<string, unknown> {
+  if (
+    value === null ||
+    value === undefined ||
+    typeof value !== 'object' ||
+    Array.isArray(value)
+  )
+    return {}
+  return value as Record<string, unknown>
+}
+
 function runPathFor(projectRoot: string, runId: string) {
   const active = path.join(projectRoot, 'harness/runs/active', runId)
   if (existsSync(active)) return active
@@ -518,6 +529,81 @@ export function rejectKnowledgeProposal(options: KnowledgeRejectOptions): Knowle
   return {
     proposalPath,
     archivedPath,
+  }
+}
+
+export type AffordanceCheckResult = {
+  id: string | null
+  path: string
+  declared: string[]
+  suggested: string[]
+  reasons: Array<{ affordance: string; reason: string }>
+}
+
+const AFFORDANCE_PATTERNS: Array<{
+  affordance: string
+  signals: string[]
+  reason: string
+}> = [
+  { affordance: 'migration-candidate', signals: ['upgrade', 'migration', 'migrate', 'deprecat'], reason: 'Body mentions migration, upgrade, or deprecation' },
+  { affordance: 'check-candidate', signals: ['check', 'verify', 'validate', 'test', 'lint'], reason: 'Body mentions verification or checking patterns' },
+  { affordance: 'context', signals: ['context', 'knowledge', 'reference'], reason: 'Body contains contextual knowledge or references' },
+  { affordance: 'skill-candidate', signals: ['skill', 'agent', 'workflow'], reason: 'Body describes agent or workflow behavior' },
+  { affordance: 'adr-candidate', signals: ['decision', 'rationale', 'trade-off', 'we chose'], reason: 'Body contains decision rationale or trade-off analysis' },
+  { affordance: 'implementation-reference', signals: ['```'], reason: 'Body contains code blocks suggesting implementation reference' },
+  { affordance: 'design-guideline', signals: ['design', 'pattern', 'composition', 'architecture'], reason: 'Body describes design patterns or architecture' },
+]
+
+export function suggestAffordances(document: HarnessDocument): {
+  suggested: string[]
+  reasons: Array<{ affordance: string; reason: string }>
+} {
+  const frontmatter = document.frontmatter ?? {}
+  const body = document.body ?? ''
+  const bodyLower = body.toLowerCase()
+  const declared = new Set(asStringArray(recordOf(frontmatter.affordances).declared))
+  const suggested: string[] = []
+  const reasons: Array<{ affordance: string; reason: string }> = []
+
+  for (const pattern of AFFORDANCE_PATTERNS) {
+    if (declared.has(pattern.affordance)) continue
+    const matched = pattern.signals.some((signal) => bodyLower.includes(signal))
+    if (matched) {
+      suggested.push(pattern.affordance)
+      reasons.push({ affordance: pattern.affordance, reason: pattern.reason })
+    }
+  }
+
+  return { suggested, reasons }
+}
+
+export function checkAffordances(projectRoot: string, knowledgePath: string): AffordanceCheckResult {
+  const fullPath = path.isAbsolute(knowledgePath)
+    ? knowledgePath
+    : path.resolve(projectRoot, knowledgePath)
+  const documents = loadHarnessDocuments(projectRoot)
+  const document = documents.find((d) => d.absolutePath === fullPath || d.relativePath === knowledgePath)
+
+  if (!document) {
+    return {
+      id: null,
+      path: knowledgePath,
+      declared: [],
+      suggested: [],
+      reasons: [{ affordance: 'unknown', reason: 'Knowledge document not found' }],
+    }
+  }
+
+  const frontmatter = document.frontmatter ?? {}
+  const declared = asStringArray(recordOf(frontmatter.affordances).declared)
+  const { suggested, reasons } = suggestAffordances(document)
+
+  return {
+    id: textOf(frontmatter.id) || null,
+    path: document.relativePath,
+    declared,
+    suggested,
+    reasons,
   }
 }
 

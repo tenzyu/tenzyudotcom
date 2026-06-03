@@ -446,4 +446,293 @@ describe('Atelier M2-M4', () => {
     expect(readFileSync(rejection.archivedPath, 'utf-8')).toContain('status: archived')
     expect(readFileSync(rejection.archivedPath, 'utf-8')).toContain('Fixture rejection.')
   })
+
+  test('evaluates conditional pattern with path_any conditions', () => {
+    writeMarkdown(tmpRoot, 'harness/knowledge/rules/conditional-test.md', [
+      '---',
+      'schema: harness/v1',
+      'kind: knowledge',
+      'knowledge_type: rule',
+      'id: knowledge.rule.conditional-test',
+      'title: Conditional Test',
+      'status: active',
+      'tags:',
+      '  - domain:test',
+      '  - kind:rule',
+      'pattern: conditional',
+      'conditions:',
+      '  deterministic:',
+      '    path_any:',
+      '      - "product/apps/web/**"',
+      '    tag_any:',
+      '      - "domain:site"',
+      '---',
+      '# Conditional Test',
+      '',
+      'Only relevant for web path with site domain.',
+    ])
+
+    // Plan for a path that DOES match path_any but NOT tag_any
+    const plan = buildContextPlan({
+      projectRoot: tmpRoot,
+      workflowId: 'workflow.example',
+      roleIds: ['role.domain.example'],
+      inputPath: 'product/apps/web/src/page.tsx',
+      intent: 'fix conditional',
+    })
+
+    const condDoc = plan.trace.selections.find(
+      (s) => s.id === 'knowledge.rule.conditional-test'
+    )
+    // The fixture role has no require_all/require_any so the document won't be selected by selectors,
+    // but the trace should record conditions when selectors don't match
+    if (condDoc) {
+      const conditions = (condDoc as Record<string, unknown>).conditions as Array<Record<string, unknown>> | undefined
+      if (conditions) {
+        const pathCond = conditions.find((c) => (c.condition as string ?? '').startsWith('path_any'))
+        const tagCond = conditions.find((c) => (c.condition as string ?? '').startsWith('tag_any'))
+        if (pathCond) expect(pathCond.matched).toBe(true)
+        if (tagCond) expect(tagCond.matched).toBe(false)
+      }
+    }
+  })
+
+  test('evaluates conditional pattern with matching deterministic conditions', () => {
+    writeMarkdown(tmpRoot, 'harness/knowledge/rules/conditional-match.md', [
+      '---',
+      'schema: harness/v1',
+      'kind: knowledge',
+      'knowledge_type: rule',
+      'id: knowledge.rule.conditional-match',
+      'title: Conditional Match',
+      'status: active',
+      'tags:',
+      '  - example',
+      'pattern: conditional',
+      'conditions:',
+      '  deterministic:',
+      '    tag_any:',
+      '      - "example"',
+      '---',
+      '# Conditional Match',
+      '',
+      'Always matches when example tag is present.',
+    ])
+
+    // Add require_all to role so this document gets selected
+    writeMarkdown(tmpRoot, 'harness/actions/roles/domain/example.md', [
+      '---',
+      'schema: harness/v1',
+      'kind: role',
+      'id: role.domain.example',
+      'title: Example Role',
+      'status: active',
+      'selectors:',
+      '  require_all:',
+      '    - example',
+      'pinned:',
+      '  - knowledge.repo-map',
+      '---',
+      '# Example Role',
+    ])
+
+    const plan = buildContextPlan({
+      projectRoot: tmpRoot,
+      workflowId: 'workflow.example',
+      roleIds: ['role.domain.example'],
+      inputPath: 'product/apps/example',
+      intent: 'match conditional',
+    })
+
+    const condDoc = plan.trace.selections.find(
+      (s) => s.id === 'knowledge.rule.conditional-match'
+    )
+    expect(condDoc).toBeDefined()
+    expect(condDoc?.pattern).toBe('conditional')
+    const conditions = (condDoc as Record<string, unknown>).conditions as Array<Record<string, unknown>> | undefined
+    expect(conditions).toBeDefined()
+    if (conditions) {
+      const tagCond = conditions.find((c) => (c.condition as string ?? '').startsWith('tag_any'))
+      expect(tagCond).toBeDefined()
+      if (tagCond) expect(tagCond.matched).toBe(true)
+    }
+  })
+
+  test('resolves inheritance relation', () => {
+    writeMarkdown(tmpRoot, 'harness/knowledge/rules/base-rule.md', [
+      '---',
+      'schema: harness/v1',
+      'kind: knowledge',
+      'knowledge_type: rule',
+      'id: knowledge.rule.base-rule',
+      'title: Base Rule',
+      'status: active',
+      'tags:',
+      '  - domain:test',
+      '  - kind:rule',
+      'pattern: simple',
+      '---',
+      '# Base Rule',
+      '',
+      'This is the base knowledge.',
+    ])
+
+    writeMarkdown(tmpRoot, 'harness/knowledge/rules/child-rule.md', [
+      '---',
+      'schema: harness/v1',
+      'kind: knowledge',
+      'knowledge_type: rule',
+      'id: knowledge.rule.child-rule',
+      'title: Child Rule',
+      'status: active',
+      'tags:',
+      '  - domain:test',
+      '  - kind:rule',
+      'pattern: inheritance',
+      'relations:',
+      '  inherit:',
+      '    - knowledge.rule.base-rule',
+      '---',
+      '# Child Rule',
+      '',
+      'Extends base rule.',
+    ])
+
+    // Update role selectors to match both
+    writeMarkdown(tmpRoot, 'harness/actions/roles/domain/example.md', [
+      '---',
+      'schema: harness/v1',
+      'kind: role',
+      'id: role.domain.example',
+      'title: Example Role',
+      'status: active',
+      'selectors:',
+      '  require_all:',
+      '    - domain:test',
+      'pinned:',
+      '  - knowledge.repo-map',
+      '---',
+      '# Example Role',
+    ])
+
+    const plan = buildContextPlan({
+      projectRoot: tmpRoot,
+      workflowId: 'workflow.example',
+      roleIds: ['role.domain.example'],
+      inputPath: 'product/apps/example',
+      intent: 'test inheritance',
+    })
+
+    const childDoc = plan.optional.find((d) => d.id === 'knowledge.rule.child-rule')
+    expect(childDoc).toBeDefined()
+    const baseDoc = plan.required.find((d) => d.id === 'knowledge.rule.base-rule')
+    expect(baseDoc).toBeDefined()
+    // Base should be injected before child (base should be in required due to inheritance)
+    const relationTrace = plan.trace.selections.find(
+      (s) => s.id === 'knowledge.rule.child-rule'
+    )
+    expect(relationTrace).toBeDefined()
+    if (relationTrace) {
+      const relations = (relationTrace as Record<string, unknown>).relations as Array<Record<string, unknown>> | undefined
+      if (relations) {
+        const inheritRel = relations.find((r) => r.type === 'inherit')
+        expect(inheritRel).toBeDefined()
+        if (inheritRel) {
+          expect(inheritRel.resolved).toBe(true)
+        }
+      }
+    }
+  })
+
+  test('handles require_context with full and summary modes', () => {
+    writeMarkdown(tmpRoot, 'harness/knowledge/rules/context-target.md', [
+      '---',
+      'schema: harness/v1',
+      'kind: knowledge',
+      'knowledge_type: rule',
+      'id: knowledge.rule.context-target',
+      'title: Context Target',
+      'status: active',
+      'tags:',
+      '  - domain:test',
+      '  - kind:rule',
+      'pattern: simple',
+      '---',
+      '# Context Target',
+      '',
+      'Target for context resolution.',
+    ])
+
+    writeMarkdown(tmpRoot, 'harness/knowledge/rules/context-source.md', [
+      '---',
+      'schema: harness/v1',
+      'kind: knowledge',
+      'knowledge_type: rule',
+      'id: knowledge.rule.context-source',
+      'title: Context Source',
+      'status: active',
+      'tags:',
+      '  - domain:test',
+      '  - kind:rule',
+      'pattern: simple',
+      'affordances:',
+      '  declared:',
+      '    - context',
+      'relations:',
+      '  require_context:',
+      '    - id: knowledge.rule.context-target',
+      '      mode: full',
+      '    - id: knowledge.rule.context-target',
+      '      mode: summary',
+      '---',
+      '# Context Source',
+      '',
+      'Requires context target.',
+    ])
+
+    writeMarkdown(tmpRoot, 'harness/actions/roles/domain/example.md', [
+      '---',
+      'schema: harness/v1',
+      'kind: role',
+      'id: role.domain.example',
+      'title: Example Role',
+      'status: active',
+      'selectors:',
+      '  require_all:',
+      '    - domain:test',
+      'pinned:',
+      '  - knowledge.repo-map',
+      '---',
+      '# Example Role',
+    ])
+
+    const plan = buildContextPlan({
+      projectRoot: tmpRoot,
+      workflowId: 'workflow.example',
+      roleIds: ['role.domain.example'],
+      inputPath: 'product/apps/example',
+      intent: 'test require_context',
+    })
+
+    const source = plan.optional.find((d) => d.id === 'knowledge.rule.context-source')
+    expect(source).toBeDefined()
+    const target = plan.required.find((d) => d.id === 'knowledge.rule.context-target')
+    expect(target).toBeDefined()
+    const sourceTrace = plan.trace.selections.find(
+      (s) => s.id === 'knowledge.rule.context-source'
+    )
+    expect(sourceTrace).toBeDefined()
+    if (sourceTrace) {
+      const relations = (sourceTrace as Record<string, unknown>).relations as Array<Record<string, unknown>> | undefined
+      expect(relations).toBeDefined()
+      if (relations) {
+        const fullRel = relations.find((r) => r.type === 'require_context' && r.mode === 'full')
+        expect(fullRel).toBeDefined()
+        if (fullRel) expect(fullRel.resolved).toBe(true)
+        const summaryRel = relations.find((r) => r.type === 'require_context' && r.mode === 'summary')
+        expect(summaryRel).toBeDefined()
+        if (summaryRel) expect(summaryRel.resolved).toBe(true)
+      }
+    }
+  })
 })

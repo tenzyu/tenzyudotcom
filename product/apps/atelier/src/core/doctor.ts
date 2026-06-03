@@ -15,6 +15,19 @@ export type DoctorOptions = {
   projectRoot?: string
 }
 
+const VALID_PATTERNS = new Set([
+  'simple',
+  'conditional',
+  'inheritance',
+  'collector',
+  'constants',
+  'fragment',
+  'factory',
+  'multi-context',
+])
+
+const TAG_PREFIX_REGEX = /^[a-z][a-z0-9_-]*:[a-z][a-z0-9_-]*$/
+
 const KNOWLEDGE_LEGACY_FIELDS = [
   'impactDescription',
   'chapter',
@@ -52,6 +65,17 @@ function recordOf(value: unknown): Record<string, unknown> {
   )
     return {}
   return value as Record<string, unknown>
+}
+
+function collectRoleRequireAllSelectors(documents: HarnessDocument[]): string[][] {
+  const roleSelectors: string[][] = []
+  for (const doc of documents) {
+    if (doc.frontmatter?.kind !== 'role') continue
+    const selectors = recordOf(doc.frontmatter.selectors)
+    const requireAll = asStringArray(selectors.require_all)
+    if (requireAll.length > 0) roleSelectors.push(requireAll)
+  }
+  return roleSelectors
 }
 
 function isCompletedRunHistory(document: HarnessDocument) {
@@ -117,6 +141,146 @@ function addTagsDiagnostics(
     path: document.relativePath,
     message: 'Frontmatter tags must be a YAML sequence, not a scalar string.',
   })
+}
+
+function addKnowledgeCardDiagnostics(
+  document: HarnessDocument,
+  diagnostics: Diagnostic[],
+  roleRequireAllSelectors: string[][]
+) {
+  if (!document.frontmatter || kindOf(document) !== 'knowledge') return
+
+  const fm = document.frontmatter
+  const pattern = textOf(fm.pattern)
+  const tags = asStringArray(fm.tags)
+  const relations = recordOf(fm.relations)
+  const affordances = recordOf(fm.affordances)
+
+  // Check valid pattern
+  if (pattern !== null && !VALID_PATTERNS.has(pattern)) {
+    diagnostics.push({
+      code: 'INVALID_FRONTMATTER',
+      severity: 'warning',
+      path: document.relativePath,
+      message: `Unknown pattern '${pattern}'. Valid values: ${[...VALID_PATTERNS].join(', ')}.`,
+    })
+  }
+
+  // Check tag format (prefix:value)
+  for (const tag of tags) {
+    if (TAG_PREFIX_REGEX.test(tag)) continue
+    if (tag.startsWith('x.')) continue // x.legacy is exempt
+    diagnostics.push({
+      code: 'INVALID_TAG_FORMAT',
+      severity: 'warning',
+      path: document.relativePath,
+      message: `Tag '${tag}' does not use prefix:value format.`,
+      details: { tag },
+    })
+  }
+
+  // Check empty tags
+  if (tags.length === 0) {
+    diagnostics.push({
+      code: 'EMPTY_KNOWLEDGE_CARD',
+      severity: 'info',
+      path: document.relativePath,
+      message: 'Knowledge Card has no tags. Add prefix:value tags for selector matching.',
+    })
+  }
+
+  // Check pattern-specific requirements
+  if (pattern === 'inheritance') {
+    const inheritIds = asStringArray(relations.inherit)
+    if (inheritIds.length === 0) {
+      diagnostics.push({
+        code: 'PATTERN_REQUIRES_RELATIONS',
+        severity: 'error',
+        path: document.relativePath,
+        message: "Knowledge Card with pattern 'inheritance' must have at least one 'relations.inherit' target.",
+      })
+    }
+  }
+
+  if (pattern === 'conditional') {
+    const conditions = recordOf(fm.conditions)
+    const hasDeterministic = Object.keys(recordOf(conditions.deterministic)).length > 0
+    const hasSemantic = Object.keys(recordOf(conditions.semantic)).length > 0
+    if (!hasDeterministic && !hasSemantic) {
+      diagnostics.push({
+        code: 'PATTERN_REQUIRES_CONDITIONS',
+        severity: 'error',
+        path: document.relativePath,
+        message: "Knowledge Card with pattern 'conditional' must have 'conditions.deterministic' or 'conditions.semantic'.",
+      })
+    }
+  }
+
+  if (pattern === 'collector') {
+    const requireCtx = relations.require_context
+    const hasTargets = Array.isArray(requireCtx) && requireCtx.length > 0
+    if (!hasTargets) {
+      diagnostics.push({
+        code: 'PATTERN_REQUIRES_RELATIONS',
+        severity: 'error',
+        path: document.relativePath,
+        message: "Knowledge Card with pattern 'collector' must have at least one 'relations.require_context' target.",
+      })
+    }
+  }
+
+  // Check affordances.declared
+  const declared = asStringArray(affordances.declared)
+  if (declared.length === 0 && pattern !== 'fragment') {
+    diagnostics.push({
+      code: 'MISSING_AFFORDANCES',
+      severity: 'info',
+      path: document.relativePath,
+      message: 'Knowledge Card has no affordances.declared. Add transformation hints.',
+      details: { pattern },
+    })
+  }
+
+  // Check id namespace matches domain tag
+  const docId = idOf(document)
+  if (docId) {
+    const domainTags = tags
+      .filter((t) => t.startsWith('domain:'))
+      .map((t) => t.slice('domain:'.length))
+    const idPrefix = docId.split('.')[0]
+    if (domainTags.length > 0 && !domainTags.includes(idPrefix)) {
+      diagnostics.push({
+        code: 'ID_NAMESPACE_MISMATCH',
+        severity: 'info',
+        path: document.relativePath,
+        message: `ID prefix '${idPrefix}' does not match any domain: tag (${domainTags.join(', ')}).`,
+        details: { idPrefix, domainTags },
+      })
+    }
+  }
+
+  // Check criticality:fatal has require_all coverage
+  const criticalities = tags
+    .filter((t) => t.startsWith('criticality:'))
+    .map((t) => t.slice('criticality:'.length))
+  const isFatal = criticalities.includes('fatal')
+  if (isFatal) {
+    const covered = roleRequireAllSelectors.some((requireAll) =>
+      requireAll.every((tag) => tags.includes(tag))
+    )
+    if (!covered) {
+      diagnostics.push({
+        code: 'CRITICALITY_UNCOVERED',
+        severity: 'error',
+        path: document.relativePath,
+        message: "Knowledge Card with 'criticality:fatal' must be covered by at least one role's require_all selector. Verify role coverage.",
+      })
+    }
+  }
+}
+
+function textOf(value: unknown) {
+  return typeof value === 'string' ? value : null
 }
 
 function addKnowledgeDiagnostics(
@@ -188,7 +352,8 @@ function addRoleDiagnostics(
 
 function addFrontmatterDiagnostics(
   document: HarnessDocument,
-  diagnostics: Diagnostic[]
+  diagnostics: Diagnostic[],
+  roleRequireAllSelectors: string[][]
 ) {
   if (isCompletedRunHistory(document)) {
     addCompletedRunDiagnostics(document, diagnostics)
@@ -226,6 +391,7 @@ function addFrontmatterDiagnostics(
 
   addTagsDiagnostics(document, diagnostics)
   addKnowledgeDiagnostics(document, diagnostics)
+  addKnowledgeCardDiagnostics(document, diagnostics, roleRequireAllSelectors)
   addRoleDiagnostics(document, diagnostics)
 }
 
@@ -348,6 +514,36 @@ function addReferenceDiagnostics(
         message: `Pinned context '${pinnedId}' was not found.`,
       })
     }
+
+    // Resolve relation target IDs
+    const relations = recordOf(document.frontmatter?.relations)
+    const allRelationIds = new Set<string>()
+    for (const inheritId of asStringArray(relations.inherit)) allRelationIds.add(inheritId)
+    for (const requireCtxTarget of asStringArray(relations.require_context)) allRelationIds.add(requireCtxTarget)
+    for (const constId of asStringArray(relations.require_constant)) allRelationIds.add(constId)
+    for (const decisionId of asStringArray(relations.require_decision)) allRelationIds.add(decisionId)
+    for (const relatedId of asStringArray(relations.related)) allRelationIds.add(relatedId)
+    for (const conflictId of asStringArray(relations.conflicts)) allRelationIds.add(conflictId)
+    // Also check object-format require_context
+    const requireCtxArray = relations.require_context
+    if (Array.isArray(requireCtxArray)) {
+      for (const item of requireCtxArray) {
+        if (typeof item === 'object' && item !== null) {
+          const obj = item as Record<string, unknown>
+          if (typeof obj.id === 'string') allRelationIds.add(obj.id)
+        }
+      }
+    }
+    for (const relId of allRelationIds) {
+      if (ids.has(relId)) continue
+      diagnostics.push({
+        code: 'UNRESOLVED_ID_REFERENCE',
+        severity: 'error',
+        path: document.relativePath,
+        message: `Relation target '${relId}' was not found in any active harness document.`,
+        details: { relationTarget: relId },
+      })
+    }
   }
 }
 
@@ -366,9 +562,10 @@ export function runDoctor(options: DoctorOptions = {}): DoctorReport {
   }
 
   const documents = loadHarnessDocuments(projectRoot)
+  const roleRequireAllSelectors = collectRoleRequireAllSelectors(documents)
 
   for (const document of documents) {
-    addFrontmatterDiagnostics(document, diagnostics)
+    addFrontmatterDiagnostics(document, diagnostics, roleRequireAllSelectors)
     addLinkDiagnostics(projectRoot, document, diagnostics)
     addOldPathDiagnostics(document, diagnostics)
   }
