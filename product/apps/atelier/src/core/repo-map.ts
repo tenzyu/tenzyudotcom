@@ -104,6 +104,7 @@ const IGNORE_DIRS = new Set([
   '.nx',
   'target',
   '.turbo',
+  'harness/atelier',
 ])
 const LANGUAGE_BY_EXT: Record<string, string> = {
   '.ts': 'typescript',
@@ -217,10 +218,12 @@ function walkFiles(projectRoot: string, maxFiles = 5000): string[] {
       if (entry.name.startsWith('.') && entry.name !== '.opencode' && entry.name !== '.agent') continue
       if (IGNORE_DIRS.has(entry.name)) continue
       const absolute = path.join(dir, entry.name)
+      const relative = toPosixPath(path.relative(projectRoot, absolute))
       if (entry.isDirectory()) {
+        if (IGNORE_DIRS.has(relative)) continue
         visit(absolute)
       } else if (entry.isFile()) {
-        out.push(toPosixPath(path.relative(projectRoot, absolute)))
+        out.push(relative)
       }
     }
   }

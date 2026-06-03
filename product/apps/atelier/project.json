@@ -38,6 +38,41 @@
       },
       "cache": false
     },
+    "scan": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/atelier",
+        "command": "bun run ./src/cli.ts scan --project-root ../../.."
+      },
+      "outputs": [
+        "{workspaceRoot}/harness/atelier"
+      ],
+      "cache": false
+    },
+    "graph": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/atelier",
+        "command": "bun run ./src/cli.ts graph --project-root ../../.."
+      },
+      "cache": false
+    },
+    "graph-status": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/atelier",
+        "command": "bun run ./src/cli.ts status --project-root ../../.."
+      },
+      "cache": false
+    },
+    "graph-check": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/atelier",
+        "command": "bun run ./src/cli.ts status --project-root ../../.. --json"
+      },
+      "cache": false
+    },
     "context-plan": {
       "executor": "nx:run-commands",
       "options": {

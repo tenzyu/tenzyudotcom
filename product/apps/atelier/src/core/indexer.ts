@@ -2,6 +2,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { loadHarnessDocuments } from './docs'
 import { runDoctor } from './doctor'
+import { buildGraph, isGraphStale, readGraph, writeGraph } from './graph'
 import { compilePathOwnership, compileRepoMap } from './repo-map'
 import {
   asStringArray,
@@ -256,6 +257,11 @@ export function compileIndexes(options: IndexOptions = {}): IndexResult {
     mkdirSync(generatedRoot, { recursive: true })
     for (const [fileName, content] of Object.entries(files)) {
       writeFileSync(path.join(generatedRoot, fileName), content)
+    }
+    const graph = buildGraph(projectRoot)
+    const currentGraph = readGraph(projectRoot)
+    if (!currentGraph || isGraphStale(projectRoot, graph)) {
+      writeGraph(projectRoot, graph)
     }
   }
 

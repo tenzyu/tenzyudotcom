@@ -3,6 +3,16 @@ import path from 'node:path'
 import { buildContextPlan, normalizeContextMode } from './context'
 import { runDoctor } from './doctor'
 import { generateGeneratedFiles } from './generate'
+import {
+  buildGraph,
+  computeGraphStatus,
+  graphBlame,
+  graphImpact,
+  isGraphStale,
+  readGraph,
+  scanProject,
+  writeGraph,
+} from './graph'
 import { compileIndexes } from './indexer'
 import { listKnowledgeProposals, promoteKnowledgeProposal, proposeKnowledge, rejectKnowledgeProposal } from './knowledge'
 import { repoOwner } from './owner'
@@ -144,6 +154,52 @@ export function handleGuiRequest(
       diagnosticSummary: result.diagnosticSummary,
       files: result.files,
     })
+  }
+
+  if (route.method === 'GET' && route.pathname === '/api/scan') {
+    const result = scanProject(projectRoot)
+    return jsonResponse(result)
+  }
+
+  if (route.method === 'POST' && route.pathname === '/api/scan') {
+    try {
+      const body = readJsonBody(rawBody) as Record<string, unknown>
+      const write = body.write === true
+      const result = scanProject(projectRoot)
+      if (write) writeGraph(projectRoot, result.graph)
+      return jsonResponse({ ...result, written: write })
+    } catch (error) {
+      return errorResponse(400, 'BAD_REQUEST', error instanceof Error ? error.message : String(error))
+    }
+  }
+
+  if (route.method === 'GET' && route.pathname === '/api/graph') {
+    const graph = readGraph(projectRoot) ?? buildGraph(projectRoot)
+    return jsonResponse(graph)
+  }
+
+  if (route.method === 'GET' && route.pathname.startsWith('/api/graph/impact')) {
+    const queryIndex = route.pathname.indexOf('?')
+    const query = queryIndex >= 0 ? route.pathname.slice(queryIndex + 1) : ''
+    const params = new URLSearchParams(query)
+    const target = params.get('path')
+    if (!target) return errorResponse(400, 'BAD_REQUEST', 'path query parameter is required.')
+    const graph = readGraph(projectRoot) ?? buildGraph(projectRoot)
+    return jsonResponse(graphImpact(graph, target))
+  }
+
+  if (route.method === 'GET' && route.pathname.startsWith('/api/graph/blame/')) {
+    const artifactId = route.pathname.slice('/api/graph/blame/'.length)
+    if (!artifactId) return errorResponse(400, 'BAD_REQUEST', 'artifactId is required.')
+    const graph = readGraph(projectRoot) ?? buildGraph(projectRoot)
+    return jsonResponse(graphBlame(graph, artifactId))
+  }
+
+  if (route.method === 'GET' && route.pathname === '/api/status') {
+    const graph = readGraph(projectRoot) ?? buildGraph(projectRoot)
+    const stale = isGraphStale(projectRoot, graph)
+    const status = computeGraphStatus(graph)
+    return jsonResponse({ graph: status, stale })
   }
 
   if (route.method === 'GET' && route.pathname === '/api/role-bundles') {

@@ -8,6 +8,17 @@ import {
 } from './core/context'
 import { runDoctor } from './core/doctor'
 import { generateGeneratedFiles, type GenerateResult } from './core/generate'
+import {
+  buildGraph,
+  computeGraphStatus,
+  graphBlame,
+  graphImpact,
+  isGraphStale,
+  readGraph,
+  scanProject,
+  writeGraph,
+  type GraphSnapshot,
+} from './core/graph'
 import { compileIndexes, type IndexResult } from './core/indexer'
 import {
   promoteKnowledgeProposal,
@@ -46,6 +57,11 @@ function usage() {
     'Usage:',
     '  atelier doctor [--json] [--fix] [--project-root <path>]',
     '  atelier index [--check] [--project-root <path>]',
+    '  atelier scan [--json] [--write] [--project-root <path>]',
+    '  atelier graph [--json] [--project-root <path>]',
+    '  atelier status [--json] [--project-root <path>]',
+    '  atelier impact --path <path> [--json] [--project-root <path>]',
+    '  atelier blame ARTIFACT_ID [--json] [--project-root <path>]',
     '  atelier workflow list [--json]',
     '  atelier role list [--json]',
     '  atelier context plan --workflow <id> [--role <id>] [--role <id>] [--path <path>] --intent <text> [--mode compact|full|linked] [--required-only] [--semantic] [--semantic-max-results <n>] [--json]',
@@ -67,6 +83,11 @@ function usage() {
     'Commands:',
     '  doctor   Inspect harness Markdown for schema, link, ID, and stale path issues.',
     '  index    Compile generated harness indexes.',
+    '  scan     Observe project artifacts and build the Artifact Graph.',
+    '  graph    Display the current Artifact Graph snapshot.',
+    '  status   Summarize graph health, stale artifacts, and orphaned controls.',
+    '  impact   Show artifacts and edges affected by a path change.',
+    '  blame    Trace incoming and outgoing edges for an artifact.',
     '  workflow List callable workflow ids for deterministic agent selection.',
     '  role     List role ids for deterministic agent selection.',
     '  context  Plan or render role-routed context without creating a run.',
@@ -482,6 +503,178 @@ export async function runCli(argv: readonly string[]) {
     }
 
     return result.ok ? 0 : 1
+  }
+
+  if (command === 'scan') {
+    const base = parseBase(
+      [subcommand, ...restRaw].filter(
+        (value): value is string => value !== undefined
+      )
+    )
+    const write = base.remaining.includes('--write')
+    const unknown = base.remaining.filter((arg) => arg !== '--write')
+    if (unknown.length > 0) throw new Error(`Unknown argument: ${unknown[0]}`)
+
+    const result = scanProject(base.projectRoot)
+
+    if (write) {
+      writeGraph(base.projectRoot, result.graph)
+    }
+
+    if (base.json) {
+      console.log(JSON.stringify(result, null, 2))
+    } else {
+      console.log('Atelier Scan')
+      console.log(`Artifacts observed: ${result.graph.artifacts.length}`)
+      console.log(`Edges extracted: ${result.graph.edges.length}`)
+      console.log(`Artifact kinds:`)
+      const counts: Record<string, number> = {}
+      for (const artifact of result.graph.artifacts) {
+        counts[artifact.kind] = (counts[artifact.kind] ?? 0) + 1
+      }
+      for (const [kind, count] of Object.entries(counts).sort()) {
+        console.log(`  ${kind}: ${count}`)
+      }
+      if (result.errors.length > 0) {
+        console.log('\nErrors:')
+        for (const error of result.errors) console.log(`  - ${error}`)
+      }
+      if (write) {
+        console.log(`\nGraph written to: harness/atelier/graph.json`)
+      }
+    }
+
+    return result.errors.length === 0 ? 0 : 1
+  }
+
+  if (command === 'graph') {
+    const base = parseBase(
+      [subcommand, ...restRaw].filter(
+        (value): value is string => value !== undefined
+      )
+    )
+    const unknown = base.remaining.filter((arg) => arg !== '')
+    if (unknown.length > 0) throw new Error(`Unknown argument: ${unknown[0]}`)
+
+    const graph: GraphSnapshot = readGraph(base.projectRoot) ?? buildGraph(base.projectRoot)
+
+    if (base.json) {
+      console.log(JSON.stringify(graph, null, 2))
+    } else {
+      console.log('Atelier Graph')
+      console.log(`Version: ${graph.version}`)
+      console.log(`Generated: ${graph.generatedAt}`)
+      console.log(`Artifacts: ${graph.artifacts.length}`)
+      console.log(`Edges: ${graph.edges.length}`)
+    }
+
+    return 0
+  }
+
+  if (command === 'status') {
+    const base = parseBase(
+      [subcommand, ...restRaw].filter(
+        (value): value is string => value !== undefined
+      )
+    )
+    const unknown = base.remaining.filter((arg) => arg !== '')
+    if (unknown.length > 0) throw new Error(`Unknown argument: ${unknown[0]}`)
+
+    const graph = readGraph(base.projectRoot) ?? buildGraph(base.projectRoot)
+    const stale = isGraphStale(base.projectRoot, graph)
+    const status = computeGraphStatus(graph)
+
+    if (base.json) {
+      console.log(JSON.stringify({ graph: status, stale }, null, 2))
+    } else {
+      console.log('Atelier Status')
+      console.log(`Artifacts: ${status.artifactCount}`)
+      console.log(`Edges: ${status.edgeCount}`)
+      console.log(`Stale: ${status.staleArtifacts.length}`)
+      console.log(`Orphaned: ${status.orphanedArtifacts.length}`)
+      console.log(`Stale graph: ${stale ? 'yes (re-run atelier scan --write)' : 'no'}`)
+      if (status.staleArtifacts.length > 0) {
+        console.log('\nStale Artifacts:')
+        for (const artifact of status.staleArtifacts.slice(0, 20)) {
+          console.log(`  - ${artifact.id} (${artifact.path})`)
+        }
+        if (status.staleArtifacts.length > 20) {
+          console.log(`  ... ${status.staleArtifacts.length - 20} more`)
+        }
+      }
+      if (status.orphanedArtifacts.length > 0) {
+        console.log('\nOrphaned Artifacts:')
+        for (const artifact of status.orphanedArtifacts.slice(0, 20)) {
+          console.log(`  - ${artifact.id} (${artifact.path})`)
+        }
+        if (status.orphanedArtifacts.length > 20) {
+          console.log(`  ... ${status.orphanedArtifacts.length - 20} more`)
+        }
+      }
+    }
+
+    return stale ? 2 : 0
+  }
+
+  if (command === 'impact') {
+    const base = parseBase(
+      [subcommand, ...restRaw].filter(
+        (value): value is string => value !== undefined
+      )
+    )
+    const target = readRequiredOption(base.remaining, '--path')
+    const graph = readGraph(base.projectRoot) ?? buildGraph(base.projectRoot)
+    const impact = graphImpact(graph, target)
+
+    if (base.json) {
+      console.log(JSON.stringify(impact, null, 2))
+    } else {
+      console.log('Atelier Impact')
+      console.log(`Target: ${target}`)
+      console.log(`Affected artifacts: ${impact.artifacts.length}`)
+      console.log(`Related edges: ${impact.edges.length}`)
+      for (const artifact of impact.artifacts) {
+        console.log(`  - ${artifact.id} (${artifact.kind}, ${artifact.path})`)
+      }
+    }
+
+    return 0
+  }
+
+  if (command === 'blame') {
+    const base = parseBase(
+      [subcommand, ...restRaw].filter(
+        (value): value is string => value !== undefined
+      )
+    )
+    const artifactId = base.remaining[0]
+    if (!artifactId) throw new Error('blame requires ARTIFACT_ID')
+    if (base.remaining.length > 1) throw new Error(`Unknown argument: ${base.remaining[1]}`)
+
+    const graph = readGraph(base.projectRoot) ?? buildGraph(base.projectRoot)
+    const blame = graphBlame(graph, artifactId)
+
+    if (base.json) {
+      console.log(JSON.stringify(blame, null, 2))
+    } else {
+      console.log('Atelier Blame')
+      if (blame.artifact) {
+        console.log(`Artifact: ${blame.artifact.id} (${blame.artifact.kind})`)
+        console.log(`Path: ${blame.artifact.path}`)
+      } else {
+        console.log(`Artifact not found: ${artifactId}`)
+      }
+      console.log(`\nIncoming edges (${blame.incomingEdges.length}):`)
+      for (const edge of blame.incomingEdges) {
+        console.log(`  ${edge.from} --[${edge.kind}]--> ${edge.to}`)
+      }
+      console.log(`\nOutgoing edges (${blame.outgoingEdges.length}):`)
+      for (const edge of blame.outgoingEdges) {
+        console.log(`  ${edge.from} --[${edge.kind}]--> ${edge.to}`)
+      }
+    }
+
+    return 0
   }
 
   if (command === 'workflow' && subcommand === 'list') {

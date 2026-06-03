@@ -5,6 +5,14 @@ import { z } from 'zod'
 import { buildContextPlan, normalizeContextMode } from './context'
 import { runDoctor } from './doctor'
 import { generateGeneratedFiles } from './generate'
+import {
+  buildGraph,
+  computeGraphStatus,
+  isGraphStale,
+  readGraph,
+  scanProject,
+  writeGraph,
+} from './graph'
 import { compileIndexes } from './indexer'
 import { promoteKnowledgeProposal, proposeKnowledge, rejectKnowledgeProposal } from './knowledge'
 import { listAtelierRegistryEntries } from './llm-protocol'
@@ -110,6 +118,59 @@ export function buildMcpServer(options: McpServerOptions): McpServer {
       const write = bool(args.write) && !bool(args.check)
       const result = compileIndexes({ projectRoot, write, check: bool(args.check) })
       return toJsonResult(result, result.ok)
+    }
+  )
+
+  registerTool(
+    server,
+    'atelier_scan',
+    {
+      title: 'Atelier Scan',
+      description:
+        'Observe project artifacts and build the Artifact Graph. Read-only by default; pass write=true to persist the snapshot.',
+      inputSchema: {
+        write: z
+          .boolean()
+          .default(false)
+          .describe('Persist the graph snapshot to harness/atelier/graph.json when true.'),
+      },
+    },
+    async (args) => {
+      const result = scanProject(projectRoot)
+      if (bool(args.write)) writeGraph(projectRoot, result.graph)
+      return toJsonResult(result, result.errors.length === 0)
+    }
+  )
+
+  registerTool(
+    server,
+    'atelier_graph',
+    {
+      title: 'Atelier Graph',
+      description:
+        'Display the current Artifact Graph snapshot. Reads from cache or builds on demand. Read-only.',
+      inputSchema: {},
+    },
+    async () => {
+      const graph = readGraph(projectRoot) ?? buildGraph(projectRoot)
+      return toJsonResult(graph)
+    }
+  )
+
+  registerTool(
+    server,
+    'atelier_graph_status',
+    {
+      title: 'Atelier Graph Status',
+      description:
+        'Summarize graph health, stale artifacts, and orphaned controls. Also reports whether the cached graph is stale. Read-only.',
+      inputSchema: {},
+    },
+    async () => {
+      const graph = readGraph(projectRoot) ?? buildGraph(projectRoot)
+      const stale = isGraphStale(projectRoot, graph)
+      const status = computeGraphStatus(graph)
+      return toJsonResult({ graph: status, stale })
     }
   )
 
@@ -451,6 +512,9 @@ export async function runMcpServer(options: McpServerOptions): Promise<void> {
 export const MCP_TOOL_NAMES = [
   'atelier_doctor',
   'atelier_index',
+  'atelier_scan',
+  'atelier_graph',
+  'atelier_graph_status',
   'atelier_context_plan',
   'atelier_workflow_list',
   'atelier_role_list',

@@ -11,6 +11,84 @@ export type HarnessKind =
   | 'adapter'
   | 'canon'
 
+export type ArtifactKind =
+  | 'markdown'
+  | 'knowledge'
+  | 'check'
+  | 'skill'
+  | 'linter'
+  | 'role'
+  | 'task'
+  | 'permission'
+  | 'hook'
+  | 'agent'
+  | 'team'
+  | 'run'
+  | 'trace'
+  | 'source-file'
+  | 'generated-file'
+  | 'decision'
+  | 'product-intent'
+  | 'control-mechanism'
+
+export type EdgeKind =
+  | 'derives_from'
+  | 'implements'
+  | 'satisfies'
+  | 'guards'
+  | 'validates'
+  | 'selects'
+  | 'scopes'
+  | 'supersedes'
+  | 'conflicts_with'
+  | 'observed_from'
+  | 'emitted_as'
+  | 'edited_by'
+
+export type OwnershipMode = 'observed' | 'generated' | 'managed' | 'curated' | 'external' | 'deprecated'
+
+export type ArtifactStatus = 'active' | 'stale' | 'orphaned' | 'deprecated' | 'archived'
+
+export type Artifact = {
+  id: string
+  kind: ArtifactKind
+  path: string
+  contentHash: string
+  metadata: Record<string, unknown>
+  ownership: OwnershipMode
+  status: ArtifactStatus
+}
+
+export type Edge = {
+  from: string
+  to: string
+  kind: EdgeKind
+  confidence: 'high' | 'medium' | 'low'
+  source: string
+}
+
+export type GraphSnapshot = {
+  version: 1
+  generatedAt: string
+  artifacts: Artifact[]
+  edges: Edge[]
+}
+
+export type ScanResult = {
+  graph: GraphSnapshot
+  observed: number
+  errors: string[]
+}
+
+export type GraphStatus = {
+  artifactCount: number
+  edgeCount: number
+  kindCounts: Record<string, number>
+  staleArtifacts: Artifact[]
+  orphanedArtifacts: Artifact[]
+  unresolvedCount: number
+}
+
 export type HarnessStatus = 'draft' | 'active' | 'deprecated' | 'archived'
 
 export type Strictness = 'strict' | 'indexed' | 'loose'
@@ -51,7 +129,9 @@ export type DiagnosticCode =
   | 'INVALID_TAG_FORMAT'
   | 'ID_NAMESPACE_MISMATCH'
   | 'CRITICALITY_UNCOVERED'
-  | 'EMPTY_KNOWLEDGE_CARD'
+  |   'EMPTY_KNOWLEDGE_CARD'
+  | 'STALE_ARTIFACT'
+  | 'ORPHAN_ARTIFACT'
 
 export type HarnessFrontmatter = {
   schema?: unknown

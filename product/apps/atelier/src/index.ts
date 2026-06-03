@@ -1,4 +1,19 @@
-export { buildContextPlan, normalizeContextMode, type ContextMode, type ContextPlan, type ContextPlanOptions } from './core/context'
+export {
+  buildGraph,
+  computeGraphStatus,
+  graphBlame,
+  graphFilePath,
+  graphImpact,
+  isGraphStale,
+  readGraph,
+  scanProject,
+  writeGraph,
+  type GraphSnapshot,
+  type GraphStatus,
+  type ScanResult,
+} from './core/graph'
+export {
+  buildContextPlan, normalizeContextMode, type ContextMode, type ContextPlan, type ContextPlanOptions } from './core/context'
 export { runDoctor, type DoctorOptions } from './core/doctor'
 export { loadHarnessDocuments, strictnessForPath, extractMarkdownLinks, sha256Text, toPosixPath } from './core/docs'
 export { parseFrontmatter, type ParsedFrontmatter } from './core/frontmatter'
@@ -100,4 +115,10 @@ export type {
   HarnessStatus,
   MarkdownLink,
   Strictness,
+  ArtifactKind,
+  ArtifactStatus,
+  EdgeKind,
+  OwnershipMode,
+  Artifact,
+  Edge,
 } from './core/schema'
