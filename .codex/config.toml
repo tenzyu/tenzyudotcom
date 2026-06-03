@@ -10,6 +10,10 @@ args = [ "start-mcp-server", "--context", "codex" ]
 command = "bunx"
 args = [ "nx", "mcp" ]
 
+[mcp_servers.atelier]
+command = "bun"
+args = [ "product/apps/atelier/src/cli.ts", "mcp", "--project-root", "."]
+
 [features]
 multi_agent = true
 goals = true
