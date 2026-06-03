@@ -2,6 +2,7 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: rule
+pattern: simple
 id: knowledge.rule.implementation.apply-di-before-ui-assembly
 title: Apply DI Before UI Assembly
 status: active
@@ -9,7 +10,14 @@ tags:
   - architecture
   - dependency-inversion
   - ui
-impact: HIGH
+  - subject:architecture
+  - subject:dependency-inversion
+  - subject:ui
+  - kind:rule
+  - criticality:high
+  - status:active
+affordances:
+  declared: [context, check-candidate]
 x:
   legacy:
     impactDescription: UI に取得・保存・整形を抱え込ませず、leaf affordance に閉じ込める。

@@ -2,6 +2,7 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: rule
+pattern: simple
 id: knowledge.rule.implementation.github-content-read-write-boundary
 title: GitHub Content Read Write Boundary
 status: active
@@ -10,7 +11,15 @@ tags:
   - github
   - cache
   - editor
-impact: HIGH
+  - subject:storage
+  - domain:github
+  - subject:cache
+  - domain:site
+  - kind:rule
+  - criticality:high
+  - status:active
+affordances:
+  declared: [context, check-candidate]
 x:
   legacy:
     impactDescription: prevents stale reads, false conflicts, and excessive GitHub API traffic

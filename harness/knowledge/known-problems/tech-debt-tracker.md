@@ -2,6 +2,7 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: known-problem
+pattern: simple
 id: knowledge.known-problem.harness-known-gaps
 title: Known Gaps
 status: active
@@ -10,10 +11,16 @@ tags:
   - harness
   - known-problems
   - tech-debt
+  - domain:harness
+  - kind:known-problem
+  - subject:tech-debt
+  - status:active
 read_when:
   - harnessをレビューする時
   - 拡張する時
   - 意図的にまだ完全に指定されていない境界付近で作業する時
+affordances:
+  declared: [context, check-candidate]
 x:
   legacy:
     name: harness-known-gaps

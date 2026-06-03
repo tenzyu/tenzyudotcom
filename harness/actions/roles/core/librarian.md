@@ -11,14 +11,14 @@ tags:
   - knowledge
 role_type: core
 selectors:
-  tags:
-    - knowledge
-    - handoff
-    - documentation
-  knowledge_types:
-    - lesson
-    - known-problem
-    - reference
+  require_all:
+    - kind:reference
+  require_any:
+    - subject:harness-memory
+    - subject:verification
+    - kind:lesson
+    - kind:known-problem
+    - kind:adr
 pinned:
   - knowledge.index
 ---

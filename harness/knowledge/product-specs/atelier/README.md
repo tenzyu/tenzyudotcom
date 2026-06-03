@@ -12,6 +12,13 @@ tags:
   - context-routing
   - doctor
   - agent-workflow
+  - domain:atelier
+  - domain:harness
+  - kind:spec
+  - status:active
+pattern: multi-context
+affordances:
+  declared: [context, skill-candidate]
 freshness:
   source: authored
   update_policy: review_required
@@ -742,17 +749,17 @@ pattern: multi-context
 
 tag は `prefix:value` 形式とする。平坦 tag はアドレッシング信号として弱いため使用しない。
 
-#### 6.5.1 初期 prefix 一覧
+#### 6.5.1 全 prefix と値一覧
 
-| Prefix | 用途 | 値の例 |
-|--------|------|--------|
-| `domain:` | 影響範囲の製品・領域 | `web`, `atelier`, `nix`, `osu`, `castalia`, `agent`, `harness` |
-| `layer:` | 抽象度の階層 | `foundation`, `product`, `action`, `run`, `check`, `skill`, `workflow` |
-| `kind:` | Knowledge 種別 | `rule`, `spec`, `constraint`, `principle`, `procedure`, `glossary`, `constant`, `example` |
-| `subject:` | トピック | `component`, `routing`, `build`, `package`, `auth`, `i18n`, `review`, `release`, `di`, `storage` |
+| Prefix | 用途 | 値の一覧 |
+|--------|------|----------|
+| `domain:` | 影響範囲の製品・領域 | `site`, `atelier`, `harness`, `castalia`, `osu-workbench`, `design-system`, `nix`, `github`, `cli`, `agent` |
+| `layer:` | 抽象度の階層 | `foundation`, `product`, `action`, `run`, `check`, `skill`, `workflow`, `implementation`, `security`, `reliability`, `intelligence`, `ui` |
+| `kind:` | Knowledge 種別 | `rule`, `spec`, `adr`, `reference`, `known-problem`, `repo-map`, `lesson`, `incident`, `template`, `roadmap` |
+| `subject:` | トピック | `a11y`, `admin`, `auth`, `boundary`, `bundle`, `composition`, `content`, `dependency-inversion`, `design`, `error-handling`, `export`, `harness-memory`, `hydration`, `i18n`, `import`, `lint`, `local-first`, `locale`, `metadata`, `migration`, `naming`, `organization`, `ownership`, `performance`, `proxy`, `refactor`, `reliability`, `routing`, `security`, `seo`, `storage`, `strategy`, `structure`, `verification`, `versioning` |
 | `criticality:` | 重要度 | `low`, `medium`, `high`, `fatal` |
 | `status:` | 状態 | `active`, `draft`, `deprecated`, `archived` |
-| `framework:` | フレームワーク（任意） | `next`, `tauri`, `react` |
+| `framework:` | フレームワーク（任意） | `next`, `tauri`, `react`, `intlayer`, `nx`, `zod`, `tailwind` |
 
 #### 6.5.2 ルール
 

@@ -2,6 +2,7 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: product-spec
+pattern: simple
 id: knowledge.product-spec.site.links
 title: Links Product Spec
 status: active
@@ -10,12 +11,17 @@ tags:
   - site
   - links
   - product-spec
+  - domain:site
+  - kind:spec
+  - status:active
 read_when:
   - リンクページまたはリンクデータのスキーマを変更する時
   - リンクの新しいカテゴリを追加する時
   - 外部リンクのレンダリング方法や追跡方法を変更する時
 skip_when:
   - 一般的なUIコンポーネントのスタイリングルールだけが必要な時
+affordances:
+  declared: [context, skill-candidate]
 x:
   legacy:
     name: links-product-spec

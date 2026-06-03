@@ -2,6 +2,7 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: rule
+pattern: simple
 id: knowledge.rule.implementation.admin-gate-contract
 title: Admin Gate Contract
 status: active
@@ -10,7 +11,15 @@ tags:
   - security
   - auth
   - hydration
-impact: CRITICAL
+  - domain:site
+  - subject:security
+  - subject:auth
+  - subject:hydration
+  - kind:rule
+  - criticality:fatal
+  - status:active
+affordances:
+  declared: [context, check-candidate]
 x:
   legacy:
     impactDescription: Admin UI の認可境界を安定させ、個別タスク都合の変更で security と hydration を壊さない。

@@ -2,6 +2,7 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: rule
+pattern: simple
 id: knowledge.rule.ui-ux.token-first
 title: Token-first Styling
 status: active
@@ -9,7 +10,13 @@ tags:
   - design
   - css
   - tailwind
-impact: HIGH
+  - subject:design
+  - framework:tailwind
+  - kind:rule
+  - criticality:high
+  - status:active
+affordances:
+  declared: [context, check-candidate]
 x:
   legacy:
     impactDescription: デザインの一貫性を保ち、マジックナンバーによる保守性の低下を防ぐ。

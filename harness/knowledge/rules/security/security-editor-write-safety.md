@@ -2,6 +2,7 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: rule
+pattern: simple
 id: knowledge.rule.security.editor-write-safety
 title: Editor Write Safety
 status: active
@@ -10,7 +11,15 @@ tags:
   - admin
   - storage
   - versioning
-impact: HIGH
+  - subject:security
+  - domain:site
+  - subject:storage
+  - subject:versioning
+  - kind:rule
+  - criticality:high
+  - status:active
+affordances:
+  declared: [context, check-candidate]
 x:
   legacy:
     impactDescription: editor 保存処理で path 汚染と後勝ち上書きを防ぎ、安全な write 境界を保つ。

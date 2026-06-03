@@ -2,6 +2,7 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: adr
+pattern: simple
 id: knowledge.decision.adr.tauri-as-desktop-shell
 title: 'ADR 0003: Tauri as Desktop Shell'
 status: draft
@@ -10,6 +11,12 @@ tags:
   - adr
   - tauri
   - workbench
+  - kind:adr
+  - framework:tauri
+  - domain:osu-workbench
+  - status:draft
+affordances:
+  declared: [context, review-candidate]
 ---
 
 # ADR 0003: Tauri as Desktop Shell

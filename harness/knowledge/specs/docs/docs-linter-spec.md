@@ -2,9 +2,12 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: product-spec
+pattern: simple
 id: knowledge.spec.docs.linter
 title: harness-doc-linter-spec
 status: active
+affordances:
+  declared: [context, skill-candidate]
 x:
   legacy:
     description: 進行中のタスク：ドキュメントリンターの要件定義と仕様策定。

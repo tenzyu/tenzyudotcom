@@ -2,6 +2,7 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: repo-map
+pattern: simple
 id: knowledge.repo-map
 title: Repository Map
 status: active
@@ -10,6 +11,12 @@ tags:
   - repository
   - repo-map
   - ownership
+  - domain:harness
+  - kind:repo-map
+  - subject:ownership
+  - status:active
+affordances:
+  declared: [context]
 ---
 
 # Repository Map

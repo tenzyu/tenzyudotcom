@@ -2,6 +2,7 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: product-spec
+pattern: simple
 id: knowledge.product-spec.site.tools
 title: Tools Product Spec
 status: active
@@ -10,12 +11,17 @@ tags:
   - site
   - tools
   - product-spec
+  - domain:site
+  - kind:spec
+  - status:active
 read_when:
   - サイトに新しいツールを追加する時
   - toolsセクション内で発生するエラーを調査または解決する時
   - ウィジェットが /tools に属するか、サイトの共有UIコンポーネントかを決定する時
 skip_when:
   - 一般的なレイアウトパターンやサイト全体のコンポーネントだけが必要な時
+affordances:
+  declared: [context, skill-candidate]
 x:
   legacy:
     name: tools-product-spec

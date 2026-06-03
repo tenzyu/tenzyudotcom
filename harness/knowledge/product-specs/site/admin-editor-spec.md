@@ -2,6 +2,7 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: product-spec
+pattern: simple
 id: knowledge.product-spec.site.admin-editor
 title: Admin Spec
 status: active
@@ -10,11 +11,16 @@ tags:
   - site
   - admin
   - editor
+  - domain:site
+  - kind:spec
+  - status:active
 read_when:
   - admin UX を変更するとき
   - 公開ページに編集 affordance を載せるとき
 skip_when:
   - 個別 route の見た目だけを調整するとき
+affordances:
+  declared: [context, skill-candidate]
 x:
   legacy:
     name: admin-spec

@@ -2,6 +2,7 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: rule
+pattern: simple
 id: knowledge.rule.implementation.component-separation
 title: Component Separation
 status: active
@@ -9,7 +10,14 @@ tags:
   - logic
   - presentation
   - refactor
-impact: HIGH
+  - subject:architecture
+  - subject:ui
+  - subject:refactor
+  - kind:rule
+  - criticality:high
+  - status:active
+affordances:
+  declared: [context, check-candidate]
 x:
   legacy:
     impactDescription: dirty component を放置せず、logic と presentation を分けて保守性を守る。

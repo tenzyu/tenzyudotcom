@@ -2,6 +2,7 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: rule
+pattern: simple
 id: knowledge.rule.intelligence.harness-memory-model
 title: Harness Memory Model
 status: active
@@ -9,7 +10,13 @@ tags:
   - harness
   - memory
   - documentation
-impact: HIGH
+  - domain:harness
+  - subject:harness-memory
+  - kind:rule
+  - criticality:high
+  - status:active
+affordances:
+  declared: [context, check-candidate]
 x:
   legacy:
     impactDescription: ハーネス更新と知識保存先の判断を一体で定義し、暗黙知とコンテキスト汚染を防ぐ。

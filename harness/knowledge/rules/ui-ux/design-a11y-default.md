@@ -2,6 +2,7 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: rule
+pattern: simple
 id: knowledge.rule.ui-ux.a11y-default
 title: Accessibility by Default
 status: active
@@ -9,7 +10,14 @@ tags:
   - a11y
   - html
   - seo
-impact: MEDIUM
+  - subject:a11y
+  - framework:html
+  - subject:seo
+  - kind:rule
+  - criticality:medium
+  - status:active
+affordances:
+  declared: [context, check-candidate]
 x:
   legacy:
     impactDescription: 全てのユーザーが利用可能で、かつ検証しやすい UI 構造を維持する。

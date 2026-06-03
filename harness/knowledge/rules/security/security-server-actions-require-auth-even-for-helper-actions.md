@@ -2,6 +2,7 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: rule
+pattern: simple
 id: knowledge.rule.security.server-actions-require-auth-even-for-helper-actions
 title: Server Actions Require Auth Even For Helper Actions
 status: active
@@ -9,7 +10,14 @@ tags:
   - security
   - server-actions
   - admin
-impact: HIGH
+  - subject:security
+  - framework:next
+  - domain:site
+  - kind:rule
+  - criticality:high
+  - status:active
+affordances:
+  declared: [context, check-candidate]
 x:
   legacy:
     impactDescription: 補助用途の Server Action を無認可のまま公開すると、管理 UI 専用の機能が外部から直接実行できてしまう。

@@ -2,6 +2,7 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: rule
+pattern: simple
 id: knowledge.rule.implementation.tool-bundle-hygiene
 title: Bundle Hygiene
 status: active
@@ -9,7 +10,14 @@ tags:
   - bundle
   - performance
   - import
-impact: HIGH
+  - subject:bundle
+  - subject:performance
+  - subject:import
+  - kind:rule
+  - criticality:high
+  - status:active
+affordances:
+  declared: [context, check-candidate]
 x:
   legacy:
     impactDescription: バンドルサイズの肥大化を防ぎ、import 経路の ownership を明示する。

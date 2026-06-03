@@ -2,6 +2,7 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: reference
+pattern: simple
 id: knowledge.reference.ui-verification
 title: UI Verification Strategy
 status: active
@@ -10,12 +11,18 @@ tags:
   - ui
   - verification
   - reference
+  - subject:ui
+  - subject:verification
+  - kind:reference
+  - status:active
 read_when:
   - ページやコンポーネントのUIを大幅に変更した時
   - アクセシビリティ（a11y）対応が必要な視覚的要素を追加した時
   - ユーザーからUIのバグ修正や改善を依頼された時
 skip_when:
   - UI変更を一切伴わないサーバーサイドロジックやドキュメントのみの修正時
+affordances:
+  declared: [context]
 x:
   legacy:
     name: harness-ui-verification

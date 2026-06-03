@@ -2,6 +2,7 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: rule
+pattern: simple
 id: knowledge.rule.reliability.fault-tolerance
 title: 'Reliability: Fault Tolerance & Isolated Boundaries'
 status: active
@@ -9,7 +10,13 @@ tags:
   - reliability
   - error-handling
   - error-boundary
-impact: HIGH
+  - subject:reliability
+  - subject:error-handling
+  - kind:rule
+  - criticality:high
+  - status:active
+affordances:
+  declared: [context, check-candidate]
 x:
   legacy:
     impactDescription: サイトの一部（単一の機能やツール）でのエラーが全体を巻き込んでクラッシュさせないようにする。

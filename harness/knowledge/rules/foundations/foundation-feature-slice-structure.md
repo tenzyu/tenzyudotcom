@@ -2,6 +2,7 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: rule
+pattern: simple
 id: knowledge.rule.foundation.feature-slice-structure
 title: Feature Slice Structure
 status: active
@@ -9,7 +10,13 @@ tags:
   - structure
   - organization
   - vsa
-impact: HIGH
+  - subject:structure
+  - subject:organization
+  - kind:rule
+  - criticality:high
+  - status:active
+affordances:
+  declared: [context, check-candidate]
 x:
   legacy:
     impactDescription: 機能単位の探索性を保ち、水平分割や早すぎる細分化を防ぐ。

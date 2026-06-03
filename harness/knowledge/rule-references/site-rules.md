@@ -2,6 +2,7 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: reference
+pattern: simple
 id: knowledge.rule-reference.site-rules
 title: Site Rules Repair Guide
 status: active
@@ -9,7 +10,12 @@ tags:
   - reference
   - lint
   - site-rules
-impact: HIGH
+  - kind:reference
+  - subject:lint
+  - criticality:high
+  - status:active
+affordances:
+  declared: [context]
 x:
   legacy:
     impactDescription: lint-site-rules の各違反を rule 名へ対応付け、修正時の読み直しコストを減らす。

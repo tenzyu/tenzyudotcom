@@ -12,12 +12,9 @@ tags:
   - context
 role_type: governance
 selectors:
-  tags:
-    - context-budget
-    - knowledge-routing
-  knowledge_types:
-    - policy
-    - known-problem
+  require_any:
+    - subject:verification
+    - kind:known-problem
 pinned:
   - policy.context-budget
 ---

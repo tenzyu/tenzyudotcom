@@ -2,6 +2,7 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: rule
+pattern: simple
 id: knowledge.rule.product.content-role-separation
 title: Content Role Separation
 status: active
@@ -9,7 +10,14 @@ tags:
   - content
   - editor
   - seo
-impact: MEDIUM
+  - subject:content
+  - domain:site
+  - subject:seo
+  - kind:rule
+  - criticality:medium
+  - status:active
+affordances:
+  declared: [context, check-candidate]
 x:
   legacy:
     impactDescription: 文言の役割を分離し、SEO と UX の両方で適切な粒度を保つ。

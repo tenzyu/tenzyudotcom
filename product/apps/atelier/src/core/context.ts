@@ -39,6 +39,21 @@ export type SkippedContextDocument = {
   count?: number
 }
 
+export type SelectorMatchTrace = {
+  type: 'require_all' | 'require_any' | 'exclude' | 'path' | 'pinned' | 'relation'
+  selector: string
+  matched: boolean
+  matchedTags?: string[]
+}
+
+export type ConditionEvaluation = {
+  type: 'deterministic' | 'semantic'
+  condition: string
+  matched: boolean
+  method?: 'mechanical' | 'llm'
+  confidence?: string
+}
+
 export type ContextPlan = {
   workflowId: string
   roleIds: string[]
@@ -61,6 +76,14 @@ export type ContextPlan = {
     unknownTerms: string[]
   }
   nextRunInitCommand: string
+  trace: {
+    selections: Array<{
+      id: string | null
+      path: string
+      reasons: string[]
+      selectorMatches: SelectorMatchTrace[]
+    }>
+  }
 }
 
 const TOKEN_BUDGET = 50_000
@@ -257,8 +280,6 @@ function metadataSignalText(document: HarnessDocument) {
     textOf(frontmatter.summary),
     textOf(frontmatter.knowledge_type),
     ...asStringArray(frontmatter.tags),
-    ...asStringArray(frontmatter.read_when),
-    ...asStringArray(frontmatter.skip_when),
     ...asStringArray(scope.paths),
     ...document.headings,
   ]
@@ -307,6 +328,47 @@ function roleSelectorTypeMatches(
 ) {
   const knowledgeType = textOf(document.frontmatter?.knowledge_type)
   return knowledgeType !== null && roleSelectorTypes.has(knowledgeType)
+}
+
+// === Knowledge Card Model tag matching ===
+
+function documentHasAllTags(document: HarnessDocument, requiredTags: string[]) {
+  if (requiredTags.length === 0) return true
+  const tags = new Set(asStringArray(document.frontmatter?.tags))
+  return requiredTags.every((tag) => tags.has(tag))
+}
+
+function documentHasAnyTag(document: HarnessDocument, candidateTags: string[]) {
+  if (candidateTags.length === 0) return true
+  const tags = new Set(asStringArray(document.frontmatter?.tags))
+  return candidateTags.some((tag) => tags.has(tag))
+}
+
+function documentExcludedByTags(document: HarnessDocument, excludeTags: string[]) {
+  if (excludeTags.length === 0) return false
+  const tags = new Set(asStringArray(document.frontmatter?.tags))
+  return excludeTags.some((tag) => tags.has(tag))
+}
+
+function parseSelectors(selectors: Record<string, unknown>) {
+  return {
+    requireAll: asStringArray(selectors.require_all),
+    requireAny: asStringArray(selectors.require_any),
+    exclude: asStringArray(selectors.exclude),
+    paths: asStringArray(selectors.paths),
+    // legacy fallback
+    tags: asStringArray(selectors.tags),
+    knowledgeTypes: asStringArray(selectors.knowledge_types),
+  }
+}
+
+function recordSelectorTrace(
+  type: SelectorMatchTrace['type'],
+  selector: string,
+  matched: boolean,
+  matchedTags?: string[]
+): SelectorMatchTrace {
+  return { type, selector, matched, matchedTags }
 }
 
 function requiredPhaseIds(workflow: HarnessDocument | undefined) {
@@ -393,6 +455,15 @@ export function buildContextPlan(options: ContextPlanOptions): ContextPlan {
   const roleSelectorTags = new Set<string>()
   const roleSelectorTypes = new Set<string>()
   const roleSelectorPaths = new Set<string>()
+  const roleSelectorRequireAll: string[] = []
+  const roleSelectorRequireAny: string[] = []
+  const roleSelectorExclude: string[] = []
+  const traceEntries: Array<{
+    id: string | null
+    path: string
+    reasons: string[]
+    selectorMatches: SelectorMatchTrace[]
+  }> = []
 
   for (const role of roles.filter(
     (candidate): candidate is HarnessDocument => candidate !== undefined
@@ -410,6 +481,11 @@ export function buildContextPlan(options: ContextPlanOptions): ContextPlan {
     }
 
     const selectors = recordOf(role.frontmatter?.selectors)
+    // new format
+    for (const tag of asStringArray(selectors.require_all)) roleSelectorRequireAll.push(tag)
+    for (const tag of asStringArray(selectors.require_any)) roleSelectorRequireAny.push(tag)
+    for (const tag of asStringArray(selectors.exclude)) roleSelectorExclude.push(tag)
+    // legacy fallback
     for (const tag of asStringArray(selectors.tags)) roleSelectorTags.add(tag)
     for (const type of asStringArray(selectors.knowledge_types))
       roleSelectorTypes.add(type)
@@ -418,6 +494,28 @@ export function buildContextPlan(options: ContextPlanOptions): ContextPlan {
   }
 
   const rolePathActive = roleSelectorPathActive(roleSelectorPaths, inputPath)
+
+  // Helper to trace selector decisions
+  function traceSelectors(
+    document: HarnessDocument,
+    matched: boolean,
+    allMatch: string[],
+    anyMatch: string[]
+  ) {
+    const traces: SelectorMatchTrace[] = []
+    if (roleSelectorRequireAll.length > 0) {
+      traces.push(recordSelectorTrace('require_all', roleSelectorRequireAll.join(', '), allMatch.length === roleSelectorRequireAll.length, allMatch))
+    }
+    if (roleSelectorRequireAny.length > 0) {
+      traces.push(recordSelectorTrace('require_any', roleSelectorRequireAny.join(', '), anyMatch.length > 0, anyMatch))
+    }
+    traceEntries.push({
+      id: idOf(document),
+      path: document.relativePath,
+      reasons: [matched ? 'selector matched' : 'selector did not match'],
+      selectorMatches: traces,
+    })
+  }
 
   for (const role of roles.filter(
     (candidate): candidate is HarnessDocument => candidate !== undefined
@@ -470,11 +568,44 @@ export function buildContextPlan(options: ContextPlanOptions): ContextPlan {
     const isKnownProblemOrIncident =
       knowledgeType === 'known-problem' || knowledgeType === 'incident'
 
+    // New selector format: require_all / require_any / exclude
+    if (roleSelectorRequireAll.length > 0 || roleSelectorRequireAny.length > 0) {
+      const allTags = asStringArray(document.frontmatter?.tags)
+      const allMatch = roleSelectorRequireAll.filter((t) => allTags.includes(t))
+      const anyMatch = roleSelectorRequireAny.filter((t) => allTags.includes(t))
+      const excluded = roleSelectorExclude.filter((t) => allTags.includes(t))
+
+      const allMet = roleSelectorRequireAll.length === 0 || allMatch.length === roleSelectorRequireAll.length
+      const anyMet = roleSelectorRequireAny.length === 0 || anyMatch.length > 0
+
+      if (excluded.length > 0) {
+        traceSelectors(document, false, allMatch, anyMatch)
+        addSkipped(skipped, document, document.relativePath, 'excluded by role selector')
+        continue
+      }
+
+      if (allMet && anyMet) {
+        traceSelectors(document, true, allMatch, anyMatch)
+        if (documentHasAllTags(document, ['criticality:fatal', 'criticality:high'])) {
+          addSelected(required, document, 'required by role selectors (high criticality)')
+        } else {
+          addSelected(optional, document, 'matched role selectors')
+        }
+        continue
+      }
+
+      if (!allMet || !anyMet) {
+        traceSelectors(document, false, allMatch, anyMatch)
+      }
+    }
+
+    // Legacy: knowledge scope path match
     if (rolePathActive && knowledgeScopeMatches(document, inputPath)) {
       addSelected(required, document, `knowledge scope matched path '${inputPath}'`)
       continue
     }
 
+    // Legacy: type + tag + signal
     if (
       !options.requiredOnly &&
       rolePathActive &&
@@ -486,6 +617,7 @@ export function buildContextPlan(options: ContextPlanOptions): ContextPlan {
       continue
     }
 
+    // Known-problem/incident fallback
     if (
       !options.requiredOnly &&
       isKnownProblemOrIncident &&
@@ -566,6 +698,9 @@ export function buildContextPlan(options: ContextPlanOptions): ContextPlan {
       enabled: semantic.enabled,
       hits: semantic.hits,
       unknownTerms: semantic.unknownTerms,
+    },
+    trace: {
+      selections: traceEntries,
     },
   }
 }

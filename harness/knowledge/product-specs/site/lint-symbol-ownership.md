@@ -2,6 +2,7 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: product-spec
+pattern: simple
 id: knowledge.product-spec.site.lint-symbol-ownership
 title: lint symbol ownership
 status: active
@@ -10,6 +11,13 @@ tags:
   - site
   - linter
   - symbol-ownership
+  - domain:site
+  - subject:lint
+  - subject:ownership
+  - kind:spec
+  - status:active
+affordances:
+  declared: [context, skill-candidate]
 x:
   legacy:
     description:

@@ -2,6 +2,7 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: repo-map
+pattern: simple
 id: knowledge.structure
 title: Repository Structure
 status: active
@@ -10,6 +11,12 @@ tags:
   - repository
   - structure
   - repo-map
+  - domain:harness
+  - subject:structure
+  - kind:repo-map
+  - status:active
+affordances:
+  declared: [context]
 ---
 
 # Repository Structure

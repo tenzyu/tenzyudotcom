@@ -2,6 +2,7 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: reference
+pattern: simple
 id: knowledge.reference.github-pr-workflow
 title: GitHub PR Workflow
 status: active
@@ -10,11 +11,17 @@ tags:
   - github
   - pull-request
   - reference
+  - domain:github
+  - subject:review
+  - kind:reference
+  - status:active
 read_when:
   - 機能の実装やバグ修正が完了し、ユーザーへ変更内容をPRとして提出する時
   - 差分のチェックやコードレビューのプロセスを行う時
 skip_when:
   - まだ作業の初期〜中期段階であり、ローカルでの検証が終わっていない時
+affordances:
+  declared: [context]
 x:
   legacy:
     name: harness-github-pr-workflow

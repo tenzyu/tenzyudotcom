@@ -2,13 +2,20 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: rule
+pattern: simple
 id: knowledge.rule.foundation.promotion-by-usage
 title: Promotion By Usage
 status: active
 tags:
   - architecture
   - ownership
-impact: HIGH
+  - subject:architecture
+  - subject:ownership
+  - kind:rule
+  - criticality:high
+  - status:active
+affordances:
+  declared: [context, check-candidate]
 x:
   legacy:
     impactDescription: 再利用の事実に基づいて promote し、早すぎる抽象化を防ぐ。

@@ -2,9 +2,12 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: product-spec
+pattern: simple
 id: knowledge.spec.docs.agents-md-generator
 title: agents-md-generator-spec
 status: active
+affordances:
+  declared: [context, skill-candidate]
 x:
   legacy:
     description: harness/knowledge/rules/** から AGENTS.md を自動生成するコンパイラの仕様。

@@ -2,6 +2,7 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: product-spec
+pattern: simple
 id: knowledge.product-spec.atelier-roadmap
 title: Atelier Roadmap
 status: active
@@ -11,9 +12,17 @@ tags:
   - roadmap
   - harness
   - implementation-plan
+  - domain:atelier
+  - kind:roadmap
+  - domain:harness
+  - kind:plan
+  - kind:spec
+  - status:active
 freshness:
   source: authored
   update_policy: review_required
+affordances:
+  declared: [context, skill-candidate]
 ---
 
 # Atelier Roadmap

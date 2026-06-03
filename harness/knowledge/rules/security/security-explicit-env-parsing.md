@@ -2,6 +2,7 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: rule
+pattern: simple
 id: knowledge.rule.security.explicit-env-parsing
 title: 'Security: Explicit Env Parsing & Centralization'
 status: active
@@ -9,7 +10,13 @@ tags:
   - security
   - environment
   - env-infra
-impact: CRITICAL
+  - subject:security
+  - layer:foundation
+  - kind:rule
+  - criticality:fatal
+  - status:active
+affordances:
+  declared: [context, check-candidate]
 x:
   legacy:
     impactDescription: ブラウザへの機密情報の漏洩を防ぎ、すべての環境変数の型安全性を確保する。

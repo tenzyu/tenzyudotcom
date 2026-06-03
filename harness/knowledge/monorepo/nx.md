@@ -2,6 +2,7 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: reference
+pattern: simple
 id: knowledge.monorepo.nx
 title: Nx Monorepo Operations
 status: active
@@ -11,6 +12,13 @@ tags:
   - bun
   - monorepo
   - repo-ops
+  - domain:nix
+  - framework:bun
+  - subject:repo-ops
+  - kind:reference
+  - status:active
+affordances:
+  declared: [context]
 ---
 
 # Nx monorepo operations

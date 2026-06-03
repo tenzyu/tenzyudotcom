@@ -19,15 +19,14 @@ selectors:
   paths:
     - repo-ops/**
     - product/packages/linter/**
-  tags:
-    - nx
-    - bun
-    - linter
-    - policy
-  knowledge_types:
-    - repo-map
-    - rule
-    - reference
+  require_all:
+    - kind:rule
+    - kind:reference
+  require_any:
+    - domain:nix
+    - subject:lint
+    - framework:bun
+    - subject:repo-ops
 pinned:
   - knowledge.repo-map
   - policy.repository

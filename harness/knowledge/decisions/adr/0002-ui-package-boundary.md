@@ -2,6 +2,7 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: adr
+pattern: simple
 id: knowledge.decision.adr.ui-package-boundary
 title: 'ADR 0002: @tenzyu/ui Package Boundary'
 status: draft
@@ -10,6 +11,12 @@ tags:
   - adr
   - ui
   - package-boundary
+  - kind:adr
+  - subject:ui
+  - subject:boundary
+  - status:draft
+affordances:
+  declared: [context, review-candidate]
 ---
 
 # ADR 0002: `@tenzyu/ui` Package Boundary

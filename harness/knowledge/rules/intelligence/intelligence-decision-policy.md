@@ -2,6 +2,7 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: rule
+pattern: simple
 id: knowledge.rule.intelligence.decision-policy
 title: Decision Policy
 status: active
@@ -9,7 +10,14 @@ tags:
   - architecture
   - decision
   - strategy
-impact: HIGH
+  - subject:architecture
+  - kind:adr
+  - subject:strategy
+  - kind:rule
+  - criticality:high
+  - status:active
+affordances:
+  declared: [context, check-candidate]
 x:
   legacy:
     impactDescription: 優先順位と target architecture を同時に固定し、現状追認による判断ブレを防ぐ。

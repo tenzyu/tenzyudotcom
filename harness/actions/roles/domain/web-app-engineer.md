@@ -17,15 +17,16 @@ activation:
 selectors:
   paths:
     - product/apps/web/**
-  tags:
-    - web
-    - nextjs
-    - server-actions
-    - admin
-  knowledge_types:
-    - product-spec
-    - rule
-    - known-problem
+  require_all:
+    - domain:site
+    - kind:rule
+  require_any:
+    - kind:spec
+    - subject:admin
+    - subject:auth
+    - subject:boundary
+    - subject:composition
+    - kind:known-problem
 pinned:
   - knowledge.repo-map
   - policy.repository

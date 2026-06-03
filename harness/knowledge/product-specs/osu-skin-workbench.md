@@ -2,6 +2,7 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: product-spec
+pattern: simple
 id: knowledge.product-spec.osu-skin-workbench
 title: osu-skin-workbench Spec
 status: active
@@ -10,6 +11,11 @@ tags:
   - workbench
   - osu-skin
   - product-spec
+  - domain:osu-workbench
+  - kind:spec
+  - status:active
+affordances:
+  declared: [context, skill-candidate]
 x:
   legacy:
     name: osu-skin-workbench

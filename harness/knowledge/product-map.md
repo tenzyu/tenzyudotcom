@@ -2,6 +2,7 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: repo-map
+pattern: simple
 id: knowledge.product-map
 title: Product Map
 status: active
@@ -10,6 +11,12 @@ tags:
   - product
   - repo-map
   - architecture
+  - subject:strategy
+  - kind:repo-map
+  - subject:architecture
+  - status:active
+affordances:
+  declared: [context]
 ---
 
 # Product Map

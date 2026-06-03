@@ -2,6 +2,7 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: product-spec
+pattern: simple
 id: knowledge.product-spec.site.editor-architecture
 title: Editor Architecture
 status: active
@@ -10,6 +11,12 @@ tags:
   - site
   - editor
   - architecture
+  - domain:site
+  - subject:architecture
+  - kind:spec
+  - status:active
+affordances:
+  declared: [context, skill-candidate]
 x:
   legacy:
     name: editor-architecture

@@ -2,6 +2,7 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: product-spec
+pattern: simple
 id: knowledge.product-spec.site.blog
 title: Blog Product Spec
 status: active
@@ -10,12 +11,17 @@ tags:
   - site
   - blog
   - product-spec
+  - domain:site
+  - kind:spec
+  - status:active
 read_when:
   - ブログのレイアウト、コンポーネント、またはカテゴリ構造を修正する時
   - ブログのレンダリング問題を修正する時
   - ブログ記事の機能（目次の追加、MDXの機能など）を拡張する時
 skip_when:
   - 既存の独立したブログ記事の実際のコンテンツを編集している時
+affordances:
+  declared: [context, skill-candidate]
 x:
   legacy:
     name: blog-product-spec

@@ -2,6 +2,7 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: rule
+pattern: simple
 id: knowledge.rule.reliability.content-version-normalization
 title: Content Version Normalization
 status: active
@@ -9,7 +10,14 @@ tags:
   - reliability
   - storage
   - versioning
-impact: HIGH
+  - subject:reliability
+  - subject:storage
+  - subject:versioning
+  - kind:rule
+  - criticality:high
+  - status:active
+affordances:
+  declared: [context, check-candidate]
 x:
   legacy:
     impactDescription: avoids false conflict detection caused by newline and serialization drift

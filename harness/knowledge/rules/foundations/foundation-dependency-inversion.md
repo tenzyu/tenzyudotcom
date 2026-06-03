@@ -2,6 +2,7 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: rule
+pattern: simple
 id: knowledge.rule.foundation.dependency-inversion
 title: Dependency Inversion
 status: active
@@ -9,7 +10,13 @@ tags:
   - architecture
   - dependency-inversion
   - ports
-impact: HIGH
+  - subject:architecture
+  - subject:dependency-inversion
+  - kind:rule
+  - criticality:high
+  - status:active
+affordances:
+  declared: [context, check-candidate]
 x:
   legacy:
     impactDescription: UI と mount point から具体実装を剥がし、交換可能な境界を保つ。

@@ -2,6 +2,7 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: rule
+pattern: simple
 id: knowledge.rule.security.proxy-boundary
 title: Proxy Boundary
 status: active
@@ -10,7 +11,15 @@ tags:
   - proxy
   - nextjs
   - performance
-impact: HIGH
+  - subject:security
+  - subject:proxy
+  - framework:next
+  - subject:performance
+  - kind:rule
+  - criticality:high
+  - status:active
+affordances:
+  declared: [context, check-candidate]
 x:
   legacy:
     impactDescription: '`proxy.ts` を薄い入口に保ち、重い検証は server 側へ残して静的最適化と安全性を両立する。'

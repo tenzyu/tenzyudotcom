@@ -16,12 +16,13 @@ activation:
 selectors:
   paths:
     - product/apps/osu-skin-workbench/src/**
-  tags:
-    - workbench
-    - ui
-  knowledge_types:
-    - product-spec
-    - rule
+  require_all:
+    - domain:osu-workbench
+    - kind:rule
+  require_any:
+    - kind:spec
+    - subject:ui
+    - framework:tauri
 pinned:
   - knowledge.repo-map
   - policy.repository

@@ -16,14 +16,15 @@ activation:
 selectors:
   paths:
     - harness/**
-  tags:
-    - harness
-    - workflow
-    - knowledge
-  knowledge_types:
-    - rule
-    - product-spec
-    - reference
+  require_all:
+    - domain:harness
+    - kind:rule
+    - kind:spec
+  require_any:
+    - kind:reference
+    - kind:adr
+    - subject:harness-memory
+    - subject:architecture
 pinned:
   - policy.repository
   - knowledge.repo-map

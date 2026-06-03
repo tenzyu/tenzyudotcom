@@ -2,6 +2,7 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: reference
+pattern: simple
 id: knowledge.rule-reference.ui-package
 title: UI Package Boundary Repair Guide
 status: active
@@ -9,7 +10,13 @@ tags:
   - reference
   - ui
   - package-boundary
-impact: HIGH
+  - kind:reference
+  - subject:ui
+  - subject:boundary
+  - criticality:high
+  - status:active
+affordances:
+  declared: [context]
 x:
   legacy:
     impactDescription: '@tenzyu/ui の責務境界と Storybook 検証面を短く参照できるようにする。'

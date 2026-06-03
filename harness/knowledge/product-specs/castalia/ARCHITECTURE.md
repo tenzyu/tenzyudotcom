@@ -2,6 +2,7 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: product-spec
+pattern: simple
 id: knowledge.product-spec.castalia-architecture
 title: Castalia Architecture
 status: active
@@ -10,6 +11,12 @@ tags:
   - castalia
   - architecture
   - product-spec
+  - domain:castalia
+  - subject:architecture
+  - kind:spec
+  - status:active
+affordances:
+  declared: [context, skill-candidate]
 ---
 
 # Castalia Architecture

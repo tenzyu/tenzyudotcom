@@ -2,6 +2,7 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: product-spec
+pattern: simple
 id: knowledge.product-spec.castalia-roadmap
 title: Castalia Roadmap
 status: active
@@ -10,6 +11,12 @@ tags:
   - castalia
   - roadmap
   - product-spec
+  - domain:castalia
+  - kind:roadmap
+  - kind:spec
+  - status:active
+affordances:
+  declared: [context, skill-candidate]
 ---
 
 # Castalia Roadmap

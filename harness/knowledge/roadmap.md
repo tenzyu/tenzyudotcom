@@ -2,6 +2,7 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: reference
+pattern: simple
 id: knowledge.roadmap
 title: Roadmap
 status: active
@@ -9,6 +10,12 @@ summary: Small AI organization rollout roadmap and rules for converting roadmap 
 tags:
   - roadmap
   - harness
+  - kind:roadmap
+  - domain:harness
+  - kind:reference
+  - status:active
+affordances:
+  declared: [context]
 ---
 
 # Roadmap

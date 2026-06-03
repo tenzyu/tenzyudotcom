@@ -2,6 +2,7 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: repo-map
+pattern: simple
 id: knowledge.architecture
 title: Architecture
 status: active
@@ -10,6 +11,13 @@ tags:
   - architecture
   - repository
   - boundaries
+  - subject:architecture
+  - domain:harness
+  - subject:boundary
+  - kind:repo-map
+  - status:active
+affordances:
+  declared: [context]
 ---
 
 # Architecture

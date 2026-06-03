@@ -2,6 +2,7 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: rule
+pattern: simple
 id: knowledge.rule.implementation.actions-mount-through-assemble
 title: Actions Mount Through Assemble
 status: active
@@ -9,7 +10,14 @@ tags:
   - dependency-inversion
   - server-actions
   - editor
-impact: HIGH
+  - subject:dependency-inversion
+  - framework:next
+  - domain:site
+  - kind:rule
+  - criticality:high
+  - status:active
+affordances:
+  declared: [context, check-candidate]
 x:
   legacy:
     impactDescription: '`actions.ts` を薄い mount point に保ち、infra 依存の漏出を防ぐ。'

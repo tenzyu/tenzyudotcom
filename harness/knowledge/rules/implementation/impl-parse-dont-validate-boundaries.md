@@ -2,6 +2,7 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: rule
+pattern: simple
 id: knowledge.rule.implementation.parse-at-boundaries
 title: Parse At Boundaries
 status: active
@@ -9,7 +10,13 @@ tags:
   - validation
   - boundary
   - zod
-impact: HIGH
+  - subject:boundary
+  - framework:zod
+  - kind:rule
+  - criticality:high
+  - status:active
+affordances:
+  declared: [context, check-candidate]
 x:
   legacy:
     impactDescription: 外部入力を未確定なまま流さず、境界で parse して内部型を確定させる。

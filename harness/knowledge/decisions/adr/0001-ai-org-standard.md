@@ -2,6 +2,7 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: adr
+pattern: simple
 id: knowledge.decision.adr.ai-org-standard
 title: 'ADR 0001: AI Organization Standard'
 status: active
@@ -10,6 +11,12 @@ tags:
   - adr
   - harness
   - ai-org
+  - kind:adr
+  - domain:harness
+  - domain:agent
+  - status:active
+affordances:
+  declared: [context, review-candidate]
 ---
 
 # ADR 0001: AI Organization Standard

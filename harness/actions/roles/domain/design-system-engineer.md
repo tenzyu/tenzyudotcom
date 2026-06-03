@@ -16,12 +16,15 @@ activation:
 selectors:
   paths:
     - product/packages/ui/**
-  tags:
-    - ui
-    - design-system
-  knowledge_types:
-    - product-spec
-    - rule
+  require_all:
+    - domain:design-system
+    - kind:rule
+  require_any:
+    - kind:spec
+    - subject:ui
+    - subject:composition
+    - subject:a11y
+    - subject:design
 pinned:
   - knowledge.repo-map
   - policy.repository

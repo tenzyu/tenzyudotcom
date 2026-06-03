@@ -11,14 +11,14 @@ tags:
   - architecture
 role_type: core
 selectors:
-  tags:
-    - architecture
-    - boundaries
-    - adr
-  knowledge_types:
-    - adr
-    - rule
-    - repo-map
+  require_all:
+    - kind:adr
+    - kind:rule
+    - kind:repo-map
+  require_any:
+    - subject:architecture
+    - subject:boundary
+    - subject:strategy
 pinned:
   - knowledge.repo-map
   - policy.repository

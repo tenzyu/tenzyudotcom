@@ -11,11 +11,13 @@ tags:
   - implementation
 role_type: core
 selectors:
-  tags:
-    - implementation
-  knowledge_types:
-    - rule
-    - product-spec
+  require_all:
+    - kind:rule
+  require_any:
+    - kind:spec
+    - subject:architecture
+    - subject:dependency-inversion
+    - subject:reliability
 pinned:
   - policy.repository
 ---

@@ -17,14 +17,15 @@ activation:
 selectors:
   paths:
     - product/apps/osu-skin-workbench/src-tauri/**
-  tags:
-    - tauri
-    - rust
-    - workbench
-  knowledge_types:
-    - adr
-    - product-spec
-    - rule
+  require_all:
+    - domain:osu-workbench
+    - framework:tauri
+    - kind:rule
+  require_any:
+    - kind:adr
+    - kind:spec
+    - subject:security
+    - subject:boundary
 pinned:
   - knowledge.repo-map
   - policy.repository

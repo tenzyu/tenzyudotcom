@@ -11,13 +11,12 @@ tags:
   - release
 role_type: governance
 selectors:
-  tags:
-    - release
-    - rollout
-    - migration
-  knowledge_types:
-    - policy
-    - reference
+  require_all:
+    - kind:reference
+  require_any:
+    - subject:review
+    - subject:migration
+    - subject:verification
 pinned:
   - policy.release
 ---

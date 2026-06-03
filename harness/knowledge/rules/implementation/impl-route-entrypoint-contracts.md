@@ -2,6 +2,7 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: rule
+pattern: simple
 id: knowledge.rule.implementation.route-entrypoint-contracts
 title: Route Entrypoint Contracts
 status: active
@@ -9,7 +10,14 @@ tags:
   - nextjs
   - routing
   - intlayer
-impact: HIGH
+  - framework:next
+  - subject:routing
+  - framework:intlayer
+  - kind:rule
+  - criticality:high
+  - status:active
+affordances:
+  declared: [context, check-candidate]
 x:
   legacy:
     impactDescription: route entrypoint を薄く保ち、locale/static 化の共通契約を外さないようにする。

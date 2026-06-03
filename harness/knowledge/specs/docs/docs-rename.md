@@ -2,9 +2,12 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: product-spec
+pattern: simple
 id: knowledge.spec.docs.rename
 title: docs-rename
 status: active
+affordances:
+  declared: [context, skill-candidate]
 x:
   legacy:
     description: ドキュメントの移動と参照の自動更新を行うスクリプトの仕様。

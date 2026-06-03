@@ -11,12 +11,12 @@ tags:
   - review
 role_type: core
 selectors:
-  tags:
-    - review
-    - verification
-  knowledge_types:
-    - rule
-    - policy
+  require_all:
+    - kind:rule
+  require_any:
+    - subject:review
+    - subject:verification
+    - subject:boundary
 pinned:
   - policy.repository
 ---

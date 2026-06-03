@@ -2,6 +2,7 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: reference
+pattern: simple
 id: knowledge.reference.error-analysis
 title: Error Analysis Skill and Workflow
 status: active
@@ -10,11 +11,17 @@ tags:
   - reliability
   - error-analysis
   - reference
+  - subject:reliability
+  - subject:error-handling
+  - kind:reference
+  - status:active
 read_when:
   - ビルドエラー、ランタイムエラー、またはサーバーエラー（500等）が発生した時
   - バグ修正後に再発防止策を考え、ナレッジベースを更新する時
 skip_when:
   - エラーを伴わない純粋な機能追加や軽微なスタイル修正の時
+affordances:
+  declared: [context]
 x:
   legacy:
     name: harness-error-analysis

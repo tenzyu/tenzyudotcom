@@ -2,6 +2,7 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: rule
+pattern: simple
 id: knowledge.rule.security.outbound-boundary
 title: 'Security: Outbound Boundary & Zero Trust'
 status: active
@@ -9,7 +10,13 @@ tags:
   - security
   - boundary
   - zero-trust
-impact: CRITICAL
+  - subject:security
+  - subject:boundary
+  - kind:rule
+  - criticality:fatal
+  - status:active
+affordances:
+  declared: [context, check-candidate]
 x:
   legacy:
     impactDescription: 外部入力をゼロトラスト前提で検証し、不正アクセスや改ざんを防ぐ。

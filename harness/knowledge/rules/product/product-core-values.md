@@ -2,6 +2,7 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: rule
+pattern: simple
 id: knowledge.rule.product.core-values
 title: Product Core Values
 status: active
@@ -9,7 +10,12 @@ tags:
   - product
   - sense
   - strategy
-impact: MEDIUM
+  - subject:strategy
+  - kind:rule
+  - criticality:medium
+  - status:active
+affordances:
+  declared: [context, check-candidate]
 x:
   legacy:
     impactDescription: サイトの長期的価値を保護し、不要な機能の肥大化を防ぐ。

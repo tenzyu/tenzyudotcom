@@ -2,6 +2,7 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: rule
+pattern: simple
 id: knowledge.rule.ui-ux.ui-migration-guide
 title: UI Migration Guide
 status: active
@@ -10,6 +11,13 @@ tags:
   - ui
   - migration
   - design-system
+  - subject:ui
+  - subject:migration
+  - domain:design-system
+  - kind:rule
+  - status:active
+affordances:
+  declared: [context, check-candidate]
 ---
 
 # UI Migration Guide

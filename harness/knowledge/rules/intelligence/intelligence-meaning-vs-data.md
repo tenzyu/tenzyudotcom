@@ -2,6 +2,7 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: rule
+pattern: simple
 id: knowledge.rule.intelligence.meaning-vs-data
 title: Meaning Vs Data Separation
 status: active
@@ -9,7 +10,14 @@ tags:
   - i18n
   - intlayer
   - data
-impact: HIGH
+  - subject:i18n
+  - framework:intlayer
+  - subject:data
+  - kind:rule
+  - criticality:high
+  - status:active
+affordances:
+  declared: [context, check-candidate]
 x:
   legacy:
     impactDescription: 識別子と翻訳文を分離し、データ更新と多言語化を疎結合にする。

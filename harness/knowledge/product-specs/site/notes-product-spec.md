@@ -2,6 +2,7 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: product-spec
+pattern: simple
 id: knowledge.product-spec.site.notes
 title: Notes Product Spec
 status: active
@@ -10,12 +11,17 @@ tags:
   - site
   - notes
   - product-spec
+  - domain:site
+  - kind:spec
+  - status:active
 read_when:
   - ノーツの動作、情報設計、または編集モデルを変更する時
   - ノーツのソースの形状やルートの露出を評価する時
   - ノーツ機能が現在必要か、それとも明示的にスコープ外かを決定する時
 skip_when:
   - 一般的なルートローカルの実装ルールだけが必要な時
+affordances:
+  declared: [context, skill-candidate]
 x:
   legacy:
     name: notes-product-spec

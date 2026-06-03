@@ -2,6 +2,7 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: product-spec
+pattern: simple
 id: knowledge.product-spec.castalia-security
 title: Castalia Security Notes
 status: active
@@ -10,6 +11,12 @@ tags:
   - castalia
   - security
   - product-spec
+  - domain:castalia
+  - subject:security
+  - kind:spec
+  - status:active
+affordances:
+  declared: [context, skill-candidate]
 ---
 
 # Castalia Security Notes

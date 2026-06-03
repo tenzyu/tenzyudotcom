@@ -2,6 +2,7 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: product-spec
+pattern: simple
 id: knowledge.product-spec.site.portfolio
 title: Portfolio Product Spec
 status: active
@@ -10,11 +11,16 @@ tags:
   - site
   - portfolio
   - product-spec
+  - domain:site
+  - kind:spec
+  - status:active
 read_when:
   - ポートフォリオのレイアウトや構造を変更する時
   - ポートフォリオに新しいプロジェクトやエントリを追加する時
 skip_when:
   - 一般的なレイアウトパターンだけが必要な時
+affordances:
+  declared: [context, skill-candidate]
 x:
   legacy:
     name: portfolio-product-spec

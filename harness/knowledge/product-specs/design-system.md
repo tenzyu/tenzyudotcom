@@ -2,6 +2,7 @@
 schema: harness/v1
 kind: knowledge
 knowledge_type: product-spec
+pattern: simple
 id: knowledge.product-spec.design-system
 title: Design System
 status: active
@@ -10,6 +11,12 @@ tags:
   - design-system
   - ui
   - product-spec
+  - domain:design-system
+  - subject:ui
+  - kind:spec
+  - status:active
+affordances:
+  declared: [context, skill-candidate]
 ---
 
 # Design System
