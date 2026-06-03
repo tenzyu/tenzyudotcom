@@ -11,10 +11,13 @@
         "."
       ],
       "enabled": true
+    },
+    "serena": {
+      "type": "local",
+      "command": ["serena", "start-mcp-server", "--context", "ide-assistant"],
+      "enabled": true
     }
   },
-  "instructions": [
-    "AGENTS.md",
-    ".opencode/agents/*.md"
-  ]
+  "instructions": ["AGENTS.md", ".opencode/agents/*.md"],
+  "lsp": true
 }
