@@ -1,3 +1,9 @@
+/**
+ * v1 run-folder lifecycle; compatibility only.
+ * @deprecated Use graph-backed Task/Run artifact lifecycle integrated with
+ * Event Log, Policy Engine, and Trace instead.
+ */
+
 import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { loadHarnessDocuments, sha256Text, toPosixPath } from './docs'
@@ -20,10 +26,12 @@ import {
 } from './llm-protocol'
 import { asStringArray, type Diagnostic, type HarnessDocument } from './schema'
 
+/** @deprecated Use Task/Run artifact lifecycle instead. */
 export type RunInitOptions = ContextPlanOptions & {
   runId?: string
 }
 
+/** @deprecated Use Task/Run artifact lifecycle instead. */
 export type RunInitResult = {
   runId: string
   runPath: string
@@ -35,10 +43,12 @@ export type RunInitResult = {
   nextActions: AtelierNextAction[]
 }
 
+/** @deprecated Use Task/Run artifact lifecycle instead. */
 export type ContextRenderOptions = ContextPlanOptions & {
   runId?: string
 }
 
+/** @deprecated Use Task/Run artifact lifecycle instead. */
 export type ContextRenderResult = {
   runId: string
   runPath: string
@@ -47,16 +57,19 @@ export type ContextRenderResult = {
   plan: ContextPlan
 }
 
+/** @deprecated Use Task/Run artifact lifecycle instead. */
 export type RunCloseOptions = {
   projectRoot?: string
   runId: string
 }
 
+/** @deprecated Use Task/Run artifact lifecycle instead. */
 export type RunStatusOptions = {
   projectRoot?: string
   runId: string
 }
 
+/** @deprecated Use Task/Run artifact lifecycle instead. */
 export type RunStatusResult = {
   runId: string
   runPath: string
@@ -82,6 +95,7 @@ export type RunStatusResult = {
   diagnostics: Diagnostic[]
 }
 
+/** @deprecated Use Task/Run artifact lifecycle instead. */
 export type RunCloseResult = {
   ok: boolean
   runId: string
@@ -94,12 +108,14 @@ export type RunCloseResult = {
   diagnostics: Diagnostic[]
 }
 
+/** @deprecated Use Task/Run artifact lifecycle instead. */
 export type ContextExpandOptions = {
   projectRoot?: string
   runId: string
   reference: string
 }
 
+/** @deprecated Use Task/Run artifact lifecycle instead. */
 export type ContextExpandResult = {
   runId: string
   runPath: string
@@ -561,6 +577,7 @@ function manifest(
   }
 }
 
+/** @deprecated Use Task/Run artifact lifecycle instead. */
 export function renderContextForOptions(options: ContextRenderOptions): ContextRenderResult {
   const projectRoot = path.resolve(options.projectRoot ?? process.cwd())
   const plan = buildContextPlan(options)
@@ -581,6 +598,7 @@ export function renderContextForOptions(options: ContextRenderOptions): ContextR
   }
 }
 
+/** @deprecated Use graph-backed Task/Run artifact lifecycle instead. */
 export function initRun(options: RunInitOptions): RunInitResult {
   const projectRoot = path.resolve(options.projectRoot ?? process.cwd())
   const plan = buildContextPlan(options)
@@ -619,6 +637,7 @@ export function initRun(options: RunInitOptions): RunInitResult {
   }
 }
 
+/** @deprecated Use graph-backed Task/Run artifact lifecycle instead. */
 export function expandRunContext(options: ContextExpandOptions): ContextExpandResult {
   const projectRoot = path.resolve(options.projectRoot ?? process.cwd())
   const runPath = path.join(projectRoot, 'harness/runs/active', options.runId)
@@ -682,6 +701,7 @@ export function expandRunContext(options: ContextExpandOptions): ContextExpandRe
   }
 }
 
+/** @deprecated Use graph-backed Task/Run artifact lifecycle instead. */
 export function runStatus(options: RunStatusOptions): RunStatusResult {
   const projectRoot = path.resolve(options.projectRoot ?? process.cwd())
   const activePath = path.join(projectRoot, 'harness/runs/active', options.runId)
@@ -807,6 +827,7 @@ function safeReadJson(filePath: string): RunManifest {
   }
 }
 
+/** @deprecated Use graph-backed Task/Run artifact lifecycle instead. */
 export function closeRun(options: RunCloseOptions): RunCloseResult {
   const projectRoot = path.resolve(options.projectRoot ?? process.cwd())
   const activePath = path.join(projectRoot, 'harness/runs/active', options.runId)

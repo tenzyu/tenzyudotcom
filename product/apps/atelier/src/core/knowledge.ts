@@ -1,3 +1,9 @@
+/**
+ * v1 Markdown-backed knowledge proposal/promotion; compatibility only.
+ * @deprecated Use observed graph facts, reconciliation findings, candidate
+ * knowledge, and optional Markdown materialization instead.
+ */
+
 import { existsSync, mkdirSync, readFileSync, readdirSync, renameSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { loadHarnessDocuments, sha256Text, toPosixPath } from './docs'
@@ -5,6 +11,7 @@ import { parseFrontmatter } from './frontmatter'
 import { compileIndexes } from './indexer'
 import { asStringArray, type Diagnostic, type HarnessDocument } from './schema'
 
+/** @deprecated Use reconciliation/candidate-fact workflow instead. */
 export type KnowledgeProposalOptions = {
   projectRoot?: string
   fromRun: string
@@ -16,17 +23,20 @@ export type KnowledgeProposalOptions = {
   whyNotCovered?: string
 }
 
+/** @deprecated Use reconciliation/candidate-fact workflow instead. */
 export type KnowledgeProposalResult = {
   proposalPath: string
   runPath: string
   diagnostics: Diagnostic[]
 }
 
+/** @deprecated Use reconciliation/candidate-fact workflow instead. */
 export type KnowledgePromotionOptions = {
   projectRoot?: string
   proposalPath: string
 }
 
+/** @deprecated Use reconciliation/candidate-fact workflow instead. */
 export type KnowledgePromotionResult = {
   ok: boolean
   proposalPath: string
@@ -37,17 +47,20 @@ export type KnowledgePromotionResult = {
   diagnostics: Diagnostic[]
 }
 
+/** @deprecated Use reconciliation/candidate-fact workflow instead. */
 export type KnowledgeRejectOptions = {
   projectRoot?: string
   proposalPath: string
   reason?: string
 }
 
+/** @deprecated Use reconciliation/candidate-fact workflow instead. */
 export type KnowledgeRejectResult = {
   proposalPath: string
   archivedPath: string
 }
 
+/** @deprecated Use reconciliation/candidate-fact workflow instead. */
 export type KnowledgeProposalSummary = {
   path: string
   runId: string | null
@@ -222,6 +235,7 @@ function duplicateCandidates(documents: HarnessDocument[], proposal: ProposalDat
     .map((document) => document.relativePath)
 }
 
+/** @deprecated Use reconciliation findings and graph-aware duplicate detection instead. */
 export function duplicateCandidatesWithSemantic(options: {
   documents: HarnessDocument[]
   proposal: ProposalData
@@ -344,6 +358,7 @@ function markProposalArchived(proposalPath: string, block: string) {
   writeFileSync(proposalPath, `${withStatus.trimEnd()}\n\n${block.trimEnd()}\n`)
 }
 
+/** @deprecated Use reconciliation/candidate-fact workflow instead. */
 export function proposeKnowledge(options: KnowledgeProposalOptions): KnowledgeProposalResult {
   const projectRoot = path.resolve(options.projectRoot ?? process.cwd())
   const runPath = runPathFor(projectRoot, options.fromRun)
@@ -394,6 +409,7 @@ export function proposeKnowledge(options: KnowledgeProposalOptions): KnowledgePr
   }
 }
 
+/** @deprecated Use reconciliation/candidate-fact workflow instead. */
 export function promoteKnowledgeProposal(options: KnowledgePromotionOptions): KnowledgePromotionResult {
   const projectRoot = path.resolve(options.projectRoot ?? process.cwd())
   const proposalPath = resolveProjectPath(projectRoot, options.proposalPath)
@@ -502,6 +518,7 @@ export function promoteKnowledgeProposal(options: KnowledgePromotionOptions): Kn
   }
 }
 
+/** @deprecated Use reconciliation/candidate-fact workflow instead. */
 export function rejectKnowledgeProposal(options: KnowledgeRejectOptions): KnowledgeRejectResult {
   const projectRoot = path.resolve(options.projectRoot ?? process.cwd())
   const proposalPath = resolveProjectPath(projectRoot, options.proposalPath)
@@ -532,6 +549,7 @@ export function rejectKnowledgeProposal(options: KnowledgeRejectOptions): Knowle
   }
 }
 
+/** @deprecated Use graph-backed control affordance detection instead. */
 export type AffordanceCheckResult = {
   id: string | null
   path: string
@@ -554,6 +572,7 @@ const AFFORDANCE_PATTERNS: Array<{
   { affordance: 'design-guideline', signals: ['design', 'pattern', 'composition', 'architecture'], reason: 'Body describes design patterns or architecture' },
 ]
 
+/** @deprecated Use graph-backed control affordance detection instead. */
 export function suggestAffordances(document: HarnessDocument): {
   suggested: string[]
   reasons: Array<{ affordance: string; reason: string }>
@@ -577,6 +596,7 @@ export function suggestAffordances(document: HarnessDocument): {
   return { suggested, reasons }
 }
 
+/** @deprecated Use graph-backed control affordance detection instead. */
 export function checkAffordances(projectRoot: string, knowledgePath: string): AffordanceCheckResult {
   const fullPath = path.isAbsolute(knowledgePath)
     ? knowledgePath
@@ -607,6 +627,7 @@ export function checkAffordances(projectRoot: string, knowledgePath: string): Af
   }
 }
 
+/** @deprecated Use reconciliation/candidate-fact workflow instead. */
 export function listKnowledgeProposals(projectRootInput: string): KnowledgeProposalSummary[] {
   const projectRoot = path.resolve(projectRootInput)
   const runsRoot = path.join(projectRoot, 'harness/runs')

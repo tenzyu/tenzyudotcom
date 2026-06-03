@@ -1,8 +1,15 @@
+/**
+ * v1 external agent adapter protocol; compatibility only.
+ * @deprecated Use Policy Engine, graph registry query, Task/Run command
+ * builder, and governed Agent Loop adapter instead.
+ */
+
 import path from 'node:path'
 import { loadHarnessDocuments } from './docs'
 import { repoOwner } from './owner'
 import type { Diagnostic, HarnessDocument } from './schema'
 
+/** @deprecated Use graph registry query instead. */
 export type AtelierRegistryEntry = {
   id: string
   title: string
@@ -11,11 +18,13 @@ export type AtelierRegistryEntry = {
   summary: string | null
 }
 
+/** @deprecated Use Policy Engine permissions instead. */
 export type AtelierRunPolicy = {
   editAllowed: boolean
   purpose: 'implementation' | 'investigation' | 'review'
 }
 
+/** @deprecated Use governed Agent Loop adapter instead. */
 export type AtelierNextAction =
   | { kind: 'read_file'; path: string }
   | { kind: 'shell'; command: string }
@@ -67,6 +76,7 @@ function firstExistingId(
   return entries.includes(preferred) ? preferred : (entries[0] ?? preferred)
 }
 
+/** @deprecated Use graph registry query instead. */
 export function listAtelierRegistryEntries(
   projectRoot: string,
   kind: 'workflow' | 'role'
@@ -83,6 +93,7 @@ export function listAtelierRegistryEntries(
     .sort((left, right) => left.id.localeCompare(right.id))
 }
 
+/** @deprecated Use graph-backed scope/ownership query instead. */
 export function inferRoleIds(
   projectRoot: string,
   inputPath: string,
@@ -97,6 +108,7 @@ export function inferRoleIds(
   return [firstExistingId(documents, 'role', DEFAULT_ROLE_ID)]
 }
 
+/** @deprecated Use Task/Run command builder instead. */
 export function buildRunInitCommand(options: EntrypointOptions = {}) {
   const documents = options.documents ?? []
   const workflowId =
@@ -128,6 +140,7 @@ export function buildRunInitCommand(options: EntrypointOptions = {}) {
     .join(' ')
 }
 
+/** @deprecated Use Task/Run command builder instead. */
 export function buildContextRenderCommand(options: Required<EntrypointOptions>) {
   return [
     'atelier context render',
@@ -248,6 +261,7 @@ export function diagnosticMessageWithRecovery(diagnostic: Diagnostic) {
   ].join('\n')
 }
 
+/** @deprecated Use Policy Engine to evaluate permissions instead of inferring from workflow id text. */
 export function runPolicyForWorkflow(workflowId: string): AtelierRunPolicy {
   if (workflowId.includes('review')) {
     return { editAllowed: false, purpose: 'review' }
@@ -258,6 +272,7 @@ export function runPolicyForWorkflow(workflowId: string): AtelierRunPolicy {
   return { editAllowed: true, purpose: 'implementation' }
 }
 
+/** @deprecated Use governed Agent Loop adapter instead. */
 export function nextActionsForRunInit(
   projectRoot: string,
   contextPath: string,
@@ -280,6 +295,7 @@ export function nextActionsForRunInit(
   return actions
 }
 
+/** @deprecated Use governed Agent Loop adapter instead. */
 export function renderEntrypointProtocol(documents: readonly HarnessDocument[]) {
   return [
     '# Atelier LLM Entry Points',

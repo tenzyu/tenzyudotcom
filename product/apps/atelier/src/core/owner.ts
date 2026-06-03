@@ -1,3 +1,9 @@
+/**
+ * v1 path-owner shim; compatibility only.
+ * @deprecated Use graph-backed scope/ownership query and repo-map observer
+ * as graph input instead.
+ */
+
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import path from 'node:path'
 import { loadHarnessDocuments, toPosixPath } from './docs'
@@ -7,8 +13,10 @@ import {
 } from './repo-map'
 import { asStringArray as toStringArray, type HarnessDocument } from './schema'
 
+/** @deprecated Use graph-backed ownership instead. */
 export type RepoOwnerSource = 'nx-project' | 'role-selector' | 'harness-repo-map' | 'unknown'
 
+/** @deprecated Use graph-backed scope/ownership query instead. */
 export type RepoOwnerResult = {
   path: string
   project: string | null
@@ -18,6 +26,7 @@ export type RepoOwnerResult = {
   notes: string[]
 }
 
+/** @deprecated Use graph-backed project/ownership query instead. */
 export type NxProject = {
   name: string
   root: string
@@ -162,10 +171,12 @@ function roleForPath(target: string, roles: ReturnType<typeof roleOwners>) {
   return null
 }
 
+/** @deprecated Use graph-backed repo map query instead. */
 export function listNxProjects(projectRoot: string): NxProject[] {
   return loadNxProjects(projectRoot)
 }
 
+/** @deprecated Use graph-backed scope/ownership query instead. */
 export function repoOwner(targetPath: string, projectRoot: string): RepoOwnerResult {
   const cleanTarget = toPosixPath(targetPath).replace(/^\.\//, '').replace(/\/$/, '')
   const cached = loadPathOwnershipCache(projectRoot)
@@ -232,10 +243,12 @@ function loadPathOwnershipCache(projectRoot: string): PathOwnership | null {
   }
 }
 
+/** @deprecated Use graph-backed scope/ownership query instead. */
 export function repoOwnerForPath(options: { projectRoot: string; targetPath: string }): RepoOwnerResult {
   return repoOwner(options.targetPath, options.projectRoot)
 }
 
+/** @deprecated Use graph-backed project discovery instead. */
 export function listProjectConfigFiles(): readonly string[] {
   return PROJECT_CONFIG_FILES
 }

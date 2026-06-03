@@ -208,12 +208,8 @@ async function renameId(event) {
 
 async function detectMutations() {
   try {
-    const response = await fetch('/api/runs')
-    if (response.status === 200) {
-      setMutations(false)
-    } else {
-      setMutations('error')
-    }
+    const data = await apiGet('/api/status')
+    setMutations(data.allowMutations === true)
   } catch (error) {
     setMutations('error')
   }

@@ -301,7 +301,7 @@ export function editRole(projectRoot: string, roleId: string, changes: Partial<R
 
   if (changes.pinned) {
     preview.push(`pinned: ${changes.pinned.join(', ')}`)
-    const reindexHint = 'Re-run `atelier index --write` to refresh role-bundles.json'
+    const reindexHint = 'Re-run `atelier index` to refresh generated indexes'
     preview.push(`[impact] ${reindexHint}`)
   }
 

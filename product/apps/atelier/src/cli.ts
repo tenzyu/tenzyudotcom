@@ -454,6 +454,12 @@ function printGenerate(
   }
 }
 
+function deprecationNotice(name: string, replacement: string, json: boolean) {
+  if (!json) {
+    process.stderr.write(`[deprecated] '${name}' is v1 compatibility surface. Use '${replacement}' instead.\n`)
+  }
+}
+
 function hasErrorDiagnostic(diagnostics: readonly Diagnostic[]) {
   return diagnostics.some((diagnostic) => diagnostic.severity === 'error')
 }
@@ -502,6 +508,7 @@ export async function runCli(argv: readonly string[]) {
         (value): value is string => value !== undefined
       )
     )
+    deprecationNotice('atelier index', 'atelier scan + atelier graph', base.json)
     const check = base.remaining.includes('--check')
     const unknown = base.remaining.filter((arg) => arg !== '--check')
     if (unknown.length > 0) throw new Error(`Unknown argument: ${unknown[0]}`)
@@ -1024,6 +1031,7 @@ export async function runCli(argv: readonly string[]) {
 
   if (command === 'workflow' && subcommand === 'list') {
     const base = parseBase(restRaw)
+    deprecationNotice('atelier workflow list', 'graph registry query', base.json)
     const entries = listAtelierRegistryEntries(base.projectRoot, 'workflow')
 
     if (base.json) {
@@ -1037,6 +1045,7 @@ export async function runCli(argv: readonly string[]) {
 
   if (command === 'role' && subcommand === 'list') {
     const base = parseBase(restRaw)
+    deprecationNotice('atelier role list', 'graph registry query', base.json)
     const entries = listAtelierRegistryEntries(base.projectRoot, 'role')
 
     if (base.json) {
@@ -1249,6 +1258,7 @@ export async function runCli(argv: readonly string[]) {
 
   if (command === 'repo' && subcommand === 'owner') {
     const base = parseBase(restRaw)
+    deprecationNotice('atelier repo owner', 'graph-backed scope/ownership query', base.json)
     const target = readRequiredOption(base.remaining, '--path')
     const { repoOwner } = await import('./core/owner')
     const result = repoOwner(target, base.projectRoot)
@@ -1272,6 +1282,7 @@ export async function runCli(argv: readonly string[]) {
 
   if (command === 'repo' && subcommand === 'map') {
     const base = parseBase(restRaw)
+    deprecationNotice('atelier repo map', 'graph-backed scope/ownership query', base.json)
     const { compileRepoMap, compilePathOwnership } = await import('./core/repo-map')
     const map = compileRepoMap(base.projectRoot)
     const ownership = compilePathOwnership(base.projectRoot, map)
@@ -1294,6 +1305,7 @@ export async function runCli(argv: readonly string[]) {
 
   if (command === 'knowledge' && subcommand === 'propose') {
     const base = parseBase(restRaw)
+    deprecationNotice('atelier knowledge propose', 'reconciliation/candidate-fact workflow', base.json)
     const result = proposeKnowledge({
       projectRoot: base.projectRoot,
       fromRun: readRequiredOption(base.remaining, '--from-run'),
@@ -1319,6 +1331,7 @@ export async function runCli(argv: readonly string[]) {
 
   if (command === 'knowledge' && subcommand === 'promote') {
     const base = parseBase(restRaw)
+    deprecationNotice('atelier knowledge promote', 'reconciliation/candidate-fact workflow', base.json)
     const proposalPath = base.remaining[0]
     if (!proposalPath)
       throw new Error('knowledge promote requires PROPOSAL_PATH')
@@ -1341,6 +1354,7 @@ export async function runCli(argv: readonly string[]) {
 
   if (command === 'knowledge' && subcommand === 'reject') {
     const base = parseBase(restRaw)
+    deprecationNotice('atelier knowledge reject', 'reconciliation/candidate-fact workflow', base.json)
     const proposalPath = base.remaining[0]
     if (!proposalPath)
       throw new Error('knowledge reject requires PROPOSAL_PATH')
@@ -1366,6 +1380,7 @@ export async function runCli(argv: readonly string[]) {
 
   if (command === 'id' && subcommand === 'rename') {
     const base = parseBase(restRaw)
+    deprecationNotice('atelier id rename', 'graph-aware artifact ID rename with Event Log', base.json)
     const oldId = base.remaining[0]
     const newId = base.remaining[1]
     if (!oldId || !newId)
@@ -1398,6 +1413,7 @@ export async function runCli(argv: readonly string[]) {
         (value): value is string => value !== undefined
       )
     )
+    deprecationNotice('atelier generate', 'Control Artifact Materializer', base.json)
     const write = base.remaining.includes('--write')
     const unknown = base.remaining.filter((arg) => arg !== '--write')
     if (unknown.length > 0) throw new Error(`Unknown argument: ${unknown[0]}`)

@@ -1,3 +1,9 @@
+/**
+ * v1 generated-index compiler; compatibility only.
+ * @deprecated Use {@link scanProject}, {@link buildGraph}, {@link writeGraph}
+ * and graph projection/materializer instead.
+ */
+
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { loadHarnessDocuments } from './docs'
@@ -10,6 +16,7 @@ import {
   type HarnessDocument,
 } from './schema'
 
+/** @deprecated Use graph projection/materializer instead. */
 export type GeneratedFileName =
   | 'docs.json'
   | 'ids.json'
@@ -20,12 +27,14 @@ export type GeneratedFileName =
   | 'repo-map.json'
   | 'path-ownership.json'
 
+/** @deprecated Use graph operations instead. */
 export type IndexOptions = {
   projectRoot?: string
   check?: boolean
   write?: boolean
 }
 
+/** @deprecated Use graph projection/materializer instead. */
 export type IndexResult = {
   ok: boolean
   generatedRoot: string
@@ -227,6 +236,7 @@ function compileRoleBundles(documents: HarnessDocument[]) {
     })
 }
 
+/** @deprecated Use {@link scanProject}, {@link buildGraph}, {@link writeGraph} instead. */
 export function compileIndexes(options: IndexOptions = {}): IndexResult {
   const projectRoot = path.resolve(options.projectRoot ?? process.cwd())
   const generatedRoot = path.join(projectRoot, '.harness/generated')

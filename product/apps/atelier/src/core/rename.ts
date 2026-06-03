@@ -1,3 +1,9 @@
+/**
+ * v1 Markdown/generated-index symbolic rename; compatibility only.
+ * @deprecated Use graph-aware artifact ID rename with Event Log and
+ * impact preview instead.
+ */
+
 import {
   existsSync,
   mkdirSync,
@@ -15,6 +21,7 @@ import {
 } from './schema'
 import { toPosixPath } from './docs'
 
+/** @deprecated Use graph-aware artifact ID rename instead. */
 export type IdRenameOptions = {
   projectRoot?: string
   oldId: string
@@ -22,6 +29,7 @@ export type IdRenameOptions = {
   write?: boolean
 }
 
+/** @deprecated Use graph-aware artifact ID rename instead. */
 export type IdRenameChangeKind =
   | 'frontmatter-id'
   | 'frontmatter-array'
@@ -30,6 +38,7 @@ export type IdRenameChangeKind =
   | 'json-string'
   | 'manifest'
 
+/** @deprecated Use graph-aware artifact ID rename instead. */
 export type IdRenameChange = {
   path: string
   absolutePath: string
@@ -39,6 +48,7 @@ export type IdRenameChange = {
   samples: string[]
 }
 
+/** @deprecated Use graph-aware artifact ID rename instead. */
 export type IdRenameResult = {
   ok: boolean
   oldId: string
@@ -352,6 +362,7 @@ function collectSourceFiles(projectRoot: string) {
   }
 }
 
+/** @deprecated Use graph-aware artifact ID rename with Event Log and impact preview instead. */
 export function renameId(options: IdRenameOptions): IdRenameResult {
   const projectRoot = path.resolve(options.projectRoot ?? process.cwd())
   const oldId = options.oldId.trim()

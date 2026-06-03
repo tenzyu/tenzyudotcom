@@ -15,6 +15,10 @@ import {
   type SemanticHit,
 } from './semantic'
 
+/**
+ * @deprecated Use Selector v2 query over role, task, phase, scope, diff,
+ * risk, permissions, and budget via {@link buildGraphContextPlan} instead.
+ */
 export type ContextPlanOptions = {
   projectRoot?: string
   workflowId: string
@@ -29,6 +33,7 @@ export type ContextPlanOptions = {
 
 export type ContextMode = 'compact' | 'full' | 'linked'
 
+/** @deprecated Use Selector v2 trace types instead. */
 export type SelectedContextDocument = {
   id: string | null
   kind: string | null
@@ -40,6 +45,7 @@ export type SelectedContextDocument = {
   tokenEstimate: number
 }
 
+/** @deprecated Use Selector v2 trace types instead. */
 export type SkippedContextDocument = {
   id: string | null
   path: string
@@ -47,6 +53,7 @@ export type SkippedContextDocument = {
   count?: number
 }
 
+/** @deprecated Use {@link SelectorV2Trace} instead. */
 export type SelectorMatchTrace = {
   type: 'require_all' | 'require_any' | 'exclude' | 'path' | 'pinned' | 'relation'
   selector: string
@@ -54,6 +61,7 @@ export type SelectorMatchTrace = {
   matchedTags?: string[]
 }
 
+/** @deprecated Use {@link SelectorV2Trace} instead. */
 export type ConditionEvaluation = {
   type: 'deterministic' | 'semantic'
   condition: string
@@ -62,6 +70,7 @@ export type ConditionEvaluation = {
   confidence?: string
 }
 
+/** @deprecated Use {@link SelectorV2Trace} instead. */
 export type RelationResolveTrace = {
   type: 'inherit' | 'require_context' | 'require_constant' | 'require_decision' | 'related' | 'conflicts'
   target: string
@@ -71,11 +80,16 @@ export type RelationResolveTrace = {
   inheritedTags?: string[]
 }
 
+/** @deprecated Use {@link SelectorV2Trace} instead. */
 export type RelationTarget = {
   id: string
   mode: 'full' | 'summary' | 'reference'
 }
 
+/**
+ * @deprecated Use Selector v2 query over role, task, phase, scope, diff,
+ * risk, permissions, and budget via {@link buildGraphContextPlan} instead.
+ */
 export type ContextPlan = {
   workflowId: string
   roleIds: string[]
@@ -753,6 +767,7 @@ function resolveRelations(
   return relationTraces
 }
 
+/** @deprecated Use {@link buildGraphContextPlan} with Selector v2 instead. */
 export function buildContextPlan(options: ContextPlanOptions): ContextPlan {
   const projectRoot = path.resolve(options.projectRoot ?? process.cwd())
   const inputPath = normalizedInputPath(projectRoot, options.inputPath)

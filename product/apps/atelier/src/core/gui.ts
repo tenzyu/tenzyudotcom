@@ -203,7 +203,18 @@ export function handleGuiRequest(
     const graph = readGraph(projectRoot) ?? buildGraph(projectRoot)
     const stale = isGraphStale(projectRoot, graph)
     const status = computeGraphStatus(graph)
-    return jsonResponse({ graph: status, stale })
+    const activeRuns = path.join(projectRoot, 'harness/runs/active')
+    const completedRuns = path.join(projectRoot, 'harness/runs/completed')
+    return jsonResponse({
+      projectRoot,
+      allowMutations: options.allowMutations,
+      graphExists: !!readGraph(projectRoot),
+      generatedExists: existsSync(path.join(projectRoot, '.harness/generated')),
+      activeRunCount: existsSync(activeRuns) ? safeDirCount(activeRuns) : 0,
+      completedRunCount: existsSync(completedRuns) ? safeDirCount(completedRuns) : 0,
+      graph: status,
+      stale,
+    })
   }
 
   if (route.method === 'GET' && route.pathname === '/api/role-bundles') {
@@ -542,16 +553,18 @@ export function summarizeProjectRoot(projectRoot: string) {
   return {
     projectRoot,
     harnessExists: existsSync(harness),
-    activeRunCount: existsSync(activeRuns) ? safeCount(activeRuns) : 0,
-    completedRunCount: existsSync(completedRuns) ? safeCount(completedRuns) : 0,
+    activeRunCount: existsSync(activeRuns) ? safeDirCount(activeRuns) : 0,
+    completedRunCount: existsSync(completedRuns) ? safeDirCount(completedRuns) : 0,
     generatedExists: existsSync(path.join(projectRoot, '.harness/generated')),
   }
 }
 
-function safeCount(dir: string) {
+function safeDirCount(dir: string) {
   try {
     return readdirSync(dir).filter((name) => !name.startsWith('.')).length
   } catch {
     return 0
   }
 }
+
+

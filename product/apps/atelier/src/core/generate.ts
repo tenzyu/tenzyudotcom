@@ -1,3 +1,10 @@
+/**
+ * v1 generated skills/root adapters materializer; compatibility only.
+ * @deprecated Use Control Artifact Materializer with ownership-aware
+ * adapter materialization (ownership modes: generated, managed, curated,
+ * observed, external) instead.
+ */
+
 import {
   existsSync,
   mkdirSync,
@@ -10,17 +17,20 @@ import { compileIndexes } from './indexer'
 import { buildRunInitCommand, renderEntrypointProtocol } from './llm-protocol'
 import { asStringArray, type Diagnostic, type HarnessDocument } from './schema'
 
+/** @deprecated Use Control Artifact Materializer instead. */
 export type GenerateOptions = {
   projectRoot?: string
   write?: boolean
 }
 
+/** @deprecated Use Control Artifact Materializer instead. */
 export type GeneratedFileKind =
   | 'skill-atelier'
   | 'skill-workflow'
   | 'skill-role'
   | 'adapter-root'
 
+/** @deprecated Use Control Artifact Materializer instead. */
 export type GeneratedFile = {
   path: string
   absolutePath: string
@@ -28,6 +38,7 @@ export type GeneratedFile = {
   content: string
 }
 
+/** @deprecated Use Control Artifact Materializer instead. */
 export type GenerateResult = {
   ok: boolean
   generatedRoot: string
@@ -388,6 +399,7 @@ function isUnchanged(target: string, content: string) {
   return readFileSync(target, 'utf-8') === content
 }
 
+/** @deprecated Use Control Artifact Materializer instead. */
 export function generateGeneratedFiles(
   options: GenerateOptions = {}
 ): GenerateResult {

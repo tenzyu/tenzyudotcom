@@ -109,8 +109,8 @@ export function buildMcpServer(options: McpServerOptions): McpServer {
     {
       title: 'Atelier Index',
       description:
-        'Compile generated harness indexes. When write=false (default) it returns a summary without writing files; pass write=true to refresh the generated artifacts.',
-      inputSchema: {
+         '[Deprecated v1 compatibility surface] Compile generated harness indexes. When write=false (default) it returns a summary without writing files; pass write=true to refresh the generated artifacts.',
+       inputSchema: {
         write: z.boolean().default(false).describe('Write generated files when true.'),
         check: z
           .boolean()
@@ -238,7 +238,7 @@ export function buildMcpServer(options: McpServerOptions): McpServer {
     {
       title: 'Atelier Workflow List',
       description:
-        'List workflow ids, titles, summaries, and source paths so agents do not discover them by grepping Markdown. Read-only.',
+         '[Deprecated v1 compatibility surface] List workflow ids, titles, summaries, and source paths so agents do not discover them by grepping Markdown. Read-only.',
       inputSchema: {},
     },
     async () => toJsonResult({ workflows: listAtelierRegistryEntries(projectRoot, 'workflow') })
@@ -250,7 +250,7 @@ export function buildMcpServer(options: McpServerOptions): McpServer {
     {
       title: 'Atelier Role List',
       description:
-        'List role ids, titles, summaries, and source paths so agents can choose role ids deterministically. Read-only.',
+         '[Deprecated v1 compatibility surface] List role ids, titles, summaries, and source paths so agents can choose role ids deterministically. Read-only.',
       inputSchema: {},
     },
     async () => toJsonResult({ roles: listAtelierRegistryEntries(projectRoot, 'role') })
@@ -342,7 +342,7 @@ export function buildMcpServer(options: McpServerOptions): McpServer {
     {
       title: 'Atelier Knowledge Propose',
       description:
-        'Create a knowledge proposal from run evidence. Proposals are reviewable; nothing is promoted automatically. Requires confirm=true.',
+         '[Deprecated v1 compatibility surface] Create a knowledge proposal from run evidence. Proposals are reviewable; nothing is promoted automatically. Requires confirm=true.',
       inputSchema: {
         fromRun: z.string().describe('Source run id (RUN-...).'),
         kind: z.string().describe('Knowledge type (rule, adr, lesson, ...).'),
@@ -380,7 +380,7 @@ export function buildMcpServer(options: McpServerOptions): McpServer {
     {
       title: 'Atelier Knowledge Promote',
       description:
-        'Promote a knowledge proposal into durable knowledge. Performs duplicate detection, role-bundle impact preview, and index refresh. Requires confirm=true.',
+         '[Deprecated v1 compatibility surface] Promote a knowledge proposal into durable knowledge. Performs duplicate detection, role-bundle impact preview, and index refresh. Requires confirm=true.',
       inputSchema: {
         proposalPath: z.string().describe('Path to the proposal Markdown.'),
         confirm: z.boolean().optional(),
@@ -406,7 +406,7 @@ export function buildMcpServer(options: McpServerOptions): McpServer {
     {
       title: 'Atelier Knowledge Reject',
       description:
-        'Archive a knowledge proposal without promoting it. Requires confirm=true.',
+         '[Deprecated v1 compatibility surface] Archive a knowledge proposal without promoting it. Requires confirm=true.',
       inputSchema: {
         proposalPath: z.string().describe('Path to the proposal Markdown.'),
         reason: z.string().optional(),
@@ -434,7 +434,7 @@ export function buildMcpServer(options: McpServerOptions): McpServer {
     {
       title: 'Atelier ID Rename',
       description:
-        'Preview or apply a symbolic ID rename across the harness. Defaults to preview-only; pass confirm=true (or start the server with --allow-mutations) to write.',
+         '[Deprecated v1 compatibility surface] Preview or apply a symbolic ID rename across the harness. Defaults to preview-only; pass confirm=true (or start the server with --allow-mutations) to write.',
       inputSchema: {
         oldId: z.string().describe('Existing symbolic id.'),
         newId: z.string().describe('Replacement symbolic id.'),
@@ -463,7 +463,7 @@ export function buildMcpServer(options: McpServerOptions): McpServer {
     {
       title: 'Atelier Repo Owner',
       description:
-        'Resolve a repository path to its Nx project and owning role. Read-only.',
+         '[Deprecated v1 compatibility surface] Resolve a repository path to its Nx project and owning role. Read-only.',
       inputSchema: {
         path: z.string().describe('Repository-relative path to look up.'),
       },
@@ -678,7 +678,7 @@ export function buildMcpServer(options: McpServerOptions): McpServer {
     {
       title: 'Atelier Generate',
       description:
-        'Refresh generated skills and root adapters. Defaults to preview; pass write=true to actually update files. Pass confirm=true if writing.',
+         '[Deprecated v1 compatibility surface] Refresh generated skills and root adapters. Defaults to preview; pass write=true to actually update files. Pass confirm=true if writing.',
       inputSchema: {
         write: z.boolean().default(false),
         confirm: z.boolean().optional(),

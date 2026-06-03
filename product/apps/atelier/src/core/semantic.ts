@@ -1,10 +1,18 @@
+/**
+ * v1 Markdown-index semantic recall; compatibility only.
+ * @deprecated Use graph-aware recall/search over Artifact Graph and
+ * trace/control/fact artifacts instead.
+ */
+
 import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import { loadHarnessDocuments } from './docs'
 import { asStringArray as toStringArray, type HarnessDocument } from './schema'
 
+/** @deprecated Use graph-aware recall/search instead. */
 export type SemanticSource = 'past-run' | 'knowledge' | 'unknown-term' | 'duplicate-candidate'
 
+/** @deprecated Use graph-aware recall/search instead. */
 export type SemanticHit = {
   id: string
   path: string
@@ -16,6 +24,7 @@ export type SemanticHit = {
   source: SemanticSource
 }
 
+/** @deprecated Use graph-aware recall/search instead. */
 export type SemanticQuery = {
   intent: string
   inputPath: string
@@ -24,6 +33,7 @@ export type SemanticQuery = {
   minScore?: number
 }
 
+/** @deprecated Use graph-aware recall/search instead. */
 export type SemanticOptions = {
   projectRoot: string
   enabled?: boolean
@@ -33,6 +43,7 @@ export type SemanticOptions = {
   excludeIds?: string[]
 }
 
+/** @deprecated Use graph-aware recall/search instead. */
 export type SemanticResult = {
   enabled: boolean
   hits: SemanticHit[]
@@ -157,6 +168,7 @@ function hitFromScore(
   }
 }
 
+/** @deprecated Use graph-aware recall/search instead. */
 export function buildSemanticQuery(intent: string, inputPath: string): SemanticQuery {
   const fromIntent = tokenize(intent)
   const fromPath = tokenize(inputPath)
@@ -167,6 +179,7 @@ export function buildSemanticQuery(intent: string, inputPath: string): SemanticQ
   }
 }
 
+/** @deprecated Use graph-aware recall/search instead. */
 export function runSemanticExpansion(
   options: SemanticOptions,
   query: SemanticQuery,
@@ -220,6 +233,7 @@ export function runSemanticExpansion(
   return { enabled: true, hits: trimmed, unknownTerms, warnings }
 }
 
+/** @deprecated Use graph-aware duplicate detection instead. */
 export function findDuplicateKnowledgeCandidates(
   options: SemanticOptions & { candidateId: string },
 ): SemanticHit[] {
