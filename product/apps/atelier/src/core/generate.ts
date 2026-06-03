@@ -7,6 +7,7 @@ import {
 import path from 'node:path'
 import { loadHarnessDocuments } from './docs'
 import { compileIndexes } from './indexer'
+import { buildRunInitCommand, renderEntrypointProtocol } from './llm-protocol'
 import { asStringArray, type Diagnostic, type HarnessDocument } from './schema'
 
 export type GenerateOptions = {
@@ -89,7 +90,7 @@ function extractSection(body: string, heading: string) {
   return section.join('\n').trim()
 }
 
-function renderAtelierSkill(generatedAt: string): string {
+function renderAtelierSkill(generatedAt: string, documents: readonly HarnessDocument[]): string {
   return [
     '---',
     'schema: harness/v1',
@@ -107,15 +108,7 @@ function renderAtelierSkill(generatedAt: string): string {
     '',
     '# Atelier',
     '',
-    'Do not manually discover harness context first.',
-    '',
-    '## Default Protocol',
-    '',
-    '1. Run `atelier run init --workflow isolated-run --intent "<request>"`.',
-    '2. Read the generated `harness/runs/active/<RUN-ID>/context.md`.',
-    '3. Follow the workflow, role, and phase instructions inside `context.md`.',
-    '4. Update `verification.md` and `handoff.md` as the run progresses.',
-    '5. Run `atelier run close <RUN-ID>` before claiming completion.',
+    renderEntrypointProtocol(documents),
     '',
     '## Core Commands',
     '',
@@ -283,7 +276,11 @@ function renderRoleSkill(document: HarnessDocument, generatedAt: string): string
   return lines.join('\n')
 }
 
-function renderRootAdapter(adapter: RootAdapter, generatedAt: string): string {
+function renderRootAdapter(
+  adapter: RootAdapter,
+  generatedAt: string,
+  documents: readonly HarnessDocument[]
+): string {
   const id = `adapter.root.${adapter.replace(/\.md$/, '').toLowerCase()}`
   const titleCase = adapter === 'AGENTS.md' ? 'AGENTS' : adapter.replace(/\.md$/, '')
   const toolSource = ROOT_ADAPTER_TOOL[adapter]
@@ -319,7 +316,7 @@ function renderRootAdapter(adapter: RootAdapter, generatedAt: string): string {
     'Use Atelier.',
     '',
     '```bash',
-    'atelier run init --workflow isolated-run --intent "<request>"',
+    buildRunInitCommand({ documents }),
     '```',
     '',
     'Read `harness/runs/active/<RUN-ID>/context.md`.',
@@ -345,7 +342,7 @@ function buildGeneratedFiles(
     path: '.harness/generated/skills/atelier.md',
     absolutePath: path.join(skillsRoot, 'atelier.md'),
     kind: 'skill-atelier',
-    content: `${renderAtelierSkill(generatedAt)}\n`,
+    content: `${renderAtelierSkill(generatedAt, documents)}\n`,
   })
 
   for (const document of documents) {
@@ -379,7 +376,7 @@ function buildGeneratedFiles(
       path: `harness/adapters/root/${adapter}`,
       absolutePath: path.join(projectRoot, 'harness/adapters/root', adapter),
       kind: 'adapter-root',
-      content: `${renderRootAdapter(adapter, generatedAt)}\n`,
+      content: `${renderRootAdapter(adapter, generatedAt, documents)}\n`,
     })
   }
 

@@ -7,6 +7,7 @@ import { runDoctor } from './doctor'
 import { generateGeneratedFiles } from './generate'
 import { compileIndexes } from './indexer'
 import { promoteKnowledgeProposal, proposeKnowledge, rejectKnowledgeProposal } from './knowledge'
+import { listAtelierRegistryEntries } from './llm-protocol'
 import { repoOwner } from './owner'
 import { renameId } from './rename'
 import { closeRun, initRun, runStatus } from './runs'
@@ -123,9 +124,9 @@ export function buildMcpServer(options: McpServerOptions): McpServer {
         workflowId: z.string().describe('Workflow symbolic id (e.g. workflow.isolated-run).'),
         roleIds: z
           .array(z.string())
-          .min(1)
-          .describe('Primary role id; first entry is the primary role, the rest are supporting.'),
-        inputPath: z.string().describe('Target path inside the repository.'),
+          .default([])
+          .describe('Role ids (primary first). Omit to infer from inputPath.'),
+        inputPath: z.string().default('.').describe('Target path inside the repository. Defaults to ".".'),
         intent: z.string().describe('Human-readable description of the run intent.'),
         mode: z
           .enum(['compact', 'full', 'linked'])
@@ -153,7 +154,7 @@ export function buildMcpServer(options: McpServerOptions): McpServer {
         projectRoot,
         workflowId: text(args.workflowId),
         roleIds: textArray(args.roleIds),
-        inputPath: text(args.inputPath),
+        inputPath: text(args.inputPath) || '.',
         intent: text(args.intent),
         mode: normalizeContextMode(text(args.mode) || 'compact'),
         requiredOnly: bool(args.requiredOnly),
@@ -168,6 +169,30 @@ export function buildMcpServer(options: McpServerOptions): McpServer {
 
   registerTool(
     server,
+    'atelier_workflow_list',
+    {
+      title: 'Atelier Workflow List',
+      description:
+        'List workflow ids, titles, summaries, and source paths so agents do not discover them by grepping Markdown. Read-only.',
+      inputSchema: {},
+    },
+    async () => toJsonResult({ workflows: listAtelierRegistryEntries(projectRoot, 'workflow') })
+  )
+
+  registerTool(
+    server,
+    'atelier_role_list',
+    {
+      title: 'Atelier Role List',
+      description:
+        'List role ids, titles, summaries, and source paths so agents can choose role ids deterministically. Read-only.',
+      inputSchema: {},
+    },
+    async () => toJsonResult({ roles: listAtelierRegistryEntries(projectRoot, 'role') })
+  )
+
+  registerTool(
+    server,
     'atelier_run_init',
     {
       title: 'Atelier Run Init',
@@ -175,8 +200,8 @@ export function buildMcpServer(options: McpServerOptions): McpServer {
         'Materialize a context plan into a run folder. Requires confirm=true unless the server was started with --allow-mutations.',
       inputSchema: {
         workflowId: z.string().describe('Workflow symbolic id.'),
-        roleIds: z.array(z.string()).min(1).describe('Role ids (primary first).'),
-        inputPath: z.string().describe('Target path inside the repository.'),
+        roleIds: z.array(z.string()).default([]).describe('Role ids (primary first). Omit to infer from inputPath.'),
+        inputPath: z.string().default('.').describe('Target path inside the repository. Defaults to ".".'),
         intent: z.string().describe('Human-readable description of the run intent.'),
         mode: z.enum(['compact', 'full', 'linked']).default('compact'),
         runId: z.string().optional().describe('Optional explicit run id.'),
@@ -192,7 +217,7 @@ export function buildMcpServer(options: McpServerOptions): McpServer {
         projectRoot,
         workflowId: text(args.workflowId),
         roleIds: textArray(args.roleIds),
-        inputPath: text(args.inputPath),
+        inputPath: text(args.inputPath) || '.',
         intent: text(args.intent),
         mode: normalizeContextMode(text(args.mode) || 'compact'),
         runId: text(args.runId) || undefined,
@@ -204,6 +229,8 @@ export function buildMcpServer(options: McpServerOptions): McpServer {
         contextPath: result.contextPath,
         manifestPath: result.manifestPath,
         diagnostics: result.plan.diagnostics,
+        policy: result.policy,
+        nextActions: result.nextActions,
       })
     }
   )
@@ -425,6 +452,8 @@ export const MCP_TOOL_NAMES = [
   'atelier_doctor',
   'atelier_index',
   'atelier_context_plan',
+  'atelier_workflow_list',
+  'atelier_role_list',
   'atelier_run_init',
   'atelier_run_status',
   'atelier_run_close',

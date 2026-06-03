@@ -11,6 +11,13 @@ import {
 } from './context'
 import { parseFrontmatter } from './frontmatter'
 import { runDoctor } from './doctor'
+import {
+  diagnosticMessageWithRecovery,
+  nextActionsForRunInit,
+  runPolicyForWorkflow,
+  type AtelierNextAction,
+  type AtelierRunPolicy,
+} from './llm-protocol'
 import { asStringArray, type Diagnostic, type HarnessDocument } from './schema'
 
 export type RunInitOptions = ContextPlanOptions & {
@@ -24,6 +31,8 @@ export type RunInitResult = {
   contextPath: string
   briefPath: string
   plan: ContextPlan
+  policy: AtelierRunPolicy
+  nextActions: AtelierNextAction[]
 }
 
 export type ContextRenderOptions = ContextPlanOptions & {
@@ -366,7 +375,7 @@ function hasUnjustifiedSkippedChecks(verification: string) {
   })
 }
 
-function renderBrief(runId: string, options: RunInitOptions) {
+function renderBrief(runId: string, plan: ContextPlan) {
   return [
     '---',
     'schema: harness/v1',
@@ -374,7 +383,7 @@ function renderBrief(runId: string, options: RunInitOptions) {
     `id: run.active.${runId.toLowerCase()}.brief`,
     `title: ${yamlString(`${runId} Brief`)}`,
     'status: active',
-    `summary: ${yamlString(options.intent)}`,
+    `summary: ${yamlString(plan.intent)}`,
     'tags:',
     '  - harness',
     '  - run',
@@ -384,13 +393,13 @@ function renderBrief(runId: string, options: RunInitOptions) {
     '',
     '## Intent',
     '',
-    options.intent,
+    plan.intent,
     '',
     '## Inputs',
     '',
-    `- Workflow: \`${options.workflowId}\``,
-    `- Roles: ${options.roleIds.map((roleId) => `\`${roleId}\``).join(', ')}`,
-    `- Path: \`${options.inputPath}\``,
+    `- Workflow: \`${plan.workflowId}\``,
+    `- Roles: ${plan.roleIds.map((roleId) => `\`${roleId}\``).join(', ')}`,
+    `- Path: \`${plan.inputPath}\``,
     '',
     '## Scope',
     '',
@@ -520,7 +529,12 @@ function renderContext(projectRoot: string, runId: string, runPath: string, plan
   ].join('\n')
 }
 
-function manifest(runId: string, plan: ContextPlan) {
+function manifest(
+  runId: string,
+  plan: ContextPlan,
+  policy: AtelierRunPolicy,
+  nextActions: AtelierNextAction[]
+) {
   return {
     runId,
     workflowId: plan.workflowId,
@@ -540,6 +554,8 @@ function manifest(runId: string, plan: ContextPlan) {
     expandedDocuments: [],
     skippedDocuments: plan.skipped,
     diagnostics: plan.diagnostics,
+    policy,
+    nextActions,
     generatedAt: new Date().toISOString(),
     budgetEstimate: plan.budgetEstimate,
   }
@@ -550,7 +566,7 @@ export function renderContextForOptions(options: ContextRenderOptions): ContextR
   const plan = buildContextPlan(options)
   const blockingDiagnostic = plan.diagnostics.find((diagnostic) => diagnostic.severity === 'error')
   if (blockingDiagnostic) {
-    throw new Error(`${blockingDiagnostic.code}: ${blockingDiagnostic.message}`)
+    throw new Error(diagnosticMessageWithRecovery(blockingDiagnostic))
   }
 
   const runId = options.runId ?? deterministicRunId(options)
@@ -560,7 +576,7 @@ export function renderContextForOptions(options: ContextRenderOptions): ContextR
     runId,
     runPath,
     context: renderContext(projectRoot, runId, runPath, plan),
-    manifest: manifest(runId, plan),
+    manifest: manifest(runId, plan, runPolicyForWorkflow(plan.workflowId), []),
     plan,
   }
 }
@@ -570,7 +586,7 @@ export function initRun(options: RunInitOptions): RunInitResult {
   const plan = buildContextPlan(options)
   const blockingDiagnostic = plan.diagnostics.find((diagnostic) => diagnostic.severity === 'error')
   if (blockingDiagnostic) {
-    throw new Error(`${blockingDiagnostic.code}: ${blockingDiagnostic.message}`)
+    throw new Error(diagnosticMessageWithRecovery(blockingDiagnostic))
   }
   const runId = options.runId ?? deterministicRunId(options)
   const runPath = path.join(projectRoot, 'harness/runs/active', runId)
@@ -584,10 +600,12 @@ export function initRun(options: RunInitOptions): RunInitResult {
   const briefPath = path.join(runPath, 'brief.md')
   const contextPath = path.join(runPath, 'context.md')
   const manifestPath = path.join(runPath, 'context.manifest.json')
+  const policy = runPolicyForWorkflow(plan.workflowId)
+  const nextActions = nextActionsForRunInit(projectRoot, contextPath, plan.workflowId)
 
-  writeFileSync(briefPath, `${renderBrief(runId, options)}\n`)
+  writeFileSync(briefPath, `${renderBrief(runId, plan)}\n`)
   writeFileSync(contextPath, `${renderContext(projectRoot, runId, runPath, plan)}\n`)
-  writeFileSync(manifestPath, `${JSON.stringify(manifest(runId, plan), null, 2)}\n`)
+  writeFileSync(manifestPath, `${JSON.stringify(manifest(runId, plan, policy, nextActions), null, 2)}\n`)
 
   return {
     runId,
@@ -596,6 +614,8 @@ export function initRun(options: RunInitOptions): RunInitResult {
     contextPath,
     briefPath,
     plan,
+    policy,
+    nextActions,
   }
 }
 

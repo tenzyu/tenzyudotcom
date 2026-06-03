@@ -6,11 +6,26 @@ import { buildContextPlan } from '../core/context'
 import { compileIndexes } from '../core/indexer'
 import { promoteKnowledgeProposal, proposeKnowledge, rejectKnowledgeProposal } from '../core/knowledge'
 import { closeRun, expandRunContext, initRun, renderContextForOptions } from '../core/runs'
+import { runCli } from '../cli'
 
 function writeMarkdown(root: string, relativePath: string, lines: string[]) {
   const target = path.join(root, relativePath)
   mkdirSync(path.dirname(target), { recursive: true })
   writeFileSync(target, lines.join('\n'))
+}
+
+async function captureStdout(run: () => Promise<number>) {
+  const originalLog = console.log
+  const lines: string[] = []
+  console.log = (...args: unknown[]) => {
+    lines.push(args.map(String).join(' '))
+  }
+  try {
+    const code = await run()
+    return { code, output: lines.join('\n') }
+  } finally {
+    console.log = originalLog
+  }
 }
 
 function createFixture(root: string) {
@@ -196,6 +211,47 @@ describe('Atelier M2-M4', () => {
     expect(plan.diagnostics).toEqual([])
   })
 
+  test('infers a role from input path when role ids are omitted', () => {
+    const plan = buildContextPlan({
+      projectRoot: tmpRoot,
+      workflowId: 'workflow.example',
+      roleIds: [],
+      inputPath: 'product/apps/example',
+      intent: 'fix auth behavior',
+    })
+
+    expect(plan.roleIds).toEqual(['role.domain.example'])
+    expect(plan.nextRunInitCommand).toContain('--role role.domain.example')
+  })
+
+  test('keeps repository root input path as dot', () => {
+    const plan = buildContextPlan({
+      projectRoot: tmpRoot,
+      workflowId: 'workflow.example',
+      roleIds: ['role.domain.example'],
+      inputPath: '.',
+      intent: 'inspect repository root',
+    })
+
+    expect(plan.inputPath).toBe('.')
+    expect(plan.nextRunInitCommand).toContain('--path .')
+  })
+
+  test('missing workflow diagnostics include suggestions and retry command', () => {
+    const plan = buildContextPlan({
+      projectRoot: tmpRoot,
+      workflowId: 'example',
+      roleIds: ['role.domain.example'],
+      inputPath: 'product/apps/example',
+      intent: 'fix auth behavior',
+    })
+
+    const diagnostic = plan.diagnostics.find((entry) => entry.code === 'MISSING_WORKFLOW')
+    expect(diagnostic?.details?.suggestions).toEqual(['workflow.example'])
+    expect(diagnostic?.details?.retryCommand).toContain('--workflow workflow.example')
+    expect(diagnostic?.details?.retryCommand).toContain('--role role.domain.example')
+  })
+
   test('semantic expansion is disabled by default and stays optional', () => {
     const withoutSemantic = buildContextPlan({
       projectRoot: tmpRoot,
@@ -233,6 +289,54 @@ describe('Atelier M2-M4', () => {
 
     expect(plan.mode).toBe('linked')
     expect(plan.nextRenderCommand).toContain('--mode linked')
+  })
+
+  test('cli help is validation-free for nested commands', async () => {
+    const result = await captureStdout(() => runCli(['run', 'init', '--help']))
+
+    expect(result.code).toBe(0)
+    expect(result.output).toContain('atelier run init')
+    expect(result.output).toContain('LLM entrypoint')
+  })
+
+  test('cli lists workflows as json', async () => {
+    const result = await captureStdout(() =>
+      runCli(['workflow', 'list', '--project-root', tmpRoot, '--json'])
+    )
+    const payload = JSON.parse(result.output)
+
+    expect(result.code).toBe(0)
+    expect(payload.workflows.some((entry: { id: string }) => entry.id === 'workflow.example')).toBe(true)
+  })
+
+  test('cli run init infers role and returns next actions in json', async () => {
+    const result = await captureStdout(() =>
+      runCli([
+        'run',
+        'init',
+        '--project-root',
+        tmpRoot,
+        '--workflow',
+        'workflow.example',
+        '--path',
+        'product/apps/example',
+        '--intent',
+        'cli inferred role',
+        '--id',
+        'RUN-cli-inferred-role',
+        '--json',
+      ])
+    )
+    const payload = JSON.parse(result.output)
+
+    expect(result.code).toBe(0)
+    expect(payload.runId).toBe('RUN-cli-inferred-role')
+    expect(payload.nextActions).toEqual([
+      {
+        kind: 'read_file',
+        path: 'harness/runs/active/RUN-cli-inferred-role/context.md',
+      },
+    ])
   })
 
   test('renders context body without creating a run', () => {
@@ -279,6 +383,13 @@ describe('Atelier M2-M4', () => {
     const manifest = JSON.parse(readFileSync(result.manifestPath, 'utf-8'))
     expect(manifest.runId).toBe('RUN-example-auth')
     expect(manifest.contextMode).toBe('compact')
+    expect(manifest.policy.editAllowed).toBe(true)
+    expect(manifest.nextActions).toEqual([
+      {
+        kind: 'read_file',
+        path: 'harness/runs/active/RUN-example-auth/context.md',
+      },
+    ])
     expect(manifest.expandedDocuments).toEqual([])
     expect(manifest.selectedDocuments.some((document: { path: string }) => document.path === 'harness/actions/workflows/example.md')).toBe(
       true,

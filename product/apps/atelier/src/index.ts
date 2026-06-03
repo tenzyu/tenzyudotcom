@@ -25,6 +25,21 @@ export {
   type KnowledgeRejectOptions,
   type KnowledgeRejectResult,
 } from './core/knowledge'
+export {
+  buildContextRenderCommand,
+  buildRunInitCommand,
+  diagnosticMessageWithRecovery,
+  inferRoleIds,
+  listAtelierRegistryEntries,
+  nextActionsForRunInit,
+  recoveryLinesForDiagnostic,
+  renderEntrypointProtocol,
+  runPolicyForWorkflow,
+  suggestSymbolicIds,
+  type AtelierNextAction,
+  type AtelierRegistryEntry,
+  type AtelierRunPolicy,
+} from './core/llm-protocol'
 export { MCP_TOOL_NAMES, buildMcpServer, runMcpServer, type McpServerOptions } from './core/mcp'
 export { listNxProjects, repoOwner, type NxProject, type RepoOwnerResult, type RepoOwnerSource } from './core/owner'
 export {

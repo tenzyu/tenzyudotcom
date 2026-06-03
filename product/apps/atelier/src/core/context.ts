@@ -1,5 +1,11 @@
 import path from 'node:path'
 import { loadHarnessDocuments, toPosixPath } from './docs'
+import {
+  buildContextRenderCommand,
+  buildRunInitCommand,
+  enrichMissingSymbolDiagnostic,
+  inferRoleIds,
+} from './llm-protocol'
 import { asStringArray, type Diagnostic, type HarnessDocument } from './schema'
 import { suggestAffordances } from './knowledge'
 import {
@@ -187,7 +193,8 @@ function normalizedInputPath(projectRoot: string, inputPath: string) {
   const resolved = path.isAbsolute(inputPath)
     ? inputPath
     : path.resolve(projectRoot, inputPath)
-  return toPosixPath(path.relative(projectRoot, resolved))
+  const relativePath = toPosixPath(path.relative(projectRoot, resolved))
+  return relativePath === '' ? '.' : relativePath
 }
 
 function documentSummary(
@@ -743,6 +750,7 @@ function resolveRelations(
 export function buildContextPlan(options: ContextPlanOptions): ContextPlan {
   const projectRoot = path.resolve(options.projectRoot ?? process.cwd())
   const inputPath = normalizedInputPath(projectRoot, options.inputPath)
+  const roleIds = inferRoleIds(projectRoot, inputPath, options.roleIds)
   const mode = normalizeContextMode(options.mode)
   const documents = loadHarnessDocuments(projectRoot)
   const documentsById = byId(documents)
@@ -760,25 +768,53 @@ export function buildContextPlan(options: ContextPlanOptions): ContextPlan {
 
   const workflow = documentsById.get(options.workflowId)
   if (!workflow) {
-    diagnostics.push({
-      code: 'MISSING_WORKFLOW',
-      severity: 'error',
-      message: `Workflow '${options.workflowId}' was not found.`,
-    })
+    diagnostics.push(
+      enrichMissingSymbolDiagnostic(
+        {
+          code: 'MISSING_WORKFLOW',
+          severity: 'error',
+          message: `Workflow '${options.workflowId}' was not found.`,
+        },
+        {
+          requestedId: options.workflowId,
+          documents,
+          kind: 'workflow',
+          workflowId: options.workflowId,
+          roleIds,
+          inputPath,
+          intent: options.intent,
+          mode,
+        }
+      )
+    )
   } else {
     addSelected(required, workflow, 'requested workflow')
   }
 
-  const roles = options.roleIds.map((roleId) => documentsById.get(roleId))
-  for (let index = 0; index < options.roleIds.length; index += 1) {
-    const roleId = options.roleIds[index]
+  const roles = roleIds.map((roleId) => documentsById.get(roleId))
+  for (let index = 0; index < roleIds.length; index += 1) {
+    const roleId = roleIds[index]
     const role = roles[index]
     if (!role) {
-      diagnostics.push({
-        code: 'MISSING_ROLE',
-        severity: 'error',
-        message: `Role '${roleId}' was not found.`,
-      })
+      diagnostics.push(
+        enrichMissingSymbolDiagnostic(
+          {
+            code: 'MISSING_ROLE',
+            severity: 'error',
+            message: `Role '${roleId}' was not found.`,
+          },
+          {
+            requestedId: roleId,
+            documents,
+            kind: 'role',
+            workflowId: options.workflowId,
+            roleIds,
+            inputPath,
+            intent: options.intent,
+            mode,
+          }
+        )
+      )
       continue
     }
     addSelected(
@@ -1109,14 +1145,6 @@ export function buildContextPlan(options: ContextPlanOptions): ContextPlan {
     })
   }
 
-  const commandArgs = [
-    `--workflow ${options.workflowId}`,
-    ...options.roleIds.map((roleId) => `--role ${roleId}`),
-    `--path ${inputPath}`,
-    `--intent ${JSON.stringify(options.intent)}`,
-    `--mode ${mode}`,
-  ].join(' ')
-
   const semantic = runSemanticExpansion(
     {
       projectRoot,
@@ -1128,7 +1156,7 @@ export function buildContextPlan(options: ContextPlanOptions): ContextPlan {
 
   return {
     workflowId: options.workflowId,
-    roleIds: options.roleIds,
+    roleIds,
     inputPath,
     intent: options.intent,
     mode,
@@ -1141,8 +1169,22 @@ export function buildContextPlan(options: ContextPlanOptions): ContextPlan {
       limit: TOKEN_BUDGET,
       exceeded: tokensEstimate > TOKEN_BUDGET,
     },
-    nextRenderCommand: `atelier context render ${commandArgs}`,
-    nextRunInitCommand: `atelier run init ${commandArgs}`,
+    nextRenderCommand: buildContextRenderCommand({
+      workflowId: options.workflowId,
+      roleIds,
+      inputPath,
+      intent: options.intent,
+      mode,
+      documents,
+    }),
+    nextRunInitCommand: buildRunInitCommand({
+      workflowId: options.workflowId,
+      roleIds,
+      inputPath,
+      intent: options.intent,
+      mode,
+      documents,
+    }),
     semantic: {
       enabled: semantic.enabled,
       hits: semantic.hits,

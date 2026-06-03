@@ -12,7 +12,7 @@ tags:
 generated: true
 generator: atelier generate
 tool_source: "harness/adapters/tool/CLAUDE.md"
-generated_at: "2026-06-02T12:43:05.317Z"
+generated_at: "2026-06-03T10:19:08.597Z"
 ---
 
 # CLAUDE.md
@@ -22,7 +22,7 @@ Do not manually discover harness context first.
 Use Atelier.
 
 ```bash
-atelier run init --workflow isolated-run --intent "<request>"
+atelier run init --workflow workflow.isolated-run --role role.core.implementer --path . --intent "<request>"
 ```
 
 Read `harness/runs/active/<RUN-ID>/context.md`.

@@ -5,7 +5,7 @@ Use Atelier before manually discovering harness context.
 For non-trivial work:
 
 ```bash
-atelier run init --workflow isolated-run --intent "<request>"
+atelier run init --workflow workflow.isolated-run --role role.core.implementer --path . --intent "<request>"
 ```
 
 Then read the generated `context.md` and follow it.

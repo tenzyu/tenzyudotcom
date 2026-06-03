@@ -17,7 +17,7 @@ Root `GEMINI.md` should route Gemini through Atelier.
 
 Required behavior:
 
-- start non-trivial work with `atelier run init`
+- start non-trivial work with the generated exact `atelier run init --workflow ... --role ... --path ... --intent ...` entrypoint
 - read generated `context.md`
 - avoid manual broad search of `harness/knowledge/**`
 - finish with `atelier run close <RUN-ID>`

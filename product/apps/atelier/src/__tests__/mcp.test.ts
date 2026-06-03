@@ -91,7 +91,7 @@ describe('MCP server', () => {
     rmSync(PROJECT_ROOT, { recursive: true, force: true })
   })
 
-  test('lists all twelve tools and one matches the roadmap list', async () => {
+  test('lists tools including registry helpers', async () => {
     const { client, transport } = await bootClient()
     try {
       const result = await client.listTools()
@@ -99,6 +99,8 @@ describe('MCP server', () => {
       expect(names).toContain('atelier_doctor')
       expect(names).toContain('atelier_index')
       expect(names).toContain('atelier_context_plan')
+      expect(names).toContain('atelier_workflow_list')
+      expect(names).toContain('atelier_role_list')
       expect(names).toContain('atelier_run_init')
       expect(names).toContain('atelier_run_status')
       expect(names).toContain('atelier_run_close')
@@ -111,7 +113,7 @@ describe('MCP server', () => {
     } finally {
       await transport.close()
     }
-  })
+  }, 10000)
 
   test('atelier_doctor returns a doctor report', async () => {
     const { client, transport } = await bootClient()
@@ -146,6 +148,21 @@ describe('MCP server', () => {
       expect(payload.required.length).toBeGreaterThan(0)
       expect(payload.semantic).toBeDefined()
       expect(payload.semantic.enabled).toBe(false)
+    } finally {
+      await transport.close()
+    }
+  })
+
+  test('atelier_workflow_list returns workflow ids without markdown discovery', async () => {
+    const { client, transport } = await bootClient()
+    try {
+      const result = await client.callTool({
+        name: 'atelier_workflow_list',
+        arguments: {},
+      })
+      const text = (result.content as Array<{ type: string; text: string }>)[0]?.text ?? '{}'
+      const payload = JSON.parse(text)
+      expect(payload.workflows.some((entry: { id: string }) => entry.id === 'workflow.isolated-run')).toBe(true)
     } finally {
       await transport.close()
     }
@@ -224,6 +241,8 @@ describe('MCP server', () => {
       const text = (result.content as Array<{ type: string; text: string }>)[0]?.text ?? '{}'
       const payload = JSON.parse(text)
       expect(payload.runId).toMatch(/^RUN-/)
+      expect(payload.policy.editAllowed).toBe(true)
+      expect(payload.nextActions[0].kind).toBe('read_file')
     } finally {
       await transport.close()
     }

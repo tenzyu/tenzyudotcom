@@ -16,6 +16,12 @@ import {
   type KnowledgePromotionResult,
 } from './core/knowledge'
 import {
+  buildRunInitCommand,
+  listAtelierRegistryEntries,
+  recoveryLinesForDiagnostic,
+  type AtelierRegistryEntry,
+} from './core/llm-protocol'
+import {
   renameId,
   type IdRenameChange,
   type IdRenameResult,
@@ -40,10 +46,12 @@ function usage() {
     'Usage:',
     '  atelier doctor [--json] [--fix] [--project-root <path>]',
     '  atelier index [--check] [--project-root <path>]',
-    '  atelier context plan --workflow <id> --role <id> [--role <id>] --path <path> --intent <text> [--mode compact|full|linked] [--required-only] [--semantic] [--semantic-max-results <n>] [--json]',
-    '  atelier context render --workflow <id> --role <id> [--role <id>] --path <path> --intent <text> [--mode compact|full|linked] [--id <run-id>] [--json]',
+    '  atelier workflow list [--json]',
+    '  atelier role list [--json]',
+    '  atelier context plan --workflow <id> [--role <id>] [--role <id>] [--path <path>] --intent <text> [--mode compact|full|linked] [--required-only] [--semantic] [--semantic-max-results <n>] [--json]',
+    '  atelier context render --workflow <id> [--role <id>] [--role <id>] [--path <path>] --intent <text> [--mode compact|full|linked] [--id <run-id>] [--json]',
     '  atelier context expand RUN-ID DOC-ID-OR-PATH [--json]',
-    '  atelier run init --workflow <id> --role <id> [--role <id>] --path <path> --intent <text> [--mode compact|full|linked] [--id <run-id>] [--json]',
+    '  atelier run init --workflow <id> [--role <id>] [--role <id>] [--path <path>] --intent <text> [--mode compact|full|linked] [--id <run-id>] [--json]',
     '  atelier run status RUN-ID [--json]',
     '  atelier run close RUN-ID [--json]',
     '  atelier repo owner --path <path> [--json]',
@@ -59,6 +67,8 @@ function usage() {
     'Commands:',
     '  doctor   Inspect harness Markdown for schema, link, ID, and stale path issues.',
     '  index    Compile generated harness indexes.',
+    '  workflow List callable workflow ids for deterministic agent selection.',
+    '  role     List role ids for deterministic agent selection.',
     '  context  Plan or render role-routed context without creating a run.',
     '  run      Materialize, inspect, and close a run.',
     '  repo     Query repository facts (path ownership).',
@@ -67,6 +77,9 @@ function usage() {
     '  generate Refresh generated skills and root adapters.',
     '  mcp      Start a stdio Model Context Protocol server. Mutations require --allow-mutations or a confirm flag from the client.',
     '  gui      Start the local HTTP GUI. Binds to 127.0.0.1 by default. Mutations require --allow-mutations or a confirm flag from the UI.',
+    '',
+    'LLM entrypoint:',
+    `  ${buildRunInitCommand()}`,
   ].join('\n')
 }
 
@@ -134,7 +147,22 @@ function readRepeatedOption(args: readonly string[], name: string) {
 function formatDiagnostic(diagnostic: Diagnostic) {
   const location = [diagnostic.path, diagnostic.line].filter(Boolean).join(':')
   const prefix = location ? `${location}: ` : ''
-  return `${prefix}${diagnostic.severity.toUpperCase()} ${diagnostic.code}: ${diagnostic.message}`
+  return [
+    `${prefix}${diagnostic.severity.toUpperCase()} ${diagnostic.code}: ${diagnostic.message}`,
+    ...recoveryLinesForDiagnostic(diagnostic),
+  ].join('\n')
+}
+
+function printRegistryList(label: string, entries: readonly AtelierRegistryEntry[]) {
+  console.log(`Atelier ${label} List`)
+  if (entries.length === 0) {
+    console.log('- None')
+    return
+  }
+  for (const entry of entries) {
+    const summary = entry.summary ? ` - ${entry.summary}` : ''
+    console.log(`- ${entry.id} (${entry.path})${summary}`)
+  }
 }
 
 function printHumanReport(report: DoctorReport, fix: boolean) {
@@ -217,9 +245,7 @@ function printContextPlan(plan: ContextPlan) {
   console.log('\nDiagnostics')
   if (plan.diagnostics.length === 0) console.log('- None')
   for (const diagnostic of plan.diagnostics) {
-    console.log(
-      `- ${diagnostic.severity.toUpperCase()} ${diagnostic.code}: ${diagnostic.message}`
-    )
+    console.log(`- ${formatDiagnostic(diagnostic)}`)
   }
 
   console.log('\nSemantic Recall (optional)')
@@ -388,7 +414,16 @@ function hasErrorDiagnostic(diagnostics: readonly Diagnostic[]) {
 export async function runCli(argv: readonly string[]) {
   const [command = 'help', subcommand, ...restRaw] = argv
 
-  if (command === 'help' || command === '--help' || command === '-h') {
+  if (
+    command === 'help' ||
+    command === '--help' ||
+    command === '-h' ||
+    subcommand === 'help' ||
+    subcommand === '--help' ||
+    subcommand === '-h' ||
+    restRaw.includes('--help') ||
+    restRaw.includes('-h')
+  ) {
     console.log(usage())
     return 0
   }
@@ -449,11 +484,35 @@ export async function runCli(argv: readonly string[]) {
     return result.ok ? 0 : 1
   }
 
+  if (command === 'workflow' && subcommand === 'list') {
+    const base = parseBase(restRaw)
+    const entries = listAtelierRegistryEntries(base.projectRoot, 'workflow')
+
+    if (base.json) {
+      console.log(JSON.stringify({ workflows: entries }, null, 2))
+    } else {
+      printRegistryList('Workflow', entries)
+    }
+
+    return 0
+  }
+
+  if (command === 'role' && subcommand === 'list') {
+    const base = parseBase(restRaw)
+    const entries = listAtelierRegistryEntries(base.projectRoot, 'role')
+
+    if (base.json) {
+      console.log(JSON.stringify({ roles: entries }, null, 2))
+    } else {
+      printRegistryList('Role', entries)
+    }
+
+    return 0
+  }
+
   if (command === 'context' && subcommand === 'plan') {
     const base = parseBase(restRaw)
     const roles = readRepeatedOption(base.remaining, '--role')
-    if (roles.length === 0)
-      throw new Error('--role requires at least one value')
     const semanticMaxResultsRaw = readOptionalOption(base.remaining, '--semantic-max-results')
     const semanticMaxResults = semanticMaxResultsRaw === undefined ? undefined : Number(semanticMaxResultsRaw)
     if (
@@ -467,7 +526,7 @@ export async function runCli(argv: readonly string[]) {
       projectRoot: base.projectRoot,
       workflowId: readRequiredOption(base.remaining, '--workflow'),
       roleIds: roles,
-      inputPath: readRequiredOption(base.remaining, '--path'),
+      inputPath: readOptionalOption(base.remaining, '--path') ?? '.',
       intent: readRequiredOption(base.remaining, '--intent'),
       requiredOnly: base.remaining.includes('--required-only'),
       mode: normalizeContextMode(readOptionalOption(base.remaining, '--mode')),
@@ -487,13 +546,11 @@ export async function runCli(argv: readonly string[]) {
   if (command === 'context' && subcommand === 'render') {
     const base = parseBase(restRaw)
     const roles = readRepeatedOption(base.remaining, '--role')
-    if (roles.length === 0)
-      throw new Error('--role requires at least one value')
     const rendered = renderContextForOptions({
       projectRoot: base.projectRoot,
       workflowId: readRequiredOption(base.remaining, '--workflow'),
       roleIds: roles,
-      inputPath: readRequiredOption(base.remaining, '--path'),
+      inputPath: readOptionalOption(base.remaining, '--path') ?? '.',
       intent: readRequiredOption(base.remaining, '--intent'),
       requiredOnly: base.remaining.includes('--required-only'),
       mode: normalizeContextMode(readOptionalOption(base.remaining, '--mode')),
@@ -536,13 +593,11 @@ export async function runCli(argv: readonly string[]) {
   if (command === 'run' && subcommand === 'init') {
     const base = parseBase(restRaw)
     const roles = readRepeatedOption(base.remaining, '--role')
-    if (roles.length === 0)
-      throw new Error('--role requires at least one value')
     const result = initRun({
       projectRoot: base.projectRoot,
       workflowId: readRequiredOption(base.remaining, '--workflow'),
       roleIds: roles,
-      inputPath: readRequiredOption(base.remaining, '--path'),
+      inputPath: readOptionalOption(base.remaining, '--path') ?? '.',
       intent: readRequiredOption(base.remaining, '--intent'),
       mode: normalizeContextMode(readOptionalOption(base.remaining, '--mode')),
       runId: readOptionalOption(base.remaining, '--id'),
@@ -558,6 +613,8 @@ export async function runCli(argv: readonly string[]) {
             contextPath: result.contextPath,
             manifestPath: result.manifestPath,
             diagnostics: result.plan.diagnostics,
+            policy: result.policy,
+            nextActions: result.nextActions,
           },
           null,
           2
@@ -573,6 +630,17 @@ export async function runCli(argv: readonly string[]) {
       console.log(
         `Manifest: ${path.relative(base.projectRoot, result.manifestPath)}`
       )
+      console.log('\nPolicy')
+      console.log(`Edit allowed: ${result.policy.editAllowed ? 'yes' : 'no'}`)
+      console.log(`Purpose: ${result.policy.purpose}`)
+      console.log('\nNext actions:')
+      for (const [index, action] of result.nextActions.entries()) {
+        const value =
+          action.kind === 'read_file'
+            ? `Read context: cat ${action.path}`
+            : action.command
+        console.log(`  ${index + 1}. ${value}`)
+      }
     }
 
     return 0

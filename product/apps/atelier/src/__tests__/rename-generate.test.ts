@@ -370,7 +370,10 @@ describe('Atelier M8 (generate skills and adapters)', () => {
       'utf-8'
     )
     expect(agents).toContain('Do not manually discover harness context first.')
-    expect(agents).toContain('atelier run init')
+    expect(agents).toContain(
+      'atelier run init --workflow workflow.isolated-run --role role.domain.example --path . --intent "<request>"'
+    )
+    expect(agents).not.toContain('atelier run init --workflow isolated-run --intent')
     expect(agents).toContain('atelier run close')
     expect(agents.split('\n').length).toBeLessThan(50)
 
