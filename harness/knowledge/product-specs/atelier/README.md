@@ -348,7 +348,7 @@ The current source-contract policy is intentionally asymmetric. It minimizes man
 
 - Completed run history is loose historical text. It should not be forced through future frontmatter migrations.
 - Knowledge must not manually point back to roles. Role-to-knowledge relationships are produced by role selectors and generated indexes.
-- Knowledge may keep intrinsic signals such as `read_when` and `skip_when`, but not callable-skill fields.
+- Knowledge uses `tags` as the primary retrieval signal. Legacy `read_when` / `skip_when` fields are deprecated; new knowledge must use `conditions.deterministic` and `conditions.semantic` instead.
 - Legacy display fields such as `impactDescription`, `chapter`, `name`, `description`, and `user-invocable` belong under `x.legacy` when preservation is useful. They are not routing fields.
 - Tags must be YAML arrays. Scalar comma-separated tags are invalid for deterministic indexing.
 - Domain roles must declare routing metadata with `selectors` and `pinned` context.
@@ -499,32 +499,348 @@ This must update:
 
 Atelier must preview the change before writing.
 
-### 6.3 Knowledge Metadata
+### 6.3 Knowledge Card Model
 
-Knowledge declares its intrinsic shape, not every consumer.
+Knowledge は **Markdown-backed 意味ノード**であり、本文の意味解釈は LLM に委ねる。
+frontmatter はその知識の**型・接続・選択条件**を宣言する索引兼型注釈である。
 
-Recommended fields:
+#### 6.3.1 設計原則
+
+1. **Markdown body は意味本体。決定論的にしない。**
+2. **frontmatter は索引・型・関係・条件だけを持つ。本文の意味を複製しない。**
+3. **affordance は emit ではなく transformability hint。**
+   LLM が発見した変換可能性 (`inferred`) は proposal 扱いとし、承認 (`accepted`) を経て deterministic artifact へ昇格する。
+4. **relations は自動注入の裏口にしない。**
+   edge type と injection mode を明示し、selector 未マッチの知識が裏口から注入されるのを防ぐ。
+5. **id は stable address。tags は retrieval signal。**
+   両者は似せてよいが、一方から他方を推論しない。validator が不自然なズレを警告する。
+
+#### 6.3.2 Knowledge Card Frontmatter
 
 ```yaml
-knowledge_type: rule | product-spec | adr | repo-map | known-problem | lesson | incident | component-note | reference | generated-summary
-impact: LOW | MEDIUM | HIGH | CRITICAL
-scope:
-  paths:
-    - product/apps/web/**
-  packages:
-    - "@tenzyu/ui"
-  products:
-    - web
-signals:
-  read_when:
-    - editing server actions
-  skip_when:
-    - Rust-only work
+---
+schema: harness/v1
+kind: knowledge
+
+# === 安定アドレス ===
+id: web.component.policy
+
+# === 型（読まれ方の定義） ===
+pattern: simple | conditional | inheritance | collector | constants | fragment | factory | multi-context
+
+# === 人間向け ===
+title: Web Component Policy
+summary: Rules for React component structure in the web app.
+status: active | draft | deprecated | archived
+
+# === 索引信号 ===
+tags:
+  - domain:web
+  - layer:foundation
+  - kind:rule
+  - subject:component
+  - criticality:high
+
+# === 関係（自動注入の裏口にしない） ===
+relations:
+  inherit: []
+  require_context:
+    - id: web.accessibility.policy
+      mode: summary
+      reason: "Component changes often require accessibility review."
+  require_constant: []
+  require_decision: []
+  related:
+    - web.design-token.policy
+  conflicts: []
+
+# === 条件 ===
+conditions:
+  deterministic:
+    path_any: []
+    tag_any: []
+  semantic:
+    task_intent_any: []
+
+# === 変換可能性ヒント ===
+affordances:
+  declared:
+    - context
+    - check-candidate
+    - review-candidate
+
+# === 置き換え関係 ===
+supersedes: []
+superseded_by: ""
+
+# === レガシーブリッジ ===
+x:
+  legacy: {}
+---
 ```
 
-Knowledge should not maintain role reverse links.
+#### 6.3.3 各フィールドの意味論
 
-### 6.4 Role Metadata
+**`id`**
+安定アドレス。ファイルを移動しても変わらない。
+形式: `<namespace>.<subject>.<purpose>`（例: `web.component.policy`, `nix.flake.policy`）
+
+**`pattern`**
+この Knowledge が Context Compiler にどう読まれるかを定義する。詳細は 6.4 参照。
+
+**`tags`**
+selector が知識を発見するための索引信号。`prefix:value` 形式。
+prefix 一覧は 6.5 参照。
+
+**`relations.inherit`**
+Inheritance pattern の基底。base の tags を継承し、解決時は base → child の順に注入する。
+body は merge せず、順序付きで独立注入する。継承段数は原則 2 段まで、3 段以上は warning。
+
+**`relations.require_context`**
+当該 Knowledge を理解するために必要な文脈。selector 未マッチの場合、`mode` に応じて扱いが変わる:
+- `full`: selector 条件を再評価し、条件一致時のみ注入
+- `summary`: 要約または抽出のみ注入
+- `reference`: trace に参照だけ残す（本文注入なし）
+
+**`relations.require_constant`**
+固定値参照。本文注入ではなく値の参照のみ。
+
+**`relations.require_decision`**
+条件判定に使う Knowledge。本文注入ではなく、条件評価に用いる。
+
+**`relations.related`**
+近い関係だが自動注入しない。探索ヒントとして trace に記録する。
+
+**`relations.conflicts`**
+同時に有効化されると危険な Knowledge。両方が selector マッチした場合、criticality または明示的な解決ルールに従う。
+
+**`conditions`**
+当該 Knowledge が有効になる条件。
+- `deterministic`: path/file/tag ベースの機械判定
+- `semantic`: LLM が判定する意図ベースの条件（判定結果は trace に記録）
+
+**`affordances.declared`**
+この Knowledge が何に変換されうるかの author hint。
+LLM は declared にない affordance を発見してもよい (`inferred`) が、deterministic artifact への昇格には declared または accepted が必要。
+
+### 6.4 Dendritic Patterns
+
+Dendritic Pattern は Knowledge の**読まれ方の型**である。
+ファイル種別ではなく、Context Compiler が entrypoint から知識木を解決する際の振る舞いを定義する。
+
+#### 6.4.1 Simple
+
+単独で注入可能な Knowledge。依存を持たず、selector マッチ時にそのまま context に含まれる。
+
+```yaml
+pattern: simple
+```
+
+解決時: selector マッチ → 注入。最も基本的で扱いやすい。
+
+#### 6.4.2 Conditional
+
+条件が満たされたときだけ注入される Knowledge。
+条件は機械判定可能なもの (`deterministic`) と LLM 判定が必要なもの (`semantic`) に分かれる。
+
+```yaml
+pattern: conditional
+conditions:
+  deterministic:
+    path_any:
+      - "flake.nix"
+      - "**/*.nix"
+  semantic:
+    task_intent_any:
+      - "change build environment"
+      - "modify package build"
+```
+
+解決時: deterministic 条件は機械評価。semantic 条件は LLM に問い合わせ、判定結果を trace に記録。
+いずれの条件も満たさなければ注入しない。
+
+#### 6.4.3 Inheritance
+
+基底 Knowledge から文脈を展開する。
+tags は継承するが body は merge せず、base → child の順に独立注入する。
+
+```yaml
+pattern: inheritance
+relations:
+  inherit:
+    - web.component.policy
+```
+
+解決時:
+1. base の tags を child に継承（trace に inheritedTags として記録）
+2. base の body を child の前に注入
+3. 継承段数が 3 段以上の場合は warning
+
+#### 6.4.4 Collector
+
+複数 Knowledge から、特定観点に関係する断片だけを集める。
+context を太らせるのではなく、圧縮のために使う。
+
+```yaml
+pattern: collector
+relations:
+  require_context:
+    - id: web.component.policy
+      mode: summary
+    - id: nix.flake.policy
+      mode: summary
+```
+
+解決時: 各関連 Knowledge から collector の観点に合致する部分のみ抽出。
+抽出結果は `mode` に従い、summary の場合は本文の代わりに要約を注入。
+
+#### 6.4.5 Constants
+
+推論させない固定値を持つ Knowledge。
+LLM が値を推論・変更してはいけないものを定義する。
+
+```yaml
+pattern: constants
+```
+
+解決時: 常時注入されるか、`require_constant` 経由で値参照される。
+本文は事実のみを記述し、解釈や判断を含めない。
+
+#### 6.4.6 Fragment
+
+単独では注入されず、他の Knowledge に意味部品として混ぜ込まれる小さな Knowledge。
+
+```yaml
+pattern: fragment
+```
+
+解決時: 単体で selector マッチしない。Collector や require_context summary mode 経由でのみ参照される。
+
+#### 6.4.7 Factory
+
+同型の Knowledge 群を作るための型。それ自体は注入されず、新しい Knowledge を生成するための枠を提供する。
+
+```yaml
+pattern: factory
+```
+
+解決時: 直接注入しない。`atelier knowledge generate --factory <id> --name <name>` などのコマンドで
+新しい Knowledge Card の雛形を生成するために使う。
+
+#### 6.4.8 Multi-Context
+
+1 つの entrypoint から複数の面（Knowledge / Action / Product / Run）へ枝を伸ばす Knowledge。
+
+```yaml
+pattern: multi-context
+```
+
+解決時: entrypoint の解決時に、複数の layer や domain にまたがる知識を同時に要求する。
+単一の selector ではカバーしきれない横断的な context を必要とする場合に使う。
+
+### 6.5 Tag Taxonomy
+
+tag は `prefix:value` 形式とする。平坦 tag はアドレッシング信号として弱いため使用しない。
+
+#### 6.5.1 初期 prefix 一覧
+
+| Prefix | 用途 | 値の例 |
+|--------|------|--------|
+| `domain:` | 影響範囲の製品・領域 | `web`, `atelier`, `nix`, `osu`, `castalia`, `agent`, `harness` |
+| `layer:` | 抽象度の階層 | `foundation`, `product`, `action`, `run`, `check`, `skill`, `workflow` |
+| `kind:` | Knowledge 種別 | `rule`, `spec`, `constraint`, `principle`, `procedure`, `glossary`, `constant`, `example` |
+| `subject:` | トピック | `component`, `routing`, `build`, `package`, `auth`, `i18n`, `review`, `release`, `di`, `storage` |
+| `criticality:` | 重要度 | `low`, `medium`, `high`, `fatal` |
+| `status:` | 状態 | `active`, `draft`, `deprecated`, `archived` |
+| `framework:` | フレームワーク（任意） | `next`, `tauri`, `react` |
+
+#### 6.5.2 ルール
+
+- tag は常に `prefix:value` 形式。値にコロンを含めない。
+- 1 つの Knowledge に複数の同一 prefix tag を付与してよい（例: `subject:auth` と `subject:component`）。
+- prefix の taxonomy は緩やかに管理する。過剰な分類は避ける。
+- 新しい prefix の追加は `atelier doctor` の taxonomy check と連動する。
+
+### 6.6 Resolution Trace
+
+Context Compiler は、context pack を生成する際に決定した選択・スキップ・展開の理由を
+機械可読な trace として記録する。これにより「なぜこの Knowledge が入ったのか」が説明可能になる。
+
+#### 6.6.1 Trace エントリ
+
+各選択ドキュメントに対して以下を記録する:
+
+```json
+{
+  "id": "web.component.policy",
+  "pattern": "simple",
+  "selection": "required | optional | skipped",
+  "reasons": [
+    {
+      "type": "selector.match",
+      "selector": "require_all: [domain:web, kind:rule]",
+      "matchedTags": ["domain:web", "kind:rule"]
+    },
+    {
+      "type": "selector.match",
+      "selector": "require_any: [subject:component]",
+      "matchedTags": ["subject:component"]
+    }
+  ],
+  "relations": [
+    {
+      "type": "require_context",
+      "target": "web.accessibility.policy",
+      "mode": "summary",
+      "resolved": true,
+      "reason": "Component changes often require accessibility review."
+    }
+  ],
+  "conditions": {
+    "deterministic": {
+      "path_any": ["product/apps/web/**"],
+      "matched": true
+    },
+    "semantic": {}
+  },
+  "affordances": {
+    "declared": ["context", "check-candidate"],
+    "inferred": [],
+    "accepted": []
+  },
+  "inheritedTags": []
+}
+```
+
+#### 6.6.2 LLM 判定の記録
+
+semantic condition の判定を LLM に委ねた場合、その結果を trace に残す:
+
+```json
+{
+  "id": "nix.flake.policy",
+  "conditions": {
+    "semantic": {
+      "task_intent_any": ["change build environment"],
+      "evaluation": {
+        "method": "llm",
+        "input": "fix build cache in nix flake",
+        "decision": "likely",
+        "confidence": "high",
+        "decidedBy": "llm",
+        "effect": "included"
+      }
+    }
+  }
+}
+```
+
+#### 6.6.3 trace の格納場所
+
+Resolution trace は `context.manifest.json` の一部として保存する。
+context pack がブラックボックス化するのを防ぐために、trace は常に出力する。
+
+### 6.7 Role Metadata
 
 A role defines selectors.
 
@@ -570,7 +886,7 @@ phases:
 `pinned` is for mandatory context.  
 `selectors` is for generated context expansion.
 
-### 6.5 Workflow Metadata
+### 6.8 Workflow Metadata
 
 A workflow is callable.
 
@@ -599,7 +915,7 @@ phases:
 ---
 ```
 
-### 6.6 Phase Metadata
+### 6.9 Phase Metadata
 
 A phase is a lifecycle module, not a role.
 
@@ -864,56 +1180,120 @@ Generates or queries derived repository facts.
 ## 9. Context Selection Algorithm
 
 Atelier context selection must be deterministic first.
+It operates on the **Knowledge Card Model** (6.3): each knowledge document is a typed node in a DAG,
+and the algorithm projects a task-specific tree from an entrypoint by resolving selectors, patterns, relations, and conditions.
 
-Priority order:
+### 9.1 Selection Priority
 
 ```text
 1. workflow required phases and artifacts
 2. role pinned documents
-3. repository policies
-4. path ownership
-5. direct path matches
-6. tag matches
-7. product/package matches
-8. known problems and incidents
-9. optional semantic or full-text expansion
+3. repository policies (policy.repository always required)
+4. role selector matches
+   a. require_all  matches (tag AND)
+   b. require_any  matches (tag OR)
+   c. exclude      filters out
+5. relation expansion (require_context, inherit)
+   a. mode:full    → re-evaluate selector; include if matched
+   b. mode:summary → inject summary only
+   c. mode:reference → trace only, no body
+6. pattern-specific resolution
+   a. conditional   → evaluate deterministic, then semantic conditions
+   b. inheritance   → inject base before child
+   c. collector     → extract related fragments by mode
+   d. constants     → always include or require_constant reference
+7. conditions evaluation (for conditional pattern)
+   a. deterministic conditions → mechanical match
+   b. semantic conditions → LLM evaluation (trace required)
+8. criticality-based truncation when token budget exceeded
+9. optional semantic or full-text expansion (non-deterministic, advisory only)
 ```
 
 Vector or semantic search may be added later as optional expansion only. It must not replace deterministic role/path/policy routing.
 
-### 9.1 Required Context
+### 9.2 Required Context
 
 Required context includes:
 
 - selected workflow
 - assigned role files
 - pinned policies
-- pinned role documents
+- pinned role documents (from role frontmatter `pinned`)
 - phases used by the workflow
-- path owner facts
-- directly matched high-impact rules
+- policy.repository (always required)
+- knowledge documents matched by role `require_all` selectors with `criticality:fatal` or `criticality:high`
+- knowledge documents expanded via `relations.inherit` (mode: full)
 
-### 9.2 Optional Context
+### 9.3 Optional Context
 
 Optional context includes:
 
-- medium-impact rules
-- related product specs
-- known problems
-- lessons
-- recent related run handoffs
+- knowledge documents matched by role `require_any` selectors
+- knowledge documents matched by role `require_all` selectors with lower criticality
+- `require_context` expansions with `mode: summary` or `mode: reference`
+- known problems and incidents matched by tag scope
+- conditional knowledge where deterministic conditions are met
+- conditional knowledge where semantic conditions are likely (LLM-judged)
 
-### 9.3 Skipped Context
+### 9.4 Skipped Context
 
 Atelier must explicitly list skipped broad context when relevant:
 
 - completed run history
-- unrelated product specs
-- unrelated domain roles
-- deprecated knowledge
-- superseded documents
+- knowledge documents with no selector match and no relation path
+- deprecated or archived knowledge (status:deprecated, status:archived)
+- knowledge documents excluded by role `exclude` selectors
+- conditional knowledge where deterministic conditions fail and semantic conditions are unlikely
+- superseded documents (superseded_by is set and the superseding document is already selected)
 
 This prevents agents from assuming missing context was forgotten.
+
+### 9.5 Pattern Resolution Details
+
+#### Simple
+Selector match → include directly. No further expansion.
+
+#### Conditional
+1. Evaluate `conditions.deterministic` (path_any, tag_any) mechanically.
+2. If deterministic matches → include.
+3. If deterministic does not match and `conditions.semantic` exists → query LLM.
+4. LLM evaluation result is recorded in Resolution Trace (6.6).
+5. If semantic matches → include as optional.
+6. If neither matches → skip.
+
+#### Inheritance
+1. Resolve base through `relations.inherit`.
+2. Inherit base tags into child (recorded as `inheritedTags` in trace).
+3. Inject base body before child body.
+4. Warn if inheritance depth exceeds 2.
+
+#### Collector
+1. Resolve each target in `require_context`.
+2. For each target, extract only the parts relevant to the collector's subject.
+3. Inject extracted content per `mode` (summary or reference).
+
+#### Constants
+Include when any selector matches, or when referenced via `require_constant`.
+
+#### Fragment
+Do not match by selector alone. Only include when another knowledge references it via `require_context` with mode `summary` or `reference`.
+
+#### Factory
+Do not include in context. Used only for generating new knowledge card skeletons.
+
+#### Multi-Context
+When a multi-context knowledge is selected, the resolver must also evaluate the other planes (product, run, action) that the entrypoint implies. This may trigger additional selector passes.
+
+### 9.6 Trace Production
+
+Every selection decision must produce a traceable reason. The Resolution Trace (6.6) is written into `context.manifest.json` and must record:
+
+- why each document was selected (selector match, relation expansion, condition evaluation)
+- which conditions were evaluated and their results
+- which LLM judgements were made and their confidence
+- which documents were skipped and why
+- inherited tags and their source
+- relation expansion mode used
 
 ## 10. Run Manifest
 
@@ -1084,6 +1464,11 @@ Examples:
 - broken required Markdown link
 - context manifest hash mismatch
 - generated index stale under `--check`
+- Knowledge Card with `pattern: inheritance` but no `relations.inherit`
+- Knowledge Card with `pattern: conditional` but no `conditions`
+- Knowledge Card with `pattern: collector` but no `require_context`
+- relation target ID does not resolve to any existing Knowledge Card
+- `criticality:fatal` tag used on a knowledge with no `require_all` selector coverage
 
 ### Warnings
 
@@ -1091,12 +1476,19 @@ Warnings do not block by default.
 
 Examples:
 
-- knowledge has no tags
-- knowledge has no selector hits
-- role selector is broad
-- optional context exceeds budget
-- completed run uses old paths
+- Knowledge Card has no tags
+- Knowledge Card has no selector hits from any role
+- Knowledge Card uses `x.legacy` (migration still in progress)
+- role selector `require_all` matches zero knowledge documents
+- role selector `require_any` matches zero knowledge documents
+- role selector is too broad (matches 90%+ of knowledge base)
+- inheritance depth exceeds 2
+- id namespace prefix does not match any `domain:` tag
 - deprecated knowledge still appears in optional results
+- optional context exceeds token budget
+- completed run uses old paths
+- `affordances.declared` is empty (no transformation hint)
+- semantic condition has no `task_intent_any` patterns
 
 ### Fixes
 
