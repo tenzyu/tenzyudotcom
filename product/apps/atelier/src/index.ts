@@ -25,29 +25,7 @@ export {
 export { runDoctor, type DoctorOptions } from './core/doctor'
 export { loadHarnessDocuments, strictnessForPath, extractMarkdownLinks, sha256Text, toPosixPath } from './core/docs'
 export { parseFrontmatter, type ParsedFrontmatter } from './core/frontmatter'
-export {
-  generateGeneratedFiles,
-  type GenerateOptions,
-  type GenerateResult,
-  type GeneratedFile,
-  type GeneratedFileKind,
-} from './core/generate'
 export { handleGuiRequest, listGuiStaticFiles, type GuiResponse, type GuiRoute, type GuiServerOptions } from './core/gui'
-export { compileIndexes, type GeneratedFileName, type IndexOptions, type IndexResult } from './core/indexer'
-export {
-  listKnowledgeProposals,
-  promoteKnowledgeProposal,
-  proposeKnowledge,
-  rejectKnowledgeProposal,
-  duplicateCandidatesWithSemantic,
-  type KnowledgePromotionOptions,
-  type KnowledgePromotionResult,
-  type KnowledgeProposalOptions,
-  type KnowledgeProposalResult,
-  type KnowledgeProposalSummary,
-  type KnowledgeRejectOptions,
-  type KnowledgeRejectResult,
-} from './core/knowledge'
 export {
   buildContextRenderCommand,
   buildRunInitCommand,
@@ -64,53 +42,8 @@ export {
   type AtelierRunPolicy,
 } from './core/llm-protocol'
 export { MCP_TOOL_NAMES, buildMcpServer, runMcpServer, type McpServerOptions } from './core/mcp'
-export { listNxProjects, repoOwner, type NxProject, type RepoOwnerResult, type RepoOwnerSource } from './core/owner'
-export {
-  compilePathOwnership,
-  compileRepoMap,
-  lookupOwnership,
-  type OwnershipHint,
-  type PathOwnership,
-  type PathOwnershipEntry,
-  type RepoFile,
-  type RepoFileKind,
-  type RepoMap,
-  type RepoProject,
-} from './core/repo-map'
-export {
-  buildSemanticQuery,
-  findDuplicateKnowledgeCandidates,
-  runSemanticExpansion,
-  type SemanticHit,
-  type SemanticOptions,
-  type SemanticQuery,
-  type SemanticResult,
-  type SemanticSource,
-} from './core/semantic'
-export {
-  renameId,
-  type IdRenameChange,
-  type IdRenameChangeKind,
-  type IdRenameOptions,
-  type IdRenameResult,
-} from './core/rename'
-export {
-  closeRun,
-  expandRunContext,
-  initRun,
-  renderContextForOptions,
-  runStatus,
-  type ContextExpandOptions,
-  type ContextExpandResult,
-  type ContextRenderOptions,
-  type ContextRenderResult,
-  type RunCloseOptions,
-  type RunCloseResult,
-  type RunInitOptions,
-  type RunInitResult,
-  type RunStatusOptions,
-  type RunStatusResult,
-} from './core/runs'
+
+
 export {
   appendEvent,
   buildContentHashIndex,

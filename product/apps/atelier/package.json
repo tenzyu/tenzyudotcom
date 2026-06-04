@@ -18,8 +18,6 @@
     "doctor": "bun run ./src/cli.ts doctor",
     "index": "bun run ./src/cli.ts index",
     "context": "bun run ./src/cli.ts context",
-    "run:init": "bun run ./src/cli.ts run init",
-    "run:close": "bun run ./src/cli.ts run close",
     "knowledge": "bun run ./src/cli.ts knowledge",
     "id": "bun run ./src/cli.ts id",
     "generate": "bun run ./src/cli.ts generate --write"

@@ -91,25 +91,19 @@ describe('MCP server', () => {
     rmSync(PROJECT_ROOT, { recursive: true, force: true })
   })
 
-  test('lists tools including registry helpers', async () => {
+  test('lists tools', async () => {
     const { client, transport } = await bootClient()
     try {
       const result = await client.listTools()
       const names = result.tools.map((tool) => tool.name).sort()
       expect(names).toContain('atelier_doctor')
-      expect(names).toContain('atelier_index')
+      expect(names).toContain('atelier_scan')
       expect(names).toContain('atelier_context_plan')
-      expect(names).toContain('atelier_workflow_list')
-      expect(names).toContain('atelier_role_list')
-      expect(names).toContain('atelier_run_init')
-      expect(names).toContain('atelier_run_status')
-      expect(names).toContain('atelier_run_close')
-      expect(names).toContain('atelier_knowledge_propose')
-      expect(names).toContain('atelier_knowledge_promote')
-      expect(names).toContain('atelier_knowledge_reject')
-      expect(names).toContain('atelier_id_rename')
-      expect(names).toContain('atelier_repo_owner')
-      expect(names).toContain('atelier_generate')
+      expect(names).toContain('atelier_reconcile')
+      expect(names).toContain('atelier_repair')
+      expect(names).toContain('atelier_policy_check')
+
+      expect(names).toContain('atelier_reconcile')
     } finally {
       await transport.close()
     }
@@ -145,182 +139,10 @@ describe('MCP server', () => {
       const payload = JSON.parse(text)
       expect(payload.workflowId).toBe('workflow.isolated-run')
       expect(payload.roleIds).toEqual(['role.domain.harness-engineer'])
-      expect(payload.required.length).toBeGreaterThan(0)
-      expect(payload.semantic).toBeDefined()
-      expect(payload.semantic.enabled).toBe(false)
+      expect(payload.selectorV2.traces.length).toBeGreaterThan(0)
     } finally {
       await transport.close()
     }
   })
 
-  test('atelier_workflow_list returns workflow ids without markdown discovery', async () => {
-    const { client, transport } = await bootClient()
-    try {
-      const result = await client.callTool({
-        name: 'atelier_workflow_list',
-        arguments: {},
-      })
-      const text = (result.content as Array<{ type: string; text: string }>)[0]?.text ?? '{}'
-      const payload = JSON.parse(text)
-      expect(payload.workflows.some((entry: { id: string }) => entry.id === 'workflow.isolated-run')).toBe(true)
-    } finally {
-      await transport.close()
-    }
-  })
-
-  test('atelier_context_plan returns semantic hits when semantic=true', async () => {
-    writeMarkdown('harness/knowledge/decisions/inspect-harness.md', [
-      '---',
-      'schema: harness/v1',
-      'kind: knowledge',
-      'knowledge_type: decision',
-      'id: knowledge.decision.inspect-harness',
-      'title: Inspect Harness Decision',
-      'status: active',
-      'tags: [harness]',
-      'summary: Inspect-harness routing decision for the harness engineer role.',
-      '---',
-      '# Inspect Harness Decision',
-    ])
-    const { client, transport } = await bootClient()
-    try {
-      const result = await client.callTool({
-        name: 'atelier_context_plan',
-        arguments: {
-          workflowId: 'workflow.isolated-run',
-          roleIds: ['role.domain.harness-engineer'],
-          inputPath: 'product/apps/atelier',
-          intent: 'inspect harness',
-          semantic: true,
-        },
-      })
-      const text = (result.content as Array<{ type: string; text: string }>)[0]?.text ?? '{}'
-      const payload = JSON.parse(text)
-      expect(payload.semantic.enabled).toBe(true)
-      const ids = (payload.semantic.hits ?? []).map((hit: { id: string }) => hit.id)
-      expect(ids).toContain('knowledge.decision.inspect-harness')
-    } finally {
-      await transport.close()
-    }
-  })
-
-  test('atelier_run_init refuses mutation without confirm in read-only mode', async () => {
-    const { client, transport } = await bootClient()
-    try {
-      const result = await client.callTool({
-        name: 'atelier_run_init',
-        arguments: {
-          workflowId: 'workflow.isolated-run',
-          roleIds: ['role.domain.harness-engineer'],
-          inputPath: 'product/apps/atelier',
-          intent: 'inspect harness refused',
-        },
-      })
-      expect(result.isError).toBe(true)
-      const text = (result.content as Array<{ type: string; text: string }>)[0]?.text ?? ''
-      expect(text).toMatch(/Mutation refused/)
-    } finally {
-      await transport.close()
-    }
-  })
-
-  test('atelier_run_init succeeds with confirm=true', async () => {
-    const { client, transport } = await bootClient()
-    try {
-      const result = await client.callTool({
-        name: 'atelier_run_init',
-        arguments: {
-          workflowId: 'workflow.isolated-run',
-          roleIds: ['role.domain.harness-engineer'],
-          inputPath: 'product/apps/atelier',
-          intent: 'inspect harness confirm',
-          confirm: true,
-        },
-      })
-      expect(result.isError).toBeFalsy()
-      const text = (result.content as Array<{ type: string; text: string }>)[0]?.text ?? '{}'
-      const payload = JSON.parse(text)
-      expect(payload.runId).toMatch(/^RUN-/)
-      expect(payload.policy.editAllowed).toBe(true)
-      expect(payload.nextActions[0].kind).toBe('read_file')
-    } finally {
-      await transport.close()
-    }
-  })
-
-  test('atelier_run_init succeeds without confirm when started with --allow-mutations', async () => {
-    const { client, transport } = await bootClient(['--allow-mutations'])
-    try {
-      const result = await client.callTool({
-        name: 'atelier_run_init',
-        arguments: {
-          workflowId: 'workflow.isolated-run',
-          roleIds: ['role.domain.harness-engineer'],
-          inputPath: 'product/apps/atelier',
-          intent: 'inspect harness allow-mutations',
-        },
-      })
-      expect(result.isError).toBeFalsy()
-      const text = (result.content as Array<{ type: string; text: string }>)[0]?.text ?? '{}'
-      const payload = JSON.parse(text)
-      expect(payload.runId).toMatch(/^RUN-/)
-    } finally {
-      await transport.close()
-    }
-  })
-
-  test('atelier_id_rename previews by default', async () => {
-    const { client, transport } = await bootClient()
-    try {
-      const result = await client.callTool({
-        name: 'atelier_id_rename',
-        arguments: {
-          oldId: 'role.domain.harness-engineer',
-          newId: 'role.domain.harness-engineer-renamed',
-        },
-      })
-      const text = (result.content as Array<{ type: string; text: string }>)[0]?.text ?? '{}'
-      const payload = JSON.parse(text)
-      expect(payload.written).toBe(false)
-    } finally {
-      await transport.close()
-    }
-  })
-
-  test('atelier_repo_owner returns project and owner role', async () => {
-    const { client, transport } = await bootClient()
-    try {
-      const result = await client.callTool({
-        name: 'atelier_repo_owner',
-        arguments: { path: 'product/apps/atelier/src' },
-      })
-      const text = (result.content as Array<{ type: string; text: string }>)[0]?.text ?? '{}'
-      const payload = JSON.parse(text)
-      expect(payload.path).toBe('product/apps/atelier/src')
-      expect(payload.ownerRole).toBe('role.domain.harness-engineer')
-    } finally {
-      await transport.close()
-    }
-  })
-
-  test('atelier_index writes repo-map.json and path-ownership.json', async () => {
-    const { client, transport } = await bootClient(['--allow-mutations'])
-    try {
-      const result = await client.callTool({
-        name: 'atelier_index',
-        arguments: { write: true, confirm: true },
-      })
-      expect(result.isError).toBeFalsy()
-      const text = (result.content as Array<{ type: string; text: string }>)[0]?.text ?? '{}'
-      const payload = JSON.parse(text)
-      expect(payload.staleFiles).toBeDefined()
-      const writtenFiles = (payload.staleFiles as string[]).concat(
-        Object.keys(payload.files ?? {}),
-      )
-      expect(writtenFiles).toContain('repo-map.json')
-      expect(writtenFiles).toContain('path-ownership.json')
-    } finally {
-      await transport.close()
-    }
-  })
 })

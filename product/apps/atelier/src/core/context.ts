@@ -8,12 +8,7 @@ import {
   inferRoleIds,
 } from './llm-protocol'
 import { asStringArray, type Diagnostic, type HarnessDocument, type SelectorV2Trace, type PermissionEnvelope } from './schema'
-import { suggestAffordances } from './knowledge'
-import {
-  buildSemanticQuery,
-  runSemanticExpansion,
-  type SemanticHit,
-} from './semantic'
+
 
 /**
  * @deprecated Use Selector v2 query over role, task, phase, scope, diff,
@@ -106,11 +101,6 @@ export type ContextPlan = {
     exceeded: boolean
   }
   nextRenderCommand: string
-  semantic: {
-    enabled: boolean
-    hits: SemanticHit[]
-    unknownTerms: string[]
-  }
   nextRunInitCommand: string
   trace: {
     selections: Array<{
@@ -1105,6 +1095,40 @@ export function buildContextPlan(options: ContextPlanOptions): ContextPlan {
   }
 
   // Enrich all trace entries with pattern, affordances, and condition info
+  const AFFORDANCE_PATTERNS: Array<{
+    affordance: string
+    signals: string[]
+    reason: string
+  }> = [
+    { affordance: 'migration-candidate', signals: ['upgrade', 'migration', 'migrate', 'deprecat'], reason: 'Body mentions migration, upgrade, or deprecation' },
+    { affordance: 'check-candidate', signals: ['check', 'verify', 'validate', 'test', 'lint'], reason: 'Body mentions verification or checking patterns' },
+    { affordance: 'context', signals: ['context', 'knowledge', 'reference'], reason: 'Body contains contextual knowledge or references' },
+    { affordance: 'skill-candidate', signals: ['skill', 'agent', 'workflow'], reason: 'Body describes agent or workflow behavior' },
+    { affordance: 'adr-candidate', signals: ['decision', 'rationale', 'trade-off', 'we chose'], reason: 'Body contains decision rationale or trade-off analysis' },
+    { affordance: 'implementation-reference', signals: ['```'], reason: 'Body contains code blocks suggesting implementation reference' },
+    { affordance: 'design-guideline', signals: ['design', 'pattern', 'composition', 'architecture'], reason: 'Body describes design patterns or architecture' },
+  ]
+
+  function suggestAffordancesLocal(document: HarnessDocument): { suggested: string[]; reasons: Array<{ affordance: string; reason: string }> } {
+    const frontmatter = document.frontmatter ?? {}
+    const body = document.body ?? ''
+    const bodyLower = body.toLowerCase()
+    const declared = new Set(asStringArray(recordOf(frontmatter.affordances).declared))
+    const suggested: string[] = []
+    const reasons: Array<{ affordance: string; reason: string }> = []
+
+    for (const pattern of AFFORDANCE_PATTERNS) {
+      if (declared.has(pattern.affordance)) continue
+      const matched = pattern.signals.some((signal) => bodyLower.includes(signal))
+      if (matched) {
+        suggested.push(pattern.affordance)
+        reasons.push({ affordance: pattern.affordance, reason: pattern.reason })
+      }
+    }
+
+    return { suggested, reasons }
+  }
+
   function enrichTraceEntry(path: string, entry: { document: HarnessDocument; reasons: Set<string> }) {
     const fm = entry.document.frontmatter ?? {}
     const existing = traceEntries.find((te) => te.path === path)
@@ -1112,7 +1136,7 @@ export function buildContextPlan(options: ContextPlanOptions): ContextPlan {
       if (!existing.pattern) existing.pattern = textOf(fm.pattern) ?? null
       if (!(existing as Record<string, unknown>).affordances) {
         const declared = asStringArray(recordOf(fm.affordances).declared)
-        const { suggested } = suggestAffordances(entry.document)
+        const { suggested } = suggestAffordancesLocal(entry.document)
         ;(existing as Record<string, unknown>).affordances = {
           declared,
           inferred: suggested,
@@ -1122,7 +1146,7 @@ export function buildContextPlan(options: ContextPlanOptions): ContextPlan {
       return
     }
     const declared = asStringArray(recordOf(fm.affordances).declared)
-    const { suggested } = suggestAffordances(entry.document)
+    const { suggested } = suggestAffordancesLocal(entry.document)
     traceEntries.push({
       id: idOf(entry.document),
       path,
@@ -1166,15 +1190,6 @@ export function buildContextPlan(options: ContextPlanOptions): ContextPlan {
     })
   }
 
-  const semantic = runSemanticExpansion(
-    {
-      projectRoot,
-      enabled: options.semantic === true,
-      maxResults: options.semanticMaxResults,
-    },
-    buildSemanticQuery(options.intent, inputPath),
-  )
-
   return {
     workflowId: options.workflowId,
     roleIds,
@@ -1191,6 +1206,7 @@ export function buildContextPlan(options: ContextPlanOptions): ContextPlan {
       exceeded: tokensEstimate > TOKEN_BUDGET,
     },
     nextRenderCommand: buildContextRenderCommand({
+      projectRoot,
       workflowId: options.workflowId,
       roleIds,
       inputPath,
@@ -1199,6 +1215,7 @@ export function buildContextPlan(options: ContextPlanOptions): ContextPlan {
       documents,
     }),
     nextRunInitCommand: buildRunInitCommand({
+      projectRoot,
       workflowId: options.workflowId,
       roleIds,
       inputPath,
@@ -1206,11 +1223,6 @@ export function buildContextPlan(options: ContextPlanOptions): ContextPlan {
       mode,
       documents,
     }),
-    semantic: {
-      enabled: semantic.enabled,
-      hits: semantic.hits,
-      unknownTerms: semantic.unknownTerms,
-    },
     trace: {
       selections: traceEntries,
     },

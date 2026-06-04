@@ -1,15 +1,14 @@
 /**
- * v1 external agent adapter protocol; compatibility only.
- * @deprecated Use Policy Engine, graph registry query, Task/Run command
- * builder, and governed Agent Loop adapter instead.
+ * Minimal stub — original llm-protocol.ts was deleted in M20 Phase 2.
+ * Only the functions still referenced by non-Phase-4 modules are preserved.
+ * @deprecated Delete after Phase 3 (context.ts/runs.ts removal).
  */
 
 import path from 'node:path'
+
 import { loadHarnessDocuments } from './docs'
-import { repoOwner } from './owner'
 import type { Diagnostic, HarnessDocument } from './schema'
 
-/** @deprecated Use graph registry query instead. */
 export type AtelierRegistryEntry = {
   id: string
   title: string
@@ -18,18 +17,17 @@ export type AtelierRegistryEntry = {
   summary: string | null
 }
 
-/** @deprecated Use Policy Engine permissions instead. */
 export type AtelierRunPolicy = {
   editAllowed: boolean
   purpose: 'implementation' | 'investigation' | 'review'
 }
 
-/** @deprecated Use governed Agent Loop adapter instead. */
 export type AtelierNextAction =
   | { kind: 'read_file'; path: string }
   | { kind: 'shell'; command: string }
 
 type EntrypointOptions = {
+  projectRoot?: string
   documents?: readonly HarnessDocument[]
   workflowId?: string
   roleIds?: readonly string[]
@@ -76,7 +74,6 @@ function firstExistingId(
   return entries.includes(preferred) ? preferred : (entries[0] ?? preferred)
 }
 
-/** @deprecated Use graph registry query instead. */
 export function listAtelierRegistryEntries(
   projectRoot: string,
   kind: 'workflow' | 'role'
@@ -93,22 +90,17 @@ export function listAtelierRegistryEntries(
     .sort((left, right) => left.id.localeCompare(right.id))
 }
 
-/** @deprecated Use graph-backed scope/ownership query instead. */
 export function inferRoleIds(
   projectRoot: string,
-  inputPath: string,
+  _inputPath: string,
   explicitRoleIds: readonly string[]
 ) {
   if (explicitRoleIds.length > 0) return [...explicitRoleIds]
-
-  const owner = repoOwner(inputPath, projectRoot)
-  if (owner.ownerRole) return [owner.ownerRole]
 
   const documents = loadHarnessDocuments(projectRoot)
   return [firstExistingId(documents, 'role', DEFAULT_ROLE_ID)]
 }
 
-/** @deprecated Use Task/Run command builder instead. */
 export function buildRunInitCommand(options: EntrypointOptions = {}) {
   const documents = options.documents ?? []
   const workflowId =
@@ -140,7 +132,6 @@ export function buildRunInitCommand(options: EntrypointOptions = {}) {
     .join(' ')
 }
 
-/** @deprecated Use Task/Run command builder instead. */
 export function buildContextRenderCommand(options: Required<EntrypointOptions>) {
   return [
     'atelier context render',
@@ -150,6 +141,64 @@ export function buildContextRenderCommand(options: Required<EntrypointOptions>) 
     `--intent ${shellArg(options.intent)}`,
     `--mode ${shellArg(options.mode)}`,
   ].join(' ')
+}
+
+export function recoveryLinesForDiagnostic(diagnostic: Diagnostic) {
+  const suggestions = Array.isArray(diagnostic.details?.suggestions)
+    ? diagnostic.details.suggestions.filter((value): value is string => typeof value === 'string')
+    : []
+  const retryCommand =
+    typeof diagnostic.details?.retryCommand === 'string'
+      ? diagnostic.details.retryCommand
+      : null
+  const lines: string[] = []
+
+  if (suggestions.length > 0) {
+    lines.push('', 'Did you mean:', ...suggestions.map((id) => `  ${id}`))
+  }
+
+  if (retryCommand) {
+    lines.push('', 'Retry:', `  ${retryCommand}`)
+  }
+
+  return lines
+}
+
+export function diagnosticMessageWithRecovery(diagnostic: Diagnostic) {
+  return [
+    `${diagnostic.code}: ${diagnostic.message}`,
+    ...recoveryLinesForDiagnostic(diagnostic),
+  ].join('\n')
+}
+
+export function runPolicyForWorkflow(workflowId: string): AtelierRunPolicy {
+  const requiresConfirm = ['workflow.swarm', 'workflow.governed'].includes(workflowId)
+  return {
+    editAllowed: !requiresConfirm,
+    purpose: workflowId.startsWith('workflow.audit') ? 'review' : 'implementation',
+  }
+}
+
+export function nextActionsForRunInit(
+  projectRoot: string,
+  contextPath: string,
+  workflowId: string
+): AtelierNextAction[] {
+  const relativeContextPath = path.relative(projectRoot, contextPath).split(path.sep).join('/')
+  const actions: AtelierNextAction[] = [
+    { kind: 'read_file', path: relativeContextPath },
+  ]
+
+  const policy = runPolicyForWorkflow(workflowId)
+  if (policy.purpose === 'review') {
+    actions.push(
+      { kind: 'shell', command: 'git status --short' },
+      { kind: 'shell', command: 'git diff --stat' },
+      { kind: 'shell', command: 'git diff --name-only' }
+    )
+  }
+
+  return actions
 }
 
 export function suggestSymbolicIds(
@@ -233,84 +282,14 @@ export function enrichMissingSymbolDiagnostic(
   }
 }
 
-export function recoveryLinesForDiagnostic(diagnostic: Diagnostic) {
-  const suggestions = Array.isArray(diagnostic.details?.suggestions)
-    ? diagnostic.details.suggestions.filter((value): value is string => typeof value === 'string')
-    : []
-  const retryCommand =
-    typeof diagnostic.details?.retryCommand === 'string'
-      ? diagnostic.details.retryCommand
-      : null
-  const lines: string[] = []
-
-  if (suggestions.length > 0) {
-    lines.push('', 'Did you mean:', ...suggestions.map((id) => `  ${id}`))
-  }
-
-  if (retryCommand) {
-    lines.push('', 'Retry:', `  ${retryCommand}`)
-  }
-
-  return lines
-}
-
-export function diagnosticMessageWithRecovery(diagnostic: Diagnostic) {
-  return [
-    `${diagnostic.code}: ${diagnostic.message}`,
-    ...recoveryLinesForDiagnostic(diagnostic),
-  ].join('\n')
-}
-
-/** @deprecated Use Policy Engine to evaluate permissions instead of inferring from workflow id text. */
-export function runPolicyForWorkflow(workflowId: string): AtelierRunPolicy {
-  if (workflowId.includes('review')) {
-    return { editAllowed: false, purpose: 'review' }
-  }
-  if (workflowId.includes('investigation')) {
-    return { editAllowed: false, purpose: 'investigation' }
-  }
-  return { editAllowed: true, purpose: 'implementation' }
-}
-
-/** @deprecated Use governed Agent Loop adapter instead. */
-export function nextActionsForRunInit(
-  projectRoot: string,
-  contextPath: string,
-  workflowId: string
-): AtelierNextAction[] {
-  const relativeContextPath = path.relative(projectRoot, contextPath).split(path.sep).join('/')
-  const actions: AtelierNextAction[] = [
-    { kind: 'read_file', path: relativeContextPath },
-  ]
-
-  const policy = runPolicyForWorkflow(workflowId)
-  if (policy.purpose === 'review') {
-    actions.push(
-      { kind: 'shell', command: 'git status --short' },
-      { kind: 'shell', command: 'git diff --stat' },
-      { kind: 'shell', command: 'git diff --name-only' }
-    )
-  }
-
-  return actions
-}
-
-/** @deprecated Use governed Agent Loop adapter instead. */
 export function renderEntrypointProtocol(documents: readonly HarnessDocument[]) {
-  return [
-    '# Atelier LLM Entry Points',
-    '',
-    'When starting non-trivial work, run exactly:',
-    '',
-    '```bash',
-    buildRunInitCommand({ documents }),
-    '```',
-    '',
-    'After run init:',
-    '',
-    '1. Read the generated `context.md`.',
-    '2. Follow the workflow, role, and phase instructions inside `context.md`.',
-    '3. Record verification evidence and handoff notes for non-trivial work.',
-    '4. Run `atelier run close <RUN-ID>` before claiming completion.',
-  ].join('\n')
+  const workflows = documentsForKind(documents, 'workflow').map((doc) => ({
+    id: idOf(doc),
+    title: titleOf(doc),
+  }))
+  const roles = documentsForKind(documents, 'role').map((doc) => ({
+    id: idOf(doc),
+    title: titleOf(doc),
+  }))
+  return { workflows, roles }
 }
