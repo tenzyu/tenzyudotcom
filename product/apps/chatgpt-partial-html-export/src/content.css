@@ -1,0 +1,38 @@
+.cphe-export-button {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+  z-index: 30;
+  border: 1px solid rgba(127, 127, 127, 0.35);
+  border-radius: 999px;
+  padding: 3px 8px;
+  font: 11px/1.4 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: rgba(20, 20, 20, 0.82);
+  color: #fff;
+  opacity: 0;
+  cursor: pointer;
+  transition: opacity 120ms ease, background 120ms ease;
+}
+
+.cphe-message-boundary {
+  position: relative !important;
+}
+
+.cphe-message-boundary:hover > .cphe-export-button,
+.cphe-export-button:focus {
+  opacity: 1;
+}
+
+.cphe-toast {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 2147483647;
+  max-width: min(520px, calc(100vw - 32px));
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: rgba(18, 18, 18, 0.92);
+  color: #fff;
+  font: 13px/1.5 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.28);
+}

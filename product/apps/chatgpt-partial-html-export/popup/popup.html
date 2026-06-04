@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ChatGPT Partial HTML Export</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <main>
+    <h1>Partial HTML Export</h1>
+    <p id="status" class="status">Reading current tab…</p>
+
+    <button id="exportVisible" type="button">Export visible thread</button>
+    <button id="copyVisible" type="button">Copy visible HTML</button>
+    <button id="reinject" type="button">Re-inject buttons</button>
+    <button id="openOptions" type="button" class="secondary">Options</button>
+
+    <p class="hint">For partial export, hover a ChatGPT message and press “Export from #n”.</p>
+  </main>
+  <script src="popup.js"></script>
+</body>
+</html>

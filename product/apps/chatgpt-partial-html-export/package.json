@@ -1,0 +1,21 @@
+{
+  "name": "@tenzyu/chatgpt-partial-html-export",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Personal Firefox extension for exporting ChatGPT conversations from a selected message onward as standalone HTML.",
+  "type": "module",
+  "scripts": {
+    "check:syntax": "node --check src/background.js && node --check src/content.js && node --check popup/popup.js && node --check options/options.js && node --check native/host.mjs && node --check scripts/install-native-host.mjs && node --check scripts/uninstall-native-host.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "check": "bun run check:syntax && bun run test",
+    "install:native-host": "node scripts/install-native-host.mjs",
+    "uninstall:native-host": "node scripts/uninstall-native-host.mjs"
+  },
+  "keywords": [
+    "firefox",
+    "webextension",
+    "chatgpt",
+    "html-export"
+  ],
+  "license": "UNLICENSED"
+}

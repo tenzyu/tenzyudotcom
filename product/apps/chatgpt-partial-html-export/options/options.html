@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ChatGPT Partial HTML Export Options</title>
+  <link rel="stylesheet" href="options.css" />
+</head>
+<body>
+  <main>
+    <h1>ChatGPT Partial HTML Export</h1>
+
+    <form id="optionsForm">
+      <fieldset>
+        <legend>Output mode</legend>
+        <label><input type="radio" name="exportMode" value="download" /> Firefox downloads</label>
+        <label><input type="radio" name="exportMode" value="native" /> Native host absolute path</label>
+      </fieldset>
+
+      <label>
+        Downloads subdirectory
+        <input id="downloadsSubdir" name="downloadsSubdir" type="text" placeholder="chatgpt-partial-html-export" />
+        <small>Relative to Firefox's configured Downloads directory. Absolute paths are intentionally not supported by the downloads API.</small>
+      </label>
+
+      <label>
+        Native output directory
+        <input id="nativeOutputDir" name="nativeOutputDir" type="text" placeholder="/home/tenzyu/Documents/tenzyudotcom/harness/exports" />
+        <small>Requires <code>bun run install:native-host</code>. This may be an absolute path inside your repo.</small>
+      </label>
+
+      <label>
+        Filename prefix
+        <input id="filenamePrefix" name="filenamePrefix" type="text" placeholder="chatgpt" />
+      </label>
+
+      <fieldset>
+        <legend>Message roles</legend>
+        <label><input id="includeUser" type="checkbox" /> Include user messages</label>
+        <label><input id="includeAssistant" type="checkbox" /> Include assistant messages</label>
+        <label><input id="includeSystem" type="checkbox" /> Include system/tool-like messages</label>
+        <label><input id="includeUnknown" type="checkbox" /> Include unknown DOM blocks</label>
+      </fieldset>
+
+      <fieldset>
+        <legend>HTML contents</legend>
+        <label><input id="includeMetadata" type="checkbox" /> Include metadata header</label>
+        <label><input id="includeStandaloneCss" type="checkbox" /> Include standalone CSS</label>
+        <label><input id="fallbackToDownload" type="checkbox" /> Fall back to downloads if native export fails</label>
+      </fieldset>
+
+      <div class="actions">
+        <button type="submit">Save</button>
+        <button id="restoreDefaults" type="button">Restore defaults</button>
+      </div>
+    </form>
+
+    <p id="status" role="status"></p>
+  </main>
+  <script src="options.js"></script>
+</body>
+</html>
