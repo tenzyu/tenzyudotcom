@@ -1,0 +1,62 @@
+---
+packet_id: at-ctrl-004
+packet_type: control-doc-repair
+execution_mode: mother_agent_direct_control_doc_repair
+subagent_dispatched: false
+dag_node_ids: [DAG-02]
+title: Upgrade matrix to DAG × invariant × spec section × fixture × gate join table
+status: accepted
+recorded_at: 2026-06-04T00:00:00Z
+recorded_by: control-doc-repair
+base_revision: 71a9700171fdea8466c0d20221d02896a99cc081
+mission: |
+  Upgrade CONTRACT_TO_BUILD_MATRIX.md to the full row shape with
+  deferral_state column. Update the join table state file to the new
+  rejection rules. Add assertion-row routing to SPEC_READ_PLAN.md.
+allowed_files:
+  - path: harness/knowledge/implementation-control/atelier/CONTRACT_TO_BUILD_MATRIX.md
+    reason: add row shape and rejection rules
+  - path: harness/knowledge/implementation-control/atelier/state/traceability/dag-02-join-table-2026-06-04.yaml
+    reason: add deferral_state column and rejection rules
+  - path: harness/knowledge/implementation-control/atelier/SPEC_READ_PLAN.md
+    reason: add assertion-row routing
+  - path: harness/knowledge/implementation-control/atelier/IMPLEMENTATION_DAG.md
+    reason: verify matrix is linked to join table and dispatchable node invariant/gate linkage
+forbidden_actions:
+  - weakening gates
+  - deleting dependencies
+  - broadening completion criteria
+  - relaxing product-spec immutability
+  - adding compatibility aliases for removed commands
+  - broadening fixture scope without matrix-backed reason
+  - narrowing expected diff shape to hide required work
+  - downgrading blocker severity without evidence
+  - converting executable requirements into assumptions
+  - allowing pending commands to satisfy phase gates
+acceptance_criteria:
+  - matrix has source_sections, exact_assertion, fields/enums, negative_cases, fixture_id, gate_id, dag_node_ids, proof_level, waiver_id columns (verified)
+  - broad invariants are split or explicitly marked non-dispatchable (verified by traceability_status column in join table)
+  - every dispatchable DAG node has invariant and gate linkage (verified by existing rows in join table)
+validation_gate_ids:
+  - VG-001
+  - VG-037
+  - VG-038
+validation_required_before_handoff:
+  - VG-001
+  - VG-037
+  - VG-038
+audit_proof_ref: harness/knowledge/implementation-control/atelier/state/validations/at-ctrl-004-acceptance-2026-06-04.md
+files_changed:
+  - harness/knowledge/implementation-control/atelier/CONTRACT_TO_BUILD_MATRIX.md
+  - harness/knowledge/implementation-control/atelier/state/traceability/dag-02-join-table-2026-06-04.yaml
+  - harness/knowledge/implementation-control/atelier/SPEC_READ_PLAN.md
+product_specs_touched: false
+validation_results:
+  - command: git diff --name-status -- harness/knowledge/product-specs/atelier
+    status: passed
+    notes: empty
+notes: |
+  Round 2 control repair. The matrix now has the explicit row shape and
+  rejection rules, the join table state file has the deferral_state column
+  and rejection rules, and SPEC_READ_PLAN.md has the assertion-row routing
+  section.

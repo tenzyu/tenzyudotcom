@@ -1,0 +1,28 @@
+packet_id: at-pkt-ctl-001
+dag_node_id: DAG-00
+title: Immutable control-doc baseline
+role: control-doc repairer
+status: accepted
+base_revision: 71a9700171fdea8466c0d20221d02896a99cc081
+repo_inventory_ref: repo-inventory-2026-06-04
+product_spec_hash_ref: product-spec-head-baseline
+control_doc_hash_ref: immutable-control-doc-baseline-2026-06-04
+intent: Record immutable implementation-control core doc hashes and mutable-state exclusions.
+phase_gate: PG-0
+invariant_ids: [infrastructure_support]
+schema_ids: [immutable_control_doc_baseline]
+fixture_ids: [N/A]
+test_ids: [VG-037]
+implementation_modules: [N/A]
+acceptance_criteria:
+  - Immutable core doc list is exact.
+  - State and ledger mutable exclusions are explicit.
+  - VG-037 proof record exists.
+allowed_files:
+  - harness/knowledge/implementation-control/atelier/IMPLEMENTATION_LEDGER.md
+  - harness/knowledge/implementation-control/atelier/state/**
+forbidden_files:
+  - harness/knowledge/product-specs/atelier/**
+validation_gate_ids: [VG-037]
+handoff_artifact_path: harness/knowledge/implementation-control/atelier/state/validations/VG-037-control-doc-baseline-2026-06-04.md
+product_specs_touched: false

@@ -1,0 +1,106 @@
+---
+packet_id: at-ctrl-005
+packet_type: control-doc-repair
+execution_mode: mother_agent_direct_control_doc_repair
+subagent_dispatched: false
+dag_node_ids: [DAG-04, DAG-05, DAG-06, DAG-07, DAG-08, DAG-09, DAG-10]
+title: Expand DAG-02 join table to field/fixture/gate-level concrete rows for DAG-04 through DAG-10
+status: accepted
+recorded_at: 2026-06-04T02:00:00Z
+recorded_by: control-doc-repair
+base_revision: 71a9700171fdea8466c0d20221d02896a99cc081
+mission: |
+  Expand the DAG-02 join table at
+  state/traceability/dag-02-join-table-2026-06-04.yaml from 6 concrete
+  rows to 48 concrete rows by adding 42 new field/fixture/gate-level
+  rows that split each PG-1 schema-substrate invariant (AT-INV-004
+  through AT-INV-009, AT-INV-014 through AT-INV-022, AT-INV-029 through
+  AT-INV-033, AT-INV-034 through AT-INV-039, AT-INV-040 through
+  AT-INV-049, AT-INV-050 through AT-INV-052, AT-INV-053 through
+  AT-INV-055) into one row per invariant. Each new row has all 20
+  required columns populated with no placeholders. The
+  implementation_rows_blocked_until_concrete placeholder list is
+  removed; concrete rows are listed in
+  implementation_rows_concrete_now for traceability. The
+  product_code_packet_authorization flips from blocked to
+  allowed_when_rows_for_target_node_are_concrete. BLK-TRACEABILITY-001
+  is moved to partial_resolution because DAG-04..DAG-10 now have
+  concrete rows; at-ctrl-005B will resolve the remaining DAG-11..
+  DAG-53 expansion.
+allowed_files:
+  - path: harness/knowledge/implementation-control/atelier/state/traceability/dag-02-join-table-2026-06-04.yaml
+    reason: add 42 concrete rows, remove placeholder list, flip product_code_packet_authorization
+  - path: harness/knowledge/implementation-control/atelier/state/packets/at-ctrl-005.yaml
+    reason: create the packet record
+  - path: harness/knowledge/implementation-control/atelier/state/validations/at-ctrl-005-acceptance-2026-06-04.md
+    reason: create the acceptance proof
+  - path: harness/knowledge/implementation-control/atelier/state/blockers/BLK-TRACEABILITY-001.md
+    reason: update status to partial_resolution and document at-ctrl-005B scope
+  - path: harness/knowledge/implementation-control/atelier/IMPLEMENTATION_LEDGER.md
+    reason: add packet row, validation row, update DAG status and computed frontier
+forbidden_actions:
+  - weakening gates
+  - deleting dependencies
+  - broadening completion criteria
+  - relaxing product-spec immutability
+  - adding compatibility aliases for removed commands
+  - broadening fixture scope without matrix-backed reason
+  - narrowing expected diff shape to hide required work
+  - downgrading blocker severity without evidence
+  - converting executable requirements into assumptions
+  - allowing pending commands to satisfy phase gates
+acceptance_criteria:
+  - '42 new rows appended to rows: [] (verified by row count 48)'
+  - every new row has all 20 columns populated, deferral_state=concrete, traceability_status=concrete, blocker_id=null (verified by validation script)
+  - implementation_rows_blocked_until_concrete section removed; implementation_rows_concrete_now lists the 7 previously blocked DAG nodes plus DAG-11_to_DAG-53 carryover (verified)
+  - product_code_packet_authorization: allowed_when_rows_for_target_node_are_concrete (verified)
+  - no product-spec files edited (verified by git diff --name-status -- harness/knowledge/product-specs/atelier empty)
+  - DAG-04 through DAG-10 DAG Status updated to concrete_blocked_until_implementation
+  - BLK-TRACEABILITY-001 status moved to partial_resolution with at-ctrl-005B carryover note
+  - no forbidden actions in the diff
+validation_gate_ids:
+  - VG-001
+  - VG-037
+  - VG-038
+validation_required_before_handoff:
+  - VG-001
+  - VG-037
+  - VG-038
+audit_proof_ref: harness/knowledge/implementation-control/atelier/state/validations/at-ctrl-005-acceptance-2026-06-04.md
+files_changed:
+  - harness/knowledge/implementation-control/atelier/state/traceability/dag-02-join-table-2026-06-04.yaml
+  - harness/knowledge/implementation-control/atelier/state/packets/at-ctrl-005.yaml
+  - harness/knowledge/implementation-control/atelier/state/validations/at-ctrl-005-acceptance-2026-06-04.md
+  - harness/knowledge/implementation-control/atelier/state/blockers/BLK-TRACEABILITY-001.md
+  - harness/knowledge/implementation-control/atelier/IMPLEMENTATION_LEDGER.md
+product_specs_touched: false
+validation_results:
+  - command: git diff --name-status -- harness/knowledge/product-specs/atelier
+    status: passed
+    notes: empty
+  - command: git diff --cached --name-status -- harness/knowledge/product-specs/atelier
+    status: passed
+    notes: empty
+  - command: git status --porcelain=v1 -- harness/knowledge/product-specs/atelier
+    status: passed
+    notes: empty
+  - command: bun nx run atelier:check
+    status: passed
+    notes: '122 pass, 0 fail, 491 expect() calls; Nx cache hit on 3/3 tasks'
+  - command: bun yaml.parse state/traceability/dag-02-join-table-2026-06-04.yaml
+    status: passed
+    notes: 'rows: 48, implementation_rows_concrete_now: 8, product_code_packet_authorization: allowed_when_rows_for_target_node_are_concrete'
+  - command: sha256sum state/traceability/dag-02-join-table-2026-06-04.yaml
+    status: passed
+    notes: 'c60218ea2f3cd9977b51bc402934774ecff9e26dbb92a90abc4ccae0d6c60e41'
+notes: |
+  Round 3 control repair. The 8 placeholder entries in
+  implementation_rows_blocked_until_concrete have been replaced by 42
+  field/fixture/gate-level concrete rows for DAG-04..DAG-10. The
+  implementation_rows_concrete_now section records the previously
+  blocked invariant groupings and the carryover (DAG-11..DAG-53) that
+  is addressed in at-ctrl-005B. BLK-TRACEABILITY-001 is moved to
+  partial_resolution; the at-ctrl-005B packet is the explicit
+  follow-up for DAG-11..DAG-53 expansion. Product code packets remain
+  blocked by their per-DAG dependencies (DAG-10 is not dispatchable
+  until DAG-04, DAG-05, DAG-06, VG-026A, and VG-043 pass).
