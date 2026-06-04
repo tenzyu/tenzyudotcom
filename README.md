@@ -25,6 +25,7 @@ Current project snapshot:
 | `web` | `product/apps/web` | Next.js site, public routes, assets, admin editor, and site-local feature code. |
 | `skin-workbench` | `product/apps/osu-skin-workbench` | Tauri + Vite desktop app for osu! skin workbench workflows. |
 | `castalia` | `product/apps/castalia` | Linux-first Rust CLI/launcher for local AI prompt workflows. |
+| `atelier` | `product/apps/atelier` | Repository-local context planning, graph, policy, controls, MCP, and GUI control plane. |
 | `ui` | `product/packages/ui` | Shared React UI package, CSS runtime layers, and Storybook surface. |
 | `osu-skin-core` | `product/packages/osu-skin-core` | Runtime-pure TypeScript osu! skin domain package. |
 | `linter` | `product/packages/linter` | Bun CLI for repository policy and architecture lint rules. |

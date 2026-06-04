@@ -19,25 +19,6 @@
       },
       "cache": false
     },
-    "index": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "product/apps/atelier",
-        "command": "bun run index -- --project-root ../../.."
-      },
-      "outputs": [
-        "{workspaceRoot}/.harness/generated"
-      ],
-      "cache": false
-    },
-    "index-check": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "product/apps/atelier",
-        "command": "bun run index -- --project-root ../../.. --check"
-      },
-      "cache": false
-    },
     "scan": {
       "executor": "nx:run-commands",
       "options": {
@@ -81,62 +62,6 @@
       },
       "cache": false
     },
-    "context-render": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "product/apps/atelier",
-        "command": "bun run ./src/cli.ts context render --project-root ../../.."
-      },
-      "cache": false
-    },
-    "context-expand": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "product/apps/atelier",
-        "command": "bun run ./src/cli.ts context expand --project-root ../../.."
-      },
-      "cache": false
-    },
-    "run-init": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "product/apps/atelier",
-        "command": "bun run ./src/cli.ts run init --project-root ../../.."
-      },
-      "cache": false
-    },
-    "run-status": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "product/apps/atelier",
-        "command": "bun run ./src/cli.ts run status --project-root ../../.."
-      },
-      "cache": false
-    },
-    "run-close": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "product/apps/atelier",
-        "command": "bun run ./src/cli.ts run close --project-root ../../.."
-      },
-      "cache": false
-    },
-    "repo-owner": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "product/apps/atelier",
-        "command": "bun run ./src/cli.ts repo owner --project-root ../../.."
-      },
-      "cache": false
-    },
-    "repo-map": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "product/apps/atelier",
-        "command": "bun run ./src/cli.ts repo map --project-root ../../.."
-      },
-      "cache": false
-    },
     "mcp": {
       "executor": "nx:run-commands",
       "options": {
@@ -150,22 +75,6 @@
       "options": {
         "cwd": "product/apps/atelier",
         "command": "bun run ./src/cli.ts gui --project-root ../../.."
-      },
-      "cache": false
-    },
-    "knowledge": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "product/apps/atelier",
-        "command": "bun run ./src/cli.ts knowledge --project-root ../../.."
-      },
-      "cache": false
-    },
-    "id-rename": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "product/apps/atelier",
-        "command": "bun run ./src/cli.ts id rename --project-root ../../.."
       },
       "cache": false
     },
@@ -273,18 +182,6 @@
         "command": "bun run ./src/cli.ts repair --project-root ../../.. --dry-run"
       },
       "outputs": [],
-      "cache": false
-    },
-    "generate": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "product/apps/atelier",
-        "command": "bun run ./src/cli.ts generate --project-root ../../.. --write"
-      },
-      "outputs": [
-        "{workspaceRoot}/.harness/generated/skills",
-        "{workspaceRoot}/harness/adapters/root"
-      ],
       "cache": false
     },
     "build": {

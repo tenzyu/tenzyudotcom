@@ -9,26 +9,25 @@ tags:
   - harness
   - adapter
   - root
-generated: true
-generator: atelier generate
 tool_source: "harness/adapters/tool/AGENTS.md"
-generated_at: "2026-06-03T10:19:08.597Z"
 ---
 
 # AGENTS.md
 
 Do not manually discover harness context first.
 
-Use Atelier.
+Use Atelier context planning.
 
 ```bash
-atelier run init --workflow workflow.isolated-run --role role.core.implementer --path . --intent "<request>"
+atelier context plan --workflow workflow.isolated-run --role role.core.implementer --path . --intent "<request>"
 ```
 
-Read `harness/runs/active/<RUN-ID>/context.md`.
+Use the plan to choose relevant context, risks, and validation commands. External
+LLM runners own task execution and edit the repository directly.
 
 ```bash
-atelier run close <RUN-ID>
+bun nx run <project>:check
 ```
 
-Stable knowledge lives in `harness/`. Root adapters stay short and route agents into Atelier.
+Stable knowledge lives in `harness/`. Durable task notes are optional Markdown
+records, not required CLI-managed run state.

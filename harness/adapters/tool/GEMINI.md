@@ -13,14 +13,16 @@ tags:
 
 # Adapter: GEMINI.md
 
-Root `GEMINI.md` should route Gemini through Atelier.
+Root `GEMINI.md` should route Gemini through Atelier context planning before
+broad manual harness discovery.
 
 Required behavior:
 
-- start non-trivial work with the generated exact `atelier run init --workflow ... --role ... --path ... --intent ...` entrypoint
-- read generated `context.md`
+- start non-trivial work with `atelier context plan --workflow ... --role ... --path ... --intent ...`
+- use the plan to choose relevant context, risks, and validation commands
 - avoid manual broad search of `harness/knowledge/**`
-- finish with `atelier run close <RUN-ID>`
-- use `atelier knowledge propose` for new durable knowledge
+- let the external runner edit the repository directly
+- finish with normal repository validation such as `bun nx run <project>:check`
+- write durable Markdown notes only when handoff, review, migration, or decision records are useful
 
 Do not duplicate the complete knowledge base in this adapter.

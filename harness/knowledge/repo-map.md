@@ -41,10 +41,10 @@ before editing because this file may lag behind active work.
 | `atelier` | `product/apps/atelier` | Repo Ops Engineer / Harness Engineer |
 | `web` | `product/apps/web` | Web App Engineer |
 | `skin-workbench` | `product/apps/osu-skin-workbench` | Workbench App Engineer and Rust/Tauri Engineer |
+| `castalia` | `product/apps/castalia` | Repo Ops Engineer / local AI workflow owner |
 | `ui` | `product/packages/ui` | Design System Engineer |
 | `osu-skin-core` | `product/packages/osu-skin-core` | Architect / domain package owner |
 | `linter` | `product/packages/linter` | Repo Ops Engineer |
-| `ui-react` | `product/packages/ui-react` | TODO: confirm ownership and target status |
 
 ## Boundary Memory
 

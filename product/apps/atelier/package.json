@@ -16,11 +16,7 @@
     "test": "bun test",
     "check": "bun run typecheck && bun run test",
     "doctor": "bun run ./src/cli.ts doctor",
-    "index": "bun run ./src/cli.ts index",
-    "context": "bun run ./src/cli.ts context",
-    "knowledge": "bun run ./src/cli.ts knowledge",
-    "id": "bun run ./src/cli.ts id",
-    "generate": "bun run ./src/cli.ts generate --write"
+    "context": "bun run ./src/cli.ts context plan"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

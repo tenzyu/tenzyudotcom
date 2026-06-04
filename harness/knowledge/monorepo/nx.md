@@ -33,10 +33,11 @@ This workspace uses Nx as the task graph and cache layer. Package managers still
 | --- | --- | --- |
 | `web` | `product/apps/web` | Next.js application |
 | `skin-workbench` | `product/apps/osu-skin-workbench` | Tauri + Vite desktop application |
+| `castalia` | `product/apps/castalia` | Linux-first Rust CLI/launcher |
+| `atelier` | `product/apps/atelier` | Context planning, graph, policy, controls, MCP, and GUI control plane |
 | `ui` | `product/packages/ui` | Shared UI package and CSS runtime layers |
 | `linter` | `product/packages/linter` | Architecture and repository policy CLI |
 | `osu-skin-core` | `product/packages/osu-skin-core` | Pure TypeScript skin-domain library |
-| `osu-skin-node` | `product/packages/osu-skin-node` | Node/server-side skin filesystem library |
 
 ## Daily commands
 
@@ -54,6 +55,8 @@ App-specific commands remain as compatibility aliases, but new automation should
 ```bash
 bun nx run web:dev
 bun nx run skin-workbench:dev
+bun nx run castalia:launch
+bun nx run atelier:check
 bun nx run ui:build
 bun nx run-many -t check
 bun nx affected -t build

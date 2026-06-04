@@ -1,19 +1,20 @@
 # GEMINI.md
 
-Use Atelier before manually discovering harness context.
+Use Atelier context planning before broad manual harness discovery.
 
 For non-trivial work:
 
 ```bash
-atelier run init --workflow workflow.isolated-run --role role.core.implementer --path . --intent "<request>"
+atelier context plan --workflow workflow.isolated-run --role role.core.implementer --path . --intent "<request>"
 ```
 
-Then read the generated `context.md` and follow it.
+Use the plan to choose relevant context, risks, and validation commands. External
+LLM runners own task execution and edit the repository directly.
 
 Before claiming completion:
 
 ```bash
-atelier run close <RUN-ID>
+bun nx run <project>:check
 ```
 
 Canonical adapter details live in `harness/adapters/root/GEMINI.md`.

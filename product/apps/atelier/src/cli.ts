@@ -45,6 +45,7 @@ function usage() {
     '  atelier status [--json] [--project-root <path>]',
     '  atelier impact --path <path> [--json] [--project-root <path>]',
     '  atelier blame ARTIFACT_ID [--json] [--project-root <path>]',
+    '  atelier context plan --workflow <id> [--role <id>] --path <path> --intent <text> [--mode compact|full|linked] [--required-only] [--json] [--project-root <path>]',
     '  atelier controls list [--json] [--project-root <path>]',
     '  atelier controls coverage [--json] [--project-root <path>]',
     '  atelier controls missing [--json] [--project-root <path>]',
@@ -72,14 +73,13 @@ function usage() {
     '  status   Summarize graph health, stale artifacts, and orphaned controls.',
     '  impact   Show artifacts and edges affected by a path change.',
     '  blame    Trace incoming and outgoing edges for an artifact.',
+    '  context  Plan task context for an external LLM runner without managing run state.',
     '  controls Observe and query control mechanisms (checks, linters, hooks, etc.).',
     '  policy   Check, explain, and simulate governance policy rules.',
     '  task     Create, inspect, assign, and close task artifacts.',
     '  role     Create and edit role harness documents.',
     '  reconcile Reconcile the Artifact Graph against current filesystem state.',
     '  repair    Preview what reconcile would change (dry-run).',
-    '  id       Rename symbolic ids across the harness.',
-
     '  mcp      Start a stdio Model Context Protocol server. Mutations require --allow-mutations or a confirm flag from the client.',
     '  gui      Start the local HTTP GUI. Binds to 127.0.0.1 by default. Mutations require --allow-mutations or a confirm flag from the UI.',
   ].join('\n')

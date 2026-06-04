@@ -742,11 +742,30 @@ trace
 Required context remains deterministic. Semantic expansion is optional and must
 be labeled as optional.
 
-## 9. Runs
+## 9. Task Records and External Runners
 
-A run locks the selected context and execution contract for a unit of work.
+Atelier no longer manages the lifecycle of every LLM task through a CLI-owned run
+state. The current product model is:
 
-A run should preserve:
+```text
+human / external LLM runner
+  -> task intent
+  -> Atelier context plan
+  -> repository edits by external runner or human
+  -> normal project validation
+  -> optional durable Markdown record
+```
+
+Atelier provides preflight context planning, repository understanding, policy
+checks, control coverage, and handoff support. Execution is owned by external
+runners such as Codex, opencode, ChatGPT, Gemini, or a human operator.
+
+`harness/runs` is historical and optional human-readable record storage. It is
+useful for investigation notes, handoff notes, review findings, migration plans,
+decision records, and completed historical traces. It is not mandatory task
+state and is not created, updated, or closed by the current CLI.
+
+When a durable task record is useful, it should preserve:
 
 ```text
 workflow
@@ -755,22 +774,18 @@ assigned roles
 agent or team
 user intent
 target paths
-selected documents and controls
-selection reasons
-source hashes
-generated time
+selected context and controls
+selection reasons or trace
+source hashes where relevant
+recorded time
 required artifacts
 permission envelope
 trace
 ```
 
-`context.md` is the first file an external agent should read. It is an
-agent-readable compiled context pack, not a raw dump of every source and not a
-simple link list.
-
-`context.manifest.json` is the machine evidence for the pack. It stores IDs,
-paths, hashes, reasons, budgets, and expansion records. It must not become a
-duplicate body store.
+The current task preflight artifact is a context plan, not a generated run
+directory. The plan must explain selected artifacts, skipped artifacts, risks,
+permission envelope, and relevant validation commands.
 
 ## 10. Commands
 
@@ -780,7 +795,6 @@ Read and inspect:
 
 ```bash
 atelier doctor
-atelier index
 atelier scan
 atelier graph
 atelier status
@@ -791,23 +805,10 @@ atelier controls coverage
 atelier controls missing
 ```
 
-Context and runs:
+Context preflight:
 
 ```bash
 atelier context plan
-atelier context render
-atelier run init
-atelier run status
-atelier run close
-```
-
-Knowledge and IDs:
-
-```bash
-atelier knowledge propose
-atelier knowledge promote
-atelier knowledge reject
-atelier id rename
 ```
 
 Reconciliation:
@@ -914,18 +915,19 @@ decisions, or infer architecture decisions from weak evidence.
 
 ## 14. Acceptance Direction
 
-Atelier v1 is acceptable when it makes the existing harness safer and more
-agent-usable:
+Atelier's current active CLI surface is acceptable when it makes the existing
+harness safer and more agent-usable without owning external runner lifecycle:
 
 ```text
 doctor
-index
-role-routed context plan/render
-run init
-run close
-knowledge proposal/promotion
-short adapters
-optional MCP/GUI surfaces calling the same core
+scan / graph / status
+context plan
+controls coverage
+static policy checks
+task and role authoring
+reconciliation preview
+MCP and GUI surfaces calling the same core
+short adapters that route agents to context planning
 ```
 
 Atelier v2 kernel is acceptable when it no longer relies on Markdown as the only
@@ -939,7 +941,7 @@ reconcile
 controls coverage
 selector over role/task/phase/scope/diff/risk/permissions/budget
 policy simulation
-traceable run operation
+traceable task and handoff operation
 ```
 
 The product becomes mature when humans can operate mainly as product owners and

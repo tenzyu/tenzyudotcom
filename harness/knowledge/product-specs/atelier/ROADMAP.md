@@ -256,12 +256,10 @@ infer architecture from weak evidence
 
 Compile authored Markdown into rebuildable generated indexes.
 
-### Commands
+### Status
 
-```bash
-atelier index
-atelier index --check
-```
+Historical v1 milestone. The generated-index CLI surface has been retired in
+favor of graph observation, reconciliation, and control coverage.
 
 ### Generated Files
 
@@ -284,7 +282,8 @@ atelier index --check
 
 ### Acceptance Criteria
 
-- Running `atelier index` twice produces stable output.
+- Rebuilding generated projections twice produces stable output where a
+  projection still exists.
 - ID collision fails.
 - Role bundles include selected documents and selection reasons.
 - Diagnostics are emitted in machine-readable form.
@@ -305,13 +304,6 @@ atelier context plan \
   --path product/apps/web \
   --intent "fix server action auth" \
   --mode compact
-
-atelier context render \
-  --workflow workflow.isolated-run \
-  --role role.domain.web-app-engineer \
-  --path product/apps/web \
-  --intent "fix server action auth" \
-  --mode compact
 ```
 
 ### Requirements
@@ -325,8 +317,8 @@ skipped context
 selection reasons
 warnings
 token estimate
-render command
-run init command
+    validation commands
+    external-runner handoff notes
 ```
 
 Render modes:
@@ -347,28 +339,19 @@ full
 - Plan works without creating a run.
 - Plan explains every selected document.
 - Plan lists skipped broad contexts.
-- Render modes visibly change output.
+- Context modes visibly change plan detail.
 - Required context remains deterministic.
 - Semantic expansion is optional and labeled.
 
-## M4: Run Init and Context Manifest
+## M4: Historical Run Init and Context Manifest
 
 ### Goal
 
-Materialize a selected context pack into a run.
+Historical v1 milestone. The current CLI does not materialize LLM task runtime
+state. External runners receive preflight context plans and edit the repository
+directly.
 
-### Command
-
-```bash
-atelier run init \
-  --workflow workflow.isolated-run \
-  --role role.domain.web-app-engineer \
-  --path product/apps/web \
-  --intent "fix server action auth" \
-  --mode compact
-```
-
-### Generated Run Structure
+### Historical Generated Run Structure
 
 ```text
 harness/runs/active/<RUN-ID>/
@@ -402,25 +385,21 @@ expansion records
 
 The manifest must not become a duplicate body store.
 
-### Acceptance Criteria
+### Current Acceptance Direction
 
-- `run init` creates the required files.
-- `context.md` is agent-readable without reading the entire harness.
-- Default mode is `compact`.
-- Manifest can later detect hash mismatch.
-- No full document bodies are copied into the manifest unless explicitly requested.
+- Context preflight works without creating runtime state.
+- External runners can receive enough context to start work without broad manual
+  harness discovery.
+- Normal project validation, not a run close gate, verifies completion.
+- Durable Markdown records are optional and human-readable.
 
-## M5: Run Close and Completion Gate
+## M5: Historical Run Close and Completion Gate
 
 ### Goal
 
-Prevent agents from claiming completion without evidence.
-
-### Command
-
-```bash
-atelier run close RUN-ID
-```
+Prevent agents from claiming completion without evidence. In the current model,
+this is handled by repository validation, review, and optional handoff Markdown
+rather than a CLI-managed lifecycle gate.
 
 ### Requirements
 
@@ -434,7 +413,7 @@ verification.md
 handoff.md
 ```
 
-Run close must check:
+Completion evidence should check:
 
 ```text
 context manifest exists
@@ -447,8 +426,8 @@ knowledge proposals are promoted, rejected, or explicitly pending
 
 ### Acceptance Criteria
 
-- Missing verification fails for non-trivial runs.
-- Missing handoff fails for non-trivial runs.
+- Missing verification is recorded as an unresolved handoff risk.
+- Missing handoff is recorded when a durable record is expected.
 - Hash mismatch reports changed context.
 - Trivial direct runs may close with a lighter standard.
 - Output explains exactly what is missing.
@@ -465,13 +444,10 @@ also enter the graph from checks, linters, hooks, CI, code structure, failed
 runs, review comments, traces, and human decisions. Promotion to Markdown is
 optional, not the only knowledge path.
 
-### Commands
+### Status
 
-```bash
-atelier knowledge propose --from-run RUN-ID --kind rule --title "..."
-atelier knowledge promote PROPOSAL_PATH
-atelier knowledge reject PROPOSAL_PATH
-```
+Historical v1 milestone. Durable knowledge is now curated through ordinary
+Markdown editing, review, and reconciliation rather than a proposal CLI surface.
 
 ### Requirements
 
@@ -673,12 +649,10 @@ existing ownership hints
 .harness/generated/path-ownership.json
 ```
 
-### Commands
+### Status
 
-```bash
-atelier repo map
-atelier repo owner --path product/apps/web/src/app/page.tsx
-```
+Historical v1 milestone. Repository understanding is now surfaced through graph
+observation, impact, blame, status, and active Nx project inspection.
 
 ### Acceptance Criteria
 
@@ -1318,10 +1292,9 @@ Runs in CI and uploads diagnostics/graph summaries. Warnings do not fail.
 ### Phase 2: Deterministic Gates
 
 ```bash
-atelier doctor --ci
-atelier index --check
-atelier graph --check
-atelier policy check --ci
+atelier doctor --json
+atelier status --json
+atelier policy check --json
 ```
 
 Fails only on deterministic errors and explicit policy violations.
@@ -1420,13 +1393,11 @@ Atelier v1 is done when a non-trivial harness task can be performed through:
 ```text
 atelier doctor
 atelier context plan
-atelier run init
-agent reads context.md
+atelier context plan
+external runner receives the plan
 agent works
-agent updates verification.md and handoff.md
-atelier run close
-atelier knowledge propose, when useful
-atelier index --check
+agent or human records verification and handoff notes when useful
+normal project checks pass
 ```
 
 and the following are true:
@@ -1455,9 +1426,8 @@ atelier reconcile
 atelier controls coverage
 atelier policy simulate
 atelier context plan
-atelier run init
-agent works through selected context and policy envelope
-atelier run close
+external runner works through selected context and policy envelope
+normal project checks pass
 atelier status
 ```
 
