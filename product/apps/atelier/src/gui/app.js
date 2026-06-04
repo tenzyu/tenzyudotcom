@@ -175,7 +175,7 @@ async function refreshBundles() {
     const data = await apiGet('/api/role-bundles')
     const entries = Object.entries(data ?? {})
     if (entries.length === 0) {
-      target.innerHTML = '<p class="muted">No role bundles generated yet. Run <code>atelier index</code>.</p>'
+      target.innerHTML = '<p class="muted">No role bundles available. Run <code>atelier controls list</code> to see current controls.</p>'
       return
     }
     target.innerHTML = ''

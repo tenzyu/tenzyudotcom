@@ -142,6 +142,22 @@
       },
       "cache": false
     },
+    "run-list": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/atelier",
+        "command": "bun run ./src/cli.ts run list --project-root ../../.."
+      },
+      "cache": false
+    },
+    "run-handoff": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/atelier",
+        "command": "bun run ./src/cli.ts run handoff --project-root ../../.."
+      },
+      "cache": false
+    },
     "run-inspect": {
       "executor": "nx:run-commands",
       "options": {

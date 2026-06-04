@@ -24,5 +24,11 @@ Required behavior:
 - let the external runner edit the repository directly
 - finish with normal repository validation such as `bun nx run <project>:check`
 - write durable Markdown notes only when handoff, review, migration, or decision records are useful
+- for durable handoff, materialize a run capsule via `atelier task create` then
+  `atelier run create --task <task-id>`, and use `atelier run resume <run-id>` as
+  the next-agent prompt
+- reference the Run Plane's 7 subcommands and the canonical capsule reading
+  order: `manifest.json → handoff.md → brief.md → plan.md → context.md →
+  verification.md → review.md → worklog.md → artifacts.md`
 
 Tool-local memory is not the repository source of truth.

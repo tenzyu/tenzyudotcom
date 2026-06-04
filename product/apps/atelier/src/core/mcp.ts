@@ -17,7 +17,7 @@ import {
 
 import { checkPolicy, explainPolicy } from './policy'
 import { createTask, assignTask, closeTask, taskStatus } from './tasks'
-import { appendRunHandoff, completeRun, createRun, inspectRun, listRunVerification, recordRunVerification, resumeRun } from './runs'
+import { appendRunHandoff, completeRun, createRun, inspectRun, listRunVerification, listRuns, recordRunVerification, resumeRun } from './runs'
 import { listControls, buildCoverageReport, findMissingControls } from './controls'
 
 
@@ -298,6 +298,22 @@ export function buildMcpServer(options: McpServerOptions): McpServer {
 
   registerTool(
     server,
+    'atelier_run_list',
+    {
+      title: 'Atelier Run List',
+      description: 'List run capsules. Read-only.',
+      inputSchema: {
+        status: z
+          .enum(['active', 'completed'])
+          .optional()
+          .describe('Optional status filter: active or completed.'),
+      },
+    },
+    async (args) => toJsonResult(listRuns(projectRoot, { status: args.status as 'active' | 'completed' | undefined }))
+  )
+
+  registerTool(
+    server,
     'atelier_run_inspect',
     {
       title: 'Atelier Run Inspect',
@@ -496,6 +512,7 @@ export const MCP_TOOL_NAMES = [
   'atelier_task_assign',
   'atelier_task_close',
   'atelier_run_create',
+  'atelier_run_list',
   'atelier_run_inspect',
   'atelier_run_resume',
   'atelier_run_handoff',

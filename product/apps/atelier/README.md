@@ -56,6 +56,7 @@ atelier task assign TASK-ID --role role.core.implementer
 atelier task split TASK-ID --subtask "Child::Describe child work"
 atelier task close TASK-ID --outcome completed
 atelier run create --task TASK-ID
+atelier run list
 atelier run inspect RUN-ID
 atelier run resume RUN-ID
 atelier run handoff RUN-ID --append "Current state and next step"

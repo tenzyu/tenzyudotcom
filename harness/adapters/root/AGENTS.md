@@ -29,5 +29,31 @@ LLM runners own task execution and edit the repository directly.
 bun nx run <project>:check
 ```
 
-Stable knowledge lives in `harness/`. Durable task notes are optional Markdown
-records, not required CLI-managed run state.
+Stable knowledge lives in `harness/`. For work that needs durable handoff or
+review, materialize a resumable run capsule:
+
+```bash
+atelier task create --title "<title>" --description "<description>" --path <path> --role <role>
+atelier run create --task <task-id>
+atelier run resume <run-id>
+```
+
+The Run Plane exposes 7 subcommands: `create | list | inspect | resume | handoff |
+verify | complete`. A run capsule is a portable directory at
+`harness/runs/active/<run-id>/` that any external LLM runner or human operator
+can read in the canonical order:
+
+```text
+manifest.json
+handoff.md
+brief.md
+plan.md
+context.md
+verification.md
+review.md
+worklog.md
+artifacts.md
+```
+
+Durable run capsules are optional. Tasks that complete inside a single chat
+session may remain in the Task Plane only.

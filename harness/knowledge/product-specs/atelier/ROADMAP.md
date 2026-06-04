@@ -96,6 +96,7 @@ M17: Artifact Graph UI
 M18: Governance Runtime
 M19: Governed Agent Loop
 M20: Swarm Coordination
+M21: Run Resume Materialization
 ```
 
 ## Guiding Rules
@@ -343,85 +344,109 @@ full
 - Required context remains deterministic.
 - Semantic expansion is optional and labeled.
 
-## M4: Historical Run Init and Context Manifest
+## M4: Run Materialization and Context Manifest
 
 ### Goal
 
-Historical v1 milestone. The current CLI does not materialize LLM task runtime
-state. External runners receive preflight context plans and edit the repository
-directly.
+Materialize durable, portable, resumable run capsules from tasks so any
+external LLM runner or human operator can pick up the work in progress.
 
-### Historical Generated Run Structure
+### Capsule Structure
 
 ```text
 harness/runs/active/<RUN-ID>/
+  manifest.json
+  handoff.md
   brief.md
+  plan.md
   context.md
-  context.manifest.json
+  verification.md
+  review.md
+  worklog.md
+  artifacts.md
 ```
+
+The canonical reading order is fixed and is the same for CLI, MCP, GUI, and
+adapter docs. After `manifest.json`, `handoff.md` is read first so a fresh LLM
+lands on the latest resume point.
 
 ### Requirements
 
-`context.md` must be the first file an external agent reads. It is a compiled
-context pack, not a raw copy of all selected source files and not merely a link
-list.
+`atelier run create --task <task-id>` materializes a capsule without invoking
+an LLM or editing source code.
 
-`context.manifest.json` must store:
+`manifest.json` is the only required-to-mutate file. It must store:
 
 ```text
 run ID
+schema (atelier/run-capsule/v1)
+status (active | completed)
+task ID
+title
+intent
+scope
 workflow ID
-task or intent
 role IDs
-input paths
-selected documents and controls
-selection reasons
-source hashes
-generated timestamp
-budget estimate
-context mode
-expansion records
+artifact refs
+validation refs
+contextHash
+worktree.projectRoot
+createdAt
+updatedAt
 ```
 
-The manifest must not become a duplicate body store.
+`context.md` is a snapshot of the resolved context plan, not a raw copy of all
+selected source files and not merely a link list. The manifest must not become
+a duplicate body store.
 
-### Current Acceptance Direction
+### Acceptance Criteria
 
-- Context preflight works without creating runtime state.
-- External runners can receive enough context to start work without broad manual
-  harness discovery.
-- Normal project validation, not a run close gate, verifies completion.
-- Durable Markdown records are optional and human-readable.
+- `atelier run create` materializes the 9 files listed above and emits
+  `run_created`.
+- `atelier run list` returns active and completed capsules with an optional
+  status filter.
+- `atelier run resume` returns a portable resume prompt using the canonical
+  reading order.
+- `atelier run handoff` and `atelier run verify` append to the active capsule
+  and update the manifest.
+- The CLI never invokes an LLM and never edits source code.
 
-## M5: Historical Run Close and Completion Gate
+## M5: Run Close, Completion Gate, and Handoff
 
 ### Goal
 
-Prevent agents from claiming completion without evidence. In the current model,
-this is handled by repository validation, review, and optional handoff Markdown
-rather than a CLI-managed lifecycle gate.
+Freeze a run capsule once the work has verifiable evidence and a stable
+handoff point.
 
 ### Requirements
+
+`atelier run complete <run-id>` enforces completion gates before moving the
+capsule from `harness/runs/active/<run-id>/` to
+`harness/runs/completed/<run-id>/`.
 
 For non-trivial runs, require:
 
 ```text
-brief.md
-context.md
-context.manifest.json
-verification.md
+manifest.json
 handoff.md
+brief.md
+plan.md
+context.md
+verification.md
+review.md
+worklog.md
+artifacts.md
 ```
 
 Completion evidence should check:
 
 ```text
-context manifest exists
+all 9 canonical files exist
+context manifest is readable
 selected document hashes are explainable
 doctor errors do not affect the run
 verification exists or is explicitly skipped with reason
 handoff exists for non-trivial runs
-knowledge proposals are promoted, rejected, or explicitly pending
 ```
 
 ### Acceptance Criteria
@@ -431,6 +456,7 @@ knowledge proposals are promoted, rejected, or explicitly pending
 - Hash mismatch reports changed context.
 - Trivial direct runs may close with a lighter standard.
 - Output explains exactly what is missing.
+- `run_completed` is emitted and `run_started` is never emitted by new code.
 
 ## M6: Markdown Knowledge Proposal and Promotion
 
@@ -1148,6 +1174,58 @@ BackgroundRun
 - Teams can declare capabilities, cost profiles, and permission modes.
 - Swarm cannot bypass governance.
 
+## M21: Run Resume Materialization
+
+### Goal
+
+Make a run capsule the canonical handoff for any external LLM runner or human
+operator. The capsule is durable, portable, and resumable without chat history.
+
+### Commands
+
+```bash
+atelier run resume <run-id>
+atelier run refresh <run-id>
+atelier run list [--status active|completed]
+```
+
+### Canonical Reading Order
+
+```text
+manifest.json
+handoff.md
+brief.md
+plan.md
+context.md
+verification.md
+review.md
+worklog.md
+artifacts.md
+```
+
+### Requirements
+
+- `atelier run resume` returns a portable prompt that includes the capsule
+  path, the canonical reading order, and the next concrete step from
+  `handoff.md`.
+- `atelier run refresh` re-resolves `context.md` from the current artifact
+  graph and updates `manifest.contextHash`. Drift is reported, not silently
+  rewritten.
+- `atelier run list` exposes active and completed capsules for the GUI, MCP,
+  and CI to observe.
+- The same reading order is enforced in CLI, MCP, GUI, adapter docs, and
+  tests.
+
+### Acceptance Criteria
+
+- A fresh LLM can read the capsule directory in the canonical order and start
+  work without prior context.
+- A resumed run with the same `contextHash` is recognized as fresh; a changed
+  `contextHash` is reported as drift.
+- GUI and MCP both expose the same list / inspect / resume surface as CLI.
+- Tests assert the canonical order across `requiredRunFiles`,
+  `resumeRun().readingOrder`, and the contract tests.
+
 ## Next Implementation Order
 
 ### Commit 1
@@ -1275,6 +1353,7 @@ read-only defaults with explicit mutation confirmation
 feat(atelier): add governance runtime
 feat(atelier): add governed agent loop
 feat(atelier): add swarm coordination
+feat(atelier): add run resume materialization
 ```
 
 ## CI Strategy
@@ -1393,10 +1472,24 @@ Atelier v1 is done when a non-trivial harness task can be performed through:
 ```text
 atelier doctor
 atelier context plan
-atelier context plan
 external runner receives the plan
 agent works
 agent or human records verification and handoff notes when useful
+normal project checks pass
+```
+
+or, when durable handoff is needed, through:
+
+```text
+atelier context plan
+atelier task create
+atelier run create --task <task-id>
+atelier run resume <run-id>
+external runner reads the capsule in the canonical order
+agent works
+atelier run handoff
+atelier run verify --record
+atelier run complete
 normal project checks pass
 ```
 
@@ -1411,6 +1504,8 @@ old paths are detected
 run completion is gated by evidence
 Markdown knowledge proposals do not immediately pollute durable knowledge
 root adapters remain short
+the Run Plane exposes 7 subcommands: create, list, inspect, resume, handoff, verify, complete
+the canonical run reading order is enforced in CLI, MCP, GUI, and tests
 ```
 
 ## Done Definition for v2 Kernel
@@ -1441,6 +1536,7 @@ Control coverage maps knowledge and product intent to enforcement mechanisms.
 Selector explains role, task, phase, scope, diff, risk, permission, and budget decisions.
 Policy Engine can evaluate path, command, and tool risk before execution.
 Human decisions are reserved for product intent, high-risk governance, destructive operations, and ambiguous value judgments.
+Run Plane materializes portable, resumable task capsules with the 9-file canonical shape; harness/runs/active is observable in the graph as kind: run.
 ```
 
 ## Done Definition for Product Direction

@@ -51,20 +51,27 @@ export type VerificationRecord = {
   recordedAt: string
 }
 
-const REQUIRED_FILES = [
+/**
+ * Canonical run capsule reading order.
+ *
+ * handoff.md is read first after manifest.json so a fresh LLM always lands on
+ * the latest resume point. The remaining files provide durable context and
+ * evidence trail.
+ */
+export const REQUIRED_RUN_FILES = [
   'manifest.json',
-  'brief.md',
-  'context.md',
-  'plan.md',
   'handoff.md',
-  'worklog.md',
+  'brief.md',
+  'plan.md',
+  'context.md',
   'verification.md',
   'review.md',
+  'worklog.md',
   'artifacts.md',
-]
+] as const
 
 export function requiredRunFiles(): string[] {
-  return [...REQUIRED_FILES]
+  return [...REQUIRED_RUN_FILES]
 }
 
 function now() {
@@ -170,7 +177,7 @@ export function inspectRun(projectRoot: string, runId: string): RunCapsule {
   return { ...readManifest(runPath), path: path.relative(root, runPath) }
 }
 
-export function listRuns(projectRoot: string): RunCapsule[] {
+export function listRuns(projectRoot: string, options?: { status?: RunStatus }): RunCapsule[] {
   const root = path.resolve(projectRoot)
   const runDirs = (status: RunStatus) => {
     const dir = runsRoot(root, status)
@@ -179,7 +186,10 @@ export function listRuns(projectRoot: string): RunCapsule[] {
       .filter((entry) => entry.isDirectory())
       .map((entry) => path.join(dir, entry.name))
   }
-  return [...runDirs('active'), ...runDirs('completed')]
+  const filtered = options?.status
+    ? runDirs(options.status)
+    : [...runDirs('active'), ...runDirs('completed')]
+  return filtered
     .filter((runPath) => existsSync(path.join(runPath, 'manifest.json')))
     .map((runPath) => ({ ...readManifest(runPath), path: path.relative(root, runPath) }))
     .sort((left, right) => right.createdAt.localeCompare(left.createdAt))
@@ -189,11 +199,12 @@ export function resumeRun(projectRoot: string, runId: string): ResumeRunResult {
   const root = path.resolve(projectRoot)
   const runPath = resolveRunPath(root, runId)
   const relativePath = path.relative(root, runPath)
+  const order = requiredRunFiles()
   return {
     runId,
     runPath: relativePath,
-    readingOrder: requiredRunFiles(),
-    prompt: `Resume run ${runId}. Read files in order from ${relativePath}: ${requiredRunFiles().join(', ')}.`,
+    readingOrder: order,
+    prompt: `Resume run ${runId} from ${relativePath}. Read in this canonical order: ${order.join(', ')}.`,
   }
 }
 
@@ -234,7 +245,7 @@ export function completeRun(projectRoot: string, runId: string): RunCapsule {
   const root = path.resolve(projectRoot)
   const runPath = activeRunPath(root, runId)
   if (!existsSync(runPath)) throw new Error(`Active run not found: ${runId}`)
-  for (const file of REQUIRED_FILES) {
+  for (const file of REQUIRED_RUN_FILES) {
     if (!existsSync(path.join(runPath, file))) throw new Error(`Run completion blocked: missing ${file}`)
   }
   const manifest = readManifest(runPath)

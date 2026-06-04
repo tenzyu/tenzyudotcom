@@ -106,6 +106,7 @@ describe('MCP server', () => {
       expect(names).toContain('atelier_policy_check')
       expect(names).toContain('atelier_task_close')
       expect(names).toContain('atelier_run_create')
+      expect(names).toContain('atelier_run_list')
       expect(names).toContain('atelier_run_complete')
 
       expect(names).toContain('atelier_reconcile')

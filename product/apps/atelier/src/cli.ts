@@ -2,6 +2,7 @@
 
 import path from 'node:path'
 import {
+  buildContextPlanNextActions,
   buildGraphContextPlan,
   normalizeContextMode,
   type ContextPlan,
@@ -23,7 +24,7 @@ import {
 import { checkPolicy, explainPolicy, simulatePolicy } from './core/policy'
 import { listControls, buildCoverageReport, findMissingControls } from './core/controls'
 import { createTask, splitTask, assignTask, taskStatus, closeTask, createRole, editRole } from './core/tasks'
-import { appendRunHandoff, completeRun, createRun, inspectRun, listRunVerification, recordRunVerification, resumeRun } from './core/runs'
+import { appendRunHandoff, completeRun, createRun, inspectRun, listRunVerification, listRuns, recordRunVerification, resumeRun } from './core/runs'
 import { reconcile, repairDryRun } from './core/reconciler'
 
 import {
@@ -56,6 +57,7 @@ function usage() {
     '  atelier task close TASK-ID [--outcome completed|cancelled] [--json]',
     '  atelier task split TASK-ID --subtask "<title>::<description>" [--json]',
     '  atelier run create --task <task-id> [--json]',
+    '  atelier run list [--status active|completed] [--json]',
     '  atelier run inspect RUN-ID [--json]',
     '  atelier run resume RUN-ID [--json]',
     '  atelier run handoff RUN-ID --append <text> [--json]',
@@ -85,7 +87,7 @@ function usage() {
     '  controls Observe and query control mechanisms (checks, linters, hooks, etc.).',
     '  policy   Check, explain, and simulate governance policy rules.',
     '  task     Create, inspect, assign, split, and close task artifacts.',
-    '  run      Create, inspect, resume, verify, handoff, and complete run capsules.',
+    '  run      Create, list, inspect, resume, verify, handoff, and complete run capsules.',
     '  role     Create and edit role harness documents.',
     '  reconcile Reconcile the Artifact Graph against current filesystem state.',
     '  repair    Preview what reconcile would change (dry-run).',
@@ -225,11 +227,24 @@ function printContextPlan(plan: ContextPlan) {
     console.log(`- ${formatDiagnostic(diagnostic)}`)
   }
 
+  const nextActions = buildContextPlanNextActions(plan.intent, plan.inputPath, plan.roleIds, plan.taskId)
+  console.log('\nNext Actions')
+  if (plan.taskId) {
+    console.log('1. Create a resumable run capsule:')
+    console.log(`   ${nextActions[0]}`)
+    console.log('2. Resume or hand off the capsule:')
+    console.log(`   ${nextActions[1]}`)
+  } else {
+    console.log('1. Create a durable task:')
+    console.log(`   ${nextActions[0]}`)
+    console.log('2. Then create a resumable run capsule:')
+    console.log(`   ${nextActions[1]}`)
+    console.log('3. Resume or hand off the capsule:')
+    console.log(`   ${nextActions[2]}`)
+  }
   console.log('')
-  console.log('Context plan generated.')
-  console.log('No run capsule created.')
-  console.log('No task state mutated.')
-  console.log('Use --json or pass this plan to an external LLM runner.')
+  console.log('Context plan generated. No task state mutated. No run capsule created.')
+  console.log('After run creation, the capsule at `harness/runs/active/<run-id>/` is the portable handoff — any LLM can read it via `atelier run resume <run-id>`.')
 }
 
 function hasErrorDiagnostic(diagnostics: readonly Diagnostic[]) {
@@ -751,6 +766,26 @@ export async function runCli(argv: readonly string[]) {
       console.log(`Run: ${run.id}`)
       console.log(`Task: ${run.taskId}`)
       console.log(`Path: ${run.path}`)
+    }
+    return 0
+  }
+
+  if (command === 'run' && subcommand === 'list') {
+    const base = parseBase(restRaw)
+    const statusArg = readOptionalOption(base.remaining, '--status')
+    const status = statusArg === 'active' || statusArg === 'completed' ? statusArg : undefined
+    if (statusArg !== undefined && status === undefined) {
+      throw new Error("--status must be 'active' or 'completed'")
+    }
+    const runs = listRuns(base.projectRoot, { status })
+    if (base.json) {
+      console.log(JSON.stringify(runs, null, 2))
+    } else {
+      console.log('Atelier Run List')
+      console.log(`Total: ${runs.length}`)
+      for (const run of runs) {
+        console.log(`  ${run.id}  status=${run.status}  task=${run.taskId}  updatedAt=${run.updatedAt}  path=${run.path}`)
+      }
     }
     return 0
   }

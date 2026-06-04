@@ -6,7 +6,7 @@ import { runCli } from '../cli'
 import { buildGraphContextPlan } from '../core/context'
 import { readEvents } from '../core/events'
 import { createTask, closeTask } from '../core/tasks'
-import { createRun, completeRun, resumeRun } from '../core/runs'
+import { createRun, completeRun, listRuns, requiredRunFiles, resumeRun } from '../core/runs'
 
 const removedCommands = [
   'atelier run init',
@@ -91,7 +91,9 @@ describe('Atelier command contract', () => {
 
       expect(plan.surface).toBe('context')
       expect(plan.effects).toEqual({ mutated: false, createdRun: false, createdTask: false })
-      expect(plan.nextActions).toEqual([])
+      expect(plan.nextActions.length).toBeGreaterThan(0)
+      expect(plan.nextActions[0]).toContain('atelier task create')
+      expect(plan.nextActions[plan.nextActions.length - 1]).toContain('atelier run resume <run-id>')
       const serialized = JSON.stringify(plan)
       for (const command of removedCommands) expect(serialized).not.toContain(command)
     } finally {
@@ -119,6 +121,10 @@ describe('Atelier command contract', () => {
       expect(output).toContain('Context plan generated.')
       expect(output).toContain('No run capsule created.')
       expect(output).toContain('No task state mutated.')
+      expect(output).toContain('Next Actions')
+      expect(output).toContain('atelier task create')
+      expect(output).toContain('atelier run create --task <task-id>')
+      expect(output).toContain('atelier run resume <run-id>')
       for (const command of removedCommands) expect(output).not.toContain(command)
     } finally {
       rmSync(root, { recursive: true, force: true })
@@ -204,7 +210,52 @@ describe('Atelier command contract', () => {
       const run = createRun({ projectRoot: root, taskId: task.id })
       const resume = resumeRun(root, run.id)
       expect(resume.runPath).toContain(`harness/runs/active/${run.id}`)
-      expect(resume.readingOrder).toEqual(['manifest.json', 'brief.md', 'context.md', 'plan.md', 'handoff.md', 'worklog.md', 'verification.md', 'review.md', 'artifacts.md'])
+      expect(resume.readingOrder).toEqual([
+        'manifest.json',
+        'handoff.md',
+        'brief.md',
+        'plan.md',
+        'context.md',
+        'verification.md',
+        'review.md',
+        'worklog.md',
+        'artifacts.md',
+      ])
+      expect(resume.prompt).toContain('manifest.json, handoff.md, brief.md, plan.md, context.md, verification.md, review.md, worklog.md, artifacts.md')
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
+  test('requiredRunFiles agrees with resume reading order and starts with manifest+handoff', () => {
+    expect(requiredRunFiles()).toEqual([
+      'manifest.json',
+      'handoff.md',
+      'brief.md',
+      'plan.md',
+      'context.md',
+      'verification.md',
+      'review.md',
+      'worklog.md',
+      'artifacts.md',
+    ])
+    expect(requiredRunFiles()[0]).toBe('manifest.json')
+    expect(requiredRunFiles()[1]).toBe('handoff.md')
+  })
+
+  test('run list returns active and completed capsules', () => {
+    const root = setupProject()
+    try {
+      const task = createTask({ projectRoot: root, title: 'List contract', description: 'List run capsules' })
+      const run = createRun({ projectRoot: root, taskId: task.id })
+      const active = listRuns(root, { status: 'active' })
+      expect(active.map((r) => r.id)).toContain(run.id)
+      completeRun(root, run.id)
+      const completed = listRuns(root, { status: 'completed' })
+      expect(completed.map((r) => r.id)).toContain(run.id)
+      const all = listRuns(root)
+      expect(all.length).toBe(1)
+      expect(all[0]?.status).toBe('completed')
     } finally {
       rmSync(root, { recursive: true, force: true })
     }

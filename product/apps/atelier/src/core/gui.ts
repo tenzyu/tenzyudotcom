@@ -255,7 +255,13 @@ export function handleGuiRequest(
   }
 
   if (route.method === 'GET' && route.pathname === '/api/runs') {
-    return jsonResponse(listRuns(projectRoot))
+    const url = new URL(`http://internal${route.pathname}`)
+    const statusParam = url.searchParams.get('status')
+    const status = statusParam === 'active' || statusParam === 'completed' ? statusParam : undefined
+    if (statusParam !== null && status === undefined) {
+      return errorResponse(400, 'BAD_REQUEST', "status must be 'active' or 'completed'")
+    }
+    return jsonResponse(listRuns(projectRoot, { status }))
   }
 
   if (route.method === 'GET' && route.pathname.startsWith('/api/runs/inspect/')) {

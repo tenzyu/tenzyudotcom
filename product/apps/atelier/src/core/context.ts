@@ -149,6 +149,35 @@ function taskSummary(task: TaskArtifact | null | undefined): ContextPlan['task']
   }
 }
 
+function shellQuote(value: string): string {
+  if (value === '') return "''"
+  return `'${value.replace(/'/g, `'\\''`)}'`
+}
+
+export function buildContextPlanNextActions(
+  intent: string,
+  inputPath: string,
+  roleIds: readonly string[],
+  taskId: string | null,
+): string[] {
+  const title = shellQuote(intent)
+  const description = shellQuote(intent)
+  const scope = inputPath
+  const roleFlags = roleIds.map((role) => `--role ${role}`).join(' ')
+  if (taskId) {
+    return [
+      `atelier run create --task ${taskId}`,
+      `atelier run resume <run-id>`,
+    ]
+  }
+  const taskCreate = `atelier task create --title ${title} --description ${description} --scope ${scope}${roleFlags ? ` ${roleFlags}` : ''}`
+  return [
+    taskCreate,
+    `atelier run create --task <task-id>`,
+    `atelier run resume <run-id>`,
+  ]
+}
+
 
 
 const TOKEN_BUDGET = 50_000
@@ -1233,7 +1262,7 @@ export function buildContextPlan(options: ContextPlanOptions): ContextPlan {
       createdRun: false,
       createdTask: false,
     },
-    nextActions: [],
+    nextActions: buildContextPlanNextActions(intent, inputPath, roleIds, task?.id ?? options.taskId ?? null),
     intent,
     mode,
     required: requiredDocuments,

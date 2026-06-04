@@ -370,6 +370,7 @@ Knowledge Plane
 Governance Plane
 Verification Plane
 Task / Product Plane
+Run Plane
 Swarm Coordination Plane
 Agent Runtime Plane
 Human Product Owner UI
@@ -494,7 +495,72 @@ release decisions
 This must be available through CLI, MCP, GUI, and later agent interaction.
 The GUI must not own independent state.
 
-### 4.5 Swarm Coordination Plane
+### 4.5 Run Plane
+
+The Run Plane materializes durable, portable, resumable task capsules. It is
+not an execution lifecycle: the CLI never invokes an LLM and never owns the
+agent runtime. It only writes, inspects, refreshes, and freezes capsules.
+
+A run capsule lives under `harness/runs/active/<run-id>/` while open and is
+moved to `harness/runs/completed/<run-id>/` on completion. A capsule contains:
+
+```text
+manifest.json
+handoff.md
+brief.md
+plan.md
+context.md
+verification.md
+review.md
+worklog.md
+artifacts.md
+```
+
+The canonical reading order is fixed and is the same for CLI, MCP, GUI, and
+adapter docs. After `manifest.json` a fresh LLM always lands on `handoff.md`
+first so it sees the latest resume point before any other durable file.
+
+```text
+manifest.json
+handoff.md
+brief.md
+plan.md
+context.md
+verification.md
+review.md
+worklog.md
+artifacts.md
+```
+
+A run capsule is created from a task via `atelier run create --task <id>`. The
+`manifest.json` carries the run id, task id, workflow id, role ids, scope,
+intent, artifact refs, validation refs, a `contextHash` for freshness, and
+links to the originating task. The `context.md` is a snapshot of the resolved
+context plan and is allowed to drift; staleness is reported, not auto-rewritten.
+
+Run surface commands are:
+
+```bash
+atelier run create --task <task-id>
+atelier run list [--status active|completed]
+atelier run inspect RUN-ID
+atelier run resume RUN-ID
+atelier run handoff RUN-ID --append <text>
+atelier run verify RUN-ID --list
+atelier run verify RUN-ID --record "<check-id>::<status>::<note>"
+atelier run complete RUN-ID
+```
+
+`atelier run resume` returns a portable resume prompt that any external LLM
+runner (Codex, opencode, ChatGPT, Claude, Gemini) or a human operator can read
+to pick up the work in progress. The CLI never launches the runner.
+
+The Run Plane is not mandatory for every task. Durable records are written only
+when handoff, review, migration, decision, or audit value justifies the
+artifact. Tasks that are completed inside a chat session may remain in the Task
+Plane only.
+
+### 4.6 Swarm Coordination Plane
 
 Swarm means permissioned division of labor, not uncontrolled parallelism.
 
@@ -510,7 +576,7 @@ BackgroundRun
 Subagents should receive reduced context and narrower permissions than parent
 tasks by default.
 
-### 4.6 Agent Runtime Plane
+### 4.7 Agent Runtime Plane
 
 Atelier may eventually host a governed tool-call loop.
 
@@ -538,7 +604,7 @@ The loop must support streaming tool-call observation, explicit retry policy,
 timeout policy, token counting, cost tracking, and safe parallel execution only
 when Policy Engine confirms no path, state, or command conflict.
 
-### 4.7 Human Product Owner UI
+### 4.8 Human Product Owner UI
 
 The target GUI is an Artifact Graph Editor and product-owner control surface,
 not a generic chat UI.
@@ -742,28 +808,24 @@ trace
 Required context remains deterministic. Semantic expansion is optional and must
 be labeled as optional.
 
-## 9. Task Records and External Runners
+## 9. Task Records, Run Capsules, and External Runners
 
-Atelier no longer manages the lifecycle of every LLM task through a CLI-owned run
-state. The current product model is:
+The current product model splits the work into three layers:
 
 ```text
-human / external LLM runner
-  -> task intent
-  -> Atelier context plan
-  -> repository edits by external runner or human
-  -> normal project validation
-  -> optional durable Markdown record
+Task Plane  -> durable work item or intent (harness/tasks/<task-id>.md)
+Run Plane   -> portable, resumable task capsule (harness/runs/...)
+Context     -> read-only preflight resolution (atelier context plan)
 ```
 
-Atelier provides preflight context planning, repository understanding, policy
-checks, control coverage, and handoff support. Execution is owned by external
-runners such as Codex, opencode, ChatGPT, Gemini, or a human operator.
+Atelier does not own the execution lifecycle of an LLM task. The Task Plane
+holds the intent, the Run Plane materializes a resumable capsule for that task
+when durable handoff is useful, and `atelier context plan` is a read-only
+resolver that picks relevant context, risks, and validation commands without
+mutating anything. External runners (Codex, opencode, ChatGPT, Claude, Gemini)
+or a human operator perform the actual edits.
 
-`harness/runs` is historical and optional human-readable record storage. It is
-useful for investigation notes, handoff notes, review findings, migration plans,
-decision records, and completed historical traces. It is not mandatory task
-state and is not created, updated, or closed by the current CLI.
+### 9.1 Task Records
 
 When a durable task record is useful, it should preserve:
 
@@ -786,6 +848,71 @@ trace
 The current task preflight artifact is a context plan, not a generated run
 directory. The plan must explain selected artifacts, skipped artifacts, risks,
 permission envelope, and relevant validation commands.
+
+### 9.2 Run Capsule
+
+For tasks that need durable handoff, review, or pause-and-resume, the Run
+Plane materializes a portable task capsule under
+`harness/runs/active/<run-id>/`. The capsule is a projection of the artifact
+graph plus the originating task, not an execution runtime. Any LLM runner can
+read the directory and resume the work.
+
+The canonical reading order is fixed and is the same for CLI, MCP, GUI, and
+adapter docs:
+
+```text
+manifest.json
+handoff.md
+brief.md
+plan.md
+context.md
+verification.md
+review.md
+worklog.md
+artifacts.md
+```
+
+Rules:
+
+- `manifest.json` is the only required-to-mutate file. It carries the run id,
+  task id, workflow id, role ids, scope, intent, artifact refs, validation
+  refs, a `contextHash` for freshness, and links to the originating task.
+- `handoff.md` is the resume point. It is the second file a fresh LLM reads
+  after `manifest.json`. It is append-only while the run is active.
+- `context.md` is a snapshot of the resolved context plan. It is allowed to
+  drift from the current artifact graph; staleness is reported, not silently
+  rewritten.
+- `worklog.md` is append-only history of what was done, what was confirmed,
+  and what was deferred.
+- `verification.md` lists executed checks, expected results, and skipped
+  checks with reasons.
+- `review.md` carries open and resolved review notes.
+- `artifacts.md` lists artifacts consumed, produced, and changed.
+
+Run commands are:
+
+```bash
+atelier run create --task <task-id>
+atelier run list [--status active|completed]
+atelier run inspect RUN-ID
+atelier run resume RUN-ID
+atelier run handoff RUN-ID --append <text>
+atelier run verify RUN-ID --list
+atelier run verify RUN-ID --record "<check-id>::<status>::<note>"
+atelier run complete RUN-ID
+```
+
+Event log:
+
+- `run_created` is emitted when a capsule is materialized.
+- `run_completed` is emitted when a capsule passes its gates and is moved to
+  `harness/runs/completed/<run-id>/`.
+- `run_started` is the deprecated v1 lifecycle event. New code must not emit
+  it; readers may still accept historical records for compatibility.
+
+The Run Plane is not mandatory for every task. Tasks that complete inside a
+single chat session may remain in the Task Plane. Durability is opted into
+when handoff, review, migration, or audit value justifies the artifact.
 
 ## 10. Commands
 
@@ -828,6 +955,19 @@ atelier task split
 atelier task assign
 atelier task status
 atelier task close
+```
+
+Run capsule authoring (Run Plane):
+
+```bash
+atelier run create --task <task-id>
+atelier run list [--status active|completed]
+atelier run inspect RUN-ID
+atelier run resume RUN-ID
+atelier run handoff RUN-ID --append <text>
+atelier run verify RUN-ID --list
+atelier run verify RUN-ID --record "<check-id>::<status>::<note>"
+atelier run complete RUN-ID
 ```
 
 Governance:
@@ -873,6 +1013,8 @@ a replacement for Git
 a replacement for existing language, build, test, or package tooling
 a system that requires every project document to be rewritten into a strict schema
 a system that forces every small code change to create durable knowledge
+a system that owns the LLM execution runtime
+a system that requires every task to materialize a run capsule
 ```
 
 Atelier may expose CLI, MCP, GUI, hooks, adapters, and agent-runtime surfaces,
