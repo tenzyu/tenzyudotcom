@@ -81,7 +81,7 @@ function docId(document: HarnessDocument): string | null {
 
 function docKind(document: HarnessDocument): ArtifactKind | null {
   const kind = textOf(document.frontmatter?.kind)
-  if (kind === 'knowledge' || kind === 'role' || kind === 'workflow' || kind === 'phase' || kind === 'policy') {
+  if (kind === 'knowledge' || kind === 'role' || kind === 'workflow' || kind === 'phase' || kind === 'policy' || kind === 'task') {
     return kind as ArtifactKind
   }
   return 'markdown'
@@ -169,7 +169,9 @@ function observeRuns(projectRoot: string): { artifacts: Artifact[]; edges: Edge[
 
   for (const runDir of [...listRunDirs(activeDir), ...listRunDirs(completedDir)]) {
     const runId = path.basename(runDir)
-    const manifestPath = path.join(runDir, 'context.manifest.json')
+    const manifestPath = existsSync(path.join(runDir, 'manifest.json'))
+      ? path.join(runDir, 'manifest.json')
+      : path.join(runDir, 'context.manifest.json')
     if (!existsSync(manifestPath)) continue
 
     const manifest = readJsonFile(manifestPath) as Record<string, unknown> | null
@@ -186,9 +188,10 @@ function observeRuns(projectRoot: string): { artifacts: Artifact[]; edges: Edge[
       metadata: {
         runId,
         workflowId: textOf(manifest.workflowId) ?? undefined,
+        taskId: textOf(manifest.taskId) ?? undefined,
         roleIds: asStringArray(manifest.roleIds),
         intent: textOf(manifest.intent) ?? undefined,
-        inputPath: textOf(manifest.inputPath) ?? undefined,
+        inputPath: textOf(manifest.inputPath) ?? textOf(manifest.scope) ?? undefined,
         completed: !active,
       },
       ownership: 'observed',

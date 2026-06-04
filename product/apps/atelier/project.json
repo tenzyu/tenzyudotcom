@@ -126,6 +126,54 @@
       },
       "cache": false
     },
+    "task-split": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/atelier",
+        "command": "bun run ./src/cli.ts task split --project-root ../../.."
+      },
+      "cache": false
+    },
+    "run-create": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/atelier",
+        "command": "bun run ./src/cli.ts run create --project-root ../../.."
+      },
+      "cache": false
+    },
+    "run-inspect": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/atelier",
+        "command": "bun run ./src/cli.ts run inspect --project-root ../../.."
+      },
+      "cache": false
+    },
+    "run-resume": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/atelier",
+        "command": "bun run ./src/cli.ts run resume --project-root ../../.."
+      },
+      "cache": false
+    },
+    "run-verify": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/atelier",
+        "command": "bun run ./src/cli.ts run verify --project-root ../../.."
+      },
+      "cache": false
+    },
+    "run-complete": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/atelier",
+        "command": "bun run ./src/cli.ts run complete --project-root ../../.."
+      },
+      "cache": false
+    },
     "role-create": {
       "executor": "nx:run-commands",
       "options": {

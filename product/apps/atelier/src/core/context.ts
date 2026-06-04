@@ -2,11 +2,10 @@ import path from 'node:path'
 import { loadHarnessDocuments, toPosixPath } from './docs'
 import { readGraph } from './graph'
 import {
-  buildContextRenderCommand,
-  buildRunInitCommand,
   enrichMissingSymbolDiagnostic,
   inferRoleIds,
 } from './llm-protocol'
+import { taskStatus, type TaskArtifact } from './tasks'
 import { asStringArray, type Diagnostic, type HarnessDocument, type SelectorV2Trace, type PermissionEnvelope } from './schema'
 
 
@@ -24,6 +23,7 @@ export type ContextPlanOptions = {
   mode?: ContextMode
   semantic?: boolean
   semanticMaxResults?: number
+  taskId?: string
 }
 
 export type ContextMode = 'compact' | 'full' | 'linked'
@@ -86,6 +86,22 @@ export type RelationTarget = {
  * risk, permissions, and budget via {@link buildGraphContextPlan} instead.
  */
 export type ContextPlan = {
+  surface: 'context'
+  taskId: string | null
+  task?: {
+    id: string
+    title: string
+    scope: string
+    assignedRoles: string[]
+    acceptanceCriteria: string
+    riskConstraints: string[]
+  }
+  effects: {
+    mutated: false
+    createdRun: false
+    createdTask: false
+  }
+  nextActions: string[]
   workflowId: string
   roleIds: string[]
   inputPath: string
@@ -100,8 +116,6 @@ export type ContextPlan = {
     limit: number
     exceeded: boolean
   }
-  nextRenderCommand: string
-  nextRunInitCommand: string
   trace: {
     selections: Array<{
       id: string | null
@@ -120,6 +134,18 @@ export type ContextPlan = {
   }
   selectorV2?: {
     traces: SelectorV2Trace[]
+  }
+}
+
+function taskSummary(task: TaskArtifact | null | undefined): ContextPlan['task'] | undefined {
+  if (!task) return undefined
+  return {
+    id: task.id,
+    title: task.title,
+    scope: task.scope,
+    assignedRoles: task.assignedRoles,
+    acceptanceCriteria: task.acceptanceCriteria,
+    riskConstraints: task.riskConstraints,
   }
 }
 
@@ -178,11 +204,12 @@ function estimateTokens(document: HarnessDocument, mode: ContextMode) {
 }
 
 function globToRegExp(pattern: string) {
+  const globStarSentinel = '___ATELIER_GLOBSTAR___'
   const escaped = pattern
     .replace(/[.+^${}()|[\]\\]/g, '\\$&')
-    .replace(/\*\*/g, '\u0000')
+    .replace(/\*\*/g, globStarSentinel)
     .replace(/\*/g, '[^/]*')
-    .replace(/\u0000/g, '.*')
+    .replaceAll(globStarSentinel, '.*')
   return new RegExp(`^${escaped}$`)
 }
 
@@ -760,8 +787,11 @@ function resolveRelations(
 /** @deprecated Use {@link buildGraphContextPlan} with Selector v2 instead. */
 export function buildContextPlan(options: ContextPlanOptions): ContextPlan {
   const projectRoot = path.resolve(options.projectRoot ?? process.cwd())
-  const inputPath = normalizedInputPath(projectRoot, options.inputPath)
-  const roleIds = inferRoleIds(projectRoot, inputPath, options.roleIds)
+  const task = options.taskId ? taskStatus(projectRoot, options.taskId).task : null
+  const inputPath = normalizedInputPath(projectRoot, task?.scope ?? options.inputPath)
+  const roleIds = task?.assignedRoles && task.assignedRoles.length > 0
+    ? task.assignedRoles
+    : inferRoleIds(projectRoot, inputPath, options.roleIds)
   const mode = normalizeContextMode(options.mode)
   const documents = loadHarnessDocuments(projectRoot)
   const documentsById = byId(documents)
@@ -850,7 +880,8 @@ export function buildContextPlan(options: ContextPlanOptions): ContextPlan {
     )
   }
 
-  const tokens = relevantTokens(inputPath, options.intent)
+  const intent = task ? `${task.title}\n${task.description}` : options.intent
+  const tokens = relevantTokens(inputPath, intent)
   const roleSelectorTags = new Set<string>()
   const roleSelectorTypes = new Set<string>()
   const roleSelectorPaths = new Set<string>()
@@ -1194,7 +1225,16 @@ export function buildContextPlan(options: ContextPlanOptions): ContextPlan {
     workflowId: options.workflowId,
     roleIds,
     inputPath,
-    intent: options.intent,
+    surface: 'context',
+    taskId: task?.id ?? options.taskId ?? null,
+    task: taskSummary(task),
+    effects: {
+      mutated: false,
+      createdRun: false,
+      createdTask: false,
+    },
+    nextActions: [],
+    intent,
     mode,
     required: requiredDocuments,
     optional: optionalDocuments,
@@ -1205,24 +1245,6 @@ export function buildContextPlan(options: ContextPlanOptions): ContextPlan {
       limit: TOKEN_BUDGET,
       exceeded: tokensEstimate > TOKEN_BUDGET,
     },
-    nextRenderCommand: buildContextRenderCommand({
-      projectRoot,
-      workflowId: options.workflowId,
-      roleIds,
-      inputPath,
-      intent: options.intent,
-      mode,
-      documents,
-    }),
-    nextRunInitCommand: buildRunInitCommand({
-      projectRoot,
-      workflowId: options.workflowId,
-      roleIds,
-      inputPath,
-      intent: options.intent,
-      mode,
-      documents,
-    }),
     trace: {
       selections: traceEntries,
     },

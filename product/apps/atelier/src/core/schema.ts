@@ -6,6 +6,7 @@ export type HarnessKind =
   | 'policy'
   | 'artifact-template'
   | 'knowledge-proposal'
+  | 'task'
   | 'run'
   | 'observation'
   | 'adapter'
@@ -103,6 +104,11 @@ export type EventKind =
   | 'artifact_edited'
   | 'artifact_deleted'
   | 'artifact_emitted'
+  | 'task_created'
+  | 'task_assigned'
+  | 'task_split'
+  | 'task_closed'
+  | 'run_created'
   | 'run_started'
   | 'run_completed'
   | 'rule_changed'
@@ -317,6 +323,7 @@ const KNOWN_KINDS = new Set<HarnessKind>([
   'policy',
   'artifact-template',
   'knowledge-proposal',
+  'task',
   'run',
   'observation',
   'adapter',

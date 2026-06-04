@@ -22,7 +22,8 @@ import {
 
 import { checkPolicy, explainPolicy, simulatePolicy } from './core/policy'
 import { listControls, buildCoverageReport, findMissingControls } from './core/controls'
-import { createTask, assignTask, taskStatus, closeTask, createRole, editRole } from './core/tasks'
+import { createTask, splitTask, assignTask, taskStatus, closeTask, createRole, editRole } from './core/tasks'
+import { appendRunHandoff, completeRun, createRun, inspectRun, listRunVerification, recordRunVerification, resumeRun } from './core/runs'
 import { reconcile, repairDryRun } from './core/reconciler'
 
 import {
@@ -45,7 +46,7 @@ function usage() {
     '  atelier status [--json] [--project-root <path>]',
     '  atelier impact --path <path> [--json] [--project-root <path>]',
     '  atelier blame ARTIFACT_ID [--json] [--project-root <path>]',
-    '  atelier context plan --workflow <id> [--role <id>] --path <path> --intent <text> [--mode compact|full|linked] [--required-only] [--json] [--project-root <path>]',
+    '  atelier context plan --workflow <id> [--role <id>] [--task <task-id>] --path <path> --intent <text> [--mode compact|full|linked] [--required-only] [--json] [--project-root <path>]',
     '  atelier controls list [--json] [--project-root <path>]',
     '  atelier controls coverage [--json] [--project-root <path>]',
     '  atelier controls missing [--json] [--project-root <path>]',
@@ -53,7 +54,14 @@ function usage() {
     '  atelier task status TASK-ID [--json]',
     '  atelier task assign TASK-ID [--role <id>] [--agent <name>] [--json]',
     '  atelier task close TASK-ID [--outcome completed|cancelled] [--json]',
-    '  atelier task split TASK-ID [--json]',
+    '  atelier task split TASK-ID --subtask "<title>::<description>" [--json]',
+    '  atelier run create --task <task-id> [--json]',
+    '  atelier run inspect RUN-ID [--json]',
+    '  atelier run resume RUN-ID [--json]',
+    '  atelier run handoff RUN-ID --append <text> [--json]',
+    '  atelier run verify RUN-ID --list [--json]',
+    '  atelier run verify RUN-ID --record "<check-id>::<status>::<note>" [--json]',
+    '  atelier run complete RUN-ID [--json]',
     '  atelier role create --id <id> --title <title> [--pinned <id>] [--json]',
     '  atelier role edit ROLE-ID [--json]',
     '  atelier policy check [--path <path>] [--command <cmd>] [--tool <name>] [--json] [--project-root <path>]',
@@ -76,7 +84,8 @@ function usage() {
     '  context  Plan task context for an external LLM runner without managing run state.',
     '  controls Observe and query control mechanisms (checks, linters, hooks, etc.).',
     '  policy   Check, explain, and simulate governance policy rules.',
-    '  task     Create, inspect, assign, and close task artifacts.',
+    '  task     Create, inspect, assign, split, and close task artifacts.',
+    '  run      Create, inspect, resume, verify, handoff, and complete run capsules.',
     '  role     Create and edit role harness documents.',
     '  reconcile Reconcile the Artifact Graph against current filesystem state.',
     '  repair    Preview what reconcile would change (dry-run).',
@@ -216,10 +225,11 @@ function printContextPlan(plan: ContextPlan) {
     console.log(`- ${formatDiagnostic(diagnostic)}`)
   }
 
-  console.log('\nNext Render Command')
-  console.log(plan.nextRenderCommand)
-  console.log('\nNext Run Init Command')
-  console.log(plan.nextRunInitCommand)
+  console.log('')
+  console.log('Context plan generated.')
+  console.log('No run capsule created.')
+  console.log('No task state mutated.')
+  console.log('Use --json or pass this plan to an external LLM runner.')
 }
 
 function hasErrorDiagnostic(diagnostics: readonly Diagnostic[]) {
@@ -711,9 +721,128 @@ export async function runCli(argv: readonly string[]) {
     const base = parseBase(restRaw)
     const taskId = base.remaining[0]
     if (!taskId) throw new Error('task split requires TASK-ID')
-    console.log('Atelier Task Split')
-    console.log('Subtask creation via CLI requires JSON input (--json-body).')
-    console.log(`Parent: ${taskId}`)
+    const specs = readRepeatedOption(base.remaining, '--subtask')
+    if (specs.length === 0) throw new Error('task split requires at least one --subtask "<title>::<description>"')
+    const subtasks = specs.map((spec) => {
+      const [title, ...descriptionParts] = spec.split('::')
+      const description = descriptionParts.join('::')
+      if (!title || !description) throw new Error('--subtask must use "<title>::<description>"')
+      return { title, description }
+    })
+    const created = splitTask({ projectRoot: base.projectRoot, taskId, subtasks })
+    if (base.json) {
+      console.log(JSON.stringify(created, null, 2))
+    } else {
+      console.log('Atelier Task Split')
+      console.log(`Parent: ${taskId}`)
+      for (const task of created) console.log(`Subtask: ${task.id} ${task.title}`)
+    }
+    return 0
+  }
+
+  if (command === 'run' && subcommand === 'create') {
+    const base = parseBase(restRaw)
+    const taskId = readRequiredOption(base.remaining, '--task')
+    const run = createRun({ projectRoot: base.projectRoot, taskId })
+    if (base.json) {
+      console.log(JSON.stringify(run, null, 2))
+    } else {
+      console.log('Atelier Run Create')
+      console.log(`Run: ${run.id}`)
+      console.log(`Task: ${run.taskId}`)
+      console.log(`Path: ${run.path}`)
+    }
+    return 0
+  }
+
+  if (command === 'run' && subcommand === 'inspect') {
+    const base = parseBase(restRaw)
+    const runId = base.remaining[0]
+    if (!runId) throw new Error('run inspect requires RUN-ID')
+    const run = inspectRun(base.projectRoot, runId)
+    if (base.json) {
+      console.log(JSON.stringify(run, null, 2))
+    } else {
+      console.log('Atelier Run Inspect')
+      console.log(`Run: ${run.id}`)
+      console.log(`Status: ${run.status}`)
+      console.log(`Task: ${run.taskId}`)
+      console.log(`Path: ${run.path}`)
+    }
+    return 0
+  }
+
+  if (command === 'run' && subcommand === 'resume') {
+    const base = parseBase(restRaw)
+    const runId = base.remaining[0]
+    if (!runId) throw new Error('run resume requires RUN-ID')
+    const resume = resumeRun(base.projectRoot, runId)
+    if (base.json) {
+      console.log(JSON.stringify(resume, null, 2))
+    } else {
+      console.log('Atelier Run Resume')
+      console.log(`Run path: ${resume.runPath}`)
+      console.log(`Reading order: ${resume.readingOrder.join(', ')}`)
+      console.log(resume.prompt)
+    }
+    return 0
+  }
+
+  if (command === 'run' && subcommand === 'handoff') {
+    const base = parseBase(restRaw)
+    const runId = base.remaining[0]
+    if (!runId) throw new Error('run handoff requires RUN-ID')
+    const text = readRequiredOption(base.remaining, '--append')
+    const run = appendRunHandoff(base.projectRoot, runId, text)
+    if (base.json) {
+      console.log(JSON.stringify(run, null, 2))
+    } else {
+      console.log('Atelier Run Handoff')
+      console.log(`Run: ${run.id}`)
+      console.log('Updated: handoff.md')
+    }
+    return 0
+  }
+
+  if (command === 'run' && subcommand === 'verify') {
+    const base = parseBase(restRaw)
+    const runId = base.remaining[0]
+    if (!runId) throw new Error('run verify requires RUN-ID')
+    if (base.remaining.includes('--list')) {
+      const records = listRunVerification(base.projectRoot, runId)
+      if (base.json) console.log(JSON.stringify(records, null, 2))
+      else {
+        console.log('Atelier Run Verify')
+        for (const record of records) console.log(`${record.checkId}: ${record.status} ${record.note}`)
+      }
+      return 0
+    }
+    const spec = readRequiredOption(base.remaining, '--record')
+    const [checkId, status, ...noteParts] = spec.split('::')
+    const note = noteParts.join('::')
+    if (!checkId || !status || !note) throw new Error('--record must use "<check-id>::<status>::<note>"')
+    const records = recordRunVerification(base.projectRoot, runId, checkId, status, note)
+    if (base.json) console.log(JSON.stringify(records, null, 2))
+    else {
+      console.log('Atelier Run Verify')
+      console.log(`Recorded: ${checkId}`)
+    }
+    return 0
+  }
+
+  if (command === 'run' && subcommand === 'complete') {
+    const base = parseBase(restRaw)
+    const runId = base.remaining[0]
+    if (!runId) throw new Error('run complete requires RUN-ID')
+    const run = completeRun(base.projectRoot, runId)
+    if (base.json) {
+      console.log(JSON.stringify(run, null, 2))
+    } else {
+      console.log('Atelier Run Complete')
+      console.log(`Run: ${run.id}`)
+      console.log(`Status: ${run.status}`)
+      console.log(`Path: ${run.path}`)
+    }
     return 0
   }
 
@@ -764,6 +893,7 @@ export async function runCli(argv: readonly string[]) {
       roleIds: roles,
       inputPath: readOptionalOption(base.remaining, '--path') ?? '.',
       intent: readRequiredOption(base.remaining, '--intent'),
+      taskId: readOptionalOption(base.remaining, '--task'),
       requiredOnly: base.remaining.includes('--required-only'),
       mode: normalizeContextMode(readOptionalOption(base.remaining, '--mode')),
     })

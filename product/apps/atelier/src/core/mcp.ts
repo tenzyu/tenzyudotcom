@@ -16,7 +16,8 @@ import {
 
 
 import { checkPolicy, explainPolicy } from './policy'
-import { createTask, assignTask, taskStatus, createRole, editRole } from './tasks'
+import { createTask, assignTask, closeTask, taskStatus } from './tasks'
+import { appendRunHandoff, completeRun, createRun, inspectRun, listRunVerification, recordRunVerification, resumeRun } from './runs'
 import { listControls, buildCoverageReport, findMissingControls } from './controls'
 
 
@@ -177,6 +178,7 @@ export function buildMcpServer(options: McpServerOptions): McpServer {
           .boolean()
           .default(false)
           .describe('Skip optional context when true.'),
+        taskId: z.string().optional().describe('Task ID to use as context source.'),
       },
     },
     async (args) => {
@@ -186,6 +188,7 @@ export function buildMcpServer(options: McpServerOptions): McpServer {
         roleIds: textArray(args.roleIds),
         inputPath: text(args.inputPath) || '.',
         intent: text(args.intent),
+        taskId: text(args.taskId) || undefined,
         mode: normalizeContextMode(text(args.mode) || 'compact'),
         requiredOnly: bool(args.requiredOnly),
         selectorV2: true,
@@ -260,34 +263,120 @@ export function buildMcpServer(options: McpServerOptions): McpServer {
 
   registerTool(
     server,
-    'atelier_role_create',
+    'atelier_task_close',
     {
-      title: 'Atelier Role Create',
-      description: 'Create a new role harness document. Requires confirm=true.',
+      title: 'Atelier Task Close',
+      description: 'Close a task artifact. Requires confirm=true.',
       inputSchema: {
-        id: z.string().describe('Role symbolic ID.'),
-        title: z.string().describe('Role title.'),
-        pinned: z.array(z.string()).optional().describe('Pinned document IDs.'),
+        taskId: z.string().describe('Task ID to close.'),
+        outcome: z.enum(['completed', 'cancelled']).optional().describe('Task close outcome.'),
         confirm: z.boolean().optional(),
       },
     },
     async (args) => {
-      requireMutation(options.allowMutations, 'atelier_role_create', boolOptional(args.confirm))
-      return toJsonResult({ id: createRole({ projectRoot, id: text(args.id), title: text(args.title), pinned: textArray(args.pinned) }) })
+      requireMutation(options.allowMutations, 'atelier_task_close', boolOptional(args.confirm))
+      return toJsonResult(closeTask(projectRoot, text(args.taskId), (text(args.outcome) || undefined) as 'completed' | 'cancelled' | undefined))
     }
   )
 
   registerTool(
     server,
-    'atelier_role_edit',
+    'atelier_run_create',
     {
-      title: 'Atelier Role Edit',
-      description: 'Preview role edits (selector impact, pinned changes). Read-only preview.',
+      title: 'Atelier Run Create',
+      description: 'Materialize a resumable run capsule. Requires confirm=true.',
       inputSchema: {
-        roleId: z.string().describe('Role ID to edit.'),
+        taskId: z.string().describe('Task ID for the run capsule.'),
+        confirm: z.boolean().optional(),
       },
     },
-    async (args) => toJsonResult(editRole(projectRoot, text(args.roleId), {}))
+    async (args) => {
+      requireMutation(options.allowMutations, 'atelier_run_create', boolOptional(args.confirm))
+      return toJsonResult(createRun({ projectRoot, taskId: text(args.taskId) }))
+    }
+  )
+
+  registerTool(
+    server,
+    'atelier_run_inspect',
+    {
+      title: 'Atelier Run Inspect',
+      description: 'Inspect a run capsule. Read-only.',
+      inputSchema: {
+        runId: z.string().describe('Run ID to inspect.'),
+      },
+    },
+    async (args) => toJsonResult(inspectRun(projectRoot, text(args.runId)))
+  )
+
+  registerTool(
+    server,
+    'atelier_run_resume',
+    {
+      title: 'Atelier Run Resume',
+      description: 'Return resume instructions for a run capsule. Read-only.',
+      inputSchema: {
+        runId: z.string().describe('Run ID to resume.'),
+      },
+    },
+    async (args) => toJsonResult(resumeRun(projectRoot, text(args.runId)))
+  )
+
+  registerTool(
+    server,
+    'atelier_run_handoff',
+    {
+      title: 'Atelier Run Handoff',
+      description: 'Append handoff text to a run capsule. Requires confirm=true.',
+      inputSchema: {
+        runId: z.string().describe('Run ID to update.'),
+        text: z.string().describe('Handoff text to append.'),
+        confirm: z.boolean().optional(),
+      },
+    },
+    async (args) => {
+      requireMutation(options.allowMutations, 'atelier_run_handoff', boolOptional(args.confirm))
+      return toJsonResult(appendRunHandoff(projectRoot, text(args.runId), text(args.text)))
+    }
+  )
+
+  registerTool(
+    server,
+    'atelier_run_verify',
+    {
+      title: 'Atelier Run Verify',
+      description: 'List or record verification for a run capsule. Recording requires confirm=true.',
+      inputSchema: {
+        runId: z.string().describe('Run ID to verify.'),
+        checkId: z.string().optional().describe('Check ID to record.'),
+        status: z.string().optional().describe('Verification status.'),
+        note: z.string().optional().describe('Verification note.'),
+        confirm: z.boolean().optional(),
+      },
+    },
+    async (args) => {
+      const checkId = text(args.checkId)
+      if (!checkId) return toJsonResult(listRunVerification(projectRoot, text(args.runId)))
+      requireMutation(options.allowMutations, 'atelier_run_verify', boolOptional(args.confirm))
+      return toJsonResult(recordRunVerification(projectRoot, text(args.runId), checkId, text(args.status), text(args.note)))
+    }
+  )
+
+  registerTool(
+    server,
+    'atelier_run_complete',
+    {
+      title: 'Atelier Run Complete',
+      description: 'Complete a run capsule after gates pass. Requires confirm=true.',
+      inputSchema: {
+        runId: z.string().describe('Run ID to complete.'),
+        confirm: z.boolean().optional(),
+      },
+    },
+    async (args) => {
+      requireMutation(options.allowMutations, 'atelier_run_complete', boolOptional(args.confirm))
+      return toJsonResult(completeRun(projectRoot, text(args.runId)))
+    }
   )
 
   registerTool(
@@ -402,6 +491,16 @@ export const MCP_TOOL_NAMES = [
   'atelier_graph',
   'atelier_graph_status',
   'atelier_context_plan',
+  'atelier_task_create',
+  'atelier_task_status',
+  'atelier_task_assign',
+  'atelier_task_close',
+  'atelier_run_create',
+  'atelier_run_inspect',
+  'atelier_run_resume',
+  'atelier_run_handoff',
+  'atelier_run_verify',
+  'atelier_run_complete',
   'atelier_reconcile',
   'atelier_repair',
   'atelier_controls_list',

@@ -2,6 +2,10 @@
   "extends": "../../../tsconfig.next.json",
   "compilerOptions": {
     "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
+    "types": [
+      "bun-types"
+    ],
     "paths": {
       "@/*": [
         "./src/*"

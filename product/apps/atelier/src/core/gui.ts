@@ -15,6 +15,7 @@ import {
 import { createTask, assignTask, taskStatus, closeTask, createRole, editRole, listTasks } from './tasks'
 import { listControls, buildCoverageReport, findMissingControls } from './controls'
 import { checkPolicy, explainPolicy } from './policy'
+import { appendRunHandoff, completeRun, createRun, inspectRun, listRuns, listRunVerification, recordRunVerification, resumeRun } from './runs'
 
 
 
@@ -62,6 +63,14 @@ function readJsonBody(raw: string): unknown {
 
 function textOf(value: unknown) {
   return typeof value === 'string' ? value : null
+}
+
+function stringArray(value: unknown) {
+  return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : undefined
+}
+
+function mutationAllowed(options: GuiServerOptions, body: Record<string, unknown>) {
+  return options.allowMutations || body.confirm === true
 }
 
 function isPathInside(parent: string, child: string) {
@@ -209,7 +218,7 @@ export function handleGuiRequest(
         description,
         phase: textOf(body.phase) ?? undefined,
         scope: textOf(body.scope) ?? undefined,
-        assignedRoles: Array.isArray(body.roleIds) ? body.roleIds.filter((r): r is string => typeof r === 'string') : undefined,
+        assignedRoles: stringArray(body.roleIds),
         parentTask: textOf(body.parentTask) ?? null,
       })
       return jsonResponse(task)
@@ -226,7 +235,7 @@ export function handleGuiRequest(
       return jsonResponse(assignTask({
         projectRoot,
         taskId,
-        roleIds: Array.isArray(body.roleIds) ? body.roleIds.filter((r): r is string => typeof r === 'string') : undefined,
+        roleIds: stringArray(body.roleIds),
         agent: textOf(body.agent) ?? undefined,
       }))
     } catch (error) {
@@ -245,13 +254,87 @@ export function handleGuiRequest(
     }
   }
 
+  if (route.method === 'GET' && route.pathname === '/api/runs') {
+    return jsonResponse(listRuns(projectRoot))
+  }
+
+  if (route.method === 'GET' && route.pathname.startsWith('/api/runs/inspect/')) {
+    const runId = route.pathname.slice('/api/runs/inspect/'.length)
+    if (!runId) return errorResponse(400, 'BAD_REQUEST', 'runId is required.')
+    return jsonResponse(inspectRun(projectRoot, runId))
+  }
+
+  if (route.method === 'GET' && route.pathname.startsWith('/api/runs/resume/')) {
+    const runId = route.pathname.slice('/api/runs/resume/'.length)
+    if (!runId) return errorResponse(400, 'BAD_REQUEST', 'runId is required.')
+    return jsonResponse(resumeRun(projectRoot, runId))
+  }
+
+  if (route.method === 'POST' && route.pathname === '/api/runs/create') {
+    try {
+      const body = readJsonBody(rawBody) as Record<string, unknown>
+      if (!mutationAllowed(options, body)) return errorResponse(403, 'MUTATION_REFUSED', 'confirm=true is required unless mutations are enabled.')
+      const taskId = textOf(body.taskId)
+      if (!taskId) return errorResponse(400, 'BAD_REQUEST', 'taskId is required.')
+      return jsonResponse(createRun({ projectRoot, taskId }))
+    } catch (error) {
+      return errorResponse(400, 'BAD_REQUEST', error instanceof Error ? error.message : String(error))
+    }
+  }
+
+  if (route.method === 'POST' && route.pathname === '/api/runs/handoff') {
+    try {
+      const body = readJsonBody(rawBody) as Record<string, unknown>
+      if (!mutationAllowed(options, body)) return errorResponse(403, 'MUTATION_REFUSED', 'confirm=true is required unless mutations are enabled.')
+      const runId = textOf(body.runId)
+      const text = textOf(body.text)
+      if (!runId || !text) return errorResponse(400, 'BAD_REQUEST', 'runId and text are required.')
+      return jsonResponse(appendRunHandoff(projectRoot, runId, text))
+    } catch (error) {
+      return errorResponse(400, 'BAD_REQUEST', error instanceof Error ? error.message : String(error))
+    }
+  }
+
+  if (route.method === 'GET' && route.pathname.startsWith('/api/runs/verify/')) {
+    const runId = route.pathname.slice('/api/runs/verify/'.length)
+    if (!runId) return errorResponse(400, 'BAD_REQUEST', 'runId is required.')
+    return jsonResponse(listRunVerification(projectRoot, runId))
+  }
+
+  if (route.method === 'POST' && route.pathname === '/api/runs/verify') {
+    try {
+      const body = readJsonBody(rawBody) as Record<string, unknown>
+      if (!mutationAllowed(options, body)) return errorResponse(403, 'MUTATION_REFUSED', 'confirm=true is required unless mutations are enabled.')
+      const runId = textOf(body.runId)
+      const checkId = textOf(body.checkId)
+      const status = textOf(body.status)
+      const note = textOf(body.note)
+      if (!runId || !checkId || !status || !note) return errorResponse(400, 'BAD_REQUEST', 'runId, checkId, status, and note are required.')
+      return jsonResponse(recordRunVerification(projectRoot, runId, checkId, status, note))
+    } catch (error) {
+      return errorResponse(400, 'BAD_REQUEST', error instanceof Error ? error.message : String(error))
+    }
+  }
+
+  if (route.method === 'POST' && route.pathname === '/api/runs/complete') {
+    try {
+      const body = readJsonBody(rawBody) as Record<string, unknown>
+      if (!mutationAllowed(options, body)) return errorResponse(403, 'MUTATION_REFUSED', 'confirm=true is required unless mutations are enabled.')
+      const runId = textOf(body.runId)
+      if (!runId) return errorResponse(400, 'BAD_REQUEST', 'runId is required.')
+      return jsonResponse(completeRun(projectRoot, runId))
+    } catch (error) {
+      return errorResponse(400, 'BAD_REQUEST', error instanceof Error ? error.message : String(error))
+    }
+  }
+
   if (route.method === 'POST' && route.pathname === '/api/roles/create') {
     try {
       const body = readJsonBody(rawBody) as Record<string, unknown>
       const id = textOf(body.id)
       const title = textOf(body.title)
       if (!id || !title) return errorResponse(400, 'BAD_REQUEST', 'id and title are required.')
-      return jsonResponse({ id: createRole({ projectRoot, id, title, pinned: Array.isArray(body.pinned) ? body.pinned.filter((p): p is string => typeof p === 'string') : undefined }) })
+      return jsonResponse({ id: createRole({ projectRoot, id, title, pinned: stringArray(body.pinned) }) })
     } catch (error) {
       return errorResponse(400, 'BAD_REQUEST', error instanceof Error ? error.message : String(error))
     }

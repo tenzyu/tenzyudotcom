@@ -4,6 +4,7 @@ import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
+import { MCP_TOOL_NAMES } from '../core/mcp'
 
 const PROJECT_ROOT = mkdtempSync(path.join(tmpdir(), 'atelier-mcp-'))
 const SCRIPT = path.resolve(import.meta.dir, '../cli.ts')
@@ -96,12 +97,16 @@ describe('MCP server', () => {
     try {
       const result = await client.listTools()
       const names = result.tools.map((tool) => tool.name).sort()
+      expect(names).toEqual([...MCP_TOOL_NAMES].sort())
       expect(names).toContain('atelier_doctor')
       expect(names).toContain('atelier_scan')
       expect(names).toContain('atelier_context_plan')
       expect(names).toContain('atelier_reconcile')
       expect(names).toContain('atelier_repair')
       expect(names).toContain('atelier_policy_check')
+      expect(names).toContain('atelier_task_close')
+      expect(names).toContain('atelier_run_create')
+      expect(names).toContain('atelier_run_complete')
 
       expect(names).toContain('atelier_reconcile')
     } finally {

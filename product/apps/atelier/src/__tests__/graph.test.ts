@@ -57,6 +57,16 @@ function setupTestProject() {
 
   writeTestFile('product/apps/web/src/app.ts', "console.log('hello')\n")
   writeTestFile('product/apps/web/src/lib.ts', "export const x = 1\n")
+  writeTestFile('harness/tasks/task.test.md', [
+    '---',
+    'schema: harness/v1',
+    'kind: task',
+    'id: task.test',
+    'title: Test Task',
+    'status: pending',
+    '---',
+    'Task body',
+  ].join('\n'))
 
   mkdirSync(path.join(TEST_ROOT, '.harness/generated'), { recursive: true })
   writeTestFile('.harness/generated/role-bundles.json', JSON.stringify([
@@ -122,6 +132,9 @@ describe('graph module', () => {
 
     const runArtifacts = result.graph.artifacts.filter((a) => a.kind === 'run')
     expect(runArtifacts.length).toBeGreaterThanOrEqual(1)
+
+    const taskArtifacts = result.graph.artifacts.filter((a) => a.kind === 'task')
+    expect(taskArtifacts.length).toBeGreaterThanOrEqual(1)
 
     const generatedArtifacts = result.graph.artifacts.filter((a) => a.kind === 'generated-file')
     expect(generatedArtifacts.length).toBeGreaterThanOrEqual(8)

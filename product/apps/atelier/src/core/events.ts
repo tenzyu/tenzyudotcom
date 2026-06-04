@@ -68,8 +68,28 @@ export function createRunStartedEvent(runId: string, workflowId: string, source:
   return createEvent('run_started', { runId, workflowId }, source)
 }
 
+export function createRunCreatedEvent(runId: string, taskId: string, source: string): AtelierEvent {
+  return createEvent('run_created', { runId, taskId }, source)
+}
+
 export function createRunCompletedEvent(runId: string, ok: boolean, source: string): AtelierEvent {
   return createEvent('run_completed', { runId, ok }, source)
+}
+
+export function createTaskCreatedEvent(taskId: string, source: string): AtelierEvent {
+  return createEvent('task_created', { taskId }, source)
+}
+
+export function createTaskAssignedEvent(taskId: string, source: string): AtelierEvent {
+  return createEvent('task_assigned', { taskId }, source)
+}
+
+export function createTaskSplitEvent(taskId: string, childTaskIds: string[], source: string): AtelierEvent {
+  return createEvent('task_split', { taskId, childTaskIds }, source)
+}
+
+export function createTaskClosedEvent(taskId: string, outcome: string, source: string): AtelierEvent {
+  return createEvent('task_closed', { taskId, outcome }, source)
 }
 
 export function createReconciliationFindingEvent(finding: ReconciliationFinding, source: string): AtelierEvent {

@@ -64,9 +64,9 @@ describe('tasks module', () => {
     createTask({ projectRoot: TEST_ROOT, title: 'Test event', description: 'Check event logging' })
 
     const events = readEvents(TEST_ROOT)
-    const taskEvent = events.find((e) => e.kind === 'artifact_observed')
+    const taskEvent = events.find((e) => e.kind === 'task_created')
     expect(taskEvent).toBeDefined()
-    expect(taskEvent!.payload.kind).toBe('task')
+    expect(taskEvent!.payload.taskId).toMatch(/^task\./)
   })
 
   test('taskStatus returns task details', () => {
@@ -197,5 +197,9 @@ describe('tasks module', () => {
 
     expect(task.riskConstraints).toEqual(['no-root-access', 'audit-log'])
     expect(task.acceptanceCriteria).toBe('All tests pass')
+
+    const result = taskStatus(TEST_ROOT, task.id)
+    expect(result.task!.riskConstraints).toEqual(['no-root-access', 'audit-log'])
+    expect(result.task!.acceptanceCriteria).toBe('All tests pass')
   })
 })

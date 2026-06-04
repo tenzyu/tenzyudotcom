@@ -27,23 +27,35 @@ export { loadHarnessDocuments, strictnessForPath, extractMarkdownLinks, sha256Te
 export { parseFrontmatter, type ParsedFrontmatter } from './core/frontmatter'
 export { handleGuiRequest, listGuiStaticFiles, type GuiResponse, type GuiRoute, type GuiServerOptions } from './core/gui'
 export {
-  buildContextRenderCommand,
-  buildRunInitCommand,
   diagnosticMessageWithRecovery,
   inferRoleIds,
   listAtelierRegistryEntries,
-  nextActionsForRunInit,
   recoveryLinesForDiagnostic,
   renderEntrypointProtocol,
-  runPolicyForWorkflow,
   suggestSymbolicIds,
   type AtelierNextAction,
   type AtelierRegistryEntry,
-  type AtelierRunPolicy,
 } from './core/llm-protocol'
 export { MCP_TOOL_NAMES, buildMcpServer, runMcpServer, type McpServerOptions } from './core/mcp'
 
 
+export {
+  appendRunHandoff,
+  completeRun,
+  createRun,
+  inspectRun,
+  listRuns,
+  listRunVerification,
+  recordRunVerification,
+  requiredRunFiles,
+  resumeRun,
+  type CreateRunOptions,
+  type ResumeRunResult,
+  type RunCapsule,
+  type RunCapsuleManifest,
+  type RunStatus,
+  type VerificationRecord,
+} from './core/runs'
 export {
   appendEvent,
   buildContentHashIndex,
@@ -57,6 +69,7 @@ export {
   createFileDeletedEvent,
   createFileMovedEvent,
   createReconciliationFindingEvent,
+  createRunCreatedEvent,
   createRunCompletedEvent,
   createRunStartedEvent,
   generateEventId,

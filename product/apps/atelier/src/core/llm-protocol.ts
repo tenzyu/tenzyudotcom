@@ -4,8 +4,6 @@
  * @deprecated Delete after Phase 3 (context.ts/runs.ts removal).
  */
 
-import path from 'node:path'
-
 import { loadHarnessDocuments } from './docs'
 import type { Diagnostic, HarnessDocument } from './schema'
 
@@ -17,35 +15,14 @@ export type AtelierRegistryEntry = {
   summary: string | null
 }
 
-export type AtelierRunPolicy = {
-  editAllowed: boolean
-  purpose: 'implementation' | 'investigation' | 'review'
-}
-
 export type AtelierNextAction =
   | { kind: 'read_file'; path: string }
   | { kind: 'shell'; command: string }
 
-type EntrypointOptions = {
-  projectRoot?: string
-  documents?: readonly HarnessDocument[]
-  workflowId?: string
-  roleIds?: readonly string[]
-  inputPath?: string
-  intent?: string
-  mode?: string
-}
-
-const DEFAULT_WORKFLOW_ID = 'workflow.isolated-run'
 const DEFAULT_ROLE_ID = 'role.core.implementer'
 
 function textOf(value: unknown): string | null {
   return typeof value === 'string' && value.trim() ? value.trim() : null
-}
-
-function shellArg(value: string) {
-  if (/^[A-Za-z0-9_./:=@+-]+$/.test(value)) return value
-  return JSON.stringify(value)
 }
 
 function idOf(document: HarnessDocument) {
@@ -101,48 +78,6 @@ export function inferRoleIds(
   return [firstExistingId(documents, 'role', DEFAULT_ROLE_ID)]
 }
 
-export function buildRunInitCommand(options: EntrypointOptions = {}) {
-  const documents = options.documents ?? []
-  const workflowId =
-    options.workflowId ??
-    (documents.length > 0
-      ? firstExistingId(documents, 'workflow', DEFAULT_WORKFLOW_ID)
-      : DEFAULT_WORKFLOW_ID)
-  const roleIds =
-    options.roleIds && options.roleIds.length > 0
-      ? [...options.roleIds]
-      : [
-          documents.length > 0
-            ? firstExistingId(documents, 'role', DEFAULT_ROLE_ID)
-            : DEFAULT_ROLE_ID,
-        ]
-  const inputPath = options.inputPath ?? '.'
-  const intent = options.intent ?? '<request>'
-  const mode = options.mode
-
-  return [
-    'atelier run init',
-    `--workflow ${shellArg(workflowId)}`,
-    ...roleIds.map((roleId) => `--role ${shellArg(roleId)}`),
-    `--path ${shellArg(inputPath)}`,
-    `--intent ${shellArg(intent)}`,
-    mode ? `--mode ${shellArg(mode)}` : '',
-  ]
-    .filter(Boolean)
-    .join(' ')
-}
-
-export function buildContextRenderCommand(options: Required<EntrypointOptions>) {
-  return [
-    'atelier context render',
-    `--workflow ${shellArg(options.workflowId)}`,
-    ...options.roleIds.map((roleId) => `--role ${shellArg(roleId)}`),
-    `--path ${shellArg(options.inputPath)}`,
-    `--intent ${shellArg(options.intent)}`,
-    `--mode ${shellArg(options.mode)}`,
-  ].join(' ')
-}
-
 export function recoveryLinesForDiagnostic(diagnostic: Diagnostic) {
   const suggestions = Array.isArray(diagnostic.details?.suggestions)
     ? diagnostic.details.suggestions.filter((value): value is string => typeof value === 'string')
@@ -169,36 +104,6 @@ export function diagnosticMessageWithRecovery(diagnostic: Diagnostic) {
     `${diagnostic.code}: ${diagnostic.message}`,
     ...recoveryLinesForDiagnostic(diagnostic),
   ].join('\n')
-}
-
-export function runPolicyForWorkflow(workflowId: string): AtelierRunPolicy {
-  const requiresConfirm = ['workflow.swarm', 'workflow.governed'].includes(workflowId)
-  return {
-    editAllowed: !requiresConfirm,
-    purpose: workflowId.startsWith('workflow.audit') ? 'review' : 'implementation',
-  }
-}
-
-export function nextActionsForRunInit(
-  projectRoot: string,
-  contextPath: string,
-  workflowId: string
-): AtelierNextAction[] {
-  const relativeContextPath = path.relative(projectRoot, contextPath).split(path.sep).join('/')
-  const actions: AtelierNextAction[] = [
-    { kind: 'read_file', path: relativeContextPath },
-  ]
-
-  const policy = runPolicyForWorkflow(workflowId)
-  if (policy.purpose === 'review') {
-    actions.push(
-      { kind: 'shell', command: 'git status --short' },
-      { kind: 'shell', command: 'git diff --stat' },
-      { kind: 'shell', command: 'git diff --name-only' }
-    )
-  }
-
-  return actions
 }
 
 export function suggestSymbolicIds(
@@ -257,27 +162,11 @@ export function enrichMissingSymbolDiagnostic(
     options.documents,
     options.kind
   )
-  const retryWorkflowId =
-    options.kind === 'workflow' ? suggestions[0] ?? options.workflowId : options.workflowId
-  const retryRoleIds =
-    options.kind === 'role'
-      ? options.roleIds.map((roleId) =>
-          roleId === options.requestedId ? suggestions[0] ?? roleId : roleId
-        )
-      : options.roleIds
-
   return {
     ...diagnostic,
     details: {
       ...(diagnostic.details ?? {}),
       suggestions,
-      retryCommand: buildRunInitCommand({
-        workflowId: retryWorkflowId,
-        roleIds: retryRoleIds,
-        inputPath: options.inputPath,
-        intent: options.intent,
-        mode: options.mode,
-      }),
     },
   }
 }

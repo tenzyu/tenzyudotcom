@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
-import { appendEvent, createEvent, createRunCompletedEvent, generateEventId } from './events'
+import { appendEvent, createEvent, createTaskAssignedEvent, createTaskClosedEvent, createTaskCreatedEvent, createTaskSplitEvent, generateEventId } from './events'
 import { loadHarnessDocuments } from './docs'
 import type { HarnessDocument } from './schema'
 
@@ -147,9 +147,13 @@ export function createTask(options: TaskCreateOptions): TaskArtifact {
     scope: task.scope,
     assigned_roles: task.assignedRoles,
     assigned_agent: task.assignedAgent,
+    acceptance_criteria: task.acceptanceCriteria,
+    risk_constraints: task.riskConstraints,
+    subtasks: task.subtasks,
+    created_at: task.createdAt,
+    updated_at: task.updatedAt,
   }
   if (task.parentTask) fmData.parent_task = task.parentTask
-  if (task.riskConstraints.length > 0) fmData.risk_constraints = task.riskConstraints
 
   const content = [
     frontmatterYaml(fmData),
@@ -163,7 +167,7 @@ export function createTask(options: TaskCreateOptions): TaskArtifact {
 
   writeFileSync(taskFilePath(projectRoot, taskId), content)
 
-  appendEvent(projectRoot, createEvent('artifact_observed', { id: taskId, kind: 'task', path: `harness/tasks/${taskId}.md` }, 'tasks.ts'))
+  appendEvent(projectRoot, createTaskCreatedEvent(taskId, 'tasks.ts'))
 
   return task
 }
@@ -184,11 +188,11 @@ export function splitTask(options: TaskSplitOptions): TaskArtifact[] {
 
     parent.subtasks.push(child.id)
 
-    appendEvent(projectRoot, createEvent('artifact_observed', { id: child.id, kind: 'task', parentTask: options.taskId }, 'tasks.ts'))
   }
 
   parent.updatedAt = currentTimestamp()
   writeTaskFile(projectRoot, parent)
+  appendEvent(projectRoot, createTaskSplitEvent(options.taskId, created.map((task) => task.id), 'tasks.ts'))
 
   return created
 }
@@ -204,7 +208,7 @@ export function assignTask(options: TaskAssignOptions): TaskArtifact {
 
   writeTaskFile(projectRoot, task)
 
-  appendEvent(projectRoot, createEvent('artifact_edited', { id: task.id, kind: 'task', assignedRoles: task.assignedRoles, assignedAgent: task.assignedAgent }, 'tasks.ts'))
+  appendEvent(projectRoot, createTaskAssignedEvent(task.id, 'tasks.ts'))
 
   return task
 }
@@ -224,7 +228,7 @@ export function closeTask(projectRoot: string, taskId: string, outcome?: 'comple
 
   writeTaskFile(root, task)
 
-  appendEvent(root, createRunCompletedEvent(taskId, task.status === 'completed', 'tasks.ts'))
+  appendEvent(root, createTaskClosedEvent(taskId, task.status, 'tasks.ts'))
 
   return task
 }
@@ -301,8 +305,7 @@ export function editRole(projectRoot: string, roleId: string, changes: Partial<R
 
   if (changes.pinned) {
     preview.push(`pinned: ${changes.pinned.join(', ')}`)
-    const reindexHint = 'Re-run `atelier index` to refresh generated indexes'
-    preview.push(`[impact] ${reindexHint}`)
+    preview.push('[impact] Re-run scan/status checks to refresh observed graph state')
   }
 
   if (changes.title) {
@@ -355,7 +358,7 @@ function readTask(projectRoot: string, taskId: string): TaskArtifact | null {
       scope: String(fm.scope ?? '.'),
       assignedRoles: Array.isArray(assignedRolesRaw) ? assignedRolesRaw as string[] : typeof assignedRolesRaw === 'string' ? [assignedRolesRaw] : [],
       assignedAgent: fm.assigned_agent ? String(fm.assigned_agent) : null,
-      acceptanceCriteria: '',
+      acceptanceCriteria: String(fm.acceptance_criteria ?? ''),
       riskConstraints: Array.isArray(riskConstraintsRaw) ? riskConstraintsRaw as string[] : typeof riskConstraintsRaw === 'string' ? [riskConstraintsRaw] : [],
       parentTask: fm.parent_task ? String(fm.parent_task) : null,
       subtasks: Array.isArray(subtasksRaw) ? subtasksRaw as string[] : typeof subtasksRaw === 'string' ? [subtasksRaw] : [],
@@ -395,6 +398,7 @@ function writeTaskFile(projectRoot: string, task: TaskArtifact): void {
     scope: task.scope,
     assigned_roles: task.assignedRoles,
     assigned_agent: task.assignedAgent,
+    acceptance_criteria: task.acceptanceCriteria,
     parent_task: task.parentTask || undefined,
     subtasks: task.subtasks,
     created_at: task.createdAt,

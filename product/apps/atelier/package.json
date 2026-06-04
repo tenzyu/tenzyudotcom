@@ -16,7 +16,8 @@
     "test": "bun test",
     "check": "bun run typecheck && bun run test",
     "doctor": "bun run ./src/cli.ts doctor",
-    "context": "bun run ./src/cli.ts context plan"
+    "context": "bun run ./src/cli.ts context plan",
+    "run-capsule": "bun run ./src/cli.ts run"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

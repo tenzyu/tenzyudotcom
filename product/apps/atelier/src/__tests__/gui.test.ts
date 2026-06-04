@@ -4,6 +4,7 @@ import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { startGuiServer } from '../core/gui-server'
 import { handleGuiRequest } from '../core/gui'
+import { createTask } from '../core/tasks'
 
 const PROJECT_ROOT = mkdtempSync(path.join(tmpdir(), 'atelier-gui-'))
 
@@ -121,5 +122,26 @@ describe('GUI HTTP API', () => {
       { projectRoot: PROJECT_ROOT, allowMutations: false }
     )
     expect(response.status).toBe(404)
+  })
+
+  test('Run Capsules API creates and lists runs', () => {
+    const task = createTask({ projectRoot: PROJECT_ROOT, title: 'GUI run', description: 'Create GUI run' })
+    const created = handleGuiRequest(
+      { method: 'POST', pathname: '/api/runs/create' },
+      JSON.stringify({ taskId: task.id, confirm: true }),
+      { projectRoot: PROJECT_ROOT, allowMutations: false }
+    )
+    expect(created.status).toBe(200)
+    const run = JSON.parse(created.body)
+    expect(run.id).toMatch(/^RUN-/)
+
+    const listed = handleGuiRequest(
+      { method: 'GET', pathname: '/api/runs' },
+      '',
+      { projectRoot: PROJECT_ROOT, allowMutations: false }
+    )
+    expect(listed.status).toBe(200)
+    const runs = JSON.parse(listed.body)
+    expect(runs.some((entry: { id: string }) => entry.id === run.id)).toBe(true)
   })
 })
