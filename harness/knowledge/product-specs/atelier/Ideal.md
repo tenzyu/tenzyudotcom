@@ -30,17 +30,27 @@ If this document conflicts with `contract.md`, the conflict must be treated as a
 
 `GOAL.md` is no longer required as an active canonical document. The active product ideal belongs here.
 
+This document is the philosophy root. It deliberately links only to `GRAPH_SEMANTICS.md` and `ADAPTER_CONTRACT.md`. All other implementation concerns belong in `contract.md`, the test matrix, the surfaces document, and the roadmap.
+
 ## Product Thesis
 
-Atelier is a runtime-agnostic artifact operating layer for coding agents, human product owners, and repository-local software work.
+Atelier is a repository-native artifact alignment layer for agentic software development.
 
-It treats implicit knowledge, Markdown, tests, checks, skills, linters, roles, permissions, hooks, tasks, product specs, traces, verification records, reviews, prompts, run handoffs, source files, and configuration as project artifacts.
+It is runtime-agnostic. It treats implicit knowledge, Markdown, tests, checks, skills, linters, roles, permissions, hooks, tasks, product specs, traces, verification records, reviews, prompts, run handoffs, source files, and configuration as graph-managed project artifacts.
 
 Atelier does not exist to directly control agents.
 
 Atelier exists to resolve, contextualize, transform, verify, and present project artifacts so that external coding agents can work with high freedom while the repository remains able to reject unacceptable outcomes.
 
 The source of truth remains the repository. Derived resolution state may exist under `.atelier`, but `.atelier` must never become the only location where product truth exists.
+
+## Artifact Alignment
+
+The world-class problem Atelier addresses is **artifact alignment**: the property that every project-relevant object has a stable identity, an authority level, a known provenance, explicit relations, a maturity stage, and a verification status, so that an external agent can know what matters and the repository can mechanically reject unacceptable outcomes.
+
+Artifact alignment is achieved by the artifact graph plus the evidence lifecycle, the verification gates, and the human acceptance events. The graph alone does not solve artifact alignment. The graph is the central mechanism; the lifecycle, the gates, and the acceptance events are the other three. The four together make artifact alignment real.
+
+The graph kernel's schema, identity model, authority model, hash rules, regeneration rules, and stale detection are defined in `GRAPH_SEMANTICS.md`. The verification substrate is in `VERIFICATION_SCHEMA.md`. The acceptance event model is in `EVENT_MODEL.md`. The ideal does not redefine them; the ideal is consistent with them.
 
 ## The World-Class Problem
 
@@ -61,6 +71,38 @@ As coding agents become stronger and more parallel, this problem grows. A strong
 
 Atelier addresses this by making the repository carry the artifacts, relations, transformations, evidence, and handoff state required to coordinate coding agents without making any one runtime the owner of the project.
 
+## Three Artifact Classes
+
+Every artifact in the Atelier universe belongs to exactly one of three classes. The class determines placement, ownership, deletion behavior, and acceptance.
+
+```txt
+Source Artifact:
+  Authored or externally meaningful repository material.
+  Lives anywhere in the repository except .atelier/.
+  Durable product truth.
+
+Accepted Durable Evidence:
+  Verification records, review records, accepted decisions, and
+  accepted transformation receipts that the repository has chosen
+  to keep outside .atelier/.
+  Lives anywhere in the repository except .atelier/.
+  Durable product truth.
+  Promoted from a source artifact or a candidate only by an
+  explicit acceptance event.
+
+Derived State:
+  Generated resolution, cache, index, trace, or debug output.
+  Lives exclusively under .atelier/.
+  Regenerable.
+  Must not be the only place product truth lives.
+```
+
+The class boundary is defined by an explicit acceptance event, not by file extension or path prefix. `.atelier` is not product truth.
+
+Product truth is the union of source artifacts and accepted durable evidence. Derived state is generated from product truth plus documented external inputs; it is not downstream of accepted durable evidence. The linear transition diagram from the v4 spec was incorrect. The corrected model is in `GRAPH_SEMANTICS.md` §2.4.
+
+The detailed class rules, identity model, and promotion rules are defined in `GRAPH_SEMANTICS.md`.
+
 ## Current Slice: Attention Management
 
 The current implementation focus is only the first slice of the ideal.
@@ -79,7 +121,7 @@ Attention Management determines, for a specific task, role, phase, path, and int
 - which selected artifacts need a resolution trace;
 - which artifacts are stale, missing, conflicting, or unsafe to trust.
 
-This is roughly the first ten percent of Atelier.
+This is the first implementation slice (illustrative estimate, not a precise percentage). The remainder of the product is the artifact graph kernel, the verification layer, the transformation system, the runtime adapter contract, and the human product owner surface.
 
 `atelier context plan` is only one surface over Attention Management. It must not be mistaken for the whole product.
 
@@ -87,11 +129,9 @@ This is roughly the first ten percent of Atelier.
 
 Atelier is not merely a context planner.
 
-The larger ideal is an artifact transformation system.
+The larger ideal is an artifact transformation system with a verifiable, runtime-agnostic execution surface.
 
-Atelier should be able to transform artifacts across representations while preserving source identity and provenance.
-
-Examples:
+Atelier should be able to transform artifacts across representations while preserving source identity and provenance. Examples:
 
 ```txt
 Markdown knowledge -> check
@@ -114,17 +154,19 @@ verification record -> roadmap update
 run history -> product insight
 ```
 
+These are long-term transformation possibilities, not active MVP commitments. The MVP is the narrow end-to-end loop defined in `ROADMAP.md` Phase 1; transformation pilots come in Phase 3 after the accepted evidence lifecycle is stable.
+
 The ideal is not to collapse everything into Markdown.
 
-The ideal is to let each artifact remain independently meaningful while Atelier manages the graph of relations, affordances, transformations, maturity, and enforcement around it.
+The ideal is to let each artifact remain independently meaningful while Atelier manages the graph of relations, affordances, transformations, maturity, and enforcement around it. A transformation may derive a new artifact from an old one, but the source artifact remains identifiable.
 
 ## Positioning Thesis
 
-Coding agents are workers. Agent runtimes are workplaces. Atelier is the artifact operating layer that tells the workplace what matters, proves what happened, and turns the residue of work back into product knowledge.
+Coding agents are workers. Agent runtimes are workplaces. Atelier is the repository-native artifact alignment layer that tells the workplace what matters, proves what happened, and turns the residue of work back into product knowledge.
 
 Atelier should not compete by becoming the best coding agent, IDE, CI runner, task manager, or agent orchestration runtime.
 
-Atelier should sit between the human product owner, the repository, and external agent runtimes:
+Atelier sits between the human product owner, the repository, and external agent runtimes:
 
 ```txt
 Human Product Owner
@@ -140,9 +182,9 @@ Atelier
 Human Product Owner
 ```
 
-The strategic wedge is Attention plus Verification. The durable product becomes Artifact Graph plus Transformation plus Human Product Owner UI.
+The strategic wedge is Attention plus Verification plus Generic Runtime Packet Export. The durable product becomes Artifact Graph plus Transformation plus Human Product Owner UI.
 
-See `POSITIONING.md` for the detailed market and phase positioning.
+Runtime agnosticism is operationalized by `ADAPTER_CONTRACT.md`. The wedge and the durable product are described in more detail in `POSITIONING.md` and `ROADMAP.md`.
 
 ## Core Product Model
 
@@ -158,9 +200,11 @@ Atelier
   + Verification Plane
   + Task / Product Plane
   + Swarm Coordination Plane
-  + Agent Runtime Plane
+  + Runtime Adapter Plane
   + Human Product Owner UI
 ```
+
+The planes are conceptual boundaries. They may share implementation modules, but they must not be collapsed semantically.
 
 ### Artifact Plane
 
@@ -170,17 +214,21 @@ Markdown is an artifact. A check is an artifact. A skill is an artifact. A linte
 
 Atelier should not destroy source artifacts or force them to depend on Atelier-specific runtime state.
 
+The artifact node and edge schemas, the identity model, the authority model, and the regeneration rules are defined in `GRAPH_SEMANTICS.md`.
+
 ### Attention Plane
 
 The Attention Plane resolves what a coding agent should read for a given unit of work.
 
-This includes selector evaluation, deterministic path matching, semantic judgment, reading order, compression, exclusion, and traceability.
+It supports selector evaluation, deterministic path matching, semantic judgment, reading order, compression, exclusion, and traceability.
 
 ### Transformation Plane
 
 The Transformation Plane manages the movement from one artifact representation to another.
 
 It does not silently emit final artifacts. It tracks candidates, proposals, accepted artifacts, deterministic artifacts, and enforced artifacts.
+
+The maturity transition rules, allowed transitions, and acceptance evidence requirements are defined in `contract.md`.
 
 ### Knowledge Plane
 
@@ -212,35 +260,35 @@ The Swarm Coordination Plane coordinates multiple agents, roles, subagents, hand
 
 It should let cheap or specialized agents perform bounded work without making them the source of project semantics.
 
-### Agent Runtime Plane
+### Runtime Adapter Plane
 
-The Agent Runtime Plane resolves, connects, and observes external runtimes.
+The Runtime Adapter Plane resolves, connects, and observes external runtimes.
 
 Atelier may describe runtime capabilities, produce prompts, produce handoff packets, record traces, route tasks, and compare outputs.
 
-Atelier must not lock the user into one runtime. Codex, opencode, ChatGPT, Gemini, Claude Code, local tools, CI, and human operators should remain external runners.
+Atelier must not lock the user into one runtime. Codex, opencode, ChatGPT, Gemini, Claude Code, local tools, CI, and human operators should remain external runners. The boundary between Atelier and any specific runtime is operationalized by `ADAPTER_CONTRACT.md`, which defines the canonical packet, the capability descriptor, the round-trip rule, the parity fixture, and the forbidden behavior for any adapter.
 
 ### Human Product Owner UI
 
 The Human Product Owner UI presents product truth, drift, risk, evidence, verification, roadmap state, and unresolved decisions.
 
-The product owner should not need to manually inspect every code change to know whether the repository remains acceptable.
+The product owner should not need to manually inspect every code change to know whether the repository remains acceptable. A concrete example of what the HPO sees is given in the success example below.
 
 ## Non-Negotiable Principles
 
 ### 1. The Repository Remains the Source of Truth
 
-Atelier may generate derived indexes, traces, and resolution state, but product truth must remain recoverable from repository artifacts.
+Atelier may generate derived indexes, traces, and resolution state, but product truth must remain recoverable from repository artifacts outside `.atelier/`.
 
-Derived state belongs under `.atelier`.
+Derived state belongs under `.atelier/`.
 
-`.atelier` is useful for resolution, debugging, provenance, indexing, and cache. It must not be the only location where product truth exists.
+`.atelier` is useful for resolution, debugging, provenance, indexing, and cache. It must not be the only location where product truth exists. Accepted durable evidence, including verification records, accepted decisions, and accepted transformation receipts, lives in the repository, not under `.atelier/`.
 
 ### 2. No Runtime Lock-In
 
 Atelier must not require a specific coding agent runtime.
 
-The user should be able to give an Atelier-produced packet to Codex, opencode, ChatGPT, Gemini, Claude Code, a local agent, or a human and still preserve the same product contract.
+The user should be able to give an Atelier-produced packet to Codex, opencode, ChatGPT, Gemini, Claude Code, a local agent, or a human and still preserve the same product contract. The round-trip and parity rules that make this testable are defined in `ADAPTER_CONTRACT.md`.
 
 ### 3. Artifacts Are Not Destroyed by Transformation
 
@@ -248,7 +296,7 @@ A Markdown document can afford a linter. A linter can imply a Markdown spec. A t
 
 But the source artifact must remain identifiable.
 
-Atelier transforms with provenance. It does not erase origin.
+Atelier transforms with provenance. It does not erase origin. The identity model that makes this possible is defined in `GRAPH_SEMANTICS.md`.
 
 ### 4. Attention Is Computed, Not Guessed
 
@@ -274,6 +322,10 @@ Atelier should integrate with agent runtimes but not become dependent on any sin
 
 A runtime may be excellent at editing code. Atelier is responsible for artifact alignment around that work.
 
+### 8. Accepted Artifacts Require Accepted Evidence
+
+A transformation may propose, candidate, draft, or simulate artifacts without producing durable truth. An artifact becomes durable only through an explicit acceptance event, recorded as durable evidence, with provenance, an accepting actor, and acceptance evidence. This is the boundary that prevents Atelier from collapsing into a generator of unverifiable Markdown.
+
 ## Success Definition
 
 Atelier succeeds when a repository can support high-freedom coding agents without relying on hidden chat history or exhaustive human review.
@@ -295,6 +347,25 @@ What was accepted?
 What still needs a human decision?
 ```
 
+A concrete success example: a product owner is told, without inspecting every diff, that the latest run has a context plan, the required checks all passed, one optional check was skipped with a reason, the artifact graph shows one stale knowledge artifact that needs a review, and there are two unresolved decisions. The HPO UI does not assert that verification happened when it did not, and it does not hide the unresolved decisions.
+
+### Machine-Readable Success Criterion
+
+A repository is in the v5 success set if and only if all of the following are true at the same commit:
+
+```txt
+1. `bun nx run <project>:check` passes (the contract test matrix is green).
+2. `atelier context plan --workflow workflow.isolated-run --role role.core.implementer --path . --intent "spec v5" --json` returns a context plan with `resolution_type` and `budget_delta` on every included artifact.
+3. `atelier graph --json` returns a graph whose kind set equals the canonical kind set defined in `GRAPH_SEMANTICS.md` §4.4.
+4. `atelier run verify --record --json` accepts the recorded verification record and emits an `artifact.accepted_verification_record` event with `evidence_refs` populated.
+5. `atelier run complete --run-id <run> --json` returns one of `clean | dirty | blocked | forced_closed` from the completion truth table in `VERIFICATION_SCHEMA.md` §8, and the emitted event is the matching one (`run_completed_clean | run_completed_dirty | run_completed_blocked | run_forced_closed`).
+6. `atelier run force-close --run-id <run> --reason "<...>" --json` on a `blocked` run returns success, emits `run_forced_closed`, and does not emit any `run_completed_*` event.
+7. The adapter proof fixtures in `ADAPTER_CONTRACT.md` §7 have green entries: `adapter_packet_portability_fixture` for Stage 0 packet portability and `adapter_runtime_parity_fixture` for at least one Stage 1 real-runtime pair. Until the Stage 1 fixture is green, the "runtime-agnostic" claim is a product goal, not a contract claim.
+8. No emitted event of any of the four `run_completed_*` or `run_forced_closed` types is in a state where its `evidence_refs` is empty when the completion truth table says it must be non-empty.
+```
+
+If any of (1)-(8) fails, the repository is not yet in the v5 success set. The first failing rule is the next thing to fix.
+
 ## Failure Definition
 
 Atelier fails if it becomes any of the following:
@@ -307,14 +378,27 @@ Atelier fails if it becomes any of the following:
 - a second source of truth outside the repository;
 - a UI that looks useful but cannot prove correctness;
 - a system that destroys artifact identity through transformation;
-- a system that makes humans trust agents instead of making repositories reject bad outcomes.
+- a system that makes humans trust agents instead of making repositories reject bad outcomes;
+- a system that mints new identities for moved or renamed artifacts instead of recording the move.
 
 ## Pivot Boundary
 
 Changing commands, file locations, schemas, or adapters is not a pivot.
 
-Changing the idea that Atelier is a repository-local, runtime-agnostic artifact operating layer would be a pivot.
+Changing the idea that Atelier is a repository-local, runtime-agnostic artifact alignment layer would be a pivot.
 
 Changing the idea that artifacts must preserve source identity would be a pivot.
 
 Changing the idea that agent work should be verified by repository evidence rather than trust would be a pivot.
+
+Changing the three-class rule (source / accepted durable evidence / derived state) would be a pivot.
+
+## v5 Revision Notes
+
+This document was updated in v5 with the following small wording changes; no scope expansion.
+
+- Artifact Alignment section now lists all four load-bearing pieces (graph, evidence lifecycle, verification gates, acceptance events) and points the graph-as-central-mechanism claim at the other three.
+- Three Artifact Classes section replaces the linear transition implication with the product-truth model: product truth is the union of source and accepted durable evidence; derived state is a function of product truth and external inputs, not a downstream of accepted durable evidence.
+- The Larger Ideal section marks the transformation examples as long-term possibilities, not active MVP commitments; transformation pilots are Phase 3 in `ROADMAP.md`.
+- Positioning Thesis section updates the strategic wedge to "Attention + Verification + Generic Runtime Packet Export".
+- A new "Machine-Readable Success Criterion" section lists eight ordered checks that, all green at one commit, define the v5 success set. The list is derived from `contract.md`, `VERIFICATION_SCHEMA.md`, `EVENT_MODEL.md`, `GRAPH_SEMANTICS.md`, `ADAPTER_CONTRACT.md`, and `SURFACES.md`.
