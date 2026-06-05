@@ -5,16 +5,6 @@ model: minimax-coding-plan/MiniMax-M3
 temperature: 0
 permission:
   task: allow
-  bash:
-    '*': ask
-    'pwd': allow
-    'git status*': allow
-    'git diff --name-status*': allow
-    'bun run atelier:status*': allow
-    'bun run atelier:ready*': allow
-    'bun run atelier:verify*': allow
-    'bun run atelier:flags*': allow
-    'bun run atelier:resume*': allow
   edit: deny
   read:
     '*': allow
