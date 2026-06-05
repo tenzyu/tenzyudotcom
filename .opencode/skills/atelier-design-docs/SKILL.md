@@ -1,44 +1,44 @@
 ---
 name: atelier-design-docs
-description: Use the Atelier design documents to implement atelier-indexer, atelier-reader, atelier-transformer, atelier-executor, and atelier-operation.
+description: Use the Atelier design docs and latest review to build Operational Atelier v0.
 ---
 
 # atelier-design-docs
 
 Use this skill when the user mentions `atelier-design-docs` or asks to build `atelier-*`.
 
-## Source documents
-
-The design docs are expected to exist in this locations:
+## Required docs
 
 ```txt
-harness/atelier-design-docs/
+harness/atelier-design-docs/GOAL-OPERATIONAL-ATELIER.md
+harness/atelier-design-docs/REVIEW-LATEST.md
+harness/atelier-design-docs/README.md
+harness/atelier-design-docs/atelier-indexer/goal.md
+harness/atelier-design-docs/atelier-indexer/contract.md
+harness/atelier-design-docs/atelier-reader/goal.md
+harness/atelier-design-docs/atelier-reader/contract.md
+harness/atelier-design-docs/atelier-transformer/goal.md
+harness/atelier-design-docs/atelier-transformer/contract.md
+harness/atelier-design-docs/atelier-executor/goal.md
+harness/atelier-design-docs/atelier-executor/contract.md
+harness/atelier-design-docs/atelier-operation/goal.md
+harness/atelier-design-docs/atelier-operation/contract.md
+harness/atelier-design-docs/ADRs/*.md
 ```
 
-Required files:
+## Latest review is authoritative
+
+`harness/atelier-design-docs/REVIEW-LATEST.md` overrides older optimistic readiness claims.
+
+The current artifact should be treated as:
 
 ```txt
-README.md
-
-atelier-indexer/goal.md
-atelier-indexer/contract.md
-
-atelier-reader/goal.md
-atelier-reader/contract.md
-
-atelier-transformer/goal.md
-atelier-transformer/contract.md
-
-atelier-executor/goal.md
-atelier-executor/contract.md
-
-atelier-operation/goal.md
-atelier-operation/contract.md
-
-ADRs/*.md
+Atelier v0 Bootstrap Skeleton
 ```
 
-## Target tooling root
+until the reviewer verifies true operational behavior.
+
+## Core architecture
 
 ```txt
 .atelier-bootstrap/
@@ -46,11 +46,8 @@ ADRs/*.md
   reader/
   transformer/
   executor/
-```
+  operation/
 
-## Target output root
-
-```txt
 .atelier/v0/
   facts/
   objects/
@@ -60,159 +57,30 @@ ADRs/*.md
   transforms/
   runs/
   views/
+  operation/
 ```
 
-## Hard boundary
+## Non-negotiable concepts
 
-`.atelier-bootstrap/**` is tooling only.
+- `.atelier-bootstrap/**` is tooling.
+- `.atelier/v0/**` is output/state.
+- Use NDJSON first.
+- `canonical/**` is not the root architecture.
+- `implementation-control` is not the root concept; it is at most a transform output.
+- `SourceUnit` is the mechanical chunk.
+- `KnowledgeObject` is the semantic chunk.
+- `EvidenceRecord` is runtime fact, not prose.
+- Views are generated, not truth.
 
-`.atelier/v0/**` is generated output and state.
+## Required operational proof
 
-Do not place generated runtime output under `.atelier-bootstrap/**`.
+Operational pass requires proof of:
 
-Do not use `canonical/**` as the primary architecture.
-
-Do not treat `implementation-control` as the root concept. It is a transform output, not the root abstraction.
-
-## Conceptual model
-
-Atelier is an Object Graph runtime for coding-agent attention and artifact transformation.
-
-It indexes a repository without spending LLM tokens, builds lightweight project hypotheses, assembles task-scoped attention, deep-reads only what a task needs, transforms object graph records into implementation tasks, packets, checks, skills, linters, tests, and views, and records execution evidence back into the graph.
-
-Core object families:
-
-```txt
-SourceFact
-SourceUnit
-SourceRef
-KnowledgeObject
-SemanticClaim
-AttentionSet
-TransformModel
-ExecutionPacket
-EvidenceRecord
-```
-
-## Component responsibilities
-
-### atelier-indexer
-
-Must produce deterministic, zero-token / low-token repository observations.
-
-It owns:
-
-```txt
-SourceFact
-SourceUnit
-SourceRef
-SourceEdge
-affected detection initially
-```
-
-It must not use LLMs for source facts, line refs, hashes, or file graph.
-
-### atelier-reader
-
-Must produce hypothesis and task-scoped reading outputs.
-
-It owns:
-
-```txt
-ProjectBrief
-ProjectHypothesis
-AttentionSet
-DeepReadFinding
-KnowledgeObject
-SemanticClaim
-```
-
-LLM use is allowed here, but output must be schema-bound and marked with confidence/provenance.
-
-### atelier-transformer
-
-Must transform Atelier objects into md-to-code artifacts.
-
-It owns:
-
-```txt
-ImplementationTask
-TestContract
-EditBoundary
-PacketTemplate
-TransformRecommendation
-```
-
-LLM may produce proposals. CLI must validate and accept.
-
-### atelier-executor
-
-Must execute packets and record evidence.
-
-It owns:
-
-```txt
-ExecutionPacket
-Handoff
-EvidenceRecord
-Blocker
-RunLedger
-```
-
-Evidence must be runtime fact, not prose.
-
-### atelier-operation
-
-Must verify that all components are operational together.
-
-It owns:
-
-```txt
-end-to-end verification
-reviewer contract
-operational readiness
-```
-
-## Build order
-
-Implement in this order:
-
-1. `atelier-indexer`
-2. `atelier-reader`
-3. `atelier-transformer`
-4. `atelier-executor`
-5. `atelier-operation`
-
-Do not jump to later components if an earlier component cannot produce or validate its contract outputs.
-
-## Required command surface
-
-The resulting system must support these root-level adapter commands or exact equivalents:
-
-```bash
-bun run atelier:index
-bun run atelier:affected
-bun run atelier:index:render
-bun run atelier:index:validate
-
-bun run atelier:sample
-bun run atelier:attention -- --task "<task>"
-bun run atelier:deep-read -- --attention <id>
-bun run atelier:reader:validate
-
-bun run atelier:transform:md-to-code
-bun run atelier:transform:validate
-bun run atelier:transform:render
-
-bun run atelier:packet:create
-bun run atelier:packet:context
-bun run atelier:packet:complete
-bun run atelier:evidence:add
-bun run atelier:executor:validate
-
-bun run atelier:ready
-bun run atelier:verify
-bun run atelier:render
-```
-
-Equivalent names are acceptable only if documented and covered by tests or executable verification.
+1. strict index validation;
+2. non-empty task-scoped attention;
+3. md-to-code task derived from `harness/atelier-design-docs`, not toy sample only;
+4. packet creation/context from that task;
+5. runtime-backed evidence;
+6. no duplicate/conflicting packet lifecycle state;
+7. strict `atelier:ready` and `atelier:verify` checks;
+8. reviewer pass.

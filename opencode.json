@@ -20,19 +20,18 @@
   },
   "instructions": ["AGENTS.md", ".opencode/agents/*.md"],
   "lsp": true,
-
   "plugin": [
     [
       "opencode-goal-plugin",
       {
-        "maxTurns": 20,
-        "maxDurationMs": 9000000,
+        "maxTurns": 40,
+        "maxDurationMs": 21600000,
         "maxTokens": 4000000,
         "minDelayMs": 1500,
-        "maxRecentMessages": 50,
+        "maxRecentMessages": 200,
         "noProgressTokenThreshold": 50,
-        "noProgressTurnsBeforePause": 2,
-        "budgetWrapupRatio": 0.8,
+        "noProgressTurnsBeforePause": 5,
+        "budgetWrapupRatio": 0.9,
         "maxPromptFailures": 10,
         "persistState": true,
         "stateFilePath": ".opencode/opencode-goal-plugin/state.json",
@@ -41,7 +40,6 @@
       }
     ]
   ],
-
   "watcher": {
     "ignore": [
       "node_modules/**",
@@ -53,50 +51,11 @@
       "harness/knowledge/implementation-control/atelier/archive/**"
     ]
   },
-
-  "agent": {
-    "atelier-coordinator": {
-      "description": "Read-only coordinator that only dispatches atelier build work to subagents",
-      "mode": "primary",
-      "model": "minimax-coding-plan/MiniMax-M3",
-      "temperature": 0,
-      "prompt": "{file:.opencode/agents/atelier-coordinator.md}",
-      "permission": {
-        "bash": "ask",
-        "edit": "deny"
-      }
-    },
-    "atelier-implementer": {
-      "description": "Subagent that implements atelier-* bootstrap tools from atelier-design-docs",
-      "mode": "subagent",
-      "model": "minimax-coding-plan/MiniMax-M3",
-      "temperature": 0.1,
-      "prompt": "{file:.opencode/agents/atelier-implementer.md}",
-      "permission": {
-        "bash": "allow",
-        "edit": {
-          "*": "deny",
-          ".atelier-bootstrap/**": "allow",
-          ".atelier/v0/**": "allow",
-          ".opencode/**": "allow",
-          "product/apps/atelier/**": "deny",
-          "harness/knowledge/product-specs/**": "deny"
-        }
-      }
-    }
-  },
-
   "command": {
     "goal": {
-      "description": "Set a session-scoped goal and auto-continue until complete.",
+      "description": "Set a session-scoped goal and auto-continue until complete. Provided by opencode-goal-plugin.",
       "template": "$ARGUMENTS",
-      "agent": "build"
-    },
-    "atelier-build": {
-      "description": "Build atelier-* from atelier-design-docs as a subagent task",
-      "agent": "atelier-implementer",
-      "subtask": true,
-      "template": "{file:.opencode/commands/atelier-build.md}"
+      "agent": "atelier-coordinator"
     }
   }
 }
