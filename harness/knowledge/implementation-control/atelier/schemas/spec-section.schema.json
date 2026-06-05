@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "atelier.spec-section/v1",
+  "type": "object",
+  "required": ["schema", "section_id", "source_path", "heading_path", "heading_slug", "start_line", "end_line", "sha256", "text_ref"],
+  "properties": {
+    "schema": { "const": "atelier.spec-section/v1" },
+    "section_id": { "type": "string" },
+    "source_path": { "type": "string" },
+    "heading_path": { "type": "array", "items": { "type": "string" } },
+    "heading_slug": { "type": "string" },
+    "start_line": { "type": "integer" },
+    "end_line": { "type": "integer" },
+    "sha256": { "type": "string" },
+    "text_ref": { "type": "object" }
+  }
+}

@@ -1,9 +1,10 @@
----
 packet_id: at-ctrl-001
 packet_type: control-doc-repair
 execution_mode: mother_agent_direct_control_doc_repair
 subagent_dispatched: false
-dag_node_ids: [DAG-01B, DAG-01C]
+dag_node_ids:
+  - DAG-01B
+  - DAG-01C
 title: Refactor repository discovery and edit-boundary protocol
 status: accepted
 recorded_at: 2026-06-04T00:00:00Z
@@ -15,18 +16,12 @@ mission: |
   and add the hard prerequisite rule that no implementation packet may be
   dispatched until DAG-01B and DAG-01C pass.
 allowed_files:
-  - path: harness/knowledge/implementation-control/atelier/REPOSITORY_DISCOVERY_AND_EDIT_BOUNDARY.md
-    reason: replace inventory schema with user-prescribed YAML
-  - path: harness/knowledge/implementation-control/atelier/state/repository-inventory/repo-inventory-2026-06-04.md
-    reason: refactor inventory record to match new schema
-  - path: harness/knowledge/implementation-control/atelier/IMPLEMENTATION_DAG.md
-    reason: verify DAG-10 prerequisite on DAG-04 and DAG-05 is explicit
-  - path: harness/knowledge/implementation-control/atelier/IMPLEMENTATION_ORCHESTRATOR.md
-    reason: verify no-implementation-packet rule is present
-  - path: harness/knowledge/implementation-control/atelier/AGENT_PACKET_PROTOCOL.md
-    reason: verify fail-closed rules for repo_inventory_ref are present
-  - path: harness/knowledge/implementation-control/atelier/IMPLEMENTATION_LEDGER.md
-    reason: update repo_inventory section to point at refactored record
+  - harness/knowledge/implementation-control/atelier/REPOSITORY_DISCOVERY_AND_EDIT_BOUNDARY.md
+  - harness/knowledge/implementation-control/atelier/state/repository-inventory/repo-inventory-2026-06-04.md
+  - harness/knowledge/implementation-control/atelier/IMPLEMENTATION_DAG.md
+  - harness/knowledge/implementation-control/atelier/IMPLEMENTATION_ORCHESTRATOR.md
+  - harness/knowledge/implementation-control/atelier/AGENT_PACKET_PROTOCOL.md
+  - harness/knowledge/implementation-control/atelier/IMPLEMENTATION_LEDGER.md
 forbidden_actions:
   - weakening gates
   - deleting dependencies
@@ -72,3 +67,6 @@ notes: |
   user-prescribed schema (workspace_system, projects[].commands.*,
   atelier_modules[].detected_role, git_state.*, editable_roots.*,
   forbidden_roots). Hard prerequisites are explicit.
+schema: atelier.legacy-packet/v1
+normalized_at: 2026-06-04T00:00:00Z
+legacy_source_path: state/packets/at-ctrl-001.yaml

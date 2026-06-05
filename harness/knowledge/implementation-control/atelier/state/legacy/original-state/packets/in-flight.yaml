@@ -1,0 +1,52 @@
+---
+schema: atelier.in-flight-packets/v1
+file_id: in-flight-2026-06-04
+recorded_at: 2026-06-04T03:00:00Z
+recorded_by: control-doc-repair
+baseline_revision: 71a9700171fdea8466c0d20221d02896a99cc081
+rule: |
+  This file is the machine-readable in-flight packet list read by the
+  VG-046 parallel-conflict-checker before the mother agent dispatches
+  a new packet. The mother agent appends an entry when dispatching a
+  packet and removes the entry when the packet is integrated,
+  superseded, rejected, or otherwise closed. The list is empty when
+  no packet is in flight. Do not remove this file even when the list
+  is empty; the schema header and the closed_vocabulary fields are
+  required by the checker.
+in_flight_packets: []
+vocabulary:
+  in_flight_packet_fields:
+    - packet_id
+    - dispatch_time
+    - allowed_files
+    - forbidden_roots
+    - fixture_families
+    - command_surfaces
+    - generated_state_paths
+    - durable_evidence_paths
+  conflict_kinds:
+    - allowed_files
+    - forbidden_roots
+    - fixture_family
+    - command_surface
+    - generated_state
+    - durable_evidence
+  status_values:
+    - passed
+    - failed
+closed_field_shape: |
+  packet_id:                string
+  dispatch_time:            RFC3339
+  allowed_files:            list[string] (path globs)
+  forbidden_roots:          list[string] (path globs)
+  fixture_families:         list[string] (closed tokens, e.g. graph_kernel)
+  command_surfaces:         list[string] (exact CLI/MCP command tokens)
+  generated_state_paths:    list[string] (paths under .atelier/)
+  durable_evidence_paths:   list[string] (paths outside .atelier/)
+notes: |
+  Initial state: empty in_flight_packets. The mother agent appends
+  when a packet is dispatched and removes the entry when the packet
+  is integrated, superseded, rejected, or blocked-closed. The
+  parallel-conflict-checker (VG-046) reads this file before every
+  parallel packet dispatch. Removal is append-replace; do not edit
+  individual rows except by append or remove operations.

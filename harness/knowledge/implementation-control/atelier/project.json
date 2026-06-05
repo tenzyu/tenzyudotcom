@@ -1,0 +1,29 @@
+{
+  "name": "@atelier/implementation-control",
+  "projectType": "library",
+  "root": "harness/knowledge/implementation-control/atelier",
+  "tags": [
+    "scope:atelier",
+    "type:tooling",
+    "runtime:bun"
+  ],
+  "targets": {
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "harness/knowledge/implementation-control/atelier",
+        "command": "bun tsc -p tsconfig.json --noEmit"
+      }
+    },
+    "check": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "harness/knowledge/implementation-control/atelier",
+        "command": "bun run validate"
+      },
+      "dependsOn": [
+        "typecheck"
+      ]
+    }
+  }
+}

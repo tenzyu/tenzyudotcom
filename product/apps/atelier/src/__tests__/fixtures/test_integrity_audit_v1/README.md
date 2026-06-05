@@ -1,24 +1,22 @@
 # Fixture: test_integrity_audit_v1
 
-Placeholder v5.1 layout scaffolding for fixture `test_integrity_audit_v1`.
+Executable v5.1 fixture for test integrity and no-weakening audit.
 
 ## Layout
 
 This directory follows the v5.1 fixture layout from
 `CONTRACT_TEST_MATRIX.md` §1a:
 
-- `input.ts` — placeholder for fixture input data
-- `expected.ts` — placeholder for fixture expected output
+- `input.ts` - audited files, forbidden patterns, and required guard text
+- `expected.ts` - zero-weakening expectations
 - `README.md` — this file
-- `command.ts` — placeholder throw that fails closed
+- `command.ts` - VG-038 audit command
 
 ## Status
 
-The alias registry records `status: pending_command_implementation`
-for this row. `command.ts` throws
-`fixture_not_yet_implemented: test_integrity_audit_v1`. A future fixture-author
-packet will replace the placeholder contents with the real input,
-expected, README, and command.
+The alias registry records `status: executable` for this row. The command
+fails closed when relevant tests are skipped/focused, the DAG-02 fixtures
+remain placeholders, or the packet loses required coverage guard text.
 
 ## Provenance
 

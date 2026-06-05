@@ -1,9 +1,15 @@
----
 packet_id: at-ctrl-005
 packet_type: control-doc-repair
 execution_mode: mother_agent_direct_control_doc_repair
 subagent_dispatched: false
-dag_node_ids: [DAG-04, DAG-05, DAG-06, DAG-07, DAG-08, DAG-09, DAG-10]
+dag_node_ids:
+  - DAG-04
+  - DAG-05
+  - DAG-06
+  - DAG-07
+  - DAG-08
+  - DAG-09
+  - DAG-10
 title: Expand DAG-02 join table to field/fixture/gate-level concrete rows for DAG-04 through DAG-10
 status: accepted
 recorded_at: 2026-06-04T02:00:00Z
@@ -28,16 +34,11 @@ mission: |
   concrete rows; at-ctrl-005B will resolve the remaining DAG-11..
   DAG-53 expansion.
 allowed_files:
-  - path: harness/knowledge/implementation-control/atelier/state/traceability/dag-02-join-table-2026-06-04.yaml
-    reason: add 42 concrete rows, remove placeholder list, flip product_code_packet_authorization
-  - path: harness/knowledge/implementation-control/atelier/state/packets/at-ctrl-005.yaml
-    reason: create the packet record
-  - path: harness/knowledge/implementation-control/atelier/state/validations/at-ctrl-005-acceptance-2026-06-04.md
-    reason: create the acceptance proof
-  - path: harness/knowledge/implementation-control/atelier/state/blockers/BLK-TRACEABILITY-001.md
-    reason: update status to partial_resolution and document at-ctrl-005B scope
-  - path: harness/knowledge/implementation-control/atelier/IMPLEMENTATION_LEDGER.md
-    reason: add packet row, validation row, update DAG status and computed frontier
+  - harness/knowledge/implementation-control/atelier/state/traceability/dag-02-join-table-2026-06-04.yaml
+  - harness/knowledge/implementation-control/atelier/state/packets/at-ctrl-005.yaml
+  - harness/knowledge/implementation-control/atelier/state/validations/at-ctrl-005-acceptance-2026-06-04.md
+  - harness/knowledge/implementation-control/atelier/state/blockers/BLK-TRACEABILITY-001.md
+  - harness/knowledge/implementation-control/atelier/IMPLEMENTATION_LEDGER.md
 forbidden_actions:
   - weakening gates
   - deleting dependencies
@@ -50,7 +51,7 @@ forbidden_actions:
   - converting executable requirements into assumptions
   - allowing pending commands to satisfy phase gates
 acceptance_criteria:
-  - '42 new rows appended to rows: [] (verified by row count 48)'
+  - "42 new rows appended to rows: [] (verified by row count 48)"
   - every new row has all 20 columns populated, deferral_state=concrete, traceability_status=concrete, blocker_id=null (verified by validation script)
   - implementation_rows_blocked_until_concrete section removed; implementation_rows_concrete_now lists the 7 previously blocked DAG nodes plus DAG-11_to_DAG-53 carryover (verified)
   - product_code_packet_authorization: allowed_when_rows_for_target_node_are_concrete (verified)
@@ -86,13 +87,13 @@ validation_results:
     notes: empty
   - command: bun nx run atelier:check
     status: passed
-    notes: '122 pass, 0 fail, 491 expect() calls; Nx cache hit on 3/3 tasks'
+    notes: 122 pass, 0 fail, 491 expect() calls; Nx cache hit on 3/3 tasks
   - command: bun yaml.parse state/traceability/dag-02-join-table-2026-06-04.yaml
     status: passed
-    notes: 'rows: 48, implementation_rows_concrete_now: 8, product_code_packet_authorization: allowed_when_rows_for_target_node_are_concrete'
+    notes: "rows: 48, implementation_rows_concrete_now: 8, product_code_packet_authorization: allowed_when_rows_for_target_node_are_concrete"
   - command: sha256sum state/traceability/dag-02-join-table-2026-06-04.yaml
     status: passed
-    notes: 'c60218ea2f3cd9977b51bc402934774ecff9e26dbb92a90abc4ccae0d6c60e41'
+    notes: c60218ea2f3cd9977b51bc402934774ecff9e26dbb92a90abc4ccae0d6c60e41
 notes: |
   Round 3 control repair. The 8 placeholder entries in
   implementation_rows_blocked_until_concrete have been replaced by 42
@@ -104,3 +105,6 @@ notes: |
   follow-up for DAG-11..DAG-53 expansion. Product code packets remain
   blocked by their per-DAG dependencies (DAG-10 is not dispatchable
   until DAG-04, DAG-05, DAG-06, VG-026A, and VG-043 pass).
+schema: atelier.legacy-packet/v1
+normalized_at: 2026-06-04T02:00:00Z
+legacy_source_path: state/packets/at-ctrl-005.yaml

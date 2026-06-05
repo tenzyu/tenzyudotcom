@@ -1,9 +1,9 @@
----
 packet_id: at-ctrl-006
 packet_type: control-doc-repair
 execution_mode: mother_agent_direct_control_doc_repair
 subagent_dispatched: false
-dag_node_ids: [DAG-02A]
+dag_node_ids:
+  - DAG-02A
 title: Build fixture alias registry and close BLK-FIXTURE-ALIAS-001
 status: accepted
 recorded_at: 2026-06-04T01:00:00Z
@@ -22,30 +22,18 @@ mission: |
   consistency command with the real test command. Close
   `BLK-FIXTURE-ALIAS-001`.
 allowed_files:
-  - path: harness/knowledge/implementation-control/atelier/state/traceability/fixture-alias-registry-2026-06-04.yaml
-    reason: create the machine-readable alias registry
-  - path: product/apps/atelier/src/__tests__/fixture-alias-consistency.test.ts
-    reason: create the alias consistency test target
-  - path: product/apps/atelier/src/__tests__/fixtures/<fixture_id>/{input,expected,README,command}.ts
-    reason: create v5.1 placeholder fixture directories for every pending row
-  - path: harness/knowledge/implementation-control/atelier/state/gates/structured-gates-2026-06-04.yaml
-    reason: make VG-045 executable; update its command and accepted_statuses
-  - path: harness/knowledge/implementation-control/atelier/VALIDATION_GATE_REGISTRY.md
-    reason: update VG-045 row to reference the real test command
-  - path: harness/knowledge/implementation-control/atelier/REPOSITORY_DISCOVERY_AND_EDIT_BOUNDARY.md
-    reason: add `fixture_alias_registry_ref` to the inventory schema; clarify that `allowed_files` for fixture/code packets can include the alias-registry state path
-  - path: harness/knowledge/implementation-control/atelier/state/repository-inventory/repo-inventory-2026-06-04.md
-    reason: add `fixture_alias_registry_ref` to the recorded inventory; add the new test to `atelier_modules`
-  - path: harness/knowledge/implementation-control/atelier/IMPLEMENTATION_LEDGER.md
-    reason: add packet status row, validation history row, update DAG status, close BLK-FIXTURE-ALIAS-001, update product_code_blockers, computed_frontier, remaining work
-  - path: harness/knowledge/implementation-control/atelier/state/blockers/BLK-FIXTURE-ALIAS-001.md
-    reason: change status from `open` to `closed`
-  - path: harness/knowledge/implementation-control/atelier/state/packets/at-ctrl-006.yaml
-    reason: create the packet record
-  - path: harness/knowledge/implementation-control/atelier/state/validations/at-ctrl-006-acceptance-2026-06-04.md
-    reason: create the acceptance proof
-  - path: harness/knowledge/implementation-control/atelier/state/validations/VG-045-2026-06-04.md
-    reason: create the VG-045 proof artifact from running the new test
+  - harness/knowledge/implementation-control/atelier/state/traceability/fixture-alias-registry-2026-06-04.yaml
+  - product/apps/atelier/src/__tests__/fixture-alias-consistency.test.ts
+  - product/apps/atelier/src/__tests__/fixtures/<fixture_id>/{input,expected,README,command}.ts
+  - harness/knowledge/implementation-control/atelier/state/gates/structured-gates-2026-06-04.yaml
+  - harness/knowledge/implementation-control/atelier/VALIDATION_GATE_REGISTRY.md
+  - harness/knowledge/implementation-control/atelier/REPOSITORY_DISCOVERY_AND_EDIT_BOUNDARY.md
+  - harness/knowledge/implementation-control/atelier/state/repository-inventory/repo-inventory-2026-06-04.md
+  - harness/knowledge/implementation-control/atelier/IMPLEMENTATION_LEDGER.md
+  - harness/knowledge/implementation-control/atelier/state/blockers/BLK-FIXTURE-ALIAS-001.md
+  - harness/knowledge/implementation-control/atelier/state/packets/at-ctrl-006.yaml
+  - harness/knowledge/implementation-control/atelier/state/validations/at-ctrl-006-acceptance-2026-06-04.md
+  - harness/knowledge/implementation-control/atelier/state/validations/VG-045-2026-06-04.md
 forbidden_actions:
   - weakening gates
   - deleting dependencies
@@ -114,3 +102,6 @@ notes: |
   recorded. BLK-FIXTURE-ALIAS-001 is closed; the only remaining phase
   blocker is BLK-TRACEABILITY-001 (partial resolution via at-ctrl-005;
   carryover for DAG-11..DAG-53 via at-ctrl-005B).
+schema: atelier.legacy-packet/v1
+normalized_at: 2026-06-04T01:00:00Z
+legacy_source_path: state/packets/at-ctrl-006.yaml

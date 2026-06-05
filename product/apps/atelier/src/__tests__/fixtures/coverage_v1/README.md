@@ -1,24 +1,23 @@
 # Fixture: coverage_v1
 
-Placeholder v5.1 layout scaffolding for fixture `coverage_v1`.
+Executable v5.1 fixture for contract coverage.
 
 ## Layout
 
 This directory follows the v5.1 fixture layout from
 `CONTRACT_TEST_MATRIX.md` §1a:
 
-- `input.ts` — placeholder for fixture input data
-- `expected.ts` — placeholder for fixture expected output
+- `input.ts` - canonical assertion, DAG, gate, and fixture paths
+- `expected.ts` - zero-gap coverage expectations
 - `README.md` — this file
-- `command.ts` — placeholder throw that fails closed
+- `command.ts` - coverage validator used by VG-029
 
 ## Status
 
-The alias registry records `status: pending_command_implementation`
-for this row. `command.ts` throws
-`fixture_not_yet_implemented: coverage_v1`. A future fixture-author
-packet will replace the placeholder contents with the real input,
-expected, README, and command.
+The alias registry records `status: executable` for this row. The command
+fails closed when an executable normative assertion has no concrete link, any
+link points at `legacy_unresolved`, or a referenced DAG node, gate, fixture, or
+assertion is missing from canonical state.
 
 ## Provenance
 

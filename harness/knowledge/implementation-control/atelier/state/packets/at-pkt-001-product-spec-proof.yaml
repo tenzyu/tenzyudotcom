@@ -9,11 +9,17 @@ product_spec_hash_ref: product-spec-head-baseline
 control_doc_hash_ref: immutable-control-doc-baseline-2026-06-04
 intent: Prove product-spec clean status from real Git state and HEAD hash comparison.
 phase_gate: PG-0
-invariant_ids: [AT-INV-068]
-schema_ids: [product_spec_hash_baseline]
-fixture_ids: [N/A]
-test_ids: [VG-001, VG-036]
-implementation_modules: [N/A]
+invariant_ids:
+  - AT-INV-068
+schema_ids:
+  - product_spec_hash_baseline
+fixture_ids:
+  - N/A
+test_ids:
+  - VG-001
+  - VG-036
+implementation_modules:
+  - N/A
 acceptance_criteria:
   - VG-001 and VG-036 proof records exist and pass.
   - BLK-SPEC-DRIFT-001 remains not open.
@@ -22,6 +28,11 @@ allowed_files:
   - harness/knowledge/implementation-control/atelier/state/validations/**
 forbidden_files:
   - harness/knowledge/product-specs/atelier/**
-validation_gate_ids: [VG-001, VG-036]
+validation_gate_ids:
+  - VG-001
+  - VG-036
 handoff_artifact_path: harness/knowledge/implementation-control/atelier/state/validations/VG-001-product-spec-clean-2026-06-04.md
 product_specs_touched: false
+schema: atelier.legacy-packet/v1
+normalized_at: 2026-06-04T00:00:00Z
+legacy_source_path: state/packets/at-pkt-001-product-spec-proof.yaml

@@ -1,9 +1,9 @@
----
 packet_id: at-ctrl-009
 packet_type: control-doc-repair
 execution_mode: mother_agent_direct_control_doc_repair
 subagent_dispatched: false
-dag_node_ids: [DAG-00]
+dag_node_ids:
+  - DAG-00
 title: Add VG-046 parallel-packet conflict detection gate
 status: accepted
 recorded_at: 2026-06-04T03:00:00Z
@@ -64,28 +64,17 @@ mission: |
   No product specs are edited. No existing gate is weakened. No
   forbidden action is performed.
 allowed_files:
-  - path: harness/knowledge/implementation-control/atelier/state/gates/structured-gates-2026-06-04.yaml
-    reason: add the VG-046 record to the structured gates YAML
-  - path: harness/knowledge/implementation-control/atelier/VALIDATION_GATE_REGISTRY.md
-    reason: add the VG-046 section to the gate registry doc
-  - path: harness/knowledge/implementation-control/atelier/IMPLEMENTATION_ORCHESTRATOR.md
-    reason: add the Conflict-Detection Algorithm section
-  - path: harness/knowledge/implementation-control/atelier/AGENT_PACKET_PROTOCOL.md
-    reason: add the allowed_files_intersect_inflight field to the packet schema
-  - path: harness/knowledge/implementation-control/atelier/IMPLEMENTATION_LEDGER.md
-    reason: add packet row, validation row, in-flight packets section
-  - path: harness/knowledge/implementation-control/atelier/state/packets/in-flight.yaml
-    reason: create the machine-readable in-flight file
-  - path: harness/knowledge/implementation-control/atelier/state/packets/at-ctrl-009.yaml
-    reason: create the packet record
-  - path: harness/knowledge/implementation-control/atelier/state/validations/at-ctrl-009-acceptance-2026-06-04.md
-    reason: create the acceptance proof
-  - path: harness/knowledge/implementation-control/atelier/state/validations/VG-046-2026-06-04.md
-    reason: create the VG-046 proof
-  - path: product/apps/atelier/src/core/parallel-conflict-checker.ts
-    reason: implement the conflict-checker core module
-  - path: product/apps/atelier/src/__tests__/parallel-conflict-checker.test.ts
-    reason: implement the conflict-checker test
+  - harness/knowledge/implementation-control/atelier/state/gates/structured-gates-2026-06-04.yaml
+  - harness/knowledge/implementation-control/atelier/VALIDATION_GATE_REGISTRY.md
+  - harness/knowledge/implementation-control/atelier/IMPLEMENTATION_ORCHESTRATOR.md
+  - harness/knowledge/implementation-control/atelier/AGENT_PACKET_PROTOCOL.md
+  - harness/knowledge/implementation-control/atelier/IMPLEMENTATION_LEDGER.md
+  - harness/knowledge/implementation-control/atelier/state/packets/in-flight.yaml
+  - harness/knowledge/implementation-control/atelier/state/packets/at-ctrl-009.yaml
+  - harness/knowledge/implementation-control/atelier/state/validations/at-ctrl-009-acceptance-2026-06-04.md
+  - harness/knowledge/implementation-control/atelier/state/validations/VG-046-2026-06-04.md
+  - product/apps/atelier/src/core/parallel-conflict-checker.ts
+  - product/apps/atelier/src/__tests__/parallel-conflict-checker.test.ts
 forbidden_actions:
   - weakening gates
   - deleting dependencies
@@ -150,7 +139,7 @@ validation_results:
     notes: 19 new parallel-conflict-checker tests; 0 failures
   - command: bun yaml.parse state/gates/structured-gates-2026-06-04.yaml
     status: passed
-    notes: 'VG-046 record present with executable_now: true'
+    notes: "VG-046 record present with executable_now: true"
   - command: bun yaml.parse state/packets/in-flight.yaml
     status: passed
     notes: schema header present; in_flight_packets is an empty list
@@ -171,3 +160,6 @@ notes: |
   allowed_files_intersect_inflight field. No existing gate is
   weakened; no product spec is edited; no forbidden action is
   performed.
+schema: atelier.legacy-packet/v1
+normalized_at: 2026-06-04T03:00:00Z
+legacy_source_path: state/packets/at-ctrl-009.yaml

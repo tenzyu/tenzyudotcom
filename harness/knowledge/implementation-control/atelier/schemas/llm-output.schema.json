@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "atelier.llm-output/v1",
+  "type": "object",
+  "required": ["source_section_id", "text", "modality", "domain", "testability", "severity", "closed_terms", "ambiguity_status", "notes"],
+  "properties": {
+    "source_section_id": { "type": "string" },
+    "text": { "type": "string" },
+    "modality": { "enum": ["must", "must_not", "should", "invariant", "definition"] },
+    "domain": { "type": "string" },
+    "testability": { "enum": ["executable", "oracle_gap", "semantic_review", "non_goal"] },
+    "severity": { "enum": ["P0", "P1", "P2"] },
+    "closed_terms": { "type": "array", "items": { "type": "string" } },
+    "ambiguity_status": { "enum": ["clear", "ambiguous", "conflicting"] },
+    "notes": { "type": "string" }
+  }
+}

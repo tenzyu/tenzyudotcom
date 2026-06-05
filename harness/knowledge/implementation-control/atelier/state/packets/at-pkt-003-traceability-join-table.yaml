@@ -9,11 +9,17 @@ product_spec_hash_ref: product-spec-head-baseline
 control_doc_hash_ref: immutable-control-doc-baseline-2026-06-04
 intent: Create machine-readable join table state and block product code rows that still need field/fixture/gate splitting.
 phase_gate: PG-1
-invariant_ids: [AT-INV-068]
-schema_ids: [contract_join_table]
-fixture_ids: [coverage_v1]
-test_ids: [VG-029, VG-038]
-implementation_modules: [N/A]
+invariant_ids:
+  - AT-INV-068
+schema_ids:
+  - contract_join_table
+fixture_ids:
+  - coverage_v1
+test_ids:
+  - VG-029
+  - VG-038
+implementation_modules:
+  - N/A
 acceptance_criteria:
   - Control/discovery rows are concrete.
   - Product code rows with broad assertions are blocked, not dispatchable.
@@ -23,6 +29,11 @@ allowed_files:
   - harness/knowledge/implementation-control/atelier/state/blockers/**
 forbidden_files:
   - harness/knowledge/product-specs/atelier/**
-validation_gate_ids: [VG-029, VG-038]
+validation_gate_ids:
+  - VG-029
+  - VG-038
 handoff_artifact_path: harness/knowledge/implementation-control/atelier/state/traceability/dag-02-join-table-2026-06-04.yaml
 product_specs_touched: false
+schema: atelier.legacy-packet/v1
+normalized_at: 2026-06-04T00:00:00Z
+legacy_source_path: state/packets/at-pkt-003-traceability-join-table.yaml

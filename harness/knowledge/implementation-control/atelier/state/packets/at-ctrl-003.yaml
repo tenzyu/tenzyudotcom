@@ -1,9 +1,9 @@
----
 packet_id: at-ctrl-003
 packet_type: control-doc-repair
 execution_mode: mother_agent_direct_control_doc_repair
 subagent_dispatched: false
-dag_node_ids: [DAG-00]
+dag_node_ids:
+  - DAG-00
 title: Tighten completion semantics and waiver rules
 status: accepted
 recorded_at: 2026-06-04T00:00:00Z
@@ -16,12 +16,9 @@ mission: |
   makes waiver scope, owner, expiry, and allowed public claim mandatory
   and explicitly limits waiver authority.
 allowed_files:
-  - path: harness/knowledge/implementation-control/atelier/FULL_COMPLETION_DEFINITION.md
-    reason: add completion principle and waiver rules
-  - path: harness/knowledge/implementation-control/atelier/IMPLEMENTATION_LEDGER.md
-    reason: add final acceptance checklist matching the new six-point list
-  - path: harness/knowledge/implementation-control/atelier/SPEC_IMMUTABILITY_AND_GAP_PROTOCOL.md
-    reason: deferral/blocker/waiver distinction already added by at-ctrl-000
+  - harness/knowledge/implementation-control/atelier/FULL_COMPLETION_DEFINITION.md
+  - harness/knowledge/implementation-control/atelier/IMPLEMENTATION_LEDGER.md
+  - harness/knowledge/implementation-control/atelier/SPEC_IMMUTABILITY_AND_GAP_PROTOCOL.md
 forbidden_actions:
   - weakening gates
   - deleting dependencies
@@ -57,3 +54,6 @@ notes: |
   Round 2 control repair. The completion definition now has the explicit
   principle that blockers cannot satisfy completion, the six-point
   requirement list, and the waiver-bounded rule.
+schema: atelier.legacy-packet/v1
+normalized_at: 2026-06-04T00:00:00Z
+legacy_source_path: state/packets/at-ctrl-003.yaml

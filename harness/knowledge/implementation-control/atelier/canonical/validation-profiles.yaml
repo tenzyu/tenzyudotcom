@@ -1,0 +1,262 @@
+schema: atelier.validation-profiles/v1
+generated_at: 2026-06-04T00:00:00Z
+profiles:
+  - schema: atelier.validation-profile/v1
+    profile_id: VP-DAG-00
+    dag_node_id: DAG-00
+    global_guards:
+      - bun run validate:graph
+      - bun run validate:coverage
+    packet_gates:
+      - VG-001
+      - VG-037
+    test_commands:
+      - see state/validations/VG-001-product-spec-clean-2026-06-04.md
+      - sha256sum immutable docs
+    evidence_required:
+      - state/evidence/DAG-00-VG-001.json
+      - state/evidence/DAG-00-VG-037.json
+    skip_global_checks_reason: Packet work uses this bounded profile; global checks remain mother-agent guards.
+  - schema: atelier.validation-profile/v1
+    profile_id: VP-DAG-01
+    dag_node_id: DAG-01
+    global_guards:
+      - bun run validate:graph
+      - bun run validate:coverage
+    packet_gates:
+      - VG-001
+      - VG-036
+    test_commands:
+      - see state/validations/VG-001-product-spec-clean-2026-06-04.md
+      - see state/validations/VG-036-product-spec-hash-2026-06-04.md
+    evidence_required:
+      - state/evidence/DAG-01-VG-001.json
+      - state/evidence/DAG-01-VG-036.json
+    skip_global_checks_reason: Packet work uses this bounded profile; global checks remain mother-agent guards.
+  - schema: atelier.validation-profile/v1
+    profile_id: VP-DAG-01B
+    dag_node_id: DAG-01B
+    global_guards:
+      - bun run validate:graph
+      - bun run validate:coverage
+    packet_gates:
+      - VG-000
+      - VG-001
+      - VG-036
+      - VG-037
+    test_commands:
+      - bun nx show projects && bun nx show project atelier
+      - see state/validations/VG-001-product-spec-clean-2026-06-04.md
+      - see state/validations/VG-036-product-spec-hash-2026-06-04.md
+      - sha256sum immutable docs
+    evidence_required:
+      - state/evidence/DAG-01B-VG-000.json
+      - state/evidence/DAG-01B-VG-001.json
+      - state/evidence/DAG-01B-VG-036.json
+      - state/evidence/DAG-01B-VG-037.json
+    skip_global_checks_reason: Packet work uses this bounded profile; global checks remain mother-agent guards.
+  - schema: atelier.validation-profile/v1
+    profile_id: VP-DAG-01C
+    dag_node_id: DAG-01C
+    global_guards:
+      - bun run validate:graph
+      - bun run validate:coverage
+    packet_gates:
+      - VG-000
+      - VG-002
+    test_commands:
+      - bun nx show projects && bun nx show project atelier
+      - bun nx run atelier:check
+    evidence_required:
+      - state/evidence/DAG-01C-VG-000.json
+      - state/evidence/DAG-01C-VG-002.json
+    skip_global_checks_reason: Packet work uses this bounded profile; global checks remain mother-agent guards.
+  - schema: atelier.validation-profile/v1
+    profile_id: VP-DAG-02
+    dag_node_id: DAG-02
+    global_guards:
+      - bun run validate:graph
+      - bun run validate:coverage
+    packet_gates:
+      - VG-029
+      - VG-038
+    test_commands:
+      - bun test product/apps/atelier/src/__tests__/coverage-fixture.test.ts
+      - bun test product/apps/atelier/src/__tests__/test-integrity-audit-fixture.test.ts
+    evidence_required:
+      - state/evidence/DAG-02-VG-029.json
+      - state/evidence/DAG-02-VG-038.json
+    skip_global_checks_reason: Packet work uses this bounded profile; global checks remain mother-agent guards.
+  - schema: atelier.validation-profile/v1
+    profile_id: VP-DAG-02A
+    dag_node_id: DAG-02A
+    global_guards:
+      - bun run validate:graph
+      - bun run validate:coverage
+    packet_gates:
+      - VG-004
+      - VG-045
+    test_commands:
+      - bun test product/apps/atelier/src/__tests__/fixture-alias-consistency.test.ts
+    evidence_required:
+      - state/evidence/DAG-02A-VG-004.json
+      - state/evidence/DAG-02A-VG-045.json
+    skip_global_checks_reason: Packet work uses this bounded profile; global checks remain mother-agent guards.
+  - schema: atelier.validation-profile/v1
+    profile_id: VP-DAG-04
+    dag_node_id: DAG-04
+    global_guards:
+      - bun run validate:graph
+      - bun run validate:coverage
+    packet_gates:
+      - VG-005
+      - VG-006
+      - VG-034
+      - VG-038
+    test_commands:
+      - fixtures/artifact_graph_golden_v1/command.*
+      - fixtures/graph_endpoint_matrix_v1/command.*
+      - packet-specific
+      - packet-specific diff audit
+    evidence_required:
+      - state/evidence/DAG-04-VG-005.json
+      - state/evidence/DAG-04-VG-006.json
+      - state/evidence/DAG-04-VG-034.json
+      - state/evidence/DAG-04-VG-038.json
+    skip_global_checks_reason: Packet work uses this bounded profile; global checks remain mother-agent guards.
+  - schema: atelier.validation-profile/v1
+    profile_id: VP-DAG-05
+    dag_node_id: DAG-05
+    global_guards:
+      - bun run validate:graph
+      - bun run validate:coverage
+    packet_gates:
+      - VG-011
+      - VG-013
+      - VG-040
+      - VG-041
+      - VG-044
+    test_commands:
+      - fixtures/run_lifecycle_state_machine_v1/command.*
+      - fixtures/durable_acceptance_v1/command.*
+      - fixtures/task_run_boundary_event_v1/command.*
+      - fixtures/run_lifecycle_event_v1/command.*
+      - fixtures/privacy_redaction_boundary_v1/command.*
+    evidence_required:
+      - state/evidence/DAG-05-VG-011.json
+      - state/evidence/DAG-05-VG-013.json
+      - state/evidence/DAG-05-VG-040.json
+      - state/evidence/DAG-05-VG-041.json
+      - state/evidence/DAG-05-VG-044.json
+    skip_global_checks_reason: Packet work uses this bounded profile; global checks remain mother-agent guards.
+  - schema: atelier.validation-profile/v1
+    profile_id: VP-DAG-06
+    dag_node_id: DAG-06
+    global_guards:
+      - bun run validate:graph
+      - bun run validate:coverage
+    packet_gates:
+      - VG-008
+      - VG-009
+      - VG-010
+      - VG-024
+      - VG-042
+      - VG-043
+    test_commands:
+      - fixtures/verification_record_v1/command.*
+      - fixtures/verification_map_derivation_v1/command.*
+      - fixtures/completion_truth_table_v1/command.*
+      - fixtures/decision_ref_primary_target_v1/command.*
+      - fixtures/verification_status_schema_v1/command.*
+      - fixtures/policy_decision_hard_block_v1/command.*
+    evidence_required:
+      - state/evidence/DAG-06-VG-008.json
+      - state/evidence/DAG-06-VG-009.json
+      - state/evidence/DAG-06-VG-010.json
+      - state/evidence/DAG-06-VG-024.json
+      - state/evidence/DAG-06-VG-042.json
+      - state/evidence/DAG-06-VG-043.json
+    skip_global_checks_reason: Packet work uses this bounded profile; global checks remain mother-agent guards.
+  - schema: atelier.validation-profile/v1
+    profile_id: VP-DAG-07
+    dag_node_id: DAG-07
+    global_guards:
+      - bun run validate:graph
+      - bun run validate:coverage
+    packet_gates:
+      - VG-018
+      - VG-019
+      - VG-039
+    test_commands:
+      - fixtures/surface_inventory_v1/command.*
+      - fixtures/run_verify_surface_record_v1/command.*
+    evidence_required:
+      - state/evidence/DAG-07-VG-018.json
+      - state/evidence/DAG-07-VG-019.json
+      - state/evidence/DAG-07-VG-039.json
+    skip_global_checks_reason: Packet work uses this bounded profile; global checks remain mother-agent guards.
+  - schema: atelier.validation-profile/v1
+    profile_id: VP-DAG-08
+    dag_node_id: DAG-08
+    global_guards:
+      - bun run validate:graph
+      - bun run validate:coverage
+    packet_gates:
+      - VG-021
+      - VG-022
+      - VG-023
+      - VG-032
+    test_commands:
+      - fixtures/adapter_semantic_equivalence_v1/command.*
+      - fixtures/adapter_packet_portability_v1/command.*
+      - fixtures/adapter_runtime_parity_v1/command.*
+    evidence_required:
+      - state/evidence/DAG-08-VG-021.json
+      - state/evidence/DAG-08-VG-022.json
+      - state/evidence/DAG-08-VG-023.json
+      - state/evidence/DAG-08-VG-032.json
+    skip_global_checks_reason: Packet work uses this bounded profile; global checks remain mother-agent guards.
+  - schema: atelier.validation-profile/v1
+    profile_id: VP-DAG-09
+    dag_node_id: DAG-09
+    global_guards:
+      - bun run validate:graph
+      - bun run validate:coverage
+    packet_gates:
+      - VG-020
+      - VG-033
+    test_commands:
+      - fixtures/run_packet_v1/command.*
+      - fixtures/generated_state_regeneration_v1/command.*
+    evidence_required:
+      - state/evidence/DAG-09-VG-020.json
+      - state/evidence/DAG-09-VG-033.json
+    skip_global_checks_reason: Packet work uses this bounded profile; global checks remain mother-agent guards.
+  - schema: atelier.validation-profile/v1
+    profile_id: VP-DAG-10
+    dag_node_id: DAG-10
+    global_guards:
+      - bun run validate:graph
+      - bun run validate:coverage
+    packet_gates:
+      - VG-015
+      - VG-025
+      - VG-026A
+      - VG-026B
+      - VG-043
+      - VG-034
+    test_commands:
+      - fixtures/context_plan_readonly_v1/command.*
+      - fixtures/transform_maturity_v1/command.*
+      - bun nx run atelier:test -- --testPathPattern=write-authority-minimum
+      - fixtures/write_authority_v1/command.*
+      - fixtures/policy_decision_hard_block_v1/command.*
+      - packet-specific
+    evidence_required:
+      - state/evidence/DAG-10-VG-015.json
+      - state/evidence/DAG-10-VG-025.json
+      - state/evidence/DAG-10-VG-026A.json
+      - state/evidence/DAG-10-VG-026B.json
+      - state/evidence/DAG-10-VG-043.json
+      - state/evidence/DAG-10-VG-034.json
+    skip_global_checks_reason: Packet work uses this bounded profile; global checks remain mother-agent guards.

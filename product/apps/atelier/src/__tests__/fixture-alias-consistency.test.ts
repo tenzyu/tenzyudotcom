@@ -10,7 +10,7 @@ const REGISTRY_PATH = path.join(
 )
 const GATE_REGISTRY_PATH = path.join(
   REPO_ROOT,
-  'harness/knowledge/implementation-control/atelier/VALIDATION_GATE_REGISTRY.md',
+  'harness/knowledge/implementation-control/atelier/views/VALIDATION_GATE_REGISTRY.md',
 )
 const MATRIX_PATH = path.join(
   REPO_ROOT,
@@ -185,14 +185,14 @@ describe('fixture alias consistency (VG-045)', () => {
     expect(offenders).toEqual([])
   })
 
-  test('no pending_command_implementation row is used as the sole phase-gate evidence', () => {
+  test('no pending_command_implementation row remains in executable readiness state', () => {
     const offenders: string[] = []
     for (const row of registry.fixtures) {
       if (row.status === 'pending_command_implementation') {
         offenders.push(row.fixture_id)
       }
     }
-    expect(offenders.length).toBeGreaterThan(0)
+    expect(offenders).toEqual([])
   })
 
   test('every executable row has its command_file, input_path, and expected_path on disk', () => {

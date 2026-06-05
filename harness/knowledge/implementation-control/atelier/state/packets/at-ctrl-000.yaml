@@ -1,9 +1,9 @@
----
 packet_id: at-ctrl-000
 packet_type: control-doc-repair
 execution_mode: mother_agent_direct_control_doc_repair
 subagent_dispatched: false
-dag_node_ids: [DAG-00]
+dag_node_ids:
+  - DAG-00
 title: Split immutable control baseline from mutable execution state
 status: accepted
 recorded_at: 2026-06-04T00:00:00Z
@@ -14,16 +14,11 @@ mission: |
   and mutable execution state, and add a closed control-doc-repair packet type
   specification.
 allowed_files:
-  - path: harness/knowledge/implementation-control/atelier/IMPLEMENTATION_ORCHESTRATOR.md
-    reason: add control-doc-repair packet section
-  - path: harness/knowledge/implementation-control/atelier/AGENT_PACKET_PROTOCOL.md
-    reason: rename control_doc_hash_ref to immutable_control_hash_ref; add packet_type; add fail-closed rules; mark example packets as non-dispatchable templates
-  - path: harness/knowledge/implementation-control/atelier/SUBAGENT_ROLE_CATALOG.md
-    reason: add control-doc-repair role with closed forbidden-action list
-  - path: harness/knowledge/implementation-control/atelier/SPEC_IMMUTABILITY_AND_GAP_PROTOCOL.md
-    reason: add control-doc-repair packet type summary; add deferral/blocker/waiver distinction; add waiver record format
-  - path: harness/knowledge/implementation-control/atelier/IMPLEMENTATION_LEDGER.md
-    reason: record launch_status unsafe and 4 P0 blockers
+  - harness/knowledge/implementation-control/atelier/IMPLEMENTATION_ORCHESTRATOR.md
+  - harness/knowledge/implementation-control/atelier/AGENT_PACKET_PROTOCOL.md
+  - harness/knowledge/implementation-control/atelier/SUBAGENT_ROLE_CATALOG.md
+  - harness/knowledge/implementation-control/atelier/SPEC_IMMUTABILITY_AND_GAP_PROTOCOL.md
+  - harness/knowledge/implementation-control/atelier/IMPLEMENTATION_LEDGER.md
 forbidden_actions:
   - weakening gates
   - deleting dependencies
@@ -70,3 +65,6 @@ notes: |
   Round 2 control repair. Establishes the executable repair packet type and
   records the unsafe launch status. No product code, no product specs, no
   ordinary implementation dispatch.
+schema: atelier.legacy-packet/v1
+normalized_at: 2026-06-04T00:00:00Z
+legacy_source_path: state/packets/at-ctrl-000.yaml

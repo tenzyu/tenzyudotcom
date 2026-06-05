@@ -12,11 +12,19 @@ product_spec_hash_ref: product-spec-head-baseline
 control_doc_hash_ref: immutable-control-doc-baseline-2026-06-04
 intent: Record concrete repository roots and edit boundaries before implementation dispatch.
 phase_gate: PG-0B
-invariant_ids: [infrastructure_support]
-schema_ids: [repo_inventory_schema]
-fixture_ids: [repo_inventory_2026_06_04]
-test_ids: [VG-000, VG-001, VG-036, VG-037]
-implementation_modules: [N/A]
+invariant_ids:
+  - infrastructure_support
+schema_ids:
+  - repo_inventory_schema
+fixture_ids:
+  - repo_inventory_2026_06_04
+test_ids:
+  - VG-000
+  - VG-001
+  - VG-036
+  - VG-037
+implementation_modules:
+  - N/A
 acceptance_criteria:
   - Repository inventory record exists under state/repository-inventory.
   - Product specs remain clean relative to HEAD.
@@ -37,6 +45,13 @@ forbidden_files:
   - harness/knowledge/implementation-control/atelier/SPEC_IMMUTABILITY_AND_GAP_PROTOCOL.md
   - harness/knowledge/implementation-control/atelier/FULL_COMPLETION_DEFINITION.md
   - harness/knowledge/implementation-control/atelier/REPOSITORY_DISCOVERY_AND_EDIT_BOUNDARY.md
-validation_gate_ids: [VG-000, VG-001, VG-036, VG-037]
+validation_gate_ids:
+  - VG-000
+  - VG-001
+  - VG-036
+  - VG-037
 handoff_artifact_path: harness/knowledge/implementation-control/atelier/state/repository-inventory/repo-inventory-2026-06-04.md
 product_specs_touched: false
+schema: atelier.legacy-packet/v1
+normalized_at: 2026-06-04T00:00:00Z
+legacy_source_path: state/packets/at-pkt-000-repository-inventory.yaml

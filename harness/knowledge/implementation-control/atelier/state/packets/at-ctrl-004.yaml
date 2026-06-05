@@ -1,9 +1,9 @@
----
 packet_id: at-ctrl-004
 packet_type: control-doc-repair
 execution_mode: mother_agent_direct_control_doc_repair
 subagent_dispatched: false
-dag_node_ids: [DAG-02]
+dag_node_ids:
+  - DAG-02
 title: Upgrade matrix to DAG × invariant × spec section × fixture × gate join table
 status: accepted
 recorded_at: 2026-06-04T00:00:00Z
@@ -14,14 +14,10 @@ mission: |
   deferral_state column. Update the join table state file to the new
   rejection rules. Add assertion-row routing to SPEC_READ_PLAN.md.
 allowed_files:
-  - path: harness/knowledge/implementation-control/atelier/CONTRACT_TO_BUILD_MATRIX.md
-    reason: add row shape and rejection rules
-  - path: harness/knowledge/implementation-control/atelier/state/traceability/dag-02-join-table-2026-06-04.yaml
-    reason: add deferral_state column and rejection rules
-  - path: harness/knowledge/implementation-control/atelier/SPEC_READ_PLAN.md
-    reason: add assertion-row routing
-  - path: harness/knowledge/implementation-control/atelier/IMPLEMENTATION_DAG.md
-    reason: verify matrix is linked to join table and dispatchable node invariant/gate linkage
+  - harness/knowledge/implementation-control/atelier/CONTRACT_TO_BUILD_MATRIX.md
+  - harness/knowledge/implementation-control/atelier/state/traceability/dag-02-join-table-2026-06-04.yaml
+  - harness/knowledge/implementation-control/atelier/SPEC_READ_PLAN.md
+  - harness/knowledge/implementation-control/atelier/IMPLEMENTATION_DAG.md
 forbidden_actions:
   - weakening gates
   - deleting dependencies
@@ -60,3 +56,6 @@ notes: |
   rejection rules, the join table state file has the deferral_state column
   and rejection rules, and SPEC_READ_PLAN.md has the assertion-row routing
   section.
+schema: atelier.legacy-packet/v1
+normalized_at: 2026-06-04T00:00:00Z
+legacy_source_path: state/packets/at-ctrl-004.yaml

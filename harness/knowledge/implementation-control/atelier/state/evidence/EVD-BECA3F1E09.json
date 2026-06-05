@@ -1,0 +1,7 @@
+{
+  "schema": "atelier.evidence/v1",
+  "evidence_id": "EVD-BECA3F1E09",
+  "status": "passed",
+  "body_ref": "state/legacy/original-state/validations/at-ctrl-012-acceptance-2026-06-04.md",
+  "created_at": "2026-06-04T00:00:00Z"
+}

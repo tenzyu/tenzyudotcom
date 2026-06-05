@@ -9,11 +9,17 @@ product_spec_hash_ref: product-spec-head-baseline
 control_doc_hash_ref: immutable-control-doc-baseline-2026-06-04
 intent: Record package-manager-aware command and target discovery, including fallback rules.
 phase_gate: PG-0B
-invariant_ids: [infrastructure_support]
-schema_ids: [command_discovery_schema]
-fixture_ids: [command_discovery_2026_06_04]
-test_ids: [VG-000, VG-002]
-implementation_modules: [N/A]
+invariant_ids:
+  - infrastructure_support
+schema_ids:
+  - command_discovery_schema
+fixture_ids:
+  - command_discovery_2026_06_04
+test_ids:
+  - VG-000
+  - VG-002
+implementation_modules:
+  - N/A
 acceptance_criteria:
   - Atelier project and check target are discovered.
   - Non-Nx fallback algorithm is recorded.
@@ -22,6 +28,11 @@ allowed_files:
   - harness/knowledge/implementation-control/atelier/state/command-discovery/**
 forbidden_files:
   - harness/knowledge/product-specs/atelier/**
-validation_gate_ids: [VG-000, VG-002]
+validation_gate_ids:
+  - VG-000
+  - VG-002
 handoff_artifact_path: harness/knowledge/implementation-control/atelier/state/command-discovery/command-discovery-2026-06-04.md
 product_specs_touched: false
+schema: atelier.legacy-packet/v1
+normalized_at: 2026-06-04T00:00:00Z
+legacy_source_path: state/packets/at-pkt-002-command-discovery.yaml

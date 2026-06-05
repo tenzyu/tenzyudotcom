@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "atelier.packet/v1",
+  "type": "object",
+  "required": ["schema", "packet_id", "status", "dag_node_ids", "goal", "allowed_files", "required_gates"],
+  "properties": {
+    "schema": { "const": "atelier.packet/v1" },
+    "packet_id": { "type": "string" },
+    "status": { "enum": ["draft", "in_flight", "accepted", "rejected", "blocked", "superseded"] },
+    "dag_node_ids": { "type": "array", "items": { "type": "string" } },
+    "goal": { "type": "string" },
+    "allowed_files": { "type": "array", "items": { "type": "string" } },
+    "required_gates": { "type": "array", "items": { "type": "string" } }
+  }
+}

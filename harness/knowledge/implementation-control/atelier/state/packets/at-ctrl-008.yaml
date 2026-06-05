@@ -1,9 +1,9 @@
----
 packet_id: at-ctrl-008
 packet_type: control-doc-repair
 execution_mode: mother_agent_direct_control_doc_repair
 subagent_dispatched: false
-dag_node_ids: [DAG-00]
+dag_node_ids:
+  - DAG-00
 title: Add DAG Node Range Rule and cross-reference to forbid range-spanning subagent packets
 status: accepted
 recorded_at: 2026-06-04T03:00:00Z
@@ -22,16 +22,11 @@ mission: |
   doc-only; no DAG node, dependency, gate, or completion criterion is
   modified.
 allowed_files:
-  - path: harness/knowledge/implementation-control/atelier/IMPLEMENTATION_DAG.md
-    reason: add the "DAG Node Range Rule" section at the top of the DAG Nodes table
-  - path: harness/knowledge/implementation-control/atelier/SUBAGENT_ROLE_CATALOG.md
-    reason: add the cross-reference sentence in the Global Role Limits section
-  - path: harness/knowledge/implementation-control/atelier/IMPLEMENTATION_LEDGER.md
-    reason: add packet status row and validation history row for at-ctrl-008
-  - path: harness/knowledge/implementation-control/atelier/state/packets/at-ctrl-008.yaml
-    reason: create the packet record
-  - path: harness/knowledge/implementation-control/atelier/state/validations/at-ctrl-008-acceptance-2026-06-04.md
-    reason: create the acceptance proof
+  - harness/knowledge/implementation-control/atelier/IMPLEMENTATION_DAG.md
+  - harness/knowledge/implementation-control/atelier/SUBAGENT_ROLE_CATALOG.md
+  - harness/knowledge/implementation-control/atelier/IMPLEMENTATION_LEDGER.md
+  - harness/knowledge/implementation-control/atelier/state/packets/at-ctrl-008.yaml
+  - harness/knowledge/implementation-control/atelier/state/validations/at-ctrl-008-acceptance-2026-06-04.md
 forbidden_actions:
   - weakening gates
   - deleting dependencies
@@ -45,12 +40,12 @@ forbidden_actions:
   - allowing pending commands to satisfy phase gates
 acceptance_criteria:
   - '"DAG Node Range Rule" section is present at the top of the ## DAG Nodes table in IMPLEMENTATION_DAG.md (verified)'
-  - 'the rule states ranges are documentation-only, must be split per canonical splits, and a single packet must never span a range (verified)'
-  - 'cross-reference sentence is present in the ## Global Role Limits section of SUBAGENT_ROLE_CATALOG.md and points to IMPLEMENTATION_DAG.md DAG Node Range Rule (verified)'
-  - 'IMPLEMENTATION_LEDGER.md Packet Status table has a new at-ctrl-008 row (verified)'
-  - 'IMPLEMENTATION_LEDGER.md Validation History table has a new at-ctrl-008 row (verified)'
-  - 'no DAG node, dependency, gate, or completion criterion was modified (verified)'
-  - 'no product-spec files edited (verified by git diff --name-status -- harness/knowledge/product-specs/atelier empty)'
+  - the rule states ranges are documentation-only, must be split per canonical splits, and a single packet must never span a range (verified)
+  - "cross-reference sentence is present in the ## Global Role Limits section of SUBAGENT_ROLE_CATALOG.md and points to IMPLEMENTATION_DAG.md DAG Node Range Rule (verified)"
+  - IMPLEMENTATION_LEDGER.md Packet Status table has a new at-ctrl-008 row (verified)
+  - IMPLEMENTATION_LEDGER.md Validation History table has a new at-ctrl-008 row (verified)
+  - no DAG node, dependency, gate, or completion criterion was modified (verified)
+  - no product-spec files edited (verified by git diff --name-status -- harness/knowledge/product-specs/atelier empty)
 validation_gate_ids:
   - VG-001
   - VG-037
@@ -89,3 +84,6 @@ notes: |
   now has an explicit, on-page prohibition to consult. The change does
   not alter any DAG node, dependency, gate, completion criterion, or
   product spec; it only adds a routing rule and a cross-reference.
+schema: atelier.legacy-packet/v1
+normalized_at: 2026-06-04T03:00:00Z
+legacy_source_path: state/packets/at-ctrl-008.yaml

@@ -1,9 +1,9 @@
----
 packet_id: at-ctrl-010
 packet_type: control-doc-repair
 execution_mode: mother_agent_direct_control_doc_repair
 subagent_dispatched: false
-dag_node_ids: [DAG-00]
+dag_node_ids:
+  - DAG-00
 title: Add explicit Validation Re-run Cadence section to IMPLEMENTATION_ORCHESTRATOR.md
 status: accepted
 recorded_at: 2026-06-04T03:00:00Z
@@ -24,16 +24,11 @@ mission: |
   completion criterion is broadened, and product-spec immutability is
   preserved.
 allowed_files:
-  - path: harness/knowledge/implementation-control/atelier/IMPLEMENTATION_ORCHESTRATOR.md
-    reason: append the new "Validation Re-run Cadence" section after "Final Completion Definition"
-  - path: harness/knowledge/implementation-control/atelier/IMPLEMENTATION_LEDGER.md
-    reason: record the packet status row, validation history rows, and the new orchestrator SHA-256
-  - path: harness/knowledge/implementation-control/atelier/state/packets/at-ctrl-010.yaml
-    reason: create the packet record
-  - path: harness/knowledge/implementation-control/atelier/state/validations/at-ctrl-010-acceptance-2026-06-04.md
-    reason: create the acceptance proof
-  - path: harness/knowledge/implementation-control/atelier/state/validations/VG-037-control-doc-baseline-2026-06-04-post-cadence-section.md
-    reason: refresh the immutable control-doc baseline so future ordinary packets can compare against the post-cadence-section hash
+  - harness/knowledge/implementation-control/atelier/IMPLEMENTATION_ORCHESTRATOR.md
+  - harness/knowledge/implementation-control/atelier/IMPLEMENTATION_LEDGER.md
+  - harness/knowledge/implementation-control/atelier/state/packets/at-ctrl-010.yaml
+  - harness/knowledge/implementation-control/atelier/state/validations/at-ctrl-010-acceptance-2026-06-04.md
+  - harness/knowledge/implementation-control/atelier/state/validations/VG-037-control-doc-baseline-2026-06-04-post-cadence-section.md
 forbidden_actions:
   - weakening gates
   - deleting dependencies
@@ -46,7 +41,7 @@ forbidden_actions:
   - converting executable requirements into assumptions
   - allowing pending commands to satisfy phase gates
 acceptance_criteria:
-  - 'Validation Re-run Cadence section appended to IMPLEMENTATION_ORCHESTRATOR.md after Final Completion Definition (verified)'
+  - Validation Re-run Cadence section appended to IMPLEMENTATION_ORCHESTRATOR.md after Final Completion Definition (verified)
   - section enumerates VG-001, VG-036, VG-037, VG-038 cadences verbatim from the mission (verified)
   - section documents the stale Validation History P1 finding (verified)
   - VG-037 baseline refresh file recorded; immutable control-doc baseline post-cadence-section hash captured (verified)
@@ -82,13 +77,13 @@ validation_results:
     notes: empty
   - command: bun nx run atelier:check
     status: passed
-    notes: "typecheck + 122 tests pass, 0 fail, 491 expect() calls; Nx cache hit on 3/3 tasks"
+    notes: typecheck + 122 tests pass, 0 fail, 491 expect() calls; Nx cache hit on 3/3 tasks
   - command: sha256sum harness/knowledge/implementation-control/atelier/IMPLEMENTATION_ORCHESTRATOR.md
     status: passed
-    notes: "74449aa02e01562c236595b4f53d9e942cbd0b5008e67d1aa97d0c5fe4a5dc36 (post-cadence-section hash)"
+    notes: 74449aa02e01562c236595b4f53d9e942cbd0b5008e67d1aa97d0c5fe4a5dc36 (post-cadence-section hash)
   - command: sha256sum harness/knowledge/implementation-control/atelier/VALIDATION_GATE_REGISTRY.md
     status: passed
-    notes: "unchanged; no gate required_before value modified"
+    notes: unchanged; no gate required_before value modified
 notes: |
   Round 3 control repair. The orchestrator's `required_before` machinery
   already enforces the re-run cadence for VG-001, VG-036, VG-037, and
@@ -106,3 +101,6 @@ notes: |
   P1 finding is documented because the existing `Validation History`
   table has no formal rule preventing drift between accepted packets
   and recorded validation entries.
+schema: atelier.legacy-packet/v1
+normalized_at: 2026-06-04T03:00:00Z
+legacy_source_path: state/packets/at-ctrl-010.yaml

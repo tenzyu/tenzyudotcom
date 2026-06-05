@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "atelier.llm-job/v1",
+  "type": "object",
+  "required": ["job_id", "kind"],
+  "properties": {
+    "job_id": { "type": "string" },
+    "kind": { "enum": ["assertions", "ambiguity", "links", "kernel"] }
+  }
+}

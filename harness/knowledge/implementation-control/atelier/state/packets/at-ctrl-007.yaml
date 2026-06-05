@@ -1,9 +1,9 @@
----
 packet_id: at-ctrl-007
 packet_type: control-doc-repair
 execution_mode: mother_agent_direct_control_doc_repair
 subagent_dispatched: false
-dag_node_ids: [DAG-10]
+dag_node_ids:
+  - DAG-10
 title: Make VG-026A executable by replacing the pending placeholder with a real minimum write-authority test
 status: accepted
 recorded_at: 2026-06-04T04:00:00Z
@@ -26,20 +26,13 @@ mission: |
   `IMPLEMENTATION_LEDGER.md` Packet Status and Validation History.
   Do not edit any product-spec file.
 allowed_files:
-  - path: product/apps/atelier/src/__tests__/write-authority-minimum.test.ts
-    reason: create the runnable minimum test
-  - path: harness/knowledge/implementation-control/atelier/state/gates/structured-gates-2026-06-04.yaml
-    reason: flip VG-026A `executable_now` to true, replace the command, point the proof_artifact to a concrete file
-  - path: harness/knowledge/implementation-control/atelier/VALIDATION_GATE_REGISTRY.md
-    reason: update the VG-026A row to reference the real test command
-  - path: harness/knowledge/implementation-control/atelier/IMPLEMENTATION_LEDGER.md
-    reason: add at-ctrl-007 packet status row and validation history row
-  - path: harness/knowledge/implementation-control/atelier/state/packets/at-ctrl-007.yaml
-    reason: create the packet record
-  - path: harness/knowledge/implementation-control/atelier/state/validations/VG-026A-2026-06-04.md
-    reason: create the VG-026A proof artifact
-  - path: harness/knowledge/implementation-control/atelier/state/validations/at-ctrl-007-acceptance-2026-06-04.md
-    reason: create the acceptance proof
+  - product/apps/atelier/src/__tests__/write-authority-minimum.test.ts
+  - harness/knowledge/implementation-control/atelier/state/gates/structured-gates-2026-06-04.yaml
+  - harness/knowledge/implementation-control/atelier/VALIDATION_GATE_REGISTRY.md
+  - harness/knowledge/implementation-control/atelier/IMPLEMENTATION_LEDGER.md
+  - harness/knowledge/implementation-control/atelier/state/packets/at-ctrl-007.yaml
+  - harness/knowledge/implementation-control/atelier/state/validations/VG-026A-2026-06-04.md
+  - harness/knowledge/implementation-control/atelier/state/validations/at-ctrl-007-acceptance-2026-06-04.md
 forbidden_actions:
   - weakening gates
   - deleting dependencies
@@ -53,16 +46,16 @@ forbidden_actions:
   - allowing pending commands to satisfy phase gates
   - inventing a full policy engine (VG-026B scope)
 acceptance_criteria:
-  - 'product/apps/atelier/src/__tests__/write-authority-minimum.test.ts exists (verified)'
+  - product/apps/atelier/src/__tests__/write-authority-minimum.test.ts exists (verified)
   - test reads WRITE_AUTHORITY_MATRIX.md, contract.md, and VERIFICATION_SCHEMA.md from the workspace (verified)
   - test asserts the minimum rules: unauthorized actor rejected with ATELIER-INVARIANT-VIOLATION; context planner read-only (mutated/created_run/created_task all false); runtime adapter/validator cannot promote their own output; .atelier is never sole product truth (verified)
-  - "VG-026A executable_now flipped to true in structured-gates-2026-06-04.yaml (verified)"
-  - "VG-026A command is bun nx run atelier:test -- --testPathPattern=write-authority-minimum (verified)"
-  - "VG-026A proof_artifact is state/validations/VG-026A-2026-06-04.md (verified)"
-  - "VALIDATION_GATE_REGISTRY.md VG-026A row references the real test command (verified)"
-  - "IMPLEMENTATION_LEDGER.md has at-ctrl-007 in Packet Status and Validation History (verified)"
-  - "bun nx run atelier:test -- --testPathPattern=write-authority-minimum passes (verified; 178 pass, 0 fail)"
-  - "bun nx run atelier:check passes (verified; 178 pass, 0 fail)"
+  - VG-026A executable_now flipped to true in structured-gates-2026-06-04.yaml (verified)
+  - VG-026A command is bun nx run atelier:test -- --testPathPattern=write-authority-minimum (verified)
+  - VG-026A proof_artifact is state/validations/VG-026A-2026-06-04.md (verified)
+  - VALIDATION_GATE_REGISTRY.md VG-026A row references the real test command (verified)
+  - IMPLEMENTATION_LEDGER.md has at-ctrl-007 in Packet Status and Validation History (verified)
+  - bun nx run atelier:test -- --testPathPattern=write-authority-minimum passes (verified; 178 pass, 0 fail)
+  - bun nx run atelier:check passes (verified; 178 pass, 0 fail)
   - no product-spec files edited (verified by empty git diff/status for harness/knowledge/product-specs/atelier)
 validation_gate_ids:
   - VG-001
@@ -96,10 +89,10 @@ validation_results:
     notes: empty
   - command: bun nx run atelier:check
     status: passed
-    notes: 'typecheck + 178 tests pass, 0 failures, 600 expect() calls'
+    notes: typecheck + 178 tests pass, 0 failures, 600 expect() calls
   - command: bun nx run atelier:test -- --testPathPattern=write-authority-minimum
     status: passed
-    notes: '37 new write-authority-minimum tests + 141 existing tests, 0 failures, 600 expect() calls'
+    notes: 37 new write-authority-minimum tests + 141 existing tests, 0 failures, 600 expect() calls
 notes: |
   Round 3 control repair. VG-026A is now executable. The pending
   `state/gates/write-authority-minimum-command.txt until implemented`
@@ -113,3 +106,6 @@ notes: |
   scope for this packet. `DAG-10`'s per-DAG dependency on VG-026A is
   now satisfiable by a passing test instead of a placeholder command.
   No product-spec files were edited; no forbidden action was taken.
+schema: atelier.legacy-packet/v1
+normalized_at: 2026-06-04T04:00:00Z
+legacy_source_path: state/packets/at-ctrl-007.yaml

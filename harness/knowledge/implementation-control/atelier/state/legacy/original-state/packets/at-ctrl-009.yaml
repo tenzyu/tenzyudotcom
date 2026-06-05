@@ -1,0 +1,173 @@
+---
+packet_id: at-ctrl-009
+packet_type: control-doc-repair
+execution_mode: mother_agent_direct_control_doc_repair
+subagent_dispatched: false
+dag_node_ids: [DAG-00]
+title: Add VG-046 parallel-packet conflict detection gate
+status: accepted
+recorded_at: 2026-06-04T03:00:00Z
+recorded_by: control-doc-repair
+base_revision: 71a9700171fdea8466c0d20221d02896a99cc081
+mission: |
+  Add a new validation gate VG-046 (parallel-packet conflict detection)
+  plus its associated implementation, orchestrator description, and
+  packet schema field. This is the gate that mechanically prevents two
+  in-flight implementation packets from mutating overlapping files,
+  fixtures, schemas, command surfaces, or generated-state paths.
+  Specifically:
+
+  1. Add the VG-046 record to
+     state/gates/structured-gates-2026-06-04.yaml with
+     executable_now: true, P1 blocking severity, and the new
+     parallel_conflict_check_v1 fixture_id.
+
+  2. Add the VG-046 section to VALIDATION_GATE_REGISTRY.md matching
+     the structure of the other gate sections (Purpose, Command,
+     Severity, Executable Now, Required Before, Notes).
+
+  3. Implement the check at
+     product/apps/atelier/src/core/parallel-conflict-checker.ts and
+     the test at
+     product/apps/atelier/src/__tests__/parallel-conflict-checker.test.ts.
+     The script reads
+     state/packets/in-flight.yaml (or the ledger's In-flight Packets
+     section; be consistent), takes a hypothetical candidate packet's
+     allowed_files and forbidden_roots, intersects them against each
+     in-flight packet's allowed_files and forbidden_roots, detects
+     fixture family / command surface / generated-state /
+     durable-evidence overlap, and returns passed or failed with
+     details.
+
+  4. Add a Conflict-Detection Algorithm section to
+     IMPLEMENTATION_ORCHESTRATOR.md describing the in-flight list
+     source, the pre-dispatch VG-046 invocation, the failed-dispatch
+     handling (wait or BLK-CONFLICT-<id>), and the new
+     allowed_files_intersect_inflight packet field.
+
+  5. Add the allowed_files_intersect_inflight field to the packet
+     schema in AGENT_PACKET_PROTOCOL.md with the closed list type
+     and the empty default.
+
+  6. Add rows to the Packet Status table and Validation History
+     table for at-ctrl-009 and VG-046 in IMPLEMENTATION_LEDGER.md,
+     plus a new In-flight Packets section (machine-readable YAML
+     mirror; initial state empty list).
+
+  7. Create the machine-readable in-flight file at
+     state/packets/in-flight.yaml with schema header and empty list.
+
+  8. Create the packet record (this file), the acceptance proof at
+     state/validations/at-ctrl-009-acceptance-2026-06-04.md, and the
+     VG-046 proof at state/validations/VG-046-2026-06-04.md.
+
+  No product specs are edited. No existing gate is weakened. No
+  forbidden action is performed.
+allowed_files:
+  - path: harness/knowledge/implementation-control/atelier/state/gates/structured-gates-2026-06-04.yaml
+    reason: add the VG-046 record to the structured gates YAML
+  - path: harness/knowledge/implementation-control/atelier/VALIDATION_GATE_REGISTRY.md
+    reason: add the VG-046 section to the gate registry doc
+  - path: harness/knowledge/implementation-control/atelier/IMPLEMENTATION_ORCHESTRATOR.md
+    reason: add the Conflict-Detection Algorithm section
+  - path: harness/knowledge/implementation-control/atelier/AGENT_PACKET_PROTOCOL.md
+    reason: add the allowed_files_intersect_inflight field to the packet schema
+  - path: harness/knowledge/implementation-control/atelier/IMPLEMENTATION_LEDGER.md
+    reason: add packet row, validation row, in-flight packets section
+  - path: harness/knowledge/implementation-control/atelier/state/packets/in-flight.yaml
+    reason: create the machine-readable in-flight file
+  - path: harness/knowledge/implementation-control/atelier/state/packets/at-ctrl-009.yaml
+    reason: create the packet record
+  - path: harness/knowledge/implementation-control/atelier/state/validations/at-ctrl-009-acceptance-2026-06-04.md
+    reason: create the acceptance proof
+  - path: harness/knowledge/implementation-control/atelier/state/validations/VG-046-2026-06-04.md
+    reason: create the VG-046 proof
+  - path: product/apps/atelier/src/core/parallel-conflict-checker.ts
+    reason: implement the conflict-checker core module
+  - path: product/apps/atelier/src/__tests__/parallel-conflict-checker.test.ts
+    reason: implement the conflict-checker test
+forbidden_actions:
+  - weakening gates
+  - deleting dependencies
+  - broadening completion criteria
+  - relaxing product-spec immutability
+  - adding compatibility aliases for removed commands
+  - broadening fixture scope without matrix-backed reason
+  - narrowing expected diff shape to hide required work
+  - downgrading blocker severity without evidence
+  - converting executable requirements into assumptions
+  - allowing pending commands to satisfy phase gates
+acceptance_criteria:
+  - VG-046 record exists in structured-gates YAML with executable_now: true
+  - VG-046 section exists in VALIDATION_GATE_REGISTRY.md
+  - Conflict-Detection Algorithm section exists in orchestrator
+  - allowed_files_intersect_inflight field added to packet schema
+  - In-flight Packets section exists in ledger
+  - In-flight YAML file exists with schema header and empty list
+  - parallel-conflict-checker test passes
+  - bun nx run atelier:check passes
+  - no product-spec files edited (verified by git diff)
+  - no forbidden actions in the diff
+validation_gate_ids:
+  - VG-001
+  - VG-037
+  - VG-038
+  - VG-046
+validation_required_before_handoff:
+  - VG-001
+  - VG-037
+  - VG-038
+  - VG-046
+audit_proof_ref: harness/knowledge/implementation-control/atelier/state/validations/at-ctrl-009-acceptance-2026-06-04.md
+files_changed:
+  - harness/knowledge/implementation-control/atelier/state/gates/structured-gates-2026-06-04.yaml
+  - harness/knowledge/implementation-control/atelier/VALIDATION_GATE_REGISTRY.md
+  - harness/knowledge/implementation-control/atelier/IMPLEMENTATION_ORCHESTRATOR.md
+  - harness/knowledge/implementation-control/atelier/AGENT_PACKET_PROTOCOL.md
+  - harness/knowledge/implementation-control/atelier/IMPLEMENTATION_LEDGER.md
+  - harness/knowledge/implementation-control/atelier/state/packets/in-flight.yaml
+  - harness/knowledge/implementation-control/atelier/state/packets/at-ctrl-009.yaml
+  - harness/knowledge/implementation-control/atelier/state/validations/at-ctrl-009-acceptance-2026-06-04.md
+  - harness/knowledge/implementation-control/atelier/state/validations/VG-046-2026-06-04.md
+  - product/apps/atelier/src/core/parallel-conflict-checker.ts
+  - product/apps/atelier/src/__tests__/parallel-conflict-checker.test.ts
+product_specs_touched: false
+validation_results:
+  - command: git diff --name-status -- harness/knowledge/product-specs/atelier
+    status: passed
+    notes: empty
+  - command: git diff --cached --name-status -- harness/knowledge/product-specs/atelier
+    status: passed
+    notes: empty
+  - command: git status --porcelain=v1 -- harness/knowledge/product-specs/atelier
+    status: passed
+    notes: empty
+  - command: bun nx run atelier:check
+    status: passed
+    notes: 178 pass, 0 fail, 600 expect() calls; typecheck and tests pass
+  - command: bun nx run atelier:test -- --testPathPattern=parallel-conflict-checker
+    status: passed
+    notes: 19 new parallel-conflict-checker tests; 0 failures
+  - command: bun yaml.parse state/gates/structured-gates-2026-06-04.yaml
+    status: passed
+    notes: 'VG-046 record present with executable_now: true'
+  - command: bun yaml.parse state/packets/in-flight.yaml
+    status: passed
+    notes: schema header present; in_flight_packets is an empty list
+notes: |
+  Round 4 control repair. VG-046 is now an executable, phase-gate
+  eligible gate that mechanically prevents two in-flight
+  implementation packets from mutating overlapping files, fixtures,
+  schemas, command surfaces, or generated-state paths. The
+  parallel-conflict-checker reads the machine-readable in-flight file
+  at state/packets/in-flight.yaml, intersects the candidate packet's
+  allowed_files and forbidden_roots against each in-flight packet,
+  and reports fixture family, command surface, generated-state, and
+  durable-evidence overlaps as their own conflict_kind entries. The
+  orchestrator now has a Conflict-Detection Algorithm section
+  describing the in-flight list source, the pre-dispatch VG-046
+  invocation, and the failed-dispatch handling (wait or
+  BLK-CONFLICT-<id>). The packet schema now has the
+  allowed_files_intersect_inflight field. No existing gate is
+  weakened; no product spec is edited; no forbidden action is
+  performed.

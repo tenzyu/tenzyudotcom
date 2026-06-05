@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "atelier.assertion/v1",
+  "type": "object",
+  "required": ["schema", "assertion_id", "source_section_id", "text", "modality", "domain", "testability", "severity", "closed_terms", "ambiguity_status"],
+  "properties": {
+    "schema": { "const": "atelier.assertion/v1" },
+    "assertion_id": { "type": "string" },
+    "source_section_id": { "type": "string" },
+    "text": { "type": "string" },
+    "modality": { "enum": ["must", "must_not", "should", "invariant", "definition"] },
+    "domain": { "enum": ["graph", "verification", "event", "adapter", "surface", "hpo", "run", "write_authority", "product", "positioning", "roadmap", "other"] },
+    "testability": { "enum": ["executable", "oracle_gap", "semantic_review", "non_goal"] },
+    "severity": { "enum": ["P0", "P1", "P2"] },
+    "closed_terms": { "type": "array", "items": { "type": "string" } },
+    "ambiguity_status": { "enum": ["clear", "ambiguous", "conflicting"] }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "atelier.evidence/v1",
+  "type": "object",
+  "required": ["schema", "evidence_id", "status", "body_ref"],
+  "properties": {
+    "schema": { "const": "atelier.evidence/v1" },
+    "evidence_id": { "type": "string" },
+    "gate_id": { "type": "string" },
+    "status": { "enum": ["passed", "failed", "blocked", "not_run", "unknown"] },
+    "body_ref": { "type": "string" }
+  }
+}

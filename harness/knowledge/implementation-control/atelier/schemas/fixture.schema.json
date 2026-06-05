@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "atelier.fixture/v1",
+  "type": "object",
+  "required": ["schema", "fixture_id", "gate_id", "status", "provenance"],
+  "properties": {
+    "schema": { "const": "atelier.fixture/v1" },
+    "fixture_id": { "type": "string" },
+    "gate_id": { "type": "string" },
+    "status": { "enum": ["executable", "pending_command_implementation", "oracle_gap"] },
+    "provenance": { "type": "string" }
+  }
+}

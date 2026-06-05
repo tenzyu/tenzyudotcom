@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "atelier.validation-gate/v1",
+  "type": "object",
+  "required": ["schema", "gate_id", "purpose", "fixture_id", "blocking_severity", "executable_now"],
+  "properties": {
+    "schema": { "const": "atelier.validation-gate/v1" },
+    "gate_id": { "type": "string" },
+    "purpose": { "type": "string" },
+    "fixture_id": { "type": "string" },
+    "blocking_severity": { "enum": ["P0", "P1", "P2"] },
+    "executable_now": { "type": "boolean" }
+  }
+}

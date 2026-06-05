@@ -1,0 +1,35 @@
+{
+  "name": "@atelier/implementation-control",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "doctor": "bun scripts/cli.ts doctor",
+    "migrate": "bun scripts/cli.ts migrate",
+    "compile": "bun scripts/cli.ts compile",
+    "validate": "bun scripts/cli.ts validate",
+    "query": "bun scripts/cli.ts query",
+    "packet": "bun scripts/cli.ts packet",
+    "render": "bun scripts/cli.ts render",
+    "llm:jobs": "bun scripts/cli.ts llm:jobs",
+    "llm:accept": "bun scripts/cli.ts llm:accept",
+    "frontier": "bun scripts/cli.ts frontier",
+    "resume": "bun scripts/cli.ts resume",
+    "graph": "bun scripts/cli.ts graph",
+    "cleanup:plan": "bun scripts/cli.ts cleanup:plan",
+    "cleanup:apply": "bun scripts/cli.ts cleanup:apply",
+    "validate:packet": "bun scripts/cli.ts validate:packet",
+    "validate:graph": "bun scripts/cli.ts validate:graph",
+    "validate:fixtures": "bun scripts/cli.ts validate:fixtures",
+    "validate:tests": "bun scripts/cli.ts validate:tests",
+    "validate:coverage": "bun scripts/cli.ts validate:coverage"
+  },
+  "dependencies": {
+    "fast-glob": "^3.0.0",
+    "yaml": "^2.0.0",
+    "zod": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5.0.0"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "schema": "atelier.evidence/v1",
+  "evidence_id": "EVD-B2AC52775B",
+  "gate_id": "VG-003",
+  "status": "passed",
+  "body_ref": "state/legacy/original-state/validations/VG-003-typecheck-2026-06-04.md",
+  "created_at": "2026-06-04T00:00:00Z"
+}

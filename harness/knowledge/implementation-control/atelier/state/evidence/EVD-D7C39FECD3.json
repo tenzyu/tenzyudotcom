@@ -1,0 +1,8 @@
+{
+  "schema": "atelier.evidence/v1",
+  "evidence_id": "EVD-D7C39FECD3",
+  "gate_id": "VG-038",
+  "status": "passed",
+  "body_ref": "state/legacy/original-state/validations/VG-038-test-integrity-mechanical-2026-06-04.md",
+  "created_at": "2026-06-04T00:00:00Z"
+}

@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "atelier.product-spec-manifest/v1",
+  "type": "object",
+  "required": ["schema", "generated_at", "product_spec_root", "files"],
+  "properties": {
+    "schema": { "const": "atelier.product-spec-manifest/v1" },
+    "generated_at": { "type": "string" },
+    "product_spec_root": { "type": "string" },
+    "files": { "type": "array" }
+  }
+}

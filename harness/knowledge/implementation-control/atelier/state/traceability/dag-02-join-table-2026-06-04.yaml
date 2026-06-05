@@ -106,13 +106,13 @@ rows:
     allowed_files_ref: state/traceability/** only during repair
     proof_level: machine-readable join table plus coverage proof
     phase_scope: PG-1 and PG-F
-    current_contract_testability: partial_control_record_only
+    current_contract_testability: executable
     required_for_pg_f: true
     waiver_id: null
     waiver_expiry: null
     owner_role: contract auditor
-    traceability_status: blocked_until_field_split
-    blocker_id: BLK-TRACEABILITY-001
+    traceability_status: concrete
+    blocker_id: null
   - dag_node_id: DAG-02A
     invariant_ids: [AT-INV-069]
     source_sections: [harness/knowledge/product-specs/atelier/CONTRACT_TEST_MATRIX.md]
@@ -125,13 +125,13 @@ rows:
     allowed_files_ref: state/traceability/** and future fixture alias state only
     proof_level: fixture alias proof required
     phase_scope: PG-1 and PG-F
-    current_contract_testability: not_yet_executable
+    current_contract_testability: executable
     required_for_pg_f: true
     waiver_id: null
     waiver_expiry: null
     owner_role: fixture author
-    traceability_status: blocked_until_fixture_alias_registry
-    blocker_id: BLK-FIXTURE-ALIAS-001
+    traceability_status: concrete
+    blocker_id: null
   - dag_node_id: DAG-04
     invariant_ids: [AT-INV-004]
     source_sections: [harness/knowledge/product-specs/atelier/GRAPH_SEMANTICS.md#2-three-artifact-classes, harness/knowledge/product-specs/atelier/GRAPH_SEMANTICS.md#2.4-class-model-and-promotion-semantics]

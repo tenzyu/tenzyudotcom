@@ -1,0 +1,8 @@
+{
+  "schema": "atelier.evidence/v1",
+  "evidence_id": "EVD-DAG-02A-VG-045-20260605",
+  "gate_id": "VG-045",
+  "status": "passed",
+  "body_ref": "state/validations/DAG-02-series-current-acceptance-2026-06-05.md",
+  "created_at": "2026-06-05T00:00:00Z"
+}

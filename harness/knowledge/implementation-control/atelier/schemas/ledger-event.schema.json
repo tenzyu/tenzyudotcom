@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "atelier.ledger-event/v1",
+  "type": "object",
+  "required": ["schema", "event_id", "event_type", "created_at", "subject_id", "refs"],
+  "properties": {
+    "schema": { "const": "atelier.ledger-event/v1" },
+    "event_id": { "type": "string" },
+    "event_type": { "type": "string" },
+    "created_at": { "type": "string" },
+    "subject_id": { "type": "string" },
+    "refs": { "type": "array", "items": { "type": "string" } }
+  }
+}

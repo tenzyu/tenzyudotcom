@@ -1,6 +1,11 @@
-// Placeholder expected output for fixture coverage_v1
-// Real expected data will be committed by the fixture-author packet
-// that owns this fixture_id. See:
-//   harness/knowledge/implementation-control/atelier/state/traceability/fixture-alias-registry-2026-06-04.yaml
-// for the assigned DAG node, gate, and provenance.
-export const placeholder = true;
+export const coverageFixtureExpected = {
+  fixtureId: 'coverage_v1',
+  status: 'passed',
+  counts: {
+    unresolvedExecutableAssertions: 0,
+    danglingReferences: 0,
+    legacyUnresolvedLinks: 0,
+    requiredLinkStatusFailures: 0,
+    requiredExecutableFixtureFailures: 0,
+  },
+} as const

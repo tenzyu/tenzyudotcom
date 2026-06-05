@@ -7,24 +7,17 @@ classification: missing_oracle
 severity: P1
 blocking_scope: phase_blocking
 affected_invariants:
-  - AT-INV-004 to AT-INV-009
-  - AT-INV-014 to AT-INV-022
-  - AT-INV-029 to AT-INV-033
-  - AT-INV-034 to AT-INV-039
-  - AT-INV-040 to AT-INV-049
-  - AT-INV-050 to AT-INV-055
   - AT-INV-056 to AT-INV-081 (carryover; not yet expanded in at-ctrl-005)
 affected_dag_nodes:
-  - DAG-04 to DAG-53
+  - DAG-11 to DAG-53
 source_specs:
   - harness/knowledge/implementation-control/atelier/CONTRACT_TO_BUILD_MATRIX.md
   - harness/knowledge/implementation-control/atelier/state/traceability/dag-02-join-table-2026-06-04.yaml
-description: Product code packets require field/fixture/gate-level traceability rows. Control/discovery rows are concrete; product implementation rows are expanded in two rounds (DAG-04..DAG-10 in at-ctrl-005; DAG-11..DAG-53 in at-ctrl-005B).
+description: Product code packets require field/fixture/gate-level traceability rows. Control/discovery rows and the current canonical DAG-04..DAG-10 rows are concrete; the carryover traceability expansion is DAG-11..DAG-53 in at-ctrl-005B.
 safe_interpretation_available: true
 independent_work_to_continue:
-  - DAG-02 row expansion
-  - DAG-02A fixture alias registry
-  - validation gate proof repair
+  - at-ctrl-005B DAG-11..DAG-53 traceability expansion
+  - executable fixture repair for current DAG-04..DAG-10 gates
 human_escalation_required: false
 product_specs_touched: false
 status: partial_resolution
@@ -49,5 +42,11 @@ partial_resolution_note: |
   apply; for example DAG-10 schema-implementer dispatch requires
   DAG-04, DAG-05, DAG-06, VG-026A, and VG-043 to pass, even though
   the join table rows are concrete.
+current_canonical_scope_note: |
+  The active canonical DAG currently contains DAG-00, DAG-01, DAG-01B,
+  DAG-01C, DAG-02, DAG-02A, and DAG-04..DAG-10. The DAG-04..DAG-10
+  traceability rows are concrete, so this blocker no longer blocks those
+  active nodes. It remains open only for the archived/carryover DAG-11..DAG-53
+  expansion that is not represented as active canonical DAG nodes here.
 previous_status: open
 ```

@@ -1,0 +1,244 @@
+{
+  "schema": "atelier.implementation-graph/v1",
+  "generated_at": "2026-06-04T17:49:06.804Z",
+  "nodes": [
+    {
+      "dag_node_id": "DAG-00",
+      "title": "DAG-00: Control docs exist outside product specs and product-spec baseline is HEAD.",
+      "status": "blocked",
+      "blockers": [],
+      "required_gates": [
+        "VG-001",
+        "VG-037"
+      ],
+      "packet_links": [],
+      "evidence_links": []
+    },
+    {
+      "dag_node_id": "DAG-01",
+      "title": "DAG-01: Product specs are immutable, baseline hashes are from HEAD, and drift opens P0 blocker.",
+      "status": "blocked",
+      "blockers": [],
+      "required_gates": [
+        "VG-001",
+        "VG-036"
+      ],
+      "packet_links": [],
+      "evidence_links": []
+    },
+    {
+      "dag_node_id": "DAG-01B",
+      "title": "DAG-01B: Repository inventory records package manager, project targets, roots, dirty status, editable roo",
+      "status": "blocked",
+      "blockers": [],
+      "required_gates": [
+        "VG-000",
+        "VG-001",
+        "VG-036",
+        "VG-037"
+      ],
+      "packet_links": [],
+      "evidence_links": []
+    },
+    {
+      "dag_node_id": "DAG-01C",
+      "title": "DAG-01C: Command discovery uses package-manager-specific Nx commands and non-Nx fallback before declaring",
+      "status": "blocked",
+      "blockers": [],
+      "required_gates": [
+        "VG-000",
+        "VG-002"
+      ],
+      "packet_links": [],
+      "evidence_links": []
+    },
+    {
+      "dag_node_id": "DAG-02",
+      "title": "DAG-02: Every executable normative must maps to field-level or fixture-level invariant, fixture, gate, a",
+      "status": "blocked",
+      "blockers": [],
+      "required_gates": [
+        "VG-029",
+        "VG-038"
+      ],
+      "packet_links": [],
+      "evidence_links": []
+    },
+    {
+      "dag_node_id": "DAG-02A",
+      "title": "DAG-02A: Fixture aliases, product test names, command files, and expected outputs are unique and normaliz",
+      "status": "blocked",
+      "blockers": [
+        "BLK-FIXTURE-ALIAS-001"
+      ],
+      "required_gates": [
+        "VG-004",
+        "VG-045"
+      ],
+      "packet_links": [],
+      "evidence_links": []
+    },
+    {
+      "dag_node_id": "DAG-04",
+      "title": "DAG-04: Every artifact belongs to exactly one class. The class determines placement, ownership, deletion",
+      "status": "blocked",
+      "blockers": [
+        "BLK-TRACEABILITY-001"
+      ],
+      "required_gates": [
+        "VG-005",
+        "VG-006",
+        "VG-034",
+        "VG-038"
+      ],
+      "packet_links": [],
+      "evidence_links": []
+    },
+    {
+      "dag_node_id": "DAG-05",
+      "title": "DAG-05: Event enum is closed; new code must not emit run_started or legacy run_blocked",
+      "status": "blocked",
+      "blockers": [
+        "BLK-TRACEABILITY-001"
+      ],
+      "required_gates": [
+        "VG-011",
+        "VG-013",
+        "VG-040",
+        "VG-041",
+        "VG-044"
+      ],
+      "packet_links": [],
+      "evidence_links": []
+    },
+    {
+      "dag_node_id": "DAG-06",
+      "title": "DAG-06: Check registry entries conform to minimum schema",
+      "status": "blocked",
+      "blockers": [
+        "BLK-TRACEABILITY-001"
+      ],
+      "required_gates": [
+        "VG-008",
+        "VG-009",
+        "VG-010",
+        "VG-024",
+        "VG-042",
+        "VG-043"
+      ],
+      "packet_links": [],
+      "evidence_links": []
+    },
+    {
+      "dag_node_id": "DAG-07",
+      "title": "DAG-07: Active CLI command inventory is exact; removed commands must not appear in active surfaces",
+      "status": "blocked",
+      "blockers": [
+        "BLK-TRACEABILITY-001"
+      ],
+      "required_gates": [
+        "VG-018",
+        "VG-019",
+        "VG-039"
+      ],
+      "packet_links": [],
+      "evidence_links": []
+    },
+    {
+      "dag_node_id": "DAG-08",
+      "title": "DAG-08: Adapter translates canonical packet/result and does not own execution",
+      "status": "blocked",
+      "blockers": [
+        "BLK-TRACEABILITY-001"
+      ],
+      "required_gates": [
+        "VG-021",
+        "VG-022",
+        "VG-023",
+        "VG-032"
+      ],
+      "packet_links": [],
+      "evidence_links": []
+    },
+    {
+      "dag_node_id": "DAG-09",
+      "title": "DAG-09: Working run packets and working handoffs live under .atelier/runs/** and are derived",
+      "status": "blocked",
+      "blockers": [
+        "BLK-TRACEABILITY-001"
+      ],
+      "required_gates": [
+        "VG-020",
+        "VG-033"
+      ],
+      "packet_links": [],
+      "evidence_links": []
+    },
+    {
+      "dag_node_id": "DAG-10",
+      "title": "DAG-10: Actors and surfaces may write/promote only authorized artifact classes",
+      "status": "blocked",
+      "blockers": [
+        "BLK-TRACEABILITY-001"
+      ],
+      "required_gates": [
+        "VG-026A",
+        "VG-026B",
+        "VG-043",
+        "VG-034"
+      ],
+      "packet_links": [],
+      "evidence_links": []
+    }
+  ],
+  "edges": [
+    {
+      "from": "DAG-00",
+      "to": "DAG-01"
+    },
+    {
+      "from": "DAG-00",
+      "to": "DAG-01B"
+    },
+    {
+      "from": "DAG-00",
+      "to": "DAG-01C"
+    },
+    {
+      "from": "DAG-01",
+      "to": "DAG-02"
+    },
+    {
+      "from": "DAG-01",
+      "to": "DAG-02A"
+    },
+    {
+      "from": "DAG-02",
+      "to": "DAG-04"
+    },
+    {
+      "from": "DAG-02",
+      "to": "DAG-05"
+    },
+    {
+      "from": "DAG-02",
+      "to": "DAG-06"
+    },
+    {
+      "from": "DAG-02",
+      "to": "DAG-07"
+    },
+    {
+      "from": "DAG-02",
+      "to": "DAG-08"
+    },
+    {
+      "from": "DAG-02",
+      "to": "DAG-09"
+    },
+    {
+      "from": "DAG-02",
+      "to": "DAG-10"
+    }
+  ]
+}

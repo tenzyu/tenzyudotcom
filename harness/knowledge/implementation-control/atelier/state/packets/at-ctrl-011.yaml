@@ -1,9 +1,9 @@
----
 packet_id: at-ctrl-011
 packet_type: control-doc-repair
 execution_mode: mother_agent_direct_control_doc_repair
 subagent_dispatched: false
-dag_node_ids: [DAG-00]
+dag_node_ids:
+  - DAG-00
 title: Persist implementation-control audit prompt for reproducibility
 status: accepted
 recorded_at: 2026-06-04T01:00:00Z
@@ -15,14 +15,10 @@ mission: |
   audit infrastructure, not a normative control doc, so it lives under
   state/ (mutable) rather than as a top-level immutable control doc.
 allowed_files:
-  - path: harness/knowledge/implementation-control/atelier/state/IMPLEMENTATION_CONTROL_REVIEW_PROMPT.md
-    reason: persist the audit prompt rubric
-  - path: harness/knowledge/implementation-control/atelier/IMPLEMENTATION_LEDGER.md
-    reason: record the new packet and updated frontier
-  - path: harness/knowledge/implementation-control/atelier/state/packets/at-ctrl-011.yaml
-    reason: create the packet record
-  - path: harness/knowledge/implementation-control/atelier/state/validations/at-ctrl-011-acceptance-2026-06-04.md
-    reason: create the acceptance proof
+  - harness/knowledge/implementation-control/atelier/state/IMPLEMENTATION_CONTROL_REVIEW_PROMPT.md
+  - harness/knowledge/implementation-control/atelier/IMPLEMENTATION_LEDGER.md
+  - harness/knowledge/implementation-control/atelier/state/packets/at-ctrl-011.yaml
+  - harness/knowledge/implementation-control/atelier/state/validations/at-ctrl-011-acceptance-2026-06-04.md
 forbidden_actions:
   - weakening gates
   - deleting dependencies
@@ -71,3 +67,6 @@ notes: |
   constraint on implementation. Stored under state/ (mutable) to keep the
   immutable control-doc baseline unchanged. Round-3 audit can re-invoke the
   same rubric by referencing this file.
+schema: atelier.legacy-packet/v1
+normalized_at: 2026-06-04T01:00:00Z
+legacy_source_path: state/packets/at-ctrl-011.yaml

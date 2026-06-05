@@ -1,0 +1,9 @@
+{
+  "schema": "atelier.llm-accept-report/v1",
+  "generated_at": "2026-06-04T17:20:16.216Z",
+  "input_files": [
+    "state/llm-inbox/single.jsonl"
+  ],
+  "accepted": 0,
+  "report": []
+}
