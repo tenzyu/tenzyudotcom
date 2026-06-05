@@ -12,16 +12,14 @@ Use this skill when the user mentions `atelier-design-docs` or asks to build `at
 The design docs are expected to exist in one of these locations:
 
 ```txt
-atelier-design-docs/
-docs/atelier-design-docs/
-harness/knowledge/atelier-design/
+harness/atelier-design-docs/
 ```
 
 If multiple exist, prefer the most specific existing directory in this order:
 
 1. `atelier-design-docs/`
 2. `docs/atelier-design-docs/`
-3. `harness/knowledge/atelier-design/`
+3. `harness/atelier-design/`
 
 Required files:
 

@@ -1,7 +1,7 @@
 ---
 description: Builds atelier-* bootstrap tools from atelier-design-docs
 mode: primary
-model: minimax/minimax-m3
+model: minimax-coding-plan/MiniMax-M3
 temperature: 0.1
 permission:
   bash: allow
