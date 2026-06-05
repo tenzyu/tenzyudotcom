@@ -1,0 +1,16 @@
+{
+  "name": "@atelier-bootstrap/indexer",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./src/cli.ts",
+  "module": "./src/cli.ts",
+  "scripts": {
+    "scan": "bun src/commands/scan.ts",
+    "index": "bun src/commands/index.ts",
+    "affected": "bun src/commands/affected.ts",
+    "update": "bun src/commands/update.ts",
+    "render": "bun src/commands/render.ts",
+    "validate": "bun src/commands/validate.ts"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "@atelier-bootstrap/operation",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./src/cli.ts",
+  "module": "./src/cli.ts",
+  "scripts": {
+    "ready": "bun src/commands/ready.ts",
+    "verify": "bun src/commands/verify.ts",
+    "render": "bun src/commands/render.ts"
+  }
+}

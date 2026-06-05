@@ -1,0 +1,22 @@
+{
+  "name": "@atelier-bootstrap/executor",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./src/cli.ts",
+  "module": "./src/cli.ts",
+  "scripts": {
+    "packet:create": "bun src/commands/packet-create.ts",
+    "packet:context": "bun src/commands/packet-context.ts",
+    "packet:run": "bun src/commands/packet-run.ts",
+    "test:run": "bun src/commands/test-run.ts",
+    "evidence:add": "bun src/commands/evidence-add.ts",
+    "handoff:validate": "bun src/commands/handoff-validate.ts",
+    "packet:complete": "bun src/commands/packet-complete.ts",
+    "packet:reject": "bun src/commands/packet-reject.ts",
+    "packet:block": "bun src/commands/packet-block.ts",
+    "execution:ready": "bun src/commands/execution-ready.ts",
+    "render": "bun src/commands/render.ts",
+    "validate": "bun src/commands/validate.ts"
+  }
+}

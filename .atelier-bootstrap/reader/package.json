@@ -1,0 +1,18 @@
+{
+  "name": "@atelier-bootstrap/reader",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./src/cli.ts",
+  "module": "./src/cli.ts",
+  "scripts": {
+    "sample": "bun src/commands/sample.ts",
+    "brief": "bun src/commands/brief.ts",
+    "attention": "bun src/commands/attention.ts",
+    "deep-read": "bun src/commands/deep-read.ts",
+    "llm:jobs": "bun src/commands/llm-jobs.ts",
+    "llm:accept": "bun src/commands/llm-accept.ts",
+    "render": "bun src/commands/render.ts",
+    "validate": "bun src/commands/validate.ts"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "name": "@atelier-bootstrap/transformer",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./src/cli.ts",
+  "module": "./src/cli.ts",
+  "scripts": {
+    "transform": "bun src/commands/transform.ts",
+    "task:derive": "bun src/commands/task-derive.ts",
+    "test-contract:derive": "bun src/commands/test-contract-derive.ts",
+    "packet:template": "bun src/commands/packet-template.ts",
+    "recommend": "bun src/commands/recommend.ts",
+    "render": "bun src/commands/render.ts",
+    "validate": "bun src/commands/validate.ts"
+  }
+}
