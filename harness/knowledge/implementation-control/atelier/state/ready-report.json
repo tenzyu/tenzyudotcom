@@ -1,0 +1,30 @@
+{
+  "schema": "atelier.ready-report/v1",
+  "generated_at": "2026-06-05T06:38:21.733Z",
+  "status": "ready",
+  "ready_to_implement": false,
+  "errors": [],
+  "warnings": [],
+  "active_scope": [
+    "PHASE_0",
+    "PHASE_0.5",
+    "PHASE_1",
+    "PHASE_2",
+    "PHASE_3",
+    "PHASE_4",
+    "PHASE_5"
+  ],
+  "legacy_truth_refs": [],
+  "unclassified_sections": [],
+  "missing_gate_nodes": [],
+  "missing_packet_nodes": [],
+  "defects": [],
+  "summary": {
+    "deterministic_facts": 2303,
+    "llm_derived_records": 0,
+    "manual_control_records": 0,
+    "generated_views": 8,
+    "unresolved_blockers": 0,
+    "future_or_carryover_nodes": 0
+  }
+}

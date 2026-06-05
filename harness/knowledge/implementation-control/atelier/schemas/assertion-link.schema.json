@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "atelier.assertion-link/v1",
   "type": "object",
-  "required": ["schema", "link_id", "dag_node_id", "gate_ids", "fixture_ids", "provenance", "status"],
+  "required": ["schema", "link_id", "dag_node_id", "gate_ids", "fixture_ids", "provenance", "provenance_kind", "status"],
   "properties": {
     "schema": { "const": "atelier.assertion-link/v1" },
     "link_id": { "type": "string" },
@@ -12,6 +12,7 @@
     "gate_ids": { "type": "array", "items": { "type": "string" } },
     "fixture_ids": { "type": "array", "items": { "type": "string" } },
     "provenance": { "type": "string" },
+    "provenance_kind": { "enum": ["deterministic_fact", "llm_extracted", "legacy_promoted", "manual_control_record"] },
     "status": { "enum": ["linked", "deferred", "oracle_gap", "pending_command_implementation", "legacy_unresolved"] }
   }
 }

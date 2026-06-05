@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "atelier.repository-shape/v1",
+  "type": "object",
+  "required": ["schema", "generated_at", "source_roots", "test_roots", "doc_roots", "fixture_roots", "generated_roots", "durable_evidence_roots", "editable_roots", "non_editable_roots", "extension_histogram", "naming_patterns", "source_test_doc_ratio"],
+  "properties": {
+    "schema": { "const": "atelier.repository-shape/v1" },
+    "generated_at": { "type": "string" },
+    "source_roots": { "type": "array", "items": { "type": "string" } },
+    "test_roots": { "type": "array", "items": { "type": "string" } },
+    "doc_roots": { "type": "array", "items": { "type": "string" } },
+    "fixture_roots": { "type": "array", "items": { "type": "string" } },
+    "generated_roots": { "type": "array", "items": { "type": "string" } },
+    "durable_evidence_roots": { "type": "array", "items": { "type": "string" } },
+    "editable_roots": { "type": "array", "items": { "type": "string" } },
+    "non_editable_roots": { "type": "array", "items": { "type": "string" } },
+    "extension_histogram": { "type": "object", "additionalProperties": { "type": "integer" } },
+    "naming_patterns": { "type": "array", "items": { "type": "string" } },
+    "source_test_doc_ratio": { "type": "object", "additionalProperties": { "type": "number" } },
+    "file_size_summary": { "type": "object", "additionalProperties": true }
+  }
+}

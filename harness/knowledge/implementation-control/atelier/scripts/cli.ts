@@ -13,6 +13,7 @@ import path from "node:path";
 import fg from "fast-glob";
 import YAML from "yaml";
 import { z } from "zod";
+import { isCompilerCommand, runCompilerCommand } from "./compiler";
 
 type Severity = "P0" | "P1" | "P2";
 type BlockerSeverity = Severity | "unknown";
@@ -260,6 +261,10 @@ const editBoundarySchema = z.object({
 async function main() {
   const [command, ...rest] = Bun.argv.slice(2);
   try {
+    if (command && isCompilerCommand(command)) {
+      await runCompilerCommand(command, parseArgs(rest));
+      return;
+    }
     switch (command) {
       case "doctor":
         await doctor(parseArgs(rest));
@@ -329,6 +334,7 @@ async function main() {
 
 function parseArgs(args: string[]) {
   const parsed: Record<string, string | boolean> = {};
+  const positional: string[] = [];
   for (let i = 0; i < args.length; i += 1) {
     const arg = args[i];
     if (arg === "--") continue;
@@ -341,7 +347,12 @@ function parseArgs(args: string[]) {
       } else {
         parsed[key] = true;
       }
+    } else {
+      positional.push(arg);
     }
+  }
+  if (positional.length > 0) {
+    parsed["_positional"] = positional[0];
   }
   return parsed;
 }

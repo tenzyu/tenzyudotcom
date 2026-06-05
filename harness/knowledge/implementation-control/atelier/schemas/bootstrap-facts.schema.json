@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "atelier.bootstrap-facts/v1",
+  "type": "object",
+  "required": ["schema", "generated_at", "package_manager", "hypotheses"],
+  "properties": {
+    "schema": { "const": "atelier.bootstrap-facts/v1" },
+    "generated_at": { "type": "string" },
+    "package_manager": { "enum": ["bun", "npm", "pnpm", "yarn", "unknown"] },
+    "hypotheses": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["claim", "confidence", "evidence"],
+        "properties": {
+          "claim": { "type": "string" },
+          "confidence": { "enum": ["high", "medium", "low"] },
+          "evidence": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "summary": { "type": "string" }
+  }
+}

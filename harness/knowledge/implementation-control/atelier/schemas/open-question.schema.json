@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "atelier.open-question/v1",
+  "type": "object",
+  "required": ["schema", "question_id", "source_section_id", "text", "provenance_kind", "provenance_ref", "extraction_status"],
+  "properties": {
+    "schema": { "const": "atelier.open-question/v1" },
+    "question_id": { "type": "string" },
+    "source_section_id": { "type": "string" },
+    "text": { "type": "string" },
+    "blocking": { "type": "boolean" },
+    "provenance_kind": { "enum": ["deterministic_fact", "llm_extracted", "legacy_promoted", "manual_control_record"] },
+    "provenance_ref": { "type": "string" },
+    "extraction_status": { "enum": ["pending", "running", "accepted", "rejected", "skipped"] }
+  }
+}

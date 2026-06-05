@@ -1,110 +1,44 @@
 schema: atelier.edit-boundaries/v1
-generated_at: 2026-06-04T00:00:00Z
-provenance: state/legacy/root-docs/REPOSITORY_DISCOVERY_AND_EDIT_BOUNDARY.md
+generated_at: 2026-06-05T06:38:20.803Z
+provenance: compile:project:product-specs/WRITE_AUTHORITY_MATRIX.md
 boundaries:
   - schema: atelier.edit-boundary/v1
-    boundary_id: BOUNDARY-BOUNDARY-ATELIER-REPOSITORY-DISCOVERY-AND-EDIT-BOUNDARY
-    title: Atelier Repository Discovery And Edit Boundary
-    source_ref: state/legacy/root-docs/REPOSITORY_DISCOVERY_AND_EDIT_BOUNDARY.md:13-166
-    summary: This document defines the required repository inventory before any implementation subagent edits source, tests, fixtures, generated state, or durable evidence. Product specs define product truth. This document only derives implementation edit boundaries from the repository as it exists at launch.
+    boundary_id: BOUNDARY-CONTROL
+    title: Compiler root (control plane)
+    source_ref: compile:project:WRITE_AUTHORITY_MATRIX.md#3-authority-matrix
+    summary: Compiler writes only canonical/, state/, views/, scripts/, schemas/ under implementation-control
     allowed_file_globs:
-      - fixture/code
-      - harness/knowledge/implementation-control/atelier/state/traceability/fixture-alias-registry-
-      - harness/knowledge/product-specs/atelier
-      - harness/knowledge/product-specs/atelier/**
-      - scaffold/oracle
-      - state/**
-      - state/traceability/fixture-alias-registry-
+      - harness/knowledge/implementation-control/atelier/canonical/**
+      - harness/knowledge/implementation-control/atelier/state/**
+      - harness/knowledge/implementation-control/atelier/views/**
+      - harness/knowledge/implementation-control/atelier/scripts/**
+      - harness/knowledge/implementation-control/atelier/schemas/**
     forbidden_file_globs:
-      - harness/knowledge/product-specs/atelier
-      - harness/knowledge/product-specs/atelier/**
-    provenance: REPOSITORY_DISCOVERY_AND_EDIT_BOUNDARY.md
+      - harness/knowledge/product-specs/**
+      - product/apps/atelier/src/cli.ts
+    provenance: "deterministic: WRITE_AUTHORITY_MATRIX.md §3"
+    provenance_kind: deterministic_fact
+    provenance_ref: compile:project:product-specs/WRITE_AUTHORITY_MATRIX.md#3-authority-matrix
   - schema: atelier.edit-boundary/v1
-    boundary_id: BOUNDARY-BOUNDARY-PURPOSE
-    title: Purpose
-    source_ref: state/legacy/root-docs/REPOSITORY_DISCOVERY_AND_EDIT_BOUNDARY.md:15-18
-    summary: This document defines the required repository inventory before any implementation subagent edits source, tests, fixtures, generated state, or durable evidence. Product specs define product truth. This document only derives implementation edit boundaries from the repository as it exists at launch.
-    allowed_file_globs: []
-    forbidden_file_globs: []
-    provenance: REPOSITORY_DISCOVERY_AND_EDIT_BOUNDARY.md
-  - schema: atelier.edit-boundary/v1
-    boundary_id: BOUNDARY-BOUNDARY-LAUNCH-BASELINE-RULE
-    title: Launch Baseline Rule
-    source_ref: state/legacy/root-docs/REPOSITORY_DISCOVERY_AND_EDIT_BOUNDARY.md:19-24
-    summary: Product-spec immutability baseline is `HEAD` product-spec contents unless a separate, explicit product-spec governance process has already authorized and committed a new product-spec revision. Current filesystem contents under `harness/knowledge/product-specs/atelier` are never accepted as the immutable baseline when they differ from `HEAD`.
+    boundary_id: BOUNDARY-SPECS
+    title: Product specs (immutable)
+    source_ref: compile:project:WRITE_AUTHORITY_MATRIX.md#4-forbidden-writes
+    summary: Product specs are immutable; only the compiler reads them
     allowed_file_globs:
-      - harness/knowledge/product-specs/atelier
-    forbidden_file_globs:
-      - harness/knowledge/product-specs/atelier
-    provenance: REPOSITORY_DISCOVERY_AND_EDIT_BOUNDARY.md
-  - schema: atelier.edit-boundary/v1
-    boundary_id: BOUNDARY-BOUNDARY-REQUIRED-INVENTORY-SCHEMA
-    title: Required Inventory Schema
-    source_ref: state/legacy/root-docs/REPOSITORY_DISCOVERY_AND_EDIT_BOUNDARY.md:25-73
-    summary: "Record this inventory in `state/repository-inventory/repo-inventory-<date>.md` and reference it from `IMPLEMENTATION_LEDGER.md` before dispatching implementation packets:"
-    allowed_file_globs: []
-    forbidden_file_globs: []
-    provenance: REPOSITORY_DISCOVERY_AND_EDIT_BOUNDARY.md
-  - schema: atelier.edit-boundary/v1
-    boundary_id: BOUNDARY-BOUNDARY-INVENTORY-VALIDITY-CRITERIA
-    title: Inventory Validity Criteria
-    source_ref: state/legacy/root-docs/REPOSITORY_DISCOVERY_AND_EDIT_BOUNDARY.md:74-87
-    summary: "A `repo_inventory_ref` is valid only when:"
-    allowed_file_globs:
-      - fixture/code
-      - harness/knowledge/product-specs/atelier/**
-      - state/traceability/fixture-alias-registry-
+      - harness/knowledge/product-specs/atelier/README.md
     forbidden_file_globs:
       - harness/knowledge/product-specs/atelier/**
-    provenance: REPOSITORY_DISCOVERY_AND_EDIT_BOUNDARY.md
+    provenance: "deterministic: WRITE_AUTHORITY_MATRIX.md §4"
+    provenance_kind: deterministic_fact
+    provenance_ref: compile:project:product-specs/WRITE_AUTHORITY_MATRIX.md#4-forbidden-writes
   - schema: atelier.edit-boundary/v1
-    boundary_id: BOUNDARY-BOUNDARY-DISCOVERY-COMMANDS
-    title: Discovery Commands
-    source_ref: state/legacy/root-docs/REPOSITORY_DISCOVERY_AND_EDIT_BOUNDARY.md:88-113
-    summary: "Minimum command discovery:"
+    boundary_id: BOUNDARY-PRODUCT-CLI
+    title: Main Atelier CLI (immutable)
+    source_ref: compile:project:WRITE_AUTHORITY_MATRIX.md#4-forbidden-writes
+    summary: Main Atelier CLI is never patched by the compiler
     allowed_file_globs: []
-    forbidden_file_globs: []
-    provenance: REPOSITORY_DISCOVERY_AND_EDIT_BOUNDARY.md
-  - schema: atelier.edit-boundary/v1
-    boundary_id: BOUNDARY-BOUNDARY-PROOF-ARTIFACT-PATHS
-    title: Proof Artifact Paths
-    source_ref: state/legacy/root-docs/REPOSITORY_DISCOVERY_AND_EDIT_BOUNDARY.md:114-121
-    summary: "Repository inventory and command discovery proof artifacts live under:"
-    allowed_file_globs: []
-    forbidden_file_globs: []
-    provenance: REPOSITORY_DISCOVERY_AND_EDIT_BOUNDARY.md
-  - schema: atelier.edit-boundary/v1
-    boundary_id: BOUNDARY-BOUNDARY-EDITABLE-ROOT-DERIVATION
-    title: Editable Root Derivation
-    source_ref: state/legacy/root-docs/REPOSITORY_DISCOVERY_AND_EDIT_BOUNDARY.md:122-142
-    summary: Allowed files in packets must be derived from discovered roots, not invented examples. A packet may name an explicit file or a narrow glob only when the inventory proves that root exists and the packet owns the matching invariant.
-    allowed_file_globs:
-      - harness/knowledge/implementation-control/atelier/state/traceability/fixture-alias-registry-
-      - state/**
-    forbidden_file_globs: []
-    provenance: REPOSITORY_DISCOVERY_AND_EDIT_BOUNDARY.md
-  - schema: atelier.edit-boundary/v1
-    boundary_id: BOUNDARY-BOUNDARY-DIRTY-WORKTREE-HANDLING
-    title: Dirty Worktree Handling
-    source_ref: state/legacy/root-docs/REPOSITORY_DISCOVERY_AND_EDIT_BOUNDARY.md:143-148
-    summary: The mother agent records unrelated dirty files before dispatch. It must not revert, normalize, or incorporate unrelated changes. If dirty files overlap the packet boundary, the packet is blocked until the user resolves the conflict or explicitly assigns that boundary.
-    allowed_file_globs: []
-    forbidden_file_globs: []
-    provenance: REPOSITORY_DISCOVERY_AND_EDIT_BOUNDARY.md
-  - schema: atelier.edit-boundary/v1
-    boundary_id: BOUNDARY-BOUNDARY-PACKET-BOUNDARY-RULES
-    title: Packet Boundary Rules
-    source_ref: state/legacy/root-docs/REPOSITORY_DISCOVERY_AND_EDIT_BOUNDARY.md:149-160
-    summary: "A packet is dispatchable only when:"
-    allowed_file_globs:
-      - scaffold/oracle
-    forbidden_file_globs: []
-    provenance: REPOSITORY_DISCOVERY_AND_EDIT_BOUNDARY.md
-  - schema: atelier.edit-boundary/v1
-    boundary_id: BOUNDARY-BOUNDARY-HARD-PREREQUISITES
-    title: Hard Prerequisites
-    source_ref: state/legacy/root-docs/REPOSITORY_DISCOVERY_AND_EDIT_BOUNDARY.md:161-166
-    summary: No implementation, fixture, test, adapter, CLI, or generated-state packet may be dispatched until both `DAG-01B` (Repository implementation inventory) and `DAG-01C` (Command and target discovery) pass.
-    allowed_file_globs: []
-    forbidden_file_globs: []
-    provenance: REPOSITORY_DISCOVERY_AND_EDIT_BOUNDARY.md
+    forbidden_file_globs:
+      - product/apps/atelier/src/cli.ts
+    provenance: "deterministic: WRITE_AUTHORITY_MATRIX.md §4"
+    provenance_kind: deterministic_fact
+    provenance_ref: compile:project:product-specs/WRITE_AUTHORITY_MATRIX.md#4-forbidden-writes

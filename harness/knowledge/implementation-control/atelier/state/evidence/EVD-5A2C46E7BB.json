@@ -1,7 +1,0 @@
-{
-  "schema": "atelier.evidence/v1",
-  "evidence_id": "EVD-5A2C46E7BB",
-  "status": "passed",
-  "body_ref": "state/legacy/original-state/validations/at-ctrl-004-acceptance-2026-06-04.md",
-  "created_at": "2026-06-04T00:00:00Z"
-}

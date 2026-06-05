@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "atelier.control-graph/v1",
+  "type": "object",
+  "required": ["schema", "generated_at", "edges"],
+  "properties": {
+    "schema": { "const": "atelier.control-graph/v1" },
+    "generated_at": { "type": "string" },
+    "edges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["from", "to", "kind"],
+        "properties": {
+          "from": { "type": "string" },
+          "to": { "type": "string" },
+          "kind": { "enum": ["depends_on", "asserts", "gated_by", "evidenced_by"] }
+        }
+      }
+    }
+  }
+}

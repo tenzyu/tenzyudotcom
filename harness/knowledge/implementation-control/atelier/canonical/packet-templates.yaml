@@ -1,0 +1,184 @@
+schema: atelier.packet-templates/v1
+generated_at: 2026-06-05T06:38:20.907Z
+templates:
+  - schema: atelier.packet-template/v1
+    template_id: PKT-TPL-PHASE_0
+    title: "Phase 0: Spec and Contract Stabilization"
+    dag_node_id: PHASE_0
+    source_refs: []
+    assertions: []
+    allowed_files:
+      - harness/knowledge/product-specs/phase-0-spec-and-contract-stabilization.md
+    forbidden_files:
+      - harness/knowledge/product-specs/atelier/**
+      - product/apps/atelier/src/cli.ts
+    required_gates: &a1
+      - VG-1-SCOPE-AND-
+      - VG-2-CHECK-REGI
+      - VG-8-COMPLETION
+    required_fixtures: []
+    no_fixture_reason: no fixtures required by node
+    validation_profile: VP-PHASE_0
+    evidence_expectations:
+      - state/evidence/PHASE_0-VG-1-SCOPE-AND-.json
+      - state/evidence/PHASE_0-VG-2-CHECK-REGI.json
+      - state/evidence/PHASE_0-VG-8-COMPLETION.json
+    subagent_role: subagent
+    completion_criteria:
+      - complete PHASE_0_0
+      - complete PHASE_0_0
+      - complete PHASE_0_0
+      - complete PHASE_0_0
+    provenance_kind: deterministic_fact
+    provenance_ref: derive:control:canonical/dag.yaml#PHASE_0
+  - schema: atelier.packet-template/v1
+    template_id: PKT-TPL-PHASE_0.5
+    title: "Phase 0.5: Contract Blocking Repairs (v5 Cut)"
+    dag_node_id: PHASE_0.5
+    source_refs: []
+    assertions: []
+    allowed_files:
+      - harness/knowledge/product-specs/phase-0-5-contract-blocking-repairs-v5-c.md
+    forbidden_files:
+      - harness/knowledge/product-specs/atelier/**
+      - product/apps/atelier/src/cli.ts
+    required_gates: *a1
+    required_fixtures: []
+    no_fixture_reason: phase has no sub-steps; no fixtures required
+    validation_profile: VP-PHASE_0.5
+    evidence_expectations:
+      - state/evidence/PHASE_0.5-VG-1-SCOPE-AND-.json
+      - state/evidence/PHASE_0.5-VG-2-CHECK-REGI.json
+      - state/evidence/PHASE_0.5-VG-8-COMPLETION.json
+    subagent_role: subagent
+    completion_criteria:
+      - complete PHASE_0.5
+    provenance_kind: deterministic_fact
+    provenance_ref: derive:control:canonical/dag.yaml#PHASE_0.5
+  - schema: atelier.packet-template/v1
+    template_id: PKT-TPL-PHASE_1
+    title: "Phase 1: MVP"
+    dag_node_id: PHASE_1
+    source_refs: []
+    assertions: []
+    allowed_files:
+      - harness/knowledge/product-specs/phase-1-mvp.md
+    forbidden_files:
+      - harness/knowledge/product-specs/atelier/**
+      - product/apps/atelier/src/cli.ts
+    required_gates: *a1
+    required_fixtures: []
+    no_fixture_reason: no fixtures required by node
+    validation_profile: VP-PHASE_1
+    evidence_expectations:
+      - state/evidence/PHASE_1-VG-1-SCOPE-AND-.json
+      - state/evidence/PHASE_1-VG-2-CHECK-REGI.json
+      - state/evidence/PHASE_1-VG-8-COMPLETION.json
+    subagent_role: subagent
+    completion_criteria:
+      - complete PHASE_1_1A_ARTIFACT_GRAPH_V0_MIN_VERIFIC
+      - complete PHASE_1_1B_GENERIC_RUNTIME_PACKET_EXPORT
+      - complete PHASE_1_1C_ATTENTION_MANAGEMENT_V1
+      - complete PHASE_1_1D_END_TO_END_RUN_COMPLETION_WED
+      - complete PHASE_1_1E_OPTIONAL_NARROW_RECONCILIATIO
+    provenance_kind: deterministic_fact
+    provenance_ref: derive:control:canonical/dag.yaml#PHASE_1
+  - schema: atelier.packet-template/v1
+    template_id: PKT-TPL-PHASE_2
+    title: "Phase 2: Runtime-Specific Adapters"
+    dag_node_id: PHASE_2
+    source_refs: []
+    assertions: []
+    allowed_files:
+      - harness/knowledge/product-specs/phase-2-runtime-specific-adapters.md
+    forbidden_files:
+      - harness/knowledge/product-specs/atelier/**
+      - product/apps/atelier/src/cli.ts
+    required_gates: *a1
+    required_fixtures: []
+    no_fixture_reason: no fixtures required by node
+    validation_profile: VP-PHASE_2
+    evidence_expectations:
+      - state/evidence/PHASE_2-VG-1-SCOPE-AND-.json
+      - state/evidence/PHASE_2-VG-2-CHECK-REGI.json
+      - state/evidence/PHASE_2-VG-8-COMPLETION.json
+    subagent_role: subagent
+    completion_criteria:
+      - complete PHASE_2_2A
+      - complete PHASE_2_2B
+      - complete PHASE_2_2C
+      - complete PHASE_2_2D
+    provenance_kind: deterministic_fact
+    provenance_ref: derive:control:canonical/dag.yaml#PHASE_2
+  - schema: atelier.packet-template/v1
+    template_id: PKT-TPL-PHASE_3
+    title: "Phase 3: Transformation Pilots"
+    dag_node_id: PHASE_3
+    source_refs: []
+    assertions: []
+    allowed_files:
+      - harness/knowledge/product-specs/phase-3-transformation-pilots.md
+    forbidden_files:
+      - harness/knowledge/product-specs/atelier/**
+      - product/apps/atelier/src/cli.ts
+    required_gates: *a1
+    required_fixtures: []
+    no_fixture_reason: phase has no sub-steps; no fixtures required
+    validation_profile: VP-PHASE_3
+    evidence_expectations:
+      - state/evidence/PHASE_3-VG-1-SCOPE-AND-.json
+      - state/evidence/PHASE_3-VG-2-CHECK-REGI.json
+      - state/evidence/PHASE_3-VG-8-COMPLETION.json
+    subagent_role: subagent
+    completion_criteria:
+      - complete PHASE_3
+    provenance_kind: deterministic_fact
+    provenance_ref: derive:control:canonical/dag.yaml#PHASE_3
+  - schema: atelier.packet-template/v1
+    template_id: PKT-TPL-PHASE_4
+    title: "Phase 4: Human Product Owner UI"
+    dag_node_id: PHASE_4
+    source_refs: []
+    assertions: []
+    allowed_files:
+      - harness/knowledge/product-specs/phase-4-human-product-owner-ui.md
+    forbidden_files:
+      - harness/knowledge/product-specs/atelier/**
+      - product/apps/atelier/src/cli.ts
+    required_gates: *a1
+    required_fixtures: []
+    no_fixture_reason: phase has no sub-steps; no fixtures required
+    validation_profile: VP-PHASE_4
+    evidence_expectations:
+      - state/evidence/PHASE_4-VG-1-SCOPE-AND-.json
+      - state/evidence/PHASE_4-VG-2-CHECK-REGI.json
+      - state/evidence/PHASE_4-VG-8-COMPLETION.json
+    subagent_role: subagent
+    completion_criteria:
+      - complete PHASE_4
+    provenance_kind: deterministic_fact
+    provenance_ref: derive:control:canonical/dag.yaml#PHASE_4
+  - schema: atelier.packet-template/v1
+    template_id: PKT-TPL-PHASE_5
+    title: "Phase 5: Swarm Coordination"
+    dag_node_id: PHASE_5
+    source_refs: []
+    assertions: []
+    allowed_files:
+      - harness/knowledge/product-specs/phase-5-swarm-coordination.md
+    forbidden_files:
+      - harness/knowledge/product-specs/atelier/**
+      - product/apps/atelier/src/cli.ts
+    required_gates: *a1
+    required_fixtures: []
+    no_fixture_reason: phase has no sub-steps; no fixtures required
+    validation_profile: VP-PHASE_5
+    evidence_expectations:
+      - state/evidence/PHASE_5-VG-1-SCOPE-AND-.json
+      - state/evidence/PHASE_5-VG-2-CHECK-REGI.json
+      - state/evidence/PHASE_5-VG-8-COMPLETION.json
+    subagent_role: subagent
+    completion_criteria:
+      - complete PHASE_5
+    provenance_kind: deterministic_fact
+    provenance_ref: derive:control:canonical/dag.yaml#PHASE_5

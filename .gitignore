@@ -82,3 +82,10 @@ storybook-static
 ./result/*
 result
 .harness
+
+.harness-backup**
+
+.opencode/opencode-goal-plugin/**
+goal.md
+
+**/_referense/*

@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "atelier.source-classification/v1",
+  "type": "object",
+  "required": ["schema", "classification_id", "source_section_id", "classification", "provenance_kind", "provenance_ref", "extraction_status"],
+  "properties": {
+    "schema": { "const": "atelier.source-classification/v1" },
+    "classification_id": { "type": "string" },
+    "source_section_id": { "type": "string" },
+    "classification": {
+      "enum": [
+        "assertion_source",
+        "definition_source",
+        "invariant_source",
+        "non_goal_source",
+        "example_source",
+        "rationale_source",
+        "positioning_source",
+        "roadmap_future",
+        "duplicate_or_covered",
+        "out_of_scope_for_active_dag"
+      ]
+    },
+    "provenance_kind": { "enum": ["deterministic_fact", "llm_extracted", "legacy_promoted", "manual_control_record"] },
+    "provenance_ref": { "type": "string" },
+    "extraction_status": { "enum": ["pending", "running", "accepted", "rejected", "skipped"] },
+    "rationale": { "type": "string" }
+  }
+}

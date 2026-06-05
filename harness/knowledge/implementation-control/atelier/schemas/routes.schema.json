@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "atelier.routes/v1",
+  "type": "object",
+  "required": ["schema", "generated_at", "routes"],
+  "properties": {
+    "schema": { "const": "atelier.routes/v1" },
+    "generated_at": { "type": "string" },
+    "routes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["route_id", "kind", "selector", "target"],
+        "properties": {
+          "route_id": { "type": "string" },
+          "kind": { "enum": ["dag_node", "assertion", "gate", "fixture", "section", "evidence", "command", "view"] },
+          "selector": { "type": "string" },
+          "target": { "type": "string" },
+          "description": { "type": "string" }
+        }
+      }
+    }
+  }
+}

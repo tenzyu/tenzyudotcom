@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "atelier.dag-node/v1",
   "type": "object",
-  "required": ["schema", "dag_node_id", "phase", "title", "depends_on", "owns_assertion_ids", "required_gate_ids", "allowed_file_globs", "expected_outputs", "owner_role"],
+  "required": ["schema", "dag_node_id", "phase", "title", "depends_on", "owns_assertion_ids", "required_gate_ids", "allowed_file_globs", "forbidden_file_globs", "expected_outputs", "owner_role", "validation_profile", "provenance_kind", "provenance_ref"],
   "properties": {
     "schema": { "const": "atelier.dag-node/v1" },
     "dag_node_id": { "type": "string" },
@@ -12,7 +12,15 @@
     "owns_assertion_ids": { "type": "array", "items": { "type": "string" } },
     "required_gate_ids": { "type": "array", "items": { "type": "string" } },
     "allowed_file_globs": { "type": "array", "items": { "type": "string" } },
+    "forbidden_file_globs": { "type": "array", "items": { "type": "string" } },
     "expected_outputs": { "type": "array", "items": { "type": "string" } },
-    "owner_role": { "type": "string" }
+    "owner_role": { "type": "string" },
+    "validation_profile": { "type": "string" },
+    "evidence_expectations": { "type": "array", "items": { "type": "string" } },
+    "subagent_role": { "type": "string" },
+    "completion_criteria": { "type": "array", "items": { "type": "string" } },
+    "no_fixture_reason": { "type": "string" },
+    "provenance_kind": { "enum": ["deterministic_fact", "llm_extracted", "legacy_promoted", "manual_control_record"] },
+    "provenance_ref": { "type": "string" }
   }
 }

@@ -1,325 +1,202 @@
 schema: atelier.dag/v1
-generated_at: 2026-06-04T17:49:43.298Z
-provenance: state/traceability/dag-02-join-table-2026-06-04.yaml
+generated_at: 2026-06-05T06:38:20.759Z
+provenance: compile:project:product-specs/ROADMAP.md
 nodes:
   - schema: atelier.dag-node/v1
-    dag_node_id: DAG-00
-    phase: PG-0
-    title: "DAG-00: Control docs exist outside product specs and product-spec baseline is HEAD."
+    dag_node_id: PHASE_0
+    phase: PHASE_0
+    title: "Phase 0: Spec and Contract Stabilization"
     depends_on: []
-    owns_assertion_ids:
-      - AST-PRODUCT-2335B3814F
-    required_gate_ids:
-      - VG-001
-      - VG-037
+    owns_assertion_ids: []
+    required_gate_ids: &a1
+      - VG-1-SCOPE-AND-
+      - VG-2-CHECK-REGI
+      - VG-8-COMPLETION
     allowed_file_globs:
-      - state/README.md mutable roots only
-    expected_outputs:
-      - Control docs exist outside product specs and product-spec baseline is HEAD.
-    owner_role: mother agent
-  - schema: atelier.dag-node/v1
-    dag_node_id: DAG-01
-    phase: PG-0
-    title: "DAG-01: Product specs are immutable, baseline hashes are from HEAD, and drift opens P0 blocker."
-    depends_on:
-      - DAG-00
-    owns_assertion_ids:
-      - AST-PRODUCT-C3DF60791E
-    required_gate_ids:
-      - VG-001
-      - VG-036
-    allowed_file_globs:
-      - state/validations/VG-001-product-spec-clean-2026-06-04.md and VG-036-product-spec-hash-2026-06-04.md
-    expected_outputs:
-      - Product specs are immutable, baseline hashes are from HEAD, and drift opens P0 blocker.
-    owner_role: contract auditor
-  - schema: atelier.dag-node/v1
-    dag_node_id: DAG-01B
-    phase: PG-0B
-    title: "DAG-01B: Repository inventory records package manager, project targets, roots, dirty status, editable roo"
-    depends_on:
-      - DAG-00
-    owns_assertion_ids:
-      - AST-OTHER-D4BEC44126
-    required_gate_ids:
-      - VG-000
-      - VG-001
-      - VG-036
-      - VG-037
-    allowed_file_globs:
-      - state/repository-inventory/repo-inventory-2026-06-04.md
-    expected_outputs:
-      - Repository inventory records package manager, project targets, roots, dirty status, editable roots, forbidden roots, and proof refs before ordinary implementation packets.
-    owner_role: contract auditor
-  - schema: atelier.dag-node/v1
-    dag_node_id: DAG-01C
-    phase: PG-0B
-    title: "DAG-01C: Command discovery uses package-manager-specific Nx commands and non-Nx fallback before declaring"
-    depends_on:
-      - DAG-00
-    owns_assertion_ids:
-      - AST-OTHER-EF53B0C62D
-    required_gate_ids:
-      - VG-000
-      - VG-002
-    allowed_file_globs:
-      - state/command-discovery/command-discovery-2026-06-04.md
-    expected_outputs:
-      - Command discovery uses package-manager-specific Nx commands and non-Nx fallback before declaring unavailable tools.
-    owner_role: contract auditor
-  - schema: atelier.dag-node/v1
-    dag_node_id: DAG-02
-    phase: PG-1 and PG-F
-    title: "DAG-02: Every executable normative must maps to field-level or fixture-level invariant, fixture, gate, a"
-    depends_on:
-      - DAG-01
-    owns_assertion_ids:
-      - AST-PRODUCT-01BE002122
-    required_gate_ids:
-      - VG-029
-      - VG-038
-    allowed_file_globs:
-      - state/traceability/** only during repair
-    expected_outputs:
-      - Every executable normative must maps to field-level or fixture-level invariant, fixture, gate, allowed files, proof level, waiver, or blocker.
-    owner_role: contract auditor
-  - schema: atelier.dag-node/v1
-    dag_node_id: DAG-02A
-    phase: PG-1 and PG-F
-    title: "DAG-02A: Fixture aliases, product test names, command files, and expected outputs are unique and normaliz"
-    depends_on:
-      - DAG-01
-    owns_assertion_ids:
-      - AST-PRODUCT-31395AD8B8
-    required_gate_ids:
-      - VG-004
-      - VG-045
-    allowed_file_globs:
-      - state/traceability/** and future fixture alias state only
-    expected_outputs:
-      - Fixture aliases, product test names, command files, and expected outputs are unique and normalized outside product specs.
-    owner_role: fixture author
-  - schema: atelier.dag-node/v1
-    dag_node_id: DAG-04
-    phase: PG-1
-    title: "DAG-04: Every artifact belongs to exactly one class. The class determines placement, ownership, deletion"
-    depends_on:
-      - DAG-02
-    owns_assertion_ids:
-      - AST-GRAPH-49F862B99F
-      - AST-GRAPH-F8B0939506
-      - AST-GRAPH-BC5B7AFC59
-      - AST-GRAPH-DA4690FA3B
-      - AST-GRAPH-AF7A31B902
-      - AST-GRAPH-1B3028FCEC
-      - AST-GRAPH-ARTIFACT_GRAPH_CONTRACT_INVARIANT
-    required_gate_ids:
-      - VG-005
-      - VG-006
-      - VG-034
-      - VG-038
-    allowed_file_globs:
-      - product/apps/atelier/src/core/graph.ts
-    expected_outputs:
-      - Every artifact belongs to exactly one class. The class determines placement, ownership, deletion behavior, and acceptance.
-      - Node schema requires id, kind, class, path, hash, owner, authority
-      - Artifact identity is primary authored id, secondary kind/scope/slug, location observation, or ephemeral content hash
-      - Move/rename emits moved/supersedes relations, not unrelated identity mints
-      - Canonical kind catalog is closed; experimental kinds are exp.*
-      - Edge catalog and endpoint compatibility matrix are exhaustive and type-closed
-      - Artifact Graph supports graph nodes and edges, source and derived artifacts, provenance, deterministic regeneration, and byte-identical fixture hashes
-    owner_role: graph kernel implementer
-  - schema: atelier.dag-node/v1
-    dag_node_id: DAG-05
-    phase: PG-1
-    title: "DAG-05: Event enum is closed; new code must not emit run_started or legacy run_blocked"
-    depends_on:
-      - DAG-02
-    owns_assertion_ids:
-      - AST-EVENT-D22DD8B112
-      - AST-EVENT-3D134CD7A2
-      - AST-GRAPH-A9021EB5A8
-      - AST-GRAPH-D423C6410C
-      - AST-GRAPH-17AAA91D63
-      - AST-EVENT-PAYLOAD_MINIMUMS
-      - AST-EVENT-TASK_PAYLOADS
-      - AST-EVENT-RUN_PAYLOADS
-      - AST-EVENT-ARTIFACT_GRAPH_PAYLOADS
-      - AST-EVENT-POLICY_PAYLOADS
-    required_gate_ids:
-      - VG-011
-      - VG-013
-      - VG-040
-      - VG-041
-      - VG-044
-    allowed_file_globs:
-      - product/apps/atelier/src/core/events.ts
-    expected_outputs:
-      - Event enum is closed; new code must not emit run_started or legacy run_blocked
-      - Event identity requires stable event_id, actor_id, timestamps, source/evidence refs, durable_location, correlation_id, redaction_state
-      - Durable evidence promotion requires both durable write outside .atelier and matching artifact_accepted event with same correlation_id
-      - Durable terminal run events survive .atelier deletion
-      - Redacted events replace fields with placeholders and list redacted fields
-      - Event types declare minimum payloads and required payload fields are present
-      - Task, run, artifact, graph, and policy events emit their declared minimum payload fields
-    owner_role: event lifecycle implementer
-  - schema: atelier.dag-node/v1
-    dag_node_id: DAG-06
-    phase: PG-1
-    title: "DAG-06: Check registry entries conform to minimum schema"
-    depends_on:
-      - DAG-02
-    owns_assertion_ids:
-      - AST-VERIFICATION-ABB2F8C85F
-      - AST-VERIFICATION-D97265AF7B
-      - AST-VERIFICATION-628B18DB86
-      - AST-VERIFICATION-96F0622B42
-      - AST-VERIFICATION-B2705D272C
-      - AST-VERIFICATION-13CBCFE12B
-      - AST-VERIFICATION-0908A568D6
-      - AST-VERIFICATION-311F1C5E96
-      - AST-VERIFICATION-D79DDBEFFB
-      - AST-VERIFICATION-MAP_DERIVATION_FIXTURE
-      - AST-VERIFICATION-EXAMPLE_REQUIRED_MAP_COEMIT
-      - AST-VERIFICATION-EXAMPLE_CLEAN_COMPLETION
-      - AST-VERIFICATION-EXAMPLE_DIRTY_COMPLETION
-      - AST-VERIFICATION-EXAMPLE_UNAVAILABLE_BLOCKING
-      - AST-VERIFICATION-EXAMPLE_REQUIRED_MISSING
-      - AST-VERIFICATION-EXAMPLE_REQUIRED_FAILED
-    required_gate_ids:
-      - VG-008
-      - VG-009
-      - VG-010
-      - VG-024
-      - VG-042
-      - VG-043
-    allowed_file_globs:
-      - product/apps/atelier/src/core/contract.ts
-    expected_outputs:
-      - Check registry entries conform to minimum schema
-      - Required verification map is derived from task acceptance criteria and active check bindings; policy term contributes zero entries in v5.1
-      - Verification record schema is closed and durable_path must be outside .atelier
-      - passed requires evidence refs
-      - "Status lattice is closed: passed, failed, skipped, unavailable, not-run, unknown"
-      - Skip/unavailable reason codes are controlled
-      - deferred_by_accepted_decision requires decision_ref to accepted decision_record
-      - Hard block is union of failed required/blocking, not-run/unknown, blocking unavailable, active block policy, unmet precondition, missing evidence, adapter violation
-      - Completion truth table is sole authority on closure state
-      - Required verification map derivation is closed over acceptance criteria and active check bindings
-      - Completion examples evaluate clean, dirty, unavailable blocking, missing, and failed required-check states correctly
-    owner_role: verification engine implementer
-  - schema: atelier.dag-node/v1
-    dag_node_id: DAG-07
-    phase: PG-1
-    title: "DAG-07: Active CLI command inventory is exact; removed commands must not appear in active surfaces"
-    depends_on:
-      - DAG-02
-    owns_assertion_ids:
-      - AST-SURFACE-9F2B360BA7
-      - AST-SURFACE-C836C812D1
-      - AST-SURFACE-CDE73CAC88
-      - AST-VERIFICATION-983CBFFEFA
-      - AST-SURFACE-330CE936E3
-      - AST-SURFACE-4887110373
-    required_gate_ids:
-      - VG-018
-      - VG-019
-      - VG-039
-    allowed_file_globs:
+      - harness/knowledge/product-specs/phase-0-spec-and-contract-stabilization.md
+    forbidden_file_globs:
+      - harness/knowledge/product-specs/atelier/**
       - product/apps/atelier/src/cli.ts
-      - product/apps/atelier/src/mcp.ts
-      - product/apps/atelier/src/gui/**
     expected_outputs:
-      - Active CLI command inventory is exact; removed commands must not appear in active surfaces
-      - Long-form flags only; --json is canonical machine-readable flag; errors use ATELIER- prefix
-      - Priority JSON output shapes are exact and snake_case; additional fields forbidden
-      - atelier run verify --record --from <verification-record.json> --json accepts full record and emits paired verification_recorded + artifact_accepted events
-      - MCP tools mirror CLI command path with atelier_ prefix and no removed commands
-      - GUI labels map to canonical surfaces and must not imply extra capabilities
-    owner_role: surface/CLI implementer
+      - Compile evidence for PHASE_0
+    owner_role: mother agent
+    validation_profile: VP-PHASE_0
+    evidence_expectations:
+      - state/evidence/PHASE_0-VG-1-SCOPE-AND-.json
+      - state/evidence/PHASE_0-VG-2-CHECK-REGI.json
+      - state/evidence/PHASE_0-VG-8-COMPLETION.json
+    subagent_role: subagent
+    completion_criteria:
+      - complete PHASE_0_0
+      - complete PHASE_0_0
+      - complete PHASE_0_0
+      - complete PHASE_0_0
+    provenance_kind: deterministic_fact
+    provenance_ref: compile:project:product-specs/ROADMAP.md#76-148
   - schema: atelier.dag-node/v1
-    dag_node_id: DAG-08
-    phase: PG-1
-    title: "DAG-08: Adapter translates canonical packet/result and does not own execution"
+    dag_node_id: PHASE_0.5
+    phase: PHASE_0.5
+    title: "Phase 0.5: Contract Blocking Repairs (v5 Cut)"
     depends_on:
-      - DAG-02
-    owns_assertion_ids:
-      - AST-ADAPTER-7610A85C77
-      - AST-ADAPTER-584B80A133
-      - AST-ADAPTER-EC926AC43F
-      - AST-ADAPTER-CD4D2BA96F
-      - AST-VERIFICATION-DE2A993AE9
-      - AST-ADAPTER-5892029CC3
-      - AST-ADAPTER-7E643F96FF
-      - AST-ADAPTER-41CD6D2774
-      - AST-ADAPTER-B885A5C890
-      - AST-EVENT-F6BC0758F3
-      - AST-ADAPTER-RUNTIME_PARITY_INVARIANT
-    required_gate_ids:
-      - VG-021
-      - VG-022
-      - VG-023
-      - VG-032
+      - PHASE_0
+    owns_assertion_ids: []
+    required_gate_ids: *a1
     allowed_file_globs:
-      - product/apps/atelier/src/adapter/**
+      - harness/knowledge/product-specs/phase-0-5-contract-blocking-repairs-v5-c.md
+    forbidden_file_globs:
+      - harness/knowledge/product-specs/atelier/**
+      - product/apps/atelier/src/cli.ts
     expected_outputs:
-      - Adapter translates canonical packet/result and does not own execution
-      - Canonical packet input fields are required; missing fields are adapter errors
-      - Canonical result fields are required, including diff even when empty
-      - Capability descriptor declares adapter capabilities and forbidden aliases
-      - "Adapter forbidden behaviors are rejected: mutate packet/result, invent verification, hide state, alias removed commands, promote implicitly"
-      - Semantic equivalence normalization is field-wise and shared by Stage 0 and Stage 1 fixtures
-      - Stage 0 packet portability is proven by human-shell + noop-reference only and does not prove runtime agnosticism
-      - Runtime agnosticism is proven only by real-runtime adapter pair passing runtime parity
-      - Adapter error schema uses closed ATELIER-* error codes
-      - Adapter output has per-field class split; runtime observations derived, candidates promoted only by acceptance
-      - Runtime adapter parity requires two real runtime adapters and forbids hidden persistence, invented verification records, and removed-command aliases
-    owner_role: adapter implementer
+      - Compile evidence for PHASE_0.5
+    owner_role: mother agent
+    validation_profile: VP-PHASE_0.5
+    evidence_expectations:
+      - state/evidence/PHASE_0.5-VG-1-SCOPE-AND-.json
+      - state/evidence/PHASE_0.5-VG-2-CHECK-REGI.json
+      - state/evidence/PHASE_0.5-VG-8-COMPLETION.json
+    subagent_role: subagent
+    completion_criteria:
+      - complete PHASE_0.5
+    no_fixture_reason: phase has no sub-steps; no fixtures required
+    provenance_kind: deterministic_fact
+    provenance_ref: compile:project:product-specs/ROADMAP.md#149-197
   - schema: atelier.dag-node/v1
-    dag_node_id: DAG-09
-    phase: PG-1
-    title: "DAG-09: Working run packets and working handoffs live under .atelier/runs/** and are derived"
+    dag_node_id: PHASE_1
+    phase: PHASE_1
+    title: "Phase 1: MVP"
     depends_on:
-      - DAG-02
-    owns_assertion_ids:
-      - AST-GRAPH-9E2954BEEC
-      - AST-EVENT-63D6C91AA0
-      - AST-VERIFICATION-21CC6F0B02
-    required_gate_ids:
-      - VG-020
-      - VG-033
+      - PHASE_0.5
+    owns_assertion_ids: []
+    required_gate_ids: *a1
     allowed_file_globs:
-      - product/apps/atelier/src/core/runs.ts
+      - harness/knowledge/product-specs/phase-1-mvp.md
+    forbidden_file_globs:
+      - harness/knowledge/product-specs/atelier/**
+      - product/apps/atelier/src/cli.ts
     expected_outputs:
-      - Working run packets and working handoffs live under .atelier/runs/** and are derived
-      - Exported packet/handoff is source candidate; accepted handoff/terminal summary is accepted durable evidence
-      - Normal LLM-readable run packet order begins handoff.md, then brief, plan, context, verification, review, worklog, artifacts; manifest is not normal first read
-    owner_role: event lifecycle implementer
+      - Compile evidence for PHASE_1
+    owner_role: mother agent
+    validation_profile: VP-PHASE_1
+    evidence_expectations:
+      - state/evidence/PHASE_1-VG-1-SCOPE-AND-.json
+      - state/evidence/PHASE_1-VG-2-CHECK-REGI.json
+      - state/evidence/PHASE_1-VG-8-COMPLETION.json
+    subagent_role: subagent
+    completion_criteria:
+      - complete PHASE_1_1A_ARTIFACT_GRAPH_V0_MIN_VERIFIC
+      - complete PHASE_1_1B_GENERIC_RUNTIME_PACKET_EXPORT
+      - complete PHASE_1_1C_ATTENTION_MANAGEMENT_V1
+      - complete PHASE_1_1D_END_TO_END_RUN_COMPLETION_WED
+      - complete PHASE_1_1E_OPTIONAL_NARROW_RECONCILIATIO
+    provenance_kind: deterministic_fact
+    provenance_ref: compile:project:product-specs/ROADMAP.md#198-323
   - schema: atelier.dag-node/v1
-    dag_node_id: DAG-10
-    phase: PG-1
-    title: "DAG-10: Actors and surfaces may write/promote only authorized artifact classes"
+    dag_node_id: PHASE_2
+    phase: PHASE_2
+    title: "Phase 2: Runtime-Specific Adapters"
     depends_on:
-      - DAG-02
-    owns_assertion_ids:
-      - AST-SURFACE-8617438403
-      - AST-SURFACE-D138969A12
-      - AST-EVENT-F26E3B09F3
-      - AST-SURFACE-CONTEXT_PLAN_READONLY
-      - AST-GRAPH-TRANSFORM_EVIDENCE_PER_TRANSITION
-    required_gate_ids:
-      - VG-015
-      - VG-025
-      - VG-026A
-      - VG-026B
-      - VG-043
-      - VG-034
+      - PHASE_1
+    owns_assertion_ids: []
+    required_gate_ids: *a1
     allowed_file_globs:
-      - product/apps/atelier/src/core/policy.ts
+      - harness/knowledge/product-specs/phase-2-runtime-specific-adapters.md
+    forbidden_file_globs:
+      - harness/knowledge/product-specs/atelier/**
+      - product/apps/atelier/src/cli.ts
     expected_outputs:
-      - Actors and surfaces may write/promote only authorized artifact classes
-      - Context planner must not create tasks, runs, source artifacts, or accepted durable evidence
-      - Runtime adapters and validators may produce candidates/evidence but may not promote their own output
-      - Context planning has no side effects on source, task, run, or index state and creates no task or run
-      - Transform maturity transitions require declared evidence for each ordered transition
-    owner_role: governance/policy boundary implementer
+      - Compile evidence for PHASE_2
+    owner_role: mother agent
+    validation_profile: VP-PHASE_2
+    evidence_expectations:
+      - state/evidence/PHASE_2-VG-1-SCOPE-AND-.json
+      - state/evidence/PHASE_2-VG-2-CHECK-REGI.json
+      - state/evidence/PHASE_2-VG-8-COMPLETION.json
+    subagent_role: subagent
+    completion_criteria:
+      - complete PHASE_2_2A
+      - complete PHASE_2_2B
+      - complete PHASE_2_2C
+      - complete PHASE_2_2D
+    provenance_kind: deterministic_fact
+    provenance_ref: compile:project:product-specs/ROADMAP.md#324-376
+  - schema: atelier.dag-node/v1
+    dag_node_id: PHASE_3
+    phase: PHASE_3
+    title: "Phase 3: Transformation Pilots"
+    depends_on:
+      - PHASE_2
+    owns_assertion_ids: []
+    required_gate_ids: *a1
+    allowed_file_globs:
+      - harness/knowledge/product-specs/phase-3-transformation-pilots.md
+    forbidden_file_globs:
+      - harness/knowledge/product-specs/atelier/**
+      - product/apps/atelier/src/cli.ts
+    expected_outputs:
+      - Compile evidence for PHASE_3
+    owner_role: mother agent
+    validation_profile: VP-PHASE_3
+    evidence_expectations:
+      - state/evidence/PHASE_3-VG-1-SCOPE-AND-.json
+      - state/evidence/PHASE_3-VG-2-CHECK-REGI.json
+      - state/evidence/PHASE_3-VG-8-COMPLETION.json
+    subagent_role: subagent
+    completion_criteria:
+      - complete PHASE_3
+    no_fixture_reason: phase has no sub-steps; no fixtures required
+    provenance_kind: deterministic_fact
+    provenance_ref: compile:project:product-specs/ROADMAP.md#377-398
+  - schema: atelier.dag-node/v1
+    dag_node_id: PHASE_4
+    phase: PHASE_4
+    title: "Phase 4: Human Product Owner UI"
+    depends_on:
+      - PHASE_3
+    owns_assertion_ids: []
+    required_gate_ids: *a1
+    allowed_file_globs:
+      - harness/knowledge/product-specs/phase-4-human-product-owner-ui.md
+    forbidden_file_globs:
+      - harness/knowledge/product-specs/atelier/**
+      - product/apps/atelier/src/cli.ts
+    expected_outputs:
+      - Compile evidence for PHASE_4
+    owner_role: mother agent
+    validation_profile: VP-PHASE_4
+    evidence_expectations:
+      - state/evidence/PHASE_4-VG-1-SCOPE-AND-.json
+      - state/evidence/PHASE_4-VG-2-CHECK-REGI.json
+      - state/evidence/PHASE_4-VG-8-COMPLETION.json
+    subagent_role: subagent
+    completion_criteria:
+      - complete PHASE_4
+    no_fixture_reason: phase has no sub-steps; no fixtures required
+    provenance_kind: deterministic_fact
+    provenance_ref: compile:project:product-specs/ROADMAP.md#399-427
+  - schema: atelier.dag-node/v1
+    dag_node_id: PHASE_5
+    phase: PHASE_5
+    title: "Phase 5: Swarm Coordination"
+    depends_on:
+      - PHASE_4
+    owns_assertion_ids: []
+    required_gate_ids: *a1
+    allowed_file_globs:
+      - harness/knowledge/product-specs/phase-5-swarm-coordination.md
+    forbidden_file_globs:
+      - harness/knowledge/product-specs/atelier/**
+      - product/apps/atelier/src/cli.ts
+    expected_outputs:
+      - Compile evidence for PHASE_5
+    owner_role: mother agent
+    validation_profile: VP-PHASE_5
+    evidence_expectations:
+      - state/evidence/PHASE_5-VG-1-SCOPE-AND-.json
+      - state/evidence/PHASE_5-VG-2-CHECK-REGI.json
+      - state/evidence/PHASE_5-VG-8-COMPLETION.json
+    subagent_role: subagent
+    completion_criteria:
+      - complete PHASE_5
+    no_fixture_reason: phase has no sub-steps; no fixtures required
+    provenance_kind: deterministic_fact
+    provenance_ref: compile:project:product-specs/ROADMAP.md#428-560

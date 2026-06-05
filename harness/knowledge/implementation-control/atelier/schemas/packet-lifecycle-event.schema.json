@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "atelier.packet-lifecycle-event/v1",
+  "type": "object",
+  "required": ["schema", "event_id", "event_type", "created_at", "packet_id", "dag_node_id", "status"],
+  "properties": {
+    "schema": { "const": "atelier.packet-lifecycle-event/v1" },
+    "event_id": { "type": "string" },
+    "event_type": { "enum": ["packet_created", "packet_dispatched", "packet_completed", "packet_rejected", "packet_blocked", "packet_superseded", "packet_accepted"] },
+    "created_at": { "type": "string" },
+    "packet_id": { "type": "string" },
+    "dag_node_id": { "type": "string" },
+    "status": { "enum": ["draft", "in_flight", "accepted", "rejected", "blocked", "superseded"] },
+    "reasons": { "type": "array", "items": { "type": "string" } },
+    "refs": { "type": "array", "items": { "type": "string" } }
+  }
+}

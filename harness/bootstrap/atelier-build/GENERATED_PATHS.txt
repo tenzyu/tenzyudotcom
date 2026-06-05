@@ -1,0 +1,5 @@
+harness/knowledge/implementation-control/atelier/canonical/**
+harness/knowledge/implementation-control/atelier/views/**
+harness/knowledge/implementation-control/atelier/state/**
+harness/knowledge/implementation-control/atelier/node_modules/**
+harness/knowledge/implementation-control/atelier/bun.lock

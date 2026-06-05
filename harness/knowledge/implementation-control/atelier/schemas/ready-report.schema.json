@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "atelier.ready-report/v1",
+  "type": "object",
+  "required": ["schema", "generated_at", "status", "ready_to_implement", "errors", "warnings", "active_scope", "defects"],
+  "properties": {
+    "schema": { "const": "atelier.ready-report/v1" },
+    "generated_at": { "type": "string" },
+    "status": { "enum": ["ready", "not_ready"] },
+    "ready_to_implement": { "type": "boolean" },
+    "errors": { "type": "array", "items": { "type": "string" } },
+    "warnings": { "type": "array", "items": { "type": "string" } },
+    "active_scope": { "type": "array", "items": { "type": "string" } },
+    "legacy_truth_refs": { "type": "array", "items": { "type": "string" } },
+    "unclassified_sections": { "type": "array", "items": { "type": "string" } },
+    "missing_gate_nodes": { "type": "array", "items": { "type": "string" } },
+    "missing_packet_nodes": { "type": "array", "items": { "type": "string" } },
+    "defects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["defect_id", "severity", "blocking", "affected_record", "reason", "recommended_command_or_next_action"],
+        "properties": {
+          "defect_id": { "type": "string" },
+          "severity": { "enum": ["P0", "P1", "P2"] },
+          "blocking": { "type": "boolean" },
+          "affected_record": { "type": "string" },
+          "reason": { "type": "string" },
+          "recommended_command_or_next_action": { "type": "string" }
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "properties": {
+        "deterministic_facts": { "type": "integer" },
+        "llm_derived_records": { "type": "integer" },
+        "legacy_promoted_records": { "type": "integer" },
+        "generated_views": { "type": "integer" },
+        "unresolved_blockers": { "type": "integer" },
+        "future_or_carryover_nodes": { "type": "integer" }
+      }
+    }
+  }
+}

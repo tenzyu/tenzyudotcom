@@ -1,0 +1,49 @@
+{
+  "schema": "atelier.compile-audit/v1",
+  "generated_at": "2026-06-05T06:38:21.208Z",
+  "project_seed_files": [
+    {
+      "file": "dag.yaml",
+      "exists": true,
+      "records": 7,
+      "deterministic_provenance": 7
+    },
+    {
+      "file": "gates.yaml",
+      "exists": true,
+      "records": 11,
+      "deterministic_provenance": 11
+    },
+    {
+      "file": "fixtures.yaml",
+      "exists": true,
+      "records": 26,
+      "deterministic_provenance": 26
+    },
+    {
+      "file": "validation-profiles.yaml",
+      "exists": true,
+      "records": 7,
+      "deterministic_provenance": 7
+    },
+    {
+      "file": "edit-boundaries.yaml",
+      "exists": true,
+      "records": 3,
+      "deterministic_provenance": 3
+    },
+    {
+      "file": "roles.yaml",
+      "exists": true,
+      "records": 5,
+      "deterministic_provenance": 5
+    },
+    {
+      "file": "scope.yaml",
+      "exists": true,
+      "records": 0,
+      "deterministic_provenance": 0
+    }
+  ],
+  "missing_files": []
+}

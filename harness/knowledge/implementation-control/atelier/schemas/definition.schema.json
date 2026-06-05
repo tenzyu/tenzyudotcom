@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "atelier.definition/v1",
+  "type": "object",
+  "required": ["schema", "definition_id", "source_section_id", "term", "text", "provenance_kind", "provenance_ref", "extraction_status"],
+  "properties": {
+    "schema": { "const": "atelier.definition/v1" },
+    "definition_id": { "type": "string" },
+    "source_section_id": { "type": "string" },
+    "term": { "type": "string" },
+    "text": { "type": "string" },
+    "provenance_kind": { "enum": ["deterministic_fact", "llm_extracted", "legacy_promoted", "manual_control_record"] },
+    "provenance_ref": { "type": "string" },
+    "extraction_status": { "enum": ["pending", "running", "accepted", "rejected", "skipped"] }
+  }
+}

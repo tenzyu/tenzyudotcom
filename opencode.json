@@ -27,7 +27,7 @@
       {
         "maxTurns": 20,
         "maxDurationMs": 9000000,
-        "maxTokens": 400000,
+        "maxTokens": 4000000,
         "minDelayMs": 1500,
         "maxRecentMessages": 50,
         "noProgressTokenThreshold": 50,
@@ -55,46 +55,36 @@
   },
 
   "agent": {
-    "spec-control-builder": {
-      "description": "Builds and repairs the Spec-to-Control Compiler until readiness is mechanically decidable",
+    "atelier-builder": {
+      "description": "Builds atelier-* bootstrap tools from atelier-design-docs",
       "mode": "primary",
-      "model": "minimax/MiniMax-M3",
+      "model": "minimax-coding-plan/MiniMax-M3",
       "temperature": 0.1,
-      "prompt": "{file:.opencode/agents/spec-control-builder.md}",
+      "prompt": "{file:.opencode/agents/atelier-builder.md}",
       "permission": {
         "bash": "allow",
         "edit": {
           "*": "deny",
-          "harness/knowledge/implementation-control/atelier/**": "allow",
-          "harness/knowledge/product-specs/atelier/**": "deny",
-          "product/apps/atelier/src/cli.ts": "deny"
+          ".atelier-bootstrap/**": "allow",
+          ".atelier/v0/**": "allow",
+          ".opencode/**": "allow",
+          "product/apps/atelier/**": "allow",
+          "harness/knowledge/product-specs/**": "deny"
         }
-      }
-    },
-
-    "spec-control-reviewer": {
-      "description": "Reviews Spec-to-Control Compiler readiness without mutating files",
-      "mode": "subagent",
-      "model": "minimax/MiniMax-M3",
-      "temperature": 0,
-      "prompt": "{file:.opencode/agents/spec-control-reviewer.md}",
-      "permission": {
-        "bash": "allow",
-        "edit": "deny"
       }
     }
   },
 
   "command": {
-    "s2c-review": {
-      "description": "Review and force-complete Spec-to-Control readiness",
-      "agent": "spec-control-builder",
-      "template": "{file:.opencode/commands/s2c-review.md}"
-    },
     "goal": {
       "description": "Set a session-scoped goal and auto-continue until complete.",
       "template": "$ARGUMENTS",
       "agent": "build"
+    },
+    "atelier-build": {
+      "description": "Build atelier-* from atelier-design-docs",
+      "agent": "atelier-builder",
+      "template": "{file:.opencode/commands/atelier-build.md}"
     }
   }
 }

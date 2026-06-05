@@ -1,28 +1,39 @@
 schema: atelier.roles/v1
-generated_at: 2026-06-04T00:00:00Z
-provenance: state/legacy/root-docs/SUBAGENT_ROLE_CATALOG.md
+generated_at: 2026-06-05T06:38:20.804Z
+provenance: compile:project:product-specs/WRITE_AUTHORITY_MATRIX.md
 roles:
   - schema: atelier.role/v1
-    role_id: ROLE-ROLE-ATELIER-SUBAGENT-ROLE-CATALOG
-    title: Atelier Subagent Role Catalog
-    source_ref: state/legacy/root-docs/SUBAGENT_ROLE_CATALOG.md:13-80
-    summary: All roles are routing hints, not packet-size authorization. A packet should normally change no more than one domain schema, one fixture family, one command surface, or one integration seam. A role may receive a broad invariant range only as a planning context; the packet must still name a narrow subset of invariant IDs, exact spec sections, allowed files, and validation gates.
-    provenance: SUBAGENT_ROLE_CATALOG.md
+    role_id: ROLE-MOTHER
+    title: Mother / parent agent
+    source_ref: compile:project:WRITE_AUTHORITY_MATRIX.md#2-actors
+    summary: Owns scope, frontier, packet dispatch, ready audit, evidence acceptance. Reads only state/ and views/.
+    provenance_kind: deterministic_fact
+    provenance_ref: compile:project:product-specs/WRITE_AUTHORITY_MATRIX.md#2-actors
   - schema: atelier.role/v1
-    role_id: ROLE-ROLE-GLOBAL-ROLE-LIMITS
-    title: Global Role Limits
-    source_ref: state/legacy/root-docs/SUBAGENT_ROLE_CATALOG.md:15-22
-    summary: All roles are routing hints, not packet-size authorization. A packet should normally change no more than one domain schema, one fixture family, one command surface, or one integration seam. A role may receive a broad invariant range only as a planning context; the packet must still name a narrow subset of invariant IDs, exact spec sections, allowed files, and validation gates.
-    provenance: SUBAGENT_ROLE_CATALOG.md
+    role_id: ROLE-COMPILER
+    title: Compiler (CLI)
+    source_ref: compile:project:WRITE_AUTHORITY_MATRIX.md#2-actors
+    summary: Compiles product-specs into canonical/. Deterministic. Writes to ledger.
+    provenance_kind: deterministic_fact
+    provenance_ref: compile:project:product-specs/WRITE_AUTHORITY_MATRIX.md#2-actors
   - schema: atelier.role/v1
-    role_id: ROLE-ROLE-CANONICAL-PACKET-SPLITS
-    title: Canonical Packet Splits
-    source_ref: state/legacy/root-docs/SUBAGENT_ROLE_CATALOG.md:23-52
-    summary: "| Domain | Split packets |"
-    provenance: SUBAGENT_ROLE_CATALOG.md
+    role_id: ROLE-SUBAGENT
+    title: Subagent (executor)
+    source_ref: compile:project:WRITE_AUTHORITY_MATRIX.md#2-actors
+    summary: Receives only packet + subagent-context JSON. Returns atelier.subagent-handoff/v1 JSON. No broad Markdown access.
+    provenance_kind: deterministic_fact
+    provenance_ref: compile:project:product-specs/WRITE_AUTHORITY_MATRIX.md#2-actors
   - schema: atelier.role/v1
-    role_id: ROLE-ROLE-CONTROL-DOC-REPAIR-PACKET-TYPE-CLOSED-SPECIFICATION
-    title: Control-Doc-Repair Packet Type (closed specification)
-    source_ref: state/legacy/root-docs/SUBAGENT_ROLE_CATALOG.md:53-80
-    summary: The `control-doc-repair` packet type is the only authorized way to mutate immutable implementation-control core docs.
-    provenance: SUBAGENT_ROLE_CATALOG.md
+    role_id: ROLE-LLM-JOB
+    title: LLM extraction job
+    source_ref: compile:project:WRITE_AUTHORITY_MATRIX.md#2-actors
+    summary: "Outputs JSONL only through `llm:accept`. Outputs enter only with `provenance_kind: llm_extracted`."
+    provenance_kind: deterministic_fact
+    provenance_ref: compile:project:product-specs/WRITE_AUTHORITY_MATRIX.md#2-actors
+  - schema: atelier.role/v1
+    role_id: ROLE-AUDITOR
+    title: Contract auditor
+    source_ref: compile:project:WRITE_AUTHORITY_MATRIX.md#2-actors
+    summary: Validates product-spec hashes, control-doc baselines, fixture executability. Owns P0 contracts.
+    provenance_kind: deterministic_fact
+    provenance_ref: compile:project:product-specs/WRITE_AUTHORITY_MATRIX.md#2-actors

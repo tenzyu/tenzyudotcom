@@ -1,0 +1,84 @@
+schema: atelier.control-graph/v1
+generated_at: 2026-06-05T06:38:20.890Z
+edges:
+  - from: VG-1-SCOPE-AND-
+    to: PHASE_0
+    kind: gated_by
+  - from: VG-2-CHECK-REGI
+    to: PHASE_0
+    kind: gated_by
+  - from: VG-8-COMPLETION
+    to: PHASE_0
+    kind: gated_by
+  - from: PHASE_0
+    to: PHASE_0.5
+    kind: depends_on
+  - from: VG-1-SCOPE-AND-
+    to: PHASE_0.5
+    kind: gated_by
+  - from: VG-2-CHECK-REGI
+    to: PHASE_0.5
+    kind: gated_by
+  - from: VG-8-COMPLETION
+    to: PHASE_0.5
+    kind: gated_by
+  - from: PHASE_0.5
+    to: PHASE_1
+    kind: depends_on
+  - from: VG-1-SCOPE-AND-
+    to: PHASE_1
+    kind: gated_by
+  - from: VG-2-CHECK-REGI
+    to: PHASE_1
+    kind: gated_by
+  - from: VG-8-COMPLETION
+    to: PHASE_1
+    kind: gated_by
+  - from: PHASE_1
+    to: PHASE_2
+    kind: depends_on
+  - from: VG-1-SCOPE-AND-
+    to: PHASE_2
+    kind: gated_by
+  - from: VG-2-CHECK-REGI
+    to: PHASE_2
+    kind: gated_by
+  - from: VG-8-COMPLETION
+    to: PHASE_2
+    kind: gated_by
+  - from: PHASE_2
+    to: PHASE_3
+    kind: depends_on
+  - from: VG-1-SCOPE-AND-
+    to: PHASE_3
+    kind: gated_by
+  - from: VG-2-CHECK-REGI
+    to: PHASE_3
+    kind: gated_by
+  - from: VG-8-COMPLETION
+    to: PHASE_3
+    kind: gated_by
+  - from: PHASE_3
+    to: PHASE_4
+    kind: depends_on
+  - from: VG-1-SCOPE-AND-
+    to: PHASE_4
+    kind: gated_by
+  - from: VG-2-CHECK-REGI
+    to: PHASE_4
+    kind: gated_by
+  - from: VG-8-COMPLETION
+    to: PHASE_4
+    kind: gated_by
+  - from: PHASE_4
+    to: PHASE_5
+    kind: depends_on
+  - from: VG-1-SCOPE-AND-
+    to: PHASE_5
+    kind: gated_by
+  - from: VG-2-CHECK-REGI
+    to: PHASE_5
+    kind: gated_by
+  - from: VG-8-COMPLETION
+    to: PHASE_5
+    kind: gated_by

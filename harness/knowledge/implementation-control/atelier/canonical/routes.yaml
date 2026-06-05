@@ -1,0 +1,223 @@
+schema: atelier.routes/v1
+generated_at: 2026-06-05T06:38:20.894Z
+routes:
+  - route_id: RTE-DAG-PHASE_0
+    kind: dag_node
+    selector: PHASE_0
+    target: canonical/dag.yaml#PHASE_0
+    description: Packet dispatch route for PHASE_0
+  - route_id: RTE-DAG-PHASE_0.5
+    kind: dag_node
+    selector: PHASE_0.5
+    target: canonical/dag.yaml#PHASE_0.5
+    description: Packet dispatch route for PHASE_0.5
+  - route_id: RTE-DAG-PHASE_1
+    kind: dag_node
+    selector: PHASE_1
+    target: canonical/dag.yaml#PHASE_1
+    description: Packet dispatch route for PHASE_1
+  - route_id: RTE-DAG-PHASE_2
+    kind: dag_node
+    selector: PHASE_2
+    target: canonical/dag.yaml#PHASE_2
+    description: Packet dispatch route for PHASE_2
+  - route_id: RTE-DAG-PHASE_3
+    kind: dag_node
+    selector: PHASE_3
+    target: canonical/dag.yaml#PHASE_3
+    description: Packet dispatch route for PHASE_3
+  - route_id: RTE-DAG-PHASE_4
+    kind: dag_node
+    selector: PHASE_4
+    target: canonical/dag.yaml#PHASE_4
+    description: Packet dispatch route for PHASE_4
+  - route_id: RTE-DAG-PHASE_5
+    kind: dag_node
+    selector: PHASE_5
+    target: canonical/dag.yaml#PHASE_5
+    description: Packet dispatch route for PHASE_5
+  - route_id: RTE-GATE-VG-1-SCOPE-AND-
+    kind: gate
+    selector: VG-1-SCOPE-AND-
+    target: canonical/gates.yaml#VG-1-SCOPE-AND-
+    description: 1. Scope and Authority
+  - route_id: RTE-GATE-VG-2-CHECK-REGI
+    kind: gate
+    selector: VG-2-CHECK-REGI
+    target: canonical/gates.yaml#VG-2-CHECK-REGI
+    description: 2. Check Registry Schema
+  - route_id: RTE-GATE-VG-3-REQUIRED-V
+    kind: gate
+    selector: VG-3-REQUIRED-V
+    target: canonical/gates.yaml#VG-3-REQUIRED-V
+    description: 3. Required Verification Map Derivation
+  - route_id: RTE-GATE-VG-4-VERIFICATI
+    kind: gate
+    selector: VG-4-VERIFICATI
+    target: canonical/gates.yaml#VG-4-VERIFICATI
+    description: 4. Verification Record Schema
+  - route_id: RTE-GATE-VG-5-STATUS-LAT
+    kind: gate
+    selector: VG-5-STATUS-LAT
+    target: canonical/gates.yaml#VG-5-STATUS-LAT
+    description: 5. Status Lattice
+  - route_id: RTE-GATE-VG-6-REASON-COD
+    kind: gate
+    selector: VG-6-REASON-COD
+    target: canonical/gates.yaml#VG-6-REASON-COD
+    description: 6. Reason Codes
+  - route_id: RTE-GATE-VG-7-HARD-BLOCK
+    kind: gate
+    selector: VG-7-HARD-BLOCK
+    target: canonical/gates.yaml#VG-7-HARD-BLOCK
+    description: 7. Hard-Block Definition
+  - route_id: RTE-GATE-VG-8-COMPLETION
+    kind: gate
+    selector: VG-8-COMPLETION
+    target: canonical/gates.yaml#VG-8-COMPLETION
+    description: 8. Completion Truth Table
+  - route_id: RTE-GATE-VG-9-ACCEPTANCE
+    kind: gate
+    selector: VG-9-ACCEPTANCE
+    target: canonical/gates.yaml#VG-9-ACCEPTANCE
+    description: 9. Acceptance and Promotion
+  - route_id: RTE-GATE-VG-V5-REVISION-
+    kind: gate
+    selector: VG-V5-REVISION-
+    target: canonical/gates.yaml#VG-V5-REVISION-
+    description: v5 Revision Notes
+  - route_id: RTE-GATE-VG-V5-1-REVISIO
+    kind: gate
+    selector: VG-V5-1-REVISIO
+    target: canonical/gates.yaml#VG-V5-1-REVISIO
+    description: v5.1 Revision Notes
+  - route_id: RTE-FIX-fixture-2-1-artifact-graph-golden-fixture
+    kind: fixture
+    selector: fixture-2-1-artifact-graph-golden-fixture
+    target: canonical/fixtures.yaml#fixture-2-1-artifact-graph-golden-fixture
+    description: Fixture for VG-2-1-ARTIFACT
+  - route_id: RTE-FIX-fixture-2-2-context-plan-read-only-fixture
+    kind: fixture
+    selector: fixture-2-2-context-plan-read-only-fixture
+    target: canonical/fixtures.yaml#fixture-2-2-context-plan-read-only-fixture
+    description: Fixture for VG-2-2-CONTEXT-
+  - route_id: RTE-FIX-fixture-2-3-atelier-deletion-and-regeneration-fixture
+    kind: fixture
+    selector: fixture-2-3-atelier-deletion-and-regeneration-fixture
+    target: canonical/fixtures.yaml#fixture-2-3-atelier-deletion-and-regeneration-fixture
+    description: Fixture for VG-2-3-ATELIER-
+  - route_id: RTE-FIX-fixture-2-4-verification-gate-completion-fixture
+    kind: fixture
+    selector: fixture-2-4-verification-gate-completion-fixture
+    target: canonical/fixtures.yaml#fixture-2-4-verification-gate-completion-fixture
+    description: Fixture for VG-2-4-VERIFICA
+  - route_id: RTE-FIX-fixture-2-5-run-packet-reading-order-fixture
+    kind: fixture
+    selector: fixture-2-5-run-packet-reading-order-fixture
+    target: canonical/fixtures.yaml#fixture-2-5-run-packet-reading-order-fixture
+    description: Fixture for VG-2-5-RUN-PACK
+  - route_id: RTE-FIX-fixture-2-6-transform-maturity-transition-fixture
+    kind: fixture
+    selector: fixture-2-6-transform-maturity-transition-fixture
+    target: canonical/fixtures.yaml#fixture-2-6-transform-maturity-transition-fixture
+    description: Fixture for VG-2-6-TRANSFOR
+  - route_id: RTE-FIX-fixture-2-7-adapter-runtime-parity-fixture
+    kind: fixture
+    selector: fixture-2-7-adapter-runtime-parity-fixture
+    target: canonical/fixtures.yaml#fixture-2-7-adapter-runtime-parity-fixture
+    description: Fixture for VG-2-7-ADAPTER-
+  - route_id: RTE-FIX-fixture-2-8-drift-detection-fixture
+    kind: fixture
+    selector: fixture-2-8-drift-detection-fixture
+    target: canonical/fixtures.yaml#fixture-2-8-drift-detection-fixture
+    description: Fixture for VG-2-8-DRIFT-DE
+  - route_id: RTE-FIX-fixture-2-9-active-surface-inventory-test
+    kind: fixture
+    selector: fixture-2-9-active-surface-inventory-test
+    target: canonical/fixtures.yaml#fixture-2-9-active-surface-inventory-test
+    description: Fixture for VG-2-9-ACTIVE-S
+  - route_id: RTE-FIX-fixture-2-10-contract-coverage-test
+    kind: fixture
+    selector: fixture-2-10-contract-coverage-test
+    target: canonical/fixtures.yaml#fixture-2-10-contract-coverage-test
+    description: Fixture for VG-2-10-CONTRAC
+  - route_id: RTE-FIX-fixture-2a-1-graph-kind-endpoint-compatibility-fixture
+    kind: fixture
+    selector: fixture-2a-1-graph-kind-endpoint-compatibility-fixture
+    target: canonical/fixtures.yaml#fixture-2a-1-graph-kind-endpoint-compatibility-fixture
+    description: Fixture for VG-2A-1-GRAPH-K
+  - route_id: RTE-FIX-fixture-2a-2-verification-record-schema-fixture
+    kind: fixture
+    selector: fixture-2a-2-verification-record-schema-fixture
+    target: canonical/fixtures.yaml#fixture-2a-2-verification-record-schema-fixture
+    description: Fixture for VG-2A-2-VERIFIC
+  - route_id: RTE-FIX-fixture-2a-3-required-verification-map-derivation-fixture
+    kind: fixture
+    selector: fixture-2a-3-required-verification-map-derivation-fixture
+    target: canonical/fixtures.yaml#fixture-2a-3-required-verification-map-derivation-fixture
+    description: Fixture for VG-2A-3-REQUIRE
+  - route_id: RTE-FIX-fixture-2a-4-accepted-evidence-lifecycle-fixture
+    kind: fixture
+    selector: fixture-2a-4-accepted-evidence-lifecycle-fixture
+    target: canonical/fixtures.yaml#fixture-2a-4-accepted-evidence-lifecycle-fixture
+    description: Fixture for VG-2A-4-ACCEPTE
+  - route_id: RTE-FIX-fixture-2a-5-adapter-semantic-equivalence-fixture
+    kind: fixture
+    selector: fixture-2a-5-adapter-semantic-equivalence-fixture
+    target: canonical/fixtures.yaml#fixture-2a-5-adapter-semantic-equivalence-fixture
+    description: Fixture for VG-2A-5-ADAPTER
+  - route_id: RTE-FIX-fixture-2a-6-resolution-decision-record-fixture
+    kind: fixture
+    selector: fixture-2a-6-resolution-decision-record-fixture
+    target: canonical/fixtures.yaml#fixture-2a-6-resolution-decision-record-fixture
+    description: Fixture for VG-2A-6-RESOLUT
+  - route_id: RTE-FIX-fixture-2a-7-context-budget-traversal-guard-fixture
+    kind: fixture
+    selector: fixture-2a-7-context-budget-traversal-guard-fixture
+    target: canonical/fixtures.yaml#fixture-2a-7-context-budget-traversal-guard-fixture
+    description: Fixture for VG-2A-7-CONTEXT
+  - route_id: RTE-FIX-fixture-2a-8-forced-close-lifecycle-fixture
+    kind: fixture
+    selector: fixture-2a-8-forced-close-lifecycle-fixture
+    target: canonical/fixtures.yaml#fixture-2a-8-forced-close-lifecycle-fixture
+    description: Fixture for VG-2A-8-FORCED-
+  - route_id: RTE-FIX-fixture-2a-9-hpo-state-evidence-table-fixture
+    kind: fixture
+    selector: fixture-2a-9-hpo-state-evidence-table-fixture
+    target: canonical/fixtures.yaml#fixture-2a-9-hpo-state-evidence-table-fixture
+    description: Fixture for VG-2A-9-HPO-STA
+  - route_id: RTE-FIX-fixture-2b-1-completion-truth-table-fixture
+    kind: fixture
+    selector: fixture-2b-1-completion-truth-table-fixture
+    target: canonical/fixtures.yaml#fixture-2b-1-completion-truth-table-fixture
+    description: Fixture for VG-2B-1-COMPLET
+  - route_id: RTE-FIX-fixture-2b-2-run-lifecycle-state-machine-fixture
+    kind: fixture
+    selector: fixture-2b-2-run-lifecycle-state-machine-fixture
+    target: canonical/fixtures.yaml#fixture-2b-2-run-lifecycle-state-machine-fixture
+    description: Fixture for VG-2B-2-RUN-LIF
+  - route_id: RTE-FIX-fixture-2b-3-adapter-packet-portability-fixture
+    kind: fixture
+    selector: fixture-2b-3-adapter-packet-portability-fixture
+    target: canonical/fixtures.yaml#fixture-2b-3-adapter-packet-portability-fixture
+    description: Fixture for VG-2B-3-ADAPTER
+  - route_id: RTE-FIX-fixture-2b-4-adapter-runtime-parity-fixture
+    kind: fixture
+    selector: fixture-2b-4-adapter-runtime-parity-fixture
+    target: canonical/fixtures.yaml#fixture-2b-4-adapter-runtime-parity-fixture
+    description: Fixture for VG-2B-4-ADAPTER
+  - route_id: RTE-FIX-fixture-2b-5-decision-ref-primary-target-fixture
+    kind: fixture
+    selector: fixture-2b-5-decision-ref-primary-target-fixture
+    target: canonical/fixtures.yaml#fixture-2b-5-decision-ref-primary-target-fixture
+    description: Fixture for VG-2B-5-DECISIO
+  - route_id: RTE-FIX-fixture-2b-6-run-verify-surface-record-fixture
+    kind: fixture
+    selector: fixture-2b-6-run-verify-surface-record-fixture
+    target: canonical/fixtures.yaml#fixture-2b-6-run-verify-surface-record-fixture
+    description: Fixture for VG-2B-6-RUN-VER
+  - route_id: RTE-FIX-fixture-2b-7-durable-acceptance-fixture
+    kind: fixture
+    selector: fixture-2b-7-durable-acceptance-fixture
+    target: canonical/fixtures.yaml#fixture-2b-7-durable-acceptance-fixture
+    description: Fixture for VG-2B-7-DURABLE

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "atelier.subagent-handoff/v1",
+  "type": "object",
+  "required": ["schema", "run_id", "dag_node_id", "files_changed", "tests_written", "vg_results", "evidence_paths", "blockers"],
+  "properties": {
+    "schema": { "const": "atelier.subagent-handoff/v1" },
+    "run_id": { "type": "string" },
+    "dag_node_id": { "type": "string" },
+    "files_changed": { "type": "array", "items": { "type": "string" } },
+    "tests_written": { "type": "array", "items": { "type": "string" } },
+    "vg_results": {
+      "type": "object",
+      "additionalProperties": { "enum": ["passed", "failed", "skipped", "blocked"] }
+    },
+    "evidence_paths": { "type": "array", "items": { "type": "string" } },
+    "blockers": { "type": "array", "items": { "type": "string" } },
+    "summary": { "type": "string", "maxLength": 80 }
+  },
+  "additionalProperties": false
+}

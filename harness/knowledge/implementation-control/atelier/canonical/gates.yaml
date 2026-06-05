@@ -1,1222 +1,301 @@
 schema: atelier.validation-gates/v1
-generated_at: 2026-06-04T17:49:43.202Z
-provenance: state/gates/structured-gates-2026-06-04.yaml
+generated_at: 2026-06-05T06:38:20.777Z
+provenance: compile:project:product-specs/VERIFICATION_SCHEMA.md
 records:
   - schema: atelier.validation-gate/v1
-    gate_id: VG-000
-    purpose: Discover project and targets
-    fixture_id: N/A
+    gate_id: VG-1-SCOPE-AND-
+    purpose: 1. Scope and Authority
+    fixture_id: fixture-vg-1-scope-and-
     required_input_files:
-      - package.json
-      - nx.json
-      - product/apps/atelier/project.json
-    required_expected_output_files: []
+      - harness/knowledge/product-specs/atelier/*.md
+    required_expected_output_files:
+      - state/validations/vg-1-scope-and-*.md
     positive_cases:
-      - atelier project and check target discovered
+      - schema-conformant output
     negative_cases:
-      - tool unavailable before fallback exhaustion
-    command_source: discovered package-manager command
-    command_resolution_algorithm: package-manager detection then Nx or non-Nx fallback
-    command: bun nx show projects && bun nx show project atelier
-    required_before: any project-level check
-    failure_owner: mother agent
-    retry_policy: retry once then record tool_unavailable
-    blocking_severity: P2
-    accepted_statuses:
-      - passed
-    proof_artifact: state/command-discovery/command-discovery-2026-06-04.md
-    ledger_update_required: true
-    phase_gate_eligible: true
-    executable_now: true
-  - schema: atelier.validation-gate/v1
-    gate_id: VG-001
-    purpose: No product-spec edits against HEAD
-    fixture_id: N/A
-    required_input_files:
-      - harness/knowledge/product-specs/atelier/**
-    required_expected_output_files: []
-    positive_cases:
-      - empty staged/unstaged/status/HEAD diffs
-    negative_cases:
-      - any product-spec status or diff
-    command_source: git
-    command_resolution_algorithm: fixed Git commands
-    command: see state/validations/VG-001-product-spec-clean-2026-06-04.md
-    required_before: every packet acceptance and final completion
-    failure_owner: mother agent
-    retry_policy: no retry; open P0 drift blocker
+      - schema-violating output
+    command_source: compile:project:VERIFICATION_SCHEMA.md
+    command_resolution_algorithm: "deterministic: section heading → gate_id"
+    command: bun scripts/cli.ts validate
+    required_before: any derivation
+    failure_owner: compiler
+    retry_policy: do not retry; fix schema
     blocking_severity: P0
     accepted_statuses:
       - passed
-    proof_artifact: state/validations/VG-001-product-spec-clean-2026-06-04.md
+    proof_artifact: state/validations/VG-1-SCOPE-AND-.md
     ledger_update_required: true
     phase_gate_eligible: true
     executable_now: true
+    provenance_kind: deterministic_fact
+    provenance_ref: compile:project:product-specs/VERIFICATION_SCHEMA.md#1. Scope and Authority
   - schema: atelier.validation-gate/v1
-    gate_id: VG-002
-    purpose: Static project check
-    fixture_id: N/A
+    gate_id: VG-2-CHECK-REGI
+    purpose: 2. Check Registry Schema
+    fixture_id: fixture-vg-2-check-regi
     required_input_files:
-      - product/apps/atelier/project.json
-    required_expected_output_files: []
-    positive_cases:
-      - typecheck and tests pass
-    negative_cases:
-      - check failure or unavailable command
-    command_source: Nx target
-    command_resolution_algorithm: use command discovery canonical_project_check
-    command: bun nx run atelier:check
-    required_before: phase gates and completion claims
-    failure_owner: packet owner
-    retry_policy: retry after scoped fix; no test weakening
-    blocking_severity: P1
-    accepted_statuses:
-      - passed
-    proof_artifact: state/validations/<run-id>-VG-002.md
-    ledger_update_required: true
-    phase_gate_eligible: true
-    executable_now: true
-  - schema: atelier.validation-gate/v1
-    gate_id: VG-003
-    purpose: Type/static validation
-    fixture_id: N/A
-    required_input_files:
-      - product/apps/atelier/project.json
-      - product/apps/atelier/tsconfig.json
-    required_expected_output_files: []
-    positive_cases:
-      - typecheck target passes
-    negative_cases:
-      - type errors or hidden lint failures
-    command_source: Nx target discovery
-    command_resolution_algorithm: run typecheck/lint targets if present
-    command: bun nx run atelier:typecheck
-    required_before: schema and code packets
-    failure_owner: packet owner
-    retry_policy: retry twice then assign regression fixer
-    blocking_severity: P1
-    accepted_statuses:
-      - passed
-    proof_artifact: state/validations/<run-id>-VG-003.md
-    ledger_update_required: true
-    phase_gate_eligible: true
-    executable_now: true
-  - schema: atelier.validation-gate/v1
-    gate_id: VG-004
-    purpose: Fixture layout validation
-    fixture_id: all-assigned-fixtures
-    required_input_files:
-      - harness/knowledge/implementation-control/atelier/state/traceability/fixture-alias-registry-2026-06-04.yaml
-      - product/apps/atelier/src/__tests__/fixture-alias-consistency.test.ts
+      - harness/knowledge/product-specs/atelier/*.md
     required_expected_output_files:
-      - product/apps/atelier/src/__tests__/fixture-alias-consistency.test.ts
+      - state/validations/vg-2-check-regi*.md
     positive_cases:
-      - each fixture has required v5.1 files
+      - schema-conformant output
     negative_cases:
-      - missing input expected README or command
-    command_source: executable fixture alias consistency test
-    command_resolution_algorithm: run fixture-alias-consistency.test.ts against fixture registry
-    command: bun test product/apps/atelier/src/__tests__/fixture-alias-consistency.test.ts
-    required_before: fixture-based implementation
-    failure_owner: fixture author
-    retry_policy: fix fixture outside product specs
-    blocking_severity: P1
-    accepted_statuses:
-      - passed
-    proof_artifact: state/validations/<run-id>-VG-004.md
-    ledger_update_required: true
-    phase_gate_eligible: true
-    executable_now: true
-  - schema: atelier.validation-gate/v1
-    gate_id: VG-005
-    purpose: Artifact graph golden fixture
-    fixture_id: artifact_graph_golden_v1
-    required_input_files:
-      - fixtures/artifact_graph_golden_v1/input
-    required_expected_output_files:
-      - fixtures/artifact_graph_golden_v1/expected
-    positive_cases:
-      - golden graph matches
-    negative_cases:
-      - unstable hash or missing required node field
-    command_source: fixture command or test target
-    command_resolution_algorithm: resolve fixture command then target fallback
-    command: bun run product/apps/atelier/src/__tests__/fixtures/artifact_graph_golden_v1/command.ts
-    required_before: graph kernel phase
-    failure_owner: graph kernel implementer
-    retry_policy: split graph hash vs extraction
-    blocking_severity: P1
-    accepted_statuses:
-      - passed
-    proof_artifact: state/validations/<run-id>-VG-005.md
-    ledger_update_required: true
-    phase_gate_eligible: true
-    executable_now: true
-  - schema: atelier.validation-gate/v1
-    gate_id: VG-006
-    purpose: Graph endpoint compatibility
-    fixture_id: graph_endpoint_matrix_v1
-    required_input_files:
-      - fixtures/graph_endpoint_matrix_v1/input
-    required_expected_output_files:
-      - fixtures/graph_endpoint_matrix_v1/expected
-    positive_cases:
-      - valid endpoints accepted
-    negative_cases:
-      - invalid endpoints emit violation
-    command_source: fixture command
-    command_resolution_algorithm: resolve fixture alias then command
-    command: bun run product/apps/atelier/src/__tests__/fixtures/graph_endpoint_matrix_v1/command.ts
-    required_before: graph consumers
-    failure_owner: graph kernel implementer
-    retry_policy: retry invalid matrix handling
-    blocking_severity: P1
-    accepted_statuses:
-      - passed
-    proof_artifact: state/validations/<run-id>-VG-006.md
-    ledger_update_required: true
-    phase_gate_eligible: true
-    executable_now: true
-  - schema: atelier.validation-gate/v1
-    gate_id: VG-007
-    purpose: .atelier deletion/regeneration
-    fixture_id: atelier_deletion_regeneration_v1
-    required_input_files:
-      - fixture repository state
-    required_expected_output_files:
-      - post-regeneration graph
-    positive_cases:
-      - derived state regenerates
-    negative_cases:
-      - product truth exists only in .atelier
-    command_source: fixture command
-    command_resolution_algorithm: controlled fixture only
-    command: bun run product/apps/atelier/src/__tests__/fixtures/atelier_deletion_regeneration_v1/command.ts
-    required_before: repository ownership/durable state claims
-    failure_owner: graph kernel implementer
-    retry_policy: retry once then block
+      - schema-violating output
+    command_source: compile:project:VERIFICATION_SCHEMA.md
+    command_resolution_algorithm: "deterministic: section heading → gate_id"
+    command: bun scripts/cli.ts validate
+    required_before: any derivation
+    failure_owner: compiler
+    retry_policy: do not retry; fix schema
     blocking_severity: P0
     accepted_statuses:
       - passed
-    proof_artifact: state/validations/<run-id>-VG-007.md
+    proof_artifact: state/validations/VG-2-CHECK-REGI.md
     ledger_update_required: true
     phase_gate_eligible: true
     executable_now: true
+    provenance_kind: deterministic_fact
+    provenance_ref: compile:project:product-specs/VERIFICATION_SCHEMA.md#2. Check Registry Schema
   - schema: atelier.validation-gate/v1
-    gate_id: VG-008
-    purpose: Verification record schema
-    fixture_id: verification_record_v1
+    gate_id: VG-3-REQUIRED-V
+    purpose: 3. Required Verification Map Derivation
+    fixture_id: fixture-vg-3-required-v
     required_input_files:
-      - fixtures/verification_record_v1/input
+      - harness/knowledge/product-specs/atelier/*.md
     required_expected_output_files:
-      - fixtures/verification_record_v1/expected
+      - state/validations/vg-3-required-v*.md
     positive_cases:
-      - valid record accepted
+      - schema-conformant output
     negative_cases:
-      - missing evidence for passed rejected
-    command_source: fixture command
-    command_resolution_algorithm: fixture alias then command
-    command: bun run product/apps/atelier/src/__tests__/fixtures/verification_record_v1/command.ts
-    required_before: run verify and complete
-    failure_owner: verification engine implementer
-    retry_policy: retry schema and negative cases
-    blocking_severity: P1
-    accepted_statuses:
-      - passed
-    proof_artifact: state/validations/<run-id>-VG-008.md
-    ledger_update_required: true
-    phase_gate_eligible: true
-    executable_now: true
-  - schema: atelier.validation-gate/v1
-    gate_id: VG-009
-    purpose: Required verification map derivation
-    fixture_id: verification_map_derivation_v1
-    required_input_files:
-      - fixtures/verification_map_derivation_v1/input
-    required_expected_output_files:
-      - fixtures/verification_map_derivation_v1/expected
-    positive_cases:
-      - closed required map derived
-    negative_cases:
-      - policy term creates entries in v5.1
-    command_source: fixture command
-    command_resolution_algorithm: fixture alias then command
-    command: bun run product/apps/atelier/src/__tests__/fixtures/verification_map_derivation_v1/command.ts
-    required_before: context plan co-emission/run creation
-    failure_owner: verification engine implementer
-    retry_policy: split task/check bindings
-    blocking_severity: P1
-    accepted_statuses:
-      - passed
-    proof_artifact: state/validations/<run-id>-VG-009.md
-    ledger_update_required: true
-    phase_gate_eligible: true
-    executable_now: true
-  - schema: atelier.validation-gate/v1
-    gate_id: VG-010
-    purpose: Completion truth table
-    fixture_id: completion_truth_table_v1
-    required_input_files:
-      - fixtures/completion_truth_table_v1/input
-    required_expected_output_files:
-      - fixtures/completion_truth_table_v1/expected
-    positive_cases:
-      - clean/dirty/block/force rows match
-    negative_cases:
-      - hard block treated as clean
-    command_source: fixture command
-    command_resolution_algorithm: fixture alias then command
-    command: bun run product/apps/atelier/src/__tests__/fixtures/completion_truth_table_v1/command.ts
-    required_before: run completion
-    failure_owner: verification engine implementer
-    retry_policy: no reinterpretation without blocker
+      - schema-violating output
+    command_source: compile:project:VERIFICATION_SCHEMA.md
+    command_resolution_algorithm: "deterministic: section heading → gate_id"
+    command: bun scripts/cli.ts validate
+    required_before: any derivation
+    failure_owner: compiler
+    retry_policy: do not retry; fix schema
     blocking_severity: P0
     accepted_statuses:
       - passed
-    proof_artifact: state/validations/<run-id>-VG-010.md
+    proof_artifact: state/validations/VG-3-REQUIRED-V.md
     ledger_update_required: true
     phase_gate_eligible: true
     executable_now: true
+    provenance_kind: deterministic_fact
+    provenance_ref: compile:project:product-specs/VERIFICATION_SCHEMA.md#3. Required Verification Map Derivation
   - schema: atelier.validation-gate/v1
-    gate_id: VG-011
-    purpose: Run lifecycle state machine
-    fixture_id: run_lifecycle_state_machine_v1
+    gate_id: VG-4-VERIFICATI
+    purpose: 4. Verification Record Schema
+    fixture_id: fixture-vg-4-verificati
     required_input_files:
-      - fixtures/run_lifecycle_state_machine_v1/input
+      - harness/knowledge/product-specs/atelier/*.md
     required_expected_output_files:
-      - fixtures/run_lifecycle_state_machine_v1/expected
+      - state/validations/vg-4-verificati*.md
     positive_cases:
-      - valid transitions accepted
+      - schema-conformant output
     negative_cases:
-      - invalid transitions rejected
-    command_source: fixture command
-    command_resolution_algorithm: fixture alias then command
-    command: bun run product/apps/atelier/src/__tests__/fixtures/run_lifecycle_state_machine_v1/command.ts
-    required_before: run force-close and HPO lifecycle states
-    failure_owner: event lifecycle implementer
-    retry_policy: retry transition code only
+      - schema-violating output
+    command_source: compile:project:VERIFICATION_SCHEMA.md
+    command_resolution_algorithm: "deterministic: section heading → gate_id"
+    command: bun scripts/cli.ts validate
+    required_before: any derivation
+    failure_owner: compiler
+    retry_policy: do not retry; fix schema
     blocking_severity: P0
     accepted_statuses:
       - passed
-    proof_artifact: state/validations/<run-id>-VG-011.md
+    proof_artifact: state/validations/VG-4-VERIFICATI.md
     ledger_update_required: true
     phase_gate_eligible: true
     executable_now: true
+    provenance_kind: deterministic_fact
+    provenance_ref: compile:project:product-specs/VERIFICATION_SCHEMA.md#4. Verification Record Schema
   - schema: atelier.validation-gate/v1
-    gate_id: VG-012
-    purpose: Forced close lifecycle
-    fixture_id: forced_close_lifecycle_v1
+    gate_id: VG-5-STATUS-LAT
+    purpose: 5. Status Lattice
+    fixture_id: fixture-vg-5-status-lat
     required_input_files:
-      - fixtures/forced_close_lifecycle_v1/input
+      - harness/knowledge/product-specs/atelier/*.md
     required_expected_output_files:
-      - fixtures/forced_close_lifecycle_v1/expected
+      - state/validations/vg-5-status-lat*.md
     positive_cases:
-      - terminal blocked can force-close
+      - schema-conformant output
     negative_cases:
-      - blocked_waiting force-close rejected
-    command_source: fixture command
-    command_resolution_algorithm: fixture alias then command
-    command: bun run product/apps/atelier/src/__tests__/fixtures/forced_close_lifecycle_v1/command.ts
-    required_before: force-close surface release
-    failure_owner: run lifecycle implementer
-    retry_policy: retry invalid-state guards
-    blocking_severity: P1
-    accepted_statuses:
-      - passed
-    proof_artifact: state/validations/<run-id>-VG-012.md
-    ledger_update_required: true
-    phase_gate_eligible: true
-    executable_now: true
-  - schema: atelier.validation-gate/v1
-    gate_id: VG-013
-    purpose: Durable acceptance
-    fixture_id: durable_acceptance_v1
-    required_input_files:
-      - fixtures/durable_acceptance_v1/input
-    required_expected_output_files:
-      - fixtures/durable_acceptance_v1/expected
-    positive_cases:
-      - durable write plus artifact_accepted event correlate
-    negative_cases:
-      - either condition alone accepted
-    command_source: fixture command
-    command_resolution_algorithm: fixture alias then command
-    command: bun run product/apps/atelier/src/__tests__/fixtures/durable_acceptance_v1/command.ts
-    required_before: accepted evidence claims
-    failure_owner: event/evidence implementer
-    retry_policy: retry correlation and durable path
+      - schema-violating output
+    command_source: compile:project:VERIFICATION_SCHEMA.md
+    command_resolution_algorithm: "deterministic: section heading → gate_id"
+    command: bun scripts/cli.ts validate
+    required_before: any derivation
+    failure_owner: compiler
+    retry_policy: do not retry; fix schema
     blocking_severity: P0
     accepted_statuses:
       - passed
-    proof_artifact: state/validations/<run-id>-VG-013.md
+    proof_artifact: state/validations/VG-5-STATUS-LAT.md
     ledger_update_required: true
     phase_gate_eligible: true
     executable_now: true
+    provenance_kind: deterministic_fact
+    provenance_ref: compile:project:product-specs/VERIFICATION_SCHEMA.md#5. Status Lattice
   - schema: atelier.validation-gate/v1
-    gate_id: VG-014
-    purpose: Accepted evidence lifecycle
-    fixture_id: accepted_evidence_lifecycle_v1
+    gate_id: VG-6-REASON-COD
+    purpose: 6. Reason Codes
+    fixture_id: fixture-vg-6-reason-cod
     required_input_files:
-      - fixtures/accepted_evidence_lifecycle_v1/input
+      - harness/knowledge/product-specs/atelier/*.md
     required_expected_output_files:
-      - fixtures/accepted_evidence_lifecycle_v1/expected
+      - state/validations/vg-6-reason-cod*.md
     positive_cases:
-      - accepted evidence lifecycle represented
+      - schema-conformant output
     negative_cases:
-      - acceptance without event/evidence
-    command_source: fixture command
-    command_resolution_algorithm: fixture alias then command
-    command: bun run product/apps/atelier/src/__tests__/fixtures/accepted_evidence_lifecycle_v1/command.ts
-    required_before: MVP wedge and transformation pilots
-    failure_owner: event/evidence implementer
-    retry_policy: retry once then block
+      - schema-violating output
+    command_source: compile:project:VERIFICATION_SCHEMA.md
+    command_resolution_algorithm: "deterministic: section heading → gate_id"
+    command: bun scripts/cli.ts validate
+    required_before: any derivation
+    failure_owner: compiler
+    retry_policy: do not retry; fix schema
     blocking_severity: P0
     accepted_statuses:
       - passed
-    proof_artifact: state/validations/<run-id>-VG-014.md
+    proof_artifact: state/validations/VG-6-REASON-COD.md
     ledger_update_required: true
     phase_gate_eligible: true
     executable_now: true
+    provenance_kind: deterministic_fact
+    provenance_ref: compile:project:product-specs/VERIFICATION_SCHEMA.md#6. Reason Codes
   - schema: atelier.validation-gate/v1
-    gate_id: VG-015
-    purpose: Context plan read-only
-    fixture_id: context_plan_readonly_v1
+    gate_id: VG-7-HARD-BLOCK
+    purpose: 7. Hard-Block Definition
+    fixture_id: fixture-vg-7-hard-block
     required_input_files:
-      - fixtures/context_plan_readonly_v1/input
+      - harness/knowledge/product-specs/atelier/*.md
     required_expected_output_files:
-      - fixtures/context_plan_readonly_v1/expected
+      - state/validations/vg-7-hard-block*.md
     positive_cases:
-      - mutated false and no task/run created
+      - schema-conformant output
     negative_cases:
-      - hidden write
-    command_source: fixture command
-    command_resolution_algorithm: fixture alias then command
-    command: bun run product/apps/atelier/src/__tests__/fixtures/context_plan_readonly_v1/command.ts
-    required_before: Attention v1
-    failure_owner: attention planner implementer
-    retry_policy: remove side effects
+      - schema-violating output
+    command_source: compile:project:VERIFICATION_SCHEMA.md
+    command_resolution_algorithm: "deterministic: section heading → gate_id"
+    command: bun scripts/cli.ts validate
+    required_before: any derivation
+    failure_owner: compiler
+    retry_policy: do not retry; fix schema
     blocking_severity: P0
     accepted_statuses:
       - passed
-    proof_artifact: state/validations/<run-id>-VG-015.md
+    proof_artifact: state/validations/VG-7-HARD-BLOCK.md
     ledger_update_required: true
     phase_gate_eligible: true
     executable_now: true
+    provenance_kind: deterministic_fact
+    provenance_ref: compile:project:product-specs/VERIFICATION_SCHEMA.md#7. Hard-Block Definition
   - schema: atelier.validation-gate/v1
-    gate_id: VG-016
-    purpose: Context budget traversal guard
-    fixture_id: context_budget_v1
+    gate_id: VG-8-COMPLETION
+    purpose: 8. Completion Truth Table
+    fixture_id: fixture-vg-8-completion
     required_input_files:
-      - fixtures/context_budget_v1/input
+      - harness/knowledge/product-specs/atelier/*.md
     required_expected_output_files:
-      - fixtures/context_budget_v1/expected
+      - state/validations/vg-8-completion*.md
     positive_cases:
-      - budget fields enforced
+      - schema-conformant output
     negative_cases:
-      - hard overrun ignored
-    command_source: fixture command
-    command_resolution_algorithm: fixture alias then command
-    command: bun run product/apps/atelier/src/__tests__/fixtures/context_budget_v1/command.ts
-    required_before: Attention v1
-    failure_owner: attention planner implementer
-    retry_policy: retry budget fields/enforcement
-    blocking_severity: P1
-    accepted_statuses:
-      - passed
-    proof_artifact: state/validations/<run-id>-VG-016.md
-    ledger_update_required: true
-    phase_gate_eligible: true
-    executable_now: true
-  - schema: atelier.validation-gate/v1
-    gate_id: VG-017
-    purpose: Resolution decision record
-    fixture_id: resolution_decision_v1
-    required_input_files:
-      - fixtures/resolution_decision_v1/input
-    required_expected_output_files:
-      - fixtures/resolution_decision_v1/expected
-    positive_cases:
-      - decision record complete
-    negative_cases:
-      - hidden resolver decision
-    command_source: fixture command
-    command_resolution_algorithm: fixture alias then command
-    command: bun run product/apps/atelier/src/__tests__/fixtures/resolution_decision_v1/command.ts
-    required_before: semantic/hybrid context selection
-    failure_owner: attention planner implementer
-    retry_policy: retry record completeness
-    blocking_severity: P1
-    accepted_statuses:
-      - passed
-    proof_artifact: state/validations/<run-id>-VG-017.md
-    ledger_update_required: true
-    phase_gate_eligible: true
-    executable_now: true
-  - schema: atelier.validation-gate/v1
-    gate_id: VG-018
-    purpose: Active surface inventory
-    fixture_id: surface_inventory_v1
-    required_input_files:
-      - fixtures/surface_inventory_v1/input
-    required_expected_output_files:
-      - fixtures/surface_inventory_v1/expected
-    positive_cases:
-      - active surfaces match spec
-    negative_cases:
-      - removed commands or aliases present
-    command_source: fixture command or surface inventory target
-    command_resolution_algorithm: fixture alias then discovered target
-    command: bun run product/apps/atelier/src/__tests__/fixtures/surface_inventory_v1/command.ts
-    required_before: surface release and phase gates
-    failure_owner: surface/CLI implementer
-    retry_policy: remove stale aliases
-    blocking_severity: P1
-    accepted_statuses:
-      - passed
-    proof_artifact: state/validations/<run-id>-VG-018.md
-    ledger_update_required: true
-    phase_gate_eligible: true
-    executable_now: true
-  - schema: atelier.validation-gate/v1
-    gate_id: VG-019
-    purpose: Run verify surface record
-    fixture_id: run_verify_surface_record_v1
-    required_input_files:
-      - fixtures/run_verify_surface_record_v1/input
-    required_expected_output_files:
-      - fixtures/run_verify_surface_record_v1/expected
-    positive_cases:
-      - full verification record accepted
-    negative_cases:
-      - partial record silently accepted
-    command_source: fixture command
-    command_resolution_algorithm: fixture alias then command
-    command: bun run product/apps/atelier/src/__tests__/fixtures/run_verify_surface_record_v1/command.ts
-    required_before: run verify release
-    failure_owner: surface/verification owners
-    retry_policy: full-record validation only
-    blocking_severity: P1
-    accepted_statuses:
-      - passed
-    proof_artifact: state/validations/<run-id>-VG-019.md
-    ledger_update_required: true
-    phase_gate_eligible: true
-    executable_now: true
-  - schema: atelier.validation-gate/v1
-    gate_id: VG-020
-    purpose: Run packet reading order
-    fixture_id: run_packet_v1
-    required_input_files:
-      - fixtures/run_packet_v1/input
-    required_expected_output_files:
-      - fixtures/run_packet_v1/expected
-    positive_cases:
-      - handoff first order
-    negative_cases:
-      - manifest first in normal read
-    command_source: fixture command
-    command_resolution_algorithm: fixture alias then command
-    command: bun run product/apps/atelier/src/__tests__/fixtures/run_packet_v1/command.ts
-    required_before: run resume/export
-    failure_owner: run packet implementer
-    retry_policy: retry prompt/order generation
-    blocking_severity: P1
-    accepted_statuses:
-      - passed
-    proof_artifact: state/validations/<run-id>-VG-020.md
-    ledger_update_required: true
-    phase_gate_eligible: true
-    executable_now: true
-  - schema: atelier.validation-gate/v1
-    gate_id: VG-021
-    purpose: Adapter semantic equivalence
-    fixture_id: adapter_semantic_equivalence_v1
-    required_input_files:
-      - fixtures/adapter_semantic_equivalence_v1/input
-    required_expected_output_files:
-      - fixtures/adapter_semantic_equivalence_v1/expected
-    positive_cases:
-      - field-wise normalized equivalence
-    negative_cases:
-      - byte equality required or field hidden
-    command_source: fixture command
-    command_resolution_algorithm: fixture alias then command
-    command: bun run product/apps/atelier/src/__tests__/fixtures/adapter_semantic_equivalence_v1/command.ts
-    required_before: packet/runtime parity claims
-    failure_owner: adapter implementer
-    retry_policy: retry normalization
-    blocking_severity: P1
-    accepted_statuses:
-      - passed
-    proof_artifact: state/validations/<run-id>-VG-021.md
-    ledger_update_required: true
-    phase_gate_eligible: true
-    executable_now: true
-  - schema: atelier.validation-gate/v1
-    gate_id: VG-022
-    purpose: Adapter packet portability
-    fixture_id: adapter_packet_portability_v1
-    required_input_files:
-      - fixtures/adapter_packet_portability_v1/input
-    required_expected_output_files:
-      - fixtures/adapter_packet_portability_v1/expected
-    positive_cases:
-      - human-shell and noop packet portability
-    negative_cases:
-      - runtime agnosticism claim
-    command_source: fixture command
-    command_resolution_algorithm: fixture alias then command
-    command: bun run product/apps/atelier/src/__tests__/fixtures/adapter_packet_portability_v1/command.ts
-    required_before: MVP 1B completion
-    failure_owner: adapter implementer
-    retry_policy: retry descriptors/normalized fields
-    blocking_severity: P1
-    accepted_statuses:
-      - passed
-    proof_artifact: state/validations/<run-id>-VG-022.md
-    ledger_update_required: true
-    phase_gate_eligible: true
-    executable_now: true
-  - schema: atelier.validation-gate/v1
-    gate_id: VG-023
-    purpose: Adapter runtime parity
-    fixture_id: adapter_runtime_parity_v1
-    required_input_files:
-      - fixtures/adapter_runtime_parity_v1/input
-    required_expected_output_files:
-      - fixtures/adapter_runtime_parity_v1/expected
-    positive_cases:
-      - real runtime pair parity
-    negative_cases:
-      - Stage 0 treated as runtime agnostic
-    command_source: fixture command
-    command_resolution_algorithm: fixture alias then command
-    command: bun run product/apps/atelier/src/__tests__/fixtures/adapter_runtime_parity_v1/command.ts
-    required_before: runtime_agnosticism_claim
-    failure_owner: adapter implementer
-    retry_policy: block claim only when parity absent
+      - schema-violating output
+    command_source: compile:project:VERIFICATION_SCHEMA.md
+    command_resolution_algorithm: "deterministic: section heading → gate_id"
+    command: bun scripts/cli.ts validate
+    required_before: any derivation
+    failure_owner: compiler
+    retry_policy: do not retry; fix schema
     blocking_severity: P0
     accepted_statuses:
       - passed
-    proof_artifact: state/validations/<run-id>-VG-023.md
+    proof_artifact: state/validations/VG-8-COMPLETION.md
     ledger_update_required: true
     phase_gate_eligible: true
     executable_now: true
+    provenance_kind: deterministic_fact
+    provenance_ref: compile:project:product-specs/VERIFICATION_SCHEMA.md#8. Completion Truth Table
   - schema: atelier.validation-gate/v1
-    gate_id: VG-024
-    purpose: Decision_ref primary target
-    fixture_id: decision_ref_primary_target_v1
+    gate_id: VG-9-ACCEPTANCE
+    purpose: 9. Acceptance and Promotion
+    fixture_id: fixture-vg-9-acceptance
     required_input_files:
-      - fixtures/decision_ref_primary_target_v1/input
+      - harness/knowledge/product-specs/atelier/*.md
     required_expected_output_files:
-      - fixtures/decision_ref_primary_target_v1/expected
+      - state/validations/vg-9-acceptance*.md
     positive_cases:
-      - accepted decision_record target
+      - schema-conformant output
     negative_cases:
-      - transform receipt primary target
-    command_source: fixture command
-    command_resolution_algorithm: fixture alias then command
-    command: bun run product/apps/atelier/src/__tests__/fixtures/decision_ref_primary_target_v1/command.ts
-    required_before: transformation/verification skip acceptance
-    failure_owner: verification/transformation owners
-    retry_policy: retry decision record validation
-    blocking_severity: P1
-    accepted_statuses:
-      - passed
-    proof_artifact: state/validations/<run-id>-VG-024.md
-    ledger_update_required: true
-    phase_gate_eligible: true
-    executable_now: true
-  - schema: atelier.validation-gate/v1
-    gate_id: VG-025
-    purpose: Transform maturity transition
-    fixture_id: transform_maturity_v1
-    required_input_files:
-      - fixtures/transform_maturity_v1/input
-    required_expected_output_files:
-      - fixtures/transform_maturity_v1/expected
-    positive_cases:
-      - ordered maturity transitions
-    negative_cases:
-      - level jump or auto-promotion
-    command_source: fixture command
-    command_resolution_algorithm: fixture alias then command
-    command: bun run product/apps/atelier/src/__tests__/fixtures/transform_maturity_v1/command.ts
-    required_before: transformation pilots completion
-    failure_owner: transformation implementer
-    retry_policy: retry transition guards
-    blocking_severity: P1
-    accepted_statuses:
-      - passed
-    proof_artifact: state/validations/<run-id>-VG-025.md
-    ledger_update_required: true
-    phase_gate_eligible: true
-    executable_now: true
-  - schema: atelier.validation-gate/v1
-    gate_id: VG-026A
-    purpose: Minimum write authority hard-block
-    fixture_id: write_authority_minimum_v1
-    required_input_files:
-      - WRITE_AUTHORITY_MATRIX.md
-      - contract.md
-      - VERIFICATION_SCHEMA.md
-    required_expected_output_files:
-      - permission truth table
-    positive_cases:
-      - authorized mutating writes allowed
-    negative_cases:
-      - unauthorized promotion/export/import/accept rejected
-    command_source: minimum authority audit or implemented guard test
-    command_resolution_algorithm: derive actor x artifact-class x surface matrix from specs and require fail-closed test before mutating packets
-    command: bun run product/apps/atelier/src/__tests__/fixtures/write_authority_minimum_v1/command.ts
-    required_before: any mutating packet
-    failure_owner: governance boundary implementer
-    retry_policy: no pending fixture waiver allowed
+      - schema-violating output
+    command_source: compile:project:VERIFICATION_SCHEMA.md
+    command_resolution_algorithm: "deterministic: section heading → gate_id"
+    command: bun scripts/cli.ts validate
+    required_before: any derivation
+    failure_owner: compiler
+    retry_policy: do not retry; fix schema
     blocking_severity: P0
     accepted_statuses:
       - passed
-    proof_artifact: state/validations/VG-026A-2026-06-04.md
+    proof_artifact: state/validations/VG-9-ACCEPTANCE.md
     ledger_update_required: true
     phase_gate_eligible: true
     executable_now: true
+    provenance_kind: deterministic_fact
+    provenance_ref: compile:project:product-specs/VERIFICATION_SCHEMA.md#9. Acceptance and Promotion
   - schema: atelier.validation-gate/v1
-    gate_id: VG-026B
-    purpose: Full write authority matrix fixture
-    fixture_id: write_authority_v1
+    gate_id: VG-V5-REVISION-
+    purpose: v5 Revision Notes
+    fixture_id: fixture-vg-v5-revision-
     required_input_files:
-      - fixtures/write_authority_v1/input
+      - harness/knowledge/product-specs/atelier/*.md
     required_expected_output_files:
-      - fixtures/write_authority_v1/expected
+      - state/validations/vg-v5-revision-*.md
     positive_cases:
-      - full matrix fixture passes
+      - schema-conformant output
     negative_cases:
-      - deferred fixture treated as mutating authority
-    command_source: fixture command
-    command_resolution_algorithm: fixture alias then command
-    command: bun run product/apps/atelier/src/__tests__/fixtures/write_authority_v1/command.ts
-    required_before: full write-authority claims
-    failure_owner: governance boundary implementer
-    retry_policy: pending allowed only with waiver owner/expiry and never for VG-026A
-    blocking_severity: P1
-    accepted_statuses:
-      - passed
-    proof_artifact: state/validations/<run-id>-VG-026B.md
-    ledger_update_required: true
-    phase_gate_eligible: true
-    executable_now: true
-  - schema: atelier.validation-gate/v1
-    gate_id: VG-027
-    purpose: Drift detection
-    fixture_id: drift_v1
-    required_input_files:
-      - fixtures/drift_v1/input
-    required_expected_output_files:
-      - fixtures/drift_v1/expected
-    positive_cases:
-      - pair-specific drift reported
-    negative_cases:
-      - broad unsupported drift invented
-    command_source: fixture command
-    command_resolution_algorithm: fixture alias then command
-    command: bun run product/apps/atelier/src/__tests__/fixtures/drift_v1/command.ts
-    required_before: reconciliation and HPO drift display
-    failure_owner: integration tester
-    retry_policy: retry pair-specific detector
-    blocking_severity: P1
-    accepted_statuses:
-      - passed
-    proof_artifact: state/validations/<run-id>-VG-027.md
-    ledger_update_required: true
-    phase_gate_eligible: true
-    executable_now: true
-  - schema: atelier.validation-gate/v1
-    gate_id: VG-028
-    purpose: HPO state evidence table
-    fixture_id: hpo_state_evidence_v1
-    required_input_files:
-      - fixtures/hpo_state_evidence_v1/input
-    required_expected_output_files:
-      - fixtures/hpo_state_evidence_v1/expected
-    positive_cases:
-      - state evidence displayed
-    negative_cases:
-      - forbidden success claim
-    command_source: fixture command
-    command_resolution_algorithm: fixture alias then command
-    command: bun run product/apps/atelier/src/__tests__/fixtures/hpo_state_evidence_v1/command.ts
-    required_before: HPO UI release
-    failure_owner: HPO state/UI implementer
-    retry_policy: retry projection/copy/actions
-    blocking_severity: P1
-    accepted_statuses:
-      - passed
-    proof_artifact: state/validations/<run-id>-VG-028.md
-    ledger_update_required: true
-    phase_gate_eligible: true
-    executable_now: true
-  - schema: atelier.validation-gate/v1
-    gate_id: VG-029
-    purpose: Contract coverage
-    fixture_id: coverage_v1
-    required_input_files:
-      - harness/knowledge/implementation-control/atelier/canonical/assertions.ndjson
-      - harness/knowledge/implementation-control/atelier/canonical/assertion-links.ndjson
-      - harness/knowledge/implementation-control/atelier/canonical/dag.yaml
-      - harness/knowledge/implementation-control/atelier/canonical/gates.yaml
-      - harness/knowledge/implementation-control/atelier/canonical/fixtures.yaml
-    required_expected_output_files:
-      - product/apps/atelier/src/__tests__/fixtures/coverage_v1/expected.ts
-    positive_cases:
-      - every executable must mapped
-    negative_cases:
-      - unmapped must or expired waiver
-    command_source: executable coverage fixture
-    command_resolution_algorithm: run coverage_v1 fixture against canonical assertion links
-    command: bun run product/apps/atelier/src/__tests__/fixtures/coverage_v1/command.ts
-    required_before: every phase gate and final release
-    failure_owner: contract auditor
-    retry_policy: update mapping/waivers outside product specs
+      - schema-violating output
+    command_source: compile:project:VERIFICATION_SCHEMA.md
+    command_resolution_algorithm: "deterministic: section heading → gate_id"
+    command: bun scripts/cli.ts validate
+    required_before: any derivation
+    failure_owner: compiler
+    retry_policy: do not retry; fix schema
     blocking_severity: P0
     accepted_statuses:
       - passed
-    proof_artifact: state/validations/<run-id>-VG-029.md
+    proof_artifact: state/validations/VG-V5-REVISION-.md
     ledger_update_required: true
     phase_gate_eligible: true
     executable_now: true
+    provenance_kind: deterministic_fact
+    provenance_ref: compile:project:product-specs/VERIFICATION_SCHEMA.md#v5 Revision Notes
   - schema: atelier.validation-gate/v1
-    gate_id: VG-030
-    purpose: End-to-end MVP wedge
-    fixture_id: e2e_mvp_wedge_v1
+    gate_id: VG-V5-1-REVISIO
+    purpose: v5.1 Revision Notes
+    fixture_id: fixture-vg-v5-1-revisio
     required_input_files:
-      - ROADMAP.md
-      - EXAMPLES.md
-      - fixtures/e2e_mvp_wedge_v1/input
+      - harness/knowledge/product-specs/atelier/*.md
     required_expected_output_files:
-      - fixtures/e2e_mvp_wedge_v1/expected
+      - state/validations/vg-v5-1-revisio*.md
     positive_cases:
-      - Phase 1D flow passes
+      - schema-conformant output
     negative_cases:
-      - missing accepted evidence or false success
-    command_source: discovered E2E target
-    command_resolution_algorithm: discover implemented E2E target after surfaces exist
-    command: bun run product/apps/atelier/src/__tests__/fixtures/e2e_mvp_wedge_v1/command.ts
-    required_before: Phase 2
-    failure_owner: integration tester
-    retry_policy: split failing segment
+      - schema-violating output
+    command_source: compile:project:VERIFICATION_SCHEMA.md
+    command_resolution_algorithm: "deterministic: section heading → gate_id"
+    command: bun scripts/cli.ts validate
+    required_before: any derivation
+    failure_owner: compiler
+    retry_policy: do not retry; fix schema
     blocking_severity: P0
     accepted_statuses:
       - passed
-    proof_artifact: state/validations/<run-id>-VG-030.md
+    proof_artifact: state/validations/VG-V5-1-REVISIO.md
     ledger_update_required: true
     phase_gate_eligible: true
     executable_now: true
-  - schema: atelier.validation-gate/v1
-    gate_id: VG-031
-    purpose: End-to-end full product flows
-    fixture_id: e2e_full_product_v1
-    required_input_files:
-      - EXAMPLES.md
-      - full flow fixtures
-    required_expected_output_files:
-      - full flow expected outputs
-    positive_cases:
-      - six examples plus HPO/runtime/swarm flows pass
-    negative_cases:
-      - partial flow claimed as full
-    command_source: discovered E2E target
-    command_resolution_algorithm: discover final E2E target after dependencies
-    command: bun run product/apps/atelier/src/__tests__/fixtures/e2e_full_product_v1/command.ts
-    required_before: final convergence
-    failure_owner: integration tester
-    retry_policy: assign regression fixers by flow
-    blocking_severity: P0
-    accepted_statuses:
-      - passed
-    proof_artifact: state/validations/<run-id>-VG-031.md
-    ledger_update_required: true
-    phase_gate_eligible: true
-    executable_now: true
-  - schema: atelier.validation-gate/v1
-    gate_id: VG-032
-    purpose: Adapter parity no-lock-in audit
-    fixture_id: adapter_parity_no_lock_in_v1
-    required_input_files:
-      - adapter parity fixtures
-      - surface inventory
-    required_expected_output_files:
-      - no hidden adapter state report
-    positive_cases:
-      - no adapter lock-in
-    negative_cases:
-      - hidden adapter state or stale surface
-    command_source: composite gates
-    command_resolution_algorithm: run adapter parity plus surface inventory plus state audit
-    command: bun run product/apps/atelier/src/__tests__/fixtures/adapter_parity_no_lock_in_v1/command.ts
-    required_before: final release
-    failure_owner: contract auditor
-    retry_policy: retry adapter state/surface issues
-    blocking_severity: P0
-    accepted_statuses:
-      - passed
-    proof_artifact: state/validations/<run-id>-VG-032.md
-    ledger_update_required: true
-    phase_gate_eligible: true
-    executable_now: true
-  - schema: atelier.validation-gate/v1
-    gate_id: VG-033
-    purpose: Generated-state regeneration
-    fixture_id: generated_state_regeneration_v1
-    required_input_files:
-      - controlled derived-state fixture
-    required_expected_output_files:
-      - regenerated expected state
-    positive_cases:
-      - derived state regenerates
-    negative_cases:
-      - user .atelier deleted outside fixture
-    command_source: controlled fixture command
-    command_resolution_algorithm: fixture-only deletion/regeneration
-    command: bun run product/apps/atelier/src/__tests__/fixtures/generated_state_regeneration_v1/command.ts
-    required_before: repository ownership acceptance
-    failure_owner: graph kernel implementer
-    retry_policy: never delete user .atelier outside packet authority
-    blocking_severity: P0
-    accepted_statuses:
-      - passed
-    proof_artifact: state/validations/<run-id>-VG-033.md
-    ledger_update_required: true
-    phase_gate_eligible: true
-    executable_now: true
-  - schema: atelier.validation-gate/v1
-    gate_id: VG-034
-    purpose: Negative tests
-    fixture_id: packet-specific-negative-cases
-    required_input_files:
-      - assigned fixture negative inputs
-    required_expected_output_files:
-      - assigned fixture negative expected outputs
-    positive_cases:
-      - invalid cases fail closed
-    negative_cases:
-      - invalid enums/missing evidence/forbidden writes pass
-    command_source: packet tests/fixtures
-    command_resolution_algorithm: derive from assigned structured gate records
-    command: bun run product/apps/atelier/src/__tests__/fixtures/packet-specific-negative-cases/command.ts
-    required_before: each domain phase gate
-    failure_owner: domain packet owner
-    retry_policy: retry until invalid cases fail closed
-    blocking_severity: P1
-    accepted_statuses:
-      - passed
-    proof_artifact: state/validations/<run-id>-VG-034.md
-    ledger_update_required: true
-    phase_gate_eligible: true
-    executable_now: true
-  - schema: atelier.validation-gate/v1
-    gate_id: VG-035
-    purpose: Release readiness
-    fixture_id: release_readiness_v1
-    required_input_files:
-      - all gate proofs
-      - final ledger checklist
-    required_expected_output_files:
-      - release proof report
-    positive_cases:
-      - all applicable gates pass
-    negative_cases:
-      - template or pending gate counted
-    command_source: composite final check
-    command_resolution_algorithm: run project check plus all applicable VG gates and checklist
-    command: bun run product/apps/atelier/src/__tests__/fixtures/release_readiness_v1/command.ts
-    required_before: final completion
-    failure_owner: mother agent
-    retry_policy: no retry loop; targeted regression packets
-    blocking_severity: P0
-    accepted_statuses:
-      - passed
-    proof_artifact: state/validations/<run-id>-VG-035.md
-    ledger_update_required: true
-    phase_gate_eligible: true
-    executable_now: true
-  - schema: atelier.validation-gate/v1
-    gate_id: VG-036
-    purpose: Product spec hash baseline check
-    fixture_id: N/A
-    required_input_files:
-      - harness/knowledge/product-specs/atelier/**
-    required_expected_output_files: []
-    positive_cases:
-      - all HEAD hashes match current hashes
-    negative_cases:
-      - any hash drift
-    command_source: git and sha256sum
-    command_resolution_algorithm: compare HEAD:<path> hash to current file hash after status checks pass
-    command: see state/validations/VG-036-product-spec-hash-2026-06-04.md
-    required_before: DAG-01 every phase gate and final completion
-    failure_owner: mother agent
-    retry_policy: product-spec drift is P0; control repair only
-    blocking_severity: P0
-    accepted_statuses:
-      - passed
-    proof_artifact: state/validations/VG-036-product-spec-hash-2026-06-04.md
-    ledger_update_required: true
-    phase_gate_eligible: true
-    executable_now: true
-  - schema: atelier.validation-gate/v1
-    gate_id: VG-037
-    purpose: Immutable control-doc diff check
-    fixture_id: N/A
-    required_input_files:
-      - immutable control docs
-    required_expected_output_files: []
-    positive_cases:
-      - hashes match recorded baseline
-    negative_cases:
-      - ordinary packet changes core doc
-    command_source: sha256sum
-    command_resolution_algorithm: compare current core docs to immutable-control-doc-baseline
-    command: sha256sum immutable docs
-    required_before: ordinary packet acceptance and phase gates
-    failure_owner: mother agent
-    retry_policy: reject ordinary packet; allow control-doc-repair only
-    blocking_severity: P0
-    accepted_statuses:
-      - passed
-    proof_artifact: state/validations/VG-037-control-doc-baseline-2026-06-04.md
-    ledger_update_required: true
-    phase_gate_eligible: true
-    executable_now: true
-  - schema: atelier.validation-gate/v1
-    gate_id: VG-038
-    purpose: Test integrity / no weakening
-    fixture_id: test_integrity_audit_v1
-    required_input_files:
-      - packet diff
-      - product/apps/atelier/src/__tests__/fixtures/test_integrity_audit_v1/input.ts
-    required_expected_output_files:
-      - product/apps/atelier/src/__tests__/fixtures/test_integrity_audit_v1/expected.ts
-    positive_cases:
-      - no assertion weakening
-    negative_cases:
-      - deleted assertions skipped cases broadened success
-    command_source: executable audit fixture plus packet diff review
-    command_resolution_algorithm: run test_integrity_audit_v1 fixture and inspect packet diff
-    command: bun run product/apps/atelier/src/__tests__/fixtures/test_integrity_audit_v1/command.ts
-    required_before: packets touching tests fixtures serializers validators public surfaces
-    failure_owner: mother agent plus integration tester
-    retry_policy: reject and split legitimate test repair
-    blocking_severity: P1
-    accepted_statuses:
-      - passed
-    proof_artifact: state/validations/<run-id>-VG-038.md
-    ledger_update_required: true
-    phase_gate_eligible: true
-    executable_now: true
-  - schema: atelier.validation-gate/v1
-    gate_id: VG-039
-    purpose: Stale command grep
-    fixture_id: stale_command_grep_v1
-    required_input_files:
-      - active surfaces docs prompts MCP names GUI labels
-    required_expected_output_files:
-      - grep report
-    positive_cases:
-      - removed commands absent
-    negative_cases:
-      - compatibility alias present
-    command_source: rg search
-    command_resolution_algorithm: search discovered surface/doc/prompt roots for removed commands
-    command: bun run product/apps/atelier/src/__tests__/fixtures/stale_command_grep_v1/command.ts
-    required_before: surface release and final completion
-    failure_owner: surface/CLI implementer
-    retry_policy: remove stale aliases; no shims
-    blocking_severity: P1
-    accepted_statuses:
-      - passed
-    proof_artifact: state/validations/<run-id>-VG-039.md
-    ledger_update_required: true
-    phase_gate_eligible: true
-    executable_now: true
-  - schema: atelier.validation-gate/v1
-    gate_id: VG-040
-    purpose: Task/run boundary event test
-    fixture_id: task_run_boundary_event_v1
-    required_input_files:
-      - fixtures/task_run_boundary_event_v1/input
-    required_expected_output_files:
-      - fixtures/task_run_boundary_event_v1/expected
-    positive_cases:
-      - task close emits task event only
-    negative_cases:
-      - task close emits run completion
-    command_source: fixture command or implemented test
-    command_resolution_algorithm: fixture alias then command
-    command: bun run product/apps/atelier/src/__tests__/fixtures/task_run_boundary_event_v1/command.ts
-    required_before: task/run lifecycle acceptance
-    failure_owner: event lifecycle implementer
-    retry_policy: retry event separation only
-    blocking_severity: P1
-    accepted_statuses:
-      - passed
-    proof_artifact: state/validations/<run-id>-VG-040.md
-    ledger_update_required: true
-    phase_gate_eligible: true
-    executable_now: true
-  - schema: atelier.validation-gate/v1
-    gate_id: VG-041
-    purpose: Run lifecycle event test
-    fixture_id: run_lifecycle_event_v1
-    required_input_files:
-      - fixtures/run_lifecycle_event_v1/input
-    required_expected_output_files:
-      - fixtures/run_lifecycle_event_v1/expected
-    positive_cases:
-      - run lifecycle events valid
-    negative_cases:
-      - legacy run_started emitted
-    command_source: fixture command or implemented test
-    command_resolution_algorithm: fixture alias then command
-    command: bun run product/apps/atelier/src/__tests__/fixtures/run_lifecycle_event_v1/command.ts
-    required_before: run lifecycle surfaces
-    failure_owner: run lifecycle implementer
-    retry_policy: retry state/event transitions
-    blocking_severity: P0
-    accepted_statuses:
-      - passed
-    proof_artifact: state/validations/<run-id>-VG-041.md
-    ledger_update_required: true
-    phase_gate_eligible: true
-    executable_now: true
-  - schema: atelier.validation-gate/v1
-    gate_id: VG-042
-    purpose: Verification status schema test
-    fixture_id: verification_status_schema_v1
-    required_input_files:
-      - fixtures/verification_status_schema_v1/input
-    required_expected_output_files:
-      - fixtures/verification_status_schema_v1/expected
-    positive_cases:
-      - closed statuses and reason codes
-    negative_cases:
-      - unknown status accepted
-    command_source: fixture command or implemented test
-    command_resolution_algorithm: fixture alias then command
-    command: bun run product/apps/atelier/src/__tests__/fixtures/verification_status_schema_v1/command.ts
-    required_before: verification record acceptance
-    failure_owner: verification engine implementer
-    retry_policy: retry enum/reason validators
-    blocking_severity: P1
-    accepted_statuses:
-      - passed
-    proof_artifact: state/validations/<run-id>-VG-042.md
-    ledger_update_required: true
-    phase_gate_eligible: true
-    executable_now: true
-  - schema: atelier.validation-gate/v1
-    gate_id: VG-043
-    purpose: Policy decision hard-block schema
-    fixture_id: policy_decision_hard_block_v1
-    required_input_files:
-      - fixtures/policy_decision_hard_block_v1/input
-    required_expected_output_files:
-      - fixtures/policy_decision_hard_block_v1/expected
-    positive_cases:
-      - active policy block contributes to hard_block
-    negative_cases:
-      - full policy engine invented
-    command_source: fixture command
-    command_resolution_algorithm: fixture alias then command
-    command: bun run product/apps/atelier/src/__tests__/fixtures/policy_decision_hard_block_v1/command.ts
-    required_before: completion truth table/write authority/governance/mutating packets
-    failure_owner: governance/verification owners
-    retry_policy: no full policy invention
-    blocking_severity: P0
-    accepted_statuses:
-      - passed
-    proof_artifact: state/validations/<run-id>-VG-043.md
-    ledger_update_required: true
-    phase_gate_eligible: true
-    executable_now: true
-  - schema: atelier.validation-gate/v1
-    gate_id: VG-044
-    purpose: Privacy/redaction boundary
-    fixture_id: privacy_redaction_boundary_v1
-    required_input_files:
-      - fixtures/privacy_redaction_boundary_v1/input
-    required_expected_output_files:
-      - fixtures/privacy_redaction_boundary_v1/expected
-    positive_cases:
-      - redacted placeholders and uncertainty visible
-    negative_cases:
-      - redacted data leaked or hidden uncertainty
-    command_source: fixture command
-    command_resolution_algorithm: fixture alias then command
-    command: bun run product/apps/atelier/src/__tests__/fixtures/privacy_redaction_boundary_v1/command.ts
-    required_before: trace/adapters/HPO public redacted display
-    failure_owner: event/HPO owners
-    retry_policy: retry boundary handling; record full privacy gap
-    blocking_severity: P1
-    accepted_statuses:
-      - passed
-    proof_artifact: state/validations/<run-id>-VG-044.md
-    ledger_update_required: true
-    phase_gate_eligible: true
-    executable_now: true
-  - schema: atelier.validation-gate/v1
-    gate_id: VG-045
-    purpose: Fixture alias consistency
-    fixture_id: fixture_alias_registry_v1
-    required_input_files:
-      - harness/knowledge/implementation-control/atelier/state/traceability/fixture-alias-registry-2026-06-04.yaml
-      - harness/knowledge/implementation-control/atelier/views/VALIDATION_GATE_REGISTRY.md
-      - harness/knowledge/product-specs/atelier/CONTRACT_TEST_MATRIX.md
-    required_expected_output_files:
-      - alias consistency report
-    positive_cases:
-      - fixture IDs and command files unique
-      - every gate_id references a real VG-NNN
-      - every non-null negative_case_id references a real matrix case
-    negative_cases:
-      - duplicate fixture_id
-      - command_file missing without pending status
-      - gate_id not in registry
-      - silent rename
-    command_source: bun nx run atelier:test -- --testPathPattern=fixture-alias-consistency
-    command_resolution_algorithm: resolve and run fixture-alias-consistency.test.ts via Nx test target
-    command: bun nx run atelier:test -- --testPathPattern=fixture-alias-consistency
-    required_before: fixture scaffold acceptance and phase gates
-    failure_owner: fixture author plus contract auditor
-    retry_policy: retry alias map; do not edit product specs
-    blocking_severity: P1
-    accepted_statuses:
-      - passed
-    proof_artifact: state/validations/VG-045-2026-06-04.md
-    ledger_update_required: true
-    phase_gate_eligible: true
-    executable_now: true
-  - schema: atelier.validation-gate/v1
-    gate_id: VG-046
-    purpose: Parallel-packet conflict detection
-    fixture_id: parallel_conflict_check_v1
-    required_input_files:
-      - state/packets/in-flight.yaml
-      - packet allowed_files and forbidden_roots fields
-    required_expected_output_files:
-      - state/validations/<run-id>-VG-046.md
-    positive_cases:
-      - in-flight packet allowed_files disjoint from new packet
-    negative_cases:
-      - overlapping fixture family / overlapping command surface / overlapping generated-state path / overlapping durable-evidence path
-    command_source: implemented check script
-    command_resolution_algorithm: read in-flight packet list
-    command: bun run product/apps/atelier/src/__tests__/fixtures/parallel_conflict_check_v1/command.ts
-    required_before: every parallel packet dispatch
-    failure_owner: mother agent
-    retry_policy: do not dispatch conflicting packet; record a new BLK-CONFLICT-<id> blocker or wait for in-flight to complete
-    blocking_severity: P1
-    accepted_statuses:
-      - passed
-    proof_artifact: state/validations/<run-id>-VG-046.md
-    ledger_update_required: true
-    phase_gate_eligible: true
-    executable_now: true
+    provenance_kind: deterministic_fact
+    provenance_ref: compile:project:product-specs/VERIFICATION_SCHEMA.md#v5.1 Revision Notes

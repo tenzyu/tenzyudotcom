@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "atelier.active-scope/v1",
+  "type": "object",
+  "required": ["schema", "scope_id", "generated_at", "included_dag_nodes", "excluded_dag_nodes", "included_source_sections", "excluded_source_classifications", "ready_policy"],
+  "properties": {
+    "schema": { "const": "atelier.active-scope/v1" },
+    "scope_id": { "type": "string" },
+    "generated_at": { "type": "string" },
+    "included_dag_nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["dag_node_id", "status", "reason", "provenance_kind", "provenance_ref"],
+        "properties": {
+          "dag_node_id": { "type": "string" },
+          "status": { "enum": ["active"] },
+          "reason": { "type": "string" },
+          "provenance_kind": { "enum": ["deterministic_fact", "llm_extracted", "legacy_promoted", "manual_control_record"] },
+          "provenance_ref": { "type": "string" }
+        }
+      }
+    },
+    "excluded_dag_nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["selector", "status", "reason", "required_for_ready", "provenance_kind", "provenance_ref"],
+        "properties": {
+          "selector": { "type": "string" },
+          "status": { "enum": ["future", "carryover", "archived", "out_of_scope_for_active_dag"] },
+          "reason": { "type": "string" },
+          "required_for_ready": { "type": "boolean" },
+          "provenance_kind": { "enum": ["deterministic_fact", "llm_extracted", "legacy_promoted", "manual_control_record"] },
+          "provenance_ref": { "type": "string" }
+        }
+      }
+    },
+    "included_source_sections": {
+      "type": "object",
+      "required": ["mode"],
+      "properties": {
+        "mode": { "enum": ["derived_from_routes_and_assertions", "explicit"] },
+        "explicit_section_ids": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "excluded_source_classifications": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "roadmap_future",
+          "positioning_source",
+          "duplicate_or_covered",
+          "out_of_scope_for_active_dag"
+        ]
+      }
+    },
+    "ready_policy": {
+      "type": "object",
+      "required": [
+        "fail_if_missing_scope",
+        "fail_if_scope_references_missing_dag_nodes",
+        "fail_if_active_node_missing_derivation_coverage",
+        "fail_if_active_truth_depends_on_legacy_root_docs"
+      ],
+      "properties": {
+        "fail_if_missing_scope": { "type": "boolean" },
+        "fail_if_scope_references_missing_dag_nodes": { "type": "boolean" },
+        "fail_if_active_node_missing_derivation_coverage": { "type": "boolean" },
+        "fail_if_active_truth_depends_on_legacy_root_docs": { "type": "boolean" }
+      }
+    }
+  }
+}

@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "atelier.assertion/v1",
   "type": "object",
-  "required": ["schema", "assertion_id", "source_section_id", "text", "modality", "domain", "testability", "severity", "closed_terms", "ambiguity_status"],
+  "required": ["schema", "assertion_id", "source_section_id", "text", "modality", "domain", "testability", "severity", "closed_terms", "ambiguity_status", "provenance_kind", "provenance_ref", "extraction_status"],
   "properties": {
     "schema": { "const": "atelier.assertion/v1" },
     "assertion_id": { "type": "string" },
@@ -13,6 +13,9 @@
     "testability": { "enum": ["executable", "oracle_gap", "semantic_review", "non_goal"] },
     "severity": { "enum": ["P0", "P1", "P2"] },
     "closed_terms": { "type": "array", "items": { "type": "string" } },
-    "ambiguity_status": { "enum": ["clear", "ambiguous", "conflicting"] }
+    "ambiguity_status": { "enum": ["clear", "ambiguous", "conflicting"] },
+    "provenance_kind": { "enum": ["deterministic_fact", "llm_extracted", "legacy_promoted", "manual_control_record"] },
+    "provenance_ref": { "type": "string" },
+    "extraction_status": { "enum": ["pending", "running", "accepted", "rejected", "skipped"] }
   }
 }
