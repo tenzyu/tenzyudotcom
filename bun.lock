@@ -4,6 +4,9 @@
   "workspaces": {
     "": {
       "name": "tenzyudotcom",
+      "dependencies": {
+        "opencode-goal-plugin": "^0.1.11",
+      },
       "devDependencies": {
         "@babel/core": "^7.14.5",
         "@babel/preset-react": "^7.14.5",
@@ -38,6 +41,10 @@
         "@types/bun": "catalog:",
         "typescript": "catalog:",
       },
+    },
+    "product/apps/chatgpt-partial-html-export": {
+      "name": "@tenzyu/chatgpt-partial-html-export",
+      "version": "0.1.0",
     },
     "product/apps/osu-skin-workbench": {
       "name": "@tenzyu/osu-skin-workbench",
@@ -1442,6 +1449,8 @@
     "@tauri-apps/plugin-dialog": ["@tauri-apps/plugin-dialog@2.7.1", "", { "dependencies": { "@tauri-apps/api": "^2.11.0" } }, "sha512-OK1UBXYt+ojcmxMktzzuyonYIFta8CmAASpX+CA+DTGK24KlHjhYI6x2iOJ/TjZF4N7/ACK1oFmEOjIY9IhzOQ=="],
 
     "@tenzyu/atelier": ["@tenzyu/atelier@workspace:product/apps/atelier"],
+
+    "@tenzyu/chatgpt-partial-html-export": ["@tenzyu/chatgpt-partial-html-export@workspace:product/apps/chatgpt-partial-html-export"],
 
     "@tenzyu/linter": ["@tenzyu/linter@workspace:product/packages/linter"],
 
@@ -2864,6 +2873,8 @@
     "oniguruma-to-es": ["oniguruma-to-es@4.2.0", "", { "dependencies": { "emoji-regex-xs": "^1.0.0", "oniguruma-parser": "^0.11.0", "regex": "^6.0.1", "regex-recursion": "^6.0.2" } }, "sha512-MDPs6KSOLS0tKQ7joqg44dRIRZUyotfTy0r+7oEEs6VwWWP0+E2PPDYWMFN0aqOjRyWHBYq7RfKw9GQk2S2z5g=="],
 
     "open": ["open@8.4.2", "", { "dependencies": { "define-lazy-prop": "^2.0.0", "is-docker": "^2.1.1", "is-wsl": "^2.2.0" } }, "sha512-7x81NCL719oNbsq/3mh+hVrAWmFuEYUqrq/Iw3kUzH8ReypT9QQ0BLoJS7/G9k6N81XjW4qHWtjWwe/9eLy1EQ=="],
+
+    "opencode-goal-plugin": ["opencode-goal-plugin@0.1.11", "", {}, "sha512-koUNoWMWhreoYaCE39P2wIrdULIM0YHpCaCmaq0BnYo3OaxPCEZc42Tn2CFicdjXcIMwhYqs3LWK8+lKeRd/tw=="],
 
     "opener": ["opener@1.5.2", "", { "bin": { "opener": "bin/opener-bin.js" } }, "sha512-ur5UIdyw5Y7yEj9wLzhqXiy6GZ3Mwx0yGI+5sMn2r0N0v3cKJvUmFH5yPP+WXh9e0xfyzyJX95D8l088DNFj7A=="],
 

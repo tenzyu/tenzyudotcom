@@ -19,5 +19,82 @@
     }
   },
   "instructions": ["AGENTS.md", ".opencode/agents/*.md"],
-  "lsp": true
+  "lsp": true,
+
+  "plugin": [
+    [
+      "opencode-goal-plugin",
+      {
+        "maxTurns": 20,
+        "maxDurationMs": 9000000,
+        "maxTokens": 400000,
+        "minDelayMs": 1500,
+        "maxRecentMessages": 50,
+        "noProgressTokenThreshold": 50,
+        "noProgressTurnsBeforePause": 2,
+        "budgetWrapupRatio": 0.8,
+        "maxPromptFailures": 10,
+        "persistState": true,
+        "stateFilePath": ".opencode/opencode-goal-plugin/state.json",
+        "resultRetentionMs": 604800000,
+        "maxStoredResults": 200
+      }
+    ]
+  ],
+
+  "watcher": {
+    "ignore": [
+      "node_modules/**",
+      ".git/**",
+      "dist/**",
+      "build/**",
+      "coverage/**",
+      "harness/knowledge/implementation-control/atelier/state/legacy/**",
+      "harness/knowledge/implementation-control/atelier/archive/**"
+    ]
+  },
+
+  "agent": {
+    "spec-control-builder": {
+      "description": "Builds and repairs the Spec-to-Control Compiler until readiness is mechanically decidable",
+      "mode": "primary",
+      "model": "minimax/MiniMax-M3",
+      "temperature": 0.1,
+      "prompt": "{file:.opencode/agents/spec-control-builder.md}",
+      "permission": {
+        "bash": "allow",
+        "edit": {
+          "*": "deny",
+          "harness/knowledge/implementation-control/atelier/**": "allow",
+          "harness/knowledge/product-specs/atelier/**": "deny",
+          "product/apps/atelier/src/cli.ts": "deny"
+        }
+      }
+    },
+
+    "spec-control-reviewer": {
+      "description": "Reviews Spec-to-Control Compiler readiness without mutating files",
+      "mode": "subagent",
+      "model": "minimax/MiniMax-M3",
+      "temperature": 0,
+      "prompt": "{file:.opencode/agents/spec-control-reviewer.md}",
+      "permission": {
+        "bash": "allow",
+        "edit": "deny"
+      }
+    }
+  },
+
+  "command": {
+    "s2c-review": {
+      "description": "Review and force-complete Spec-to-Control readiness",
+      "agent": "spec-control-builder",
+      "template": "{file:.opencode/commands/s2c-review.md}"
+    },
+    "goal": {
+      "description": "Set a session-scoped goal and auto-continue until complete.",
+      "template": "$ARGUMENTS",
+      "agent": "build"
+    }
+  }
 }

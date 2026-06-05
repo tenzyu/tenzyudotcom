@@ -120,5 +120,8 @@
       "product/apps/*",
       "product/packages/*"
     ]
+  },
+  "dependencies": {
+    "opencode-goal-plugin": "^0.1.11"
   }
 }
