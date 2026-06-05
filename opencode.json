@@ -55,12 +55,23 @@
   },
 
   "agent": {
-    "atelier-builder": {
-      "description": "Builds atelier-* bootstrap tools from atelier-design-docs",
+    "atelier-coordinator": {
+      "description": "Read-only coordinator that only dispatches atelier build work to subagents",
       "mode": "primary",
       "model": "minimax-coding-plan/MiniMax-M3",
+      "temperature": 0,
+      "prompt": "{file:.opencode/agents/atelier-coordinator.md}",
+      "permission": {
+        "bash": "ask",
+        "edit": "deny"
+      }
+    },
+    "atelier-implementer": {
+      "description": "Subagent that implements atelier-* bootstrap tools from atelier-design-docs",
+      "mode": "subagent",
+      "model": "minimax-coding-plan/MiniMax-M3",
       "temperature": 0.1,
-      "prompt": "{file:.opencode/agents/atelier-builder.md}",
+      "prompt": "{file:.opencode/agents/atelier-implementer.md}",
       "permission": {
         "bash": "allow",
         "edit": {
@@ -68,7 +79,7 @@
           ".atelier-bootstrap/**": "allow",
           ".atelier/v0/**": "allow",
           ".opencode/**": "allow",
-          "product/apps/atelier/**": "allow",
+          "product/apps/atelier/**": "deny",
           "harness/knowledge/product-specs/**": "deny"
         }
       }
@@ -82,8 +93,9 @@
       "agent": "build"
     },
     "atelier-build": {
-      "description": "Build atelier-* from atelier-design-docs",
-      "agent": "atelier-builder",
+      "description": "Build atelier-* from atelier-design-docs as a subagent task",
+      "agent": "atelier-implementer",
+      "subtask": true,
       "template": "{file:.opencode/commands/atelier-build.md}"
     }
   }

@@ -1,9 +1,13 @@
 ---
-description: Build atelier-* from atelier-design-docs
-agent: atelier-builder
+description: Build atelier-* from atelier-design-docs as a subagent task
+agent: atelier-implementer
 ---
 
 # Build atelier-\* from atelier-design-docs
+
+This command must run as a subtask/subagent.
+
+If you are not running as a subagent, stop and report `wrong_agent_mode`.
 
 Use the `atelier-design-docs` skill.
 
@@ -32,9 +36,7 @@ Read the design docs and implement the components in dependency order:
 Look for design docs in:
 
 ```txt
-atelier-design-docs/
-docs/atelier-design-docs/
-harness/knowledge/atelier-design/
+harness/atelier-design-docs/
 ```
 
 Do not proceed if the design docs cannot be found. Report the missing expected paths.
@@ -57,6 +59,7 @@ Do not proceed if the design docs cannot be found. Report the missing expected p
 
 ## Hard constraints
 
+- This command must execute in a subagent context.
 - `.atelier-bootstrap/**` is tooling only.
 - `.atelier/v0/**` is generated output and state.
 - Use NDJSON for objects and edges.

@@ -9,17 +9,11 @@ Use this skill when the user mentions `atelier-design-docs` or asks to build `at
 
 ## Source documents
 
-The design docs are expected to exist in one of these locations:
+The design docs are expected to exist in this locations:
 
 ```txt
 harness/atelier-design-docs/
 ```
-
-If multiple exist, prefer the most specific existing directory in this order:
-
-1. `atelier-design-docs/`
-2. `docs/atelier-design-docs/`
-3. `harness/atelier-design/`
 
 Required files:
 
@@ -44,11 +38,7 @@ atelier-operation/contract.md
 ADRs/*.md
 ```
 
-## Target architecture
-
-Implement the Atelier bootstrap tools and output structure described in the design docs.
-
-Target tooling root:
+## Target tooling root
 
 ```txt
 .atelier-bootstrap/
@@ -58,7 +48,7 @@ Target tooling root:
   executor/
 ```
 
-Target output root:
+## Target output root
 
 ```txt
 .atelier/v0/
@@ -72,9 +62,17 @@ Target output root:
   views/
 ```
 
-Do not place generated runtime output under `.atelier-bootstrap/**`.
+## Hard boundary
 
 `.atelier-bootstrap/**` is tooling only.
+
+`.atelier/v0/**` is generated output and state.
+
+Do not place generated runtime output under `.atelier-bootstrap/**`.
+
+Do not use `canonical/**` as the primary architecture.
+
+Do not treat `implementation-control` as the root concept. It is a transform output, not the root abstraction.
 
 ## Conceptual model
 
@@ -94,16 +92,6 @@ AttentionSet
 TransformModel
 ExecutionPacket
 EvidenceRecord
-```
-
-Do not use `canonical/**` as a root concept. Use:
-
-```txt
-objects/
-edges/
-indexes/
-state or runs/
-views/
 ```
 
 ## Component responsibilities
@@ -197,49 +185,34 @@ Implement in this order:
 
 Do not jump to later components if an earlier component cannot produce or validate its contract outputs.
 
-## Required behavior
+## Required command surface
 
-The resulting system must support:
+The resulting system must support these root-level adapter commands or exact equivalents:
 
 ```bash
-# indexer
 bun run atelier:index
 bun run atelier:affected
 bun run atelier:index:render
 bun run atelier:index:validate
 
-# reader
 bun run atelier:sample
 bun run atelier:attention -- --task "<task>"
 bun run atelier:deep-read -- --attention <id>
 bun run atelier:reader:validate
 
-# transformer
 bun run atelier:transform:md-to-code
 bun run atelier:transform:validate
 bun run atelier:transform:render
 
-# executor
 bun run atelier:packet:create
 bun run atelier:packet:context
 bun run atelier:packet:complete
 bun run atelier:evidence:add
 bun run atelier:executor:validate
 
-# operation
 bun run atelier:ready
 bun run atelier:verify
 bun run atelier:render
 ```
 
-Equivalent names are acceptable only if documented and covered by tests.
-
-## Non-goals
-
-Do not implement the final GUI.
-Do not implement a database. Use NDJSON for now.
-Do not use SQLite yet.
-Do not place output under `.atelier-bootstrap/**`.
-Do not resurrect `harness/knowledge/implementation-control` as the primary architecture.
-Do not treat `implementation-control` as the core concept. It is a transform output, not the root abstraction.
-Do not edit product specs unless the design docs explicitly require it.
+Equivalent names are acceptable only if documented and covered by tests or executable verification.
