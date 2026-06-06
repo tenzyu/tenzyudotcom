@@ -13,6 +13,7 @@ import { runPacketBlockCommand } from './commands/packet-block.ts'
 import { runExecutionReadyCommand } from './commands/execution-ready.ts'
 import { runRenderCommand } from './commands/render.ts'
 import { runValidateCommand } from './commands/validate.ts'
+import { runMigrateCommand } from './commands/migrate.ts'
 
 function usage(): string {
   return [
@@ -24,11 +25,13 @@ function usage(): string {
     '  packet:run --packet <id>                  Run the test command, record evidence',
     '  test:run --packet <id>                    Run the test command and append to ledger',
     '  evidence:add --packet <id> --gate <id> --status <status> Add an evidence record',
+    '    [--command <cmd>] [--raw-output-ref <path>] [--diff-ref <path>] [--file-hashes <json>]',
     '  handoff:validate --file <path> --packet <id>  Validate a handoff JSON',
     '  packet:complete --packet <id>             Mark a packet completed (requires evidence)',
     '  packet:reject --packet <id>               Reject a packet',
     '  packet:block --packet <id> --severity <P0|P1|P2> --reason <text> Block a packet',
     '  execution:ready                           Report execution readiness',
+    '  migrate                                   One-shot: normalize packets.ndjson (dedupe by id, last-write-wins)',
     '  render                                    Generate views/runs/** Markdown',
     '  validate                                  Validate executor outputs',
   ].join('\n')
@@ -61,6 +64,8 @@ export async function runCli(argv: readonly string[]): Promise<number> {
       return runPacketBlockCommand(rest)
     case 'execution:ready':
       return runExecutionReadyCommand()
+    case 'migrate':
+      return runMigrateCommand()
     case 'render':
       return runRenderCommand()
     case 'validate':

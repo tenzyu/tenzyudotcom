@@ -16,6 +16,7 @@
     "packet:reject": "bun src/commands/packet-reject.ts",
     "packet:block": "bun src/commands/packet-block.ts",
     "execution:ready": "bun src/commands/execution-ready.ts",
+    "migrate": "bun src/commands/migrate.ts",
     "render": "bun src/commands/render.ts",
     "validate": "bun src/commands/validate.ts"
   }

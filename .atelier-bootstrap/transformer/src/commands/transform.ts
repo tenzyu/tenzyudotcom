@@ -1,8 +1,8 @@
 import { ok, fail, printResult } from '../../../lib/src/index.ts'
 import { deriveAllTasks } from '../lib/task.ts'
-import { deriveContractsForTask } from '../lib/contracts.ts'
-import { derivePacketTemplate } from '../lib/packet-template.ts'
-import { emitRecommendations } from '../lib/recommend.ts'
+import { deriveAllContractsAndBoundaries } from '../lib/contracts.ts'
+import { deriveAllPacketTemplates } from '../lib/packet-template.ts'
+import { emitRecommendationsDetailed } from '../lib/recommend.ts'
 
 function readFlag(args: readonly string[], name: string): string | undefined {
   const idx = args.indexOf(name)
@@ -18,22 +18,27 @@ export async function runTransformCommand(argv: readonly string[]): Promise<numb
       throw new Error('transform requires --target md-to-code')
     }
     const tasks = await deriveAllTasks()
-    let contracts = 0
-    let templates = 0
-    for (const t of tasks) {
-      await deriveContractsForTask(t)
-      contracts += 1
-      await derivePacketTemplate(t)
-      templates += 1
-    }
-    const recs = await emitRecommendations()
-    const result = ok('transformer', 'transform', {
-      target,
-      tasks: tasks.length,
-      contracts,
-      templates,
-      recommendations: recs.length,
-    }, { startedAt })
+    const { testContracts } = await deriveAllContractsAndBoundaries(tasks)
+    const templates = await deriveAllPacketTemplates(tasks, testContracts)
+    const recResult = await emitRecommendationsDetailed()
+    const result = ok(
+      'transformer',
+      'transform',
+      {
+        target,
+        tasks: tasks.length,
+        contracts: testContracts.length,
+        templates: templates.length,
+        recommendations: recResult.recommendations.length,
+        duplicates: recResult.duplicates.length,
+        raw_recommendation_pairs: recResult.raw_pair_count,
+        design_doc_tasks: tasks.filter((t) =>
+          t.source_refs.some((r) => r.path.startsWith('harness/atelier-design-docs/')),
+        ).length,
+        fixture_tasks: tasks.filter((t) => t.fixture === true).length,
+      },
+      { startedAt },
+    )
     printResult(result)
     return 0
   } catch (err) {

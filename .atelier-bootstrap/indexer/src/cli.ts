@@ -11,31 +11,37 @@ import { runUpdateCommand } from './commands/update.ts'
 import { runRenderCommand } from './commands/render.ts'
 import { runValidateCommand } from './commands/validate.ts'
 
-const COMMANDS: Record<string, () => Promise<number>> = {
-  scan: runScanCommand,
-  index: runIndexCommand,
-  affected: runAffectedCommand,
-  update: runUpdateCommand,
-  render: runRenderCommand,
-  validate: runValidateCommand,
+const COMMANDS: Record<string, (argv: readonly string[]) => Promise<number>> = {
+  scan: () => runScanCommand(),
+  index: () => runIndexCommand(),
+  affected: () => runAffectedCommand(),
+  update: () => runUpdateCommand(),
+  render: () => runRenderCommand(),
+  // STRICT by default. Use `validate:quick` for a sample smoke test.
+  validate: (argv) => runValidateCommand(argv),
+  'validate:quick': (argv) => runValidateCommand(['--quick', ...argv]),
 }
 
 function usage(): string {
   return [
-    'Usage: atelier-indexer <command>',
+    'Usage: atelier-indexer <command> [flags]',
     '',
     'Commands:',
-    '  scan       Walk the repository and write .atelier/v0/facts/**',
-    '  index      Build SourceUnit/SourceFact/SourceEdge NDJSON and indexes',
-    '  affected   Compare snapshots, mark stale, write stale.json',
-    '  update     scan + index + affected + render',
-    '  render     Generate views/index/** Markdown',
-    '  validate   Validate NDJSON, hashes, references, view freshness',
+    '  scan            Walk the repository and write .atelier/v0/facts/**',
+    '  index           Build SourceUnit/SourceFact/SourceEdge NDJSON and indexes',
+    '  affected        Compare snapshots, mark stale, write stale.json',
+    '  update          scan + index + affected + render',
+    '  render          Generate views/index/** Markdown',
+    '  validate        STRICT full validation of objects/edges/refs (default)',
+    '  validate:quick  Sample-based smoke validation (NEVER use for operational pass)',
+    '',
+    'Flags:',
+    '  validate --quick  Run quick sample validation (alias for validate:quick).',
   ].join('\n')
 }
 
 export async function runCli(argv: readonly string[]): Promise<number> {
-  const [command] = argv
+  const [command, ...rest] = argv
   if (!command || command === 'help' || command === '--help' || command === '-h') {
     process.stderr.write(usage() + '\n')
     return 0
@@ -45,7 +51,7 @@ export async function runCli(argv: readonly string[]): Promise<number> {
     process.stderr.write(`Unknown command: ${command}\n\n${usage()}\n`)
     return 1
   }
-  return fn()
+  return fn(rest)
 }
 
 if (import.meta.main) {

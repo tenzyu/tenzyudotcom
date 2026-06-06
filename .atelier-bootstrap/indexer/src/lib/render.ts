@@ -112,6 +112,10 @@ export async function renderAffected(): Promise<string> {
         moved: Array<{ from: string; to: string }>
         stale_units: string[]
         stale_edges: string[]
+        dependent_objects?: Record<string, string[]>
+        total_dependents?: number
+        max_hops?: number
+        traversed_edge_ids?: string[]
       }
     | null
   const out: string[] = [header('AFFECTED', 'atelier-indexer affected')]
@@ -126,6 +130,8 @@ export async function renderAffected(): Promise<string> {
     out.push(`- moved: ${map.moved.length}`)
     out.push(`- stale units: ${map.stale_units.length}`)
     out.push(`- stale edges: ${map.stale_edges.length}`)
+    out.push(`- total dependents: ${map.total_dependents ?? 0}`)
+    out.push(`- max hops: ${map.max_hops ?? 0}`)
     out.push('')
     if (map.changed.length > 0) {
       out.push('### Changed')
@@ -148,6 +154,22 @@ export async function renderAffected(): Promise<string> {
     if (map.moved.length > 0) {
       out.push('### Moved')
       for (const m of map.moved.slice(0, 100)) out.push(`- \`${m.from}\` -> \`${m.to}\``)
+      out.push('')
+    }
+    if (map.dependent_objects) {
+      out.push('### Dependent objects (cascaded via edges)')
+      const ordered = Object.entries(map.dependent_objects).filter(
+        ([, ids]) => ids.length > 0,
+      ) as Array<[string, string[]]>
+      if (ordered.length === 0) {
+        out.push('- (no dependents surfaced yet; reader/transformer/executor edges will populate this as they run)')
+      } else {
+        for (const [kind, ids] of ordered) {
+          out.push(`- **${kind}** (${ids.length})`)
+          for (const id of ids.slice(0, 25)) out.push(`  - \`${id}\``)
+          if (ids.length > 25) out.push(`  - ... ${ids.length - 25} more`)
+        }
+      }
       out.push('')
     }
   }

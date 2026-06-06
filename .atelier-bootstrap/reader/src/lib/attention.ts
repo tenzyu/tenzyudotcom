@@ -33,6 +33,14 @@ export function tokenize(task: string): string[] {
 }
 
 /**
+ * Maximum number of bytes to scan from a source file's content when
+ * path-based scoring produced no matches. Capping the read keeps the
+ * attention assembly bounded for large repos where individual files
+ * (e.g. `bun.lock`, generated trees) may be hundreds of KB.
+ */
+const CONTENT_SCAN_BYTES = 4096
+
+/**
  * Score a SourceUnit by how many task tokens appear in its path or
  * (when present) its first few KB of content.
  */
@@ -45,13 +53,15 @@ async function scoreUnit(unit: SourceUnit, tokens: ReadonlyArray<string>): Promi
   }
   if (score === 0) {
     // Fall back to a small content scan to support tasks like
-    // "rename the run command".
+    // "rename the run command". The read is capped to keep total
+    // work bounded for large repos.
     try {
-      const head = await readFile(unit.path, 'utf8')
+      const fh = await readFile(unit.path, { encoding: 'utf8', flag: 'r' })
+      const head = fh.length > CONTENT_SCAN_BYTES ? fh.slice(0, CONTENT_SCAN_BYTES) : fh
       const lower = head.toLowerCase()
       for (const token of tokens) if (lower.includes(token)) score += 0.5
     } catch {
-      // ignore
+      // ignore unreadable files
     }
   }
   return score
@@ -62,11 +72,23 @@ function nowIso(): string {
 }
 
 /**
+ * Cap on how many excluded object ids we materialise in the persisted
+ * AttentionSet. Storing every excluded id would balloon the file for
+ * large repos; the contract only requires the selected set to be
+ * task-scoped.
+ */
+const EXCLUDED_IDS_CAP = 200
+
+/**
  * Assemble an `AttentionSet` for a task description.
  *
  * The set is small (top N by score) so the downstream deep-read does not
  * read the whole repository. Empty selections are allowed but must
  * report `gap_status: insufficient` so the reader can flag the gap.
+ *
+ * The id is deterministic from the task string, so re-running the same
+ * task upserts the existing record rather than producing duplicates.
+ * Other attention sets in the file are preserved.
  */
 export async function assembleAttention(
   task: string,
@@ -74,11 +96,14 @@ export async function assembleAttention(
 ): Promise<AttentionSet> {
   const tokens = tokenize(task)
   const allUnits = await readNdjson<SourceUnit>(INDEXER_PATHS.objectsSource)
-  const scored: Array<{ unit: SourceUnit; score: number }> = []
-  for (const u of allUnits) {
-    const s = await scoreUnit(u, tokens)
-    if (s > 0) scored.push({ unit: u, score: s })
-  }
+  // Score all units in parallel. Each `scoreUnit` either returns a
+  // path-based score (no I/O) or falls back to a small content scan;
+  // running them concurrently keeps the assembly bounded by the
+  // slowest file rather than the sum of all files.
+  const scoredAll = await Promise.all(
+    allUnits.map(async (unit) => ({ unit, score: await scoreUnit(unit, tokens) })),
+  )
+  const scored = scoredAll.filter((s) => s.score > 0)
   scored.sort((a, b) => b.score - a.score)
   // Cap at 25 to keep attention small and task-scoped.
   const top = scored.slice(0, 25)
@@ -87,7 +112,10 @@ export async function assembleAttention(
     path: t.unit.path,
     sha256: t.unit.sha256,
   }))
-  const excluded = allUnits.length - selectedIds.length
+  const excludedIds = allUnits
+    .filter((u) => !selectedIds.includes(u.id))
+    .map((u) => u.id)
+    .slice(0, EXCLUDED_IDS_CAP)
   const set: AttentionSet = {
     id: deterministicId('att', task),
     kind: 'attention_set',
@@ -103,12 +131,17 @@ export async function assembleAttention(
     task,
     selected_object_ids: selectedIds,
     selected_source_refs: selectedRefs,
-    excluded_object_ids: allUnits.filter((u) => !selectedIds.includes(u.id)).map((u) => u.id).slice(0, excluded),
+    excluded_object_ids: excludedIds,
     reason: `task-scoped selection for "${task}"`,
     budget,
     gap_status: selectedIds.length > 0 ? 'sufficient' : 'insufficient',
   }
-  await writeNdjson(READER_PATHS.attention, [set])
+  // Merge with existing attention sets: replace any set with the same
+  // id (idempotent re-run), keep all others. The id is deterministic
+  // from the task string so this is the canonical upsert path.
+  const existing = await readNdjson<AttentionSet>(READER_PATHS.attention)
+  const merged = [...existing.filter((a) => a.id !== set.id), set]
+  await writeNdjson(READER_PATHS.attention, merged)
   return set
 }
 

@@ -204,6 +204,19 @@ export type ImplementationTask = AtelierObjectBase & {
   acceptance_criteria: string[]
   risk_notes: string[]
   status: 'draft' | 'ready' | 'blocked' | 'stale'
+  /**
+   * Free-form tags. The transformer uses `fixture` to mark a task that
+   * is a toy example or otherwise non-operational. The operation
+   * verifier excludes `fixture` tasks from operational readiness.
+   */
+  tags?: string[]
+  /**
+   * Explicit fixture flag. Equivalent to `tags: ['fixture']` but more
+   * machine-readable. Set to `true` when the task exists only as a
+   * smoke test (e.g. derived from a `src/main.ts` toy sample) and
+   * must NOT satisfy operational pass by itself.
+   */
+  fixture?: boolean
 }
 
 export type TestContract = AtelierObjectBase & {
@@ -254,6 +267,23 @@ export type TransformRecommendation = AtelierObjectBase & {
   proposed_output_kind: string
   confidence: 'hypothesis' | 'inferred' | 'validated'
   status: 'proposed' | 'accepted' | 'rejected' | 'stale'
+}
+
+/**
+ * Record of a `(source_object_id, recommendation_type)` pair that was
+ * emitted more than once by the transformer. The transformer dedupes
+ * recommendations at emit time and writes the deduped list to
+ * `recommendations.ndjson`. The duplicate count and the representative
+ * emitted record are recorded in `duplicates.ndjson` so the operation
+ * verifier can flag stale or over-eager recommenders.
+ */
+export type DuplicateRecommendation = {
+  schema: 'atelier.duplicate-recommendation/v1'
+  source_object_id: string
+  recommendation_type: TransformRecommendation['recommendation_type']
+  count: number
+  representative_recommendation_id: string
+  detected_at: string
 }
 
 export type ExecutionPacket = AtelierObjectBase & {

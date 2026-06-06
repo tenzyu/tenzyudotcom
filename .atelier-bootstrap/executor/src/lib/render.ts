@@ -12,8 +12,13 @@ import {
   type SubagentHandoff,
   EXECUTOR_PATHS,
 } from '../../../lib/src/index.ts'
-import { listPackets } from './packet.ts'
-import { listEvidence, validateHandoffFile } from './evidence.ts'
+import { listPackets, reducePacketsToCurrent, getDuplicatePacketStatuses } from './packet.ts'
+import {
+  listEvidence,
+  listEvidenceIncludingFixtures,
+  validateHandoffFile,
+  hasRuntimeProof,
+} from './evidence.ts'
 import { readNdjson } from '../../../lib/src/ndjson.ts'
 
 const GENERATED_MARKER = '<!-- GENERATED FILE. DO NOT EDIT DIRECTLY. -->'
@@ -134,7 +139,16 @@ export async function validateExecutor(): Promise<{ issues: ValidationIssue[]; w
   const issues: ValidationIssue[] = []
   const warnings: string[] = []
   const packets = await listPackets()
+  // LIVE evidence is subject to the strict runtime-proof invariant
+  // (P0-003). It excludes `_fixtures/` quarantined evidence.
   const evidence = await listEvidence()
+  // INCLUSIVE evidence is the union of live and quarantined fixtures.
+  // It is used ONLY for the historical packet-completion check
+  // (`E_COMPLETE_WITHOUT_EVIDENCE`) so legacy / fixture packets that
+  // were completed against quarantined evidence still satisfy the
+  // historical invariant. The strict runtime-proof check above
+  // remains LIVE-only.
+  const evidenceIncludingFixtures = await listEvidenceIncludingFixtures()
   const ledger = await readLedger()
 
   for (const p of packets) {
@@ -145,18 +159,88 @@ export async function validateExecutor(): Promise<{ issues: ValidationIssue[]; w
       issues.push({ severity: 'P0', code: 'E_PACKET_NO_FORBIDDEN', message: `packet ${p.id} has no forbidden_files`, affected_record: p.id })
     }
   }
+
+  // Packet lifecycle: duplicate ids with conflicting statuses must fail
+  // readiness. The reducer in `packet.ts` collapses duplicates by
+  // `created_at`; here we surface the conflicts that the reducer
+  // would have to choose between.
+  const lifecycleConflicts = getDuplicatePacketStatuses(packets)
+  for (const c of lifecycleConflicts) {
+    issues.push({
+      severity: 'P0',
+      code: 'E_PACKET_LIFECYCLE_CONFLICT',
+      message: `packet ${c.id} has conflicting lifecycle statuses: ${c.statuses.join(', ')} (across ${c.record_count} records)`,
+      affected_record: c.id,
+      recommended_next_action: 'run `bun run atelier:executor:migrate` to normalize the registry to a single current status',
+    })
+  }
+
+  // Evidence runtime proof (P0-003): `passed` evidence must reference
+  // a real file via raw_output_ref / diff_ref or carry non-empty
+  // file_hashes. `command` alone is metadata, not proof.
+  //
+  // This check uses the LIVE evidence set (not the inclusive set) so
+  // quarantined fixtures are explicitly exempt from the strict
+  // runtime-proof invariant. Fixtures are quarantined precisely so
+  // this check does not trip on legacy / intentionally-broken
+  // records.
   for (const e of evidence) {
-    if (!e.command && !e.raw_output_ref) {
-      issues.push({ severity: 'P0', code: 'E_EVIDENCE_NOT_RUNTIME', message: `evidence ${e.evidence_id} lacks command and raw_output_ref`, affected_record: e.evidence_id, recommended_next_action: 'rerun the test and capture the output' })
+    if (!(await hasRuntimeProof(e))) {
+      const isPassed = e.status === 'passed'
+      issues.push({
+        severity: 'P0',
+        code: isPassed ? 'E_EVIDENCE_PASSED_NO_PROOF' : 'E_EVIDENCE_NOT_RUNTIME',
+        message: isPassed
+          ? `evidence ${e.evidence_id} has status 'passed' but lacks runtime proof (raw_output_ref, file_hashes, or diff_ref); \`command\` alone is not sufficient`
+          : `evidence ${e.evidence_id} lacks runtime proof (raw_output_ref, file_hashes, or diff_ref)`,
+        affected_record: e.evidence_id,
+        recommended_next_action: 'rerun the test and capture raw output, or attach a diff / file_hashes',
+      })
     }
   }
-  // Completion requires evidence: scan ledger for completed events and ensure evidence exists.
+
+  // Completion requires evidence with runtime proof. We work off the
+  // reduced (current) packet list so a single completed packet is not
+  // double-counted.
+  const currentPackets = reducePacketsToCurrent(packets)
+  for (const p of currentPackets) {
+    if (p.status === 'completed') {
+      const passed = evidence.filter((e) => e.packet_id === p.id && e.status === 'passed')
+      if (passed.length === 0) {
+        issues.push({
+          severity: 'P0',
+          code: 'E_COMPLETE_WITHOUT_EVIDENCE',
+          message: `packet ${p.id} is completed but has no passed evidence`,
+          affected_record: p.id,
+          recommended_next_action: 'rerun the test and record evidence with status=passed',
+        })
+        continue
+      }
+      const hasProof = await Promise.all(passed.map((e) => hasRuntimeProof(e)))
+      if (!hasProof.some((x) => x)) {
+        issues.push({
+          severity: 'P0',
+          code: 'E_COMPLETE_WITHOUT_RUNTIME_PROOF',
+          message: `packet ${p.id} is completed but no passed evidence carries runtime proof`,
+          affected_record: p.id,
+          recommended_next_action: 'attach raw_output_ref / diff_ref / file_hashes to the evidence record',
+        })
+      }
+    }
+  }
+  // Ledger-driven completion check (covers the case where the packet
+  // file is missing but a `packet_completed` event was recorded).
+  //
+  // This historical lookup uses the INCLUSIVE evidence set (live +
+  // quarantined fixtures) so a packet whose evidence is in the
+  // quarantine area still satisfies the historical completion check.
+  // The strict runtime-proof invariant above remains LIVE-only.
   for (const evt of ledger) {
     if (evt['event_type'] === 'packet_completed') {
       const sid = String(evt['subject_id'])
-      const has = evidence.some((e) => e.packet_id === sid)
+      const has = evidenceIncludingFixtures.some((e) => e.packet_id === sid)
       if (!has) {
-        issues.push({ severity: 'P0', code: 'E_COMPLETE_WITHOUT_EVIDENCE', message: `packet ${sid} was completed without evidence`, affected_record: sid })
+        issues.push({ severity: 'P0', code: 'E_COMPLETE_WITHOUT_EVIDENCE', message: `packet ${sid} was completed without evidence (ledger event)`, affected_record: sid })
       }
     }
   }

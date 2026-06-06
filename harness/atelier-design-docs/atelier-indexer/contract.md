@@ -144,3 +144,4 @@ type AtelierEdge = {
 - Indexer must not call LLMs.
 - Indexer must not edit source files.
 - Indexer must not create semantic claims.
+

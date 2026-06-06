@@ -23,26 +23,32 @@ function nowIso(): string {
   return new Date().toISOString()
 }
 
-function detectFramework(task: ImplementationTask): TestContract['test_framework'] {
+function detectFramework(_task: ImplementationTask): TestContract['test_framework'] {
   // We only use deterministic signals here. Bun test or vitest are both
   // common in this repository; we report `bun-test` as the default
   // because the package manager is `bun@1.3.x`.
-  void task
   return 'bun-test'
 }
 
-export async function deriveTestContract(task: ImplementationTask): Promise<TestContract> {
+/**
+ * Pure builder for a `TestContract`. The caller decides whether to
+ * write the result to disk. The task is referenced by `task_id` only
+ * (no embedding) so the contract survives re-derivation.
+ */
+export function buildTestContract(task: ImplementationTask): TestContract {
   const id = deterministicId('tc', task.task_id)
   const framework = detectFramework(task)
-  const targetFiles = task.allowed_files.filter((f) => f.endsWith('.ts') || f.endsWith('.tsx') || f.endsWith('.js') || f.endsWith('.jsx'))
+  const targetFiles = task.allowed_files.filter(
+    (f) => f.endsWith('.ts') || f.endsWith('.tsx') || f.endsWith('.js') || f.endsWith('.jsx'),
+  )
   const testFiles = targetFiles
     .map((f) => {
       if (f.endsWith('.test.ts') || f.endsWith('.test.tsx')) return f
       return f.replace(/(\.ts|\.tsx|\.js|\.jsx)$/, '.test$1')
     })
-    .filter((f) => f !== task.allowed_files.find((a) => a === f))
+    .filter((f) => !task.allowed_files.includes(f))
   const command = framework === 'bun-test' ? 'bun test' : 'bun run test'
-  const contract: TestContract = {
+  return {
     id,
     kind: 'test_contract',
     version: '1',
@@ -64,13 +70,15 @@ export async function deriveTestContract(task: ImplementationTask): Promise<Test
     negative_cases: ['modifying a forbidden file does not exit 0'],
     command,
   }
-  await writeNdjson(TRANSFORMER_PATHS.testContracts, [contract])
-  return contract
 }
 
-export async function deriveEditBoundary(task: ImplementationTask): Promise<EditBoundary> {
+/**
+ * Pure builder for an `EditBoundary`. The caller decides whether to
+ * write the result to disk.
+ */
+export function buildEditBoundary(task: ImplementationTask): EditBoundary {
   const id = deterministicId('eb', task.task_id)
-  const boundary: EditBoundary = {
+  return {
     id,
     kind: 'edit_boundary',
     version: '1',
@@ -89,10 +97,34 @@ export async function deriveEditBoundary(task: ImplementationTask): Promise<Edit
     allowed_operations: ['create', 'modify'],
     requires_user_approval: false,
   }
+}
+
+/**
+ * Derive a test contract for a single task and overwrite the
+ * test-contracts file. Used by the `test-contract:derive --task <id>`
+ * CLI command.
+ */
+export async function deriveTestContract(task: ImplementationTask): Promise<TestContract> {
+  const contract = buildTestContract(task)
+  await writeNdjson(TRANSFORMER_PATHS.testContracts, [contract])
+  return contract
+}
+
+/**
+ * Derive an edit boundary for a single task and overwrite the
+ * edit-boundaries file. (No single-task CLI consumes this today, but
+ * it keeps the file in lock-step with the task list.)
+ */
+export async function deriveEditBoundary(task: ImplementationTask): Promise<EditBoundary> {
+  const boundary = buildEditBoundary(task)
   await writeNdjson(TRANSFORMER_PATHS.editBoundaries, [boundary])
   return boundary
 }
 
+/**
+ * Derive test contract + edit boundary for a single task. Each file
+ * is overwritten with the single record.
+ */
 export async function deriveContractsForTask(task: ImplementationTask): Promise<{
   testContract: TestContract
   editBoundary: EditBoundary
@@ -100,6 +132,25 @@ export async function deriveContractsForTask(task: ImplementationTask): Promise<
   const testContract = await deriveTestContract(task)
   const editBoundary = await deriveEditBoundary(task)
   return { testContract, editBoundary }
+}
+
+/**
+ * Derive test contracts + edit boundaries for every task and write
+ * the merged list to disk in a single write. Used by the
+ * `transform --target md-to-code` command.
+ */
+export async function deriveAllContractsAndBoundaries(
+  tasks: ReadonlyArray<ImplementationTask>,
+): Promise<{ testContracts: TestContract[]; editBoundaries: EditBoundary[] }> {
+  const testContracts: TestContract[] = []
+  const editBoundaries: EditBoundary[] = []
+  for (const t of tasks) {
+    testContracts.push(buildTestContract(t))
+    editBoundaries.push(buildEditBoundary(t))
+  }
+  await writeNdjson(TRANSFORMER_PATHS.testContracts, testContracts)
+  await writeNdjson(TRANSFORMER_PATHS.editBoundaries, editBoundaries)
+  return { testContracts, editBoundaries }
 }
 
 export async function listTasks(): Promise<ImplementationTask[]> {

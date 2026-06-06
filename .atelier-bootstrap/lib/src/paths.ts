@@ -176,10 +176,12 @@ type TransformerPathMap = {
   editBoundaries: string
   packetTemplates: string
   recommendations: string
+  duplicates: string
   packetsDir: string
   viewImplementationTasks: string
   viewTestContracts: string
   viewTransformRecommendations: string
+  viewTransformDuplicates: string
 }
 
 function buildTransformerPaths(): TransformerPathMap {
@@ -191,10 +193,12 @@ function buildTransformerPaths(): TransformerPathMap {
     editBoundaries: path.join(v.transforms, 'md-to-code', 'model', 'edit-boundaries.ndjson'),
     packetTemplates: path.join(v.transforms, 'md-to-code', 'model', 'packet-templates.ndjson'),
     recommendations: path.join(v.transforms, 'md-to-code', 'model', 'recommendations.ndjson'),
+    duplicates: path.join(v.transforms, 'md-to-code', 'model', 'duplicates.ndjson'),
     packetsDir: path.join(v.transforms, 'md-to-code', 'packets'),
     viewImplementationTasks: path.join(v.transforms, 'md-to-code', 'views', 'IMPLEMENTATION_TASKS.md'),
     viewTestContracts: path.join(v.transforms, 'md-to-code', 'views', 'TEST_CONTRACTS.md'),
     viewTransformRecommendations: path.join(v.transforms, 'md-to-code', 'views', 'TRANSFORM_RECOMMENDATIONS.md'),
+    viewTransformDuplicates: path.join(v.transforms, 'md-to-code', 'views', 'TRANSFORM_DUPLICATES.md'),
   }
 }
 

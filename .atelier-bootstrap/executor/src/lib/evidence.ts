@@ -25,6 +25,27 @@ function nowIso(): string {
 }
 
 /**
+ * Runtime proof predicate.
+ *
+ * An `EvidenceRecord` is considered to carry runtime proof when it
+ * references at least one of:
+ *   - `raw_output_ref` pointing to a real file on disk
+ *   - `diff_ref` pointing to a real file on disk
+ *   - `file_hashes` containing at least one entry
+ *
+ * `command` alone is NOT runtime proof — it is only metadata describing
+ * what was attempted. This predicate is used by the validator and by
+ * `packet:complete` to refuse "passed" status that lacks a concrete
+ * artifact.
+ */
+export async function hasRuntimeProof(evidence: EvidenceRecord): Promise<boolean> {
+  if (evidence.raw_output_ref && existsSync(evidence.raw_output_ref)) return true
+  if (evidence.diff_ref && existsSync(evidence.diff_ref)) return true
+  if (evidence.file_hashes && Object.keys(evidence.file_hashes).length > 0) return true
+  return false
+}
+
+/**
  * Persist raw command output to disk and return the path.
  */
 export async function writeRawOutput(name: string, body: string): Promise<string> {
@@ -34,18 +55,82 @@ export async function writeRawOutput(name: string, body: string): Promise<string
   return path
 }
 
-export async function listEvidence(): Promise<EvidenceRecord[]> {
-  const dir = EXECUTOR_PATHS.evidenceDir
+/**
+ * Read evidence `.json` files from a single directory (non-recursive).
+ *
+ * Hidden by file name and non-`.json` files are skipped. Directory
+ * entries (including the `_fixtures/` quarantine) are skipped.
+ */
+async function readEvidenceRecordsFromDir(dir: string): Promise<EvidenceRecord[]> {
   if (!existsSync(dir)) return []
   const fs = await import('node:fs/promises')
-  const files = await fs.readdir(dir)
+  const entries = await fs.readdir(dir, { withFileTypes: true })
   const records: EvidenceRecord[] = []
-  for (const f of files) {
-    if (!f.endsWith('.json')) continue
-    const text = await readFile(`${dir}/${f}`, 'utf8')
+  for (const ent of entries) {
+    if (ent.isDirectory()) continue
+    if (!ent.name.endsWith('.json')) continue
+    const text = await readFile(`${dir}/${ent.name}`, 'utf8')
     records.push(JSON.parse(text) as EvidenceRecord)
   }
   return records
+}
+
+/**
+ * List the live evidence set.
+ *
+ * The evidence directory may contain a `_fixtures/` subdirectory used
+ * as a quarantine area for intentionally-broken evidence records
+ * (e.g. legacy fixtures that pre-date the runtime-proof contract and
+ * would otherwise trip the validator with `E_EVIDENCE_PASSED_NO_PROOF`).
+ * Those fixtures are preserved on disk for use as test inputs by the
+ * validator, but they MUST NOT surface in the live evidence set, so
+ * `listEvidence` excludes the `_fixtures/` subdirectory and any other
+ * subdirectory. Only top-level `.json` files in the evidence directory
+ * are returned.
+ */
+export async function listEvidence(): Promise<EvidenceRecord[]> {
+  return readEvidenceRecordsFromDir(EXECUTOR_PATHS.evidenceDir)
+}
+
+/**
+ * List the union of live evidence and quarantined fixture evidence.
+ *
+ * This is the inclusive lookup used for *historical* packet-completion
+ * checks. The fixture area at `runs/evidence/_fixtures/` holds
+ * intentionally-broken or legacy evidence records that are exempt from
+ * the strict runtime-proof invariant — they are quarantined there
+ * precisely so the live `E_EVIDENCE_PASSED_NO_PROOF` check does not
+ * trip on them. But they still count as "evidence" in the historical
+ * sense: a packet's `packet_completed` ledger event was satisfied by
+ * a real evidence record that just happens to live in the quarantine
+ * area, not the live area.
+ *
+ * Contract:
+ *   - LIVE evidence (top-level `runs/evidence/*.json`) is subject to
+ *     the strict runtime-proof invariant (P0-003).
+ *   - FIXTURE evidence (`runs/evidence/_fixtures/*.json`) is
+ *     quarantined: it is NOT subject to the strict invariant, but it
+ *     IS treated as "evidence" for the historical completion check
+ *     `E_COMPLETE_WITHOUT_EVIDENCE` so legacy / fixture packets can
+ *     satisfy the historical packet-completion check.
+ *   - The validator uses BOTH sets for historical lookups
+ *     (`E_COMPLETE_WITHOUT_EVIDENCE`) and the LIVE set only for the
+ *     strict runtime-proof invariant (`E_EVIDENCE_PASSED_NO_PROOF`).
+ *   - Duplicate `evidence_id`s across the two sets are deduped by id
+ *     (live wins, because live is the strict set the system is
+ *     required to keep in good shape).
+ */
+export async function listEvidenceIncludingFixtures(): Promise<EvidenceRecord[]> {
+  const live = await readEvidenceRecordsFromDir(EXECUTOR_PATHS.evidenceDir)
+  const fixturesDir = `${EXECUTOR_PATHS.evidenceDir}/_fixtures`
+  const fixtures = await readEvidenceRecordsFromDir(fixturesDir)
+  if (fixtures.length === 0) return live
+  const liveIds = new Set(live.map((e) => e.evidence_id))
+  const merged = live.slice()
+  for (const f of fixtures) {
+    if (!liveIds.has(f.evidence_id)) merged.push(f)
+  }
+  return merged
 }
 
 export async function saveEvidence(record: EvidenceRecord): Promise<void> {
@@ -130,12 +215,31 @@ export async function addEvidence(
   packetId: string,
   gateId: string,
   status: EvidenceRecord['status'],
-  opts: { command?: string; rawOutputRef?: string } = {},
+  opts: {
+    command?: string
+    rawOutputRef?: string
+    diffRef?: string
+    fileHashes?: Record<string, string>
+  } = {},
 ): Promise<EvidenceRecord> {
   const packet = await getPacket(packetId)
   if (!packet) throw new Error(`packet not found: ${packetId}`)
-  if (!opts.command && !opts.rawOutputRef) {
-    throw new Error('evidence must reference raw output or a command')
+  if (!opts.command && !opts.rawOutputRef && !opts.diffRef && !opts.fileHashes) {
+    throw new Error('evidence must reference raw output, a diff, file hashes, or a command')
+  }
+  if (status === 'passed') {
+    // Passed status requires runtime proof at write time. `command` alone
+    // is not sufficient. At least one of raw_output_ref / diff_ref /
+    // file_hashes must be provided (and raw_output_ref / diff_ref must
+    // point to a real file on disk).
+    const hasRaw = !!opts.rawOutputRef && existsSync(opts.rawOutputRef)
+    const hasDiff = !!opts.diffRef && existsSync(opts.diffRef)
+    const hasHashes = !!opts.fileHashes && Object.keys(opts.fileHashes).length > 0
+    if (!hasRaw && !hasDiff && !hasHashes) {
+      throw new Error(
+        'passed evidence requires runtime proof: provide raw_output_ref (path to a real file), diff_ref (path to a real file), or file_hashes (non-empty object). `command` alone is not sufficient.',
+      )
+    }
   }
   const id = deterministicId('evi', `${packetId}:${gateId}:${Date.now()}`)
   const record: EvidenceRecord = {
@@ -155,8 +259,9 @@ export async function addEvidence(
     gate_id: gateId,
     command: opts.command,
     raw_output_ref: opts.rawOutputRef,
+    diff_ref: opts.diffRef,
+    file_hashes: opts.fileHashes,
   }
-  await saveEvidence(record)
   await saveEvidence(record)
   await appendLedgerEvent({
     schema: 'atelier.run-ledger-event/v1',
@@ -196,6 +301,16 @@ export async function validateHandoff(handoff: SubagentHandoff, packet: Executio
   if (Object.keys(handoff.gate_results).length === 0) errors.push('gate_results is empty')
   for (const gate of Object.keys(handoff.gate_results)) {
     if (!packet.test_contract_ids.includes(gate)) errors.push(`unknown gate: ${gate}`)
+  }
+  // Prose-only handoffs are rejected: a handoff with no gate_results,
+  // no files_changed, and no tests_written carries no concrete deliverable
+  // and cannot serve as evidence.
+  if (
+    handoff.files_changed.length === 0 &&
+    handoff.tests_written.length === 0 &&
+    Object.keys(handoff.gate_results).length === 0
+  ) {
+    errors.push('handoff is prose-only: must include at least one of files_changed, tests_written, or gate_results')
   }
   return errors.length === 0 ? { ok: true } : { ok: false, errors }
 }

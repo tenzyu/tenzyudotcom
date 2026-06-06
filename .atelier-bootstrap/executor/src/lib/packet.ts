@@ -89,9 +89,68 @@ export async function listPackets(): Promise<ExecutionPacket[]> {
   return readNdjson<ExecutionPacket>(PACKETS_REGISTRY)
 }
 
-export async function getPacket(id: string): Promise<ExecutionPacket | undefined> {
+/**
+ * Reduce a raw list of packets to the current state per id.
+ *
+ * If the same packet id appears multiple times (e.g. a packet was
+ * re-created, or status was updated without replacing the prior record),
+ * the most recent record — by `created_at` — wins. The reducer is
+ * deterministic and pure: it does not touch the filesystem.
+ */
+export function reducePacketsToCurrent(packets: ExecutionPacket[]): ExecutionPacket[] {
+  const byId = new Map<string, ExecutionPacket>()
+  for (const p of packets) {
+    const existing = byId.get(p.id)
+    if (!existing || p.created_at > existing.created_at) {
+      byId.set(p.id, p)
+    }
+  }
+  return Array.from(byId.values())
+}
+
+/**
+ * Find packet ids that appear more than once with conflicting
+ * lifecycle statuses.
+ *
+ * This is used by the validator to flag duplicate/conflicting state
+ * (P0-004 in REVIEW-LATEST.md). A packet id that appears twice with
+ * the SAME status is a duplicate but not a conflict; the reducer
+ * collapses it. A packet id that appears twice with DIFFERENT statuses
+ * is a lifecycle conflict and must fail readiness.
+ */
+export function getDuplicatePacketStatuses(
+  packets: ExecutionPacket[],
+): Array<{ id: string; statuses: string[]; record_count: number }> {
+  const byId = new Map<string, ExecutionPacket[]>()
+  for (const p of packets) {
+    const list = byId.get(p.id) ?? []
+    list.push(p)
+    byId.set(p.id, list)
+  }
+  const conflicts: Array<{ id: string; statuses: string[]; record_count: number }> = []
+  for (const [id, records] of byId) {
+    if (records.length < 2) continue
+    const uniqueStatuses = Array.from(new Set(records.map((r) => r.status)))
+    if (uniqueStatuses.length > 1) {
+      conflicts.push({ id, statuses: uniqueStatuses, record_count: records.length })
+    }
+  }
+  return conflicts
+}
+
+/**
+ * Read the packet registry and return the current (reduced) packet
+ * for the given id, if any. Consumers should prefer this over
+ * `getPacket` when they want the authoritative current state.
+ */
+export async function getCurrentPacket(id: string): Promise<ExecutionPacket | undefined> {
   const all = await listPackets()
-  return all.find((p) => p.id === id)
+  const reduced = reducePacketsToCurrent(all)
+  return reduced.find((p) => p.id === id)
+}
+
+export async function getPacket(id: string): Promise<ExecutionPacket | undefined> {
+  return getCurrentPacket(id)
 }
 
 export async function setPacketStatus(id: string, status: ExecutionPacket['status']): Promise<ExecutionPacket> {
@@ -102,6 +161,46 @@ export async function setPacketStatus(id: string, status: ExecutionPacket['statu
   all[idx] = next
   await writeNdjson(PACKETS_REGISTRY, all)
   return next
+}
+
+/**
+ * One-shot migration that normalizes the packets registry.
+ *
+ * Reads the raw NDJSON, reduces duplicate packet ids to a single
+ * current record (last-write-wins by `created_at`), and writes the
+ * result back ONCE. This is the supported way to clear the legacy
+ * `pkt:8d402e5e069cc51f` conflict (P0-004).
+ *
+ * The function is idempotent: running it on an already-normalized
+ * registry is a no-op (the file is rewritten with the same content,
+ * or rewritten once with deduplicated records).
+ */
+export async function migratePacketsRegistry(): Promise<{
+  before: number
+  after: number
+  conflicts_resolved: string[]
+  written: boolean
+}> {
+  const raw = await listPackets()
+  const conflicts = getDuplicatePacketStatuses(raw)
+  const reduced = reducePacketsToCurrent(raw)
+  const conflictIds = conflicts.map((c) => c.id)
+  // Write ONCE. Do not hand-edit the file twice.
+  if (raw.length !== reduced.length || conflicts.length > 0) {
+    await writeNdjson(PACKETS_REGISTRY, reduced)
+    return {
+      before: raw.length,
+      after: reduced.length,
+      conflicts_resolved: conflictIds,
+      written: true,
+    }
+  }
+  return {
+    before: raw.length,
+    after: reduced.length,
+    conflicts_resolved: [],
+    written: false,
+  }
 }
 
 export async function packetContext(id: string): Promise<{

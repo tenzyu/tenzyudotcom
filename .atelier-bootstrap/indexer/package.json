@@ -11,6 +11,7 @@
     "affected": "bun src/commands/affected.ts",
     "update": "bun src/commands/update.ts",
     "render": "bun src/commands/render.ts",
-    "validate": "bun src/commands/validate.ts"
+    "validate": "bun src/commands/validate.ts",
+    "validate:quick": "bun src/commands/validate.ts --quick"
   }
 }

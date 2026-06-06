@@ -19,12 +19,34 @@ export async function runEvidenceAddCommand(argv: readonly string[]): Promise<nu
       | 'passed' | 'failed' | 'skipped' | 'blocked' | 'unknown' | undefined
     const command = readFlag(args, '--command')
     const rawOutputRef = readFlag(args, '--raw-output-ref')
+    const diffRef = readFlag(args, '--diff-ref')
+    // file-hashes is a JSON object stringified on the command line:
+    //   --file-hashes '{"path/a":"sha256:a...","path/b":"sha256:b..."}'
+    const fileHashesJson = readFlag(args, '--file-hashes')
+    let fileHashes: Record<string, string> | undefined
+    if (fileHashesJson) {
+      try {
+        const parsed = JSON.parse(fileHashesJson) as unknown
+        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+          fileHashes = parsed as Record<string, string>
+        } else {
+          throw new Error('--file-hashes must be a JSON object of path->hash')
+        }
+      } catch (err) {
+        throw new Error(`--file-hashes must be valid JSON object: ${(err as Error).message}`)
+      }
+    }
     if (!packetId) throw new Error('evidence:add requires --packet <id>')
     if (!gateId) throw new Error('evidence:add requires --gate <id>')
     if (!status || !ALLOWED.has(status)) {
       throw new Error('evidence:add requires --status passed|failed|skipped|blocked|unknown')
     }
-    const record = await addEvidence(packetId, gateId, status, { command, rawOutputRef })
+    const record = await addEvidence(packetId, gateId, status, {
+      command,
+      rawOutputRef,
+      diffRef,
+      fileHashes,
+    })
     const result = ok('executor', 'evidence:add', {
       evidence_id: record.evidence_id,
       status: record.status,

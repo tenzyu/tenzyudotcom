@@ -58,6 +58,7 @@
     "atelier:evidence:add": "bun .atelier-bootstrap/executor/src/cli.ts evidence:add",
     "atelier:executor:validate": "bun .atelier-bootstrap/executor/src/cli.ts validate",
     "atelier:executor:render": "bun .atelier-bootstrap/executor/src/cli.ts render",
+    "atelier:executor:migrate": "bun .atelier-bootstrap/executor/src/cli.ts migrate",
     "atelier:ready": "bun .atelier-bootstrap/operation/src/cli.ts ready",
     "atelier:verify": "bun .atelier-bootstrap/operation/src/cli.ts verify",
     "atelier:render": "bun .atelier-bootstrap/operation/src/cli.ts render"

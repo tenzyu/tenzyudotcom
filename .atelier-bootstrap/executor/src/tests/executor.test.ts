@@ -20,17 +20,24 @@ async function run(args: { cli: string; cmd: string[] }): Promise<{ code: number
     env: { ...process.env, ATELIER_ROOT: FIXTURE_ROOT },
   })
   const raw = proc.stdout.toString() + proc.stderr.toString()
+  // The command emits a single multi-line JSON object on stdout via
+  // `JSON.stringify(result, null, 2)`. Parse the whole stdout as one
+  // blob and fall back to scanning for the command-result object if
+  // stdout is mixed with other text.
   let json: unknown | null = null
-  for (const line of raw.split('\n').reverse()) {
-    if (line.trim() === '') continue
-    try {
-      const parsed = JSON.parse(line) as { schema?: string }
-      if (parsed.schema === 'atelier.command-result/v1') {
-        json = parsed
-        break
+  try {
+    const parsed = JSON.parse(raw) as { schema?: string }
+    if (parsed.schema === 'atelier.command-result/v1') json = parsed
+  } catch {
+    // Fall back: find the last balanced JSON object that has the right schema.
+    const match = raw.match(/\{[\s\S]*?"schema"\s*:\s*"atelier\.command-result\/v1"[\s\S]*?\}\s*(?:\n|$)/)
+    if (match) {
+      try {
+        const parsed = JSON.parse(match[0]) as { schema?: string }
+        if (parsed.schema === 'atelier.command-result/v1') json = parsed
+      } catch {
+        // ignore
       }
-    } catch {
-      // not JSON
     }
   }
   return { code: proc.exitCode, json, raw }
@@ -40,6 +47,7 @@ describe('atelier-executor (fixture, subprocess)', () => {
   let taskId = ''
   let packetId = ''
   let testContractId = ''
+  let rawOutputPath = ''
 
   beforeAll(async () => {
     await rm(FIXTURE_V0, { recursive: true, force: true })
@@ -78,8 +86,9 @@ describe('atelier-executor (fixture, subprocess)', () => {
     packetId = sets[0]!.packet_id
   })
 
-  test('evidence:add attaches a runtime record with command', async () => {
-    const r = await run({
+  test('evidence:add rejects `passed` without runtime proof', async () => {
+    // `command` alone is NOT runtime proof.
+    const r1 = await run({
       cli: EXECUTOR_CLI,
       cmd: [
         'evidence:add',
@@ -89,10 +98,29 @@ describe('atelier-executor (fixture, subprocess)', () => {
         '--command', 'bun test',
       ],
     })
+    expect(r1.code).toBe(1)
+  })
+
+  test('evidence:add accepts `passed` with raw_output_ref', async () => {
+    // Write a real raw output file under the fixture's evidence dir.
+    rawOutputPath = path.join(FIXTURE_V0, 'runs', 'evidence', 'sample-test.txt')
+    await mkdir(path.dirname(rawOutputPath), { recursive: true })
+    await writeFile(rawOutputPath, 'sample test output (fixture)\n', 'utf8')
+    const r = await run({
+      cli: EXECUTOR_CLI,
+      cmd: [
+        'evidence:add',
+        '--packet', packetId,
+        '--gate', testContractId,
+        '--status', 'passed',
+        '--command', 'bun test',
+        '--raw-output-ref', rawOutputPath,
+      ],
+    })
     expect(r.code).toBe(0)
   })
 
-  test('packet:complete requires evidence', async () => {
+  test('packet:complete requires passed evidence with runtime proof', async () => {
     const r = await run({ cli: EXECUTOR_CLI, cmd: ['packet:complete', '--packet', packetId] })
     expect(r.code).toBe(0)
   })
@@ -110,5 +138,12 @@ describe('atelier-executor (fixture, subprocess)', () => {
   test('validate passes on a clean snapshot', async () => {
     const r = await run({ cli: EXECUTOR_CLI, cmd: ['validate'] })
     expect(r.code).toBe(0)
+  })
+
+  test('migrate is a safe no-op on a clean registry', async () => {
+    const r = await run({ cli: EXECUTOR_CLI, cmd: ['migrate'] })
+    expect(r.code).toBe(0)
+    const json = r.json as { data?: { written?: boolean } } | null
+    expect(json?.data?.written).toBe(false)
   })
 })

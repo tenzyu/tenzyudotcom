@@ -1,6 +1,6 @@
 import { ok, fail, printResult } from '../../../lib/src/index.ts'
 import { getPacket, setPacketStatus, appendLedgerEvent } from '../lib/packet.ts'
-import { listEvidence } from '../lib/evidence.ts'
+import { listEvidence, hasRuntimeProof } from '../lib/evidence.ts'
 
 function readFlag(args: readonly string[], name: string): string | undefined {
   const idx = args.indexOf(name)
@@ -16,9 +16,24 @@ export async function runPacketCompleteCommand(argv: readonly string[]): Promise
     const packet = await getPacket(packetId)
     if (!packet) throw new Error(`packet not found: ${packetId}`)
     const evidence = await listEvidence()
-    const has = evidence.some((e) => e.packet_id === packetId)
-    if (!has) {
+    const packetEvidence = evidence.filter((e) => e.packet_id === packetId)
+    if (packetEvidence.length === 0) {
       throw new Error(`packet ${packetId} cannot be completed without evidence`)
+    }
+    // Completion requires at least one PASSED evidence record that
+    // carries runtime proof (P0-003 / P0-004). Metadata-only records
+    // do not satisfy this invariant.
+    const passed = packetEvidence.filter((e) => e.status === 'passed')
+    if (passed.length === 0) {
+      throw new Error(
+        `packet ${packetId} cannot be completed without at least one passed evidence record for its test contracts`,
+      )
+    }
+    const proofs = await Promise.all(passed.map((e) => hasRuntimeProof(e)))
+    if (!proofs.some((x) => x)) {
+      throw new Error(
+        `packet ${packetId} cannot be completed: no passed evidence carries runtime proof (raw_output_ref, file_hashes, or diff_ref)`,
+      )
     }
     const next = await setPacketStatus(packetId, 'completed')
     await appendLedgerEvent({

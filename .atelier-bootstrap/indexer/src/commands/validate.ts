@@ -1,10 +1,21 @@
 import { ok, fail, printResult } from '../../../lib/src/index.ts'
 import { validateIndex } from '../lib/validate.ts'
 
-export async function runValidateCommand(): Promise<number> {
+/**
+ * `bun run validate` command.
+ *
+ * STRICT by default. This is the validator that powers operational
+ * pass: it must check every unit, every source ref, and every edge.
+ *
+ * Pass `--quick` (or run `bun run validate:quick`) for a small-sample
+ * smoke test suitable for editor use. Quick mode must NEVER be the
+ * basis for `atelier:ready` or `atelier:verify` pass.
+ */
+export async function runValidateCommand(argv: readonly string[] = []): Promise<number> {
+  const quick = argv.includes('--quick') || argv.includes('-q')
   const startedAt = new Date().toISOString()
   try {
-    const r = await validateIndex()
+    const r = await validateIndex({ quick })
     if (r.issues.length === 0) {
       const result = ok(
         'indexer',
@@ -35,5 +46,5 @@ export async function runValidateCommand(): Promise<number> {
 }
 
 if (import.meta.main) {
-  runValidateCommand().then((code) => process.exit(code))
+  runValidateCommand(process.argv.slice(2)).then((code) => process.exit(code))
 }

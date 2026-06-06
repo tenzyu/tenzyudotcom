@@ -1,14 +1,20 @@
 /**
  * Implementation task derivation.
  *
- * Given an attention set, derive one or more `ImplementationTask` records.
+ * Derives `ImplementationTask` records from:
  *
- * The derivation is deterministic and shallow: it does not call an LLM.
- * It uses the attention set's selected source units to build a task
- * with explicit allowed_files, forbidden_files, and acceptance_criteria.
+ *   1. The reader's `attention.ndjson` (one task per attention set), and
+ *   2. The indexer's `source.ndjson` entries that live under
+ *      `harness/atelier-design-docs/**` (one design-doc task).
  *
- * For the v0 build, every attention set produces exactly one task. The
- * task's `title` is derived from the task string; the `goal` mirrors it.
+ * A task whose `source_refs` include any path under
+ * `harness/atelier-design-docs/**` is treated as operational. Any other
+ * task is marked as a fixture (toy sample). The operation verifier
+ * ignores `fixture` tasks when deciding operational pass.
+ *
+ * For the v0 build, each attention set produces exactly one task. The
+ * design-doc task is derived directly from the indexer source units so
+ * the transform pipeline does not depend on the reader having run.
  */
 import { readNdjson, writeNdjson } from '../../../lib/src/ndjson.ts'
 import {
@@ -18,12 +24,20 @@ import {
   type KnowledgeObject,
   type SemanticClaim,
   type SourceRef,
+  type SourceUnit,
   INDEXER_PATHS,
   READER_PATHS,
   TRANSFORMER_PATHS,
 } from '../../../lib/src/index.ts'
 
-const PRODUCT_SPEC_PREFIXES = ['product-specs/', 'harness/knowledge/product-specs/', 'harness/atelier-design-docs/']
+const PRODUCT_SPEC_PREFIXES = ['product-specs/', 'harness/knowledge/product-specs/']
+const DESIGN_DOC_PREFIX = 'harness/atelier-design-docs/'
+const DEFAULT_FORBIDDEN_FILES = [
+  'product-specs/**',
+  'harness/knowledge/product-specs/**',
+  'harness/atelier-design-docs/**',
+  'product/**',
+]
 
 function nowIso(): string {
   return new Date().toISOString()
@@ -33,20 +47,30 @@ function isProductSpec(path: string): boolean {
   return PRODUCT_SPEC_PREFIXES.some((p) => path.startsWith(p))
 }
 
-function deriveAllowedFiles(att: AttentionSet): { allowed: string[]; forbidden: string[] } {
+function isDesignDocPath(path: string): boolean {
+  return path.startsWith(DESIGN_DOC_PREFIX)
+}
+
+function sourceRefHasDesignDoc(refs: ReadonlyArray<SourceRef>): boolean {
+  return refs.some((r) => isDesignDocPath(r.path))
+}
+
+/**
+ * Build the `allowed_files` / `forbidden_files` for a task derived
+ * from an attention set. Spec prefixes and the design-doc tree are
+ * always forbidden; design-doc source refs are NOT allowed because
+ * the design docs are read-only.
+ */
+function deriveAttentionAllowedFiles(att: AttentionSet): { allowed: string[]; forbidden: string[] } {
   const allowed = new Set<string>()
   for (const r of att.selected_source_refs) {
-    if (!isProductSpec(r.path)) allowed.add(r.path)
+    if (isProductSpec(r.path)) continue
+    if (isDesignDocPath(r.path)) continue
+    allowed.add(r.path)
   }
   // Always allow writing the test fixtures the executor will use.
   allowed.add('.atelier-bootstrap/tests/fixtures/')
-  // Forbidden files: product specs and legacy implementation-control root.
-  const forbidden = [
-    'product-specs/atelier/**',
-    'harness/knowledge/product-specs/atelier/**',
-    'harness/atelier-design-docs/**',
-  ]
-  return { allowed: [...allowed].sort(), forbidden }
+  return { allowed: [...allowed].sort(), forbidden: [...DEFAULT_FORBIDDEN_FILES] }
 }
 
 function deriveAcceptanceCriteria(att: AttentionSet): string[] {
@@ -70,17 +94,14 @@ function deriveRiskNotes(att: AttentionSet, knowledge: KnowledgeObject[]): strin
 }
 
 /**
- * Derive a single `ImplementationTask` for the given attention set id.
- *
- * Writes the task to `TRANSFORMER_PATHS.implementationTasks` (NDJSON).
+ * Pure builder for an attention-derived task. Does not write to disk.
+ * The caller decides whether to mark the task as a fixture.
  */
-export async function deriveTask(attentionId: string): Promise<ImplementationTask> {
-  const sets = await readNdjson<AttentionSet>(READER_PATHS.attention)
-  const att = sets.find((a) => a.id === attentionId)
-  if (!att) throw new Error(`attention set not found: ${attentionId}`)
-  const knowledge = await readNdjson<KnowledgeObject>(READER_PATHS.knowledge)
-  const semantics = await readNdjson<SemanticClaim>(READER_PATHS.semantics)
-  const { allowed, forbidden } = deriveAllowedFiles(att)
+export function buildAttentionTask(
+  att: AttentionSet,
+  knowledge: KnowledgeObject[],
+): ImplementationTask {
+  const { allowed, forbidden } = deriveAttentionAllowedFiles(att)
   if (allowed.length === 0) {
     throw new Error('cannot derive task: empty allowed_files (would block executor)')
   }
@@ -109,24 +130,122 @@ export async function deriveTask(attentionId: string): Promise<ImplementationTas
     acceptance_criteria: deriveAcceptanceCriteria(att),
     risk_notes: deriveRiskNotes(att, knowledge),
   }
-  void semantics
-  // Persist (replace contents; there is one task per attention set in v0).
+  // An attention-set task that does not reference any design-doc
+  // source unit is a fixture (toy example). Mark it explicitly so the
+  // operation verifier can identify and exclude it.
+  if (!sourceRefHasDesignDoc(task.source_refs)) {
+    task.fixture = true
+    task.tags = ['fixture']
+  }
+  return task
+}
+
+/**
+ * Pure builder for the design-doc task. Returns `undefined` if no
+ * design-doc source units exist in the indexer. The caller decides
+ * whether to include the result in the persisted task list.
+ */
+export function buildDesignDocTask(sources: ReadonlyArray<SourceUnit>): ImplementationTask | undefined {
+  const designDocSources = sources.filter(
+    (s) => isDesignDocPath(s.path) && (s.path.endsWith('.md') || s.path.endsWith('.mdx')),
+  )
+  if (designDocSources.length === 0) return undefined
+  const sourceRefs: SourceRef[] = designDocSources.map((s) => ({ path: s.path, sha256: s.sha256 }))
+  const taskKey = 'design-docs:harden-operational-atelier'
+  const taskId = deterministicId('task', taskKey)
+  return {
+    id: taskId,
+    kind: 'implementation_task',
+    version: '1',
+    title: 'task: harden operational atelier v0 from design docs',
+    body_ref: TRANSFORMER_PATHS.implementationTasks,
+    source_object_ids: designDocSources.map((s) => s.id),
+    source_refs: sourceRefs,
+    required_knowledge_object_ids: [],
+    produced_by: 'transformer',
+    provenance_kind: 'deterministic_fact',
+    confidence: 'fact',
+    status: 'ready',
+    affordances: ['packet-constraint', 'test-candidate', 'docs-candidate', 'review-candidate'],
+    created_at: nowIso(),
+    task_id: taskId,
+    goal:
+      'implement the contracts in harness/atelier-design-docs/** so atelier:ready and atelier:verify pass with non-empty attention and runtime evidence',
+    allowed_files: [
+      '.atelier-bootstrap/indexer/**',
+      '.atelier-bootstrap/reader/**',
+      '.atelier-bootstrap/transformer/**',
+      '.atelier-bootstrap/executor/**',
+      '.atelier-bootstrap/operation/**',
+      '.atelier-bootstrap/lib/**',
+      '.atelier-bootstrap/tests/fixtures/**',
+      '.atelier/v0/transforms/md-to-code/**',
+      '.atelier/v0/views/**',
+    ],
+    forbidden_files: [...DEFAULT_FORBIDDEN_FILES],
+    acceptance_criteria: [
+      'atelier:transform:md-to-code regenerates the design-doc task from harness/atelier-design-docs/**',
+      'atelier:transform:validate passes',
+      'recommendations.ndjson has no duplicate (source_object_id, recommendation_type) pairs',
+      'duplicates.ndjson records any pairs that were collapsed',
+      'no edits to product specs or design docs',
+    ],
+    risk_notes: [
+      'this task spans every atelier-* component; coordinate with the operation, executor, and reader workstreams',
+    ],
+    fixture: false,
+    tags: ['design-doc-task', 'operational'],
+  }
+}
+
+/**
+ * Derive a single `ImplementationTask` for the given attention set id
+ * and write it to the implementation-tasks file (overwrite mode).
+ *
+ * Used by the `task-derive --attention <id>` CLI command.
+ */
+export async function deriveTask(attentionId: string): Promise<ImplementationTask> {
+  const sets = await readNdjson<AttentionSet>(READER_PATHS.attention)
+  const att = sets.find((a) => a.id === attentionId)
+  if (!att) throw new Error(`attention set not found: ${attentionId}`)
+  const knowledge = await readNdjson<KnowledgeObject>(READER_PATHS.knowledge)
+  const task = buildAttentionTask(att, knowledge)
   await writeNdjson(TRANSFORMER_PATHS.implementationTasks, [task])
   return task
 }
 
 /**
- * Derive tasks for all attention sets. The default operation for the
- * `transform --target md-to-code` command.
+ * Derive tasks for all attention sets AND the design-doc task (when
+ * the indexer has design-doc source units). Writes the merged list to
+ * the implementation-tasks file in a single write.
+ *
+ * This is the default operation for `transform --target md-to-code`.
  */
 export async function deriveAllTasks(): Promise<ImplementationTask[]> {
   const sets = await readNdjson<AttentionSet>(READER_PATHS.attention)
+  const knowledge = await readNdjson<KnowledgeObject>(READER_PATHS.knowledge)
+  const sources = await readNdjson<SourceUnit>(INDEXER_PATHS.objectsSource)
+  // silence unused-warning
+  void (await readNdjson<SemanticClaim>(READER_PATHS.semantics))
   const out: ImplementationTask[] = []
   for (const s of sets) {
-    out.push(await deriveTask(s.id))
+    out.push(buildAttentionTask(s, knowledge))
   }
+  const designDoc = buildDesignDocTask(sources)
+  if (designDoc) out.push(designDoc)
+  await writeNdjson(TRANSFORMER_PATHS.implementationTasks, out)
   return out
 }
 
-void INDEXER_PATHS
-void ({} as SourceRef)
+/**
+ * Predicate used by the operation verifier and the render layer.
+ * A task is a fixture when it is explicitly marked or carries the
+ * `fixture` tag. Returns `false` when the flag/tag is absent so that
+ * legacy tasks (which predate the marker) are NOT auto-classified as
+ * fixtures; the transformer marks them explicitly during derivation.
+ */
+export function isFixtureTask(t: ImplementationTask): boolean {
+  if (t.fixture === true) return true
+  if (Array.isArray(t.tags) && t.tags.includes('fixture')) return true
+  return false
+}
