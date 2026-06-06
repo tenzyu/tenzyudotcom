@@ -2,7 +2,7 @@
 
 ## Storage
 
-Use NDJSON for object and edge records.
+Use NDJSON for generated object, anchor, and edge records.
 
 ## SourceRef schema
 
@@ -15,9 +15,34 @@ type SourceRef = {
 };
 ```
 
-## AtelierObject base schema
+## SourceAnchor schema
 
-All object records produced by the indexer must conform to the base shape below.
+```ts
+type SourceAnchor = {
+  id: string;
+  kind:
+    | "file"
+    | "markdown_section"
+    | "code_symbol_candidate"
+    | "test_file"
+    | "config_file"
+    | "package_script"
+    | "explicit_reference";
+  path: string;
+  start_line?: number;
+  end_line?: number;
+  heading_path?: string[];
+  symbol_name?: string;
+  content_hash: string;
+  selector_strategy: "path" | "line_range" | "heading" | "symbol" | "text_quote";
+  produced_by: "indexer";
+  provenance_kind: "deterministic_fact";
+  confidence: "fact" | "hypothesis" | "inferred" | "validated";
+  status: "fresh" | "stale" | "conflicted" | "invalid" | "archived" | "quarantined";
+};
+```
+
+## Object base schema
 
 ```ts
 type AtelierObjectBase = {
@@ -27,7 +52,7 @@ type AtelierObjectBase = {
   title?: string;
   body_ref?: string;
   source_refs: SourceRef[];
-  produced_by: "indexer" | "reader" | "transformer" | "executor";
+  produced_by: "indexer" | "reader" | "transformer" | "executor" | "operation";
   provenance_kind:
     | "deterministic_fact"
     | "llm_extracted"
@@ -35,64 +60,20 @@ type AtelierObjectBase = {
     | "runtime_evidence"
     | "legacy_promoted";
   confidence: "fact" | "hypothesis" | "inferred" | "validated";
-  status: "fresh" | "stale" | "invalid" | "archived";
+  status: "fresh" | "stale" | "conflicted" | "invalid" | "archived" | "quarantined";
   affordances: string[];
 };
 ```
 
-## SourceFact object
+## Relation schema
 
 ```ts
-type SourceFact = AtelierObjectBase & {
-  kind: "source_fact";
-  fact_type:
-    | "file_exists"
-    | "package_manager"
-    | "script_exists"
-    | "test_framework_candidate"
-    | "docs_path"
-    | "workspace_config"
-    | "git_status"
-    | "extension_histogram"
-    | "naming_pattern";
-  value: unknown;
-};
-```
-
-## SourceUnit object
-
-A `SourceUnit` is the mechanical chunk. It is not semantic knowledge.
-
-```ts
-type SourceUnit = AtelierObjectBase & {
-  kind: "source_unit";
-  unit_type:
-    | "file"
-    | "markdown_section"
-    | "symbol_candidate"
-    | "test_file"
-    | "config_file"
-    | "package_script"
-    | "docs_file";
-  path: string;
-  language?: string;
-  heading_path?: string[];
-  start_line?: number;
-  end_line?: number;
-  sha256: string;
-  byte_size: number;
-};
-```
-
-## Edge schema
-
-Edges are stored separately from objects.
-
-```ts
-type AtelierEdge = {
+type Relation = {
   id: string;
-  from: string;
-  to: string;
+  from_anchor_id?: string;
+  to_anchor_id?: string;
+  from_object_id?: string;
+  to_object_id?: string;
   kind:
     | "contains"
     | "defines"
@@ -101,47 +82,48 @@ type AtelierEdge = {
     | "supports"
     | "constrains"
     | "transforms_to"
+    | "requires_context"
     | "verifies"
     | "satisfies"
-    | "invalidates";
+    | "invalidates"
+    | "explains"
+    | "blocks";
+  evidence_refs: string[];
+  source_refs?: SourceRef[];
+  produced_by: "indexer" | "reader" | "transformer" | "executor" | "operation";
   provenance_kind:
     | "deterministic_fact"
     | "llm_extracted"
     | "manual_control_record"
-    | "runtime_evidence"
-    | "legacy_promoted";
-  source_refs?: SourceRef[];
+    | "runtime_evidence";
   confidence: "fact" | "hypothesis" | "inferred" | "validated";
-  status: "fresh" | "stale" | "invalid" | "archived";
+  status: "fresh" | "stale" | "conflicted" | "invalid" | "rejected" | "archived";
 };
 ```
 
-## Affected contract
+## Exclusion contract
 
-`bun run affected` must:
+The indexer must exclude these from normal source anchors, attention candidates, and transform candidates unless explicitly requested:
 
-1. compare current file hashes to the previous snapshot;
-2. list changed, added, deleted, and moved source units;
-3. mark directly affected `SourceUnit` records stale;
-4. traverse `edges.ndjson` to mark dependent objects stale;
-5. write `.atelier/v0/indexes/stale.json`;
-6. render `.atelier/v0/views/index/AFFECTED.md`.
+```txt
+.git/**
+node_modules/**
+dist/**
+build/**
+coverage/**
+target/**
+.rmeta
+*.rmeta
+```
 
-## Validation
+## Validation must fail if
 
-`bun run validate` must fail if:
-
-- any object id is duplicated;
-- any edge references missing objects;
-- any SourceUnit points to a nonexistent file;
-- any SourceRef hash mismatches the file content;
-- generated index views are stale;
-- `.atelier/v0/facts/**` or `.atelier/v0/objects/source.ndjson` is invalid JSON/NDJSON.
-
-## Invariants
-
-- Indexer output is deterministic for the same repo state.
-- Indexer must not call LLMs.
-- Indexer must not edit source files.
-- Indexer must not create semantic claims.
-
+- any object, anchor, or relation id is duplicated;
+- any relation has no valid endpoint pair;
+- any relation references a missing anchor/object;
+- any anchor points to a nonexistent file;
+- any anchor line range is outside the file;
+- any file anchor hash mismatches current content;
+- non-quick validation samples instead of checking the full dataset;
+- generated views are used as source of truth;
+- relation kernel readiness is claimed with only `contains` relations.

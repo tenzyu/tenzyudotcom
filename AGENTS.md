@@ -2,153 +2,71 @@
 
 ## Repository instruction for LLM agents
 
-Do not rely on prior chat context.
+Do not rely on prior chat context. Read the local control files for the active task before editing.
 
-Before non-trivial work, identify the task scope from the requested paths, files, and intent. Prefer local control files and explicit repository instructions over broad manual discovery.
+## Atelier Relation Kernel work
 
-External LLM runners own task execution and may edit the repository directly, but they must follow the relevant local control surface before editing.
-
-## Deprecated Atelier context planning
-
-Do not use legacy Atelier context planning for Atelier implementation work.
-
-Do not run this as the default entrypoint for Atelier work:
-
-```bash
-atelier context plan --workflow workflow.isolated-run --role role.core.implementer --path . --intent "<request>"
-```
-
-The current Atelier implementation/control surface is not reliable enough to govern its own development.
-
-For Atelier implementation work, use the Pre-Atelier Bootstrap Harness instead.
-
-## Atelier bootstrap scope
-
-If your task touches any of these paths, you are in Atelier bootstrap scope:
+If the task concerns Atelier bootstrap, relation indexing, context assembly, md-to-code transformation, execution packets, or OpenCode agent setup, use this design pack as the local control surface:
 
 ```txt
-harness/knowledge/implementation-control/atelier/**
-harness/bootstrap/atelier-build/**
-product-specs/atelier/**
+harness/atelier-design-docs/README.md
+harness/atelier-design-docs/GOAL-OPERATIONAL-ATELIER.md
+harness/atelier-design-docs/REVIEW-LATEST.md
+harness/atelier-design-docs/OPEN-QUESTIONS.md
+harness/atelier-design-docs/atelier-*/goal.md
+harness/atelier-design-docs/atelier-*/contract.md
+harness/atelier-design-docs/atelier-*/review.md
 ```
 
-When in Atelier bootstrap scope, read these files before editing:
+Current target:
 
 ```txt
-harness/bootstrap/atelier-build/CONTRACT.md
-harness/bootstrap/atelier-build/NEXT_ACTION.md
-harness/bootstrap/atelier-build/REVIEW_LEDGER.md
-harness/bootstrap/atelier-build/ACCEPTANCE.md
-harness/bootstrap/atelier-build/ALLOWED_PATHS.txt
-harness/bootstrap/atelier-build/FORBIDDEN_PATHS.txt
-harness/bootstrap/atelier-build/GENERATED_PATHS.txt
+Upgrade atelier-bootstrap from repository census + demo transform pipeline into a Relation Kernel.
 ```
 
-If any of these files are missing, create or repair the bootstrap harness first.
+Atelier is not a repo explorer. Atelier is the repository-side control plane that creates bounded, traceable relations and execution context for coding agents.
 
-Do not proceed with Atelier implementation-control work until the bootstrap files exist.
+## Non-negotiable boundaries
 
-## Atelier bootstrap rules
+- `.atelier-bootstrap/**` is tooling.
+- `.atelier/v0/**` is generated output, object graph state, relation state, run state, and views.
+- `harness/atelier-design-docs/**` is input contract for agents; implementers must not edit it during the goal run.
+- `harness/knowledge/product-specs/**` is source/spec input; implementers must not edit it during the goal run.
+- `.opencode/**` is agent/runtime configuration; implementers must not edit it during the goal run.
+- Generated views are not truth.
+- Evidence is runtime fact, not prose.
+- If a packet requires broad repository exploration, the packet generator failed.
 
-For Atelier bootstrap scope:
+## Goal-plugin discipline
 
-- do not advance the implementation DAG unless `NEXT_ACTION.md` explicitly permits it;
-- do not edit generated Atelier artifacts directly;
-- do not patch generated output by hand;
-- if generated output is wrong, fix the mechanism that produced or accepted it;
-- do not search broadly unless `NEXT_ACTION.md` explicitly permits it;
-- do not edit paths listed in `FORBIDDEN_PATHS.txt`;
-- only edit paths allowed by `ALLOWED_PATHS.txt`, unless `NEXT_ACTION.md` explicitly expands the allowed surface;
-- do not declare completion while `REVIEW_LEDGER.md` has open issues;
-- do not declare readiness while `ACCEPTANCE.md` has unchecked conditions.
-
-Allowed mechanism changes include:
+The OpenCode goal plugin is marker-based. Only `atelier-coordinator` may emit final-line markers:
 
 ```txt
-source spec parser
-compiler rule
-schema
-generator
-readiness predicate
-fixture
-validation command
-agent instruction
-acceptance condition
+[goal:complete]
+[goal:blocked]
 ```
 
-## Reviewer findings for Atelier work
+Implementer and reviewer subagents must never emit goal markers.
 
-Reviewer findings must be converted into `REVIEW_LEDGER.md` entries.
+Use the plugin command directly. Do not shadow it with a custom `command.goal` config.
 
-Do not resolve reviewer findings with apology-driven local patches.
-
-Each issue should track:
+Recommended invocation:
 
 ```txt
-id:
-status: open | closed
-class:
-evidence:
-required_fix:
-verification:
+/goal @atelier-coordinator Follow @harness/atelier-design-docs/GOAL-OPERATIONAL-ATELIER.md. Use component goal.md, contract.md, and review.md. Dispatch subagents aggressively when boundaries do not overlap.
 ```
 
-A fix is incomplete until the bad state is either mechanically prevented, mechanically detected, or explicitly recorded as unresolved.
+## Validation reporting
 
-## Validation
+Do not claim Bun, Nx, or tests passed unless the command actually ran. If tooling is unavailable, report static inspection only.
 
-Before claiming completion, run the relevant project check when the project is known and the command is available.
-
-Preferred form:
-
-```bash
-bun nx run <project>:check
-```
-
-If the project is unknown, Bun is unavailable, or the command cannot be run in the current environment, report that explicitly instead of claiming it passed.
-
-For Atelier bootstrap scope, also verify:
-
-```txt
-- required bootstrap files exist;
-- no generated Atelier artifact was directly edited;
-- REVIEW_LEDGER.md has no open issue blocking the current task;
-- ACCEPTANCE.md conditions for the current task are satisfied or explicitly reported as unsatisfied.
-```
-
-## Adapter details
-
-Canonical adapter details live in:
-
-```txt
-harness/adapters/root/AGENTS.md
-```
-
-Use that file only when the task concerns root adapter behavior.
-
-Do not let adapter instructions override the Atelier bootstrap rules for Atelier implementation work.
-
-## Final report format
-
-For Atelier bootstrap scope, final reports must use this format:
+Final reports for Atelier work must include:
 
 ```txt
 Changed files:
-- ...
-
-Checks:
-- ...
-
-Open issues:
-- ...
-
-Generated files directly edited:
-- yes/no
-
-Acceptance:
-- pass/fail
-- reason
-
+Checks run:
+Checks not run:
+Open questions:
+Reviewer status:
 Next action:
-- ...
 ```

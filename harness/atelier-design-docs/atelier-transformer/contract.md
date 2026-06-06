@@ -7,15 +7,11 @@ type ImplementationTask = AtelierObjectBase & {
   kind: "implementation_task";
   task_id: string;
   title: string;
-  goal: string;
-  source_object_ids: string[];
-  source_refs: SourceRef[];
-  required_knowledge_object_ids: string[];
-  allowed_files: string[];
-  forbidden_files: string[];
-  acceptance_criteria: string[];
-  risk_notes: string[];
-  status: "draft" | "ready" | "blocked" | "stale";
+  source_anchor_ids: string[];
+  source_relation_ids: string[];
+  required_object_ids: string[];
+  status: "candidate" | "ready" | "blocked" | "stale";
+  blocker_ids: string[];
 };
 ```
 
@@ -24,15 +20,14 @@ type ImplementationTask = AtelierObjectBase & {
 ```ts
 type TestContract = AtelierObjectBase & {
   kind: "test_contract";
-  test_contract_id: string;
+  contract_id: string;
   task_id: string;
-  test_framework: "vitest" | "bun-test" | "jest" | "unknown";
   target_files: string[];
   test_files: string[];
-  expected_behavior: string[];
-  negative_cases: string[];
   command: string;
-  status: "draft" | "ready" | "blocked" | "stale";
+  source_relation_ids: string[];
+  status: "candidate" | "ready" | "blocked" | "stale";
+  evidence_requirements: Array<"command_output" | "raw_output_ref" | "diff_ref" | "file_hashes" | "validated_handoff">;
 };
 ```
 
@@ -44,8 +39,7 @@ type EditBoundary = AtelierObjectBase & {
   task_id: string;
   allowed_files: string[];
   forbidden_files: string[];
-  allowed_operations: Array<"create" | "modify" | "delete">;
-  requires_user_approval: boolean;
+  rationale_relation_ids: string[];
 };
 ```
 
@@ -55,78 +49,26 @@ type EditBoundary = AtelierObjectBase & {
 type PacketTemplate = AtelierObjectBase & {
   kind: "packet_template";
   task_id: string;
-  required_source_refs: SourceRef[];
+  required_anchor_ids: string[];
   required_object_ids: string[];
+  required_relation_ids: string[];
   allowed_files: string[];
   forbidden_files: string[];
   test_contract_ids: string[];
   evidence_expectations: string[];
-  subagent_contract: string;
+  search_policy: "none" | "bounded" | "explicit_approval";
+  unresolved_reference_policy: "block" | "ask" | "ignore";
 };
 ```
 
-## TransformRecommendation schema
+## Validation must fail if
 
-```ts
-type TransformRecommendation = AtelierObjectBase & {
-  kind: "transform_recommendation";
-  source_object_id: string;
-  recommendation_type:
-    | "lint-candidate"
-    | "test-candidate"
-    | "skill-candidate"
-    | "docs-candidate"
-    | "packet-constraint"
-    | "review-candidate";
-  reason: string;
-  proposed_output_kind: string;
-  confidence: "hypothesis" | "inferred" | "validated";
-  status: "proposed" | "accepted" | "rejected" | "stale";
-};
-```
-
-## Packet generation rules
-
-Packet structure is deterministic primary.
-
-Deterministic fields:
-
-```txt
-packet_id
-required_source_refs
-required_object_ids
-allowed_files
-forbidden_files
-test_contract_ids
-evidence_expectations
-```
-
-LLM-assisted fields:
-
-```txt
-task summary
-implementation hints
-risk notes
-ambiguity explanation
-```
-
-## Validation
-
-`bun run validate` must fail if:
-
-- a task references missing source objects;
-- a task has empty allowed_files;
-- a task has no acceptance criteria;
-- a test contract has no executable command;
-- a packet template has no test contract unless explicitly marked no-test-required;
-- allowed_files include product specs;
-- forbidden_files are missing;
-- a recommendation references a missing source object;
-- transform views are stale.
-
-## Invariants
-
-- Transformer does not write product code.
-- Transformer does not create runtime evidence.
-- Transformer output is consumed by executor.
-- Transform views are generated.
+- a ready task has no source anchor trace;
+- a ready task has no accepted relation trace;
+- a ready TestContract has empty `target_files`, empty `test_files`, or missing `command`;
+- a ready TestContract references nonexistent test files;
+- `allowed_files` and `forbidden_files` overlap;
+- broad `product/**` is allowed without a narrowed accepted packet rationale;
+- design docs or product specs are implementation edit targets;
+- packet template requires broad repository search;
+- transformer output is based only on sample fixtures.

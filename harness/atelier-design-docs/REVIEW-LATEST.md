@@ -1,20 +1,20 @@
-# Latest Review: Operational Atelier v0 Readiness
+# Latest Review: Atelier Relation Kernel Readiness
 
 ## Status
 
-The current artifact is not yet Operational Atelier v0.
+The current target is not merely Operational Atelier v0. The immediate target is Relation Kernel v0.
 
-Treat it as:
+Treat the current artifact as:
 
 ```txt
-Atelier v0 Bootstrap Skeleton
+repository census + object storage + demo transform pipeline
 ```
 
-It has a good directory skeleton and object graph direction, but operational behavior is not yet proven.
+until relation generation and relation consumption are proven.
 
 ## Positive findings
 
-The following structure is directionally correct:
+Directionally correct structure:
 
 ```txt
 .atelier-bootstrap/
@@ -30,136 +30,128 @@ The following structure is directionally correct:
   edges/
   indexes/
   briefs/
-  transforms/md-to-code/
+  transforms/
   runs/
   views/
-  operation/
 ```
 
-Good decisions:
+Good decisions already accepted:
 
 - tooling/output split exists;
 - NDJSON-first direction exists;
 - objects/edges/indexes exist;
 - indexer/reader/transformer/executor/operation are separated;
-- canonical is not the core storage concept;
-- implementation-control is demoted from root concept.
+- canonical is not the root storage concept;
+- implementation-control is not the root concept;
+- repo tree is only an entry projection, not the core.
 
 ## P0 blockers
 
-### P0-001: `operation ready` is too shallow
+### P0-001: Edges are not meaningful enough
 
-`atelier:ready` must not pass by checking only directory existence, source unit counts, or project brief shape.
-
-Required repair:
-
-- `atelier:ready` must fail unless task-scoped attention, md-to-code transform, packet/evidence lifecycle, and reviewer contract all pass.
-
-### P0-002: Empty attention sets must fail readiness
-
-Atelier's core value is task-scoped attention assembly.
-
-`attention sets = 0` cannot be operational pass.
+A graph made only or mostly of `contains` edges is not a relation kernel.
 
 Required repair:
 
-- create at least one real task-scoped attention set from a task such as:
+- add deterministic relation generation where safe;
+- add reader relation proposals where semantic inference is needed;
+- validate relation endpoints and provenance;
+- fail relation readiness if no accepted non-`contains` relations exist.
 
-```txt
-harden operation ready so scaffold pass cannot be reported as operational pass
-```
+### P0-002: Source ranges / anchors are not first-class enough
 
-- ready must fail if no non-empty attention set exists.
-
-### P0-003: Evidence cannot pass without runtime proof
-
-`EvidenceRecord.status = passed` must require runtime proof.
-
-Accepted proof kinds:
-
-```txt
-command output
-raw stdout/stderr reference
-diff reference
-file hash snapshot
-validated handoff
-```
-
-`raw_output: none` with `status: passed` must fail.
-
-### P0-004: Duplicate/conflicting packet lifecycle must fail
-
-A packet id cannot be both `active` and `completed` in current state.
+Path-only source refs are insufficient for transformer and Explore projection.
 
 Required repair:
 
-- implement a packet lifecycle reducer;
-- make readiness fail on duplicate/conflicting current statuses.
+- introduce SourceAnchor or equivalent;
+- include `path`, optional `start_line` / `end_line`, `content_hash`, `selector_strategy`, `provenance_kind`, `confidence`, and `status`;
+- generate anchors for files and at least one narrower deterministic kind such as markdown sections or code symbols.
 
-### P0-005: Strict validation must be default
+### P0-003: Reader must emit relation proposals, not prose-only understanding
 
-`validate` must be strict full validation.
-
-If sample validation is needed, name it explicitly:
-
-```txt
-validate:quick
-```
+The reader must not stop at project briefs or knowledge summaries.
 
 Required repair:
 
-- full object/edge validation by default;
-- sample/quick mode must never power operational pass.
+- emit schema-bound `RelationProposal` records;
+- each proposal must cite source anchors or source refs;
+- proposal confidence must be `hypothesis` or `inferred` until accepted;
+- proposals must never become execution truth without acceptance.
+
+### P0-004: Transformer must consume accepted relations
+
+The transformer must not rely only on path heuristics or toy samples.
+
+Required repair:
+
+- derive ImplementationTask / TestContract / EditBoundary from accepted relation graph;
+- preserve source anchor trace;
+- fail readiness for blocked/empty test contracts;
+- fail readiness when task/test/evidence relation mapping is absent.
+
+### P0-005: Packet/evidence correspondence must be strict
+
+Runtime evidence must correspond to the contract it satisfies.
+
+Required repair:
+
+- `passed` evidence requires command/raw output/diff/file hashes/validated handoff;
+- evidence must point to the relevant packet and test contract;
+- unrelated test output must not satisfy a contract.
 
 ## P1 blockers
 
-### P1-001: md-to-code must use design docs, not toy sample only
+### P1-001: Build artifacts must be excluded by default
 
-The transformer must derive at least one implementation task from:
+Build outputs and metadata must not become attention or relation candidates unless explicitly requested.
+
+Default exclusions:
 
 ```txt
-harness/atelier-design-docs/**
+.git/**
+node_modules/**
+dist/**
+build/**
+coverage/**
+target/**
+.rmeta
+*.rmeta
 ```
 
-Toy examples such as `src/main.ts` are allowed as fixtures, but cannot be the only operational proof.
+### P1-002: Explore must be projection-only
 
-### P1-002: Transform recommendations need dedupe
+Do not build Explore as a separate graph. If inspect/related/impact commands are implemented, they must read the shared relation graph.
 
-Duplicate recommendations from the same `KnowledgeObject` and recommendation type should be merged or reported as duplicates.
+### P1-003: Operation must distinguish scaffold pass from relation-kernel pass
 
-### P1-003: Reviewer must be first-class
+Directory existence, object count, and view generation are insufficient.
 
-The reviewer must return `atelier.operational-review/v1` JSON and must be the only authority for operational pass.
-
-### P1-004: Views are not proof
-
-Generated views may explain machine state, but they cannot satisfy readiness by themselves.
-
-### P1-005: Affected propagation must be real enough for v0
-
-A changed `SourceUnit` should mark dependent objects/transforms/views stale through edges or indexes.
+Readiness must prove anchors, non-contains relations, accepted relation consumption, packet/test/evidence correspondence, and stale/affected behavior.
 
 ## Required reviewer stance
 
 Reviewer must fail if:
 
-- pass is based on scaffold existence;
-- no attention set exists;
-- evidence lacks runtime proof;
-- packet lifecycle has conflicting statuses;
-- strict full validation is absent;
-- md-to-code uses only sample fixtures;
-- generated views are treated as truth.
+- graph has only `contains` relations;
+- path-only refs are treated as enough for relation-kernel pass;
+- reader emits prose but no schema-bound relation proposals;
+- transformer creates tasks without accepted relation trace;
+- evidence is accepted without runtime proof and contract correspondence;
+- generated views are treated as truth;
+- Explore duplicates the graph instead of projecting from it.
 
 ## Target status
 
-Operational pass requires:
+Relation Kernel pass requires:
 
 ```txt
-indexer strict validate: pass
-reader attention/deep-read: pass
-transformer md-to-code from design docs: pass
-executor packet/evidence lifecycle: pass
+indexer anchors: pass
+indexer deterministic relations: pass
+reader relation proposals: pass
+relation acceptance/validation: pass
+transformer consumes accepted relations: pass
+executor evidence correspondence: pass
 operation ready/verify: pass
 reviewer: pass
 ```

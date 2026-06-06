@@ -1,54 +1,51 @@
-Use this file as the goal objective when running the OpenCode goal plugin.
+Use this file as the objective for the OpenCode goal plugin.
 
-# GOAL: Operational Atelier v0
+# GOAL: Atelier Relation Kernel v0
 
-P0/P1 defects in this file must be fixed before operational pass.
+Upgrade `atelier-bootstrap` from repository census + demo transform pipeline into a Relation Kernel.
 
-## Mission
+Do not implement GUI first. Do not make Explore a separate system. Build the shared relation substrate from which transformer, packets, impact analysis, and future Explore can all be projected.
 
-Move the current artifact from:
-
-```txt
-Atelier v0 Bootstrap Skeleton
-```
-
-to:
+## Core thesis
 
 ```txt
-Operational Atelier v0
+Repository artifacts
+  -> deterministic SourceAnchors
+  -> deterministic and proposed Relations
+  -> accepted relation graph
+  -> transformer projection
+  -> execution packets
+  -> runtime evidence
+  -> operation/reviewer validation
+  -> generated views / future Explore projection
 ```
 
-Do this through `atelier-coordinator`, which dispatches `atelier-implementer` and `atelier-reviewer` subagents.
+Repo tree is an entry view, not the product core. The product core is relation generation, acceptance, traversal, stale detection, and projection.
 
-## Latest review
+## Required behavior
 
-Authoritative review file:
+1. `indexer` emits SourceAnchors for files and, where cheap/deterministic, markdown sections, code symbols, test files, package scripts, and explicit references.
+2. `indexer` emits deterministic Relations beyond `contains` when safely derivable.
+3. `reader` emits schema-bound KnowledgeObject, SemanticClaim, AttentionSet, and RelationProposal records.
+4. `reader` output remains hypothesis/inferred until accepted by deterministic validation or explicit accept command.
+5. `transformer` consumes accepted relations to derive ImplementationTask, TestContract, EditBoundary, PacketTemplate, and ExecutionPacket candidates.
+6. `executor` records packet lifecycle and runtime-backed evidence mapped to the relevant task/test/evidence relations.
+7. `operation` fails readiness when relation, anchor, packet, contract, or evidence invariants are missing.
+8. `explore` command/API may be added only as a projection over the same relation graph.
 
-@harness/atelier-design-docs/REVIEW-LATEST.md
+## Current P0 repair target
 
-P0/P1 defects in this file must be fixed before operational pass.
+The previous graph shape was mostly object storage plus `contains` edges. That is not enough.
 
-# Contracts
+Operational progress requires proving:
 
-## Required operational behavior
-
-The system must demonstrate:
-
-1. `.atelier-bootstrap/**` is tooling only;
-2. `.atelier/v0/**` is generated output/state;
-3. object graph storage uses NDJSON;
-4. `canonical/**` is not the primary architecture;
-5. implementation-control is not the root concept;
-6. indexer supports strict full validation and affected propagation;
-7. reader creates non-empty task-scoped attention for a real task;
-8. reader deep-read produces KnowledgeObject / SemanticClaim from selected attention only;
-9. transformer produces md-to-code task and test contract from `harness/atelier-design-docs`, not a toy sample only;
-10. executor creates packet context and validates handoff/evidence;
-11. EvidenceRecord `passed` status requires runtime proof;
-12. duplicate/conflicting packet lifecycle state fails readiness;
-13. `bun run atelier:ready` fails closed;
-14. `bun run atelier:verify` checks whole-system behavior;
-15. reviewer can distinguish scaffold pass from operational pass.
+```txt
+selected path or range
+  -> related anchors / objects
+  -> accepted relation types
+  -> transform outputs
+  -> packet / test contract / evidence or blocker
+```
 
 ## Required command surface
 
@@ -56,12 +53,15 @@ Equivalent names are allowed only if documented and reviewer-approved.
 
 ```bash
 bun run atelier:index
+bun run atelier:relations:index
+bun run atelier:relations:validate
 bun run atelier:affected
 bun run atelier:index:render
 bun run atelier:index:validate
 
 bun run atelier:sample
 bun run atelier:attention -- --task "<task>"
+bun run atelier:relations:propose -- --attention <id>
 bun run atelier:deep-read -- --attention <id>
 bun run atelier:reader:validate
 
@@ -80,41 +80,45 @@ bun run atelier:verify
 bun run atelier:render
 ```
 
-## Parallelism policy
+Optional projection commands:
 
-The coordinator should actively dispatch multiple implementer subagents when edit boundaries do not overlap.
-
-Safe workstreams:
-
-```txt
-indexer
-reader
-transformer
-executor
-operation
+```bash
+bun run atelier:explore:inspect -- --ref "path[:Lx-Ly]"
+bun run atelier:explore:related -- --ref "path[:Lx-Ly]"
+bun run atelier:explore:impact -- --ref "path[:Lx-Ly]"
 ```
 
-Serialize if dependencies or file write boundaries are unclear.
+## Parallelism policy
+
+The coordinator should dispatch implementer subagents aggressively when edit boundaries do not overlap.
+
+Safe default workstreams:
+
+```txt
+indexer     SourceAnchor + deterministic relations + affected
+reader      relation proposals + attention/deep-read contracts
+transformer accepted relation -> task/contract/packet projection
+executor    packet lifecycle + evidence correspondence
+operation   strict readiness/review/verify
+```
+
+Serialize when files or dependencies overlap.
 
 ## Completion policy
 
-The goal is complete only when `atelier-reviewer` returns `status: pass` and `atelier:ready` / `atelier:verify` genuinely pass.
+The goal is complete only when `atelier-reviewer` returns `status: pass` and strict `atelier:ready` / `atelier:verify` or exact documented equivalents genuinely pass.
 
-If work remains, do not emit a goal marker. Let the plugin continue.
+If work remains, the coordinator must not emit a goal marker. Let the plugin continue.
 
-## Important goal-plugin constraint
+If a decision requires user/product-author input, the coordinator must ask a precise open question and end with `[goal:blocked]`.
 
-The OpenCode goal plugin is marker-based. It auto-continues while the session is idle and stops only when the coordinator's final response line is one of:
+## Goal-plugin constraint
+
+Only `atelier-coordinator` may emit final-line markers:
 
 ```txt
 [goal:complete]
 [goal:blocked]
 ```
 
-Therefore:
-
-- implementer subagents must never emit goal markers;
-- reviewer subagents must never emit goal markers;
-- only `atelier-coordinator` may emit final markers;
-- the coordinator must not emit `[goal:complete]` until reviewer pass and real validation;
-- the coordinator must not emit `[goal:blocked]` unless user/product-author input or tooling availability is required.
+Implementer and reviewer subagents must never emit goal markers.
