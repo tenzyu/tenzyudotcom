@@ -4,6 +4,7 @@ import {
   type SourceUnit,
   type AtelierEdge,
   type SourceFact,
+  type SourceAnchor,
   type SourceRef,
 } from '../../../lib/src/index.ts'
 import { readNdjson } from '../../../lib/src/ndjson.ts'
@@ -45,6 +46,8 @@ export type ValidationResult = {
     units: number
     facts: number
     edges: number
+    anchors: number
+    non_contains_edges: number
     source_refs_checked: number
     units_checked: number
     mode: 'strict' | 'quick'
@@ -131,6 +134,29 @@ export async function validateIndex(
     facts = await readNdjson<SourceFact>(path.join(path.dirname(INDEXER_OUTPUT.objectsSource), 'facts.ndjson'))
   } catch (err) {
     warnings.push(`facts.ndjson is missing or invalid: ${(err as Error).message}`)
+  }
+
+  // 4a. parse source anchors (always full)
+  let anchors: SourceAnchor[] = []
+  try {
+    anchors = await readNdjson<SourceAnchor>(INDEXER_OUTPUT.anchorsFile)
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException).code === 'ENOENT') {
+      issues.push({
+        severity: 'P0',
+        code: 'E_ANCHORS_MISSING',
+        message: `anchors/source-anchors.ndjson is missing; run \`bun run atelier:index\` to regenerate`,
+        affected_record: INDEXER_OUTPUT.anchorsFile,
+        recommended_next_action: 'rerun `bun run atelier:index`',
+      })
+    } else {
+      issues.push({
+        severity: 'P0',
+        code: 'E_ANCHORS_INVALID',
+        message: `anchors/source-anchors.ndjson is invalid: ${(err as Error).message}`,
+        affected_record: INDEXER_OUTPUT.anchorsFile,
+      })
+    }
   }
 
   // 5. duplicate ids — ALWAYS strict
@@ -225,15 +251,17 @@ export async function validateIndex(
     }
   }
 
-  // 8. edges reference existing objects — STRICT: every edge.
+  // 8. edges reference existing objects or anchors — STRICT: every edge.
   //    contains-edges from src:repo:root are allowed to be the seed.
+  //    The set of valid ids is the union of source unit ids and
+  //    source anchor ids, since non-`contains` relations attach to
+  //    anchors (and may also target units via depends_on).
   const unitIds = new Set(units.map((u) => u.id))
-  // also include any object id we have seen so that the contains edges
-  // resolve; the seed contains edges are accepted because the source
-  // unit "src:repo:root" is virtual, not stored in source.ndjson.
+  const anchorIdsEarly = new Set(anchors.map((a) => a.id))
+  const allIds = new Set<string>([...unitIds, ...anchorIdsEarly])
   for (const e of edges) {
     if (e.kind === 'contains' && e.from === 'src:repo:root') continue
-    if (!unitIds.has(e.from)) {
+    if (!allIds.has(e.from)) {
       issues.push({
         severity: 'P1',
         code: 'E_EDGE_MISSING_FROM',
@@ -241,7 +269,7 @@ export async function validateIndex(
         affected_record: e.id,
       })
     }
-    if (!unitIds.has(e.to)) {
+    if (!allIds.has(e.to)) {
       issues.push({
         severity: 'P1',
         code: 'E_EDGE_MISSING_TO',
@@ -257,6 +285,7 @@ export async function validateIndex(
     INDEXER_OUTPUT.viewIndexSummary,
     INDEXER_OUTPUT.viewSourceUnits,
     INDEXER_OUTPUT.viewAffected,
+    INDEXER_OUTPUT.viewAnchors,
   ]
   for (const vf of viewFiles) {
     try {
@@ -273,6 +302,80 @@ export async function validateIndex(
     } catch (err) {
       if ((err as NodeJS.ErrnoException).code === 'ENOENT') {
         warnings.push(`view ${vf} does not exist yet; render it`)
+      }
+    }
+  }
+
+  // 9a. Non-`contains` relation checks (Relation Kernel readiness).
+  const nonContainsEdges = edges.filter((e) => e.kind !== 'contains')
+  // P0: at least one non-contains edge is required.
+  if (nonContainsEdges.length === 0) {
+    issues.push({
+      severity: 'P0',
+      code: 'E_NO_NON_CONTAINS_RELATIONS',
+      message:
+        'no non-`contains` relations emitted; the relation kernel requires at least one non-`contains` edge',
+      affected_record: INDEXER_OUTPUT.edges,
+      recommended_next_action: 'rerun `bun run atelier:index`',
+    })
+  }
+  // P1: every non-contains edge must carry source_refs.
+  for (const e of nonContainsEdges) {
+    if (!e.source_refs || e.source_refs.length === 0) {
+      issues.push({
+        severity: 'P1',
+        code: 'E_RELATION_MISSING_SOURCE_REFS',
+        message: `relation ${e.id} (${e.kind}) has no source_refs`,
+        affected_record: e.id,
+        recommended_next_action:
+          'inspect relations builder; non-`contains` relations must carry at least one source_ref',
+      })
+    }
+  }
+  // P0: every non-`contains` edge endpoint must resolve to an
+  // existing object or anchor id. (`allIds` was built in step 8.)
+  for (const e of edges) {
+    if (e.kind === 'contains' && e.from === 'src:repo:root') continue
+    if (!allIds.has(e.from)) {
+      issues.push({
+        severity: 'P0',
+        code: 'E_RELATION_ENDPOINT_INVALID',
+        message: `edge ${e.id} from-id ${e.from} does not resolve to any object or anchor`,
+        affected_record: e.id,
+      })
+    }
+    if (!allIds.has(e.to)) {
+      issues.push({
+        severity: 'P0',
+        code: 'E_RELATION_ENDPOINT_INVALID',
+        message: `edge ${e.id} to-id ${e.to} does not resolve to any object or anchor`,
+        affected_record: e.id,
+      })
+    }
+  }
+
+  // 9b. P1: sample-check anchor hash drift (cheap, no full rehash).
+  // We pick at most 16 anchors at random and verify their source ref
+  // hash matches the on-disk hash. The full source unit hash check
+  // above already covers the source unit side.
+  if (!quick && anchors.length > 0) {
+    const sample = sampleAnchors(anchors, 16)
+    for (const a of sample) {
+      const ref = a.source_refs[0]
+      if (!ref) continue
+      try {
+        const onDisk = await sha256OfFile(ref.path)
+        if (onDisk !== ref.sha256) {
+          issues.push({
+            severity: 'P1',
+            code: 'E_ANCHOR_HASH_DRIFT',
+            message: `anchor ${a.id} source_ref ${ref.path} hash mismatch: recorded ${ref.sha256} != on-disk ${onDisk}`,
+            affected_record: a.id,
+            recommended_next_action: 'rerun `bun run atelier:index`',
+          })
+        }
+      } catch {
+        // ignore — file missing is reported by the source-unit check
       }
     }
   }
@@ -302,11 +405,33 @@ export async function validateIndex(
       units: units.length,
       facts: facts.length,
       edges: edges.length,
+      anchors: anchors.length,
+      non_contains_edges: nonContainsEdges.length,
       units_checked: unitsChecked,
       source_refs_checked: sourceRefsChecked,
       mode,
     },
   }
+}
+
+/**
+ * Pick a deterministic random sample of anchors for hash drift
+ * checking. The sample is deterministic given the input order so
+ * re-runs produce the same selection.
+ */
+function sampleAnchors(
+  anchors: ReadonlyArray<SourceAnchor>,
+  n: number,
+): SourceAnchor[] {
+  if (anchors.length <= n) return [...anchors]
+  // Simple stride-based deterministic sampling.
+  const stride = Math.max(1, Math.floor(anchors.length / n))
+  const out: SourceAnchor[] = []
+  for (let i = 0; i < anchors.length && out.length < n; i += stride) {
+    const a = anchors[i]
+    if (a) out.push(a)
+  }
+  return out
 }
 
 function checkUnitSchema(u: SourceUnit, issues: ValidationIssue[]): void {

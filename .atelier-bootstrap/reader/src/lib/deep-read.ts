@@ -16,14 +16,25 @@ import { readNdjson, writeNdjson, appendNdjson } from '../../../lib/src/ndjson.t
 import {
   deterministicId,
   type AttentionSet,
-  type KnowledgeObject,
   type ReaderProposal,
-  type SemanticClaim,
   type SourceRef,
-  INDEXER_PATHS,
   READER_PATHS,
 } from '../../../lib/src/index.ts'
 import { mkdir } from 'node:fs/promises'
+import {
+  anchorIdsForSourceRef,
+  anchorIdsForSourceRefs,
+  isDefaultExcludedPath,
+  loadCurrentReaderIndex,
+  validateSourceAnchorIds,
+  validateSourceRefs,
+  type ReaderKnowledgeObject,
+  type ReaderSemanticClaim,
+} from './relation-safety.ts'
+
+type AnchoredReaderProposal = ReaderProposal & {
+  source_anchor_ids?: string[]
+}
 
 function nowIso(): string {
   return new Date().toISOString()
@@ -54,8 +65,12 @@ export async function emitDeepReadProposals(attentionId: string): Promise<{
   if (!target) {
     throw new Error(`attention set not found: ${attentionId}`)
   }
-  const proposals: ReaderProposal[] = []
+  const currentIndex = await loadCurrentReaderIndex()
+  const proposals: AnchoredReaderProposal[] = []
   for (const ref of target.selected_source_refs) {
+    if (isDefaultExcludedPath(ref.path)) continue
+    const sourceAnchorIds = anchorIdsForSourceRef(currentIndex, ref)
+    if (sourceAnchorIds.length === 0) continue
     const head = await headOfFile(ref.path, 1024)
     if (head.length === 0) continue
     const lower = head.toLowerCase()
@@ -66,6 +81,7 @@ export async function emitDeepReadProposals(attentionId: string): Promise<{
         summary: `module exports behaviour inferred from ${ref.path}.`,
         knowledge_type: 'implementation_note',
         source_refs: [ref],
+        source_anchor_ids: sourceAnchorIds,
         affordances: ['context', 'packet-constraint', 'review-candidate'],
         confidence: 'hypothesis',
       })
@@ -77,6 +93,7 @@ export async function emitDeepReadProposals(attentionId: string): Promise<{
         text: `invariant statement detected in ${ref.path}`,
         modality: 'must',
         source_refs: [ref],
+        source_anchor_ids: sourceAnchorIds,
         confidence: 'inferred',
       })
     }
@@ -90,13 +107,18 @@ export async function emitDeepReadProposals(attentionId: string): Promise<{
     }
   }
   // Always include a semantic_claim tying the attention set to the task.
-  proposals.push({
-    proposal_kind: 'semantic_claim',
-    claim_type: 'assertion',
-    text: `attention set selected for task: ${target.task}`,
-    source_refs: target.selected_source_refs.slice(0, 1),
-    confidence: 'inferred',
-  })
+  const taskRefs = target.selected_source_refs.filter((ref) => !isDefaultExcludedPath(ref.path)).slice(0, 1)
+  const taskAnchorIds = anchorIdsForSourceRefs(currentIndex, taskRefs)
+  if (taskRefs.length > 0 && taskAnchorIds.length > 0) {
+    proposals.push({
+      proposal_kind: 'semantic_claim',
+      claim_type: 'assertion',
+      text: `attention set selected for task: ${target.task}`,
+      source_refs: taskRefs,
+      source_anchor_ids: taskAnchorIds,
+      confidence: 'inferred',
+    })
+  }
   await mkdir(READER_PATHS.proposalsDir, { recursive: true })
   const proposalsPath = path.join(READER_PATHS.proposalsDir, `${attentionId}.ndjson`)
   await writeNdjson(proposalsPath, proposals)
@@ -109,19 +131,33 @@ export async function emitDeepReadProposals(attentionId: string): Promise<{
  */
 export async function acceptProposals(
   inputPath: string,
-): Promise<{ knowledge: KnowledgeObject[]; semantics: SemanticClaim[] }> {
-  const proposals = await readNdjson<ReaderProposal>(inputPath)
-  const knowledge: KnowledgeObject[] = []
-  const semantics: SemanticClaim[] = []
+): Promise<{ knowledge: ReaderKnowledgeObject[]; semantics: ReaderSemanticClaim[] }> {
+  const proposals = await readNdjson<AnchoredReaderProposal>(inputPath)
+  const currentIndex = await loadCurrentReaderIndex()
+  const knowledge: ReaderKnowledgeObject[] = []
+  const semantics: ReaderSemanticClaim[] = []
   for (const [idx, p] of proposals.entries()) {
     if (!p || typeof p !== 'object') {
       throw new Error(`proposal ${idx} is not an object`)
     }
     if (p.proposal_kind !== 'project_hypothesis' && p.proposal_kind !== 'attention_item' && p.proposal_kind !== 'gap') {
       const refs = (p as { source_refs?: SourceRef[] }).source_refs
-      if (!refs) {
+      if (!refs || refs.length === 0) {
         throw new Error(`proposal ${idx} missing source_refs (kind=${p.proposal_kind})`)
       }
+      const refIssues = validateSourceRefs(currentIndex, refs)
+      if (refIssues.length > 0) {
+        throw new Error(`proposal ${idx} invalid source_refs: ${refIssues.join('; ')}`)
+      }
+      const proposedAnchorIds = (p as { source_anchor_ids?: string[] }).source_anchor_ids
+      const sourceAnchorIds = proposedAnchorIds && proposedAnchorIds.length > 0
+        ? proposedAnchorIds
+        : anchorIdsForSourceRefs(currentIndex, refs)
+      const anchorIssues = validateSourceAnchorIds(currentIndex, sourceAnchorIds)
+      if (anchorIssues.length > 0) {
+        throw new Error(`proposal ${idx} invalid source_anchor_ids: ${anchorIssues.join('; ')}`)
+      }
+      p.source_anchor_ids = sourceAnchorIds
     }
     const createdAt = nowIso()
     if (p.proposal_kind === 'knowledge_object') {
@@ -133,6 +169,7 @@ export async function acceptProposals(
         title: p.title,
         summary: p.summary,
         source_refs: p.source_refs,
+        source_anchor_ids: p.source_anchor_ids ?? anchorIdsForSourceRefs(currentIndex, p.source_refs),
         produced_by: 'reader',
         provenance_kind: 'llm_extracted',
         confidence: p.confidence,
@@ -149,6 +186,7 @@ export async function acceptProposals(
         version: '1',
         title: p.text.slice(0, 80),
         source_refs: p.source_refs,
+        source_anchor_ids: p.source_anchor_ids ?? anchorIdsForSourceRefs(currentIndex, p.source_refs),
         produced_by: 'reader',
         provenance_kind: 'llm_extracted',
         confidence: p.confidence,

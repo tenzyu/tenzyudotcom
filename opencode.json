@@ -24,19 +24,19 @@
     [
       "opencode-goal-plugin",
       {
-        "maxTurns": 40,
+        "maxTurns": 120,
         "maxDurationMs": 21600000,
-        "maxTokens": 4000000,
-        "minDelayMs": 1500,
-        "maxRecentMessages": 200,
-        "noProgressTokenThreshold": 50,
-        "noProgressTurnsBeforePause": 5,
-        "budgetWrapupRatio": 0.9,
-        "maxPromptFailures": 10,
+        "maxTokens": 10000000,
+        "minDelayMs": 1000,
+        "maxRecentMessages": 1000,
+        "noProgressTokenThreshold": 80,
+        "noProgressTurnsBeforePause": 8,
+        "budgetWrapupRatio": 0.92,
+        "maxPromptFailures": 16,
         "persistState": true,
         "stateFilePath": ".opencode/opencode-goal-plugin/state.json",
         "resultRetentionMs": 604800000,
-        "maxStoredResults": 200
+        "maxStoredResults": 300
       }
     ]
   ],
@@ -47,15 +47,17 @@
       "dist/**",
       "build/**",
       "coverage/**",
-      "harness/knowledge/implementation-control/atelier/state/legacy/**",
-      "harness/knowledge/implementation-control/atelier/archive/**"
+      "target/**",
+      ".atelier/v0/views/**",
+      ".atelier/v0/**/_fixtures/**",
+      "harness/atelier-autopoiesis/work/**"
     ]
   },
   "command": {
     "goal": {
       "description": "Set a session-scoped goal and auto-continue until complete. Provided by opencode-goal-plugin.",
       "template": "$ARGUMENTS",
-      "agent": "atelier-coordinator"
+      "agent": "atelier-autopoiesis-coordinator"
     }
   }
 }

@@ -11,7 +11,14 @@
  */
 import { readFile } from 'node:fs/promises'
 import { readNdjson, writeNdjson, appendNdjson } from '../../../lib/src/ndjson.ts'
-import { deterministicId, type AttentionSet, type SourceRef, type SourceUnit, INDEXER_PATHS, READER_PATHS } from '../../../lib/src/index.ts'
+import { deterministicId, type AttentionSet, type SourceRef, type SourceUnit, READER_PATHS } from '../../../lib/src/index.ts'
+import {
+  anchorsForUnit,
+  isDefaultExcludedPath,
+  loadCurrentReaderIndex,
+  sourceRefForUnit,
+  type ReaderAttentionSet,
+} from './relation-safety.ts'
 
 const STOP_WORDS = new Set<string>([
   'a', 'an', 'the', 'is', 'are', 'and', 'or', 'of', 'to', 'in', 'on', 'for',
@@ -46,6 +53,7 @@ const CONTENT_SCAN_BYTES = 4096
  */
 async function scoreUnit(unit: SourceUnit, tokens: ReadonlyArray<string>): Promise<number> {
   if (tokens.length === 0) return 0
+  if (isDefaultExcludedPath(unit.path)) return 0
   const pathParts = unit.path.toLowerCase().split(/[^a-z0-9_\-]+/)
   let score = 0
   for (const token of tokens) {
@@ -93,30 +101,35 @@ const EXCLUDED_IDS_CAP = 200
 export async function assembleAttention(
   task: string,
   budget: { target_tokens: number; max_tokens: number } = { target_tokens: 4000, max_tokens: 8000 },
-): Promise<AttentionSet> {
+): Promise<ReaderAttentionSet> {
   const tokens = tokenize(task)
-  const allUnits = await readNdjson<SourceUnit>(INDEXER_PATHS.objectsSource)
+  const currentIndex = await loadCurrentReaderIndex()
+  const allUnits = currentIndex.units
+  const candidateUnits = allUnits.filter((unit) => !isDefaultExcludedPath(unit.path))
   // Score all units in parallel. Each `scoreUnit` either returns a
   // path-based score (no I/O) or falls back to a small content scan;
   // running them concurrently keeps the assembly bounded by the
   // slowest file rather than the sum of all files.
   const scoredAll = await Promise.all(
-    allUnits.map(async (unit) => ({ unit, score: await scoreUnit(unit, tokens) })),
+    candidateUnits.map(async (unit) => ({ unit, score: await scoreUnit(unit, tokens) })),
   )
   const scored = scoredAll.filter((s) => s.score > 0)
   scored.sort((a, b) => b.score - a.score)
   // Cap at 25 to keep attention small and task-scoped.
   const top = scored.slice(0, 25)
   const selectedIds = top.map((t) => t.unit.id)
-  const selectedRefs: SourceRef[] = top.map((t) => ({
-    path: t.unit.path,
-    sha256: t.unit.sha256,
-  }))
+  const selectedRefs: SourceRef[] = top.map((t) => sourceRefForUnit(t.unit))
+  const selectedAnchorIds = [...new Set(top.flatMap((t) => anchorsForUnit(currentIndex, t.unit).slice(0, 2).map((a) => a.id)))]
   const excludedIds = allUnits
     .filter((u) => !selectedIds.includes(u.id))
     .map((u) => u.id)
     .slice(0, EXCLUDED_IDS_CAP)
-  const set: AttentionSet = {
+  const excludedAnchorIds = currentIndex.anchors
+    .filter((a) => !selectedAnchorIds.includes(a.id))
+    .map((a) => a.id)
+    .slice(0, EXCLUDED_IDS_CAP)
+  const hasSelected = selectedIds.length > 0 && selectedAnchorIds.length > 0
+  const set: ReaderAttentionSet = {
     id: deterministicId('att', task),
     kind: 'attention_set',
     version: '1',
@@ -130,16 +143,18 @@ export async function assembleAttention(
     created_at: nowIso(),
     task,
     selected_object_ids: selectedIds,
+    selected_anchor_ids: selectedAnchorIds,
     selected_source_refs: selectedRefs,
     excluded_object_ids: excludedIds,
+    excluded_anchor_ids: excludedAnchorIds,
     reason: `task-scoped selection for "${task}"`,
     budget,
-    gap_status: selectedIds.length > 0 ? 'sufficient' : 'insufficient',
+    gap_status: hasSelected ? 'sufficient' : 'insufficient',
   }
   // Merge with existing attention sets: replace any set with the same
   // id (idempotent re-run), keep all others. The id is deterministic
   // from the task string so this is the canonical upsert path.
-  const existing = await readNdjson<AttentionSet>(READER_PATHS.attention)
+  const existing = await readNdjson<ReaderAttentionSet>(READER_PATHS.attention)
   const merged = [...existing.filter((a) => a.id !== set.id), set]
   await writeNdjson(READER_PATHS.attention, merged)
   return set

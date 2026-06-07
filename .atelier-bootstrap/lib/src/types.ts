@@ -32,7 +32,7 @@ export type SourceRef = {
   sha256: string
 }
 
-export type AtelierProducer = 'indexer' | 'reader' | 'transformer' | 'executor'
+export type AtelierProducer = 'indexer' | 'reader' | 'transformer' | 'executor' | 'operation'
 
 /**
  * The base shape that every Atelier object conforms to.
@@ -128,6 +128,62 @@ export type SourceUnit = AtelierObjectBase & {
 }
 
 /**
+ * `SourceAnchor` is a first-class artifact that narrows a `SourceUnit`
+ * to a specific region, symbol, or script entry. While `SourceUnit`
+ * remains the mechanical chunk, anchors are the unit of traversal for
+ * the Relation Kernel: relations attach to anchors, not to whole files.
+ *
+ * `SourceAnchor` is intentionally a parallel artifact (not a subtype of
+ * `AtelierObjectBase`) because it is consumed by the indexer's
+ * downstream stages as the local endpoint of an edge.
+ */
+export type SourceAnchorKind =
+  | 'file'
+  | 'markdown_section'
+  | 'code_symbol_candidate'
+  | 'test_file'
+  | 'config_file'
+  | 'package_script'
+  | 'explicit_reference'
+
+export type SourceAnchorSelectorStrategy =
+  | 'path'
+  | 'line_range'
+  | 'heading'
+  | 'symbol'
+  | 'text_quote'
+
+export type SourceAnchorStatus =
+  | 'fresh'
+  | 'stale'
+  | 'conflicted'
+  | 'invalid'
+  | 'archived'
+  | 'quarantined'
+
+export type SourceAnchor = {
+  id: string
+  kind: SourceAnchorKind
+  path: string
+  start_line?: number
+  end_line?: number
+  heading_path?: string[]
+  symbol_name?: string
+  /**
+   * Deterministic sha256 of the anchor payload
+   * (kind + path + start_line + end_line + symbol_name + heading_path).
+   */
+  content_hash: string
+  selector_strategy: SourceAnchorSelectorStrategy
+  produced_by: 'indexer'
+  provenance_kind: 'deterministic_fact'
+  confidence: 'fact'
+  status: SourceAnchorStatus
+  source_refs: SourceRef[]
+  created_at: string
+}
+
+/**
  * LLM-derived records must use a different `produced_by` and `provenance_kind`
  * from deterministic facts. They also must carry source refs.
  */
@@ -197,13 +253,32 @@ export type ImplementationTask = AtelierObjectBase & {
   title: string
   goal: string
   source_object_ids: string[]
+  /**
+   * Source anchor ids that ground this task. Inherited from the
+   * attention set or design-doc units used to derive the task. May be
+   * empty for legacy tasks that predate the anchor requirement.
+   */
+  source_anchor_ids?: string[]
+  /**
+   * Accepted relation ids that grounded this task. The Relation Kernel
+   * invariant is that every `ready` task must have at least one. The
+   * field is additive and defaults to `[]` for legacy tasks.
+   */
+  source_relation_ids?: string[]
   source_refs: SourceRef[]
   required_knowledge_object_ids: string[]
   allowed_files: string[]
   forbidden_files: string[]
   acceptance_criteria: string[]
   risk_notes: string[]
-  status: 'draft' | 'ready' | 'blocked' | 'stale'
+  status: 'draft' | 'ready' | 'blocked' | 'stale' | 'candidate'
+  /**
+   * Symbolic ids pointing at the missing precondition(s) when the
+   * task is `status: 'blocked'`. The Relation Kernel writes entries
+   * like `no-accepted-relation-trace:attention:<attention-id>`.
+   * Additive; defaults to `[]` for legacy tasks.
+   */
+  blocker_ids?: string[]
   /**
    * Free-form tags. The transformer uses `fixture` to mark a task that
    * is a toy example or otherwise non-operational. The operation
@@ -229,7 +304,14 @@ export type TestContract = AtelierObjectBase & {
   expected_behavior: string[]
   negative_cases: string[]
   command: string
-  status: 'draft' | 'ready' | 'blocked' | 'stale'
+  /**
+   * Accepted relation ids inherited from the parent task. The Relation
+   * Kernel invariant requires that every `ready` TestContract has at
+   * least one accepted relation trace. Additive; defaults to `[]` for
+   * legacy contracts.
+   */
+  source_relation_ids?: string[]
+  status: 'draft' | 'ready' | 'blocked' | 'stale' | 'candidate'
 }
 
 export type EditBoundary = AtelierObjectBase & {
@@ -239,6 +321,18 @@ export type EditBoundary = AtelierObjectBase & {
   forbidden_files: string[]
   allowed_operations: Array<'create' | 'modify' | 'delete'>
   requires_user_approval: boolean
+  /**
+   * Accepted relation ids inherited from the parent task. Additive;
+   * defaults to `[]` for legacy boundaries.
+   */
+  source_relation_ids?: string[]
+  /**
+   * Accepted relation ids that motivated the allowed/forbidden file
+   * partitioning. For design-doc tasks this typically includes
+   * `constrains` relations; for attention-derived tasks this includes
+   * `references`/`verifies` relations that justify the scope.
+   */
+  rationale_relation_ids?: string[]
 }
 
 export type PacketTemplate = AtelierObjectBase & {
@@ -246,10 +340,26 @@ export type PacketTemplate = AtelierObjectBase & {
   task_id: string
   required_source_refs: SourceRef[]
   required_object_ids: string[]
+  /**
+   * Accepted relation ids inherited from the parent task. The Relation
+   * Kernel invariant requires that every PacketTemplate with
+   * non-empty `evidence_expectations` carries at least one accepted
+   * relation trace. Additive; defaults to `[]` for legacy templates.
+   */
+  source_relation_ids?: string[]
   allowed_files: string[]
   forbidden_files: string[]
   test_contract_ids: string[]
   evidence_expectations: string[]
+  /**
+   * Search policy for the executor:
+   *   - `none`: file scope is fully known (design-doc tasks)
+   *   - `bounded`: limited to attention-set selected refs
+   *   - `explicit_approval`: requires user sign-off before searching
+   *
+   * Defaults to `none` for legacy templates.
+   */
+  search_policy: 'none' | 'bounded' | 'explicit_approval'
   subagent_contract: string
 }
 
@@ -267,6 +377,13 @@ export type TransformRecommendation = AtelierObjectBase & {
   proposed_output_kind: string
   confidence: 'hypothesis' | 'inferred' | 'validated'
   status: 'proposed' | 'accepted' | 'rejected' | 'stale'
+  /**
+   * Accepted relation ids that justify the recommendation. The
+   * Relation Kernel invariant requires that `reason` cite at least
+   * one accepted relation id. Additive; defaults to `[]` for legacy
+   * recommendations.
+   */
+  source_relation_ids?: string[]
 }
 
 /**
@@ -304,12 +421,30 @@ export type EvidenceRecord = AtelierObjectBase & {
   kind: 'evidence_record'
   evidence_id: string
   packet_id: string
+  task_id?: string
+  /**
+   * The TestContract id this evidence satisfies.
+   *
+   * When present, the contract must exist in
+   * `transforms/md-to-code/model/test-contracts.ndjson` and have
+   * `status: 'ready'`. The strict runtime-proof invariant
+   * (REVIEW-LATEST.md P0-003 / P0-005) requires this on every
+   * `status: 'passed'` evidence that maps to a packet's
+   * `test_contract_ids`.
+   *
+   * The legacy `gate_id` field is preserved for backward compatibility
+   * with fixtures emitted before this field was added; new records
+   * SHOULD set `test_contract_id` and MAY also set `gate_id` for
+   * historical linkage.
+   */
+  test_contract_id?: string
   gate_id?: string
   command?: string
   status: 'passed' | 'failed' | 'skipped' | 'blocked' | 'unknown'
   raw_output_ref?: string
   diff_ref?: string
   file_hashes?: Record<string, string>
+  handoff_ref?: string
   created_at: string
 }
 
@@ -393,3 +528,34 @@ export type ReaderProposal =
       blocking: boolean
       source_refs?: SourceRef[]
     }
+
+/**
+ * A reader-emitted `RelationProposal`. The reader is allowed to propose
+ * only non-`contains` relations; the contract forbids `contains` from
+ * the reader. The proposal must cite at least one source anchor and
+ * one source ref. Pre-accept confidence is restricted to
+ * `hypothesis` or `inferred`.
+ *
+ * The `proposed_relation` is a partial `AtelierEdge`: at minimum
+ * `from`, `to`, and `kind` must be set so the proposal can be
+ * resolved against the indexer's anchor/object ids.
+ */
+export type RelationProposal = {
+  schema: 'atelier.relation-proposal/v1'
+  proposal_id: string
+  proposed_relation: Pick<AtelierEdge, 'from' | 'to' | 'kind'> &
+    Partial<Omit<AtelierEdge, 'from' | 'to' | 'kind'>>
+  rationale: string
+  source_anchor_ids: string[]
+  source_refs: SourceRef[]
+  confidence: 'hypothesis' | 'inferred'
+  status: 'proposed' | 'accepted' | 'rejected' | 'stale'
+  created_at: string
+  /**
+   * Optional manual-approval flag. When set to `true`, the proposal may
+   * be accepted by the `atelier:relations:accept` command even when its
+   * confidence is not `inferred`. Without this flag, only `inferred`
+   * proposals are auto-accepted.
+   */
+  manual_approval?: boolean
+}

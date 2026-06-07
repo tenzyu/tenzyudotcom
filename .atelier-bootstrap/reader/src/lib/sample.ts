@@ -12,6 +12,7 @@ import { readJson } from '../../../lib/src/json.ts'
 import { deterministicId, type SourceUnit, INDEXER_PATHS, READER_PATHS } from '../../../lib/src/index.ts'
 import type { ProjectBrief, ProjectHypothesis } from './types.ts'
 import { emitYaml } from '../../../lib/src/yaml.ts'
+import { isDefaultExcludedPath } from './relation-safety.ts'
 
 /**
  * The "cheap" set of files: a small, deterministic selection.
@@ -26,13 +27,14 @@ export function selectCheapSample(units: ReadonlyArray<SourceUnit>): SourceUnit[
     'tsconfig.json',
   ])
   const out: SourceUnit[] = []
-  for (const u of units) {
+  const candidates = units.filter((u) => !isDefaultExcludedPath(u.path))
+  for (const u of candidates) {
     if (wanted.has(u.path)) out.push(u)
   }
   // Add one TypeScript and one Markdown if present (cheap variety).
   let tsPicked = false
   let mdPicked = false
-  for (const u of units) {
+  for (const u of candidates) {
     if (!tsPicked && u.unit_type === 'symbol_candidate') {
       out.push(u)
       tsPicked = true

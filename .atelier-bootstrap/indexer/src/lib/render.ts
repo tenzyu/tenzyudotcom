@@ -3,7 +3,7 @@ import { mkdir, writeFile } from 'node:fs/promises'
 import { readJson } from '../../../lib/src/json.ts'
 import { readNdjson } from '../../../lib/src/ndjson.ts'
 import { INDEXER_OUTPUT } from './paths.ts'
-import { type SourceUnit } from '../../../lib/src/index.ts'
+import { type SourceUnit, type SourceAnchor, type AtelierEdge } from '../../../lib/src/index.ts'
 import { createLogger } from '../../../lib/src/logger.ts'
 
 const log = createLogger('indexer/render')
@@ -176,20 +176,78 @@ export async function renderAffected(): Promise<string> {
   return out.join('\n')
 }
 
+/**
+ * Render the ANCHORS view: anchor counts by kind, plus the count of
+ * non-`contains` relations. Generated from the anchor and edge files.
+ */
+export async function renderAnchors(): Promise<string> {
+  const anchors = await readNdjson<SourceAnchor>(INDEXER_OUTPUT.anchorsFile).catch(
+    () => [] as SourceAnchor[],
+  )
+  const edges = await readNdjson<AtelierEdge>(INDEXER_OUTPUT.edges).catch(
+    () => [] as AtelierEdge[],
+  )
+  const out: string[] = [header('ANCHORS', 'atelier-indexer relations-index')]
+  out.push(`Total anchors: ${anchors.length}`)
+  out.push('')
+  // Count by kind.
+  const byKind: Record<string, number> = {}
+  for (const a of anchors) byKind[a.kind] = (byKind[a.kind] ?? 0) + 1
+  out.push('## Anchors by kind')
+  out.push('| Kind | Count |')
+  out.push('| --- | ---: |')
+  const kinds = Object.keys(byKind).sort()
+  for (const k of kinds) out.push(`| \`${k}\` | ${byKind[k]} |`)
+  out.push('')
+  // Non-contains relations summary.
+  const nonContains = edges.filter((e) => e.kind !== 'contains')
+  const byEdge: Record<string, number> = {}
+  for (const e of nonContains) byEdge[e.kind] = (byEdge[e.kind] ?? 0) + 1
+  out.push('## Non-`contains` relations by kind')
+  out.push(`Total non-` + '`' + `contains` + '`' + ` relations: ${nonContains.length}`)
+  out.push('')
+  out.push('| Kind | Count |')
+  out.push('| --- | ---: |')
+  const edgeKinds = Object.keys(byEdge).sort()
+  if (edgeKinds.length === 0) {
+    out.push('| (none) | 0 |')
+  } else {
+    for (const k of edgeKinds) out.push(`| \`${k}\` | ${byEdge[k]} |`)
+  }
+  out.push('')
+  // Top anchors (by id) for quick scan, capped to 50.
+  out.push('## First anchors (capped to 50)')
+  out.push('| ID | Kind | Path | Symbol | Selector |')
+  out.push('| --- | --- | --- | --- | --- |')
+  for (const a of anchors.slice(0, 50)) {
+    out.push(
+      `| \`${a.id}\` | ${a.kind} | \`${a.path}\` | ${a.symbol_name ?? ''} | ${a.selector_strategy} |`,
+    )
+  }
+  if (anchors.length > 50) {
+    out.push(`| ... | | _${anchors.length - 50} more_ | | |`)
+  }
+  out.push('')
+  return out.join('\n')
+}
+
 export async function renderAll(): Promise<{ files: string[] }> {
   await mkdir(path.dirname(INDEXER_OUTPUT.viewIndexSummary), { recursive: true })
   const summary = await renderIndexSummary()
   const units = await renderSourceUnits()
   const affected = await renderAffected()
+  const anchors = await renderAnchors()
   await writeFile(INDEXER_OUTPUT.viewIndexSummary, summary, 'utf8')
   await writeFile(INDEXER_OUTPUT.viewSourceUnits, units, 'utf8')
   await writeFile(INDEXER_OUTPUT.viewAffected, affected, 'utf8')
+  await writeFile(INDEXER_OUTPUT.viewAnchors, anchors, 'utf8')
   log.info('rendered index views')
   return {
     files: [
       INDEXER_OUTPUT.viewIndexSummary,
       INDEXER_OUTPUT.viewSourceUnits,
       INDEXER_OUTPUT.viewAffected,
+      INDEXER_OUTPUT.viewAnchors,
     ],
   }
 }

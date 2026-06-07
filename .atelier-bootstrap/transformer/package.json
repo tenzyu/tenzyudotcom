@@ -8,8 +8,10 @@
   "scripts": {
     "transform": "bun src/commands/transform.ts",
     "task:derive": "bun src/commands/task-derive.ts",
+    "task:materialize": "bun src/commands/materialize-fixture-task.ts",
     "test-contract:derive": "bun src/commands/test-contract-derive.ts",
     "packet:template": "bun src/commands/packet-template.ts",
+    "create-fixture-task": "bun src/commands/materialize-fixture-task.ts",
     "recommend": "bun src/commands/recommend.ts",
     "render": "bun src/commands/render.ts",
     "validate": "bun src/commands/validate.ts"

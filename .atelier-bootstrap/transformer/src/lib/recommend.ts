@@ -8,6 +8,11 @@
  * and the collapsed pairs (with the original occurrence count and
  * representative id) are written to `duplicates.ndjson` so the
  * operation verifier can flag noisy readers.
+ *
+ * Each recommendation's `reason` MUST cite at least one accepted
+ * relation id. If the corresponding `KnowledgeObject` is grounded in
+ * accepted relations, those ids are recorded in
+ * `source_relation_ids` and the first id is cited in `reason`.
  */
 import { readNdjson, writeNdjson } from '../../../lib/src/ndjson.ts'
 import {
@@ -18,6 +23,7 @@ import {
   READER_PATHS,
   TRANSFORMER_PATHS,
 } from '../../../lib/src/index.ts'
+import { loadAcceptedRelations, pickAcceptedRelationsForAnchors } from './relations.ts'
 
 function nowIso(): string {
   return new Date().toISOString()
@@ -58,6 +64,14 @@ export interface EmitRecommendationsResult {
    * to report "N raw → M unique".
    */
   raw_pair_count: number
+  /**
+   * Number of raw pairs that were skipped because the underlying
+   * knowledge object had no accepted relation trace. These pairs are
+   * counted in `raw_pair_count` but do NOT produce an emitted
+   * recommendation. The relation-kernel invariant requires that
+   * every emitted recommendation cite an accepted relation.
+   */
+  ungrounded_skipped: number
 }
 
 export async function emitRecommendations(): Promise<TransformRecommendation[]> {
@@ -67,9 +81,11 @@ export async function emitRecommendations(): Promise<TransformRecommendation[]> 
 
 export async function emitRecommendationsDetailed(): Promise<EmitRecommendationsResult> {
   const knowledge = await readNdjson<KnowledgeObject>(READER_PATHS.knowledge)
+  const accepted = await loadAcceptedRelations()
   const seen = new Map<string, TransformRecommendation>()
   const dupCounts = new Map<string, number>()
   let rawPairCount = 0
+  let ungroundedSkipped = 0
   for (const k of knowledge) {
     for (const a of k.affordances) {
       if (a === 'context') continue
@@ -77,9 +93,26 @@ export async function emitRecommendationsDetailed(): Promise<EmitRecommendations
       const recType = a as TransformRecommendation['recommendation_type']
       const key = `${k.id}|${recType}`
       rawPairCount += 1
+      // Find accepted relations that ground this knowledge object.
+      // Anchor ids overlap with the knowledge object's id and the
+      // source_refs it carries.
+      const relatedAnchors = collectKnowledgeAnchorIds(k)
+      const groundingRelations = pickAcceptedRelationsForAnchors(relatedAnchors, accepted)
+      // Relation Kernel invariant: a recommendation MUST cite an
+      // accepted relation. If the knowledge object is not grounded in
+      // any accepted relation, we count the raw pair but do NOT emit
+      // the recommendation (skipped). This is stricter than the prior
+      // "ungrounded" marker and aligns with the contract.
+      if (groundingRelations.length === 0) {
+        ungroundedSkipped += 1
+        continue
+      }
       const next = (dupCounts.get(key) ?? 0) + 1
       dupCounts.set(key, next)
       if (seen.has(key)) continue
+      const relationIds = groundingRelations.map((r) => r.id)
+      const baseReason = k.summary
+      const reason = `${baseReason} (based on edge:${relationIds[0]} ${groundingRelations[0]!.kind}: ${groundingRelations[0]!.from} -> ${groundingRelations[0]!.to})`
       seen.set(key, {
         id: deterministicId('rec', key),
         kind: 'transform_recommendation',
@@ -94,8 +127,9 @@ export async function emitRecommendationsDetailed(): Promise<EmitRecommendations
         created_at: nowIso(),
         source_object_id: k.id,
         recommendation_type: recType,
-        reason: k.summary,
+        reason,
         proposed_output_kind: proposedOutputKind(recType),
+        source_relation_ids: relationIds,
       })
     }
   }
@@ -120,5 +154,23 @@ export async function emitRecommendationsDetailed(): Promise<EmitRecommendations
   duplicates.sort((a, b) => a.source_object_id.localeCompare(b.source_object_id))
   await writeNdjson(TRANSFORMER_PATHS.recommendations, recommendations)
   await writeNdjson(TRANSFORMER_PATHS.duplicates, duplicates)
-  return { recommendations, duplicates, raw_pair_count: rawPairCount }
+  return { recommendations, duplicates, raw_pair_count: rawPairCount, ungrounded_skipped: ungroundedSkipped }
+}
+
+/**
+ * Anchor ids to use for matching accepted relations to a knowledge
+ * object. A knowledge object's `id` is itself an anchor-like id, and
+ * `source_anchor_ids` (when present) lists source anchors the reader
+ * recorded. We union them so relation matching works even for legacy
+ * knowledge objects that predate the field.
+ */
+function collectKnowledgeAnchorIds(k: KnowledgeObject): string[] {
+  const out: string[] = [k.id]
+  const sourceAnchorIds = (k as unknown as { source_anchor_ids?: string[] }).source_anchor_ids
+  if (Array.isArray(sourceAnchorIds)) {
+    for (const id of sourceAnchorIds) {
+      if (typeof id === 'string' && id.length > 0) out.push(id)
+    }
+  }
+  return out
 }

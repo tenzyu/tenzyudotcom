@@ -11,6 +11,8 @@ import { writeJson } from '../../../lib/src/json.ts'
 import { writeNdjson } from '../../../lib/src/ndjson.ts'
 import { INDEXER_OUTPUT } from './paths.ts'
 import type { ScanFileRow, ScanResult } from './scan.ts'
+import { buildAnchors, buildByAnchorIndex } from './anchors.ts'
+import { buildDeterministicRelations } from './relations.ts'
 
 const log = createLogger('indexer/build')
 
@@ -267,9 +269,14 @@ export async function writeIndex(scan: ScanResult): Promise<{
   units: number
   facts: number
   edges: number
+  anchors: number
+  non_contains_edges: number
 }> {
   const { units, facts } = buildObjects(scan)
-  const edges = buildEdges(units)
+  const containsEdges = buildEdges(units)
+  const anchors = await buildAnchors(scan)
+  const deterministicEdges = await buildDeterministicRelations(units, anchors, scan)
+  const allEdges = [...containsEdges, ...deterministicEdges]
   await writeJson(INDEXER_OUTPUT.factsRepo, scan.repo)
   await writeJson(INDEXER_OUTPUT.factsPackage, scan.package)
   await writeJson(INDEXER_OUTPUT.factsScripts, scan.scripts)
@@ -281,8 +288,11 @@ export async function writeIndex(scan: ScanResult): Promise<{
   )
   await writeJson(INDEXER_OUTPUT.factsExtensions, scan.extensions)
   await writeNdjson(INDEXER_OUTPUT.objectsSource, units)
-  await writeNdjson(INDEXER_OUTPUT.edges, edges)
-  log.info(`wrote ${units.length} source units, ${facts.length} facts, ${edges.length} edges`)
+  await writeNdjson(INDEXER_OUTPUT.anchorsFile, anchors)
+  await writeNdjson(INDEXER_OUTPUT.edges, allEdges)
+  log.info(
+    `wrote ${units.length} source units, ${facts.length} facts, ${anchors.length} anchors, ${allEdges.length} edges (${deterministicEdges.length} non-contains)`,
+  )
 
   // Build indexes.
   const byPath: Record<string, string> = {}
@@ -299,16 +309,24 @@ export async function writeIndex(scan: ScanResult): Promise<{
     }
   }
   const byObject: Record<string, string[]> = {}
-  for (const e of edges) {
+  for (const e of allEdges) {
     if (!byObject[e.from]) byObject[e.from] = []
     byObject[e.from].push(e.to)
   }
+  const byAnchor = buildByAnchorIndex(anchors)
   await writeJson(INDEXER_OUTPUT.indexByPath, byPath)
   await writeJson(INDEXER_OUTPUT.indexByKind, byKind)
   await writeJson(INDEXER_OUTPUT.indexByHash, byHash)
   await writeJson(INDEXER_OUTPUT.indexByObject, byObject)
+  await writeJson(INDEXER_OUTPUT.indexByAnchor, byAnchor)
   await writeJson(INDEXER_OUTPUT.indexStale, { stale: [] })
   // Also write facts as NDJSON so the reader can scan them.
   await writeNdjson(path.join(path.dirname(INDEXER_OUTPUT.objectsSource), 'facts.ndjson'), facts)
-  return { units: units.length, facts: facts.length, edges: edges.length }
+  return {
+    units: units.length,
+    facts: facts.length,
+    edges: allEdges.length,
+    anchors: anchors.length,
+    non_contains_edges: deterministicEdges.length,
+  }
 }

@@ -15,6 +15,7 @@ import {
   type EvidenceRecord,
   type ExecutionPacket,
   type SubagentHandoff,
+  type TestContract,
   EXECUTOR_PATHS,
   TRANSFORMER_PATHS,
 } from '../../../lib/src/index.ts'
@@ -24,25 +25,148 @@ function nowIso(): string {
   return new Date().toISOString()
 }
 
+export type EvidenceRuntimeProofKind = 'command_output' | 'diff_hashes' | 'handoff'
+
+function normalizeCommand(command: string): string {
+  return command.trim().replace(/\s+/g, ' ')
+}
+
+/**
+ * Test evidence may either run the exact TestContract command or a
+ * direct specialization of it (for example `bun test` ->
+ * `bun test path/to/file.test.ts`). Unrelated commands must never
+ * satisfy a contract.
+ */
+export function commandCorrespondsToContract(
+  evidenceCommand: string | undefined,
+  contractCommand: string | undefined,
+): boolean {
+  if (!evidenceCommand || !contractCommand) return false
+  const evidence = normalizeCommand(evidenceCommand)
+  const contract = normalizeCommand(contractCommand)
+  if (evidence.length === 0 || contract.length === 0) return false
+  if (evidence === contract) return true
+  return evidence.startsWith(`${contract} `)
+}
+
+export function isTestContractEmpty(contract: TestContract): boolean {
+  return (
+    contract.command.trim().length === 0 ||
+    (contract.test_files.length === 0 && contract.expected_behavior.length === 0)
+  )
+}
+
+export function testContractCompletionBlocker(contract: TestContract): string | undefined {
+  if (contract.status !== 'ready') return `test contract ${contract.test_contract_id} has status '${contract.status}' (must be 'ready')`
+  if (isTestContractEmpty(contract)) return `test contract ${contract.test_contract_id} is empty (requires a command and test_files or expected_behavior)`
+  return undefined
+}
+
+async function handoffRefIsValidated(evidence: EvidenceRecord): Promise<boolean> {
+  if (!evidence.handoff_ref || evidence.handoff_ref.trim().length === 0) return false
+  if (!existsSync(evidence.handoff_ref)) return false
+  if (!evidence.packet_id) return false
+  try {
+    const validated = await validateHandoffFile(evidence.handoff_ref, evidence.packet_id)
+    return validated.ok
+  } catch {
+    return false
+  }
+}
+
+export async function evidenceRuntimeProofKind(
+  evidence: EvidenceRecord,
+  opts: { isFixture?: boolean } = {},
+): Promise<EvidenceRuntimeProofKind | null> {
+  if (evidence.raw_output_ref && evidence.command && evidence.command.trim().length > 0) {
+    if (opts.isFixture) {
+      if (evidence.raw_output_ref !== '') return 'command_output'
+    } else if (existsSync(evidence.raw_output_ref)) {
+      return 'command_output'
+    }
+  }
+
+  if (
+    evidence.diff_ref &&
+    evidence.file_hashes &&
+    Object.keys(evidence.file_hashes).length > 0
+  ) {
+    if (opts.isFixture) {
+      if (evidence.diff_ref !== '') return 'diff_hashes'
+    } else if (existsSync(evidence.diff_ref)) {
+      return 'diff_hashes'
+    }
+  }
+
+  if (await handoffRefIsValidated(evidence)) return 'handoff'
+  return null
+}
+
 /**
  * Runtime proof predicate.
  *
- * An `EvidenceRecord` is considered to carry runtime proof when it
- * references at least one of:
- *   - `raw_output_ref` pointing to a real file on disk
- *   - `diff_ref` pointing to a real file on disk
- *   - `file_hashes` containing at least one entry
+ * An `EvidenceRecord` is considered to carry runtime proof only when it
+ * references one of the contract-approved proof shapes:
+ *   - `command` + `raw_output_ref` pointing to a real file on disk
+ *   - `diff_ref` pointing to a real file on disk + non-empty `file_hashes`
+ *   - `handoff_ref` pointing to a handoff that validates against the packet
  *
- * `command` alone is NOT runtime proof — it is only metadata describing
- * what was attempted. This predicate is used by the validator and by
- * `packet:complete` to refuse "passed" status that lacks a concrete
- * artifact.
+ * `command` alone, raw output without the command that produced it, or
+ * file hashes without a diff are NOT runtime proof. This predicate is
+ * used by the validator and by `packet:complete` to refuse "passed"
+ * status that lacks a concrete artifact.
+ *
+ * Quarantined fixture evidence (records under
+ * `runs/evidence/_fixtures/`) is exempt from the disk-existence check
+ * on `raw_output_ref` / `diff_ref`: a fixture is allowed to point at a
+ * file that is rebuilt by the executor test. This mirrors the
+ * `runs/evidence/_fixtures/` quarantine policy used by the operation
+ * layer and keeps historical / demo fixtures from breaking the
+ * validator.
  */
-export async function hasRuntimeProof(evidence: EvidenceRecord): Promise<boolean> {
-  if (evidence.raw_output_ref && existsSync(evidence.raw_output_ref)) return true
-  if (evidence.diff_ref && existsSync(evidence.diff_ref)) return true
-  if (evidence.file_hashes && Object.keys(evidence.file_hashes).length > 0) return true
-  return false
+export async function hasRuntimeProof(
+  evidence: EvidenceRecord,
+  opts: { isFixture?: boolean } = {},
+): Promise<boolean> {
+  return (await evidenceRuntimeProofKind(evidence, opts)) !== null
+}
+
+export async function evidenceSatisfiesTestContract(
+  evidence: EvidenceRecord,
+  packet: ExecutionPacket,
+  contract: TestContract,
+): Promise<{ ok: true } | { ok: false; reason: string }> {
+  if (evidence.status !== 'passed') return { ok: false, reason: `evidence ${evidence.evidence_id} is not passed` }
+  if (evidence.packet_id !== packet.id) {
+    return { ok: false, reason: `evidence ${evidence.evidence_id} packet_id ${evidence.packet_id ?? '<missing>'} does not match packet ${packet.id}` }
+  }
+  if (!evidence.task_id) return { ok: false, reason: `evidence ${evidence.evidence_id} lacks task_id` }
+  if (evidence.task_id !== packet.task_id) {
+    return { ok: false, reason: `evidence ${evidence.evidence_id} task_id ${evidence.task_id} does not match packet task_id ${packet.task_id}` }
+  }
+  if (evidence.task_id !== contract.task_id) {
+    return { ok: false, reason: `evidence ${evidence.evidence_id} task_id ${evidence.task_id} does not match test contract task_id ${contract.task_id}` }
+  }
+  if (!evidence.test_contract_id) return { ok: false, reason: `evidence ${evidence.evidence_id} lacks test_contract_id` }
+  if (evidence.test_contract_id !== contract.test_contract_id) {
+    return { ok: false, reason: `evidence ${evidence.evidence_id} test_contract_id ${evidence.test_contract_id} does not match ${contract.test_contract_id}` }
+  }
+  if (!packet.test_contract_ids.includes(evidence.test_contract_id)) {
+    return { ok: false, reason: `evidence ${evidence.evidence_id} test_contract_id ${evidence.test_contract_id} is not in packet ${packet.id}'s test_contract_ids` }
+  }
+  const contractBlocker = testContractCompletionBlocker(contract)
+  if (contractBlocker) return { ok: false, reason: contractBlocker }
+  const proofKind = await evidenceRuntimeProofKind(evidence)
+  if (!proofKind) return { ok: false, reason: `evidence ${evidence.evidence_id} lacks runtime proof` }
+  if (proofKind === 'command_output' || evidence.command) {
+    if (!commandCorrespondsToContract(evidence.command, contract.command)) {
+      return {
+        ok: false,
+        reason: `evidence ${evidence.evidence_id} command '${evidence.command ?? '<missing>'}' does not match or derive from TestContract ${contract.test_contract_id} command '${contract.command}'`,
+      }
+    }
+  }
+  return { ok: true }
 }
 
 /**
@@ -143,13 +267,28 @@ export async function saveEvidence(record: EvidenceRecord): Promise<void> {
  * Run the test command from the packet's test contracts and record
  * evidence. This function DOES NOT write product code. It only runs
  * the test command and captures the output.
+ *
+ * When `commandOverride` is supplied, it replaces the TestContract
+ * command for the duration of THIS run. The recorded evidence still
+ * cites the packet's `test_contract_id` (so the relation-kernel
+ * correspondence invariant still holds), but the captured
+ * `raw_output_ref` and the `evidence.command` field reflect the
+ * override. The validator's `commandCorrespondsToContract` helper
+ * accepts the override as a strict prefix of the contract command
+ * (e.g. `bun test src/main.test.ts` derives from `bun test`).
  */
-export async function runTestCommand(packetId: string): Promise<EvidenceRecord> {
+export async function runTestCommand(
+  packetId: string,
+  opts: { commandOverride?: string } = {},
+): Promise<EvidenceRecord> {
   const packet = await getPacket(packetId)
   if (!packet) throw new Error(`packet not found: ${packetId}`)
   const tests = await readNdjson<{ test_contract_id: string; task_id: string; command: string }>(TRANSFORMER_PATHS.testContracts)
   const test = tests.find((t) => packet.test_contract_ids.includes(t.test_contract_id))
   if (!test) throw new Error(`no test contract for packet: ${packetId}`)
+  const effectiveCommand = opts.commandOverride && opts.commandOverride.trim().length > 0
+    ? opts.commandOverride
+    : test.command
   await appendLedgerEvent({
     schema: 'atelier.run-ledger-event/v1',
     event_id: randomId('evt'),
@@ -161,7 +300,7 @@ export async function runTestCommand(packetId: string): Promise<EvidenceRecord> 
   let stdout = ''
   let exitCode = 0
   try {
-    const proc = Bun.spawnSync(['bash', '-lc', test.command], {
+    const proc = Bun.spawnSync(['bash', '-lc', effectiveCommand], {
       cwd: process.cwd(),
       env: process.env,
     })
@@ -186,8 +325,10 @@ export async function runTestCommand(packetId: string): Promise<EvidenceRecord> 
     created_at: nowIso(),
     evidence_id: deterministicId('evi', `${packet.id}:${test.test_contract_id}`),
     packet_id: packet.id,
+    task_id: packet.task_id,
+    test_contract_id: test.test_contract_id,
     gate_id: test.test_contract_id,
-    command: test.command,
+    command: effectiveCommand,
     raw_output_ref: rawPath,
   }
   await saveEvidence(record)
@@ -216,37 +357,114 @@ export async function addEvidence(
   gateId: string,
   status: EvidenceRecord['status'],
   opts: {
+    /**
+     * The TestContract id this evidence satisfies. When set, it must
+     * resolve to a contract in
+     * `transforms/md-to-code/model/test-contracts.ndjson` and the
+     * contract must have `status: 'ready'` — both checks are enforced
+     * at write time for `status: 'passed'` evidence and at validate
+     * time for every evidence record that carries the field.
+     */
+    testContractId?: string
+    /**
+     * Optional task id to attach to the record. Falls back to the
+     * packet's `task_id` when omitted.
+     */
+    taskId?: string
     command?: string
     rawOutputRef?: string
     diffRef?: string
     fileHashes?: Record<string, string>
+    handoffRef?: string
   } = {},
 ): Promise<EvidenceRecord> {
   const packet = await getPacket(packetId)
   if (!packet) throw new Error(`packet not found: ${packetId}`)
-  if (!opts.command && !opts.rawOutputRef && !opts.diffRef && !opts.fileHashes) {
-    throw new Error('evidence must reference raw output, a diff, file hashes, or a command')
+  if (!opts.command && !opts.rawOutputRef && !opts.diffRef && !opts.fileHashes && !opts.handoffRef) {
+    throw new Error('evidence must reference raw output, a diff, file hashes, a validated handoff, or a command')
   }
   if (status === 'passed') {
-    // Passed status requires runtime proof at write time. `command` alone
-    // is not sufficient. At least one of raw_output_ref / diff_ref /
-    // file_hashes must be provided (and raw_output_ref / diff_ref must
-    // point to a real file on disk).
-    const hasRaw = !!opts.rawOutputRef && existsSync(opts.rawOutputRef)
-    const hasDiff = !!opts.diffRef && existsSync(opts.diffRef)
+    // Passed status requires runtime proof at write time. `command` alone,
+    // raw output without the command, and hashes without a diff are not
+    // sufficient.
+    const hasCommandRaw = !!opts.command && !!opts.rawOutputRef && existsSync(opts.rawOutputRef)
     const hasHashes = !!opts.fileHashes && Object.keys(opts.fileHashes).length > 0
-    if (!hasRaw && !hasDiff && !hasHashes) {
+    const hasDiffHashes = !!opts.diffRef && existsSync(opts.diffRef) && hasHashes
+    let hasValidatedHandoff = false
+    if (opts.handoffRef) {
+      const handoffEvidence = {
+        packet_id: packetId,
+        evidence_id: 'candidate',
+        handoff_ref: opts.handoffRef,
+      } as EvidenceRecord
+      hasValidatedHandoff = await handoffRefIsValidated(handoffEvidence)
+    }
+    if (!hasCommandRaw && !hasDiffHashes && !hasValidatedHandoff) {
       throw new Error(
-        'passed evidence requires runtime proof: provide raw_output_ref (path to a real file), diff_ref (path to a real file), or file_hashes (non-empty object). `command` alone is not sufficient.',
+        'passed evidence requires runtime proof: provide command + raw_output_ref (path to a real file), diff_ref + file_hashes, or a validated handoff_ref. `command` alone is not sufficient.',
+      )
+    }
+    if (packet.test_contract_ids.length > 0 && !opts.testContractId) {
+      throw new Error(
+        `passed evidence for packet ${packetId} must include test_contract_id (packet test_contract_ids: ${packet.test_contract_ids.join(', ')})`,
       )
     }
   }
-  const id = deterministicId('evi', `${packetId}:${gateId}:${Date.now()}`)
+  const effectiveTaskId = opts.taskId ?? packet.task_id
+  if (opts.taskId && opts.taskId !== packet.task_id) {
+    throw new Error(`task_id ${opts.taskId} does not match packet ${packetId}'s task_id ${packet.task_id}`)
+  }
+  if (opts.testContractId) {
+    // Validate that the test contract id resolves to a real contract
+    // and that the contract is `ready` (not `candidate` / `blocked`).
+    // This is enforced at write time for `passed` evidence so the
+    // operation layer's `checkEvidenceInvariant` cannot trip later.
+    const tests = await readNdjson<TestContract>(TRANSFORMER_PATHS.testContracts)
+    const contract = tests.find((t) => t.test_contract_id === opts.testContractId)
+    if (!contract) {
+      throw new Error(
+        `test_contract_id ${opts.testContractId} does not resolve to a real test contract in ${TRANSFORMER_PATHS.testContracts}`,
+      )
+    }
+    if (contract.status !== 'ready') {
+      throw new Error(
+        `test_contract_id ${opts.testContractId} has status '${contract.status}'; only 'ready' contracts can be satisfied (REVIEW-LATEST.md P0-005)`,
+      )
+    }
+    if (isTestContractEmpty(contract)) {
+      throw new Error(
+        `test_contract_id ${opts.testContractId} is empty; it requires a command and test_files or expected_behavior`,
+      )
+    }
+    if (effectiveTaskId !== contract.task_id) {
+      throw new Error(
+        `task_id ${effectiveTaskId} does not match test_contract_id ${opts.testContractId}'s task_id ${contract.task_id}`,
+      )
+    }
+    if (status === 'passed' && !packet.test_contract_ids.includes(opts.testContractId)) {
+      throw new Error(
+        `test_contract_id ${opts.testContractId} is not in packet ${packetId}'s test_contract_ids (${packet.test_contract_ids.join(', ') || '<none>'})`,
+      )
+    }
+    if (status === 'passed' && opts.command && !commandCorrespondsToContract(opts.command, contract.command)) {
+      throw new Error(
+        `evidence command '${opts.command}' does not match or explicitly derive from TestContract ${opts.testContractId} command '${contract.command}'`,
+      )
+    }
+  }
+  // Build a deterministic evidence id so duplicates collapse:
+  //   ev:<sha256(packetId|contractId-or-'_'|command-or-status)>
+  // The legacy `gateId` slot is folded in for backward compatibility —
+  // existing CLIs that pass a non-empty gate will still get a stable
+  // (and now contract-aware) id.
+  const contractId = opts.testContractId ?? gateId ?? '_'
+  const keyPart = opts.command && opts.command.length > 0 ? opts.command : status
+  const id = deterministicId('evi', `${packetId}|${contractId}|${keyPart}`)
   const record: EvidenceRecord = {
     id,
     kind: 'evidence_record',
     version: '1',
-    title: `evidence for ${packetId} gate ${gateId}`,
+    title: `evidence for ${packetId}` + (opts.testContractId ? ` contract ${opts.testContractId}` : (gateId ? ` gate ${gateId}` : '')),
     source_refs: [],
     produced_by: 'executor',
     provenance_kind: 'runtime_evidence',
@@ -256,11 +474,14 @@ export async function addEvidence(
     created_at: nowIso(),
     evidence_id: id,
     packet_id: packetId,
+    task_id: effectiveTaskId,
+    test_contract_id: opts.testContractId,
     gate_id: gateId,
     command: opts.command,
     raw_output_ref: opts.rawOutputRef,
     diff_ref: opts.diffRef,
     file_hashes: opts.fileHashes,
+    handoff_ref: opts.handoffRef,
   }
   await saveEvidence(record)
   await appendLedgerEvent({
@@ -275,12 +496,38 @@ export async function addEvidence(
 }
 
 /**
+ * Match `path` against a list of `allowed_files` patterns.
+ *
+ * Each `allowed_files` entry is matched either as an exact string or
+ * as a directory prefix (entries ending with `/`). Glob-like `**`
+ * suffixes (e.g. `.atelier-bootstrap/executor/**`) are honored by
+ * stripping the `/**` and treating the remainder as a directory
+ * prefix.
+ */
+function isPathAllowed(path: string, allowed: ReadonlyArray<string>): boolean {
+  for (const a of allowed) {
+    if (a === path) return true
+    if (a.endsWith('/**')) {
+      const dir = a.slice(0, -3)
+      if (path === dir || path.startsWith(dir + '/')) return true
+      continue
+    }
+    if (a.endsWith('/')) {
+      if (path.startsWith(a)) return true
+      continue
+    }
+  }
+  return false
+}
+
+/**
  * Validate a handoff JSON against the contract.
  *
  * Returns `{ ok: true }` on success and `{ ok: false, errors: [...] }`
  * on failure. The validator is strict: empty `summary` over 80 chars,
- * missing required fields, files outside `allowed_files`, and
- * non-canonical `gate_results` are all rejected.
+ * missing required fields, files outside `allowed_files`, non-canonical
+ * `gate_results`, missing on-disk evidence paths, and missing
+ * on-disk `files_changed` paths are all rejected.
  */
 export async function validateHandoff(handoff: SubagentHandoff, packet: ExecutionPacket): Promise<{ ok: true } | { ok: false; errors: string[] }> {
   const errors: string[] = []
@@ -289,18 +536,29 @@ export async function validateHandoff(handoff: SubagentHandoff, packet: Executio
   if (!handoff.run_id) errors.push('run_id missing')
   if (handoff.summary && handoff.summary.length > 80) errors.push(`summary too long: ${handoff.summary.length} > 80`)
   for (const f of handoff.files_changed) {
-    if (!packet.allowed_files.some((a) => f === a || a.endsWith('/') && f.startsWith(a))) {
+    if (!isPathAllowed(f, packet.allowed_files)) {
       errors.push(`file_changed outside allowed_files: ${f}`)
+    }
+    if (!existsSync(f)) {
+      errors.push(`file_changed path missing on disk: ${f}`)
     }
   }
   for (const f of handoff.tests_written) {
-    if (!packet.allowed_files.some((a) => f === a || a.endsWith('/') && f.startsWith(a))) {
+    if (!isPathAllowed(f, packet.allowed_files)) {
       errors.push(`test_written outside allowed_files: ${f}`)
     }
   }
   if (Object.keys(handoff.gate_results).length === 0) errors.push('gate_results is empty')
   for (const gate of Object.keys(handoff.gate_results)) {
     if (!packet.test_contract_ids.includes(gate)) errors.push(`unknown gate: ${gate}`)
+  }
+  // Every evidence_paths entry must exist on disk (P0: handoff must
+  // reference concrete files, not just claim them). This mirrors the
+  // packet-validator `E_HANDBOFF_PATH_MISSING` check.
+  for (const p of handoff.evidence_paths ?? []) {
+    if (!existsSync(p)) {
+      errors.push(`evidence_paths path missing on disk: ${p}`)
+    }
   }
   // Prose-only handoffs are rejected: a handoff with no gate_results,
   // no files_changed, and no tests_written carries no concrete deliverable
@@ -381,6 +639,202 @@ export async function recordBlocker(
     status: severity,
   })
   return blocker
+}
+
+/**
+ * Decide whether a live `EvidenceRecord` should be quarantined.
+ *
+ * A record is quarantine-eligible when it would otherwise fail the
+ * strict runtime-proof invariant or the strict test-contract
+ * correspondence check. Specifically:
+ *
+ *   1. `status === 'passed'` AND the record lacks any runtime-proof
+ *      shape (no command+raw_output_ref on disk, no diff_ref+file_hashes,
+ *      and no validated handoff_ref).
+ *   2. `status === 'passed'` AND its `command` does not match or
+ *      explicitly derive from the referenced TestContract's command.
+ *   3. `status === 'passed'` AND the referenced TestContract is missing
+ *      or has a non-`ready` status.
+ *
+ * Quarantine-exempt records (records under `_fixtures/`, or LIVE
+ * records that pass all of the above checks) are returned as `{ ok:
+ * true, ... }`. Records under `_fixtures/` are NEVER re-evaluated; the
+ * function only inspects the LIVE evidence directory.
+ *
+ * This function does NOT move any files; it only reports whether the
+ * caller should. Use `quarantineEvidence` for the side-effecting move.
+ */
+export type QuarantineDecision =
+  | { ok: true; reason: 'live' | 'fixture'; record: EvidenceRecord }
+  | {
+      ok: false
+      reason:
+        | 'passed_no_runtime_proof'
+        | 'passed_command_mismatch'
+        | 'passed_missing_contract'
+        | 'passed_blocked_contract'
+        | 'passed_empty_contract'
+      record: EvidenceRecord
+    }
+
+export async function evaluateQuarantine(record: EvidenceRecord, opts: { isFixture?: boolean } = {}): Promise<QuarantineDecision> {
+  if (opts.isFixture) return { ok: true, reason: 'fixture', record }
+  if (record.status !== 'passed') return { ok: true, reason: 'live', record }
+  // Rule 1: runtime proof.
+  const proofKind = await evidenceRuntimeProofKind(record)
+  if (!proofKind) {
+    return { ok: false, reason: 'passed_no_runtime_proof', record }
+  }
+  // Rules 2/3: test-contract correspondence. We only enforce these
+  // when the evidence cites a test_contract_id. A passed evidence with
+  // no test_contract_id is a separate invariant (E_EVIDENCE_TEST_CONTRACT_REQUIRED)
+  // and the caller is expected to address it via `evidence:add`, not
+  // quarantine. The quarantine policy is conservative: a record with
+  // no test_contract_id is left alone, because moving it would erase
+  // the evidence that proves the packet's test contract was (or was
+  // not) satisfied.
+  if (record.test_contract_id) {
+    const tests = await readNdjson<TestContract>(TRANSFORMER_PATHS.testContracts).catch(() => [] as TestContract[])
+    const contract = tests.find((t) => t.test_contract_id === record.test_contract_id)
+    if (!contract) return { ok: false, reason: 'passed_missing_contract', record }
+    if (contract.status !== 'ready') return { ok: false, reason: 'passed_blocked_contract', record }
+    if (isTestContractEmpty(contract)) return { ok: false, reason: 'passed_empty_contract', record }
+    if (record.command && !commandCorrespondsToContract(record.command, contract.command)) {
+      return { ok: false, reason: 'passed_command_mismatch', record }
+    }
+  }
+  return { ok: true, reason: 'live', record }
+}
+
+/**
+ * Quarantine an evidence record by moving its on-disk `.json` file
+ * from the top-level evidence directory into the `_fixtures/`
+ * subdirectory.
+ *
+ * Returns a structured decision. If the record is not quarantine-
+ * eligible (i.e. `ok: true`), no file move is performed and
+ * `moved: false`. If it is eligible, the file is moved atomically
+ * (rename) and a `packet_quarantined_evidence` ledger event is
+ * appended.
+ *
+ * The function is safe to call with an evidence id that is already in
+ * `_fixtures/`; in that case it returns `{ ok: true, reason: 'fixture' }`
+ * and does not move the file.
+ *
+ * Errors:
+ *   - `evidence_not_found` — no record with that id exists at the
+ *     top level of the evidence directory.
+ *   - `parse_error` — the top-level `.json` is not valid JSON.
+ *   - `io_error` — the rename failed (e.g. target already exists with
+ *     the same name and a different content, or the parent directory
+ *     cannot be created).
+ */
+export type QuarantineResult = {
+  evidence_id: string
+  reason: string
+  moved: boolean
+  source_path: string
+  target_path: string
+}
+
+const QUARANTINE_DIR = `${EXECUTOR_PATHS.evidenceDir}/_fixtures`
+
+export async function quarantineEvidenceRecord(
+  evidenceId: string,
+): Promise<QuarantineResult> {
+  const sourcePath = `${EXECUTOR_PATHS.evidenceDir}/${evidenceId}.json`
+  if (!existsSync(sourcePath)) {
+    // The file may already be in `_fixtures/`. Treat that as a
+    // successful no-op so callers can re-run the command safely.
+    const fixturePath = `${QUARANTINE_DIR}/${evidenceId}.json`
+    if (existsSync(fixturePath)) {
+      return { evidence_id: evidenceId, reason: 'fixture', moved: false, source_path: fixturePath, target_path: fixturePath }
+    }
+    throw new Error(`evidence_not_found: ${evidenceId} is not in ${EXECUTOR_PATHS.evidenceDir} (top level) or ${QUARANTINE_DIR}`)
+  }
+  let record: EvidenceRecord
+  try {
+    const text = await readFile(sourcePath, 'utf8')
+    record = JSON.parse(text) as EvidenceRecord
+  } catch (err) {
+    throw new Error(`parse_error: failed to read ${sourcePath}: ${(err as Error).message}`)
+  }
+  const decision = await evaluateQuarantine(record, { isFixture: false })
+  if (decision.ok) {
+    return {
+      evidence_id: evidenceId,
+      reason: decision.reason,
+      moved: false,
+      source_path: sourcePath,
+      target_path: sourcePath,
+    }
+  }
+  await mkdir(QUARANTINE_DIR, { recursive: true })
+  const targetPath = `${QUARANTINE_DIR}/${evidenceId}.json`
+  // If a fixture with the same name already exists, refuse to
+  // overwrite: that would erase a curated fixture used as test
+  // input by the validator.
+  if (existsSync(targetPath)) {
+    throw new Error(
+      `io_error: cannot move ${sourcePath} to ${targetPath}: target already exists. Resolve the collision manually.`,
+    )
+  }
+  const fs = await import('node:fs/promises')
+  await fs.rename(sourcePath, targetPath)
+  await appendLedgerEvent({
+    schema: 'atelier.run-ledger-event/v1',
+    event_id: randomId('evt'),
+    created_at: nowIso(),
+    event_type: 'packet_quarantined_evidence',
+    subject_id: record.packet_id ?? evidenceId,
+    refs: [evidenceId, targetPath],
+    status: decision.reason,
+  })
+  return { evidence_id: evidenceId, reason: decision.reason, moved: true, source_path: sourcePath, target_path: targetPath }
+}
+
+/**
+ * Scan the live evidence directory and quarantine every record that
+ * is quarantine-eligible.
+ *
+ * Returns one entry per scanned record. Records that are already in
+ * `_fixtures/` (or under any non-top-level path) are not touched.
+ */
+export async function quarantineAll(): Promise<{
+  scanned: number
+  quarantined: QuarantineResult[]
+  skipped: QuarantineResult[]
+}> {
+  if (!existsSync(EXECUTOR_PATHS.evidenceDir)) {
+    return { scanned: 0, quarantined: [], skipped: [] }
+  }
+  const fs = await import('node:fs/promises')
+  const entries = await fs.readdir(EXECUTOR_PATHS.evidenceDir, { withFileTypes: true })
+  const quarantined: QuarantineResult[] = []
+  const skipped: QuarantineResult[] = []
+  let scanned = 0
+  for (const ent of entries) {
+    if (ent.isDirectory()) continue
+    if (!ent.name.endsWith('.json')) continue
+    scanned++
+    const evidenceId = ent.name.slice(0, -'.json'.length)
+    try {
+      const r = await quarantineEvidenceRecord(evidenceId)
+      if (r.moved) quarantined.push(r)
+      else skipped.push(r)
+    } catch (err) {
+      // Surface the error in the skipped list so the caller can
+      // decide whether to retry or report it.
+      skipped.push({
+        evidence_id: evidenceId,
+        reason: `error: ${(err as Error).message}`,
+        moved: false,
+        source_path: `${EXECUTOR_PATHS.evidenceDir}/${ent.name}`,
+        target_path: `${EXECUTOR_PATHS.evidenceDir}/_fixtures/${ent.name}`,
+      })
+    }
+  }
+  return { scanned, quarantined, skipped }
 }
 
 void appendNdjson

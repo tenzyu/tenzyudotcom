@@ -38,7 +38,8 @@ const CONTRACT: Record<LlmJobKind, { output: string; instructions: string }> = {
     instructions: [
       'Emit one JSONL line per proposal.',
       'Proposals may be knowledge_object, semantic_claim, or gap.',
-      'Every knowledge_object and semantic_claim MUST include source_refs.',
+      'Every knowledge_object and semantic_claim MUST include source_refs and source_anchor_ids.',
+      'source_anchor_ids must be current ids from .atelier/v0/anchors/source-anchors.ndjson.',
     ].join('\n'),
   },
   'gap-review': {

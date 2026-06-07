@@ -12,6 +12,8 @@
     "update": "bun src/commands/update.ts",
     "render": "bun src/commands/render.ts",
     "validate": "bun src/commands/validate.ts",
-    "validate:quick": "bun src/commands/validate.ts --quick"
+    "validate:quick": "bun src/commands/validate.ts --quick",
+    "relations-index": "bun src/commands/relations-index.ts",
+    "relations-validate": "bun src/commands/relations-validate.ts"
   }
 }

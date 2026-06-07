@@ -117,6 +117,62 @@ describe('atelier-indexer (fixture, subprocess)', () => {
     expect(r.code).toBe(0)
   })
 
+  test('relations-index emits anchors and non-`contains` edges', async () => {
+    const r = await runIndexer(['relations-index'])
+    expect(r.code).toBe(0)
+    const j = r.json as {
+      data?: { anchors?: number; non_contains_edges?: number; contains_edges?: number }
+    } | null
+    expect((j?.data?.anchors ?? 0)).toBeGreaterThan(0)
+    expect((j?.data?.non_contains_edges ?? 0)).toBeGreaterThan(0)
+    // by-anchor.json must be regenerated.
+    const byAnchor = await readNdjsonSafe<{ id?: string }>(
+      path.join(FIXTURE_V0, 'indexes', 'by-anchor.json'),
+    )
+    // by-anchor.json is a JSON map; it should exist and be non-empty.
+    const byAnchorText = await readFile(
+      path.join(FIXTURE_V0, 'indexes', 'by-anchor.json'),
+      'utf8',
+    ).catch(() => '')
+    expect(byAnchorText.length).toBeGreaterThan(2)
+    void byAnchor
+  })
+
+  test('relations-validate passes after relations-index', async () => {
+    const r = await runIndexer(['relations-validate'])
+    expect(r.code).toBe(0)
+    const j = r.json as {
+      data?: { non_contains_edges?: number; anchors?: number }
+    } | null
+    expect((j?.data?.non_contains_edges ?? 0)).toBeGreaterThan(0)
+    expect((j?.data?.anchors ?? 0)).toBeGreaterThan(0)
+  })
+
+  test('anchor and edge ids are stable across re-runs', async () => {
+    // Capture the current on-disk ids, then re-run relations-index and
+    // compare. The ids MUST be deterministic.
+    const anchors1 = await readNdjsonSafe<{ id: string }>(
+      path.join(FIXTURE_V0, 'anchors', 'source-anchors.ndjson'),
+    )
+    const edges1 = await readNdjsonSafe<{ id: string }>(
+      path.join(FIXTURE_V0, 'edges', 'edges.ndjson'),
+    )
+    const r = await runIndexer(['relations-index'])
+    expect(r.code).toBe(0)
+    const anchors2 = await readNdjsonSafe<{ id: string }>(
+      path.join(FIXTURE_V0, 'anchors', 'source-anchors.ndjson'),
+    )
+    const edges2 = await readNdjsonSafe<{ id: string }>(
+      path.join(FIXTURE_V0, 'edges', 'edges.ndjson'),
+    )
+    const ids1 = anchors1.map((a) => a.id).sort()
+    const ids2 = anchors2.map((a) => a.id).sort()
+    expect(ids2).toEqual(ids1)
+    const eids1 = edges1.map((e) => e.id).sort()
+    const eids2 = edges2.map((e) => e.id).sort()
+    expect(eids2).toEqual(eids1)
+  })
+
   test('validate (strict) passes on a clean snapshot', async () => {
     const r = await runIndexer(['validate'])
     expect(r.code).toBe(0)

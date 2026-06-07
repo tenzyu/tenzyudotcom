@@ -1,6 +1,13 @@
 import { ok, fail, printResult } from '../../../lib/src/index.ts'
-import { getPacket, setPacketStatus, appendLedgerEvent } from '../lib/packet.ts'
-import { listEvidence, hasRuntimeProof } from '../lib/evidence.ts'
+import { getPacket, setPacketStatus, appendLedgerEvent, listPackets, getDuplicatePacketStatuses } from '../lib/packet.ts'
+import {
+  listEvidence,
+  hasRuntimeProof,
+  evidenceSatisfiesTestContract,
+  testContractCompletionBlocker,
+} from '../lib/evidence.ts'
+import { readNdjson } from '../../../lib/src/ndjson.ts'
+import { TRANSFORMER_PATHS, type TestContract } from '../../../lib/src/index.ts'
 
 function readFlag(args: readonly string[], name: string): string | undefined {
   const idx = args.indexOf(name)
@@ -13,8 +20,18 @@ export async function runPacketCompleteCommand(argv: readonly string[]): Promise
   try {
     const packetId = readFlag([...argv], '--packet')
     if (!packetId) throw new Error('packet:complete requires --packet <id>')
+    const packets = await listPackets()
+    const conflict = getDuplicatePacketStatuses(packets).find((c) => c.id === packetId)
+    if (conflict) {
+      throw new Error(
+        `packet ${packetId} cannot be completed: conflicting lifecycle statuses ${conflict.statuses.join(', ')} across ${conflict.record_count} records`,
+      )
+    }
     const packet = await getPacket(packetId)
     if (!packet) throw new Error(`packet not found: ${packetId}`)
+    if (packet.status === 'blocked' || packet.status === 'rejected' || packet.status === 'stale') {
+      throw new Error(`packet ${packetId} cannot be completed from status '${packet.status}'`)
+    }
     const evidence = await listEvidence()
     const packetEvidence = evidence.filter((e) => e.packet_id === packetId)
     if (packetEvidence.length === 0) {
@@ -34,6 +51,47 @@ export async function runPacketCompleteCommand(argv: readonly string[]): Promise
       throw new Error(
         `packet ${packetId} cannot be completed: no passed evidence carries runtime proof (raw_output_ref, file_hashes, or diff_ref)`,
       )
+    }
+    // Test-contract correspondence (REVIEW-LATEST.md P0-005). Every
+    // TestContract referenced by the packet must have a PASSED
+    // evidence record with runtime proof AND a contract whose
+    // `status` is `ready` (not `candidate` / `blocked`).
+    if (packet.test_contract_ids.length === 0) {
+      throw new Error(
+        `packet ${packetId} cannot be completed: no test_contract_ids on packet`,
+      )
+    }
+    const tests = await readNdjson<TestContract>(TRANSFORMER_PATHS.testContracts)
+    for (const contractId of packet.test_contract_ids) {
+      const contract = tests.find((t) => t.test_contract_id === contractId)
+      if (!contract) {
+        throw new Error(
+          `packet ${packetId} cannot complete: test contract ${contractId} does not exist in ${TRANSFORMER_PATHS.testContracts}`,
+        )
+      }
+      const contractBlocker = testContractCompletionBlocker(contract)
+      if (contractBlocker) {
+        throw new Error(`packet ${packetId} cannot complete: ${contractBlocker}`)
+      }
+      // Find a passed+proven evidence record bound to this contract.
+      const candidates = passed.filter((e) => e.test_contract_id === contractId)
+      if (candidates.length === 0) {
+        throw new Error(
+          `packet ${packetId} cannot complete: no passed evidence with test_contract_id ${contractId}`,
+        )
+      }
+      const correspondence = await Promise.all(
+        candidates.map((e) => evidenceSatisfiesTestContract(e, packet, contract)),
+      )
+      if (!correspondence.some((x) => x.ok)) {
+        const reasons = correspondence
+          .filter((x): x is { ok: false; reason: string } => !x.ok)
+          .map((x) => x.reason)
+          .join('; ')
+        throw new Error(
+          `packet ${packetId} cannot complete: no passed evidence with runtime proof and command correspondence for test contract ${contractId}${reasons ? ` (${reasons})` : ''}`,
+        )
+      }
     }
     const next = await setPacketStatus(packetId, 'completed')
     await appendLedgerEvent({

@@ -234,6 +234,7 @@ export async function appendLedgerEvent(event: {
     | 'packet_completed'
     | 'packet_rejected'
     | 'packet_blocked'
+    | 'packet_quarantined_evidence'
   subject_id: string
   refs: string[]
   status?: string

@@ -34,9 +34,15 @@ export async function runExecutionReadyCommand(): Promise<number> {
       })
     }
     // Evidence runtime proof (P0-003): `passed` evidence without
-    // raw_output_ref / diff_ref / file_hashes must fail readiness.
+    // command + raw_output_ref, diff_ref + file_hashes, or validated
+    // handoff_ref must fail readiness.
+    let evidenceWithProof = 0
+    let evidenceWithoutProof = 0
     for (const e of evidence) {
-      if (!(await hasRuntimeProof(e))) {
+      const hasProof = await hasRuntimeProof(e)
+      if (hasProof) evidenceWithProof++
+      else evidenceWithoutProof++
+      if (!hasProof) {
         const isPassed = e.status === 'passed'
         issues.push({
           severity: 'P0',
@@ -45,7 +51,7 @@ export async function runExecutionReadyCommand(): Promise<number> {
             ? `evidence ${e.evidence_id} has status 'passed' but lacks runtime proof`
             : `evidence ${e.evidence_id} lacks runtime proof`,
           affected_record: e.evidence_id,
-          recommended_next_action: 'rerun the test and capture raw output, or attach a diff / file_hashes',
+          recommended_next_action: 'rerun the test and capture raw output, attach diff + file_hashes, or attach a validated handoff_ref',
         })
       }
     }
@@ -55,11 +61,17 @@ export async function runExecutionReadyCommand(): Promise<number> {
         ready: true,
         packets: packets.length,
         evidence: evidence.length,
+        evidence_with_proof: evidenceWithProof,
+        evidence_without_proof: evidenceWithoutProof,
       }, { startedAt })
       printResult(result)
       return 0
     }
-    const result = fail<{ ready: false }>('executor', 'execution:ready', issues, { ready: false }, { startedAt })
+    const result = fail<{ ready: false; evidence_with_proof: number; evidence_without_proof: number }>('executor', 'execution:ready', issues, {
+      ready: false,
+      evidence_with_proof: evidenceWithProof,
+      evidence_without_proof: evidenceWithoutProof,
+    }, { startedAt })
     printResult(result)
     return 1
   } catch (err) {

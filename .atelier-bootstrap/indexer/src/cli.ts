@@ -10,6 +10,8 @@ import { runAffectedCommand } from './commands/affected.ts'
 import { runUpdateCommand } from './commands/update.ts'
 import { runRenderCommand } from './commands/render.ts'
 import { runValidateCommand } from './commands/validate.ts'
+import { runRelationsIndexCommand } from './commands/relations-index.ts'
+import { runRelationsValidateCommand } from './commands/relations-validate.ts'
 
 const COMMANDS: Record<string, (argv: readonly string[]) => Promise<number>> = {
   scan: () => runScanCommand(),
@@ -20,6 +22,11 @@ const COMMANDS: Record<string, (argv: readonly string[]) => Promise<number>> = {
   // STRICT by default. Use `validate:quick` for a sample smoke test.
   validate: (argv) => runValidateCommand(argv),
   'validate:quick': (argv) => runValidateCommand(['--quick', ...argv]),
+  // Relation Kernel commands.
+  'relations-index': () => runRelationsIndexCommand(),
+  'relations:index': () => runRelationsIndexCommand(),
+  'relations-validate': () => runRelationsValidateCommand(),
+  'relations:validate': () => runRelationsValidateCommand(),
 }
 
 function usage(): string {
@@ -27,13 +34,15 @@ function usage(): string {
     'Usage: atelier-indexer <command> [flags]',
     '',
     'Commands:',
-    '  scan            Walk the repository and write .atelier/v0/facts/**',
-    '  index           Build SourceUnit/SourceFact/SourceEdge NDJSON and indexes',
-    '  affected        Compare snapshots, mark stale, write stale.json',
-    '  update          scan + index + affected + render',
-    '  render          Generate views/index/** Markdown',
-    '  validate        STRICT full validation of objects/edges/refs (default)',
-    '  validate:quick  Sample-based smoke validation (NEVER use for operational pass)',
+    '  scan                   Walk the repository and write .atelier/v0/facts/**',
+    '  index                  Build SourceUnit/SourceAnchor/SourceEdge NDJSON and indexes',
+    '  affected               Compare snapshots, mark stale, write stale.json',
+    '  update                 scan + index + affected + render',
+    '  render                 Generate views/index/** Markdown',
+    '  validate               STRICT full validation of objects/edges/refs (default)',
+    '  validate:quick         Sample-based smoke validation (NEVER use for operational pass)',
+    '  relations-index        Rebuild the deterministic non-`contains` relations and the by-anchor index',
+    '  relations-validate     Validate endpoints, source_refs, and that non-`contains` count > 0',
     '',
     'Flags:',
     '  validate --quick  Run quick sample validation (alias for validate:quick).',

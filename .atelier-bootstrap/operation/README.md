@@ -8,11 +8,11 @@ into a single `atelier.operational-review/v1` report.
 
 ## Commands
 
-| Command | Purpose |
-| --- | --- |
-| `bun run ready` | Run every component's `validate` and aggregate |
+| Command          | Purpose                                                                     |
+| ---------------- | --------------------------------------------------------------------------- |
+| `bun run ready`  | Run every component's `validate` and aggregate                              |
 | `bun run verify` | End-to-end verification: scan -> index -> reader -> transformer -> executor |
-| `bun run render` | Re-render every view |
+| `bun run render` | Re-render every view                                                        |
 
 ## Output
 
@@ -21,6 +21,3 @@ The `ready` command writes:
 ```txt
 .atelier/v0/operation/ready.json
 ```
-
-with the `atelier.operational-review/v1` shape. The contract is described
-in `harness/atelier-design-docs/atelier-operation/contract.md`.

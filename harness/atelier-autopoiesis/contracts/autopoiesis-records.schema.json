@@ -1,0 +1,154 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "atelier.autopoiesis-records/v1",
+  "title": "Atelier Autopoiesis Core Records",
+  "type": "object",
+  "oneOf": [
+    { "$ref": "#/$defs/SemanticNode" },
+    { "$ref": "#/$defs/AuthorityRule" },
+    { "$ref": "#/$defs/PromotionDecision" },
+    { "$ref": "#/$defs/ControlPacket" },
+    { "$ref": "#/$defs/MaterializationProposal" },
+    { "$ref": "#/$defs/AutopoiesisFinding" },
+    { "$ref": "#/$defs/AutopoiesisWorkOrder" }
+  ],
+  "$defs": {
+    "LifecycleState": {
+      "enum": ["observed", "inferred", "proposed", "accepted", "verified", "superseded", "rejected", "archived", "quarantined", "invalidated"]
+    },
+    "SourceAnchorRef": {
+      "type": "object",
+      "required": ["anchor_id"],
+      "properties": {
+        "anchor_id": { "type": "string" },
+        "path": { "type": "string" },
+        "start_line": { "type": "integer" },
+        "end_line": { "type": "integer" },
+        "sha256": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "SemanticNode": {
+      "type": "object",
+      "required": ["schema", "id", "kind", "lifecycle_state", "provenance_kind", "authority_scope", "source_anchors", "created_at"],
+      "properties": {
+        "schema": { "const": "atelier.semantic-node/v1" },
+        "id": { "type": "string" },
+        "kind": {
+          "enum": ["requirement", "decision", "invariant", "test_contract", "review_finding", "handoff", "implementation_task", "permission_rule", "check_result", "materialization_proposal", "conflict", "staleness_record", "source_unit", "source_anchor"]
+        },
+        "lifecycle_state": { "$ref": "#/$defs/LifecycleState" },
+        "provenance_kind": { "enum": ["deterministic_fact", "llm_extracted", "manual_control_record", "runtime_evidence", "derived", "generated_view"] },
+        "confidence": { "enum": ["fact", "hypothesis", "inferred", "validated"] },
+        "authority_scope": { "type": "object" },
+        "source_anchors": { "type": "array", "items": { "$ref": "#/$defs/SourceAnchorRef" }, "minItems": 1 },
+        "evidence_refs": { "type": "array", "items": { "type": "string" } },
+        "owner_or_policy": { "type": "string" },
+        "superseded_by": { "type": "string" },
+        "invalidated_by": { "type": "string" },
+        "created_at": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "AuthorityRule": {
+      "type": "object",
+      "required": ["schema", "id", "applies_to", "precedence", "scope", "created_at"],
+      "properties": {
+        "schema": { "const": "atelier.authority-rule/v1" },
+        "id": { "type": "string" },
+        "applies_to": { "type": "array", "items": { "type": "string" } },
+        "precedence": { "type": "integer" },
+        "scope": { "type": "object" },
+        "conflict_policy": { "enum": ["expose", "prefer_higher_precedence", "require_human", "reject"] },
+        "created_at": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "PromotionDecision": {
+      "type": "object",
+      "required": ["schema", "id", "subject_id", "from_state", "to_state", "decision", "required_checks", "created_at"],
+      "properties": {
+        "schema": { "const": "atelier.promotion-decision/v1" },
+        "id": { "type": "string" },
+        "subject_id": { "type": "string" },
+        "from_state": { "$ref": "#/$defs/LifecycleState" },
+        "to_state": { "$ref": "#/$defs/LifecycleState" },
+        "decision": { "enum": ["accepted", "rejected", "blocked"] },
+        "required_checks": { "type": "array", "items": { "type": "string" } },
+        "evidence_refs": { "type": "array", "items": { "type": "string" } },
+        "conflict_check": { "type": "object" },
+        "created_at": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "ControlPacket": {
+      "type": "object",
+      "required": ["schema", "id", "task", "active_requirements", "accepted_decisions", "allowed_operations", "forbidden_operations", "required_checks", "open_findings", "stale_artifacts", "conflicts", "evidence_anchors"],
+      "properties": {
+        "schema": { "const": "atelier.control-packet/v1" },
+        "id": { "type": "string" },
+        "task": { "type": "string" },
+        "active_requirements": { "type": "array" },
+        "accepted_decisions": { "type": "array" },
+        "allowed_operations": { "type": "array" },
+        "forbidden_operations": { "type": "array" },
+        "required_checks": { "type": "array" },
+        "open_findings": { "type": "array" },
+        "stale_artifacts": { "type": "array" },
+        "conflicts": { "type": "array" },
+        "evidence_anchors": { "type": "array" },
+        "materialization_rules": { "type": "array" }
+      },
+      "additionalProperties": true
+    },
+    "MaterializationProposal": {
+      "type": "object",
+      "required": ["schema", "id", "task_id", "affected_requirements", "affected_findings", "affected_decisions", "required_checks", "diff_refs", "status"],
+      "properties": {
+        "schema": { "const": "atelier.materialization-proposal/v1" },
+        "id": { "type": "string" },
+        "task_id": { "type": "string" },
+        "affected_requirements": { "type": "array", "items": { "type": "string" } },
+        "affected_findings": { "type": "array", "items": { "type": "string" } },
+        "affected_decisions": { "type": "array", "items": { "type": "string" } },
+        "required_checks": { "type": "array", "items": { "type": "string" } },
+        "diff_refs": { "type": "array", "items": { "type": "string" } },
+        "status": { "enum": ["proposed", "validated", "rejected", "materialized"] }
+      },
+      "additionalProperties": true
+    },
+    "AutopoiesisFinding": {
+      "type": "object",
+      "required": ["schema", "finding_id", "severity", "capability_id", "reason", "required_repair", "status"],
+      "properties": {
+        "schema": { "const": "atelier.autopoiesis-finding/v1" },
+        "finding_id": { "type": "string" },
+        "severity": { "enum": ["P0", "P1", "P2"] },
+        "capability_id": { "enum": ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8"] },
+        "reason": { "type": "string" },
+        "required_repair": { "type": "string" },
+        "proof_required": { "type": "array", "items": { "type": "string" } },
+        "status": { "enum": ["open", "patched", "verified", "rejected", "waived"] }
+      },
+      "additionalProperties": true
+    },
+    "AutopoiesisWorkOrder": {
+      "type": "object",
+      "required": ["schema", "work_order_id", "capability_ids", "evaluator_finding_ids", "objective", "allowed_files", "forbidden_files", "acceptance_evidence"],
+      "properties": {
+        "schema": { "const": "atelier.autopoiesis-work-order/v1" },
+        "work_order_id": { "type": "string" },
+        "capability_ids": { "type": "array", "items": { "type": "string" } },
+        "evaluator_finding_ids": { "type": "array", "items": { "type": "string" } },
+        "objective": { "type": "string" },
+        "allowed_files": { "type": "array", "items": { "type": "string" } },
+        "forbidden_files": { "type": "array", "items": { "type": "string" } },
+        "required_runtime_behavior": { "type": "array", "items": { "type": "string" } },
+        "required_negative_controls": { "type": "array", "items": { "type": "string" } },
+        "required_commands": { "type": "array", "items": { "type": "string" } },
+        "acceptance_evidence": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": true
+    }
+  }
+}

@@ -10,7 +10,9 @@ import {
   type EvidenceRecord,
   type ExecutionPacket,
   type SubagentHandoff,
+  type TestContract,
   EXECUTOR_PATHS,
+  TRANSFORMER_PATHS,
 } from '../../../lib/src/index.ts'
 import { listPackets, reducePacketsToCurrent, getDuplicatePacketStatuses } from './packet.ts'
 import {
@@ -18,6 +20,10 @@ import {
   listEvidenceIncludingFixtures,
   validateHandoffFile,
   hasRuntimeProof,
+  evidenceRuntimeProofKind,
+  commandCorrespondsToContract,
+  isTestContractEmpty,
+  evidenceSatisfiesTestContract,
 } from './evidence.ts'
 import { readNdjson } from '../../../lib/src/ndjson.ts'
 
@@ -151,6 +157,15 @@ export async function validateExecutor(): Promise<{ issues: ValidationIssue[]; w
   const evidenceIncludingFixtures = await listEvidenceIncludingFixtures()
   const ledger = await readLedger()
 
+  // Load the TestContract registry once. Used by the strict
+  // test-contract-id and packet-completion correspondence checks.
+  let contracts: TestContract[] = []
+  if (existsSync(TRANSFORMER_PATHS.testContracts)) {
+    contracts = await readNdjson<TestContract>(TRANSFORMER_PATHS.testContracts)
+  }
+  const contractById = new Map(contracts.map((c) => [c.test_contract_id, c]))
+  const packetById = new Map(packets.map((p) => [p.id, p]))
+
   for (const p of packets) {
     if (p.allowed_files.length === 0) {
       issues.push({ severity: 'P0', code: 'E_PACKET_NO_ALLOWED', message: `packet ${p.id} has empty allowed_files`, affected_record: p.id })
@@ -175,27 +190,158 @@ export async function validateExecutor(): Promise<{ issues: ValidationIssue[]; w
     })
   }
 
-  // Evidence runtime proof (P0-003): `passed` evidence must reference
-  // a real file via raw_output_ref / diff_ref or carry non-empty
-  // file_hashes. `command` alone is metadata, not proof.
+  // Evidence runtime proof (P0-003): `passed` evidence must use one of
+  // the strict runtime-proof shapes: command + raw_output_ref,
+  // diff_ref + file_hashes, or validated handoff_ref. `command` alone,
+  // raw output without command, and hashes without a diff are metadata,
+  // not proof.
   //
   // This check uses the LIVE evidence set (not the inclusive set) so
   // quarantined fixtures are explicitly exempt from the strict
   // runtime-proof invariant. Fixtures are quarantined precisely so
   // this check does not trip on legacy / intentionally-broken
   // records.
+  //
+  // Each evidence record is also checked for:
+  //   - E_EVIDENCE_TEST_CONTRACT_MISSING — test_contract_id must
+  //     resolve to a real, non-empty contract with status: 'ready'
+  //   - E_EVIDENCE_TEST_CONTRACT_REQUIRED — passed evidence for a
+  //     TestContract-bearing packet must cite test_contract_id directly
+  //   - E_EVIDENCE_COMMAND_MISMATCH — command evidence must match or
+  //     explicitly derive from the referenced TestContract command
+  //   - E_EVIDENCE_PACKET_NOT_FOUND / E_EVIDENCE_TASK_MISMATCH —
+  //     packet_id/task_id/test_contract_id must describe the same work
+  let evidenceWithProof = 0
+  let evidenceWithoutProof = 0
+  let evidenceWithContract = 0
+  let evidenceWithoutContract = 0
   for (const e of evidence) {
-    if (!(await hasRuntimeProof(e))) {
+    const proofKind = await evidenceRuntimeProofKind(e)
+    if (proofKind) evidenceWithProof++
+    else evidenceWithoutProof++
+    if (!proofKind) {
       const isPassed = e.status === 'passed'
       issues.push({
         severity: 'P0',
         code: isPassed ? 'E_EVIDENCE_PASSED_NO_PROOF' : 'E_EVIDENCE_NOT_RUNTIME',
         message: isPassed
-          ? `evidence ${e.evidence_id} has status 'passed' but lacks runtime proof (raw_output_ref, file_hashes, or diff_ref); \`command\` alone is not sufficient`
-          : `evidence ${e.evidence_id} lacks runtime proof (raw_output_ref, file_hashes, or diff_ref)`,
+          ? `evidence ${e.evidence_id} has status 'passed' but lacks runtime proof (command + raw_output_ref, diff_ref + file_hashes, or validated handoff_ref); \`command\` alone is not sufficient`
+          : `evidence ${e.evidence_id} lacks runtime proof (command + raw_output_ref, diff_ref + file_hashes, or validated handoff_ref)`,
         affected_record: e.evidence_id,
-        recommended_next_action: 'rerun the test and capture raw output, or attach a diff / file_hashes',
+        recommended_next_action: 'rerun the test and capture raw output, attach diff + file_hashes, or attach a validated handoff_ref',
       })
+    }
+    const owningPacket = e.packet_id ? packetById.get(e.packet_id) : undefined
+    if (!e.packet_id) {
+      issues.push({
+        severity: 'P0',
+        code: 'E_EVIDENCE_PACKET_NOT_FOUND',
+        message: `evidence ${e.evidence_id} lacks packet_id`,
+        affected_record: e.evidence_id,
+        recommended_next_action: 're-record the evidence against a concrete packet',
+      })
+    } else if (!owningPacket) {
+      issues.push({
+        severity: 'P0',
+        code: 'E_EVIDENCE_PACKET_NOT_FOUND',
+        message: `evidence ${e.evidence_id} references packet_id ${e.packet_id} which is not in the packet registry`,
+        affected_record: e.evidence_id,
+        recommended_next_action: 'recreate the packet or remove the orphan evidence record',
+      })
+    }
+    if (e.status === 'passed' && !e.task_id) {
+      issues.push({
+        severity: 'P0',
+        code: 'E_EVIDENCE_TASK_MISSING',
+        message: `passed evidence ${e.evidence_id} lacks task_id`,
+        affected_record: e.evidence_id,
+        recommended_next_action: 're-record evidence so packet_id, task_id, and test_contract_id map to the same work item',
+      })
+    }
+    if (owningPacket && e.task_id && e.task_id !== owningPacket.task_id) {
+      issues.push({
+        severity: 'P0',
+        code: 'E_EVIDENCE_TASK_MISMATCH',
+        message: `evidence ${e.evidence_id} task_id ${e.task_id} does not match packet ${owningPacket.id} task_id ${owningPacket.task_id}`,
+        affected_record: e.evidence_id,
+        recommended_next_action: 're-record evidence against the packet task_id',
+      })
+    }
+    if (e.test_contract_id) {
+      const contract = contractById.get(e.test_contract_id)
+      if (!contract) {
+        issues.push({
+          severity: 'P0',
+          code: 'E_EVIDENCE_TEST_CONTRACT_MISSING',
+          message: `evidence ${e.evidence_id} references test_contract_id ${e.test_contract_id} which is not in ${TRANSFORMER_PATHS.testContracts}`,
+          affected_record: e.evidence_id,
+          recommended_next_action: 'rerun the transform pipeline so the contract is regenerated, or fix the evidence record',
+        })
+      } else {
+        let contractIsUsable = true
+        if (contract.status !== 'ready') {
+          contractIsUsable = false
+          issues.push({
+            severity: 'P0',
+            code: 'E_EVIDENCE_TEST_CONTRACT_MISSING',
+            message: `evidence ${e.evidence_id} references test_contract_id ${e.test_contract_id} which has status '${contract.status}' (must be 'ready')`,
+            affected_record: e.evidence_id,
+            recommended_next_action: 're-derive the test contract so it becomes ready, or remove this evidence record',
+          })
+        }
+        if (isTestContractEmpty(contract)) {
+          contractIsUsable = false
+          issues.push({
+            severity: 'P0',
+            code: 'E_EVIDENCE_TEST_CONTRACT_EMPTY',
+            message: `evidence ${e.evidence_id} references empty test_contract_id ${e.test_contract_id} (requires a command and test_files or expected_behavior)`,
+            affected_record: e.evidence_id,
+            recommended_next_action: 're-derive a non-empty TestContract before satisfying it',
+          })
+        }
+        if (e.task_id && e.task_id !== contract.task_id) {
+          contractIsUsable = false
+          issues.push({
+            severity: 'P0',
+            code: 'E_EVIDENCE_TASK_MISMATCH',
+            message: `evidence ${e.evidence_id} task_id ${e.task_id} does not match test_contract_id ${e.test_contract_id} task_id ${contract.task_id}`,
+            affected_record: e.evidence_id,
+            recommended_next_action: 're-record evidence so task_id matches the referenced TestContract',
+          })
+        }
+        if (owningPacket && !owningPacket.test_contract_ids.includes(e.test_contract_id)) {
+          contractIsUsable = false
+          issues.push({
+            severity: 'P0',
+            code: 'E_EVIDENCE_TEST_CONTRACT_NOT_IN_PACKET',
+            message: `evidence ${e.evidence_id} references test_contract_id ${e.test_contract_id} which is not in packet ${owningPacket.id}'s test_contract_ids`,
+            affected_record: e.evidence_id,
+            recommended_next_action: 'record evidence for a TestContract listed on the packet',
+          })
+        }
+        if (e.status === 'passed' && e.command && !commandCorrespondsToContract(e.command, contract.command)) {
+          contractIsUsable = false
+          issues.push({
+            severity: 'P0',
+            code: 'E_EVIDENCE_COMMAND_MISMATCH',
+            message: `passed evidence ${e.evidence_id} command '${e.command}' does not match or explicitly derive from TestContract ${e.test_contract_id} command '${contract.command}'`,
+            affected_record: e.evidence_id,
+            recommended_next_action: 'rerun the referenced TestContract command and record that command in evidence',
+          })
+        }
+        if (contractIsUsable) evidenceWithContract++
+      }
+    } else {
+      evidenceWithoutContract++
+      if (e.status === 'passed') {
+        issues.push({
+          severity: 'P0',
+          code: 'E_EVIDENCE_TEST_CONTRACT_REQUIRED',
+          message: `passed evidence ${e.evidence_id} lacks test_contract_id and cannot satisfy a TestContract via gate_id or prose`,
+          affected_record: e.evidence_id,
+          recommended_next_action: 're-record evidence with --test-contract <id>',
+        })
+      }
     }
   }
 
@@ -223,7 +369,32 @@ export async function validateExecutor(): Promise<{ issues: ValidationIssue[]; w
           code: 'E_COMPLETE_WITHOUT_RUNTIME_PROOF',
           message: `packet ${p.id} is completed but no passed evidence carries runtime proof`,
           affected_record: p.id,
-          recommended_next_action: 'attach raw_output_ref / diff_ref / file_hashes to the evidence record',
+          recommended_next_action: 'attach command + raw_output_ref, diff_ref + file_hashes, or a validated handoff_ref to the evidence record',
+        })
+      }
+      // E_PACKET_COMPLETE_WITHOUT_PROOF: a completed packet must
+      // have at least one passed+proven evidence record that maps to
+      // one of its `test_contract_ids` (REVIEW-LATEST.md P0-005).
+      const hasMatchingProof = (
+        await Promise.all(
+          passed.map(async (e) => {
+            const cid = e.test_contract_id
+            if (!cid) return false
+            if (!p.test_contract_ids.includes(cid)) return false
+            const contract = contractById.get(cid)
+            if (!contract) return false
+            const correspondence = await evidenceSatisfiesTestContract(e, p, contract)
+            return correspondence.ok
+          }),
+        )
+      ).some((x) => x)
+      if (!hasMatchingProof) {
+        issues.push({
+          severity: 'P0',
+          code: 'E_PACKET_COMPLETE_WITHOUT_PROOF',
+          message: `packet ${p.id} is completed but no passed evidence maps to one of its test_contract_ids (${p.test_contract_ids.join(', ') || '<none>'}) with runtime proof, task mapping, and TestContract command correspondence`,
+          affected_record: p.id,
+          recommended_next_action: 're-record evidence with --test-contract <id> for one of the packet\'s test contracts',
         })
       }
     }
@@ -244,6 +415,47 @@ export async function validateExecutor(): Promise<{ issues: ValidationIssue[]; w
       }
     }
   }
+  // E_NO_COMPLETED_PACKET_WITH_PROOF (Relation-Kernel pass gate).
+  //
+  // This is the high-level aggregation on top of the per-packet
+  // `E_PACKET_COMPLETE_WITHOUT_PROOF` check above. The Relation
+  // Kernel pass requires at least one completed packet on disk to
+  // be backed by passed+proven evidence. The 0/0 vacuous case (zero
+  // packets on disk) is preserved so a fresh bootstrap does not
+  // trip the new check; the check fires only when at least one
+  // packet has been flipped to `completed` and NONE of the
+  // completed packets carries runtime proof.
+  //
+  // The operation layer surfaces this defect as
+  // `E_NO_COMPLETED_PACKET_WITH_PROOF` in
+  // `checkEvidenceInvariant`; we mirror the check here so the
+  // executor validator can fail readiness on its own without
+  // depending on the operation layer. The defect IDs match so the
+  // defect pusher in `runReady` (operation layer) deduplicates the
+  // record when both layers surface it.
+  const completedPackets = currentPackets.filter((p) => p.status === 'completed')
+  let completedPacketsWithProofLocal = 0
+  for (const p of completedPackets) {
+    const candidates = evidence.filter(
+      (e) =>
+        e.packet_id === p.id &&
+        e.status === 'passed' &&
+        p.test_contract_ids.includes(e.test_contract_id ?? ''),
+    )
+    if (candidates.length === 0) continue
+    const any = await Promise.all(candidates.map((e) => hasRuntimeProof(e)))
+    if (any.some((x) => x)) completedPacketsWithProofLocal++
+  }
+  if (completedPackets.length > 0 && completedPacketsWithProofLocal === 0) {
+    issues.push({
+      severity: 'P0',
+      code: 'E_NO_COMPLETED_PACKET_WITH_PROOF',
+      message: `${completedPackets.length} completed packet(s) exist on disk but none has a passed+proven evidence record mapped to a test_contract_id; the relation-kernel pass requires at least one completed packet backed by runtime proof`,
+      affected_record: 'runs/handoffs/packets.ndjson',
+      recommended_next_action:
+        "capture runtime evidence for at least one completed packet via `atelier:executor:run` + `atelier:evidence:add`",
+    })
+  }
   // Handoff directory validation
   const handoffDir = EXECUTOR_PATHS.handoffsDir
   if (existsSync(handoffDir)) {
@@ -262,6 +474,49 @@ export async function validateExecutor(): Promise<{ issues: ValidationIssue[]; w
         }
         if (Object.keys(parsed.gate_results).length === 0) {
           issues.push({ severity: 'P0', code: 'E_HANDOFF_GATES', message: `handoff ${f} has empty gate_results`, affected_record: f })
+        }
+        // E_HANDBOFF_PATH_MISSING: every entry in evidence_paths and
+        // files_changed must exist on disk.
+        for (const p of parsed.evidence_paths ?? []) {
+          if (!existsSync(p)) {
+            issues.push({
+              severity: 'P0',
+              code: 'E_HANDBOFF_PATH_MISSING',
+              message: `handoff ${f} references evidence path that does not exist on disk: ${p}`,
+              affected_record: f,
+              recommended_next_action: 'rebuild the referenced evidence artifact and rerun validate',
+            })
+          }
+        }
+        for (const p of parsed.files_changed ?? []) {
+          if (!existsSync(p)) {
+            issues.push({
+              severity: 'P0',
+              code: 'E_HANDBOFF_PATH_MISSING',
+              message: `handoff ${f} references files_changed path that does not exist on disk: ${p}`,
+              affected_record: f,
+              recommended_next_action: 'restore the file or remove it from the handoff',
+            })
+          }
+        }
+        // E_PACKET_FORBIDDEN_FILE: handoff files_changed must be in
+        // the packet's allowed_files (and not covered by a glob in
+        // allowed_files).
+        if (parsed.packet_id) {
+          const owningPacket = currentPackets.find((p) => p.id === parsed.packet_id)
+          if (owningPacket) {
+            for (const p of parsed.files_changed ?? []) {
+              if (!isPathAllowed(p, owningPacket.allowed_files)) {
+                issues.push({
+                  severity: 'P0',
+                  code: 'E_PACKET_FORBIDDEN_FILE',
+                  message: `handoff ${f} files_changed entry ${p} is not in packet ${owningPacket.id}'s allowed_files`,
+                  affected_record: f,
+                  recommended_next_action: 'either narrow the packet\'s allowed_files or remove the path from the handoff',
+                })
+              }
+            }
+          }
         }
         if (parsed.packet_id) {
           const v = await validateHandoffFile(path.join(handoffDir, f), parsed.packet_id)
@@ -289,5 +544,42 @@ export async function validateExecutor(): Promise<{ issues: ValidationIssue[]; w
   }
   void readJson
   void readNdjson
-  return { issues, warnings, stats: { packets: packets.length, evidence: evidence.length, ledger_events: ledger.length } }
+  return {
+    issues,
+    warnings,
+    stats: {
+      packets: packets.length,
+      evidence: evidence.length,
+      ledger_events: ledger.length,
+      evidence_with_proof: evidenceWithProof,
+      evidence_without_proof: evidenceWithoutProof,
+      evidence_with_contract: evidenceWithContract,
+      evidence_without_contract: evidenceWithoutContract,
+    },
+  }
+}
+
+/**
+ * Match `path` against a list of `allowed_files` patterns.
+ *
+ * Each `allowed_files` entry is matched either as an exact string or
+ * as a directory prefix (entries ending with `/`). Glob-like `**`
+ * suffixes (e.g. `.atelier-bootstrap/executor/**`) are honored by
+ * stripping the `/**` and treating the remainder as a directory
+ * prefix.
+ */
+function isPathAllowed(path: string, allowed: ReadonlyArray<string>): boolean {
+  for (const a of allowed) {
+    if (a === path) return true
+    if (a.endsWith('/**')) {
+      const dir = a.slice(0, -3)
+      if (path === dir || path.startsWith(dir + '/')) return true
+      continue
+    }
+    if (a.endsWith('/')) {
+      if (path.startsWith(a)) return true
+      continue
+    }
+  }
+  return false
 }

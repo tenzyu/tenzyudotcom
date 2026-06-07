@@ -8,6 +8,7 @@ import { runPacketTemplateCommand } from './commands/packet-template.ts'
 import { runRecommendCommand } from './commands/recommend.ts'
 import { runRenderCommand } from './commands/render.ts'
 import { runValidateCommand } from './commands/validate.ts'
+import { runCreateFixtureTaskCommand } from './commands/materialize-fixture-task.ts'
 
 function usage(): string {
   return [
@@ -18,6 +19,10 @@ function usage(): string {
     '  task:derive --attention <id>             Derive a single task',
     '  test-contract:derive --task <id>         Derive a test contract',
     '  packet:template --task <id>              Build a packet template',
+    '  create-fixture-task --fixture <path> --task-id <id>',
+    '                                           Materialize a fixture-backed task, contract,',
+    '                                           boundary, and template from a real testable',
+    '                                           surface in the repo',
     '  recommend                                Emit transform recommendations',
     '  render                                   Render transform views',
     '  validate                                 Validate transform outputs',
@@ -39,6 +44,8 @@ export async function runCli(argv: readonly string[]): Promise<number> {
       return runTestContractDeriveCommand(rest)
     case 'packet:template':
       return runPacketTemplateCommand(rest)
+    case 'create-fixture-task':
+      return runCreateFixtureTaskCommand(rest)
     case 'recommend':
       return runRecommendCommand()
     case 'render':

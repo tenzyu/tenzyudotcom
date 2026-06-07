@@ -8,7 +8,7 @@ import type { AtelierProvenance, AtelierConfidence, SourceRef } from '../../../l
  * considered valid.
  */
 
-export type IndexerObjectKind = 'source_unit' | 'source_fact' | 'source_edge'
+export type IndexerObjectKind = 'source_unit' | 'source_fact' | 'source_edge' | 'source_anchor'
 
 export type IndexerProvenance = Extract<AtelierProvenance, 'deterministic_fact'>
 
@@ -40,6 +40,16 @@ export const SOURCE_UNIT_TYPES = [
   'config_file',
   'package_script',
   'docs_file',
+] as const
+
+export const SOURCE_ANCHOR_KINDS = [
+  'file',
+  'markdown_section',
+  'code_symbol_candidate',
+  'test_file',
+  'config_file',
+  'package_script',
+  'explicit_reference',
 ] as const
 
 export const EDGE_KINDS = [
