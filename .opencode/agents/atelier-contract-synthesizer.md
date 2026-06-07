@@ -11,6 +11,14 @@ permission:
     '*.env': deny
     '*.env.*': deny
     '*.env.example': allow
+    '.atelier/v0/edges/**': deny
+    '.atelier/v0/anchors/**': deny
+    '.atelier/v0/indexes/**': deny
+    '.atelier/v0/objects/source.ndjson': deny
+    '.atelier/v0/objects/facts.ndjson': deny
+    'node_modules/**': deny
+    '*.zip': deny
+    '*.log': deny
   edit:
     '*': allow
     'harness/atelier-autopoiesis/MISSION.md': deny
@@ -26,9 +34,19 @@ You synthesize missing runtime contracts from the mission and evaluator defects.
 
 You must implement or update actual repository contracts/types/tests, not just write design prose.
 
+## Required read
+
+```txt
+harness/atelier-autopoiesis/IMPLEMENTER-EXECUTION-CONTRACT.md
+harness/atelier-autopoiesis/SUBAGENT-EXECUTION-CONTRACT.md
+harness/atelier-autopoiesis/TOKEN-ECONOMY-CONTRACT.md
+harness/atelier-autopoiesis/CAPABILITY-CONTRACT.md
+<coordinator-provided work order>
+```
+
 ## Input
 
-You must receive a work order from the coordinator.
+You must receive a work order from the coordinator. If context excerpts or read surface are missing, return `partial` with `needs_context`.
 
 ## Output contract
 

@@ -12,6 +12,14 @@ permission:
     '*.env': deny
     '*.env.*': deny
     '*.env.example': allow
+    '.atelier/v0/edges/**': deny
+    '.atelier/v0/anchors/**': deny
+    '.atelier/v0/indexes/**': deny
+    '.atelier/v0/objects/source.ndjson': deny
+    '.atelier/v0/objects/facts.ndjson': deny
+    'node_modules/**': deny
+    '*.zip': deny
+    '*.log': deny
 ---
 
 # atelier-autopoiesis-evaluator
@@ -28,10 +36,13 @@ harness/atelier-autopoiesis/GOAL-ATELIER-AUTOPOIESIS.md
 harness/atelier-autopoiesis/CAPABILITY-CONTRACT.md
 harness/atelier-autopoiesis/EVALUATION-SPEC.md
 harness/atelier-autopoiesis/FINDING-TAXONOMY.md
+harness/atelier-autopoiesis/TOKEN-ECONOMY-CONTRACT.md
+harness/atelier-autopoiesis/TOKEN-FORECAST-SPEC.md
+harness/atelier-autopoiesis/SUBAGENT-EXECUTION-CONTRACT.md
 AGENTS.md
 ```
 
-Use the `atelier-autopoiesis` skill.
+Use the `atelier-autopoiesis` skill. Follow `SUBAGENT-EXECUTION-CONTRACT.md` and `TOKEN-ECONOMY-CONTRACT.md`.
 
 ## Required inspection
 
@@ -40,7 +51,7 @@ Inspect code and state before judging. Common targets:
 ```txt
 .atelier-bootstrap/**
 product/apps/atelier/**
-.atelier/v0/**
+.atelier/v0/** via query/summary only; never broad-read generated state
 package.json
 nx.json
 harness/atelier-design-docs/**
@@ -79,10 +90,16 @@ Return JSON first, matching:
   "commands_run": [],
   "commands_not_run": [],
   "evidence": [],
-  "next_work_orders": []
+  "next_work_orders": [],
+  "token_forecast_required": false,
+  "token_notes": []
 }
 ```
 
 `status: "pass"` is allowed only when C1-C8 pass and no P0/P1 defect remains.
 
 For every blocking defect, include a concrete `next_work_orders` entry that the coordinator can dispatch without asking the user.
+
+## Token forecast gate
+
+If a phase claims completion without a recent `atelier.token-forecast/v1` report, return `status: "fail"` with a P1 finding requiring a forecast. Passing functionality while exceeding the 100M budget discipline is a process failure, not product completion.

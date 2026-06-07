@@ -24,19 +24,19 @@
     [
       "opencode-goal-plugin",
       {
-        "maxTurns": 120,
+        "maxTurns": 180,
         "maxDurationMs": 21600000,
         "maxTokens": 10000000,
         "minDelayMs": 1000,
-        "maxRecentMessages": 1000,
+        "maxRecentMessages": 80,
         "noProgressTokenThreshold": 80,
         "noProgressTurnsBeforePause": 8,
-        "budgetWrapupRatio": 0.92,
+        "budgetWrapupRatio": 0.9,
         "maxPromptFailures": 16,
         "persistState": true,
         "stateFilePath": ".opencode/opencode-goal-plugin/state.json",
         "resultRetentionMs": 604800000,
-        "maxStoredResults": 300
+        "maxStoredResults": 80
       }
     ]
   ],
@@ -50,7 +50,13 @@
       "target/**",
       ".atelier/v0/views/**",
       ".atelier/v0/**/_fixtures/**",
-      "harness/atelier-autopoiesis/work/**"
+      "harness/atelier-autopoiesis/work/**",
+      ".atelier/v0/edges/**",
+      ".atelier/v0/anchors/**",
+      ".atelier/v0/indexes/**",
+      "*.zip",
+      "*.log",
+      "harness/atelier-autopoiesis/work/checkpoints/*.raw.*"
     ]
   },
   "command": {

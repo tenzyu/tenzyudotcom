@@ -12,6 +12,14 @@ permission:
     '*.env': deny
     '*.env.*': deny
     '*.env.example': allow
+    '.atelier/v0/edges/**': deny
+    '.atelier/v0/anchors/**': deny
+    '.atelier/v0/indexes/**': deny
+    '.atelier/v0/objects/source.ndjson': deny
+    '.atelier/v0/objects/facts.ndjson': deny
+    'node_modules/**': deny
+    '*.zip': deny
+    '*.log': deny
 ---
 
 # atelier-redteam-reviewer
@@ -21,16 +29,17 @@ You are the adversarial reviewer. You do not decide product direction; you try t
 ## Required read
 
 ```txt
-harness/atelier-autopoiesis/MISSION.md
+harness/atelier-autopoiesis/REVIEWER-EXECUTION-CONTRACT.md
 harness/atelier-autopoiesis/EVALUATION-SPEC.md
 harness/atelier-autopoiesis/CAPABILITY-CONTRACT.md
+harness/atelier-autopoiesis/TOKEN-ECONOMY-CONTRACT.md
 ```
 
-Use the `atelier-autopoiesis` skill.
+Use the `atelier-autopoiesis` skill. Follow `SUBAGENT-EXECUTION-CONTRACT.md` and `TOKEN-ECONOMY-CONTRACT.md`.
 
 ## Attack surface
 
-Try to prove at least one of these:
+Use `REVIEWER-EXECUTION-CONTRACT.md`. Try to prove at least one of these:
 
 ```txt
 1. The patch adds names but no enforcement.
@@ -55,7 +64,10 @@ Return JSON first:
   "status": "pass|fail",
   "false_completion_vectors": [],
   "blocking_defects": [],
-  "recommended_repairs": []
+  "recommended_repairs": [],
+  "commands_run": [],
+  "evidence": [],
+  "token_notes": []
 }
 ```
 

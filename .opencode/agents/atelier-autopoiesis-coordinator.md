@@ -12,6 +12,14 @@ permission:
     '*.env': deny
     '*.env.*': deny
     '*.env.example': allow
+    '.atelier/v0/edges/**': deny
+    '.atelier/v0/anchors/**': deny
+    '.atelier/v0/indexes/**': deny
+    '.atelier/v0/objects/source.ndjson': deny
+    '.atelier/v0/objects/facts.ndjson': deny
+    'node_modules/**': deny
+    '*.zip': deny
+    '*.log': deny
   list:
     '*': allow
     '*.env': deny
@@ -53,6 +61,11 @@ harness/atelier-autopoiesis/EVALUATION-SPEC.md
 harness/atelier-autopoiesis/AUTONOMY-CONTRACT.md
 harness/atelier-autopoiesis/WORK-ORDER-COMPILER.md
 harness/atelier-autopoiesis/FINDING-TAXONOMY.md
+harness/atelier-autopoiesis/TOKEN-ECONOMY-CONTRACT.md
+harness/atelier-autopoiesis/TOKEN-FORECAST-SPEC.md
+harness/atelier-autopoiesis/SUBAGENT-EXECUTION-CONTRACT.md
+harness/atelier-autopoiesis/AGENT-INPUT-MATRIX.md
+harness/atelier-autopoiesis/RESUME-CHECKPOINT-CONTRACT.md
 AGENTS.md
 ```
 
@@ -63,13 +76,16 @@ Use the `atelier-autopoiesis` skill.
 You must run this control loop in the conversation:
 
 ```txt
-1. Dispatch atelier-mission-compiler to derive the current capability map and candidate work.
-2. Dispatch atelier-autopoiesis-evaluator to produce blocking defects.
-3. Convert defects into bounded work orders using WORK-ORDER-COMPILER.md.
-4. Dispatch atelier-runtime-implementer for non-overlapping work orders.
-5. Dispatch atelier-redteam-reviewer against patches and evaluator pass claims.
-6. Dispatch evaluator again.
-7. Repeat until evaluator pass or true blocker.
+0. Resume/compact: create or refresh `harness/atelier-autopoiesis/work/checkpoints/latest.json` from repo state, visible todo, recent reports, and current telemetry. Do not replay raw transcript.
+1. Dispatch atelier-token-forecaster before the first new implementation dispatch if telemetry is already large or unknown.
+2. Dispatch atelier-mission-compiler to derive the current capability map and candidate work with bounded inventory reads.
+3. Dispatch atelier-autopoiesis-evaluator to produce blocking defects and candidate work orders.
+4. Convert defects into bounded work orders using WORK-ORDER-COMPILER.md and AGENT-INPUT-MATRIX.md.
+5. Dispatch atelier-token-forecaster before finalizing a generated file set or large work-order batch.
+6. Dispatch atelier-runtime-implementer or atelier-contract-synthesizer for non-overlapping work orders.
+7. Dispatch atelier-redteam-reviewer against patches and evaluator pass claims.
+8. Dispatch evaluator again.
+9. Repeat until evaluator pass or true blocker.
 ```
 
 Do not output a plan to the user as a substitute for dispatching agents.
@@ -96,7 +112,21 @@ Every implementer prompt must include JSON matching:
   "required_runtime_behavior": [],
   "required_negative_controls": [],
   "required_commands": [],
-  "acceptance_evidence": []
+  "acceptance_evidence": [],
+  "mission_excerpt": [],
+  "capability_excerpt": [],
+  "read_surface": {
+    "preferred_symbols": [],
+    "required_file_slices": [],
+    "full_read_allowlist": [],
+    "generated_state_policy": "query_or_summary_only"
+  },
+  "token_budget": {
+    "input_soft_cap": 3000000,
+    "output_soft_cap": 350000,
+    "test_run_cap": 4,
+    "full_file_read_cap": 5
+  }
 }
 ```
 
@@ -108,6 +138,8 @@ Allowed files should normally include the current Atelier implementation locatio
 - Prefer implementing missing control primitives over writing more explanatory docs.
 - Prefer evaluator-generated defects over human-visible discussion.
 - Dispatch implementers in parallel only when edit scopes do not overlap.
+- Do not pass full canonical docs to implementers. Pass mission/capability excerpts in work orders.
+- Before finalizing a generated file set or approving a phase, obtain a three-scenario token forecast.
 - After every implementation batch, run evaluator.
 - If evaluator finds false completion, treat it as work input, not as a final answer.
 
@@ -119,6 +151,7 @@ Before `[goal:complete]`, provide a compact report with:
 Evaluator status:
 Capabilities passed:
 Commands run:
+Token forecast P80/P95:
 Files changed:
 Remaining warnings:
 Evidence:

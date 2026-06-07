@@ -22,7 +22,7 @@ A bounded work order:
 
 ```json
 {
-  "schema": "atelier.autopoiesis-work-order/v1",
+  "schema": "atelier.autopoiesis-work-order/v2",
   "work_order_id": "wo:c4-query-runtime:<hash>",
   "capability_ids": ["C4", "C5"],
   "evaluator_finding_ids": ["AP-P0-C4-002"],
@@ -57,7 +57,25 @@ A bounded work order:
   "acceptance_evidence": [
     "new or updated tests/fixtures proving query filtering and packet contents",
     "evaluator no longer reports AP-P0-C4-002/AP-P0-C5-001"
-  ]
+  ],
+  "mission_excerpt": [
+    "Only the mission lines required for this work order; do not paste the whole mission."
+  ],
+  "capability_excerpt": [
+    "Only the C4/C5 capability clauses required for this work order."
+  ],
+  "read_surface": {
+    "preferred_symbols": ["query", "packet", "authority", "stale", "conflict"],
+    "required_file_slices": [],
+    "full_read_allowlist": [],
+    "generated_state_policy": "query_or_summary_only"
+  },
+  "token_budget": {
+    "input_soft_cap": 3000000,
+    "output_soft_cap": 350000,
+    "test_run_cap": 4,
+    "full_file_read_cap": 5
+  }
 }
 ```
 
@@ -88,3 +106,17 @@ Do not mark commands missing as a permanent blocker unless the repository lacks 
 ### Rule 5: If the old architecture is too narrow, refactor
 
 The older Relation Kernel may be retained as a substrate, but it is not allowed to cap the target. Add missing modules/types/commands when necessary.
+
+## Token-aware compiler rules
+
+### Rule 6: Work orders carry context excerpts
+
+Implementers must not reread all canonical docs. The coordinator must compile the relevant mission/capability clauses into `mission_excerpt` and `capability_excerpt`.
+
+### Rule 7: Work orders carry read surface
+
+Every work order must list preferred symbols, required file slices, full-read allowlist, and generated-state policy. If the work order requires `.atelier/v0` evidence, request a query or summary, not a raw read.
+
+### Rule 8: Work orders carry token budget
+
+Every work order must include input/output/test/full-read caps. If a repair exceeds the cap, split the work order instead of widening context.

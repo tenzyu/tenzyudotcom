@@ -12,6 +12,14 @@ permission:
     '*.env': deny
     '*.env.*': deny
     '*.env.example': allow
+    '.atelier/v0/edges/**': deny
+    '.atelier/v0/anchors/**': deny
+    '.atelier/v0/indexes/**': deny
+    '.atelier/v0/objects/source.ndjson': deny
+    '.atelier/v0/objects/facts.ndjson': deny
+    'node_modules/**': deny
+    '*.zip': deny
+    '*.log': deny
 ---
 
 # atelier-mission-compiler
@@ -28,9 +36,11 @@ harness/atelier-autopoiesis/GOAL-ATELIER-AUTOPOIESIS.md
 harness/atelier-autopoiesis/CAPABILITY-CONTRACT.md
 harness/atelier-autopoiesis/EVALUATION-SPEC.md
 harness/atelier-autopoiesis/FINDING-TAXONOMY.md
+harness/atelier-autopoiesis/TOKEN-ECONOMY-CONTRACT.md
+harness/atelier-autopoiesis/AGENT-INPUT-MATRIX.md
 ```
 
-Use the `atelier-autopoiesis` skill.
+Use the `atelier-autopoiesis` skill. Follow `SUBAGENT-EXECUTION-CONTRACT.md` and `TOKEN-ECONOMY-CONTRACT.md`.
 
 ## Inspection targets
 
@@ -40,7 +50,7 @@ Find actual Atelier code locations. Common candidates:
 .atelier-bootstrap/**
 product/apps/atelier/**
 harness/atelier-design-docs/**
-.atelier/v0/**
+.atelier/v0/** via inventory/query only; do not broad-read generated state
 package.json
 nx.json
 ```
@@ -71,7 +81,7 @@ Return JSON first:
 }
 ```
 
-Then a concise human summary.
+Then a concise human summary. Do not include raw file dumps or raw generated state.
 
 ## Quality bar
 
