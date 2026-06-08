@@ -1,0 +1,22 @@
+{
+  "name": "@atelier-bootstrap/autopoiesis",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./src/cli.ts",
+  "module": "./src/cli.ts",
+  "scripts": {
+    "validate": "bun src/commands/validate.ts",
+    "lifecycle-test": "bun src/commands/lifecycle-test.ts",
+    "authority:resolve": "bun src/commands/authority-resolve.ts",
+    "query": "bun src/commands/query.ts",
+    "packet:create": "bun src/commands/packet-create.ts",
+    "packet:validate": "bun src/commands/packet-validate.ts",
+    "materialize:create": "bun src/commands/materialize-create.ts",
+    "materialize:validate": "bun src/commands/materialize-validate.ts",
+    "closeTask": "bun src/commands/close-task.ts",
+    "evaluate": "bun src/commands/evaluate.ts",
+    "findings": "bun src/commands/findings.ts",
+    "work-order": "bun src/commands/work-order.ts"
+  }
+}

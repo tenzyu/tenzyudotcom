@@ -37,6 +37,41 @@ export function parseNdjsonText<T = unknown>(text: string): T[] {
 }
 
 /**
+ * Tolerant variant of `parseNdjsonText`. Never throws; instead
+ * collects per-line `ParseError` records describing which lines
+ * failed to parse. Blank lines and comment lines (`#`-prefixed)
+ * are ignored without error.
+ *
+ * Use this when reading log-like or append-only data where a
+ * single corrupt line must not abort the whole read. The strict
+ * variant is the default; opt into tolerance explicitly.
+ */
+export type NdjsonLineError = { line: number; message: string; preview: string }
+
+export function parseNdjsonTextTolerant<T = unknown>(
+  text: string,
+): { records: T[]; lineErrors: NdjsonLineError[] } {
+  const records: T[] = []
+  const lineErrors: NdjsonLineError[] = []
+  const lines = text.split(/\r?\n/)
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]
+    const trimmed = line.trim()
+    if (trimmed === '' || trimmed.startsWith('#')) continue
+    try {
+      records.push(JSON.parse(trimmed) as T)
+    } catch (err) {
+      lineErrors.push({
+        line: i + 1,
+        message: (err as Error).message,
+        preview: trimmed.slice(0, 120),
+      })
+    }
+  }
+  return { records, lineErrors }
+}
+
+/**
  * Serialize a list of objects as NDJSON.
  *
  * Trailing newline is included so the file is friendly to stream consumers.

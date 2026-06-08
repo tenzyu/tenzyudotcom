@@ -58,7 +58,6 @@
     "atelier:transform:validate": "bun .atelier-bootstrap/transformer/src/cli.ts validate",
     "atelier:transform:render": "bun .atelier-bootstrap/transformer/src/cli.ts render",
     "atelier:transform:create-fixture-task": "bun .atelier-bootstrap/transformer/src/cli.ts create-fixture-task",
-    "atelier:packet:create": "bun .atelier-bootstrap/executor/src/cli.ts packet:create",
     "atelier:packet:context": "bun .atelier-bootstrap/executor/src/cli.ts packet:context",
     "atelier:packet:complete": "bun .atelier-bootstrap/executor/src/cli.ts packet:complete",
     "atelier:packet:reject": "bun .atelier-bootstrap/executor/src/cli.ts packet:reject",
@@ -71,7 +70,23 @@
     "atelier:executor:migrate": "bun .atelier-bootstrap/executor/src/cli.ts migrate",
     "atelier:ready": "bun .atelier-bootstrap/operation/src/cli.ts ready",
     "atelier:verify": "bun .atelier-bootstrap/operation/src/cli.ts verify",
-    "atelier:render": "bun .atelier-bootstrap/operation/src/cli.ts render"
+    "atelier:render": "bun .atelier-bootstrap/operation/src/cli.ts render",
+    "atelier:autopoiesis:validate": "bun .atelier-bootstrap/autopoiesis/src/cli.ts validate",
+    "atelier:lifecycle:test": "bun .atelier-bootstrap/autopoiesis/src/cli.ts lifecycle-test",
+    "atelier:authority:resolve": "bun .atelier-bootstrap/autopoiesis/src/cli.ts authority:resolve",
+    "atelier:query": "bun .atelier-bootstrap/autopoiesis/src/cli.ts query",
+    "atelier:packet:create": "bun .atelier-bootstrap/autopoiesis/src/cli.ts packet:create",
+    "atelier:packet:validate": "bun .atelier-bootstrap/autopoiesis/src/cli.ts packet:validate",
+    "atelier:materialize:create": "bun .atelier-bootstrap/autopoiesis/src/cli.ts materialize:create",
+    "atelier:materialize:validate": "bun .atelier-bootstrap/autopoiesis/src/cli.ts materialize:validate",
+    "atelier:closeTask": "bun .atelier-bootstrap/autopoiesis/src/cli.ts closeTask",
+    "atelier:promote": "bun .atelier-bootstrap/autopoiesis/src/cli.ts promote",
+    "atelier:evaluate": "bun .atelier-bootstrap/autopoiesis/src/cli.ts evaluate",
+    "atelier:autopoiesis:findings": "bun .atelier-bootstrap/autopoiesis/src/cli.ts findings",
+    "atelier:autopoiesis:work-order": "bun .atelier-bootstrap/autopoiesis/src/cli.ts work-order",
+    "atelier:stale:detect": "bun .atelier-bootstrap/autopoiesis/src/cli.ts stale-detect",
+    "atelier:conflicts:detect": "bun .atelier-bootstrap/autopoiesis/src/cli.ts conflicts-detect",
+    "atelier:autopoiesis:seed": "bun .atelier-bootstrap/autopoiesis/src/cli.ts seed"
   },
   "workspaces": {
     "catalog": {

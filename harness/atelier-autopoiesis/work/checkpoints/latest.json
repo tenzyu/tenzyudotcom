@@ -1,0 +1,53 @@
+{
+  "schema": "atelier.autopoiesis-checkpoint/v1",
+  "updated_at": "2026-06-07T07:05:00Z",
+  "active_work_order": null,
+  "completed_work_orders": [
+    "wo:autopoiesis:c8:evaluator-and-runtime-repair",
+    "wo:autopoiesis:c7:detect-and-seed",
+    "wo:autopoiesis:c5c6:smoke-flows",
+    "wo:autopoiesis:repair-redteam-findings",
+    "wo:autopoiesis:C8+C3:final-repair"
+  ],
+  "open_findings": [],
+  "commands_recently_run": [
+    "bun run atelier:autopoiesis:validate -> exit 0, status=pass, 6 nodes, 11 rules, 0 issues",
+    "bun run atelier:lifecycle:test -> 64 pass / 0 fail",
+    "bun run atelier:authority:resolve -> exit 0, req:smoke-1 wins precedence=100",
+    "bun run atelier:query --kind active-requirements --scope . -> 1 record",
+    "bun run atelier:query --kind recommend -> task_payload id=task:2cb94fa1f8263010",
+    "bun run atelier:stale:detect -> 0 detected (StalenessRecord emitter present, 1 record in ledger)",
+    "bun run atelier:conflicts:detect -> 0 detected (reclassified fixture)",
+    "bun run atelier:evaluate --goal MISSION.md -> status=pass, open_p0=0, open_p1=0",
+    "bun run atelier:autopoiesis:findings --capability C8 -> []",
+    "bun run atelier:autopoiesis:work-order --capability C8 -> []",
+    "bun run atelier:packet:create -- --smoke -> pkt:a07a0390bcad3cf6",
+    "bun run atelier:materialize:create -- --smoke -> prop:dd8fc6824d5627fa",
+    "bun run atelier:promote --id chk:smoke-1 --to verified -> E_TRANSITION_ILLEGAL (positive control)",
+    "bun test ./.atelier-bootstrap/autopoiesis/src/tests/ -> 223 pass / 0 fail / 710 expect() calls"
+  ],
+  "files_changed_since_start": [
+    ".atelier/v0/autopoiesis/authority-rules.ndjson (repaired)",
+    ".atelier/v0/autopoiesis/semantic-nodes.ndjson (6 records seeded)",
+    ".atelier/v0/autopoiesis/promotion-decisions.ndjson (4 decisions)",
+    ".atelier/v0/autopoiesis/staleness-records.ndjson (1 record)",
+    ".atelier/v0/autopoiesis/findings.ndjson (reconciled)",
+    ".atelier/v0/autopoiesis/evaluator-result.json (status=pass)",
+    ".atelier/v0/anchors/source-anchors.ndjson (1 stale anchor appended)",
+    ".atelier/v0/transforms/md-to-code/model/implementation-tasks.ndjson (smoke fixture)",
+    ".atelier-bootstrap/lib/src/ndjson.ts (tolerant variant)",
+    ".atelier-bootstrap/autopoiesis/src/lib/{records,store,paths,evaluator,work-order,validate,materialize,lifecycle,authority,stale-detector,query,packet,packet-validate}.ts",
+    ".atelier-bootstrap/autopoiesis/src/commands/{evaluate,findings,work-order,stale-detect,conflicts-detect,seed,promote,packet-create,materialize-create,materialize-validate,close-task,authority-resolve,query,lifecycle-test,validate}.ts",
+    ".atelier-bootstrap/autopoiesis/src/cli.ts",
+    ".atelier-bootstrap/autopoiesis/src/tests/{evaluator,work-order,store-tolerance,stale-detect,conflicts-detect,smoke-flows,close-task-gate,lifecycle,packet-materialize,authority-hardening,authority-query}.test.ts",
+    "package.json (atelier:evaluate, atelier:autopoiesis:findings, atelier:autopoiesis:work-order, atelier:stale:detect, atelier:conflicts:detect, atelier:autopoiesis:seed, atelier:promote scripts added)",
+    ".atelier-bootstrap/autopoiesis/package.json (matching scripts added)"
+  ],
+  "known_token_telemetry": {
+    "input": 5000000,
+    "cached_input": 0,
+    "reasoning": 1500000,
+    "output": 500000
+  },
+  "next_dispatch": null
+}

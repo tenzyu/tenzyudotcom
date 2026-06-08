@@ -51,6 +51,15 @@ const DISPATCHES: Dispatch[] = [
   { matches: ['ready'], script: 'operation/src/cli.ts', forwardArgs: (a) => ['ready', ...a] },
   { matches: ['verify'], script: 'operation/src/cli.ts', forwardArgs: (a) => ['verify', ...a] },
   { matches: ['render'], script: 'operation/src/cli.ts', forwardArgs: (a) => ['render', ...a] },
+  { matches: ['autopoiesis:validate', 'autopoiesis-validate'], script: 'autopoiesis/src/cli.ts', forwardArgs: (a) => ['validate', ...a] },
+  { matches: ['lifecycle:test', 'lifecycle-test'], script: 'autopoiesis/src/cli.ts', forwardArgs: (a) => ['lifecycle-test', ...a] },
+  { matches: ['authority:resolve', 'authority-resolve'], script: 'autopoiesis/src/cli.ts', forwardArgs: (a) => ['authority:resolve', ...a] },
+  { matches: ['query', 'autopoiesis:query'], script: 'autopoiesis/src/cli.ts', forwardArgs: (a) => ['query', ...a] },
+  { matches: ['packet:create'], script: 'autopoiesis/src/cli.ts', forwardArgs: (a) => ['packet:create', ...a] },
+  { matches: ['packet:validate'], script: 'autopoiesis/src/cli.ts', forwardArgs: (a) => ['packet:validate', ...a] },
+  { matches: ['materialize:create'], script: 'autopoiesis/src/cli.ts', forwardArgs: (a) => ['materialize:create', ...a] },
+  { matches: ['materialize:validate'], script: 'autopoiesis/src/cli.ts', forwardArgs: (a) => ['materialize:validate', ...a] },
+  { matches: ['closeTask'], script: 'autopoiesis/src/cli.ts', forwardArgs: (a) => ['closeTask', ...a] },
 ]
 
 const BOOTSTRAP_DIR = path.join(REPO_ROOT, '.atelier-bootstrap')
@@ -101,6 +110,15 @@ function usage(): string {
     '  ready                   Run atelier-operation ready',
     '  verify                  Run atelier-operation verify',
     '  render                  Run atelier-operation render',
+    '  autopoiesis:validate    Run atelier-autopoiesis validate (NDJSON validator)',
+    '  lifecycle:test          Run the full atelier-autopoiesis negative-control test suite',
+    '  authority:resolve -- --scope .  Resolve authority for every class (emits atelier.authority-resolution/v1 JSON)',
+    '  query --kind <kind> [--task <id>] [--scope <path>] [--include-non-accepted]  Run a runtime query against the autopoiesis control plane (emits atelier.query-result/v1 JSON)',
+    '  packet:create --task <id>  Build a task-local ControlPacket (atelier.control-packet/v1)',
+    '  packet:validate --packet <id>  Validate a ControlPacket; exits 0 on no defects, 1 on any defect',
+    '  materialize:create --task <id> --diff <ref>  Build a MaterializationProposal (atelier.materialization-proposal/v1)',
+    '  materialize:validate --proposal <id>  Run the materialization gate; on success the proposal is promoted to status=validated AND lifecycle_state=accepted',
+    '  closeTask --task <id>  Close a task IF a validated MaterializationProposal exists; emits a task_closed_ack SemanticNode on success',
     '  help                    Show this message',
   ].join('\n')
 }
