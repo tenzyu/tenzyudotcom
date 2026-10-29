@@ -1,0 +1,45 @@
+id,kind,path,classification,value_and_reason,dependencies_and_usage,update_cost,alternative,deletion_impact,recovery,approval
+P01,product,product/apps/web,改善,osuとエンジニアリングの公開基盤,ui;linter;Next;Intlayer;GitHub content;osu API,外部データと生成型の準備が必要,既存Nextを小さくする,全公開ページに影響,Gitとローカルバックアップ,構成は未承認
+P02,product,product/apps/atelier,アーカイブ,本人が廃止対象と明示,root flake;MCP;release workflow;agent instructions,独立CLIと旧ハーネスの保守,履歴保存してactive構成から撤去,CLIとMCP利用元を失う,Gitとignored状態のバックアップ,退役実行は承認待ち
+P03,product,product/apps/osu-skin-workbench,判断保留,osuの制作資産候補,osu-skin-core;ui;Tauri;Rust;GTK,Webより重いnative環境,Webとは別devShellと検証単位に分離,スキン編集・書出し導線を失う,Gitとローカルバックアップ,継続利用を確認
+P04,product,product/apps/castalia,判断保留,ローカルprompt launcher,root flake;Rust;GUI;外部prompt store,OS統合と配布の保守,別製品として保全,個人の呼出しワークフローを失う,Gitと外部storeの別保全が必要,継続利用を確認
+P05,product,product/apps/chatgpt-partial-html-export,保持,構文とテスト成功の独立Firefox拡張,native host;browser権限,ブラウザDOM追従,Web製品とは別単位で保守,会話抽出機能を失う,Git,公開掲載は未承認
+L01,package,product/packages/osu-skin-core,保持,分類とweb-safe DTOの9テストが成功,skin-workbench,ルール表とドメイン知識の保守,必要な純粋ロジックを維持,スキン意味分類を再実装する必要,Git,AI提案
+L02,package,product/packages/ui,改善,Webとworkbenchが共有;build成功,Base UI;Storybook;Vite;React,全componentとstoryの保守,使用componentに限定する案,利用元とstyleの破壊,Gitとbuild再生成,削減は依存調査後
+L03,package,product/packages/linter,判断保留,既存境界規約の検証器,web lint;root verify:workspace,旧規約追従の費用,必要なlintだけを残す,既存の静的検証を失う,Git,規則単位で再評価
+R01,page,product/apps/web/src/app/[locale]/(main)/(home)/page.tsx,改善,二つの主軸の入口にする,notes;blog;shared shell,GitHub依存とlocale routing,osuとengineeringの二導線,入口と既存紹介を失う,Gitと未コミット差分保全,意匠未承認
+R02,page,product/apps/web/src/app/[locale]/(main)/archives/osu-profile/page.tsx,改善,osu復帰候補の実体,live osu API;2025 goals;YouTube;Twitter;settings,出典と取得時刻の分離が必要,小さなosuページと歴史データに分離,履歴リンクと設定知識を失う,Gitと外部mediaは別確認,方式承認待ち
+R03,page,product/apps/web/src/app/[locale]/(main)/archives/page.tsx,アーカイブ,旧ページへの入口,osu-profile,低いが公開URLを維持する費用,旧URLをredirect,旧リンクを失う,Git,公開廃止未承認
+R04,page,product/apps/web/src/app/[locale]/(main)/blog/page.tsx,保持,osu記事と制作記録,GitHub blog index;MDX,内容の事実確認と更新,engineeringとosuから記事へ誘導,記事の入口を失う,別content repoも保全,掲載範囲は未承認
+R05,page,product/apps/web/src/app/[locale]/(main)/blog/[slug]/page.tsx,改善,既存記事URLの資産,MDX;frontmatter;GitHub,AI生成記事の編集と出典確認,履歴表示とレビュー済み記事を区別,外部リンクと記事を失う,別content repo,記事単位で判断
+R06,page,product/apps/web/src/app/[locale]/(main)/notes/page.tsx,判断保留,短文記録,notes domain;GitHub editor/notes.json,blogとscrapsとの重複,記録を一つの一覧へ統合,短文記録の導線を失う,Gitとcontent repo,統合未承認
+R07,page,product/apps/web/src/app/[locale]/(main)/notes/[id]/page.tsx,判断保留,既存詳細URL,notes domain;GitHub,build時のremote依存,既存URLのredirect設計,既存参照が切れる,Gitとcontent repo,未承認
+R08,page,product/apps/web/src/app/[locale]/(main)/scraps/page.tsx,判断保留,未コミットの連続記録機能,scraps domain;GitHub;MDX,3系統の記録形式が重なる,notesとの棲み分け又は統合,ローカル作業を失う,Git外バックアップ,原本に触れず方式確認
+R09,page,product/apps/web/src/app/[locale]/(main)/scraps/[slug]/page.tsx,リファクタ,ドメインとテストは保全価値あり,manifest;entry meta;MDX;projection,複数fileの非原子的保存,一括commitか再実行可能な更新,追記済み記録を失う,Git外バックアップ,新設計未承認
+R10,page,product/apps/web/src/app/[locale]/(main)/portfolio/page.tsx,改善,問題解決の作品紹介候補,shared shell;content data,作品の選定と保守,engineering一覧へ編集,作品紹介URLを失う,Git,掲載作品を本人選定
+R11,page,product/apps/web/src/app/[locale]/(main)/tools/page.tsx,改善,実働ツールの入口,ui;dot-type,計画中表示と既存実装の整理,engineeringへ統合又は別一覧,ツール発見導線を失う,Git,統合未承認
+R12,page,product/apps/web/src/app/[locale]/(main)/tools/dot-type/page.tsx,保持,既存の小さな実用品,route-local logic;ui,利用テスト未実施,engineeringの作品から直接リンク,利用可能ツールを失う,Gitとfeat-dot-type,公開継続未承認
+R13,page,product/apps/web/src/app/[locale]/(main)/links/page.tsx,改善,外部活動への導線,features/links;GitHub,リンク健全性確認,トップとfooterへ縮約,外部活動への入口を失う,content repo,縮約未承認
+R14,page,product/apps/web/src/app/[locale]/(main)/links/[shortUrl]/page.tsx,判断保留,既存短縮URL,linksデータ;/u redirect,既存URLの利用調査,redirectのみ維持,外部からのリンクが切れる,Gitとcontent repo,削除未承認
+R15,page,product/apps/web/src/app/[locale]/(main)/pointers/page.tsx,アーカイブ,主軸から外れるダッシュボード,editor/pointers.json;admin,専用editorとschemaの維持,データを保存して公開終了,利用者のダッシュボードを失う,content repo,廃止未承認
+R16,page,product/apps/web/src/app/[locale]/(main)/puzzles/page.tsx,アーカイブ,主軸から外れる収集ページ,editor/puzzles.json;admin,専用editorとschemaの維持,必要なリンクだけ移す,個人収集資産の導線を失う,content repo,廃止未承認
+R17,page,product/apps/web/src/app/[locale]/(main)/recommendations/page.tsx,判断保留,推薦メディアの資産,YouTube;editor/recommendations.json,外部APIとembed追従,osu関連だけ選定,推薦記録と出典を失う,content repo,本人の利用確認
+R18,page,product/apps/web/src/app/[locale]/(admin)/editor/page.tsx,判断保留,既存編集入口,session auth;GitHub write,認証とcontent schema保守,Git編集型の更新,ブラウザ編集を失う,Git,認証変更未承認
+R19,page,product/apps/web/src/app/[locale]/(admin)/editor/login/page.tsx,判断保留,既存管理者ログイン,editor password;session secret,秘密管理,隔離した編集ワークフロー,管理機能へアクセスできなくなる,Gitと秘密の別保全,認証変更未承認
+R20,page,product/apps/web/src/app/[locale]/(admin)/editor/[collection]/page.tsx,リファクタ,6collectionを専用UIで編集,route-local types;shared registry,大きな編集component群,残すcollectionだけに絞る,編集機能を失う,Gitとcontent repo,廃止範囲未承認
+R21,api,product/apps/web/src/app/api/auth/me/route.ts,判断保留,既存session確認API,admin auth,認証監査,認証基盤採否後に判断,編集UIの認証状態が壊れる,Git,未承認
+R22,api,product/apps/web/src/app/api/editor/[collection]/route.ts,判断保留,GitHub保存の境界,content-editor;storage;auth,データ整合性の検証,残す編集機能だけを維持,書込経路が失われる,Git,未承認
+D01,data,../tenzyudotcom-content/storage/blog,保持,MDX8件とindex;osu記事5件はAI generatedタグ,web blog,事実確認と出典整備,本人レビュー後に公開選定,記事本文の損失,独立repoとGit外バックアップ,転載権利と内容は未検証
+D02,data,../tenzyudotcom-content/storage/editor,保持,links notes pointers puzzles recommendationsのJSON,webとadmin,内容更新,必要なものだけ移行,個人収集データの損失,独立repoとGit外バックアップ,削除不可
+D03,data,product/apps/web/src/app/[locale]/(main)/archives/osu-profile/_features,保持,動画ID;Tweet ID;設定;2025目標,osu page;外部配信元,取得日とライセンスの追記,source metadata付き歴史記録,プレイ履歴の文脈を失う,Git;外部動画本体は別,権利未検証
+D04,data,.env;product/apps/web/.env.local;product/apps/web/.env.prod,保持,秘密設定の所在のみ確認,Nix shell;Next;API,最小権限化,開発用の読み取り専用設定,認証・データアクセスを失う,private backup,値は転記しない
+D05,media,product/apps/web/public,保持,画像等の公開資産,web表示,利用元と権利の照合,使用資産だけ移す,画像欠損,Gitとバックアップ,個別評価未完了
+H01,harness,AGENTS.md;opencode.json;.codex/config.toml,改善,Atelier自動実装の強制が新方針と衝突,goal plugin;MCP;root scripts,重複命令と旧goal維持,短い共通指示と必要時skill,旧agent自動実行を失う,Git,退役パッチは承認待ち
+H02,harness,.atelier-bootstrap;.atelier;harness/atelier-autopoiesis,アーカイブ,廃止対象の実装・状態・control pack,Nx graph;root commands,大きな独立runtimeの維持,履歴だけ保全,旧状態と実験証拠を失う,Gitとignoredのprivate backup,不可逆削除未承認
+H03,harness,.agents;.agent;.claude;skills-lock.json,改善,skills実体と別入口のsymlinkが混在,global skills;複数agent harness,重複文脈と互換性検証,標準skillを必要時に読む,呼出し導線を失う,バックアップ;symlink先もrepo内,統廃合未承認
+H04,harness,.github/workflows/ci.yml,改善,既存PR/main検証,全stack;Tauri apt deps;Nx affected,Webだけでもnative環境を準備,Webとnativeを別job化,CI保護を失う,Git,採用対象確定後
+H05,harness,.github/workflows/release-atelier.yml,削除候補,廃止対象専用release,Atelier release,不要release保守,アーカイブ後に撤去,Atelier配布を停止,Git,未承認
+H06,harness,nix;flake.nix;flake.lock,改善,web/minimal/native shellが既に分離可能,Atelier;Castalia;Serena;Bun;Node,default shellが大きい,web shellを基本にする,全開発環境に影響,Gitとローカルlock保全,全面更新しない
+H07,harness,.nx;.next;dist;storybook-static;node_modules,判断保留,生成物には最後の実行痕跡がある,各buildとtests,容量と再生成,証拠を抽出して再生成,最後の成功痕跡を失う,今回のbackup,掃除未承認
+H08,harness,repo-ops/scripts,判断保留,既存ポリシーと文書生成ツール,root scripts;harness;custom linter,廃止仕様への追従,利用中commandだけ維持,既存操作が消える,Git,呼出し監査継続
+H09,harness,repo-ops/renewal,保持,今回実装した観測・再実行・画像取得,Node;Git;tar;Playwright,少数CLIと意味のあるテスト,不要になれば独立撤去可能,再現証拠を作れなくなる,作業branch,非破壊追加

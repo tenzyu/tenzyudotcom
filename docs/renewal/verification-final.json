@@ -1,0 +1,395 @@
+{
+  "schemaVersion": 1,
+  "note": "Command durations are single observations, not comparative benchmarks. Raw logs remain outside Git.",
+  "checks": [
+    {
+      "id": "install",
+      "command": [
+        "bun",
+        "install",
+        "--frozen-lockfile",
+        "--ignore-scripts"
+      ],
+      "cwd": "/home/tenzyu/Projects/tenzyudotcom-renewal-safety-20261029/evaluation/tenzyudotcom",
+      "status": "passed",
+      "exitCode": 0,
+      "startedAt": "2026-10-29T10:44:53.132Z",
+      "durationMs": 180338,
+      "logSha256": "defff439e33c180279af5c7bd15c237cbca5d274c9007a605ab24ac4403789af"
+    },
+    {
+      "id": "nx-projects",
+      "command": [
+        "bun",
+        "nx",
+        "show",
+        "projects",
+        "--json"
+      ],
+      "cwd": "/home/tenzyu/Projects/tenzyudotcom-renewal-safety-20261029/evaluation/tenzyudotcom",
+      "status": "passed",
+      "exitCode": 0,
+      "startedAt": "2026-10-29T10:48:03.028Z",
+      "durationMs": 4752,
+      "logSha256": "d2cbc823f0629d860740ecfc8993cedebca9331cbeb4628fe361cb6881d78c24"
+    },
+    {
+      "id": "nix-web",
+      "command": [
+        "nix",
+        "develop",
+        ".#web",
+        "--no-write-lock-file",
+        "--command",
+        "bun",
+        "--version"
+      ],
+      "cwd": "/home/tenzyu/Projects/tenzyudotcom-renewal-safety-20261029/evaluation/tenzyudotcom",
+      "status": "passed",
+      "exitCode": 0,
+      "startedAt": "2026-10-29T10:48:20.617Z",
+      "durationMs": 55357,
+      "logSha256": "dc69940d7ef2379d026b3a08124a1c1c4ee39814667c4d9320f51f83ef534519"
+    },
+    {
+      "id": "nx-web-config",
+      "command": [
+        "bun",
+        "nx",
+        "show",
+        "project",
+        "web",
+        "--json"
+      ],
+      "cwd": "/home/tenzyu/Projects/tenzyudotcom-renewal-safety-20261029/evaluation/tenzyudotcom",
+      "status": "passed",
+      "exitCode": 0,
+      "startedAt": "2026-10-29T10:48:20.623Z",
+      "durationMs": 1316,
+      "logSha256": "ce9631a2e293be0974b67b702a9a44e539363e88ceb0626c5be8b6d79100b964"
+    },
+    {
+      "id": "nx-graph",
+      "command": [
+        "bun",
+        "nx",
+        "graph",
+        "--print"
+      ],
+      "cwd": "/home/tenzyu/Projects/tenzyudotcom-renewal-safety-20261029/evaluation/tenzyudotcom",
+      "status": "passed",
+      "exitCode": 0,
+      "startedAt": "2026-10-29T10:48:22.006Z",
+      "durationMs": 1181,
+      "logSha256": "29198c7810f31f7020a0ec21b0127c10f7ecd6131b2d9f565c524127cb33b147"
+    },
+    {
+      "id": "web-build",
+      "command": [
+        "nix",
+        "develop",
+        ".#web",
+        "--no-write-lock-file",
+        "--command",
+        "bun",
+        "nx",
+        "run",
+        "web:build",
+        "--skipNxCache"
+      ],
+      "cwd": "/home/tenzyu/Projects/tenzyudotcom-renewal-safety-20261029/evaluation/tenzyudotcom",
+      "status": "failed",
+      "exitCode": 130,
+      "startedAt": "2026-10-29T10:49:27.338Z",
+      "durationMs": 77298,
+      "logSha256": "011e8c9006284a375e9a52d3da0aba80fe2ccb68206690b3c8d6f9481b474f61"
+    },
+    {
+      "id": "web-lint",
+      "command": [
+        "nix",
+        "develop",
+        ".#web",
+        "--no-write-lock-file",
+        "--command",
+        "bun",
+        "nx",
+        "run",
+        "web:lint",
+        "--skipNxCache"
+      ],
+      "cwd": "/home/tenzyu/Projects/tenzyudotcom-renewal-safety-20261029/evaluation/tenzyudotcom",
+      "status": "failed",
+      "exitCode": 1,
+      "startedAt": "2026-10-29T10:49:27.354Z",
+      "durationMs": 74200,
+      "logSha256": "740502376d7799e4b0163e9603c77776ff1be6e0b3ccd881532877b21ef54586"
+    },
+    {
+      "id": "web-test",
+      "command": [
+        "nix",
+        "develop",
+        ".#web",
+        "--no-write-lock-file",
+        "--command",
+        "bun",
+        "nx",
+        "run",
+        "web:test",
+        "--skipNxCache"
+      ],
+      "cwd": "/home/tenzyu/Projects/tenzyudotcom-renewal-safety-20261029/evaluation/tenzyudotcom",
+      "status": "failed",
+      "exitCode": 1,
+      "startedAt": "2026-10-29T10:49:27.362Z",
+      "durationMs": 77861,
+      "logSha256": "3e26b1f4319e903d3c95fe2f44c214890c1c05f88d2a03176387ba8e39afec64"
+    },
+    {
+      "id": "web-test-direct",
+      "command": [
+        "bun",
+        "test",
+        "./product/apps/web/src"
+      ],
+      "cwd": "/home/tenzyu/Projects/tenzyudotcom-renewal-safety-20261029/evaluation/tenzyudotcom",
+      "status": "passed",
+      "exitCode": 0,
+      "startedAt": "2026-10-29T10:51:15.002Z",
+      "durationMs": 394,
+      "logSha256": "cc4c614eb7a7005d5616418cd1ccc4ad8ff457807363e88f1021bfb98072dec3"
+    },
+    {
+      "id": "web-typecheck",
+      "command": [
+        "bun",
+        "run",
+        "typecheck"
+      ],
+      "cwd": "/home/tenzyu/Projects/tenzyudotcom-renewal-safety-20261029/evaluation/tenzyudotcom/product/apps/web",
+      "status": "failed",
+      "exitCode": 2,
+      "startedAt": "2026-10-29T10:51:15.003Z",
+      "durationMs": 8857,
+      "logSha256": "8b14989c8e19425aa584392e85024f18b0afb676ecc3050dcee5356b8bb9f872"
+    },
+    {
+      "id": "web-build-host",
+      "command": [
+        "bun",
+        "nx",
+        "run",
+        "web:build",
+        "--skipNxCache"
+      ],
+      "cwd": "/home/tenzyu/Projects/tenzyudotcom-renewal-safety-20261029/evaluation/tenzyudotcom",
+      "status": "failed",
+      "exitCode": 130,
+      "startedAt": "2026-10-29T10:51:57.092Z",
+      "durationMs": 1806,
+      "logSha256": "9ea6232f65d36d9eccf0964e34713adc7ac3c97b2fe30729762c0a1d06e7664c"
+    },
+    {
+      "id": "web-lint-direct",
+      "command": [
+        "bun",
+        "run",
+        "lint"
+      ],
+      "cwd": "/home/tenzyu/Projects/tenzyudotcom-renewal-safety-20261029/evaluation/tenzyudotcom/product/apps/web",
+      "status": "passed",
+      "exitCode": 0,
+      "startedAt": "2026-10-29T10:52:32.882Z",
+      "durationMs": 11126,
+      "logSha256": "8b2c7ef07ae0e90a3017b1aaccd383b3155f9ff069e87f6e1dc05965bcc8884a"
+    },
+    {
+      "id": "ui-build-direct",
+      "command": [
+        "bun",
+        "run",
+        "build"
+      ],
+      "cwd": "/home/tenzyu/Projects/tenzyudotcom-renewal-safety-20261029/evaluation/tenzyudotcom/product/packages/ui",
+      "status": "passed",
+      "exitCode": 0,
+      "startedAt": "2026-10-29T10:52:32.894Z",
+      "durationMs": 32412,
+      "logSha256": "97209473caaaa36b9eb5bb0428a587334b94babf35a8dc9e84a38fde032a3772"
+    },
+    {
+      "id": "web-build-direct",
+      "command": [
+        "bun",
+        "run",
+        "build"
+      ],
+      "cwd": "/home/tenzyu/Projects/tenzyudotcom-renewal-safety-20261029/evaluation/tenzyudotcom/product/apps/web",
+      "status": "failed",
+      "exitCode": 1,
+      "startedAt": "2026-10-29T10:53:24.679Z",
+      "durationMs": 44634,
+      "logSha256": "a85e790460634be78dc1ab2968dfa7c94c8f8926fcf4acc5ed1e759f2af4f870"
+    },
+    {
+      "id": "nx-test-node",
+      "command": [
+        "node",
+        "node_modules/nx/bin/nx.js",
+        "run",
+        "web:test",
+        "--skipNxCache",
+        "--outputStyle=stream"
+      ],
+      "cwd": "/home/tenzyu/Projects/tenzyudotcom-renewal-safety-20261029/evaluation/tenzyudotcom",
+      "status": "failed",
+      "exitCode": 1,
+      "startedAt": "2026-10-29T10:53:24.682Z",
+      "durationMs": 60,
+      "logSha256": "e9b1c39bfe3f8a4f1994fa369e97832e71cc9cddefcf9cd2eee687db5c30714b"
+    },
+    {
+      "id": "web-typecheck-after-build",
+      "command": [
+        "bun",
+        "run",
+        "typecheck"
+      ],
+      "cwd": "/home/tenzyu/Projects/tenzyudotcom-renewal-safety-20261029/evaluation/tenzyudotcom/product/apps/web",
+      "status": "passed",
+      "exitCode": 0,
+      "startedAt": "2026-10-29T10:54:30.798Z",
+      "durationMs": 10097,
+      "logSha256": "8366207267355d3e3d5bf3bf6e8c94c5f93f6078c34f08973fa2b38cdda6cc92"
+    },
+    {
+      "id": "nx-test-stream",
+      "command": [
+        "node",
+        "node_modules/nx/dist/bin/nx.js",
+        "run",
+        "web:test",
+        "--skipNxCache",
+        "--outputStyle=stream"
+      ],
+      "cwd": "/home/tenzyu/Projects/tenzyudotcom-renewal-safety-20261029/evaluation/tenzyudotcom",
+      "status": "failed",
+      "exitCode": 1,
+      "startedAt": "2026-10-29T10:55:28.831Z",
+      "durationMs": 2004,
+      "logSha256": "635999e6012b734f3459bffdda4e807c437ac7d1905aac296c2b236fa7e2e610"
+    },
+    {
+      "id": "nx-test-no-native",
+      "command": [
+        "env",
+        "NX_NATIVE_COMMAND_RUNNER=false",
+        "bun",
+        "nx",
+        "run",
+        "web:test",
+        "--skipNxCache"
+      ],
+      "cwd": "/home/tenzyu/Projects/tenzyudotcom-renewal-safety-20261029/evaluation/tenzyudotcom",
+      "status": "failed",
+      "exitCode": 1,
+      "startedAt": "2026-10-29T10:55:28.839Z",
+      "durationMs": 1445,
+      "logSha256": "82d256ac1e50b8cc59580412f9d06437d564fe8bbadb8f50fd0d1dd7230cce16"
+    },
+    {
+      "id": "browser-run",
+      "command": [
+        "node",
+        "/home/tenzyu/Projects/tenzyudotcom-renewal-phase01/repo-ops/renewal/preview.mjs",
+        "/home/tenzyu/Projects/tenzyudotcom-renewal-safety-20261029/evaluation/tenzyudotcom",
+        "/home/tenzyu/Projects/tenzyudotcom-renewal-safety-20261029/browser",
+        "/nix/store/l1hz4wrvzx6zc5f7zhljhdkh9msq7m54-playwright-core-1.59.1/index.mjs",
+        "/nix/store/js1fbcm7ylv92nrjcn32ahmn3786460a-chromium-155.0.8059.84/bin/chromium"
+      ],
+      "cwd": "/home/tenzyu/Projects/tenzyudotcom-renewal-safety-20261029/evaluation/tenzyudotcom",
+      "status": "failed",
+      "exitCode": 1,
+      "startedAt": "2026-10-29T11:02:06.743Z",
+      "durationMs": 37223,
+      "logSha256": "5b8b91182cb4b508b7ce198ef9e6071be87bef65edb6b50a9bcc4982d31fd8ee"
+    },
+    {
+      "id": "skin-core-test",
+      "command": [
+        "bun",
+        "test",
+        "./product/packages/osu-skin-core"
+      ],
+      "cwd": "/home/tenzyu/Projects/tenzyudotcom-renewal-safety-20261029/evaluation/tenzyudotcom",
+      "status": "passed",
+      "exitCode": 0,
+      "startedAt": "2026-10-29T11:03:25.577Z",
+      "durationMs": 102,
+      "logSha256": "92d9cdf8e5ed9d68b15c7be74cef74e61e7dde55cd4e514de910cfbef0ae29af"
+    },
+    {
+      "id": "exporter-test",
+      "command": [
+        "bun",
+        "run",
+        "check"
+      ],
+      "cwd": "/home/tenzyu/Projects/tenzyudotcom-renewal-safety-20261029/evaluation/tenzyudotcom/product/apps/chatgpt-partial-html-export",
+      "status": "passed",
+      "exitCode": 0,
+      "startedAt": "2026-10-29T11:03:25.590Z",
+      "durationMs": 513,
+      "logSha256": "26a31e39da319cb1de5ab31bb2592f6bdf22b91226d86e6d58d894da7367ad78"
+    },
+    {
+      "id": "browser-isolated-run",
+      "command": [
+        "node",
+        "/home/tenzyu/Projects/tenzyudotcom-renewal-phase01/repo-ops/renewal/preview.mjs",
+        "/home/tenzyu/Projects/tenzyudotcom-renewal-safety-20261029/evaluation/tenzyudotcom",
+        "/home/tenzyu/Projects/tenzyudotcom-renewal-safety-20261029/browser-isolated",
+        "/nix/store/l1hz4wrvzx6zc5f7zhljhdkh9msq7m54-playwright-core-1.59.1/index.mjs",
+        "/nix/store/js1fbcm7ylv92nrjcn32ahmn3786460a-chromium-155.0.8059.84/bin/chromium"
+      ],
+      "cwd": "/home/tenzyu/Projects/tenzyudotcom-renewal-safety-20261029/evaluation/tenzyudotcom",
+      "status": "failed",
+      "exitCode": 1,
+      "startedAt": "2026-10-29T11:04:37.526Z",
+      "durationMs": 28671,
+      "logSha256": "4c91dbdb1583e42dd4f907eec37f80beac7d3fe7a3d10c9610162e90fff6df72"
+    },
+    {
+      "id": "harness-tests",
+      "command": [
+        "node",
+        "--test",
+        "repo-ops/renewal/run.test.mjs"
+      ],
+      "cwd": "/home/tenzyu/Projects/tenzyudotcom-renewal-phase01",
+      "status": "passed",
+      "exitCode": 0,
+      "startedAt": "2026-10-29T11:19:35.170Z",
+      "durationMs": 6867,
+      "logSha256": "76d751469769509d33883b53a1c277b9496f7ff6a974e3d95945d315bc8d1f79"
+    },
+    {
+      "id": "browser-final-run",
+      "command": [
+        "node",
+        "/home/tenzyu/Projects/tenzyudotcom-renewal-phase01/repo-ops/renewal/preview.mjs",
+        "/home/tenzyu/Projects/tenzyudotcom-renewal-safety-20261029/evaluation/tenzyudotcom",
+        "/home/tenzyu/Projects/tenzyudotcom-renewal-safety-20261029/browser-final",
+        "/nix/store/l1hz4wrvzx6zc5f7zhljhdkh9msq7m54-playwright-core-1.59.1/index.mjs",
+        "/nix/store/js1fbcm7ylv92nrjcn32ahmn3786460a-chromium-155.0.8059.84/bin/chromium"
+      ],
+      "cwd": "/home/tenzyu/Projects/tenzyudotcom-renewal-safety-20261029/evaluation/tenzyudotcom",
+      "status": "failed",
+      "exitCode": 1,
+      "startedAt": "2026-10-29T11:19:35.223Z",
+      "durationMs": 35942,
+      "logSha256": "73679d6cc06d908222bbb2c81f74853a1bc4cab38a026b2de6732391cbd1427c"
+    }
+  ]
+}
