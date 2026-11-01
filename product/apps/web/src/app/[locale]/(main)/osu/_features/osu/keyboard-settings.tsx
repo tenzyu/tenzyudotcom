@@ -11,7 +11,7 @@ import {
   SettingsGridItem,
   SettingsVisualization,
 } from './settings-card'
-import type { KeyboardSettings as KeyboardSettingsType } from './types-settings'
+import { KEYPAD_SETTINGS } from './settings.data'
 
 type KeyProps = {
   label: string
@@ -63,24 +63,7 @@ const StatusIndicator = memo(function StatusIndicator({
 
 export const KeyboardSettings = memo(function KeyboardSettings() {
   const settingsContent = useIntlayer('settings')
-  const settings: KeyboardSettingsType = {
-    name: 'SayoDevice O3C v1 (QwQ)',
-    keyMapping: {
-      leftKey: 'C',
-      middleKey: 'Z',
-      rightKey: 'X',
-    },
-    knobFunctions: {
-      press: 'Y',
-      leftRotation: '←',
-      rightRotation: '→',
-    },
-    actuation: {
-      distance: 0.15,
-      rtTrigger: 0.2,
-      rtRelease: 0.2,
-    },
-  }
+  const settings = KEYPAD_SETTINGS
 
   return (
     <SettingsCard title={settingsContent.keyboard.value}>
@@ -90,7 +73,6 @@ export const KeyboardSettings = memo(function KeyboardSettings() {
           role="img"
           aria-label={settingsContent.aria.keyboardVisualization.value}
         >
-          {/* Knob */}
           <div
             className="bg-visualization-secondary absolute top-[4%] left-[3%] flex h-34 w-34 items-center justify-center rounded-full"
             role="img"
@@ -116,7 +98,6 @@ export const KeyboardSettings = memo(function KeyboardSettings() {
             </div>
           </div>
 
-          {/* Keys */}
           <fieldset
             className="absolute right-0 bottom-[5%] left-0 flex justify-center gap-2"
             aria-label={settingsContent.aria.keyboardKeys.value}

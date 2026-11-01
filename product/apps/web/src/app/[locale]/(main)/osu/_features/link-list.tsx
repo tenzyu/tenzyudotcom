@@ -31,7 +31,19 @@ const CATEGORY_KEYS: Record<
 
 export async function LinkList() {
   const content = useIntlayer('linksFeature')
-  const links = await loadLinks()
+  const pageContent = useIntlayer('page-osu-profile')
+  const links = await loadLinks().catch(() => null)
+
+  if (links === null) {
+    return (
+      <Content size="2xl">
+        <p role="status" className="text-muted-foreground">
+          {pageContent.linksUnavailable.value}
+        </p>
+      </Content>
+    )
+  }
+
   const groupedLinks = LINK_CATEGORY_ORDER.map((category) => ({
     value: category,
     label: content.categories[CATEGORY_KEYS[category]],

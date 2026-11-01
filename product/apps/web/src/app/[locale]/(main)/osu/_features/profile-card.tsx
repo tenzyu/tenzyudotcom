@@ -11,6 +11,7 @@ import { Skeleton } from '@tenzyu/ui/skeleton'
 
 import { ID_OSU } from './osu.source'
 import { getUser } from './lib/getUser'
+import { loadLiveOsuData } from './lib/live-data'
 
 const LoadingComponent = () => {
   const profile = useIntlayer('profile')
@@ -198,52 +199,47 @@ async function RankingsSkeleton() {
 
 async function Rankings() {
   const profile = useIntlayer('profile')
+  const content = useIntlayer('osu-live-data')
+  const result = await loadLiveOsuData(() => getUser(ID_OSU))
 
-  try {
-    const osuProfile = await getUser(ID_OSU)
-
+  if (result.status === 'unavailable') {
     return (
-      <div className="flex items-center gap-4">
-        <div className="flex flex-col items-center">
-          <div className="text-muted-foreground text-sm font-medium">
-            {profile.globalRanking}
-          </div>
-          <div className="h-8 text-2xl font-bold">
-            #{osuProfile.statistics.global_rank}
-          </div>
-        </div>
-
-        <div className="bg-border h-8 w-px" aria-hidden="true" />
-
-        <div className="flex flex-col items-center">
-          <div className="text-muted-foreground text-sm font-medium">
-            {profile.countryRanking}
-          </div>
-          <div className="h-8 text-2xl font-bold">
-            #{osuProfile.statistics.country_rank}
-          </div>
-        </div>
-      </div>
-    )
-  } catch {
-    return (
-      <div className="flex items-center gap-4">
-        <div className="flex flex-col items-center">
-          <div className="text-muted-foreground text-sm font-medium">
-            {profile.globalRanking}
-          </div>
-          <div className="h-8 text-2xl font-bold">-</div>
-        </div>
-
-        <div className="bg-border h-8 w-px" aria-hidden="true" />
-
-        <div className="flex flex-col items-center">
-          <div className="text-muted-foreground text-sm font-medium">
-            {profile.countryRanking}
-          </div>
-          <div className="h-8 text-2xl font-bold">-</div>
-        </div>
-      </div>
+      <p
+        role="status"
+        className="text-muted-foreground mt-4 text-center text-sm"
+      >
+        {content.unavailable.value}
+      </p>
     )
   }
+
+  const osuProfile = result.data
+
+  return (
+    <div className="flex items-center gap-4">
+      <div className="flex flex-col items-center">
+        <div className="text-muted-foreground text-sm font-medium">
+          {profile.globalRanking}
+        </div>
+        <div className="h-8 text-2xl font-bold">
+          {osuProfile.statistics.global_rank == null
+            ? content.unranked.value
+            : `#${osuProfile.statistics.global_rank}`}
+        </div>
+      </div>
+
+      <div className="bg-border h-8 w-px" aria-hidden="true" />
+
+      <div className="flex flex-col items-center">
+        <div className="text-muted-foreground text-sm font-medium">
+          {profile.countryRanking}
+        </div>
+        <div className="h-8 text-2xl font-bold">
+          {osuProfile.statistics.country_rank == null
+            ? content.unranked.value
+            : `#${osuProfile.statistics.country_rank}`}
+        </div>
+      </div>
+    </div>
+  )
 }

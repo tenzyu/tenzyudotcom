@@ -1,5 +1,6 @@
 import { Clock, Music } from 'lucide-react'
 import Image from 'next/image'
+import { useIntlayer } from 'next-intlayer/server'
 import type { Score } from 'osu-api-v2-js'
 import { Suspense } from 'react'
 import { Content } from '@/components/site/content'
@@ -9,6 +10,7 @@ import { Skeleton } from '@tenzyu/ui/skeleton'
 import { cn } from '@tenzyu/ui'
 import { DEFAULT_SCORE_LIMIT, ID_OSU } from '../osu.source'
 import { getUserScores } from '../lib/getUserScores'
+import { loadLiveOsuData } from '../lib/live-data'
 
 const RANK_STYLES = {
   XH: 'text-yellow-400 border-yellow-400',
@@ -171,17 +173,22 @@ const ScoreCard = ({ score, index, className }: ScoreCardProps) => {
 }
 
 const BestScoresContainer = async ({ limit }: { limit: number }) => {
-  const scores = await getUserScores(
-    ID_OSU,
-    'best',
-    0,
-    { lazer: true },
-    { limit }
+  const content = useIntlayer('osu-live-data')
+  const result = await loadLiveOsuData(() =>
+    getUserScores(ID_OSU, 'best', 0, { lazer: true }, { limit })
   )
+
+  if (result.status === 'unavailable') {
+    return <p role="status">{content.unavailable.value}</p>
+  }
+
+  if (result.data.length === 0) {
+    return <p role="status">{content.noScores.value}</p>
+  }
 
   return (
     <>
-      {scores.map((score, index) => (
+      {result.data.map((score, index) => (
         <ScoreCard key={score.id} score={score} index={index} />
       ))}
     </>

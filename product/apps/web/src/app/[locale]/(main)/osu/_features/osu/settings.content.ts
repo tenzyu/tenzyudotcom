@@ -3,6 +3,19 @@ import { type Dictionary, t } from 'intlayer'
 const settingsContent = {
   key: 'settings',
   content: {
+    era: t({ ja: '設定の年代', en: 'Settings era' }),
+    until2025: t({ ja: '2025年まで', en: 'Until 2025' }),
+    from2026: t({ ja: '2026年から', en: 'From 2026' }),
+    historicalNote: t({
+      ja: '2025年までのデバイスと設定です。',
+      en: 'Devices and settings used until 2025.',
+    }),
+    laptop: t({ ja: 'ノートPC', en: 'Laptop' }),
+    model: t({ ja: '型番', en: 'Model number' }),
+    laptopNote: t({
+      ja: '2026年から使用しているノートPCです。詳細な仕様は未掲載です。キーパッドとタブレットの設定は以前と同じです。',
+      en: 'The laptop used from 2026. Detailed specifications are not listed. Keypad and tablet settings are unchanged.',
+    }),
     tablet: t({
       ja: 'タブレット',
       en: 'Tablet',

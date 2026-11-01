@@ -9,17 +9,14 @@ import {
   PERSONAL_BEST_HISTORY_VIDEO_IDS,
 } from './youtube.source'
 import { LinkList } from './link-list'
-import { KeyboardSettings } from './osu/keyboard-settings'
-import { MonitorSettings } from './osu/monitor-settings'
+import { SettingsByEra } from './osu/settings-by-era'
 import { OsuBestScores } from './osu/osu-best-scores'
-import { TabletSettings } from './osu/tablet-settings'
 import { ProfileCard } from './profile-card'
 import { TableOfContents, type TocSection } from './table-of-contents'
 import { TwitterCarousel } from './twitter/twitter-carousel'
-import { YearlyGoals } from './yearly-goals'
 import { YouTubeCarousel } from './youtube/youtube-carousel'
 
-const ArchiveSection = ({
+const OsuSection = ({
   id,
   title,
   className,
@@ -59,7 +56,6 @@ export function OsuProfileContent() {
       id: 'osu-best-scores',
       title: content.sections.osuBestScores.value,
     },
-    { id: 'yearly-goals', title: content.sections.yearlyGoals.value },
     {
       id: 'personal-best-history',
       title: content.sections.personalBestHistory.value,
@@ -74,7 +70,7 @@ export function OsuProfileContent() {
     <div className="flex flex-col items-center legacy-osu">
       <Content size="2xl" className="py-4">
         <p className="text-muted-foreground mt-2 text-xs">
-          {content.archiveNote.value}
+          {content.introduction.value}
         </p>
       </Content>
 
@@ -84,42 +80,31 @@ export function OsuProfileContent() {
 
       <TableOfContents sections={tocSections} />
 
-      <Content
-        size="2xl"
-        className="grid grid-cols-1 gap-y-12 md:grid-cols-2 md:gap-x-4 md:gap-y-0"
+      <OsuSection
+        className="w-full"
+        id="osu-best-scores"
+        title={content.sections.osuBestScores.value}
       >
-        <ArchiveSection
-          id="osu-best-scores"
-          title={content.sections.osuBestScores.value}
-        >
-          <OsuBestScores />
-        </ArchiveSection>
+        <OsuBestScores />
+      </OsuSection>
 
-        <ArchiveSection
-          id="yearly-goals"
-          title={content.sections.yearlyGoals.value}
-        >
-          <YearlyGoals />
-        </ArchiveSection>
-      </Content>
-
-      <ArchiveSection
+      <OsuSection
         className="w-full"
         id="personal-best-history"
         title={content.sections.personalBestHistory.value}
       >
         <YouTubeCarousel videos={personalBestVideos} />
-      </ArchiveSection>
+      </OsuSection>
 
-      <ArchiveSection
+      <OsuSection
         className="w-full"
         id="featured-videos"
         title={content.sections.featuredVideos.value}
       >
         <YouTubeCarousel videos={featuredVideos} type="video" />
-      </ArchiveSection>
+      </OsuSection>
 
-      <ArchiveSection
+      <OsuSection
         className="w-full"
         id="twitter-clips"
         title={content.sections.twitterClips.value}
@@ -128,27 +113,23 @@ export function OsuProfileContent() {
           {content.sections.twitterNote.value}
         </span>
         <TwitterCarousel tweets={TWEETS} />
-      </ArchiveSection>
+      </OsuSection>
 
-      <ArchiveSection
+      <OsuSection
         className="w-full"
         id="osu-settings"
         title={content.sections.osuSettings.value}
       >
-        <Content size="2xl" className="flex flex-col gap-4">
-          <TabletSettings />
-          <KeyboardSettings />
-          <MonitorSettings />
-        </Content>
-      </ArchiveSection>
+        <SettingsByEra />
+      </OsuSection>
 
-      <ArchiveSection
+      <OsuSection
         className="w-full"
         id="my-links"
         title={content.sections.myLinks.value}
       >
         <LinkList />
-      </ArchiveSection>
+      </OsuSection>
     </div>
   )
 }

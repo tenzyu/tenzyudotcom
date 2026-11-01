@@ -8,10 +8,10 @@ import './legacy.css'
 export const revalidate = 60
 
 export const generateMetadata = createPageMetadata('page-osu-profile', {
-  pathname: '/archives/osu-profile',
+  pathname: '/osu',
 })
 
-const OsuProfileArchive: NextPageIntlayer = async ({ params }) => {
+const OsuPage: NextPageIntlayer = async ({ params }) => {
   const locale = await resolvePageLocale(params)
 
   return (
@@ -21,4 +21,4 @@ const OsuProfileArchive: NextPageIntlayer = async ({ params }) => {
   )
 }
 
-export default OsuProfileArchive
+export default OsuPage

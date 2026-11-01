@@ -8,7 +8,7 @@ import {
   SettingsGridItem,
   SettingsVisualization,
 } from './settings-card'
-import type { MonitorSettings as MonitorSettingsType } from './types-settings'
+import { HISTORICAL_MONITOR_SETTINGS } from './settings.data'
 
 type MonitorDisplayProps = {
   refreshRate: number
@@ -77,17 +77,7 @@ const MonitorDisplay = memo(function MonitorDisplay({
 
 export const MonitorSettings = memo(function MonitorSettings() {
   const settingsContent = useIntlayer('settings')
-  const settings: MonitorSettingsType = {
-    name: 'Acer XV252Q',
-    display: {
-      size: 24.5,
-      resolution: '1920 × 1080',
-    },
-    performance: {
-      refreshRate: 280,
-      responseTime: 0.5,
-    },
-  }
+  const settings = HISTORICAL_MONITOR_SETTINGS
 
   return (
     <SettingsCard title={settingsContent.monitor.value}>

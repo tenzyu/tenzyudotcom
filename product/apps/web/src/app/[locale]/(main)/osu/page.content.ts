@@ -5,26 +5,26 @@ const osuProfilePageContent = {
   content: {
     metadata: {
       title: t({
-        ja: 'osu! プロフィール | アーカイブ',
-        en: 'osu! Profile | Archives',
+        ja: 'osu! | 天珠',
+        en: 'osu! | Tenzyu',
       }),
       description: t({
-        ja: '過去のトップページにあったosu!プロフィールのアーカイブ。',
-        en: 'An archive of the past tenzyu.com landing page.',
+        ja: '天珠のosu!プロフィール、ベストスコア、プレイ動画、年代別のデバイス設定。',
+        en: "Tenzyu's osu! profile, best scores, gameplay videos, and device settings by era.",
       }),
     },
-    archiveNote: t({
-      ja: 'これは過去のトップページのアーカイブです。',
-      en: 'This is an archive of the past tenzyu.com landing page.',
+    introduction: t({
+      ja: 'osu!のプロフィール、プレイの記録とデバイス設定。ランキングとベストスコアはosu! APIから取得しています。',
+      en: 'My osu! profile, play history, and device settings. Rankings and best scores are fetched from the osu! API.',
+    }),
+    linksUnavailable: t({
+      ja: 'リンク集を現在取得できません。osu!とTwitchのプロフィールリンクは上部に掲載しています。',
+      en: 'The link collection is currently unavailable. The osu! and Twitch profile links are listed above.',
     }),
     sections: {
       osuBestScores: t({
         ja: 'ベストパフォーマンス',
         en: 'Best Scores',
-      }),
-      yearlyGoals: t({
-        ja: '2025年の目標',
-        en: '2025 Goals',
       }),
       personalBestHistory: t({
         ja: 'BP更新履歴',

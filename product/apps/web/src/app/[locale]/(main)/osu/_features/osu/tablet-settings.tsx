@@ -8,7 +8,7 @@ import {
   SettingsGridItem,
   SettingsVisualization,
 } from './settings-card'
-import type { TabletSettings as TabletSettingsType } from './types-settings'
+import { TABLET_SETTINGS } from './settings.data'
 
 type TabletAreaProps = {
   width: number
@@ -63,18 +63,7 @@ const TabletArea = memo(function TabletArea({
 
 export const TabletSettings = memo(function TabletSettings() {
   const settingsContent = useIntlayer('settings')
-  const settings: TabletSettingsType = {
-    name: 'Wacom CTL-472',
-    area: {
-      width: 58.0,
-      height: 45.24,
-    },
-    position: {
-      x: 83.06,
-      y: 26.43,
-      rotation: 180,
-    },
-  }
+  const settings = TABLET_SETTINGS
 
   return (
     <SettingsCard title={settingsContent.tablet.value}>
