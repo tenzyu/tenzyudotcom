@@ -49,6 +49,7 @@ in {
   inherit common web repoOps native tauriLinux;
 
   productWeb = common ++ web;
+  browserVerification = common ++ web ++ [pkgs.chromium];
   productSkinWorkbench = common ++ web ++ native ++ tauriLinux;
   repoOpsShell = common ++ repoOps;
 }

@@ -35,7 +35,16 @@ Keep archive contents, restore reports, raw logs, and secret configuration outsi
 
 ## Browser observations
 
-See `docs/renewal/07-browser-qa.md`. The probe launches its own loopback server on an ephemeral port. It records errors and returns nonzero if any observed route fails. It is not the final Playwright Test suite.
+`preview.mjs` remains the exploratory probe described in `docs/renewal/07-browser-qa.md`. The acceptance suite uses Playwright Test 1.59.1 and Chromium at desktop 1440px and mobile 390px widths.
+
+```sh
+PLAYWRIGHT_OUTPUT_DIR="$NEW_EXTERNAL_EVIDENCE" \
+  nix develop .#browser-verification -c bun run test:browser
+```
+
+The shell uses Chromium 149.0.7827.53 from the root `flake.lock`. Playwright 1.59.1 targets Chromium 147 and was validated against this pinned Nix browser. The suite starts Next on `127.0.0.1:4173`, builds the UI package first, and stops the server after the run. Port 4173 must be free. It writes the JSON report, server log, browser-event attachments, failure screenshots, and traces to the external directory. It passes no editor, GitHub write, or osu! API credentials. Public content reads use the anonymous `tenzyu/tenzyudotcom-content` `main` branch.
+
+Firefox and WebKit are not configured. Do not report them as covered.
 
 ## Verify the runner
 

@@ -22,6 +22,15 @@ in {
     packages = packageSets.productWeb;
   };
 
+  browser-verification = pkgs.mkShell {
+    packages = packageSets.browserVerification;
+    shellHook =
+      shellHooks.common
+      + ''
+        export PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH="${pkgs.chromium}/bin/chromium"
+      '';
+  };
+
   skin-workbench = mkDevShell {
     packages = packageSets.productSkinWorkbench;
     tauri = true;

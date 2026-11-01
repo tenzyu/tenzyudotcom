@@ -9,6 +9,7 @@
     "@nx/storybook": "22.7.2",
     "@nx/vite": "22.7.2",
     "@nx/web": "22.7.2",
+    "@playwright/test": "1.59.1",
     "@swc-node/register": "~1.11.1",
     "@swc/core": "~1.15.5",
     "@swc/helpers": "~0.5.18",
@@ -37,6 +38,7 @@
     "lint:workspace": "nx run linter:lint-rules",
     "verify:workspace": "bun run policy:deps && bun run lint:workspace",
     "test:scripts": "bun test repo-ops/scripts/docs-rename.test.ts repo-ops/scripts/migrate-notes-threading.test.ts",
+    "test:browser": "playwright test --config repo-ops/renewal/playwright.config.ts",
     "docs-rename": "bun repo-ops/scripts/docs-rename.ts"
   },
   "workspaces": {
