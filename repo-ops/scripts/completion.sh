@@ -31,7 +31,7 @@ _docs_rename_completions() {
     if (( arg_idx == 1 )); then
         # Completing the <old> path
         local completions
-        completions=$(bun scripts/docs-rename.ts --list-completions "$cur" 2>/dev/null)
+        completions=$(bun repo-ops/scripts/docs-rename.ts --list-completions "$cur" 2>/dev/null)
         if [[ -n "$ZSH_VERSION" ]]; then
             compadd -S '' -- ${(f)completions}
         else
@@ -41,7 +41,7 @@ _docs_rename_completions() {
         # Completing the <new> path
         local old_path="${words[cmd_pos+1]}"
         local completions
-        completions=$(bun scripts/docs-rename.ts --list-directories 2>/dev/null)
+        completions=$(bun repo-ops/scripts/docs-rename.ts --list-directories 2>/dev/null)
         
         # Suggest the same directory as <old>
         local parent_dir

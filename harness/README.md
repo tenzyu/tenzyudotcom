@@ -1,57 +1,12 @@
----
-schema: harness/v1
-kind: canon
-id: harness.readme
-title: tenzyudotcom Harness
-status: active
-summary: Canonical local harness overview for AI-assisted work in tenzyudotcom.
-tags:
-  - harness
-  - overview
----
+# Historical records
 
-# tenzyudotcom Harness
+The agent harness, Atelier, and Castalia were retired with the approved renewal on 2026-11-01.
+This directory retains historical ADRs, the inline-editor deviation report, and the lint rollout log.
+These records describe past decisions and observations. Their status fields, paths, and commands are historical, not active repository instructions.
 
-This directory is the canonical local harness for AI-assisted work in `tenzyudotcom`.
+- `knowledge/decisions/adr` contains four repository ADRs.
+- `atelier-design-docs/ADRs` contains four historical Atelier ADRs.
+- `observations/audits/admin-inline-editor-deviation-report.md` records editor implementation lessons.
+- `observations/audits/lint-rule-rollout-log.md` records the architecture lint rollout.
 
-It is not a generic autonomous agent framework. It is the repository-owned control layer that turns agent work into scoped tasks, reusable knowledge, constrained action, observable evidence, and durable handoff.
-
-## Operating Model
-
-```text
-Knowledge   = reduces repeated human input
-Action      = controls the task lifecycle
-Observation = reduces repeated human review
-Run         = one bounded execution record
-Policy      = action boundary and completion constraint
-Adapter     = thin external-agent entrypoint
-```
-
-The core loop is:
-
-```text
-Knowledge -> Action -> Observation -> Knowledge
-```
-
-An executor may be Codex, Claude Code, Gemini, opencode, Hermes, a shell script, or a human. The executor may change. The harness contract remains.
-
-## Canonical Directories
-
-| Directory | Role |
-| --- | --- |
-| `canon/` | Harness definition, model, glossary, and legacy source records. |
-| `knowledge/` | Curated reusable context: architecture, product specs, ADRs, rules, known problems, and lessons. |
-| `policies/` | Constraints: permissions, scope, quality, decision ownership, context budget, tool usage, release, and verification rules. |
-| `actions/` | Work lifecycle: workflows, roles, and artifact templates. |
-| `runs/` | Concrete work records: task, plan, worklog, verification, review, handoff. |
-| `observations/` | Cross-run audits, reports, checklists, and observation templates. |
-| `adapters/` | Thin tool-specific bootstraps for root AGENTS/CLAUDE/GEMINI and other executors. |
-| `legacy/` | Historical documents retained for traceability but not canonical. |
-
-## Completion Standard
-
-A non-trivial run is not complete because an agent says it is complete. It is complete only when scope, non-goals, validation, evidence, risk, handoff, and memory-promotion decisions are recorded.
-
-## Non-Core by Default
-
-Do not add an agent engine, tool marketplace, plugin runtime, MCP runtime, dashboard, daemon, or multi-agent coordinator until the repository has a repeated problem that cannot be solved by Knowledge / Action / Observation / Run / Policy / Adapter.
+Use root `AGENTS.md` for current agent instructions and `docs/renewal` for renewal decisions and evidence.

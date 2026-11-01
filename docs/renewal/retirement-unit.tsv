@@ -1,0 +1,12 @@
+ts	phase	decision	why	evidence	result
+2026-11-01T14:00:00Z	frame	Use clean renewal/retire-approved at 7753bf43	Preserve the approved baseline and local scraps	7753bf43	clean worktree observed
+2026-11-01T14:00:00Z	backup	Proceed with approved retirement	Backup contents match and unexpected list is empty	../tenzyudotcom-renewal-safety-20261101/restore-report.json	verified backup report
+2026-11-01T14:00:00Z	design	Delete retired tooling and retain historical ADRs and useful audit reports	The user approved complete retirement rather than migration	AGENTS.md	implementation in progress
+2026-11-01T14:05:08Z	audit	Treat the first three row timestamps as approximate checkpoint labels	The exact clock was first read at this row	OpenCode date command output	Timestamp precision corrected
+2026-11-01T14:05:08Z	dependencies	Retain general docs rename and notes migration tools; remove only the harness compiler	The remaining tools operate on general Markdown and content	package.json	11 script tests passed
+2026-11-01T14:05:08Z	dependencies	Refresh lock with ignore-scripts and lockfile-only	Retained packages must not upgrade	bun.lock	0 added lines and 21 removed lines
+2026-11-01T14:09:11Z	verify	Accept the final frozen install and repeat Nx discovery after linking	Earlier install timeout left Nx unavailable	package.json	Frozen install and six-project listing passed
+2026-11-01T14:09:11Z	verify	Run workspace policy and retained script tests	Check the remaining repository entrypoints directly	docs/renewal/11-retirement-unit.md	Workspace policy passed and 11 script tests passed
+2026-11-01T14:09:11Z	verify	Evaluate both shell package sets and start the default shell	Prove Web tools are the default while workbench remains optional	nix/devshells.nix	Nix evaluation and default shell startup passed
+2026-11-01T14:09:11Z	scope	Restore Serena's automatic project config rewrite	The tool changed an unassigned configuration during activation	.serena/project.yml	Exact HEAD content restored
+2026-11-01T14:09:11Z	handoff	Leave editor and navigation references to their assigned workers	The user explicitly split ownership	docs/renewal/11-retirement-unit.md	Reference handoff recorded

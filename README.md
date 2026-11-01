@@ -1,192 +1,69 @@
 # tenzyudotcom
 
-`tenzyudotcom` contains the tenzyu.com web app, the osu! skin workbench desktop app, Castalia, shared product packages, repository policy tooling, and the local AI work harness used to maintain them.
+This Bun and Nx workspace contains the tenzyu.com Web app, the osu! skin workbench, and shared product packages.
 
-This README is the repository entrypoint. Treat the files below as the source of truth when details may have changed:
+## Set up
 
-- `package.json`: Bun version, workspace packages, and root scripts.
-- `nx.json`: Nx workspace layout, inferred target plugins, cache defaults, and target defaults.
-- `bun nx show projects`: current project list.
-- `bun nx show project <project> --json`: current targets for one project.
-- `harness/README.md`: AI harness operating model.
-
-## Workspace
-
-- Package manager: `bun@1.3.10`.
-- Task runner: Nx, invoked as `bun nx ...` or through root `bun run ...` scripts.
-- Product apps live under `product/apps`.
-- Workspace packages live under `product/packages`.
-- Bun workspaces include `product/apps/*` and `product/packages/*`.
-
-Current project snapshot:
-
-| Project | Path | Role |
-| --- | --- | --- |
-| `web` | `product/apps/web` | Next.js site, public routes, assets, admin editor, and site-local feature code. |
-| `skin-workbench` | `product/apps/osu-skin-workbench` | Tauri + Vite desktop app for osu! skin workbench workflows. |
-| `castalia` | `product/apps/castalia` | Linux-first Rust CLI/launcher for local AI prompt workflows. |
-| `atelier` | `product/apps/atelier` | Repository-local context planning, graph, policy, controls, MCP, and GUI control plane. |
-| `ui` | `product/packages/ui` | Shared React UI package, CSS runtime layers, and Storybook surface. |
-| `osu-skin-core` | `product/packages/osu-skin-core` | Runtime-pure TypeScript osu! skin domain package. |
-| `linter` | `product/packages/linter` | Bun CLI for repository policy and architecture lint rules. |
-
-Refresh the snapshot before relying on it:
-
-```bash
-bun nx show projects
-```
-
-## Boundaries
-
-- Put product surfaces in `product/apps/*`.
-- Put reusable package contracts in `product/packages/*`.
-- Apps may depend on packages; packages must not depend on apps.
-- Product runtime code must not import from `repo-ops/`.
-- Keep repository automation in `repo-ops/` or `@tenzyu/linter`.
-- Keep AI workflow, policy, task, and handoff material in `harness/`.
-- Keep `@tenzyu/osu-skin-core` runtime-pure: no DOM, React, Tauri, Node runtime APIs, or app imports.
-- Keep `@tenzyu/ui` focused on shared UI primitives and CSS contracts; app-specific behavior belongs in the owning app.
-- Keep web route-local `_features` code route-local until there is a real shared contract.
-
-## Setup
-
-Install dependencies:
-
-```bash
-bun install
-```
-
-Use Nix when native, Rust, Tauri, or repo-ops tools are needed:
+Use the lightweight Web development shell and install dependencies without lifecycle scripts.
 
 ```bash
 nix develop
+bun install --ignore-scripts
 ```
 
-Use the narrower workbench shell for Tauri work:
+The default shell contains Bun, Node.js, and Biome. Native workbench tools are optional.
 
 ```bash
 nix develop .#skin-workbench
 ```
 
-## Run
+The `repo-ops` shell adds Serena. The `minimal` shell contains Bun and Node.js.
 
-Inspect project targets first when you are unsure:
+## Run a project
+
+Inspect the current projects and targets.
 
 ```bash
+bun nx show projects
 bun nx show project web --json
 ```
 
-Web app:
+Start the Web app.
 
 ```bash
 bun nx run web:dev
 ```
 
-osu! skin workbench:
+For workbench frontend work, run `bun nx run skin-workbench:dev-vite`.
+For the native app, enter the workbench shell and run `bun nx run skin-workbench:dev`.
 
-```bash
-nix develop .#skin-workbench
-```
-
-Then run inside that shell:
-
-```bash
-bun nx run skin-workbench:dev
-```
-
-Frontend-only workbench loop:
-
-```bash
-bun nx run skin-workbench:dev-vite
-```
-
-Castalia:
-
-```bash
-nix develop
-```
-
-Then run inside that shell:
-
-```bash
-bun nx run castalia:launch
-```
-
-Castalia through the root flake:
-
-```bash
-nix run .#castalia --
-```
-
-## Validate
-
-Standard broad handoff checks:
+## Check changes
 
 ```bash
 bun run policy:deps
-bun nx run-many -t check
-```
-
-Targeted check for projects that define `check`:
-
-```bash
+bun run verify:workspace
+bun run test:scripts
 bun nx run <project>:check
 ```
 
-Inspect the project first when the target is not obvious:
+Inspect each project's targets before running broader checks. Root `build`, `check`, `lint`, `test`, `typecheck`, and `verify` commands run matching Nx targets across the workspace. Use `bun nx affected -t check` for affected projects.
 
-```bash
-bun nx show project <project> --json
-```
+## Workspace boundaries
 
-Build affected projects when build output matters:
+- `product/apps/web` owns Next.js routes, site features, and the editor.
+- `product/apps/osu-skin-workbench` owns the Tauri and Vite workbench.
+- `product/packages/ui` owns shared React components, CSS, and Storybook.
+- `product/packages/osu-skin-core` owns runtime-pure TypeScript skin contracts.
+- `product/packages/linter` owns repository architecture checks.
+- `repo-ops` owns repository automation. Product runtime code must not import it.
+- Apps may import packages. Packages must not import apps.
 
-```bash
-bun nx affected -t build
-```
+## Renewal records
 
-Full verification is heavier and may build more than a normal handoff needs:
+Atelier, Castalia, pointers, puzzles, recommendations, and the old agent harness are retired.
+See [renewal decisions](docs/renewal/02-decisions.md) and the [retirement unit report](docs/renewal/11-retirement-unit.md) for the current scope and verification evidence.
+Historical ADRs and useful reports remain under [harness](harness/README.md) as reference material.
+`repo-ops/renewal` contains the renewal observation tools.
 
-```bash
-bun run verify
-```
-
-Repository policy checks:
-
-```bash
-bun run lint:workspace
-bun run verify:workspace
-```
-
-## Root Scripts
-
-Root scripts are convenience entrypoints over Nx or repo scripts. Check `package.json` for the complete list.
-
-Common scripts:
-
-```bash
-bun run build
-bun run check
-bun run lint
-bun run test
-bun run typecheck
-bun run graph
-```
-
-Repository scripts:
-
-```bash
-bun run policy:deps
-bun run test:scripts
-bun run build:docs-map
-bun run docs-rename
-```
-
-## More Detail
-
-- `ARCHITECTURE.md`: repository architecture and boundaries.
-- `DEVELOPMENT.md`: setup and validation commands.
-- `PACKAGES.md`: package export contracts.
-- `CONTRIBUTING.md`: contribution and dependency rules.
-- `PLANS.md`: pointer to active and historical plans under `harness/runs/`.
-- `harness/README.md`: AI harness operating model.
+`package.json` owns root commands and dependency versions. `nx.json` owns workspace task defaults.
+The general documentation rename command remains available as `bun run docs-rename`.

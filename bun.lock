@@ -20,24 +20,8 @@
         "jiti": "2.4.2",
         "jsdom": "~22.1.0",
         "nx": "22.7.2",
-        "opencode-goal-plugin": "^0.1.11",
         "prettier": "catalog:",
         "ts-node": "10.9.2",
-      },
-    },
-    "product/apps/atelier": {
-      "name": "@tenzyu/atelier",
-      "version": "0.1.0",
-      "bin": {
-        "atelier": "./src/cli.ts",
-      },
-      "dependencies": {
-        "@modelcontextprotocol/sdk": "catalog:",
-        "zod": "catalog:",
-      },
-      "devDependencies": {
-        "@types/bun": "catalog:",
-        "typescript": "catalog:",
       },
     },
     "product/apps/chatgpt-partial-html-export": {
@@ -190,7 +174,6 @@
     "@mdx-js/loader": "^3.1.1",
     "@mdx-js/mdx": "^3.1.1",
     "@mdx-js/react": "^3.1.1",
-    "@modelcontextprotocol/sdk": "1.29.0",
     "@next/mdx": "^16.2.6",
     "@storybook/addon-a11y": "10.4.0",
     "@storybook/addon-docs": "10.4.0",
@@ -1445,8 +1428,6 @@
     "@tauri-apps/cli-win32-x64-msvc": ["@tauri-apps/cli-win32-x64-msvc@2.11.2", "", { "os": "win32", "cpu": "x64" }, "sha512-d2JchlFIpZevZVReyqhQOekJmb1UH3rhZ5VX6sH3ty9ETE0TKQavpihvoScUXfKKpW6HZC0MrFGRU0ZtD+w3gA=="],
 
     "@tauri-apps/plugin-dialog": ["@tauri-apps/plugin-dialog@2.7.1", "", { "dependencies": { "@tauri-apps/api": "^2.11.0" } }, "sha512-OK1UBXYt+ojcmxMktzzuyonYIFta8CmAASpX+CA+DTGK24KlHjhYI6x2iOJ/TjZF4N7/ACK1oFmEOjIY9IhzOQ=="],
-
-    "@tenzyu/atelier": ["@tenzyu/atelier@workspace:product/apps/atelier"],
 
     "@tenzyu/chatgpt-partial-html-export": ["@tenzyu/chatgpt-partial-html-export@workspace:product/apps/chatgpt-partial-html-export"],
 
@@ -2871,8 +2852,6 @@
     "oniguruma-to-es": ["oniguruma-to-es@4.2.0", "", { "dependencies": { "emoji-regex-xs": "^1.0.0", "oniguruma-parser": "^0.11.0", "regex": "^6.0.1", "regex-recursion": "^6.0.2" } }, "sha512-MDPs6KSOLS0tKQ7joqg44dRIRZUyotfTy0r+7oEEs6VwWWP0+E2PPDYWMFN0aqOjRyWHBYq7RfKw9GQk2S2z5g=="],
 
     "open": ["open@8.4.2", "", { "dependencies": { "define-lazy-prop": "^2.0.0", "is-docker": "^2.1.1", "is-wsl": "^2.2.0" } }, "sha512-7x81NCL719oNbsq/3mh+hVrAWmFuEYUqrq/Iw3kUzH8ReypT9QQ0BLoJS7/G9k6N81XjW4qHWtjWwe/9eLy1EQ=="],
-
-    "opencode-goal-plugin": ["opencode-goal-plugin@0.1.11", "", {}, "sha512-koUNoWMWhreoYaCE39P2wIrdULIM0YHpCaCmaq0BnYo3OaxPCEZc42Tn2CFicdjXcIMwhYqs3LWK8+lKeRd/tw=="],
 
     "opener": ["opener@1.5.2", "", { "bin": { "opener": "bin/opener-bin.js" } }, "sha512-ur5UIdyw5Y7yEj9wLzhqXiy6GZ3Mwx0yGI+5sMn2r0N0v3cKJvUmFH5yPP+WXh9e0xfyzyJX95D8l088DNFj7A=="],
 

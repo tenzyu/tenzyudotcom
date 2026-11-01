@@ -15,8 +15,7 @@
     };
 in {
   default = mkDevShell {
-    packages = packageSets.all;
-    tauri = true;
+    packages = packageSets.productWeb;
   };
 
   web = mkDevShell {

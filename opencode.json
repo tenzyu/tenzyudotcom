@@ -1,17 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "mcp": {
-    "atelier": {
-      "type": "local",
-      "command": [
-        "bun",
-        "product/apps/atelier/src/cli.ts",
-        "mcp",
-        "--project-root",
-        "."
-      ],
-      "enabled": true
-    },
     "serena": {
       "type": "local",
       "command": ["serena", "start-mcp-server", "--context", "ide-assistant"],
@@ -20,26 +9,6 @@
   },
   "instructions": ["AGENTS.md"],
   "lsp": true,
-  "plugin": [
-    [
-      "opencode-goal-plugin",
-      {
-        "maxTurns": 180,
-        "maxDurationMs": 21600000,
-        "maxTokens": 10000000,
-        "minDelayMs": 1000,
-        "maxRecentMessages": 80,
-        "noProgressTokenThreshold": 80,
-        "noProgressTurnsBeforePause": 8,
-        "budgetWrapupRatio": 0.9,
-        "maxPromptFailures": 16,
-        "persistState": true,
-        "stateFilePath": ".opencode/opencode-goal-plugin/state.json",
-        "resultRetentionMs": 604800000,
-        "maxStoredResults": 80
-      }
-    ]
-  ],
   "watcher": {
     "ignore": [
       "node_modules/**",
@@ -48,22 +17,8 @@
       "build/**",
       "coverage/**",
       "target/**",
-      ".atelier/v0/views/**",
-      ".atelier/v0/**/_fixtures/**",
-      "harness/atelier-autopoiesis/work/**",
-      ".atelier/v0/edges/**",
-      ".atelier/v0/anchors/**",
-      ".atelier/v0/indexes/**",
       "*.zip",
-      "*.log",
-      "harness/atelier-autopoiesis/work/checkpoints/*.raw.*"
+      "*.log"
     ]
-  },
-  "command": {
-    "goal": {
-      "description": "Set a session-scoped goal and auto-continue until complete. Provided by opencode-goal-plugin.",
-      "template": "$ARGUMENTS",
-      "agent": "atelier-autopoiesis-coordinator"
-    }
   }
 }

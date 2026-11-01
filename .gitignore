@@ -10,7 +10,6 @@
 .worktrees/
 dist/
 storage/.sync-state/
-/product/apps/atelier/release/
 
 # dependencies
 **/node_modules
@@ -81,14 +80,6 @@ storybook-static
 
 ./result/*
 result
-.harness
-
-.harness-backup**
-
-.opencode/opencode-goal-plugin/**
-goal.md
-
 **/_referense/*
 
-.atelier/*
 zz

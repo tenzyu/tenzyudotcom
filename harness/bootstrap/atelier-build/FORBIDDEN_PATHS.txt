@@ -1,3 +1,0 @@
-harness/knowledge/implementation-control/atelier/**
-harness/knowledge/product-specs/atelier/**
-product-specs/atelier/**
