@@ -39,6 +39,7 @@
     "verify:workspace": "bun run policy:deps && bun run lint:workspace",
     "test:scripts": "bun test repo-ops/scripts/docs-rename.test.ts repo-ops/scripts/migrate-notes-threading.test.ts",
     "test:browser": "playwright test --config repo-ops/renewal/playwright.config.ts",
+    "test:browser:editor": "bun --no-env-file nx run ui:build && playwright test --config repo-ops/renewal/playwright.editor.config.ts",
     "docs-rename": "bun repo-ops/scripts/docs-rename.ts"
   },
   "workspaces": {

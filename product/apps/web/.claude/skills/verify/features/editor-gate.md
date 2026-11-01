@@ -16,4 +16,4 @@ Run `--grep "editor requires"`. The journey follows redirects, verifies the loca
 
 ## Gotchas
 
-The harness forces editor credentials and GitHub tokens empty. Do not enter a password or submit content. Mutation coverage requires a separate isolated network-boundary fixture before it can be added safely.
+The default public harness forces editor credentials and GitHub tokens empty. Do not enter a password or submit content in that suite. Use the separate [editor lifecycle journey](editor-lifecycle.md) for mutations against an in-memory GitHub fixture.

@@ -46,6 +46,26 @@ The shell uses Chromium 149.0.7827.53 from the root `flake.lock`. Playwright 1.5
 
 Firefox and WebKit are not configured. Do not report them as covered.
 
+## Prove editor publication without GitHub writes
+
+Run this separate Chromium desktop journey from the repository root. Port 4174 must be free. Do not run it concurrently with the public suite because both servers use the app's `.next` directory.
+
+```sh
+PLAYWRIGHT_OUTPUT_DIR="$NEW_EXTERNAL_EVIDENCE" \
+  nix develop .#browser-verification -c bun --no-env-file run test:browser:editor
+node --test repo-ops/renewal/editor-github-preload.test.mjs
+```
+
+The journey uses the real login and scrap forms. It creates a draft, reloads it, edits the lead, appends a published entry and a draft entry, and publishes the scrap. A separate anonymous browser verifies the draft scrap is absent from the index and returns 404. After publication it follows the index link, reads the saved lead and published entry, and reloads the page. The draft entry stays hidden.
+
+The package script builds the UI dependency through Nx before starting Playwright. `start-editor-browser-server.mjs` starts Node with an allowlisted environment and dummy editor and GitHub credentials. Its `NODE_OPTIONS --import` preload runs in inherited Node processes before Next. The preload bypasses Next's env-file loader. Bun commands use `--no-env-file`. No production code contains fixture flags.
+
+The preload implements GitHub contents, blobs, trees, commits, and the main ref in memory for `api.github.com/repos/fixture/editor/`. Ref updates require a non-force fast-forward. Other fetches return 403, except GET requests to the loopback test server. No external fetch reaches the native network implementation. The fixture is a fetch-boundary test double, not an operating-system network sandbox.
+
+The evidence directory contains `results.json`, `web-server.log`, `github-ledger.jsonl`, a browser trace, and a screenshot of the published page. The ledger records only method, pathname, and status. The journey asserts five successful ref updates and checks that every mutation targets the fixture. The fixture test replaces native fetch with a throwing function and checks external request denial, immutable snapshots, stale-ref rejection, and the env-loader bypass.
+
+This opt-in suite does not change the read-only public suite. It covers Chromium at 1440px, not mobile, Firefox, or WebKit. Evidence includes dummy login data, so keep it outside Git.
+
 ## Verify the runner
 
 ```sh
