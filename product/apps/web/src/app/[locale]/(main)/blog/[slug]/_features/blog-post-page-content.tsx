@@ -9,7 +9,7 @@ import {
 import type { BlogHeading } from '../../_features/blog.domain'
 import { stripLeadingBlogTitle } from '../../_features/blog.domain'
 import { CustomMDX } from '../../_features/custom-mdx'
-import { formatDate } from '../../_features/format-date'
+import { formatDate } from '../../../_features/format-date'
 import { BlogPostTableOfContents } from './blog-post-table-of-contents'
 import { BlogRelatedPosts } from './blog-related-posts'
 import { BlogSupportCard } from './blog-support-card'

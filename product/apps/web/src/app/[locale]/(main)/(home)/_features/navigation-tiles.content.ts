@@ -38,6 +38,16 @@ const navigationTilesContent = {
               en: 'Short-form notes with the fastest signal of what I am noticing.',
             }),
           },
+          scraps: {
+            label: t({
+              ja: 'スクラップ',
+              en: 'Scraps',
+            }),
+            description: t({
+              ja: '仮説を中心とした進行中の作業ログ。完成前の考えの作業場。',
+              en: 'Working logs around a hypothesis. In-progress thinking before it ships.',
+            }),
+          },
           tools: {
             label: t({
               ja: 'ツール',

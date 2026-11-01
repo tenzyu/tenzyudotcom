@@ -9,6 +9,7 @@ export const STATIC_SITEMAP_ROUTE_PATHS = [
   '/portfolio',
   '/puzzles',
   '/recommendations',
+  '/scraps',
   '/tools',
 ] as const
 

@@ -4,6 +4,7 @@ import { BASE_URL } from '@/config/site'
 import { STATIC_SITEMAP_ROUTE_PATHS } from '@/config/site-policy'
 import { loadBlogPosts } from '@/app/[locale]/(main)/blog/_features/blog.assemble'
 import { getNoteStaticParams } from '@/app/[locale]/(main)/notes/_features/notes.assemble'
+import { loadPublicScraps } from '@/app/[locale]/(main)/scraps/_features/scraps.assemble'
 
 const sitemap = async (): Promise<MetadataRoute.Sitemap> => {
   const routesWithAlternates = STATIC_SITEMAP_ROUTE_PATHS.map(
@@ -53,10 +54,45 @@ const sitemap = async (): Promise<MetadataRoute.Sitemap> => {
     },
   )
 
+  const scrapEntries = await loadPublicScraps()
+  const scrapsWithAlternates = scrapEntries.map(
+    (scrap): MetadataRoute.Sitemap[number] => {
+      const route = `/scraps/${scrap.slug}`
+      const allLanguages = getMultilingualUrls(`${BASE_URL}${route}`) as Record<
+        string,
+        string
+      >
+      const indexableLanguageEntries: Array<[string, string]> = []
+      for (const locale of scrap.indexableLocales) {
+        const localeKey = locale as string
+        const url = allLanguages[localeKey]
+        if (typeof url === 'string') {
+          indexableLanguageEntries.push([localeKey, url])
+        }
+      }
+      const indexableLanguages = Object.fromEntries(indexableLanguageEntries)
+
+      return {
+        url: `${BASE_URL}${route}`,
+        lastModified: scrap.updatedAt,
+        alternates: {
+          languages:
+            Object.keys(indexableLanguages).length > 0
+              ? {
+                  ...indexableLanguages,
+                  'x-default': `${BASE_URL}${route}`,
+                }
+              : undefined,
+        },
+      }
+    },
+  )
+
   return [
     ...routesWithAlternates,
     ...blogsWithAlternates,
     ...notesWithAlternates,
+    ...scrapsWithAlternates,
   ]
 }
 

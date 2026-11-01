@@ -7,7 +7,7 @@
     "clean": "rimraf .next",
     "build": "next build",
     "build:prod": "bun run clean && NODE_ENV=production bun --env-file .env.prod next build",
-    "start": "bun run clean && bun run build && next start",
+    "start": "next start",
     "start:intlayer": "intlayer-editor start",
     "lint": "bun run lint:biome && bun run lint:custom",
     "lint:biome": "../../../repo-ops/scripts/biome lint .",

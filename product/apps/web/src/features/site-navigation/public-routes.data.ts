@@ -4,6 +4,7 @@ export type PublicRouteId =
   | 'tools'
   | 'blog'
   | 'notes'
+  | 'scraps'
   | 'portfolio'
   | 'archives'
   | 'links'
@@ -32,6 +33,10 @@ export const PUBLIC_ROUTES = {
   },
   notes: {
     href: '/notes',
+    groupId: 'core',
+  },
+  scraps: {
+    href: '/scraps',
     groupId: 'core',
   },
   portfolio: {
@@ -63,7 +68,7 @@ export const PUBLIC_ROUTES = {
 export const PUBLIC_ROUTE_GROUPS = [
   {
     id: 'core',
-    routeIds: ['blog', 'notes', 'tools', 'portfolio', 'links'],
+    routeIds: ['blog', 'scraps', 'notes', 'tools', 'portfolio', 'links'],
   },
   {
     id: 'around',
@@ -73,6 +78,7 @@ export const PUBLIC_ROUTE_GROUPS = [
 
 export const PRIMARY_NAV_ROUTE_IDS = [
   'blog',
+  'scraps',
   'notes',
   'tools',
   'links',

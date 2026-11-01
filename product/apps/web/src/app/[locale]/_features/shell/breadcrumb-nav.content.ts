@@ -12,6 +12,10 @@ const breadcrumbContent = {
         ja: 'ブログ',
         en: 'Blog',
       }),
+      scraps: t({
+        ja: 'スクラップ',
+        en: 'Scraps',
+      }),
       tools: t({
         ja: 'ツール',
         en: 'Tools',

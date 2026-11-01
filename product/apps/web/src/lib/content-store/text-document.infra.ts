@@ -1,6 +1,7 @@
 import { StorageVersionConflictError } from './content-store.domain'
 import { createContentVersion } from './content-version.infra'
 import {
+  githubContentRepository,
   loadGitHubBlogIndex,
   loadGitHubTextFile,
   loadGitHubTextFileFresh,
@@ -59,20 +60,46 @@ export async function saveTextDocument(
   }
 }
 
+export async function deleteTextDocument(
+  pathname: string,
+  options: { message?: string } = {},
+) {
+  await githubContentRepository.delete(pathname, options)
+}
+
+/**
+ * List text documents stored under a content prefix.
+ *
+ * This is intended for repair / audit / dev tooling only. Page rendering
+ * paths should rely on projection indices (e.g. `blog/index.json`,
+ * `scraps/index.json`) instead of walking the GitHub tree on every request.
+ *
+ * `blog/` is special-cased to keep using the cached blog index payload. All
+ * other prefixes fall through to a tree listing.
+ */
 export async function listTextDocuments(prefix: string) {
-  if (prefix !== 'blog/') {
-    throw new Error(`Unsupported text document prefix: ${prefix}`)
+  if (prefix === 'blog/') {
+    const entries = await loadGitHubBlogIndex()
+    return {
+      blobs: entries.map((entry) => ({
+        pathname: entry.pathname,
+        size: 0,
+        uploadedAt: new Date(
+          entry.metadata.updatedAt ?? entry.metadata.publishedAt,
+        ),
+        url: entry.pathname,
+      })),
+    }
   }
 
-  const entries = await loadGitHubBlogIndex()
+  const pathnames = await githubContentRepository.list(prefix)
+
   return {
-    blobs: entries.map((entry) => ({
-      pathname: entry.pathname,
+    blobs: pathnames.map((pathname) => ({
+      pathname,
       size: 0,
-      uploadedAt: new Date(
-        entry.metadata.updatedAt ?? entry.metadata.publishedAt,
-      ),
-      url: entry.pathname,
+      uploadedAt: new Date(0),
+      url: pathname,
     })),
   }
 }

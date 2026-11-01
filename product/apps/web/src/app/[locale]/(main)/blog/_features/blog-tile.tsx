@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { Badge } from '@tenzyu/ui/badge'
 import { Card } from '@tenzyu/ui/card'
 import { cn } from '@tenzyu/ui'
-import { formatDate } from './format-date'
+import { formatDate } from '../../_features/format-date'
 
 type BlogTileProps = {
   title: string

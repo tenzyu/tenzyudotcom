@@ -6,6 +6,7 @@ import {
   Hammer,
   Link as LinkIcon,
   ListMusic,
+  Lightbulb,
   MessageSquareText,
   Pointer,
   Puzzle,
@@ -27,13 +28,14 @@ const NAVIGATION_ITEM_ICONS = {
   tools: Hammer,
   blog: FileText,
   notes: MessageSquareText,
+  scraps: Lightbulb,
   portfolio: BriefcaseBusiness,
   archives: FolderArchive,
   links: LinkIcon,
   puzzles: Puzzle,
   recommendations: ListMusic,
   pointers: Pointer,
-} as const
+} as const satisfies Record<PublicRouteId, React.ComponentType<{ className?: string }>>
 
 type NavigationItemContent = {
   label: ReactNode
