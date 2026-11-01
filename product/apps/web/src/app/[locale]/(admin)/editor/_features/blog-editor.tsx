@@ -1,297 +1,245 @@
 'use client'
 
 import { useActionState, useState } from 'react'
-import { Search, Pencil } from 'lucide-react'
 import { Button } from '@tenzyu/ui/button'
+import { Input } from '@tenzyu/ui/input'
+import { Textarea } from '@tenzyu/ui/textarea'
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from '@tenzyu/ui/card'
+  EditorPanel,
+  EditorialList,
+  EditorialEntry,
+} from '@tenzyu/ui/editorial'
 import type { MDXData } from '@/app/[locale]/(main)/blog/_features/blog.domain'
 import { INITIAL_SAVE_BLOG_POST_ACTION_STATE } from './blog-save-form-state'
 import { saveBlogPostAction } from './actions'
 
-type BlogEditorProps = {
+type BlogDraft = {
+  slug: string
+  title: string
+  summary: string
+  publishedAt: string
+  updatedAt: string
+  tags: string
+  body: string
+}
+
+function localDate(value: Date) {
+  return new Date(value.getTime() - value.getTimezoneOffset() * 60000)
+    .toISOString()
+    .slice(0, 16)
+}
+
+function BlogPostForm({
+  post,
+  locale,
+  onBack,
+}: {
+  post: MDXData | null
   locale: string
-  posts: MDXData[]
-  slug?: string | null
-  error?: string
-  startCreating?: boolean
+  onBack: () => void
+}) {
+  const [draft, setDraft] = useState<BlogDraft>(() => ({
+    slug: post?.slug ?? '',
+    title: post?.metadata.title ?? '',
+    summary: post?.metadata.summary ?? '',
+    publishedAt: localDate(post?.metadata.publishedAt ?? new Date()),
+    updatedAt: post?.metadata.updatedAt
+      ? localDate(post.metadata.updatedAt)
+      : '',
+    tags: post?.metadata.tags?.join(', ') ?? '',
+    body: post?.rawContent ?? '',
+  }))
+  const [state, action, pending] = useActionState(
+    saveBlogPostAction,
+    INITIAL_SAVE_BLOG_POST_ACTION_STATE,
+  )
+  return (
+    <EditorPanel
+      title={post ? `Edit ${post.slug}` : 'Create a post'}
+      actions={
+        <Button variant="ghost" onClick={onBack}>
+          Back to list
+        </Button>
+      }
+    >
+      <form action={action} className="space-y-5">
+        <input type="hidden" name="locale" value={locale} />
+        <input
+          type="hidden"
+          name="expectedVersion"
+          value={post?.version ?? ''}
+        />
+        {state.error ? <p role="alert">{state.message}</p> : null}
+        <fieldset disabled={pending} className="space-y-5">
+          <div className="space-y-2">
+            <label htmlFor="blog-slug">Slug</label>
+            <Input
+              id="blog-slug"
+              name="slug"
+              value={draft.slug}
+              readOnly={!!post}
+              onChange={(event) =>
+                setDraft({ ...draft, slug: event.target.value })
+              }
+              pattern="[a-z0-9][a-z0-9-]*"
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <label htmlFor="blog-title">Title</label>
+            <Input
+              id="blog-title"
+              name="title"
+              value={draft.title}
+              onChange={(event) =>
+                setDraft({ ...draft, title: event.target.value })
+              }
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <label htmlFor="blog-summary">Summary</label>
+            <Textarea
+              id="blog-summary"
+              name="summary"
+              value={draft.summary}
+              onChange={(event) =>
+                setDraft({ ...draft, summary: event.target.value })
+              }
+              required
+            />
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <label htmlFor="blog-published">Published at</label>
+              <Input
+                id="blog-published"
+                name="publishedAt"
+                type="datetime-local"
+                value={draft.publishedAt}
+                onChange={(event) =>
+                  setDraft({ ...draft, publishedAt: event.target.value })
+                }
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="blog-updated">Updated at, optional</label>
+              <Input
+                id="blog-updated"
+                name="updatedAt"
+                type="datetime-local"
+                value={draft.updatedAt}
+                onChange={(event) =>
+                  setDraft({ ...draft, updatedAt: event.target.value })
+                }
+              />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <label htmlFor="blog-tags">Tags, separated by commas</label>
+            <Input
+              id="blog-tags"
+              name="tags"
+              value={draft.tags}
+              onChange={(event) =>
+                setDraft({ ...draft, tags: event.target.value })
+              }
+            />
+          </div>
+          <div className="space-y-2">
+            <label htmlFor="blog-body">Content, in MDX</label>
+            <Textarea
+              id="blog-body"
+              name="body"
+              rows={24}
+              value={draft.body}
+              onChange={(event) =>
+                setDraft({ ...draft, body: event.target.value })
+              }
+              spellCheck={false}
+              required
+            />
+          </div>
+          <Button type="submit">{pending ? 'Saving…' : 'Save post'}</Button>
+        </fieldset>
+      </form>
+    </EditorPanel>
+  )
 }
 
 export function BlogEditor({
   locale,
   posts,
   slug,
-  error,
   startCreating = false,
-}: BlogEditorProps) {
-  const allTags = [
-    ...new Set(posts.flatMap((entry) => entry.metadata.tags ?? [])),
-  ].sort((a, b) => a.localeCompare(b))
-  const [editingPost, setEditingPost] = useState<MDXData | null>(
-    slug ? posts.find((p) => p.slug === slug) || null : null,
-  )
-  const [isCreating, setIsCreating] = useState(startCreating)
-  const [query, setQuery] = useState('')
-  const [formState, formAction, isPending] = useActionState(
-    saveBlogPostAction,
-    INITIAL_SAVE_BLOG_POST_ACTION_STATE,
-  )
-
-  const activeError = formState.error ?? error
-  const activeMessage =
-    formState.message ??
-    (error === 'conflict'
-      ? 'Version conflict: This post has been modified by another session. Please reload or back up your changes.'
-      : error === 'save'
-        ? 'Save failed. Check the blog storage state and try again.'
-        : error === 'validation'
-          ? 'Blog post fields are invalid. Fix the highlighted values and try again.'
-          : error === 'invalid'
-            ? 'Required blog fields are missing or invalid.'
-            : undefined)
-
-  const filteredPosts = posts.filter((post) => {
-    const normalizedQuery = query.trim().toLowerCase()
-
-    if (normalizedQuery.length === 0) {
-      return true
-    }
-
-    return (
-      post.slug.toLowerCase().includes(normalizedQuery) ||
-      post.metadata.title.toLowerCase().includes(normalizedQuery) ||
-      post.metadata.summary.toLowerCase().includes(normalizedQuery) ||
-      (post.metadata.tags ?? []).some((tag) =>
-        tag.toLowerCase().includes(normalizedQuery),
-      )
-    )
+}: {
+  locale: string
+  posts: MDXData[]
+  slug?: string | null
+  error?: string
+  startCreating?: boolean
+}) {
+  const [selection, setSelection] = useState<
+    { kind: 'list' } | { kind: 'create' } | { kind: 'edit'; post: MDXData }
+  >(() => {
+    const post = posts.find((post) => post.slug === slug)
+    return startCreating
+      ? { kind: 'create' }
+      : post
+        ? { kind: 'edit', post }
+        : { kind: 'list' }
   })
-
-  if (editingPost || isCreating) {
-    const post = editingPost
+  const [query, setQuery] = useState('')
+  if (selection.kind !== 'list')
     return (
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>
-            {isCreating ? 'New Post' : `Editing: ${post?.slug}`}
-          </CardTitle>
-          <Button
-            variant="ghost"
-            onClick={() => {
-              setEditingPost(null)
-              setIsCreating(false)
-            }}
-          >
-            Back to list
-          </Button>
-        </CardHeader>
-        <CardContent>
-          {activeError ? (
-            <div className="mb-4 rounded-md bg-destructive/15 p-3 text-sm text-destructive">
-              {activeMessage}
-            </div>
-          ) : null}
-          <form action={formAction} className="space-y-6">
-            <input type="hidden" name="locale" value={locale} />
-            {post && (
-              <input
-                type="hidden"
-                name="expectedVersion"
-                value={post.version}
-              />
-            )}
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <label htmlFor="slug" className="text-sm font-medium">
-                  Slug
-                </label>
-                <input
-                  id="slug"
-                  name="slug"
-                  defaultValue={post?.slug}
-                  readOnly={!isCreating}
-                  className="bg-muted w-full rounded-md border p-3 text-sm"
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <label htmlFor="title" className="text-sm font-medium">
-                  Title
-                </label>
-                <input
-                  id="title"
-                  name="title"
-                  defaultValue={post?.metadata.title}
-                  className="w-full rounded-md border p-3 text-sm"
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label htmlFor="summary" className="text-sm font-medium">
-                Summary
-              </label>
-              <textarea
-                id="summary"
-                name="summary"
-                defaultValue={post?.metadata.summary}
-                className="min-h-32 w-full rounded-md border p-3 text-sm leading-relaxed"
-                required
-              />
-            </div>
-
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <label htmlFor="publishedAt" className="text-sm font-medium">
-                  Published At
-                </label>
-                <input
-                  id="publishedAt"
-                  type="datetime-local"
-                  name="publishedAt"
-                  defaultValue={
-                    post?.metadata.publishedAt
-                      ? new Date(
-                          post.metadata.publishedAt.getTime() -
-                            new Date().getTimezoneOffset() * 60000,
-                        )
-                          .toISOString()
-                          .slice(0, 16)
-                      : new Date().toISOString().slice(0, 16)
-                  }
-                  className="w-full rounded-md border p-3 text-sm"
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <label htmlFor="updatedAt" className="text-sm font-medium">
-                  Updated At (Optional)
-                </label>
-                <input
-                  id="updatedAt"
-                  type="datetime-local"
-                  name="updatedAt"
-                  defaultValue={
-                    post?.metadata.updatedAt
-                      ? new Date(
-                          post.metadata.updatedAt.getTime() -
-                            new Date().getTimezoneOffset() * 60000,
-                        )
-                          .toISOString()
-                          .slice(0, 16)
-                      : ''
-                  }
-                  className="w-full rounded-md border p-3 text-sm"
-                />
-              </div>
-              <div className="space-y-2">
-                <label htmlFor="tags" className="text-sm font-medium">
-                  Tags (Comma separated)
-                </label>
-                <input
-                  id="tags"
-                  name="tags"
-                  list="blog-tag-suggestions"
-                  defaultValue={post?.metadata.tags?.join(', ')}
-                  placeholder="nextjs, tutorial, tips"
-                  className="w-full rounded-md border p-3 text-sm"
-                />
-                <datalist id="blog-tag-suggestions">
-                  {allTags.map((tag) => (
-                    <option key={tag} value={tag} />
-                  ))}
-                </datalist>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label htmlFor="body" className="text-sm font-medium">
-                Content (MDX)
-              </label>
-              <textarea
-                id="body"
-                name="body"
-                defaultValue={post?.rawContent}
-                className="min-h-[70vh] w-full rounded-md border p-4 font-mono text-sm leading-6"
-                spellCheck={false}
-                required
-              />
-            </div>
-
-            <Button type="submit" className="w-full" disabled={isPending}>
-              {isPending ? 'Saving...' : 'Save Post'}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+      <BlogPostForm
+        locale={locale}
+        post={selection.kind === 'edit' ? selection.post : null}
+        onBack={() => setSelection({ kind: 'list' })}
+      />
     )
-  }
-
+  const normalized = query.trim().toLowerCase()
+  const filtered = posts.filter((post) =>
+    [
+      post.slug,
+      post.metadata.title,
+      post.metadata.summary,
+      ...(post.metadata.tags ?? []),
+    ].some((value) => value.toLowerCase().includes(normalized)),
+  )
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="relative w-full max-w-md">
-          <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
-          <input
+    <div className="space-y-6">
+      <div className="flex flex-wrap items-end gap-4">
+        <div className="space-y-2">
+          <label htmlFor="blog-search">Search posts</label>
+          <Input
+            id="blog-search"
+            type="search"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search posts, tags, slug"
-            className="bg-background w-full rounded-md border py-2 pr-3 pl-9 text-sm"
           />
         </div>
-        <Button onClick={() => setIsCreating(true)}>Create New Post</Button>
+        <Button onClick={() => setSelection({ kind: 'create' })}>
+          Create a post
+        </Button>
       </div>
-      <div className="grid gap-4">
-        {filteredPosts.map((post) => (
-          <Card key={post.slug}>
-            <CardHeader className="gap-2">
-              <div className="flex items-start justify-between gap-3">
-                <div className="space-y-1">
-                  <CardTitle className="text-base">
-                    {post.metadata.title}
-                  </CardTitle>
-                  <CardDescription>{post.slug}.mdx</CardDescription>
-                </div>
-                <Button
-                  variant="outline"
-                  size="icon-sm"
-                  onClick={() => setEditingPost(post)}
-                >
-                  <Pencil />
-                  <span className="sr-only">Edit {post.slug}</span>
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {(post.metadata.tags ?? []).length > 0 ? (
-                <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-                  {post.metadata.tags?.map((tag) => (
-                    <span
-                      key={tag}
-                      className="rounded-full border border-border/60 px-2 py-0.5"
-                    >
-                      #{tag}
-                    </span>
-                  ))}
-                </div>
-              ) : null}
-            </CardContent>
-          </Card>
+      {filtered.length === 0 ? <p>No posts match this search.</p> : null}
+      <EditorialList>
+        {filtered.map((post) => (
+          <EditorialEntry key={post.slug}>
+            <h2>{post.metadata.title}</h2>
+            <p>{post.metadata.summary}</p>
+            <p>{post.metadata.tags?.join(' · ')}</p>
+            <Button
+              variant="outline"
+              onClick={() => setSelection({ kind: 'edit', post })}
+            >
+              Edit {post.slug}
+            </Button>
+          </EditorialEntry>
         ))}
-        {filteredPosts.length === 0 ? (
-          <Card className="overflow-hidden">
-            <CardContent className="py-6 text-sm text-muted-foreground">
-              No posts matched your search.
-            </CardContent>
-          </Card>
-        ) : null}
-      </div>
+      </EditorialList>
     </div>
   )
 }

@@ -17,6 +17,11 @@ import {
 } from './editor-input.assemble'
 import type { SaveBlogPostActionState } from './blog-save-form-state'
 import {
+  type CollectionSaveState,
+  editorMutationFailure,
+} from '@/features/content-editor/editor-mutation.domain'
+import { createContentVersion } from '@/lib/content-store/content-version.infra'
+import {
   clearEditorAdminSession,
   checkEditorLoginRateLimit,
   clearEditorLoginRateLimit,
@@ -61,8 +66,12 @@ export async function logoutEditorAdminAction(formData: FormData) {
   redirect(getLocalizedUrl('/editor/login', locale))
 }
 
-export async function saveEditorCollectionAction(formData: FormData) {
+export async function saveEditorCollectionAction(
+  _previous: CollectionSaveState,
+  formData: FormData,
+): Promise<CollectionSaveState> {
   await requireEditorSameOriginRequest()
+  await requireEditorAdminSession(formData.get('locale') === 'en' ? 'en' : 'ja')
   const parsed = parseEditorCollectionSaveInput({
     locale: formData.get('locale'),
     collectionId: formData.get('collectionId'),
@@ -71,50 +80,32 @@ export async function saveEditorCollectionAction(formData: FormData) {
   })
 
   if (!parsed.success) {
-    redirect(getLocalizedUrl('/editor?error=invalid', 'ja'))
+    return {
+      status: 'error',
+      error: 'invalid',
+      message: 'The collection fields are invalid. Your draft has been kept.',
+    }
   }
 
   if (!isWritableEditorCollectionId(parsed.data.collectionId)) {
-    redirect(getLocalizedUrl('/editor?error=invalid', parsed.data.locale))
+    return {
+      status: 'error',
+      error: 'invalid',
+      message: 'This collection is not writable.',
+    }
   }
 
-  await requireEditorAdminSession(parsed.data.locale)
   try {
     const saveUseCase = makeSaveEditorCollectionUseCase()
-    await saveUseCase.execute(
+    const result = await saveUseCase.execute(
       parsed.data.collectionId,
       parsed.data.sourceJson,
       parsed.data.expectedVersion,
     )
+    return { status: 'saved', version: result.version, message: 'Saved.' }
   } catch (error) {
-    if (error instanceof StorageVersionConflictError) {
-      redirect(
-        getLocalizedUrl(
-          `/editor/${parsed.data.collectionId}?error=conflict`,
-          parsed.data.locale,
-        ),
-      )
-    }
-
-    redirect(
-      getLocalizedUrl(
-        `/editor/${parsed.data.collectionId}?error=save`,
-        parsed.data.locale,
-      ),
-    )
+    return editorMutationFailure(error)
   }
-
-  revalidatePath(getLocalizedUrl('/editor', parsed.data.locale))
-  revalidatePath(
-    getLocalizedUrl(`/editor/${parsed.data.collectionId}`, parsed.data.locale),
-  )
-
-  redirect(
-    getLocalizedUrl(
-      `/editor/${parsed.data.collectionId}?saved=1`,
-      parsed.data.locale,
-    ),
-  )
 }
 
 export async function saveBlogPostAction(
@@ -122,6 +113,7 @@ export async function saveBlogPostAction(
   formData: FormData,
 ): Promise<SaveBlogPostActionState> {
   await requireEditorSameOriginRequest()
+  await requireEditorAdminSession(formData.get('locale') === 'en' ? 'en' : 'ja')
   const parsed = parseEditorBlogSaveInput({
     locale: formData.get('locale'),
     slug: formData.get('slug'),
@@ -140,8 +132,6 @@ export async function saveBlogPostAction(
       message: 'Required blog fields are missing or invalid.',
     }
   }
-
-  await requireEditorAdminSession(parsed.data.locale)
 
   const validatedDates = validateEditorBlogPostDates({
     publishedAt: parsed.data.publishedAt,
@@ -176,7 +166,7 @@ export async function saveBlogPostAction(
       parsed.data.slug,
       frontmatter,
       parsed.data.body,
-      parsed.data.expectedVersion,
+      parsed.data.expectedVersion ?? createContentVersion(''),
     )
 
     revalidatePath(getLocalizedUrl('/blog', parsed.data.locale))

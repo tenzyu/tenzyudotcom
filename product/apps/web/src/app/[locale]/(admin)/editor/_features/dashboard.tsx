@@ -1,67 +1,62 @@
 import { getLocalizedUrl } from 'intlayer'
 import Link from 'next/link'
-import { useIntlayer } from 'next-intlayer/server'
-import { Content } from '@/components/site/content'
-import { PageHeader } from '@/components/site/page-header'
-import { Card, CardContent, CardHeader, CardTitle } from '@tenzyu/ui/card'
-import { EDITOR_ADMIN_LOCALE } from './editor-admin.constants'
 import {
-  getEditorStorageDriver,
-  usesEditorGithubStorage,
-} from './editor-config.assemble'
+  PageIntro,
+  ReadingColumn,
+  EditorialList,
+  EditorialEntry,
+} from '@tenzyu/ui/editorial'
 import { listEditorCollectionMeta } from '@/features/content-editor/editor-collections'
+import { usesEditorGithubStorage } from './editor-config.assemble'
 import { logoutEditorAdminAction } from './actions'
 
-export function EditorDashboard({ locale }: { locale: string }) {
-  const content = useIntlayer('editorAdmin', EDITOR_ADMIN_LOCALE)
-  const storageLabel = usesEditorGithubStorage()
-    ? content.dashboard.githubStorage.value
-    : content.dashboard.unconfiguredStorage.value
+const descriptions = {
+  blog: 'Longer articles, drafts, and published posts.',
+  notes: 'Short updates and threaded notes in Japanese and English.',
+  scraps: 'Research logs with an introduction and dated entries.',
+  links: 'Links, categories, and short URLs.',
+}
 
+export function EditorDashboard({ locale }: { locale: string }) {
   return (
-    <Content size="2xl" className="space-y-8">
-      <PageHeader
-        title={content.dashboard.title.value}
-        description={content.dashboard.description.value}
+    <ReadingColumn className="space-y-8">
+      <PageIntro
+        eyebrow="Private workspace"
+        title="Content editor"
+        description="Choose a collection, then write or revise."
+        actions={
+          <form action={logoutEditorAdminAction}>
+            <input type="hidden" name="locale" value={locale} />
+            <button type="submit">Sign out</button>
+          </form>
+        }
       />
-      <form action={logoutEditorAdminAction}>
-        <input type="hidden" name="locale" value={locale} />
-        <button type="submit" className="text-sm underline underline-offset-4">
-          {content.dashboard.logoutLabel.value}
-        </button>
-      </form>
-      <div className="grid gap-4 md:grid-cols-2">
+      {!usesEditorGithubStorage() ? (
+        <p role="status">GitHub content storage is not configured.</p>
+      ) : null}
+      <EditorialList>
         {listEditorCollectionMeta().map((collection) => (
-          <Card key={collection.id}>
-            <CardHeader className="space-y-2">
-              <CardTitle>{collection.label}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3 text-sm">
-              <p>
-                <strong>{content.dashboard.storageLabel.value}:</strong>{' '}
-                {storageLabel}
-              </p>
-              <div className="space-y-1">
-                <strong>{content.dashboard.publicPathsLabel.value}:</strong>
-                <ul className="list-disc pl-5">
-                  {collection.publicPaths.map((path) => (
-                    <li key={path.path}>{path.path}</li>
-                  ))}
-                </ul>
-              </div>
-              <Link
-                href={getLocalizedUrl(`/editor/${collection.id}`, locale)}
-                className="inline-flex text-sm underline underline-offset-4"
-              >
-                {content.dashboard.openLabel.value}
+          <EditorialEntry key={collection.id}>
+            <h2>
+              <Link href={getLocalizedUrl(`/editor/${collection.id}`, locale)}>
+                {collection.label}
               </Link>
-            </CardContent>
-          </Card>
+            </h2>
+            <p>{descriptions[collection.id]}</p>
+            {collection.id === 'scraps' ? (
+              <Link href={getLocalizedUrl('/editor/scraps?create=1', locale)}>
+                Create a scrap
+              </Link>
+            ) : null}
+          </EditorialEntry>
         ))}
-      </div>
-      <p className="text-muted-foreground text-xs">
-        EDITOR_STORAGE_DRIVER={getEditorStorageDriver()}
-      </p>
-    </Content>
+        <EditorialEntry>
+          <h2>
+            <Link href={getLocalizedUrl('/tools', locale)}>Tools</Link>
+          </h2>
+          <p>Open the site utilities.</p>
+        </EditorialEntry>
+      </EditorialList>
+    </ReadingColumn>
   )
 }

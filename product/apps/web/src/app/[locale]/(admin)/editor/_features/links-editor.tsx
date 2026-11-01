@@ -28,9 +28,9 @@ export function LinksEditor({
         shortenUrl: content.linksEditor.shortenUrl.value,
         icon: content.linksEditor.icon.value,
         category: content.linksEditor.category.value,
-        moveUp: content.recommendationsEditor.moveUp.value,
-        moveDown: content.recommendationsEditor.moveDown.value,
-        remove: content.recommendationsEditor.remove.value,
+        moveUp: 'Move up',
+        moveDown: 'Move down',
+        remove: 'Remove',
         fetchMetadata: 'Fetch Info', // Adding a default for now, could be in content later
       }}
     />

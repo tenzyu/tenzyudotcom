@@ -154,8 +154,7 @@ export async function assembleScrapPage(params: {
     const loadedLead = await loadScrapMdxDocument(leadRef)
     if (loadedLead) {
       leadSource = loadedLead.source
-      leadState =
-        leadRef.locale === requestedLocale ? 'rendered' : 'fallback'
+      leadState = leadRef.locale === requestedLocale ? 'rendered' : 'fallback'
       leadLocale = leadRef.locale
     }
   }
@@ -179,20 +178,28 @@ export async function assembleScrapPage(params: {
     )
   }
 
-  entries.sort((a, b) =>
-    compareScrapEntryMetaByCreatedAtAsc(a.meta, b.meta),
-  )
+  entries.sort((a, b) => compareScrapEntryMetaByCreatedAtAsc(a.meta, b.meta))
 
-  const indexableLocales = getIndexableLocaleVariants(manifest.lead)
+  const indexableLocales = getIndexableLocaleVariants(manifest.lead).filter(
+    (locale) =>
+      entries.every((entry) =>
+        entry.meta.documents.some(
+          (ref) =>
+            ref.locale === locale && isIndexableTranslationState(ref.state),
+        ),
+      ),
+  )
   const alternateLocales = indexableLocales
 
   const pageIsIndexable =
     params.audience === 'public' &&
+    indexableLocales.includes(requestedLocale) &&
+    leadSource !== null &&
     leadRef !== null &&
     isIndexableTranslationState(leadRef.state) &&
     entries.every((entry) => {
       if (entry.renderedLocale === null) {
-        return true
+        return false
       }
       const ref = entry.meta.documents.find(
         (candidate) => candidate.locale === entry.renderedLocale,

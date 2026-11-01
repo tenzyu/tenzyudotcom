@@ -6,12 +6,10 @@ import { buildOgTitleImageUrl, getAbsoluteUrl } from '@/config/site'
 import {
   assembleScrapPage,
   getScrapStaticParams,
-  loadScrapIndexCached,
 } from '../_features/scraps.assemble'
-import { isPublicScrap } from '../_features/scraps.domain'
 import { ScrapDetailPageContent } from './_features/scrap-detail-page-content'
 
-export const dynamicParams = false
+export const dynamicParams = true
 
 export async function generateStaticParams() {
   return getScrapStaticParams()
@@ -33,15 +31,15 @@ export async function generateMetadata({
 }): Promise<Metadata | undefined> {
   const locale = await getLocale()
   const { slug } = await params
-  const projection = await loadScrapIndexCached()
-  const entry = projection.find((candidate) => candidate.slug === slug)
-  if (!entry || !isPublicScrap(entry)) {
+  const page = await assembleScrapPage({ slug, locale, audience: 'public' })
+  if (!page) {
     return undefined
   }
+  const entry = page.manifest
 
   const path = `/scraps/${slug}`
   const canonicalUrl = getAbsoluteUrl(getLocalizedUrl(path, locale))
-  const indexableLocales = entry.indexableLocales
+  const indexableLocales = page.alternateLocales
 
   const alternateLanguages = Object.fromEntries(
     locales
@@ -60,9 +58,7 @@ export async function generateMetadata({
     entry.summary ?? entry.hypothesis ?? entry.title,
   )
 
-  const robotsAllowsIndexing = (indexableLocales as readonly string[]).includes(
-    locale,
-  )
+  const robotsAllowsIndexing = page.pageIsIndexable
 
   return {
     title: entry.title,

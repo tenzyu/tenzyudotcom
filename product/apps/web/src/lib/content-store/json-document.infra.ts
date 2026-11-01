@@ -7,12 +7,25 @@ import {
   saveGitHubTextFile,
 } from './github-content.infra'
 
+type JsonCollectionStorage = {
+  load: typeof loadGitHubTextFile
+  loadFresh: typeof loadGitHubTextFileFresh
+  save: typeof saveGitHubTextFile
+}
+
+const githubJsonStorage: JsonCollectionStorage = {
+  load: loadGitHubTextFile,
+  loadFresh: loadGitHubTextFileFresh,
+  save: saveGitHubTextFile,
+}
+
 export async function loadJsonCollection<T>(
   pathname: string,
   parse: (raw: unknown) => T,
   getDefaultValue: () => T,
+  storage: JsonCollectionStorage = githubJsonStorage,
 ): Promise<StoredCollectionState<T>> {
-  const serialized = (await loadGitHubTextFile(pathname))?.content ?? null
+  const serialized = (await storage.load(pathname))?.content ?? null
 
   if (!serialized) {
     const collection = getDefaultValue()
@@ -21,7 +34,7 @@ export async function loadJsonCollection<T>(
     return {
       collection,
       serialized: fallbackSerialized,
-      version: createContentVersion(fallbackSerialized),
+      version: createContentVersion(''),
     }
   }
 
@@ -39,6 +52,7 @@ export async function saveJsonCollection<T>(
   rawJson: string,
   parse: (raw: unknown) => T,
   expectedVersion?: string,
+  storage: JsonCollectionStorage = githubJsonStorage,
 ) {
   const parsed = parse(JSON.parse(rawJson))
   const serialized = JSON.stringify(parsed, null, 2)
@@ -46,7 +60,7 @@ export async function saveJsonCollection<T>(
 
   if (expectedVersion) {
     const currentSerialized = (
-      (await loadGitHubTextFileFresh(pathname))?.content ?? ''
+      (await storage.loadFresh(pathname))?.content ?? ''
     ).trimEnd()
     const currentVersion = createContentVersion(currentSerialized)
 
@@ -57,7 +71,7 @@ export async function saveJsonCollection<T>(
     }
   }
 
-  await saveGitHubTextFile(pathname, `${serialized}\n`, {
+  await storage.save(pathname, `${serialized}\n`, {
     expectedVersion,
     message: `Update ${pathname}`,
   })

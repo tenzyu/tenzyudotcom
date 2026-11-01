@@ -2,6 +2,7 @@ import { createContentVersion } from '@/lib/content-store/content-version.infra'
 import {
   StorageError,
   type ContentRepository,
+  type AggregateContentRepository,
 } from '@/lib/content-store/content-store.domain'
 import { githubContentRepository } from '@/lib/content-store/github-content.infra'
 import { SCRAPS_INDEX_PATHNAME } from '@/lib/content-store/content-tags.infra'
@@ -27,7 +28,7 @@ import {
 
 const SCRAPS_PREFIX = 'scraps/'
 
-type ScrapsRepository = ContentRepository
+type ScrapsRepository = ContentRepository & Partial<AggregateContentRepository>
 
 let repositoryOverride: ScrapsRepository | null = null
 
@@ -37,6 +38,16 @@ export function setScrapsRepositoryOverride(repo: ScrapsRepository | null) {
 
 function getScrapsRepository(): ScrapsRepository {
   return repositoryOverride ?? githubContentRepository
+}
+
+export function getScrapsAggregateRepository(): AggregateContentRepository {
+  const repo = getScrapsRepository()
+  if (!repo.snapshot || !repo.commit) {
+    throw new StorageError(
+      'Scraps mutations require an atomic aggregate repository',
+    )
+  }
+  return { snapshot: repo.snapshot.bind(repo), commit: repo.commit.bind(repo) }
 }
 
 export type LoadedScrapEntry = {
@@ -108,8 +119,7 @@ export async function loadScrapEntryMeta(
   const meta = parseScrapEntryMeta(JSON.parse(file.content))
   return {
     meta,
-    metaVersion:
-      file.version ?? createContentVersion(file.content.trimEnd()),
+    metaVersion: file.version ?? createContentVersion(file.content.trimEnd()),
   }
 }
 

@@ -8,18 +8,7 @@ import {
   loadNotesState,
   saveNotesState,
 } from '@/app/[locale]/(main)/notes/_features/notes.infra'
-import {
-  loadPointersState,
-  savePointersState,
-} from '@/app/[locale]/(main)/pointers/_features/dashboard/dashboard.infra'
-import {
-  loadPuzzlesState,
-  savePuzzlesState,
-} from '@/app/[locale]/(main)/puzzles/_features/puzzles.infra'
-import {
-  loadRecommendationsState,
-  saveRecommendationsState,
-} from '@/app/[locale]/(main)/recommendations/_features/recommendations.infra'
+import { loadScrapEditorIndexState } from '@/features/content-editor/scrap-editor.assemble'
 import { loadLinksState, saveLinksState } from '@/features/links/links.infra'
 import {
   getEditorCollectionMeta,
@@ -33,33 +22,20 @@ import {
   getEditorCollectionContentTag,
 } from '@/lib/content-store/content-tags.infra'
 
+const collectionLoaders: {
+  [K in EditorCollectionId]: () => Promise<EditorCollectionState<K>>
+} = {
+  notes: loadNotesState,
+  links: loadLinksState,
+  blog: loadBlogPostsState,
+  scraps: loadScrapEditorIndexState,
+}
+
 class LoadEditorCollectionUseCase {
   async execute<K extends EditorCollectionId>(
     collectionId: K,
   ): Promise<EditorCollectionState<K>> {
-    if (collectionId === 'recommendations') {
-      return loadRecommendationsState() as unknown as Promise<
-        EditorCollectionState<K>
-      >
-    }
-
-    if (collectionId === 'notes') {
-      return loadNotesState() as unknown as Promise<EditorCollectionState<K>>
-    }
-
-    if (collectionId === 'puzzles') {
-      return loadPuzzlesState() as unknown as Promise<EditorCollectionState<K>>
-    }
-
-    if (collectionId === 'pointers') {
-      return loadPointersState() as unknown as Promise<EditorCollectionState<K>>
-    }
-
-    if (collectionId === 'links') {
-      return loadLinksState() as unknown as Promise<EditorCollectionState<K>>
-    }
-
-    return loadBlogPostsState() as unknown as Promise<EditorCollectionState<K>>
+    return collectionLoaders[collectionId]()
   }
 }
 
@@ -67,18 +43,12 @@ class SaveEditorCollectionUseCase {
   async execute(
     collectionId: WritableEditorCollectionId,
     rawJson: string,
-    expectedVersion?: string,
+    expectedVersion: string,
   ): Promise<{ version: string }> {
     const result =
-      collectionId === 'recommendations'
-        ? await saveRecommendationsState(rawJson, expectedVersion)
-        : collectionId === 'notes'
-          ? await saveNotesState(rawJson, expectedVersion)
-          : collectionId === 'puzzles'
-            ? await savePuzzlesState(rawJson, expectedVersion)
-            : collectionId === 'pointers'
-              ? await savePointersState(rawJson, expectedVersion)
-              : await saveLinksState(rawJson, expectedVersion)
+      collectionId === 'notes'
+        ? await saveNotesState(rawJson, expectedVersion)
+        : await saveLinksState(rawJson, expectedVersion)
     const collection = getEditorCollectionMeta(collectionId)
 
     revalidateTag(getEditorCollectionContentTag(collectionId), 'max')
@@ -100,7 +70,7 @@ class SaveBlogPostUseCase {
     slug: string,
     frontmatter: BlogFrontmatter,
     body: string,
-    expectedVersion?: string,
+    expectedVersion: string,
   ) {
     await saveBlogPostState(slug, frontmatter, body, expectedVersion)
     revalidateTag(BLOG_INDEX_CONTENT_TAG, 'max')

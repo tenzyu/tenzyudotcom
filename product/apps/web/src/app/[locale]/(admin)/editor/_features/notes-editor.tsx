@@ -30,9 +30,9 @@ export function NotesEditor({
         createdAt: content.notesEditor.createdAt.value,
         externalUrl: content.notesEditor.externalUrl.value,
         published: content.notesEditor.published.value,
-        moveUp: content.recommendationsEditor.moveUp.value,
-        moveDown: content.recommendationsEditor.moveDown.value,
-        remove: content.recommendationsEditor.remove.value,
+        moveUp: 'Move up',
+        moveDown: 'Move down',
+        remove: 'Remove',
       }}
     />
   )

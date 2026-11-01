@@ -20,6 +20,22 @@ export type ContentRepositorySaveOptions = {
   message?: string
 }
 
+export type ContentSnapshot = {
+  version: string
+  loadText(pathname: string): Promise<ContentRepositoryTextFile | null>
+}
+
+export type ContentWrite = { pathname: string; content: string }
+
+export type AggregateContentRepository = {
+  snapshot(): Promise<ContentSnapshot>
+  commit(
+    expectedVersion: string,
+    writes: readonly ContentWrite[],
+    message: string,
+  ): Promise<string>
+}
+
 export type ContentRepository = {
   loadText(pathname: string): Promise<ContentRepositoryTextFile | null>
   saveText(
@@ -47,3 +63,4 @@ export function withLocaleRevalidatePaths(pathname: string) {
 
 export class StorageError extends Error {}
 export class StorageVersionConflictError extends StorageError {}
+export class StorageCommitUncertainError extends StorageError {}

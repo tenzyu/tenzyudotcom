@@ -12,6 +12,12 @@ import {
   isWritableEditorCollectionId,
 } from '@/features/content-editor/editor-collections'
 import { StorageVersionConflictError } from '@/lib/content-store/content-store.domain'
+import { z, ZodError } from 'zod'
+
+const CollectionSavePayload = z.object({
+  sourceJson: z.string().trim().min(2),
+  expectedVersion: z.string().trim().min(1),
+})
 
 export async function GET(
   _request: NextRequest,
@@ -66,17 +72,7 @@ export async function PUT(
   }
 
   try {
-    const body = (await request.json()) as {
-      sourceJson?: string
-      expectedVersion?: string
-    }
-
-    if (
-      typeof body.sourceJson !== 'string' ||
-      body.sourceJson.trim().length < 2
-    ) {
-      return NextResponse.json({ error: 'Invalid payload' }, { status: 400 })
-    }
+    const body = CollectionSavePayload.parse(await request.json())
 
     const saveUseCase = makeSaveEditorCollectionUseCase()
     const result = await saveUseCase.execute(
@@ -87,6 +83,9 @@ export async function PUT(
 
     return NextResponse.json(result)
   } catch (error) {
+    if (error instanceof ZodError || error instanceof SyntaxError) {
+      return NextResponse.json({ error: 'Invalid payload' }, { status: 400 })
+    }
     if (error instanceof StorageVersionConflictError) {
       return NextResponse.json({ error: 'conflict' }, { status: 409 })
     }

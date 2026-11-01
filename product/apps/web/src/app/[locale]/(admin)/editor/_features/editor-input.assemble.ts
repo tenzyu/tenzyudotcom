@@ -7,21 +7,17 @@ const LoginSchema = z.object({
 
 const SaveCollectionSchema = z.object({
   locale: z.string().trim().min(2),
-  collectionId: z.enum([
-    'recommendations',
-    'notes',
-    'puzzles',
-    'pointers',
-    'links',
-    'blog',
-  ]),
+  collectionId: z.enum(['notes', 'links']),
   sourceJson: z.string().trim().min(2),
-  expectedVersion: z.string().trim().min(1).optional(),
+  expectedVersion: z.string().trim().min(1),
 })
 
 const SaveBlogPostSchema = z.object({
   locale: z.string().trim().min(2),
-  slug: z.string().trim().min(1),
+  slug: z
+    .string()
+    .trim()
+    .regex(/^[a-z0-9][a-z0-9-]*$/),
   title: z.string().trim().min(1),
   summary: z.string().trim().min(1),
   publishedAt: z.string().trim().min(1),

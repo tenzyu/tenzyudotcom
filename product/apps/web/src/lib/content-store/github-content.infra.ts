@@ -2,11 +2,13 @@ import { unstable_cache } from 'next/cache'
 import { env } from '@/config/env.infra'
 import {
   type ContentRepository,
+  type AggregateContentRepository,
   StorageError,
   StorageVersionConflictError,
 } from './content-store.domain'
 import { createContentVersion } from './content-version.infra'
 import { getContentTagForPathname } from './content-tags.infra'
+import { createGitHubAggregateRepository } from './github-aggregate.infra'
 
 type GitHubContentFile = {
   content: string
@@ -200,6 +202,9 @@ export async function saveGitHubTextFile(
   })
 
   if (!response.ok) {
+    if (response.status === 409 || response.status === 422) {
+      throw new StorageVersionConflictError(`${pathname} changed during save.`)
+    }
     const errorText = await response.text()
     throw new StorageError(
       `Failed to save GitHub content (${pathname}): ${response.status} ${response.statusText} ${errorText}`,
@@ -305,7 +310,18 @@ async function listGitHubRepositoryFiles(prefix: string) {
     .sort()
 }
 
-export const githubContentRepository: ContentRepository = {
+export const githubContentRepository: ContentRepository &
+  AggregateContentRepository = {
+  snapshot() {
+    return createGitHubAggregateRepository(getGitHubConfig()).snapshot()
+  },
+  commit(expectedVersion, writes, message) {
+    return createGitHubAggregateRepository(getGitHubConfig()).commit(
+      expectedVersion,
+      writes,
+      message,
+    )
+  },
   async loadText(pathname) {
     const file = await loadGitHubTextFile(pathname)
     return file
