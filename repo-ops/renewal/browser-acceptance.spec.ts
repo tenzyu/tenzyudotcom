@@ -18,13 +18,36 @@ const removedRoutes = [
 type BrowserEvent = {
 	type: "console" | "pageerror" | "requestfailed";
 	message: string;
+	url?: string;
 };
 
 function observeBrowserErrors(page: Page) {
 	const events: BrowserEvent[] = [];
+	const retiredDocument404s = new Map<string, number>();
+	page.on("response", (response) => {
+		const request = response.request();
+		const url = new URL(response.url());
+		if (
+			response.status() === 404 &&
+			request.resourceType() === "document" &&
+			request.frame() === page.mainFrame() &&
+			removedRoutes.some(
+				(route) => url.pathname === route || url.pathname === `/en${route}`,
+			)
+		) {
+			retiredDocument404s.set(
+				response.url(),
+				(retiredDocument404s.get(response.url()) ?? 0) + 1,
+			);
+		}
+	});
 	page.on("console", (message) => {
 		if (message.type() === "error") {
-			events.push({ type: "console", message: message.text() });
+			events.push({
+				type: "console",
+				message: message.text(),
+				url: message.location().url,
+			});
 		}
 	});
 	page.on("pageerror", (error) => {
@@ -36,19 +59,36 @@ function observeBrowserErrors(page: Page) {
 			message: `${request.method()} ${request.url()} ${request.failure()?.errorText ?? "unknown error"}`,
 		});
 	});
-	return events;
+	return { events, retiredDocument404s };
 }
 
 const test = base.extend<{ browserEvents: BrowserEvent[] }>({
 	browserEvents: [
 		async ({ page }, use, testInfo) => {
-			const events = observeBrowserErrors(page);
+			const { events, retiredDocument404s } = observeBrowserErrors(page);
 			await use(events);
 			await testInfo.attach("browser-events.json", {
 				body: Buffer.from(`${JSON.stringify(events, null, 2)}\n`),
 				contentType: "application/json",
 			});
-			expect(events, "browser console, page, and network errors").toEqual([]);
+			const unexpected = events.filter((event) => {
+				if (
+					event.type === "console" &&
+					event.message ===
+						"Failed to load resource: the server responded with a status of 404 (Not Found)" &&
+					event.url
+				) {
+					const remaining = retiredDocument404s.get(event.url) ?? 0;
+					if (remaining > 0) {
+						retiredDocument404s.set(event.url, remaining - 1);
+						return false;
+					}
+				}
+				return true;
+			});
+			expect(unexpected, "browser console, page, and network errors").toEqual(
+				[],
+			);
 		},
 		{ auto: true },
 	],
