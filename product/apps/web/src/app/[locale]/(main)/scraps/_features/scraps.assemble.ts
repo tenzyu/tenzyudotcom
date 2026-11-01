@@ -1,6 +1,7 @@
 import { cache } from 'react'
 import { BASE_URL, getAbsoluteUrl } from '@/config/site'
 import { buildLocalizedUrl } from '@/lib/intlayer/localized-url'
+import type { ContentSnapshot } from '@/lib/content-store/content-store.domain'
 import {
   CONTENT_LOCALES,
   type ContentLocale,
@@ -16,6 +17,7 @@ import {
   resolveLocalizedDocumentRef,
 } from './scraps.domain'
 import {
+  getScrapsAggregateRepository,
   loadScrapEntryDocuments,
   loadScrapEntryMeta,
   loadScrapIndex,
@@ -87,6 +89,7 @@ async function assembleEntry(
   requestedLocale: ContentLocale,
   primaryLocale: ContentLocale,
   audience: ScrapListAudience,
+  snapshot: ContentSnapshot,
 ): Promise<AssembledScrapEntry> {
   const resolved = resolveLocalizedDocumentRef({
     refs: meta.documents,
@@ -104,7 +107,7 @@ async function assembleEntry(
     }
   }
 
-  const loaded = await loadScrapMdxDocument(resolved)
+  const loaded = await loadScrapMdxDocument(resolved, snapshot)
   if (!loaded) {
     return {
       meta,
@@ -129,7 +132,8 @@ export async function assembleScrapPage(params: {
   audience: ScrapListAudience
 }): Promise<AssembledScrapPage | null> {
   const requestedLocale = resolveContentLocale(params.locale)
-  const loadedManifest = await loadScrapManifest(params.slug)
+  const snapshot = await getScrapsAggregateRepository().snapshot()
+  const loadedManifest = await loadScrapManifest(params.slug, snapshot)
   if (!loadedManifest) {
     return null
   }
@@ -151,7 +155,7 @@ export async function assembleScrapPage(params: {
   let leadLocale: ContentLocale | null = null
 
   if (leadRef) {
-    const loadedLead = await loadScrapMdxDocument(leadRef)
+    const loadedLead = await loadScrapMdxDocument(leadRef, snapshot)
     if (loadedLead) {
       leadSource = loadedLead.source
       leadState = leadRef.locale === requestedLocale ? 'rendered' : 'fallback'
@@ -161,7 +165,11 @@ export async function assembleScrapPage(params: {
 
   const entries: AssembledScrapEntry[] = []
   for (const entryId of manifest.entryIds) {
-    const loadedEntry = await loadScrapEntryMeta(manifest.slug, entryId)
+    const loadedEntry = await loadScrapEntryMeta(
+      manifest.slug,
+      entryId,
+      snapshot,
+    )
     if (!loadedEntry) {
       continue
     }
@@ -174,6 +182,7 @@ export async function assembleScrapPage(params: {
         requestedLocale,
         manifest.primaryLocale,
         params.audience,
+        snapshot,
       ),
     )
   }
@@ -219,9 +228,9 @@ export async function assembleScrapPage(params: {
   }
 }
 
-/** Eager loader used by admin tools that need the underlying entry documents. */
 export async function loadEntryDocumentsForAdmin(meta: ScrapEntryMeta) {
-  return loadScrapEntryDocuments(meta)
+  const snapshot = await getScrapsAggregateRepository().snapshot()
+  return loadScrapEntryDocuments(meta, snapshot)
 }
 
 export const buildScrapListUrl = (locale: string) =>

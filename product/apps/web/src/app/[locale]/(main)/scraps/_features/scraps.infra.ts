@@ -3,6 +3,7 @@ import {
   StorageError,
   type ContentRepository,
   type AggregateContentRepository,
+  type ContentSnapshot,
 } from '@/lib/content-store/content-store.domain'
 import { githubContentRepository } from '@/lib/content-store/github-content.infra'
 import { SCRAPS_INDEX_PATHNAME } from '@/lib/content-store/content-tags.infra'
@@ -43,9 +44,7 @@ function getScrapsRepository(): ScrapsRepository {
 export function getScrapsAggregateRepository(): AggregateContentRepository {
   const repo = getScrapsRepository()
   if (!repo.snapshot || !repo.commit) {
-    throw new StorageError(
-      'Scraps mutations require an atomic aggregate repository',
-    )
+    throw new StorageError('Scraps require an atomic aggregate repository')
   }
   return { snapshot: repo.snapshot.bind(repo), commit: repo.commit.bind(repo) }
 }
@@ -79,21 +78,21 @@ function assertEntryId(entryId: string) {
 }
 
 export async function loadScrapIndex(): Promise<ScrapIndexProjection> {
-  const repo = getScrapsRepository()
-  const raw = await repo.loadJson<unknown>(SCRAPS_INDEX_PATHNAME)
-  if (!raw) {
+  const snapshot = await getScrapsAggregateRepository().snapshot()
+  const file = await snapshot.loadText(SCRAPS_INDEX_PATHNAME)
+  if (!file) {
     return []
   }
-  return parseScrapIndexProjection(raw)
+  return parseScrapIndexProjection(JSON.parse(file.content))
 }
 
 export async function loadScrapManifest(
   slug: string,
+  snapshot: ContentSnapshot,
 ): Promise<LoadedScrapManifest | null> {
   assertSlug(slug)
-  const repo = getScrapsRepository()
   const paths = getScrapStoragePaths(slug)
-  const file = await repo.loadText(paths.manifest)
+  const file = await snapshot.loadText(paths.manifest)
   if (!file) {
     return null
   }
@@ -107,12 +106,12 @@ export async function loadScrapManifest(
 export async function loadScrapEntryMeta(
   slug: string,
   entryId: string,
+  snapshot: ContentSnapshot,
 ): Promise<LoadedScrapEntry | null> {
   assertSlug(slug)
   assertEntryId(entryId)
-  const repo = getScrapsRepository()
   const paths = getScrapStoragePaths(slug)
-  const file = await repo.loadText(paths.entryMeta(entryId))
+  const file = await snapshot.loadText(paths.entryMeta(entryId))
   if (!file) {
     return null
   }
@@ -125,9 +124,9 @@ export async function loadScrapEntryMeta(
 
 export async function loadScrapMdxDocument(
   ref: LocalizedDocumentRef,
+  snapshot: ContentSnapshot,
 ): Promise<LoadedScrapDocument | null> {
-  const repo = getScrapsRepository()
-  const file = await repo.loadText(ref.pathname)
+  const file = await snapshot.loadText(ref.pathname)
   if (!file) {
     return null
   }
@@ -140,9 +139,10 @@ export async function loadScrapMdxDocument(
 
 export async function loadScrapEntryDocuments(
   meta: ScrapEntryMeta,
+  snapshot: ContentSnapshot,
 ): Promise<LoadedScrapDocument[]> {
   const documents = await Promise.all(
-    meta.documents.map(async (ref) => loadScrapMdxDocument(ref)),
+    meta.documents.map(async (ref) => loadScrapMdxDocument(ref, snapshot)),
   )
   return documents.filter((doc): doc is LoadedScrapDocument => doc !== null)
 }
@@ -163,6 +163,7 @@ async function listManifestPathnames() {
  * `applyScrapIndexProjectionDelta` which avoids re-listing the tree.
  */
 export async function rebuildScrapIndexProjection() {
+  const snapshot = await getScrapsAggregateRepository().snapshot()
   const manifestPathnames = await listManifestPathnames()
   const manifests = await Promise.all(
     manifestPathnames.map(async (pathname) => {
@@ -170,7 +171,7 @@ export async function rebuildScrapIndexProjection() {
       if (!slug) {
         return null
       }
-      const loaded = await loadScrapManifest(slug)
+      const loaded = await loadScrapManifest(slug, snapshot)
       return loaded?.manifest ?? null
     }),
   )

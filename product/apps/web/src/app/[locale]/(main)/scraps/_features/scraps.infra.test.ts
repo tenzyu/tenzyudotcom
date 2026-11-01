@@ -24,6 +24,21 @@ import {
 class InMemoryRepo implements ContentRepository {
   files = new Map<string, string>()
 
+  async snapshot() {
+    const files = new Map(this.files)
+    return {
+      version: createContentVersion(JSON.stringify([...files])),
+      loadText: async (pathname: string) => {
+        const content = files.get(pathname)
+        return content === undefined ? null : { content }
+      },
+    }
+  }
+
+  async commit(): Promise<string> {
+    throw new Error('Read-only aggregate fixture')
+  }
+
   async loadText(pathname: string): Promise<ContentRepositoryTextFile | null> {
     const content = this.files.get(pathname)
     if (content === undefined) {
@@ -175,13 +190,15 @@ describe('scraps infra (in-memory repository)', () => {
           },
         ],
       } satisfies ScrapEntryMeta
-      await repo.saveJson(
-        `scraps/${manifest.slug}/entries/e1/meta.json`,
-        meta,
-      )
-      const loadedManifest = await loadScrapManifest(manifest.slug)
+      await repo.saveJson(`scraps/${manifest.slug}/entries/e1/meta.json`, meta)
+      const snapshot = await repo.snapshot()
+      const loadedManifest = await loadScrapManifest(manifest.slug, snapshot)
       expect(loadedManifest?.manifest.entryIds).toEqual(['e1'])
-      const loadedEntry = await loadScrapEntryMeta(manifest.slug, 'e1')
+      const loadedEntry = await loadScrapEntryMeta(
+        manifest.slug,
+        'e1',
+        snapshot,
+      )
       expect(loadedEntry?.meta.kind).toBe('note')
     } finally {
       setScrapsRepositoryOverride(null)

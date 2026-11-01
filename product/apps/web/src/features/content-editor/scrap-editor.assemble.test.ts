@@ -247,6 +247,8 @@ describe('scrap editor lifecycle', () => {
   test('public readers see only published scraps and entries, with safe locale fallback', async () => {
     const repo = new MemoryAggregate()
     setScrapsRepositoryOverride({
+      snapshot: () => repo.snapshot(),
+      commit: (version, writes) => repo.commit(version, writes),
       async loadText(pathname) {
         return (await repo.snapshot()).loadText(pathname)
       },
