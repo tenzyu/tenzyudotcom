@@ -1,17 +1,8 @@
 import { getLocalizedUrl } from 'intlayer'
-import { ArrowRight, FileText, MessageSquareText, Sparkles } from 'lucide-react'
 import Link from 'next/link'
 import { useIntlayer } from 'next-intlayer/server'
-import { Content } from '@/components/site/content'
 import { SectionHeader } from '@/components/site/section-header'
-import { Button } from '@tenzyu/ui/button'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@tenzyu/ui/card'
+import { EditorialEntry, EditorialList } from '@tenzyu/ui/editorial'
 
 type HomeLatestFragmentsProps = {
   locale: string
@@ -42,126 +33,58 @@ export function HomeLatestFragments({
   latestNotes,
   latestPost,
 }: HomeLatestFragmentsProps) {
-  const home = useIntlayer('page-home')
+  const home = useIntlayer('page-home', locale)
   const formatter = noteDateFormatter(locale)
 
   return (
-    <Content size="2xl" className="space-y-6">
+    <section className="space-y-6">
       <SectionHeader
         title={home.fragmentsTitle.value}
         description={home.fragmentsSubtitle.value}
       />
 
-      <div className="grid gap-4 lg:grid-cols-[1.25fr_0.9fr]">
-        <Card className="gap-0">
-          <CardHeader className="gap-2 pt-5 pb-3">
-            <div className="flex items-center gap-3">
-              <div className="bg-primary/10 text-primary flex size-9 items-center justify-center rounded-2xl">
-                <MessageSquareText className="h-4 w-4" />
-              </div>
-              <div>
-                <CardTitle>{home.fragmentsNotesTitle}</CardTitle>
-                <CardDescription>
-                  {home.fragmentsNotesDescription}
-                </CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-3 pb-5">
-            {latestNotes.map((note) => (
-              <Link
-                key={note.createdAt}
-                href={getLocalizedUrl('/notes', locale)}
-                className="hover:bg-muted/40 block rounded-2xl border border-transparent px-3 py-2 transition-colors"
-              >
-                <p className="text-muted-foreground mb-1 text-xs">
-                  {formatter.format(new Date(note.createdAt))}
-                </p>
-                <p className="line-clamp-2 text-sm leading-6">{note.body}</p>
-              </Link>
-            ))}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="px-0"
-              render={
-                <Link href={getLocalizedUrl('/notes', locale)}>
-                  {home.fragmentsNotesLinkLabel}
-                  <ArrowRight />
-                </Link>
-              }
-            ></Button>
-          </CardContent>
-        </Card>
-
-        <div className="grid gap-4">
-          {latestPost ? (
-            <Card className="gap-0">
-              <CardHeader className="gap-2 pt-5 pb-3">
-                <div className="flex items-center gap-3">
-                  <div className="bg-primary/10 text-primary flex size-9 items-center justify-center rounded-2xl">
-                    <FileText className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <CardTitle>{home.fragmentsBlogTitle}</CardTitle>
-                    <CardDescription>
-                      {home.fragmentsBlogDescription}
-                    </CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-3 pb-5">
-                <Link
-                  href={getLocalizedUrl(`/blog/${latestPost.slug}`, locale)}
-                  className="hover:bg-muted/40 block rounded-2xl border border-transparent px-3 py-2 transition-colors"
-                >
-                  <p className="mb-1 text-sm font-semibold leading-6">
-                    {latestPost.metadata.title}
-                  </p>
-                  <p className="text-muted-foreground line-clamp-3 text-sm leading-6">
-                    {latestPost.metadata.summary}
-                  </p>
-                </Link>
-              </CardContent>
-            </Card>
-          ) : null}
-
-          <Card className="gap-0">
-            <CardHeader className="gap-2 pt-5 pb-3">
-              <div className="flex items-center gap-3">
-                <div className="bg-primary/10 text-primary flex size-9 items-center justify-center rounded-2xl">
-                  <Sparkles className="h-4 w-4" />
-                </div>
-                <div>
-                  <CardTitle>{home.fragmentsThingTitle}</CardTitle>
-                  <CardDescription>
-                    {home.fragmentsThingDescription}
-                  </CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-3 pb-5">
-              <p className="text-sm leading-6">{home.fragmentsThingBody}</p>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="px-0"
-                render={
-                  <Link
-                    href={getLocalizedUrl(
-                      home.fragmentsThingHref.value,
-                      locale
-                    )}
-                  >
-                    {home.fragmentsThingLinkLabel}
-                    <ArrowRight />
-                  </Link>
-                }
-              ></Button>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    </Content>
+      <EditorialList>
+        {latestPost ? (
+          <EditorialEntry>
+            <p className="mb-3 text-xs uppercase tracking-widest text-muted-foreground">
+              {home.fragmentsBlogTitle}
+            </p>
+            <Link
+              href={getLocalizedUrl(`/blog/${latestPost.slug}`, locale)}
+              className="group block"
+            >
+              <h3 className="font-serif text-2xl leading-snug group-hover:text-primary group-hover:underline">
+                {latestPost.metadata.title}
+              </h3>
+              <p className="mt-3 text-sm leading-7 text-muted-foreground">
+                {latestPost.metadata.summary}
+              </p>
+            </Link>
+          </EditorialEntry>
+        ) : null}
+        {latestNotes.map((note) => (
+          <EditorialEntry key={note.createdAt}>
+            <time
+              dateTime={note.createdAt}
+              className="text-xs text-muted-foreground"
+            >
+              {formatter.format(new Date(note.createdAt))}
+            </time>
+            <p className="mt-2 line-clamp-3 whitespace-pre-wrap text-base leading-8">
+              {note.body}
+            </p>
+          </EditorialEntry>
+        ))}
+      </EditorialList>
+      {!latestPost && latestNotes.length === 0 ? (
+        <p className="text-sm text-muted-foreground">{home.fragmentsEmpty}</p>
+      ) : null}
+      <Link
+        href={getLocalizedUrl('/notes', locale)}
+        className="inline-flex min-h-11 items-center text-sm underline hover:text-primary"
+      >
+        {home.fragmentsNotesLinkLabel}
+      </Link>
+    </section>
   )
 }

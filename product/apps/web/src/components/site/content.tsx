@@ -1,4 +1,5 @@
 import { cn } from '@tenzyu/ui'
+import { ReadingColumn } from '@tenzyu/ui/editorial'
 
 type ContentSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full'
 
@@ -22,12 +23,12 @@ function Content({
   padded?: boolean
 }) {
   return (
-    <div
+    <ReadingColumn
       className={cn(
         'mx-auto w-full',
         sizeClasses[size],
         padded && 'px-(--tz-page-padding-x)',
-        className
+        className,
       )}
       {...props}
     />

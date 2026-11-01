@@ -20,31 +20,16 @@ const breadcrumbContent = {
         ja: 'ツール',
         en: 'Tools',
       }),
-      recommendations: t({
-        ja: 'お気に入り',
-        en: 'Favorites',
-      }),
-      pointers: t({
-        ja: 'ポインタ',
-        en: 'Pointers',
-      }),
+      notes: t({ ja: 'ノート', en: 'Notes' }),
       links: t({
         ja: 'リンク集',
         en: 'Links',
-      }),
-      puzzles: t({
-        ja: '謎解き',
-        en: 'Puzzles',
       }),
       portfolio: t({
         ja: 'ポートフォリオ',
         en: 'Portfolio',
       }),
-      archives: t({
-        ja: 'アーカイブ',
-        en: 'Archives',
-      }),
-      'osu-profile': t({
+      osu: t({
         ja: 'osu! プロフィール',
         en: 'osu! Profile',
       }),

@@ -19,6 +19,7 @@ export function KoFiLink({
 }: KoFiLinkProps) {
   return (
     <Button
+      nativeButton={false}
       variant={variant}
       size={size}
       className={className}

@@ -2,13 +2,11 @@ import type { MetadataRoute } from 'next'
 
 export const STATIC_SITEMAP_ROUTE_PATHS = [
   '/',
-  '/archives',
   '/blog',
   '/links',
-  '/pointers',
+  '/notes',
+  '/osu',
   '/portfolio',
-  '/puzzles',
-  '/recommendations',
   '/scraps',
   '/tools',
 ] as const

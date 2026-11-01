@@ -1,5 +1,6 @@
 import { useIntlayer } from 'next-intlayer/server'
 import { PageHeader } from '@/components/site/page-header'
+import { EditorialEntry, EditorialList } from '@tenzyu/ui/editorial'
 import { AdminGate } from '@/app/[locale]/(main)/_features/admin/admin-gate'
 import { NoteComposerInline } from './note-composer-inline'
 import { NoteFeedItem } from './note-feed-item'
@@ -24,14 +25,13 @@ export async function NotesPageContent({
   locale,
   notes,
 }: NotesPageContentProps) {
-  const content = useIntlayer('page-notes')
+  const content = useIntlayer('page-notes', locale)
 
   return (
     <>
       <PageHeader
         title={content.metadata.title.value}
         description={content.lead.value}
-        className="flex flex-col gap-4"
       />
 
       <div className="space-y-5">
@@ -39,17 +39,18 @@ export async function NotesPageContent({
           <NoteComposerInline />
         </AdminGate>
 
-        <div className="overflow-hidden rounded-3xl border border-border/60">
+        <EditorialList>
           {notes.map((note) => (
-            <NoteFeedItem
-              key={note.id}
-              locale={locale}
-              note={note}
-              authorName="夢"
-              authorHandle="@tenzyu.com"
-            />
+            <EditorialEntry key={note.id} className="py-0 [&>article]:border-b-0">
+              <NoteFeedItem
+                locale={locale}
+                note={note}
+                authorName="tenzyu"
+                authorHandle="@tenzyu.com"
+              />
+            </EditorialEntry>
           ))}
-        </div>
+        </EditorialList>
       </div>
     </>
   )

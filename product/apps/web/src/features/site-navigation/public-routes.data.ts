@@ -1,87 +1,34 @@
 export type PublicRouteGroupId = 'core' | 'around'
-
-export type PublicRouteId =
-  | 'tools'
-  | 'blog'
-  | 'notes'
-  | 'scraps'
-  | 'portfolio'
-  | 'archives'
-  | 'links'
-  | 'puzzles'
-  | 'recommendations'
-  | 'pointers'
-
-type PublicRoute = {
-  href: string
-  groupId: PublicRouteGroupId
-}
-
-type PublicRouteGroup = {
-  id: PublicRouteGroupId
-  routeIds: readonly PublicRouteId[]
-}
+export type PublicRouteId = keyof typeof PUBLIC_ROUTES
 
 export const PUBLIC_ROUTES = {
-  tools: {
-    href: '/tools',
-    groupId: 'core',
-  },
-  blog: {
-    href: '/blog',
-    groupId: 'core',
-  },
-  notes: {
-    href: '/notes',
-    groupId: 'core',
-  },
-  scraps: {
-    href: '/scraps',
-    groupId: 'core',
-  },
-  portfolio: {
-    href: '/portfolio',
-    groupId: 'core',
-  },
-  archives: {
-    href: '/archives',
-    groupId: 'around',
-  },
-  links: {
-    href: '/links',
-    groupId: 'core',
-  },
-  puzzles: {
-    href: '/puzzles',
-    groupId: 'around',
-  },
-  recommendations: {
-    href: '/recommendations',
-    groupId: 'around',
-  },
-  pointers: {
-    href: '/pointers',
-    groupId: 'around',
-  },
-} as const satisfies Record<PublicRouteId, PublicRoute>
+  blog: { href: '/blog', groupId: 'core' },
+  notes: { href: '/notes', groupId: 'core' },
+  scraps: { href: '/scraps', groupId: 'core' },
+  links: { href: '/links', groupId: 'core' },
+  tools: { href: '/tools', groupId: 'core' },
+  osu: { href: '/osu', groupId: 'around' },
+  portfolio: { href: '/portfolio', groupId: 'around' },
+} as const satisfies Record<
+  string,
+  { href: string; groupId: PublicRouteGroupId }
+>
 
 export const PUBLIC_ROUTE_GROUPS = [
-  {
-    id: 'core',
-    routeIds: ['blog', 'scraps', 'notes', 'tools', 'portfolio', 'links'],
-  },
-  {
-    id: 'around',
-    routeIds: ['recommendations', 'pointers', 'puzzles', 'archives'],
-  },
-] as const satisfies readonly PublicRouteGroup[]
+  { id: 'core', routeIds: ['blog', 'notes', 'scraps', 'links', 'tools'] },
+  { id: 'around', routeIds: ['osu', 'portfolio'] },
+] as const satisfies readonly {
+  id: PublicRouteGroupId
+  routeIds: readonly PublicRouteId[]
+}[]
 
 export const PRIMARY_NAV_ROUTE_IDS = [
   'blog',
-  'scraps',
   'notes',
-  'tools',
+  'scraps',
   'links',
+  'tools',
+  'osu',
   'portfolio',
 ] as const satisfies readonly PublicRouteId[]
 

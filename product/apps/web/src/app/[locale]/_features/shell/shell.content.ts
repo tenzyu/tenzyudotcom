@@ -13,6 +13,7 @@ const shellContent = {
       en: 'Primary navigation',
     }),
     primaryNav: {
+      osu: t({ ja: 'osu!', en: 'osu!' }),
       blog: t({
         ja: 'ブログ',
         en: 'Blog',

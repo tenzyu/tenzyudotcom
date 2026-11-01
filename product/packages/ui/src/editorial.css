@@ -1,0 +1,169 @@
+.tz-site {
+  --background: #f6f3ed;
+  --foreground: #282722;
+  --card: #faf8f3;
+  --card-foreground: var(--foreground);
+  --popover: var(--card);
+  --popover-foreground: var(--foreground);
+  --primary: #78503c;
+  --primary-foreground: #fffaf3;
+  --secondary: #eae5dc;
+  --secondary-foreground: var(--foreground);
+  --muted: #ede9e1;
+  --muted-foreground: #68645c;
+  --accent: #e9ded1;
+  --accent-foreground: #593b2c;
+  --border: #d8d1c5;
+  --input: var(--border);
+  --ring: #93684e;
+  --tz-font-sans:
+    var(--font-geist-sans, 'Noto Sans Variable'), 'Hiragino Sans', 'Yu Gothic',
+    sans-serif;
+  --tz-font-serif: Georgia, var(--font-noto-serif-jp, 'Yu Mincho'), serif;
+  --tz-font-mono: var(--font-geist-mono, ui-monospace), monospace;
+  --tz-container-xs: 28rem;
+  --tz-container-sm: 36rem;
+  --tz-container-md: 46rem;
+  --tz-container-lg: 60rem;
+  --tz-container-xl: 72rem;
+  --tz-container-2xl: 80rem;
+  --tz-page-padding-x: clamp(1.25rem, 4vw, 3rem);
+  --tz-page-padding-y: clamp(2.5rem, 6vw, 5rem);
+  --tz-gap-section: clamp(3rem, 6vw, 5rem);
+  --tz-grid-gutter: 1.5rem;
+  --tz-card-padding: clamp(1.25rem, 3vw, 2rem);
+  --tz-leading-heading: 1.3;
+  --tz-leading-readable: 1.9;
+  --tz-leading-comfort: 1.8;
+  --tz-leading-compact: 1.5;
+  min-height: 100dvh;
+  min-width: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--tz-font-sans);
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+
+.dark .tz-site,
+.tz-site.dark {
+  --background: #201f1c;
+  --foreground: #e9e4da;
+  --card: #25241f;
+  --primary: #d3a789;
+  --primary-foreground: #211d18;
+  --secondary: #34312b;
+  --muted: #2b2924;
+  --muted-foreground: #b1aa9e;
+  --accent: #3a3028;
+  --accent-foreground: #edc8ad;
+  --border: #454037;
+  --ring: #d3a789;
+}
+
+.tz-site .font-sans {
+  font-family: var(--tz-font-sans);
+}
+.tz-site .font-serif {
+  font-family: var(--tz-font-serif);
+}
+.tz-site .font-mono {
+  font-family: var(--tz-font-mono);
+}
+.tz-site :focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 4px;
+}
+.tz-site a {
+  text-underline-offset: 0.25em;
+}
+
+@layer components {
+  .tz-site .tz-reading-column {
+    width: 100%;
+    max-width: var(--tz-container-md);
+    min-width: 0;
+    margin-inline: auto;
+  }
+
+  .tz-site .tz-page-intro {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1.5rem 2rem;
+    border-bottom: 1px solid var(--border);
+    padding-block: 1rem 2.5rem;
+  }
+  .tz-site .tz-page-intro-copy {
+    flex: 1 1 20rem;
+    min-width: 0;
+  }
+  .tz-site .tz-eyebrow {
+    margin-bottom: 1rem;
+    color: var(--primary);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .tz-site .tz-page-title {
+    font-family: var(--tz-font-serif);
+    font-size: clamp(2.25rem, 5vw, 4rem);
+    font-weight: 500;
+    line-height: 1.3;
+    letter-spacing: -0.035em;
+    text-wrap: balance;
+  }
+  .tz-site .tz-page-description {
+    max-width: 42rem;
+    margin-top: 1.25rem;
+    color: var(--muted-foreground);
+    font-size: clamp(1rem, 2vw, 1.125rem);
+    line-height: 1.9;
+  }
+  .tz-site .tz-page-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .tz-site .tz-editorial-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .tz-site .tz-editorial-entry {
+    min-width: 0;
+    padding-block: 1.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .tz-site .tz-editorial-entry:first-child {
+    border-top: 1px solid var(--border);
+  }
+  .tz-site .tz-editorial-entry + .tz-editorial-entry {
+    border-top: 0;
+  }
+  .tz-site .tz-editor-panel {
+    min-width: 0;
+    padding: clamp(1rem, 3vw, 2rem);
+    border: 1px solid var(--border);
+    background: var(--card);
+  }
+  .tz-site .tz-editor-panel-header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .tz-site .tz-editor-panel-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+  }
+  .tz-site .tz-editor-panel-description {
+    margin-top: 0.25rem;
+    color: var(--muted-foreground);
+    font-size: 0.875rem;
+  }
+}

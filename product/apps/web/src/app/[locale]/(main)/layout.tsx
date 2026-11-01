@@ -1,4 +1,3 @@
-import { SkipLink } from '@/components/site/skip-link'
 import { Stack } from '@/components/site/stack'
 import { Content } from '@/components/site/content'
 
@@ -8,16 +7,10 @@ export default function MainLayout({
   children: React.ReactNode
 }>) {
   return (
-    <>
-      <SkipLink href="#main-content" />
-      <main
-        id="main-content"
-        className="px-(--tz-page-padding-x) py-(--tz-page-padding-y)"
-      >
-        <Content size="md">
-          <Stack gap="xl">{children}</Stack>
-        </Content>
-      </main>
-    </>
+    <div className="py-(--tz-page-padding-y)">
+      <Content size="md">
+        <Stack gap="xl">{children}</Stack>
+      </Content>
+    </div>
   )
 }

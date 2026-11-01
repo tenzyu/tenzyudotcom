@@ -146,24 +146,24 @@ export function NoteFeedItem({
       className={cn(
         'relative',
         note.showBottomBorder && 'border-b border-border/60',
-        'px-4 py-4 sm:px-6'
+        'py-6',
       )}
     >
-      <div className="grid grid-cols-[56px_minmax(0,1fr)] gap-3">
+      <div className="grid grid-cols-[36px_minmax(0,1fr)] gap-3 sm:grid-cols-[44px_minmax(0,1fr)] sm:gap-4">
         <div className="relative flex justify-center">
           {note.hasConnectorAbove ? (
             <span
-              className="bg-border/70 absolute -top-4 left-1/2 h-4 w-px -translate-x-1/2"
+              className="bg-border/70 absolute -top-6 left-1/2 h-6 w-px -translate-x-1/2"
               aria-hidden="true"
             />
           ) : null}
           {note.hasConnectorBelow ? (
             <span
-              className="bg-border/70 absolute top-11 -bottom-4 left-1/2 w-px -translate-x-1/2"
+              className="bg-border/70 absolute top-9 -bottom-6 left-1/2 w-px -translate-x-1/2 sm:top-11"
               aria-hidden="true"
             />
           ) : null}
-          <Avatar className="relative z-10 size-11 border border-border/60">
+          <Avatar className="relative z-10 size-9 border border-border/60 sm:size-11">
             <AvatarImage src="/images/ltvgbz.jpg" alt="tenzyu" />
             <AvatarFallback>TN</AvatarFallback>
           </Avatar>
@@ -192,8 +192,8 @@ export function NoteFeedItem({
           <div className={cn('mt-1', isDetailFocus && 'space-y-3')}>
             <p
               className={cn(
-                'whitespace-pre-wrap text-[15px] leading-7',
-                isDetailFocus && 'text-[1.65rem] leading-[1.45] tracking-tight'
+                'whitespace-pre-wrap text-base leading-8',
+                isDetailFocus && 'text-xl leading-9 sm:text-2xl',
               )}
             >
               {note.body}
@@ -210,7 +210,7 @@ export function NoteFeedItem({
                       month: 'short',
                       day: 'numeric',
                       year: 'numeric',
-                    }
+                    },
                   ).format(new Date(note.createdAt))}
                 </time>
               </div>
@@ -218,7 +218,7 @@ export function NoteFeedItem({
 
             <div
               className={cn(
-                'text-muted-foreground mt-3 flex items-center gap-1'
+                'text-muted-foreground mt-3 flex items-center gap-1',
               )}
             >
               <AdminGate>

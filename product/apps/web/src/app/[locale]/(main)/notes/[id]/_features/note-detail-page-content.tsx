@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { getLocalizedUrl } from 'intlayer'
+import { ReadingColumn } from '@tenzyu/ui/editorial'
 import { NoteFeedItem } from '../../_features/note-feed-item'
 
 type NoteDetailPageContentProps = {
@@ -25,13 +26,13 @@ function getUiText(locale: string) {
   if (locale === 'ja') {
     return {
       back: 'ノート一覧へ戻る',
-      title: 'Post',
+      title: 'ノート',
     }
   }
 
   return {
     back: 'Back to notes',
-    title: 'Post',
+    title: 'Note',
   }
 }
 
@@ -44,8 +45,8 @@ export function NoteDetailPageContent({
   const text = getUiText(locale)
 
   return (
-    <div className="overflow-hidden rounded-3xl border border-border/60">
-      <div className="bg-card/80 border-b border-border/60 px-4 py-3 sm:px-6">
+    <ReadingColumn>
+      <div className="border-b border-border py-4">
         <div className="flex items-center gap-3">
           <Link
             href={getLocalizedUrl('/notes', locale)}
@@ -55,18 +56,18 @@ export function NoteDetailPageContent({
             <ArrowLeft className="size-5" />
           </Link>
           <div>
-            <p className="text-base font-semibold">{text.title}</p>
+            <h1 className="font-serif text-2xl">{text.title}</h1>
           </div>
         </div>
       </div>
 
-      <div className="bg-card">
+      <div>
         {ancestors.map((entry) => (
           <NoteFeedItem
             key={entry.id}
             locale={locale}
             note={entry}
-            authorName="夢"
+            authorName="tenzyu"
             authorHandle="@tenzyu.com"
             variant="detail-thread"
           />
@@ -75,7 +76,7 @@ export function NoteDetailPageContent({
         <NoteFeedItem
           locale={locale}
           note={note}
-          authorName="夢"
+          authorName="tenzyu"
           authorHandle="@tenzyu.com"
           variant="detail-focus"
         />
@@ -85,12 +86,12 @@ export function NoteDetailPageContent({
             key={entry.id}
             locale={locale}
             note={entry}
-            authorName="夢"
+            authorName="tenzyu"
             authorHandle="@tenzyu.com"
             variant="detail-thread"
           />
         ))}
       </div>
-    </div>
+    </ReadingColumn>
   )
 }

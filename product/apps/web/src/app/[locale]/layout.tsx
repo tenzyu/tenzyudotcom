@@ -15,6 +15,7 @@ import { Footer } from '@/app/[locale]/_features/shell/footer'
 import { Header } from '@/app/[locale]/_features/shell/header'
 import { ThemeProvider } from '@/app/[locale]/_features/shell/theme-provider'
 import { Toaster } from '@tenzyu/ui/sonner'
+import { SiteFrame } from '@tenzyu/ui/editorial'
 import { TooltipProvider } from '@tenzyu/ui/tooltip'
 import { shouldLoadReactGrabOverlay } from '@/config/env.assemble'
 import { buildSiteMetadata } from './_features/site-metadata'
@@ -35,7 +36,7 @@ const geistMono = Geist_Mono({
 const notoSerifJp = Noto_Serif_JP({
   variable: '--font-noto-serif-jp',
   subsets: ['latin'],
-  fallback: ['Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'sans-serif'],
+  fallback: ['Hiragino Mincho ProN', 'Yu Mincho', 'serif'],
 })
 
 export async function generateMetadata({
@@ -88,7 +89,7 @@ const LocaleLayout: NextLayoutIntlayer = async ({ children, params }) => {
             enableSystem
             disableTransitionOnChange
           >
-            <div className="flex min-h-screen flex-col">
+            <SiteFrame className="flex min-h-screen flex-col">
               <TooltipProvider>
                 <a
                   href="#main-content"
@@ -100,12 +101,11 @@ const LocaleLayout: NextLayoutIntlayer = async ({ children, params }) => {
                 <main
                   id="main-content"
                   tabIndex={-1}
-                  className="-mb-16 grow -translate-y-16 transform scroll-mt-20 pt-16 focus:outline-none"
+                  className="min-w-0 grow scroll-mt-6 focus:outline-none"
                 >
                   <Container>
                     <BreadcrumbNav />
                     {children}
-                    <BreadcrumbNav />
                   </Container>
                 </main>
                 <Toaster />
@@ -113,7 +113,7 @@ const LocaleLayout: NextLayoutIntlayer = async ({ children, params }) => {
                 <Analytics />
                 <SpeedInsights />
               </TooltipProvider>
-            </div>
+            </SiteFrame>
           </ThemeProvider>
         </body>
       </IntlayerClientProvider>
