@@ -26,8 +26,8 @@ const getOsuApiCredentials = () => {
 }
 
 export const createApi = cache(async () => {
+  const { clientId, clientSecret } = getOsuApiCredentials()
   try {
-    const { clientId, clientSecret } = getOsuApiCredentials()
     return await osu.API.createAsync(clientId, clientSecret)
   } catch (error) {
     console.error(error)

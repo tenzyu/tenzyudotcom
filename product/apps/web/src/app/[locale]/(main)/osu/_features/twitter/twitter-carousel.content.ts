@@ -3,6 +3,7 @@ import { type Dictionary, t } from 'intlayer'
 const twitterCarouselContent = {
   key: 'twitterCarousel',
   content: {
+    viewPost: t({ ja: 'Xで投稿を見る', en: 'View post on X' }),
     previous: t({
       ja: '前のスライド',
       en: 'Previous slide',

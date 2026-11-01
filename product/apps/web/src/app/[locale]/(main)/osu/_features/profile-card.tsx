@@ -83,6 +83,7 @@ function SocialButton({
 
   return (
     <Button
+      nativeButton={false}
       variant="outline"
       className="flex w-full items-center justify-center gap-2"
       render={

@@ -1,5 +1,4 @@
 import { Content } from '@/components/site/content'
-import { SkipLink } from '@/components/site/skip-link'
 import { Stack } from '@/components/site/stack'
 
 export default function AdminLayout({
@@ -8,16 +7,10 @@ export default function AdminLayout({
   children: React.ReactNode
 }>) {
   return (
-    <>
-      <SkipLink href="#main-content" />
-      <main
-        id="main-content"
-        className="px-(--tz-page-padding-x) py-(--tz-page-padding-y)"
-      >
-        <Content size="lg">
-          <Stack gap="xl">{children}</Stack>
-        </Content>
-      </main>
-    </>
+    <section className="px-(--tz-page-padding-x) py-(--tz-page-padding-y)">
+      <Content size="lg">
+        <Stack gap="xl">{children}</Stack>
+      </Content>
+    </section>
   )
 }

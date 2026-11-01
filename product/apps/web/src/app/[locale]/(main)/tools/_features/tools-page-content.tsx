@@ -78,6 +78,7 @@ export function ToolsPageContent({ locale }: { locale: string }) {
                   {tool.note}
                 </OtakuAside>
                 <Button
+                  nativeButton={false}
                   variant="outline"
                   size="sm"
                   className="w-full justify-center"
@@ -101,6 +102,7 @@ export function ToolsPageContent({ locale }: { locale: string }) {
           </p>
           <KoFiLink label={content.support.supportLabel.value} />
           <Button
+            nativeButton={false}
             variant="ghost"
             size="sm"
             render={

@@ -44,6 +44,7 @@ export function AboutMeSection() {
 
               return (
                 <Button
+                  nativeButton={false}
                   key={link.id}
                   variant="ghost"
                   className="text-primary h-auto px-0 hover:bg-transparent hover:underline"

@@ -56,6 +56,7 @@ export function ProjectsSection() {
                 <div className="flex flex-wrap gap-4 text-sm font-medium">
                   {project.github ? (
                     <Button
+                      nativeButton={false}
                       variant="ghost"
                       className="text-primary h-auto px-0 hover:bg-transparent hover:underline"
                       render={
@@ -67,6 +68,7 @@ export function ProjectsSection() {
                   ) : null}
                   {project.demo ? (
                     <Button
+                      nativeButton={false}
                       variant="ghost"
                       className="text-primary h-auto px-0 hover:bg-transparent hover:underline"
                       render={

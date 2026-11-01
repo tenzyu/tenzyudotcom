@@ -1,21 +1,33 @@
 import { describe, expect, test } from 'bun:test'
 import { loadLiveOsuData } from './live-data'
+import { OsuAPIError } from './utils'
 
 describe('live osu data availability', () => {
   test('reports missing credentials as unavailable without throwing into the page', async () => {
     const result = await loadLiveOsuData(async () => {
-      throw new Error('Missing osu credentials')
+      throw new OsuAPIError(
+        'Missing osu credentials',
+        500,
+        'OSU_API_CREDENTIALS_MISSING',
+      )
     })
     expect(result).toEqual({ status: 'unavailable' })
     expect(result).not.toHaveProperty('data')
   })
 
-  test('reports a rejected API request as unavailable without fabricated scores', async () => {
-    const result = await loadLiveOsuData(() =>
-      Promise.reject(new Error('API offline'))
+  test('keeps configured API failures visible instead of treating them as missing credentials', async () => {
+    const error = new OsuAPIError(
+      'Invalid OAuth credentials',
+      401,
+      'OSU_API_INITIALIZATION_ERROR',
     )
-    expect(result).toEqual({ status: 'unavailable' })
-    expect(result).not.toHaveProperty('data')
+    await expect(loadLiveOsuData(() => Promise.reject(error))).rejects.toBe(
+      error,
+    )
+    const unexpected = new Error('API offline')
+    await expect(
+      loadLiveOsuData(() => Promise.reject(unexpected)),
+    ).rejects.toBe(unexpected)
   })
 
   test('returns the configured loader result without substituting current values', async () => {

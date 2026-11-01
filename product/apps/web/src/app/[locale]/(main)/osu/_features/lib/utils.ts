@@ -12,6 +12,12 @@ export class OsuAPIError extends Error {
 }
 
 export const handleOsuAPIError = (error: unknown): never => {
+  if (
+    error instanceof OsuAPIError &&
+    error.code === 'OSU_API_CREDENTIALS_MISSING'
+  ) {
+    throw error
+  }
   console.error('osu! API Error:', error)
   if (error instanceof OsuAPIError) {
     throw error

@@ -1,18 +1,4 @@
-import { describe, expect, mock, test } from 'bun:test'
-
-mock.module('intlayer', () => ({
-  getIntlayer: () => ({
-    title: {
-      default: 'tenzyu.com',
-    },
-    shareTitle: 'share title',
-    description: 'site description',
-  }),
-  getMultilingualUrls: () => ({
-    en: '/en',
-    ja: '/ja',
-  }),
-}))
+import { describe, expect, test } from 'bun:test'
 
 const { buildSiteStructuredData } = await import('./site-structured-data')
 

@@ -5,8 +5,20 @@ export function proxy(request: NextRequest) {
   const response = intlayerProxy(request)
   const pathname = request.nextUrl.pathname
 
+  const rewrite = response.headers.get('x-middleware-rewrite')
+  if (rewrite) {
+    const target = new URL(rewrite)
+    if (target.pathname !== '/') {
+      target.pathname = target.pathname.replace(/\/$/, '')
+    }
+    response.headers.set('x-middleware-rewrite', target.href)
+  }
+
   if (pathname === '/ja' || pathname.startsWith('/ja/')) {
-    response.cookies.set('INTLAYER_LOCALE', 'ja', { path: '/', sameSite: 'lax' })
+    response.cookies.set('INTLAYER_LOCALE', 'ja', {
+      path: '/',
+      sameSite: 'lax',
+    })
   }
 
   return response

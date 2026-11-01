@@ -1,10 +1,8 @@
 'use client'
-// NOTE: なんかハイドレーション失敗するので
-// REF: https://chatgpt.com/share/67facaea-bc84-8004-8f02-e99faa5f83e4
 
 import Image from 'next/image'
-import { lazy, Suspense } from 'react'
-import type { TwitterComponents } from 'react-tweet'
+import { EmbeddedTweet, type TwitterComponents } from 'react-tweet'
+import type { Tweet } from 'react-tweet/api'
 
 import {
   Carousel,
@@ -13,14 +11,6 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from '@tenzyu/ui/carousel'
-import { Skeleton } from '@tenzyu/ui/skeleton'
-
-import type { TweetData } from '../twitter.source'
-
-const Tweet = lazy(async () => {
-  const module = await import('react-tweet')
-  return { default: module.Tweet }
-})
 
 const twitterComponents: TwitterComponents = {
   AvatarImg: (props) => <Image {...props} loading="lazy" quality={75} alt="" />,
@@ -37,21 +27,33 @@ const twitterComponents: TwitterComponents = {
   ),
 }
 
-function TweetItem({ tweet }: { tweet: TweetData }) {
-  return (
-    <Suspense fallback={<Skeleton className="h-75 w-full rounded-lg" />}>
-      <Tweet id={tweet.id} components={twitterComponents} />
-    </Suspense>
+function TweetItem({
+  id,
+  tweet,
+  viewPostLabel,
+}: {
+  id: string
+  tweet: Tweet | null
+  viewPostLabel: string
+}) {
+  return tweet ? (
+    <EmbeddedTweet tweet={tweet} components={twitterComponents} />
+  ) : (
+    <a href={`https://x.com/i/status/${id}`}>{viewPostLabel}</a>
   )
 }
 
 type TwitterCarouselClientProps = {
-  tweets: TweetData[]
+  tweets: { id: string; tweet: Tweet | null }[]
+  viewPostLabel: string
   previousLabel: string
   nextLabel: string
 }
 
-export function TwitterCarouselClient({ tweets }: TwitterCarouselClientProps) {
+export function TwitterCarouselClient({
+  tweets,
+  viewPostLabel,
+}: TwitterCarouselClientProps) {
   return (
     <Carousel
       opts={{
@@ -66,7 +68,11 @@ export function TwitterCarouselClient({ tweets }: TwitterCarouselClientProps) {
             key={tweet.id}
             className="select-none md:basis-1/2 lg:basis-1/2"
           >
-            <TweetItem tweet={tweet} />
+            <TweetItem
+              id={tweet.id}
+              tweet={tweet.tweet}
+              viewPostLabel={viewPostLabel}
+            />
           </CarouselItem>
         ))}
       </CarouselContent>

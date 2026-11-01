@@ -29,6 +29,7 @@ const errors = spyOn(console, 'error').mockImplementation(() => {})
 afterAll(() => errors.mockRestore())
 
 test('missing credentials never authenticate or substitute a profile or scores', async () => {
+  errors.mockClear()
   expect(await loadLiveOsuData(() => getUser(ID_OSU))).toEqual({
     status: 'unavailable',
   })
@@ -39,13 +40,14 @@ test('missing credentials never authenticate or substitute a profile or scores',
         'best',
         0,
         { lazer: true },
-        { limit: DEFAULT_SCORE_LIMIT }
-      )
-    )
+        { limit: DEFAULT_SCORE_LIMIT },
+      ),
+    ),
   ).toEqual({ status: 'unavailable' })
   expect(authenticate).not.toHaveBeenCalled()
   expect(getUserRequest).not.toHaveBeenCalled()
   expect(getScoresRequest).not.toHaveBeenCalled()
+  expect(errors).not.toHaveBeenCalled()
 })
 
 test('configured credentials use the SDK and preserve the real account and score request', async () => {
@@ -57,8 +59,8 @@ test('configured credentials use the SDK and preserve the real account and score
       'best',
       0,
       { lazer: true },
-      { limit: DEFAULT_SCORE_LIMIT }
-    )
+      { limit: DEFAULT_SCORE_LIMIT },
+    ),
   )
 
   expect(authenticate).toHaveBeenCalledWith(1, 'test-only-sdk-boundary')
@@ -68,7 +70,7 @@ test('configured credentials use the SDK and preserve the real account and score
     'best',
     0,
     { lazer: true },
-    { limit: 5 }
+    { limit: 5 },
   )
   if (profile.status !== 'available' || scores.status !== 'available') {
     throw new Error('Configured API data was lost')
