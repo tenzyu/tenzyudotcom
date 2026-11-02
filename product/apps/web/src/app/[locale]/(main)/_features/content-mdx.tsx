@@ -202,7 +202,6 @@ export async function ContentMDX({
     console.error(`Error rendering MDX (scope=${scope}):`, error)
     return (
       <div className="border-destructive/50 bg-destructive/10 text-destructive rounded-md border p-4">
-        {/* TODO: i18n */}
         An error occurred while rendering the content.
       </div>
     )

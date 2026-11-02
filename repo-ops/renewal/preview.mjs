@@ -17,7 +17,6 @@ env.NEXT_TELEMETRY_DISABLED = '1';
 const server = spawn(process.execPath, [`${root}/node_modules/next/dist/bin/next`, 'dev', '--hostname', '127.0.0.1', '--port', '0'], {
   cwd: `${root}/product/apps/web`, env, detached: true, stdio: ['ignore', 'pipe', 'pipe'],
 });
-// Port 0 prevents attaching to an unrelated existing development server.
 let serverOutput = '';
 const { writeSync } = await import('node:fs');
 for (const stream of [server.stdout, server.stderr]) stream.on('data', (data) => {
