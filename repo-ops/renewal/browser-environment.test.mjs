@@ -22,7 +22,7 @@ test('public server inherits only runtime parameters, never credentials or execu
   assert.equal(JSON.stringify(env).includes(source.PROVIDER_API_KEY), false);
 });
 
-test('completed public run retains all ten outcomes without the provider sentinel', {
+test('completed public run retains all 32 outcomes without the provider sentinel', {
   skip: !process.env.PLAYWRIGHT_SENTINEL_REPORT,
 }, () => {
   const raw = readFileSync(process.env.PLAYWRIGHT_SENTINEL_REPORT, 'utf8');
@@ -30,7 +30,7 @@ test('completed public run retains all ten outcomes without the provider sentine
   const report = JSON.parse(raw);
   assert.equal(Object.hasOwn(report.config.webServer.env, 'PROVIDER_API_KEY'), false);
   const { expected, unexpected, flaky, skipped } = report.stats;
-  assert.equal(expected + unexpected + flaky + skipped, 10);
+  assert.equal(expected + unexpected + flaky + skipped, 32);
   assert.equal(skipped, 0);
 });
 

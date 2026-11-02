@@ -105,11 +105,11 @@ async function expectNoHorizontalOverflow(page: Page) {
 	});
 }
 
-test("retained routes load in default Japanese and explicit English", async ({
-	page,
-}) => {
-	for (const route of retainedRoutes) {
-		for (const localizedRoute of [route, `/en${route}`]) {
+for (const route of retainedRoutes) {
+	for (const localizedRoute of [route, `/en${route}`]) {
+		test(`retained route ${localizedRoute} loads in ${localizedRoute.startsWith("/en/") ? "explicit English" : "default Japanese"}`, async ({
+			page,
+		}) => {
 			const response = await page.goto(localizedRoute, {
 				waitUntil: "networkidle",
 			});
@@ -120,9 +120,9 @@ test("retained routes load in default Japanese and explicit English", async ({
 				localizedRoute.startsWith("/en/") ? "en" : "ja",
 			);
 			await expectNoHorizontalOverflow(page);
-		}
+		});
 	}
-});
+}
 
 test("primary navigation exposes retained destinations and follows a link", async ({
 	page,
