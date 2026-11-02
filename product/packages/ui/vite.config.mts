@@ -52,7 +52,7 @@ export default defineConfig(() => ({
     tailwindcss(),
     nxViteTsPaths(),
     nxCopyAssetsPlugin(['*.md']),
-    dts({
+    process.env.STORYBOOK !== 'true' && dts({
       entryRoot: 'src',
       outDirs: [outDir],
       tsconfigPath: path.join(projectRoot, 'tsconfig.lib.json'),

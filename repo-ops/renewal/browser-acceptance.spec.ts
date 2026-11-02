@@ -137,6 +137,16 @@ test("primary navigation exposes retained destinations and follows a link", asyn
 	await expectNoHorizontalOverflow(page);
 });
 
+test("language selector changes and retains the selected locale", async ({ page }) => {
+	await page.goto("/en/portfolio", { waitUntil: "networkidle" });
+	await page.getByRole("button", { name: /change language/i }).click();
+	await page.getByRole("menuitem", { name: "日本語" }).click();
+	await expect.poll(() => new URL(page.url()).pathname).toBe("/portfolio");
+	await expect(page.locator("html")).toHaveAttribute("lang", "ja");
+	await page.reload({ waitUntil: "networkidle" });
+	await expect(page.locator("html")).toHaveAttribute("lang", "ja");
+});
+
 test("osu settings start current and retain historical tablet and keypad details", async ({
 	page,
 }) => {
@@ -154,6 +164,13 @@ test("osu settings start current and retain historical tablet and keypad details
 	await expect(page.getByRole("region", { name: "Tablet" })).toBeVisible();
 	await expect(page.getByRole("region", { name: "Keyboard" })).toBeVisible();
 	await expectNoHorizontalOverflow(page);
+});
+
+test("osu contents navigation is localized", async ({ page }) => {
+	await page.goto("/osu", { waitUntil: "networkidle" });
+	await expect(page.getByRole("navigation", { name: "目次" })).toBeVisible();
+	await page.goto("/en/osu", { waitUntil: "networkidle" });
+	await expect(page.getByRole("navigation", { name: "Table of Contents" })).toBeVisible();
 });
 
 test("retired routes return not found", async ({ page }) => {

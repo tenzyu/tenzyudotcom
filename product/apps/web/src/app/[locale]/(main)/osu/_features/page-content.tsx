@@ -78,7 +78,7 @@ export function OsuProfileContent() {
         <ProfileCard />
       </Section>
 
-      <TableOfContents sections={tocSections} />
+      <TableOfContents title={content.tableOfContents.value} sections={tocSections} />
 
       <OsuSection
         className="w-full"

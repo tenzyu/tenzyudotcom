@@ -8,10 +8,11 @@ export type TocSection = {
 }
 
 type TableOfContentsProps = {
+  title: string
   sections: TocSection[]
 }
 
-export const TableOfContents = ({ sections }: TableOfContentsProps) => {
+export const TableOfContents = ({ title, sections }: TableOfContentsProps) => {
   if (sections.length === 0) {
     return null
   }
@@ -20,10 +21,10 @@ export const TableOfContents = ({ sections }: TableOfContentsProps) => {
     <Content size="xs">
       <Card className="text-center">
         <CardHeader>
-          <CardTitle className="text-lg">Table of Contents</CardTitle>
+          <CardTitle className="text-lg">{title}</CardTitle>
         </CardHeader>
         <CardContent>
-          <nav aria-label="Table of contents">
+          <nav aria-label={title}>
             <ul className="space-y-2">
               {sections.map((section) => (
                 <li key={section.id}>

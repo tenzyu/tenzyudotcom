@@ -40,13 +40,7 @@ export function LanguageSwitcher() {
             disabled={localeItem === locale}
             className={localeItem === locale ? 'bg-muted' : ''}
             aria-current={localeItem === locale ? 'page' : undefined}
-            onSelect={(event) => {
-              event.preventDefault()
-
-              if (localeItem === locale) {
-                return
-              }
-
+            onClick={() => {
               startTransition(() => {
                 setLocale(localeItem)
               })

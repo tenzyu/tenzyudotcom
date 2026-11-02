@@ -21,6 +21,10 @@ const osuProfilePageContent = {
       ja: 'リンク集を現在取得できません。osu!とTwitchのプロフィールリンクは上部に掲載しています。',
       en: 'The link collection is currently unavailable. The osu! and Twitch profile links are listed above.',
     }),
+    tableOfContents: t({
+      ja: '目次',
+      en: 'Table of Contents',
+    }),
     sections: {
       osuBestScores: t({
         ja: 'ベストパフォーマンス',
