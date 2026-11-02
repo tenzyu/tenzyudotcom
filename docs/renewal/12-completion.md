@@ -62,7 +62,7 @@ correctness reviewerはOpenAI GPT-6.1 Sol系統の独立context。異なるモ�
 |`feat-10y10m` の初回実装、revert、reapply|現在は後継のmodular dot-typeが存在する。古い単一pageへ戻さない|
 |`feat/doc-linter-improvement` の `a20325fe`|旧 `GEMINI.md` のworkflow指示。退役した仕組みを再導入しない|
 
-整理対象branchは外部bundleの元refから復元できる。初回bundleは `git bundle verify` で完全な履歴を検証した。削除直前にも新しいbundleを検証する。既存stashもbundleとGit metadataに保存し、無関係な差分を今回の製品へ混ぜない。
+整理対象branchは外部bundleの元refから復元できる。初回bundleと削除直前の `pre-deletion.bundle` は `git bundle verify` で完全な履歴を検証した。既存stashもbundleとGit metadataに保存し、無関係な差分を今回の製品へ混ぜなかった。
 
 元の失敗証拠 `browser-evidence-actual` と `browser-evidence-skill`、後続の修正・実API・browser証拠は `prior-browser-evidence.tar` に保存した。旧レポートに親環境の資格情報が含まれていたため、環境全体のシリアライズを廃止し、JSONから該当値を除去した。ZIPは既知の値とcredential fieldを検査した。status文字列のみを持つ実API結果は別ファイルで保持する。
 
@@ -70,6 +70,6 @@ correctness reviewerはOpenAI GPT-6.1 Sol系統の独立context。異なるモ�
 
 ## 統合後の状態
 
-最終状態は `consolidation.json` に記録する。ローカルbranchはmainとdevelop、登録worktreeは元の一つ、追跡・未追跡の未処理変更はなしを完了条件とする。mainの公開履歴とremoteの変更は本記録の対象ではない。
+必要な実装と検証記録を `1e85aca1` としてローカルdevelopへfast-forward統合した。2026-11-02 03:07:51 UTCの確認で、ローカルbranchはmainとdevelop、登録worktreeは元の一つ、追跡・未追跡の未処理変更はなし。不要な19branchと9 linked worktreeを整理した。結果は `consolidation.json` と基準ディレクトリの `cleanup-result.json` に記録した。本記録を確定する後続commitは製品runtimeを変更しない。
 
 添付briefとZIP、旧goal pluginのローカル状態は基準ディレクトリの `recovered-local-files/` へ移して保持する。生成されたplugin状態とPython cacheはGit管理から除外する。compaction設定の追加は取り消し、`opencode.json` に今回の差分はない。

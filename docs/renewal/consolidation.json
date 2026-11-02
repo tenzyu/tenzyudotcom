@@ -1,0 +1,16 @@
+{
+  "checkedAt": "2026-11-02T03:07:51.369Z",
+  "integrationHead": "1e85aca1675e80808e76d5949d72d23d86f838b3",
+  "verifiedProductRevision": "77b05583e72e618b8266417673c378479d687402",
+  "verifiedBrowserRevision": "bf75057de11349146ba2fbd93106a9f0bf05f5ce",
+  "localBranches": ["develop", "main"],
+  "currentBranch": "develop",
+  "registeredWorktrees": 1,
+  "workingTreeCleanAtCleanup": true,
+  "deletedLocalBranches": 19,
+  "removedLinkedWorktrees": 9,
+  "unresolvedActiveItems": [],
+  "preservationManifest": "../tenzyudotcom-renewal-safety-20261101/final-20261102/final-preservation/manifest.json",
+  "preDeletionBundle": "../tenzyudotcom-renewal-safety-20261101/final-20261102/pre-deletion.bundle",
+  "cleanupEvidence": "../tenzyudotcom-renewal-safety-20261101/final-20261102/cleanup-result.json"
+}
