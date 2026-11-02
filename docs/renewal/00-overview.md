@@ -1,5 +1,7 @@
 # tenzyudotcom renewal — Phase 0 / 1
 
+この文書は2026-10-29の観測記録。承認後の実装と最終検証は [12-completion.md](12-completion.md) を参照する。以下の未承認・未着手は観測当時の状態。
+
 観測日: 2026-10-29。依頼の正本: 添付 `ASTRA_BRIEF.md`。ZIP 内の同名文書も確認した。
 
 ## 現在の到達点

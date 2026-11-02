@@ -30,3 +30,7 @@ Workers have separate worktrees and commit only their assigned files. The coordi
 Four independently owned units run in parallel. The coordinator owns integration, dependency and runtime verification. Work is kept or corrected according to actual checks rather than generated file counts. No token savings or speedup is claimed. Large unknowns are live API availability and remote storage credentials. Neither permits silently replacing failed reads with fabricated current data.
 
 Current backup is outside Git at `../tenzyudotcom-renewal-safety-20261101/`. Restore comparison verified contents and permissions, with group differences reported separately. The archive captured a changing Git metadata directory during observation; working files and prior complete backup remain independently preserved.
+
+## Closure instructions received on 2026-11-02
+
+Finish the active work, integrate the necessary local branches into develop, and leave only main and develop as local branches. Remove Home's private-account selfie Tweet implementation. Keep the public osu account's Tweets working. Use the existing product `.env.local` credentials privately for read-only verification. Do not change compaction configuration. Record implementation evidence and branch preservation in `docs/renewal/12-completion.md`.

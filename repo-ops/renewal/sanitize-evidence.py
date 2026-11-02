@@ -82,7 +82,6 @@ def main():
             documents.append((path, raw, json.loads(raw)))
         elif path.suffix.lower() == '.zip':
             archives.append(path)
-    # Collect first so copies in unrelated JSON string fields are also removed.
     secrets = set()
     if args.check_synthetic_sentinel:
         secrets.add('evidence-sentinel-never-store')
@@ -101,7 +100,6 @@ def main():
                     continue
                 raw = archive.read(entry)
                 hits += sum(raw.count(secret.encode()) for secret in secrets)
-                # Playwright traces are JSONL, with other metadata in JSON.
                 try:
                     text = raw.decode('utf-8')
                 except UnicodeDecodeError:
@@ -122,8 +120,6 @@ def main():
         remaining += int(hits > 0)
         print(json.dumps({'path': str(path), 'secretKeys': sorted(keys),
                           'hitCount': hits, 'archive': 'audit-only'}))
-    # Do not erase the source values needed to re-audit contaminated archives.
-    # Quarantine/regenerate those ZIPs before rerunning --redact on this root.
     blocked_by_archive = remaining > 0
     for path, raw, value in documents:
         fields = list(secret_fields(value))
@@ -150,6 +146,5 @@ if __name__ == '__main__':
     try:
         raise SystemExit(main())
     except Exception:
-        # Parser/IO errors can contain source text; never echo exception bodies.
         print(json.dumps({'error': 'Evidence could not be processed; no values disclosed'}))
         raise SystemExit(2)

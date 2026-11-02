@@ -6,6 +6,7 @@
 .claude
 .intlayer
 .ai-studio/
+.opencode/opencode-goal-plugin/
 .cursor/
 .worktrees/
 dist/
@@ -59,6 +60,7 @@ dist-ssr
 
 # typescript
 *.tsbuildinfo
+__pycache__/
 **/next-env.d.ts
 
 .nx/cache

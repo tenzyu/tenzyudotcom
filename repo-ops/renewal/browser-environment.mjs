@@ -1,4 +1,3 @@
-// Runtime-only: never put inherited environment values in Playwright's config.
 export function publicBrowserEnvironment(source = process.env) {
   const env = {};
   for (const key of [

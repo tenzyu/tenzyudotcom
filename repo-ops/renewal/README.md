@@ -33,6 +33,14 @@ Extract the archive into a new private directory with `tar -xpf` before comparin
 
 Keep archive contents, restore reports, raw logs, and secret configuration outside Git. Inspect the tar member list and check its hash before restoring a backup from another source. Never restore over the original worktree.
 
+Before consolidating local branches and removing linked worktrees, preserve their non-generated files and Git state:
+
+```sh
+node repo-ops/renewal/preserve-worktrees.mjs "$SOURCE_REPO" "$NEW_EXTERNAL_DIRECTORY"
+```
+
+The destination's parent must exist. The tool discovers registered worktrees, records their status, creates private tar archives, compares each archive with its source, verifies an all-refs Git bundle, and separately preserves common Git metadata. `manifest.json` records hashes and the generated-output exclusions. Archives can contain secret configuration and must stay private. Stop writers before capture. The tool does not delete worktrees or branches.
+
 ## Browser observations
 
 `preview.mjs` remains the exploratory probe described in `docs/renewal/07-browser-qa.md`. The acceptance suite uses Playwright Test 1.59.1 and Chromium at desktop 1440px and mobile 390px widths.

@@ -1,5 +1,7 @@
 # 合格状況と未検証
 
+以下は2026-10-29時点の初回結果。現在の合格状況と検証範囲は [12-completion.md](12-completion.md) を参照する。
+
 |段階|状態|証拠または不足|
 |---|---|---|
 |Phase 0 ローカル状態と退避|実施|Git refs・dirty state・ignored inventory・独立content repoを保全。tar復元照合|
