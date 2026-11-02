@@ -8,7 +8,7 @@ import {
   getScrapEntryContentTag,
   planScrapEntryRevalidation,
   planScrapManifestRevalidation,
-} from './scraps.revalidate.infra'
+} from './scraps-revalidation.assemble'
 
 describe('scrap revalidation tags', () => {
   test('index tag matches the canonical content-tag scheme', () => {

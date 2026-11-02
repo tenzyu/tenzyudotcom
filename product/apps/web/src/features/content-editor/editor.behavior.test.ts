@@ -11,7 +11,7 @@ for (const fixture of [
         [
           process.execPath,
           '--no-env-file',
-          new URL(`./fixtures/${fixture}`, import.meta.url).pathname,
+          new URL(`../../../tests/fixtures/${fixture}`, import.meta.url).pathname,
         ],
         {
           cwd: process.cwd(),

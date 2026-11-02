@@ -9,7 +9,7 @@ import {
   projectScrapIndexEntry,
   type ScrapIndexProjection,
   type ScrapManifest,
-} from './scraps.domain'
+} from '@/features/scraps/scraps.domain'
 
 function makeManifest(overrides: Partial<ScrapManifest> = {}): ScrapManifest {
   return {

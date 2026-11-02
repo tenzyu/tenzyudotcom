@@ -6,15 +6,13 @@ import {
   requireEditorSameOriginRequest,
 } from '@/features/editor-auth/editor-session'
 import { executeScrapEditorCommand } from '@/features/content-editor/scrap-editor.assemble'
-import {
-  type EditorMutationState,
-  ScrapEditorCommandSchema,
-} from '@/features/content-editor/scrap-editor.domain'
+import type { EditorMutationState } from '@/features/content-editor/scrap-editor.domain'
+import { ScrapEditorCommandSchema } from '@/features/content-editor/scrap-editor.validation'
 import { editorMutationFailure } from '@/features/content-editor/editor-mutation.domain'
 import {
   planScrapEntryRevalidation,
   planScrapManifestRevalidation,
-} from '@/app/[locale]/(main)/scraps/_features/scraps.revalidate.infra'
+} from './scraps-revalidation.assemble'
 
 export async function saveScrapAction(
   _previous: EditorMutationState,

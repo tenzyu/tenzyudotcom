@@ -20,7 +20,6 @@ import {
   type CollectionSaveState,
   editorMutationFailure,
 } from '@/features/content-editor/editor-mutation.domain'
-import { createContentVersion } from '@/lib/content-store/content-version.infra'
 import {
   clearEditorAdminSession,
   checkEditorLoginRateLimit,
@@ -166,7 +165,7 @@ export async function saveBlogPostAction(
       parsed.data.slug,
       frontmatter,
       parsed.data.body,
-      parsed.data.expectedVersion ?? createContentVersion(''),
+      parsed.data.expectedVersion,
     )
 
     revalidatePath(getLocalizedUrl('/blog', parsed.data.locale))

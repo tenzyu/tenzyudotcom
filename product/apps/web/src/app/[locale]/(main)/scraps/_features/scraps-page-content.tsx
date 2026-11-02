@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { getLocalizedUrl } from 'intlayer'
 import { AdminGate } from '@/app/[locale]/(main)/_features/admin/admin-gate'
 import { ScrapCard } from './scrap-card'
-import type { ScrapIndexEntry } from './scraps.domain'
+import type { ScrapIndexEntry } from '@/features/scraps/scraps.domain'
 
 type ScrapsPageContentProps = {
   locale: string

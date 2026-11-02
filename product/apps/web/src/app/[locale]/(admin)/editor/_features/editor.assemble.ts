@@ -1,4 +1,5 @@
 import { revalidatePath, revalidateTag } from 'next/cache'
+import { createContentVersion } from '@/lib/content-store/content-version.infra'
 import type { BlogFrontmatter } from '@/app/[locale]/(main)/blog/_features/blog.domain'
 import {
   loadBlogPostsState,
@@ -70,7 +71,7 @@ class SaveBlogPostUseCase {
     slug: string,
     frontmatter: BlogFrontmatter,
     body: string,
-    expectedVersion: string,
+    expectedVersion: string = createContentVersion(''),
   ) {
     await saveBlogPostState(slug, frontmatter, body, expectedVersion)
     revalidateTag(BLOG_INDEX_CONTENT_TAG, 'max')

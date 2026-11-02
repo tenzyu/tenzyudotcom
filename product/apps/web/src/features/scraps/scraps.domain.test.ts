@@ -18,7 +18,7 @@ import {
   parseScrapEntryMeta,
   parseScrapIndexProjection,
   parseScrapManifest,
-} from './scraps-parse.infra'
+} from './scraps.validation'
 
 const baseLeadJa: LocalizedDocumentRef = {
   locale: 'ja',

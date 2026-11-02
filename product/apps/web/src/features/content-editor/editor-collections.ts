@@ -1,6 +1,6 @@
 import type { MDXData } from '@/app/[locale]/(main)/blog/_features/blog.domain'
 import type { NoteSourceEntry } from '@/app/[locale]/(main)/notes/_features/notes.domain'
-import type { ScrapIndexEntry } from '@/app/[locale]/(main)/scraps/_features/scraps.domain'
+import type { ScrapIndexEntry } from '@/features/scraps/scraps.domain'
 import type { MyLink } from '@/features/links/links.domain'
 import type {
   RevalidatePathTarget,

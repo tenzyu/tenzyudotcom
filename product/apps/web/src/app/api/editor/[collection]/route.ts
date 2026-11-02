@@ -12,12 +12,8 @@ import {
   isWritableEditorCollectionId,
 } from '@/features/content-editor/editor-collections'
 import { StorageVersionConflictError } from '@/lib/content-store/content-store.domain'
-import { z, ZodError } from 'zod'
-
-const CollectionSavePayload = z.object({
-  sourceJson: z.string().trim().min(2),
-  expectedVersion: z.string().trim().min(1),
-})
+import { isEditorValidationError } from '@/features/content-editor/editor.validation'
+import { CollectionSavePayload } from './_features/collection-save.validation'
 
 export async function GET(
   _request: NextRequest,
@@ -83,7 +79,7 @@ export async function PUT(
 
     return NextResponse.json(result)
   } catch (error) {
-    if (error instanceof ZodError || error instanceof SyntaxError) {
+    if (isEditorValidationError(error)) {
       return NextResponse.json({ error: 'Invalid payload' }, { status: 400 })
     }
     if (error instanceof StorageVersionConflictError) {

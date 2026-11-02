@@ -6,10 +6,10 @@ import {
   StorageVersionConflictError,
 } from '@/lib/content-store/content-store.domain'
 import { executeScrapEditorCommand } from '@/features/content-editor/scrap-editor.assemble'
-import type { ScrapEditorCommand } from '@/features/content-editor/scrap-editor.domain'
+import type { ScrapEditorCommand } from '@/features/content-editor/scrap-editor.validation'
 import { assembleScrapPage, loadPublicScraps } from './scraps.assemble'
-import { getScrapStoragePaths } from './scraps.domain'
-import { setScrapsRepositoryOverride } from './scraps.infra'
+import { getScrapStoragePaths } from '@/features/scraps/scraps.domain'
+import { setScrapsRepositoryOverride } from '@/features/scraps/scraps.infra'
 import { SCRAPS_INDEX_PATHNAME } from '@/lib/content-store/content-tags.infra'
 
 class InterleavedRepository implements AggregateContentRepository {

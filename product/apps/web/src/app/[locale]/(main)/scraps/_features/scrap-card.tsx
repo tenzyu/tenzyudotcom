@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { useIntlayer } from 'next-intlayer/server'
 import { EditorialEntry } from '@tenzyu/ui/editorial'
 import { formatDate } from '../../_features/format-date'
-import type { ScrapIndexEntry } from './scraps.domain'
+import type { ScrapIndexEntry } from '@/features/scraps/scraps.domain'
 
 export function ScrapCard({
   scrap,

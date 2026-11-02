@@ -7,13 +7,13 @@ import {
   projectScrapIndexEntry,
   compareScrapsByUpdatedAtDesc,
   isIndexableTranslationState,
-} from '@/app/[locale]/(main)/scraps/_features/scraps.domain'
+} from '@/features/scraps/scraps.domain'
 import {
   parseScrapManifest,
   parseScrapEntryMeta,
   parseScrapIndexProjection,
-} from '@/app/[locale]/(main)/scraps/_features/scraps-parse.infra'
-import { getScrapsAggregateRepository } from '@/app/[locale]/(main)/scraps/_features/scraps.infra'
+} from '@/features/scraps/scraps.validation'
+import { getScrapsAggregateRepository } from '@/features/scraps/scraps.infra'
 import {
   type AggregateContentRepository,
   type ContentSnapshot,
@@ -26,7 +26,7 @@ import { SCRAPS_INDEX_PATHNAME } from '@/lib/content-store/content-tags.infra'
 import {
   type ScrapEditorCommand,
   ScrapEditorCommandSchema,
-} from './scrap-editor.domain'
+} from './scrap-editor.validation'
 
 async function readManifest(snapshot: ContentSnapshot, slug: string) {
   if (!isValidScrapSlug(slug)) throw new StorageError('Invalid scrap slug')

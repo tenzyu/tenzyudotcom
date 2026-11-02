@@ -10,8 +10,8 @@ import {
   loadScrapEditorState,
   loadScrapEditorIndex,
 } from './scrap-editor.assemble'
-import type { ScrapEditorCommand } from './scrap-editor.domain'
-import { setScrapsRepositoryOverride } from '@/app/[locale]/(main)/scraps/_features/scraps.infra'
+import type { ScrapEditorCommand } from './scrap-editor.validation'
+import { setScrapsRepositoryOverride } from '@/features/scraps/scraps.infra'
 import {
   assembleScrapPage,
   filterPublicScrapIndex,

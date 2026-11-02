@@ -40,6 +40,7 @@
     ],
     "zodAllowedPrefixes": [],
     "zodAllowedSuffixes": [
+      ".validation.ts",
       ".assemble.ts",
       ".infra.ts"
     ]

@@ -20,7 +20,7 @@ import {
   SCRAP_STATUSES,
   SCRAP_ENTRY_KINDS,
   type ContentLocale,
-} from '@/app/[locale]/(main)/scraps/_features/scraps.domain'
+} from '@/features/scraps/scraps.domain'
 import { saveScrapAction } from './scraps.actions'
 
 function ScrapSaveFeedback({

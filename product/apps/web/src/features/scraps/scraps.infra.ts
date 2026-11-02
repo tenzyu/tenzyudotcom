@@ -25,7 +25,7 @@ import {
   parseScrapEntryMeta,
   parseScrapIndexProjection,
   parseScrapManifest,
-} from './scraps-parse.infra'
+} from './scraps.validation'
 
 const SCRAPS_PREFIX = 'scraps/'
 

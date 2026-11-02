@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { createRequire } from 'node:module'
 import { mock } from 'bun:test'
 import type { ReactNode } from 'react'
-import type { ScrapEditorState } from '../scrap-editor.assemble'
+import type { ScrapEditorState } from '@/features/content-editor/scrap-editor.assemble'
 
 const require = createRequire(import.meta.url)
 const { JSDOM } = require('jsdom')

@@ -31,25 +31,34 @@ async function save() {
   writes++
   return { version: 'new-version', slug: 'test-scrap' }
 }
-mock.module('@/app/[locale]/(admin)/editor/_features/editor.assemble', () => ({
-  makeLoadEditorCollectionUseCase: () => ({
-    execute: async () => ({ collection: [], serialized: '[]', version: 'old' }),
-  }),
-  makeSaveEditorCollectionUseCase: () => ({ execute: save }),
-  makeSaveBlogPostUseCase: () => ({
-    execute: async (
-      _slug: string,
-      _metadata: unknown,
-      _body: string,
-      version: string,
-    ) => {
-      blogVersion = version
-      return save()
-    },
-  }),
+const loadCollection = async () => ({
+  collection: [],
+  serialized: '[]',
+  version: 'old',
+})
+mock.module('@/app/[locale]/(main)/notes/_features/notes.infra', () => ({
+  loadNotesState: loadCollection,
+  saveNotesState: save,
+}))
+mock.module('@/features/links/links.infra', () => ({
+  loadLinksState: loadCollection,
+  saveLinksState: save,
+}))
+mock.module('@/app/[locale]/(main)/blog/_features/blog.infra', () => ({
+  loadBlogPostsState: loadCollection,
+  saveBlogPostState: async (
+    _slug: string,
+    _metadata: unknown,
+    _body: string,
+    version: string,
+  ) => {
+    blogVersion = version
+    return save()
+  },
 }))
 mock.module('@/features/content-editor/scrap-editor.assemble', () => ({
   executeScrapEditorCommand: save,
+  loadScrapEditorIndexState: loadCollection,
 }))
 mock.module('next/cache', () => ({
   revalidatePath: () => {},
@@ -118,6 +127,9 @@ for (const [key, value] of Object.entries({
   blogForm.set(key, value)
 assert.equal((await saveBlogPostAction({}, blogForm)).error, 'conflict')
 assert.equal(blogVersion, createContentVersion(''))
+blogForm.set('expectedVersion', 'existing-blog-version')
+assert.equal((await saveBlogPostAction({}, blogForm)).error, 'conflict')
+assert.equal(blogVersion, 'existing-blog-version')
 
 const scrapForm = new FormData()
 for (const [key, value] of Object.entries({

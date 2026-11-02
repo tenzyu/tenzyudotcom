@@ -15,7 +15,7 @@ import {
   isPublicScrap,
   isIndexableTranslationState,
   resolveLocalizedDocumentRef,
-} from './scraps.domain'
+} from '@/features/scraps/scraps.domain'
 import {
   getScrapsAggregateRepository,
   loadScrapEntryDocuments,
@@ -23,7 +23,7 @@ import {
   loadScrapIndex,
   loadScrapManifest,
   loadScrapMdxDocument,
-} from './scraps.infra'
+} from '@/features/scraps/scraps.infra'
 
 export type ScrapListAudience = 'public' | 'admin'
 

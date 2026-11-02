@@ -1,4 +1,4 @@
-import { ZodError } from 'zod'
+import { isEditorValidationError } from './editor.validation'
 import {
   StorageCommitUncertainError,
   StorageVersionConflictError,
@@ -25,7 +25,7 @@ export function editorMutationFailure(
     }
   if (error instanceof StorageCommitUncertainError)
     return { status: 'error', error: 'uncertain', message: error.message }
-  if (error instanceof ZodError || error instanceof SyntaxError)
+  if (isEditorValidationError(error))
     return {
       status: 'error',
       error: 'invalid',
