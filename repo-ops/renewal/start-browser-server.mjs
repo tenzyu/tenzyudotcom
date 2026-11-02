@@ -1,6 +1,7 @@
 import { spawn, spawnSync } from "node:child_process";
 import { mkdirSync, openSync } from "node:fs";
 import { resolve } from "node:path";
+import { publicBrowserEnvironment } from "./browser-environment.mjs";
 
 const repositoryRoot = resolve(import.meta.dirname, "../..");
 const evidenceDir = resolve(
@@ -16,9 +17,10 @@ if (
 
 mkdirSync(evidenceDir, { recursive: true, mode: 0o700 });
 const log = openSync(`${evidenceDir}/web-server.log`, "w", 0o600);
-const build = spawnSync("bun", ["nx", "run", "ui:build"], {
+const env = publicBrowserEnvironment();
+const build = spawnSync("bun", ["--no-env-file", "nx", "run", "ui:build"], {
 	cwd: repositoryRoot,
-	env: process.env,
+	env,
 	stdio: ["ignore", log, log],
 });
 if (build.error) throw build.error;
@@ -28,10 +30,10 @@ if (build.status !== 0) {
 
 const child = spawn(
 	"bun",
-	["run", "dev", "--hostname", "127.0.0.1", "--port", "4173"],
+	["--no-env-file", "run", "dev", "--hostname", "127.0.0.1", "--port", "4173"],
 	{
 		cwd: resolve(repositoryRoot, "product/apps/web"),
-		env: process.env,
+		env,
 		stdio: ["ignore", log, log],
 	},
 );

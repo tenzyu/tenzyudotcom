@@ -56,7 +56,6 @@ export default defineConfig({
 		command: "node repo-ops/renewal/start-browser-server.mjs",
 		cwd: repositoryRoot,
 		env: {
-			...process.env,
 			BROWSER_EVIDENCE_DIR: outputDir,
 			EDITOR_ADMIN_PASSWORD: "",
 			EDITOR_SESSION_SECRET: "",
