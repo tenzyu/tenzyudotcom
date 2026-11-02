@@ -21,7 +21,8 @@ mkdirSync(out, { mode: 0o700 });
 const logPath = `${out}/output.log`;
 const log = openSync(logPath, 'wx', 0o600);
 const env = {};
-for (const key of ['PATH', 'HOME', 'TMPDIR', 'LANG', 'LC_ALL', 'NIX_SSL_CERT_FILE', 'SSL_CERT_FILE', 'LD_LIBRARY_PATH', 'BIOME_BIN', 'PKG_CONFIG_PATH', 'XDG_DATA_DIRS']) {
+// NixOS Bash otherwise reloads /etc/profile and replaces the toolchain PATH.
+for (const key of ['PATH', 'HOME', 'TMPDIR', 'LANG', 'LC_ALL', '__ETC_PROFILE_DONE', 'NIX_SSL_CERT_FILE', 'SSL_CERT_FILE', 'LD_LIBRARY_PATH', 'BIOME_BIN', 'PKG_CONFIG_PATH', 'XDG_DATA_DIRS']) {
   if (process.env[key]) env[key] = process.env[key];
 }
 Object.assign(env, { CI: '1', NX_DAEMON: 'false', NX_NO_CLOUD: 'true', NX_SKIP_NX_CACHE: 'true', NEXT_TELEMETRY_DISABLED: '1' });

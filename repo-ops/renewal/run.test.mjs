@@ -7,6 +7,25 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const runner = fileURLToPath(new URL('./run.mjs', import.meta.url));
+test('initialized system profile preserves tool resolution in child Bash', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'renewal-shell-path-'));
+  try {
+    const cwd = join(dir, 'workspace');
+    const bin = join(dir, 'bin');
+    mkdirSync(cwd);
+    mkdirSync(bin);
+    symlinkSync(process.execPath, join(bin, 'renewal-node'));
+    const out = join(dir, 'evidence');
+    const command = 'renewal-node -e \'if (process.env.__ETC_PROFILE_DONE !== "1" || process.env.GITHUB_TOKEN || process.env.BASH_ENV) process.exit(9); console.log("tool resolved")\'';
+    const result = spawnSync(process.execPath, [runner, '--cwd', cwd, '--out', out, '--', 'bash', '-c', command], {
+      env: { ...process.env, PATH: `${bin}:${process.env.PATH}`, __ETC_PROFILE_DONE: '1', GITHUB_TOKEN: 'test-secret', BASH_ENV: join(dir, 'must-not-source') },
+      encoding: 'utf8', timeout: 15000,
+    });
+    assert.equal(result.status, 0, `${result.stderr}\n${readFileSync(join(out, 'output.log'), 'utf8')}`);
+    assert.match(readFileSync(join(out, 'output.log'), 'utf8'), /tool resolved/);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
 for (const [name, command, expectedCode, expectedStatus, timeout] of [
   ['success without inherited credentials', [process.execPath, '-e', 'if (process.env.GITHUB_TOKEN) process.exit(9); console.log("observed")'], 0, 'passed', '10'],
   ['failure', [process.execPath, '-e', 'process.exit(7)'], 7, 'failed', '10'],
