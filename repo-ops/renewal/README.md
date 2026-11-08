@@ -41,6 +41,20 @@ node repo-ops/renewal/preserve-worktrees.mjs "$SOURCE_REPO" "$NEW_EXTERNAL_DIREC
 
 The destination's parent must exist. The tool discovers registered worktrees, records their status, creates private tar archives, compares each archive with its source, verifies an all-refs Git bundle, and separately preserves common Git metadata. `manifest.json` records hashes and the generated-output exclusions. Archives can contain secret configuration and must stay private. Stop writers before capture. The tool does not delete worktrees or branches.
 
+## Start an isolated read-only preview
+
+On NixOS with a user systemd manager, run these commands from the repository root:
+
+```sh
+nix develop --no-write-lock-file --command bash repo-ops/renewal/readonly-preview.sh start
+nix develop --no-write-lock-file --command bash repo-ops/renewal/readonly-preview.sh status
+nix develop --no-write-lock-file --command bash repo-ops/renewal/readonly-preview.sh stop
+```
+
+The preview copies tracked files from `HEAD` to a new directory under `/tmp/opencode`. Commit changes before starting it. The service installs its own dependencies, builds the UI package, and listens on `127.0.0.1:43192`. Check its journal for startup errors. The service stops after one hour and retains its snapshot.
+
+The gate accepts public page and static asset requests. It rejects writes, editor routes, server actions, and WebSocket messages other than the development client subscriptions and pings. It is not a general-purpose Next.js development server. It does not expose the preview to the network. Use an authenticated proxy only after checking its access policy. The service has no editor, GitHub write, or osu! credentials. It uses systemd to limit resources, hide home directories, and make the filesystem read-only except for the snapshot. Do not use it as a sandbox for untrusted code.
+
 ## Browser observations
 
 `preview.mjs` remains the exploratory probe described in `docs/renewal/07-browser-qa.md`. The acceptance suite uses Playwright Test 1.59.1 and Chromium at desktop 1440px and mobile 390px widths.
