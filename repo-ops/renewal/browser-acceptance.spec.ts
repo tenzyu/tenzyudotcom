@@ -138,13 +138,24 @@ test("primary navigation exposes retained destinations and follows a link", asyn
 });
 
 test("language selector changes and retains the selected locale", async ({ page }) => {
-	await page.goto("/en/portfolio", { waitUntil: "networkidle" });
+	await page.goto("/en/portfolio?from=preview", { waitUntil: "networkidle" });
+	await page.evaluate(() => localStorage.setItem("theme", "dark"));
+	await page.reload({ waitUntil: "networkidle" });
+	await expect(page.locator("html")).toHaveClass(/dark/);
 	await page.getByRole("button", { name: /change language/i }).click();
 	await page.getByRole("menuitem", { name: "日本語" }).click();
 	await expect.poll(() => new URL(page.url()).pathname).toBe("/portfolio");
+	await expect.poll(() => new URL(page.url()).search).toBe("?from=preview");
 	await expect(page.locator("html")).toHaveAttribute("lang", "ja");
+	await expect(page.locator("html")).toHaveClass(/dark/);
 	await page.reload({ waitUntil: "networkidle" });
 	await expect(page.locator("html")).toHaveAttribute("lang", "ja");
+	await page.getByRole("button", { name: "言語を切り替える" }).click();
+	await page.getByRole("menuitem", { name: "English" }).click();
+	await expect.poll(() => new URL(page.url()).pathname).toBe("/en/portfolio");
+	await expect.poll(() => new URL(page.url()).search).toBe("?from=preview");
+	await expect(page.locator("html")).toHaveAttribute("lang", "en");
+	await expect(page.locator("html")).toHaveClass(/dark/);
 });
 
 test("osu settings start current and retain historical tablet and keypad details", async ({
