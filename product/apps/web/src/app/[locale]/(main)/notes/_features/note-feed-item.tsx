@@ -31,6 +31,7 @@ import {
   type NoteSourceEntry,
 } from './notes.domain'
 import { NoteShareButton } from './note-share-button'
+import { NoteRelativeTime } from './note-relative-time-view'
 
 const ROOT_PARENT = '__root__'
 
@@ -76,21 +77,6 @@ function formatParentOptionLabel(entry: NoteSourceEntry, locale: string) {
     dateStyle: 'medium',
     timeStyle: 'short',
   }).format(new Date(entry.createdAt))} · ${preview}`
-}
-
-function formatRelativeNoteTime(createdAt: string, locale: string) {
-  const createdAtMs = new Date(createdAt).getTime()
-  const diffMs = Math.max(0, Date.now() - createdAtMs)
-  const hourMs = 60 * 60 * 1000
-  const dayMs = 24 * hourMs
-
-  if (diffMs < dayMs) {
-    const hoursAgo = Math.max(1, Math.floor(diffMs / hourMs))
-    return locale === 'ja' ? `${hoursAgo}時間前` : `${hoursAgo}h ago`
-  }
-
-  const daysAgo = Math.max(1, Math.floor(diffMs / dayMs))
-  return locale === 'ja' ? `${daysAgo}日前` : `${daysAgo}d ago`
 }
 
 export function NoteFeedItem({
@@ -178,13 +164,7 @@ export function NoteFeedItem({
             {!isDetailFocus ? (
               <>
                 <span className="text-sm text-muted-foreground">·</span>
-                <time
-                  className="text-sm text-muted-foreground"
-                  dateTime={note.createdAt}
-                  suppressHydrationWarning
-                >
-                  {formatRelativeNoteTime(note.createdAt, locale)}
-                </time>
+                <NoteRelativeTime createdAt={note.createdAt} locale={locale} />
               </>
             ) : null}
           </div>
