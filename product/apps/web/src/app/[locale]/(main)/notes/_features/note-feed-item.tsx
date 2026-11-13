@@ -31,7 +31,7 @@ import {
   type NoteSourceEntry,
 } from './notes.domain'
 import { NoteShareButton } from './note-share-button'
-import { NoteRelativeTime } from './note-relative-time'
+import { NoteRelativeTime } from './note-relative-time-view'
 
 const ROOT_PARENT = '__root__'
 
