@@ -1,0 +1,46 @@
+import { Check, Copy } from 'lucide-react'
+import { useIntlayer } from 'next-intlayer'
+import { Button } from '@tenzyu/ui/button'
+import { Label } from '@tenzyu/ui/label'
+import { Textarea } from '@tenzyu/ui/textarea'
+
+type PreviewPanelProps = {
+  outputText: string
+  onCopy: () => void
+  isCopied: boolean
+}
+
+export function PreviewPanel({
+  outputText,
+  onCopy,
+  isCopied,
+}: PreviewPanelProps) {
+  const { labels } = useIntlayer('page-dot-type')
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <Label>{labels.preview}</Label>
+        <Button
+          onClick={onCopy}
+          size="sm"
+          variant={isCopied ? 'outline' : 'default'}
+        >
+          {isCopied ? (
+            <Check className="mr-2 h-4 w-4" />
+          ) : (
+            <Copy className="mr-2 h-4 w-4" />
+          )}
+          {isCopied ? labels.copied : labels.copy}
+        </Button>
+      </div>
+      <Textarea
+        value={outputText}
+        readOnly
+        className="min-h-75 resize-y font-mono text-xs leading-none tracking-tighter whitespace-pre"
+        style={{
+          lineHeight: '1em',
+        }}
+      />
+    </div>
+  )
+}

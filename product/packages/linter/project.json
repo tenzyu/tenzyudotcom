@@ -1,0 +1,60 @@
+{
+  "name": "linter",
+  "projectType": "library",
+  "root": "product/packages/linter",
+  "sourceRoot": "product/packages/linter/src",
+  "tags": [
+    "scope:tooling",
+    "type:cli"
+  ],
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/packages/linter",
+        "command": "bun run build"
+      },
+      "outputs": [
+        "{projectRoot}/dist"
+      ]
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/packages/linter",
+        "command": "bun run typecheck"
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/packages/linter",
+        "command": "bun run test"
+      }
+    },
+    "lint-rules": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/packages/linter",
+        "command": "bun run lint -- --project-root ../../.. workspace-boundaries"
+      }
+    },
+    "check": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/packages/linter",
+        "command": "bun run check"
+      }
+    },
+    "verify": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/packages/linter",
+        "command": "bun run check && bun run build"
+      },
+      "outputs": [
+        "{projectRoot}/dist"
+      ]
+    }
+  }
+}

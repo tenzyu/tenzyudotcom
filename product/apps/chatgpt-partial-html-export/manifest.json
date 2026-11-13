@@ -1,0 +1,49 @@
+{
+  "manifest_version": 2,
+  "name": "ChatGPT Partial HTML Export",
+  "version": "0.1.0",
+  "description": "Export a ChatGPT conversation from a selected message onward as a standalone HTML file.",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "chatgpt-partial-html-export@tenzyudotcom.local",
+      "strict_min_version": "109.0"
+    }
+  },
+  "permissions": [
+    "downloads",
+    "nativeMessaging",
+    "storage",
+    "clipboardWrite",
+    "https://chatgpt.com/*",
+    "https://chat.openai.com/*"
+  ],
+  "background": {
+    "scripts": [
+      "src/background.js"
+    ],
+    "persistent": false
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://chatgpt.com/*",
+        "https://chat.openai.com/*"
+      ],
+      "js": [
+        "src/content.js"
+      ],
+      "css": [
+        "src/content.css"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "browser_action": {
+    "default_title": "ChatGPT Partial HTML Export",
+    "default_popup": "popup/popup.html"
+  },
+  "options_ui": {
+    "page": "options/options.html",
+    "browser_style": true
+  }
+}

@@ -1,0 +1,45 @@
+import Link from 'next/link'
+import { Content } from '@/components/site/content'
+import { Card, CardContent, CardHeader, CardTitle } from '@tenzyu/ui/card'
+
+export type TocSection = {
+  id: string
+  title: string
+}
+
+type TableOfContentsProps = {
+  title: string
+  sections: TocSection[]
+}
+
+export const TableOfContents = ({ title, sections }: TableOfContentsProps) => {
+  if (sections.length === 0) {
+    return null
+  }
+
+  return (
+    <Content size="xs">
+      <Card className="text-center">
+        <CardHeader>
+          <CardTitle className="text-lg">{title}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <nav aria-label={title}>
+            <ul className="space-y-2">
+              {sections.map((section) => (
+                <li key={section.id}>
+                  <Link
+                    href={`#${section.id}`}
+                    className="text-muted-foreground hover:text-foreground text-sm transition-colors duration-200"
+                  >
+                    {section.title}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </CardContent>
+      </Card>
+    </Content>
+  )
+}

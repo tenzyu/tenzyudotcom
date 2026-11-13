@@ -1,0 +1,41 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import '@tenzyu/ui/styles.css';
+
+@custom-variant dark (&:is(.dark *));
+
+@plugin '@tailwindcss/typography';
+
+.tz-site {
+  --visualization-bg: #eae5dc;
+  --visualization-fg: #282722;
+  --visualization-primary: #b47a59;
+  --visualization-secondary: #d8d1c5;
+  --visualization-tertiary: #c7bcae;
+  --visualization-accent: #d6b59a;
+}
+
+.dark .tz-site {
+  --visualization-bg: #25231f;
+  --visualization-fg: #e9e4da;
+  --visualization-primary: #d3a789;
+  --visualization-secondary: #454037;
+  --visualization-tertiary: #34312b;
+  --visualization-accent: #78503c;
+}
+
+.tz-site .main-content:has(.portfolio-page) {
+  max-width: var(--tz-container-lg);
+}
+
+@theme inline {
+  --color-visualization-bg: var(--visualization-bg);
+  --color-visualization-fg: var(--visualization-fg);
+  --color-visualization-primary: var(--visualization-primary);
+  --color-visualization-secondary: var(--visualization-secondary);
+  --color-visualization-tertiary: var(--visualization-tertiary);
+  --color-visualization-accent: var(--visualization-accent);
+  --font-sans: var(--font-geist-sans, 'Noto Sans Variable'), 'Hiragino Sans', sans-serif;
+  --font-mono: var(--font-geist-mono, ui-monospace), monospace;
+  --font-serif: Georgia, var(--font-noto-serif-jp, 'Yu Mincho'), serif;
+}

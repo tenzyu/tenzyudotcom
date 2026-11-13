@@ -1,0 +1,23 @@
+import { AlertCircleIcon } from 'lucide-react'
+import { Alert, AlertDescription, AlertTitle } from '@tenzyu/ui/alert'
+import { cn } from '@tenzyu/ui'
+
+type CautionProps = {
+  title?: React.ReactNode
+  description?: React.ReactNode
+} & React.HTMLAttributes<HTMLDivElement>
+
+export function CautionAlert({ className, title, description }: CautionProps) {
+  return (
+    <Alert
+      className={cn(
+        'border-amber-50 bg-amber-50 text-amber-900 dark:border-amber-950 dark:bg-amber-950 dark:text-amber-100',
+        className
+      )}
+    >
+      <AlertCircleIcon />
+      <AlertTitle>{title}</AlertTitle>
+      <AlertDescription>{description}</AlertDescription>
+    </Alert>
+  )
+}

@@ -1,0 +1,8 @@
+{
+  "extends": "./tsconfig.react-lib.json",
+  "compilerOptions": {
+    "allowImportingTsExtensions": true,
+    "noFallthroughCasesInSwitch": true,
+    "useDefineForClassFields": true
+  }
+}

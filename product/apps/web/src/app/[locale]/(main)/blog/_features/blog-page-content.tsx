@@ -1,0 +1,184 @@
+import { getLocalizedUrl } from 'intlayer'
+import { Pencil } from 'lucide-react'
+import { useIntlayer } from 'next-intlayer/server'
+import Link from 'next/link'
+import { PageHeader } from '@/components/site/page-header'
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@tenzyu/ui/pagination'
+import { BlogTile } from './blog-tile'
+import type { BlogListItem } from './blog.assemble'
+import { AdminGate } from '@/app/[locale]/(main)/_features/admin/admin-gate'
+import { Content } from '@/components/site/content'
+import { Button } from '@tenzyu/ui/button'
+
+type BlogPageContentProps = {
+  currentPage: number
+  locale: string
+  pageItems: BlogListItem[]
+  totalPages: number
+  tag?: string
+}
+
+export async function BlogPageContent({
+  currentPage,
+  locale,
+  pageItems,
+  totalPages,
+  tag,
+}: BlogPageContentProps) {
+  const content = useIntlayer('page-blog')
+
+  const pageHref = (page: number) => {
+    const query = new URLSearchParams()
+    if (tag) query.set('tag', tag)
+    if (page > 1) query.set('page', String(page))
+    const href = `/blog${query.size ? `?${query}` : ''}`
+    return getLocalizedUrl(href, locale)
+  }
+
+  return (
+    <>
+      <PageHeader
+        title={content.metadata.title.value}
+        description={content.metadata.description.value}
+      />
+
+      {tag ? (
+        <div className="flex flex-wrap items-center gap-3">
+          <h2 className="text-lg font-semibold">#{tag}</h2>
+          <Link
+            className="text-primary underline"
+            href={getLocalizedUrl('/blog', locale)}
+          >
+            {locale === 'ja' ? 'すべての記事' : 'All posts'}
+          </Link>
+        </div>
+      ) : null}
+      {tag && pageItems.length === 0 ? (
+        <p>
+          {locale === 'ja'
+            ? 'このタグの記事はありません。'
+            : 'No posts with this tag.'}
+        </p>
+      ) : null}
+
+      <AdminGate>
+        <Content size="2xl" className="mb-8">
+          <div className="border-border/70 bg-muted/30 flex flex-col gap-4 rounded-2xl border px-4 py-4 sm:px-5">
+            <div className="space-y-1">
+              <p className="text-sm font-semibold tracking-wide">
+                Blog admin tools
+              </p>
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                Create a new post or jump into a single post editor from the
+                list without expanding the full editor on this page.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Button
+                size="sm"
+                render={
+                  <Link href={getLocalizedUrl('/editor/blog', locale)}>
+                    Open blog editor
+                  </Link>
+                }
+              ></Button>
+              <Button
+                size="sm"
+                variant="outline"
+                render={
+                  <Link href={getLocalizedUrl('/editor/blog?create=1', locale)}>
+                    Create post
+                  </Link>
+                }
+              ></Button>
+            </div>
+          </div>
+        </Content>
+      </AdminGate>
+
+      <div className="flex flex-col gap-y-4">
+        {pageItems.map((post) => (
+          <div key={post.slug} className="relative">
+            <AdminGate>
+              <div className="absolute top-3 right-3 z-10">
+                <Button
+                  size="icon-sm"
+                  variant="outline"
+                  render={
+                    <Link
+                      href={getLocalizedUrl(
+                        `/editor/blog?slug=${post.slug}`,
+                        locale,
+                      )}
+                    >
+                      <Pencil />
+                      <span className="sr-only">Edit {post.slug}</span>
+                    </Link>
+                  }
+                ></Button>
+              </div>
+            </AdminGate>
+            <BlogTile {...post.metadata} slug={post.slug} locale={locale} />
+          </div>
+        ))}
+      </div>
+
+      {totalPages > 1 ? (
+        <Pagination
+          className="mt-10"
+          // ariaLabel={content.pagination.ariaLabel.value}
+        >
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                href={pageHref(Math.max(currentPage - 1, 1))}
+                aria-disabled={currentPage === 1}
+                className={
+                  currentPage === 1
+                    ? 'pointer-events-none opacity-50'
+                    : undefined
+                }
+                // label={content.pagination.previous.value}
+                // ariaLabel={content.pagination.previousAria.value}
+              />
+            </PaginationItem>
+            {Array.from({ length: totalPages }, (_, index) => {
+              const page = index + 1
+
+              return (
+                <PaginationItem key={page}>
+                  <PaginationLink
+                    href={pageHref(page)}
+                    isActive={page === currentPage}
+                  >
+                    {page}
+                  </PaginationLink>
+                </PaginationItem>
+              )
+            })}
+            <PaginationItem>
+              <PaginationNext
+                href={pageHref(Math.min(currentPage + 1, totalPages))}
+                aria-disabled={currentPage === totalPages}
+                className={
+                  currentPage === totalPages
+                    ? 'pointer-events-none opacity-50'
+                    : undefined
+                }
+                // label={content.pagination.next.value}
+                // ariaLabel={content.pagination.nextAria.value}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      ) : null}
+    </>
+  )
+}

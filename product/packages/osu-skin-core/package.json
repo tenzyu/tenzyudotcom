@@ -1,0 +1,41 @@
+{
+  "name": "@tenzyu/osu-skin-core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./classification": {
+      "types": "./dist/classification.d.ts",
+      "import": "./dist/classification.js"
+    },
+    "./contract": {
+      "types": "./dist/contract.d.ts",
+      "import": "./dist/contract.js"
+    },
+    "./domain": {
+      "types": "./dist/domain.d.ts",
+      "import": "./dist/domain.js"
+    },
+    "./project": {
+      "types": "./dist/project.d.ts",
+      "import": "./dist/project.js"
+    }
+  },
+  "scripts": {
+    "build": "rm -rf dist && tsc -p tsconfig.build.json",
+    "package-smoke": "bun scripts/package-smoke.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test tests",
+    "check:browser-boundary": "bun scripts/check-browser-boundary.ts",
+    "check": "bun run typecheck && bun run test && bun run check:browser-boundary && bun run build && bun run package-smoke"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "typescript": "catalog:"
+  }
+}
