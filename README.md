@@ -61,7 +61,7 @@ Inspect each project's targets before running broader checks. Root `build`, `che
 ## Renewal records
 
 Atelier, Castalia, pointers, puzzles, recommendations, and the old agent harness are retired.
-See [renewal decisions](docs/renewal/02-decisions.md) and the [retirement unit report](docs/renewal/11-retirement-unit.md) for the current scope and verification evidence.
+See [renewal decisions](docs/renewal/02-decisions.md), the [retirement unit report](docs/renewal/11-retirement-unit.md), and the [LLM wiki for recurring web issues](docs/renewal/wiki-web-decisions.md) for the current scope, verification evidence, and lessons to avoid rediscovering the same failures.
 Historical ADRs and useful reports remain under [harness](harness/README.md) as reference material.
 `repo-ops/renewal` contains the renewal observation tools.
 
