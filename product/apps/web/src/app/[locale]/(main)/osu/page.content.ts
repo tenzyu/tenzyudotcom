@@ -13,10 +13,6 @@ const osuProfilePageContent = {
         en: "Tenzyu's osu! profile, best scores, gameplay videos, and device settings by era.",
       }),
     },
-    introduction: t({
-      ja: 'osu!のプロフィール、プレイの記録とデバイス設定。ランキングとベストスコアはosu! APIから取得しています。',
-      en: 'My osu! profile, play history, and device settings. Rankings and best scores are fetched from the osu! API.',
-    }),
     linksUnavailable: t({
       ja: 'リンク集を現在取得できません。osu!とTwitchのプロフィールリンクは上部に掲載しています。',
       en: 'The link collection is currently unavailable. The osu! and Twitch profile links are listed above.',

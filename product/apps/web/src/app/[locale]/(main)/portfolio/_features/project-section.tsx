@@ -45,7 +45,7 @@ export function ProjectsSection() {
                   {projectContent.motivation}
                 </p>
               </CardContent>
-              <CardFooter className="flex flex-col items-start gap-3 pt-0 pb-5">
+              <CardFooter className="flex flex-col items-start gap-3 py-4">
                 <div className="flex flex-wrap gap-2">
                   {project.technologies.map((tech) => (
                     <Badge key={tech} variant="secondary">

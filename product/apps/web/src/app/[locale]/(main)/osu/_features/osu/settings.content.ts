@@ -13,9 +13,11 @@ const settingsContent = {
     laptop: t({ ja: 'ノートPC', en: 'Laptop' }),
     model: t({ ja: '型番', en: 'Model number' }),
     laptopNote: t({
-      ja: '2026年から使用しているノートPCです。詳細な仕様は未掲載です。キーパッドとタブレットの設定は以前と同じです。',
-      en: 'The laptop used from 2026. Detailed specifications are not listed. Keypad and tablet settings are unchanged.',
+      ja: '2021年から使用している業務用のノートパソコンです。以前使用していたゲーミングPCはサーバーにしたので、今はこれを使用しています。',
+      en: 'A business laptop used since 2021. I now use it because my former gaming PC has become a server.',
     }),
+    pollingRate: t({ ja: 'ポーリングレート', en: 'Polling rate' }),
+    customFirmware: t({ ja: 'カスタムファームウェア', en: 'custom firmware' }),
     tablet: t({
       ja: 'タブレット',
       en: 'Tablet',

@@ -32,6 +32,7 @@ export type MonitorSettings = BaseDeviceSettings & {
 }
 
 export type TabletSettings = BaseDeviceSettings & {
+  pollingRate?: number
   area: {
     width: number
     height: number

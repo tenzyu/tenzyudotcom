@@ -1,6 +1,5 @@
 import { useIntlayer } from 'next-intlayer/server'
 import type { PropsWithChildren } from 'react'
-import { Content } from '@/components/site/content'
 import { Section } from './section'
 import { SectionHeader } from '@/components/site/section-header'
 import { TWEETS } from './twitter.source'
@@ -68,17 +67,14 @@ export function OsuProfileContent() {
 
   return (
     <div className="flex flex-col items-center legacy-osu">
-      <Content size="2xl" className="py-4">
-        <p className="text-muted-foreground mt-2 text-xs">
-          {content.introduction.value}
-        </p>
-      </Content>
-
       <Section className="w-full">
         <ProfileCard />
       </Section>
 
-      <TableOfContents title={content.tableOfContents.value} sections={tocSections} />
+      <TableOfContents
+        title={content.tableOfContents.value}
+        sections={tocSections}
+      />
 
       <OsuSection
         className="w-full"

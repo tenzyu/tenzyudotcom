@@ -8,7 +8,7 @@ import {
   SettingsGridItem,
   SettingsVisualization,
 } from './settings-card'
-import { TABLET_SETTINGS } from './settings.data'
+import type { TabletSettings as TabletSettingsData } from './types-settings'
 
 type TabletAreaProps = {
   width: number
@@ -61,9 +61,12 @@ const TabletArea = memo(function TabletArea({
   )
 })
 
-export const TabletSettings = memo(function TabletSettings() {
+export const TabletSettings = memo(function TabletSettings({
+  settings,
+}: {
+  settings: TabletSettingsData
+}) {
   const settingsContent = useIntlayer('settings')
-  const settings = TABLET_SETTINGS
 
   return (
     <SettingsCard title={settingsContent.tablet.value}>
@@ -80,6 +83,12 @@ export const TabletSettings = memo(function TabletSettings() {
         <SettingsDataItem label={settingsContent.name.value}>
           <div className="text-foreground text-lg">{settings.name}</div>
         </SettingsDataItem>
+
+        {settings.pollingRate ? (
+          <SettingsDataItem label={settingsContent.pollingRate.value}>
+            {settings.pollingRate} Hz ({settingsContent.customFirmware.value})
+          </SettingsDataItem>
+        ) : null}
 
         <SettingsDataItem label={settingsContent.area.value}>
           <SettingsGrid>

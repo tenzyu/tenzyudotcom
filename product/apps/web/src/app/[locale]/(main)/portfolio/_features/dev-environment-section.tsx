@@ -45,7 +45,7 @@ export function DevEnvironmentSection() {
                         {env.description}
                       </p>
                     </CardContent>
-                    <CardFooter className="flex flex-wrap gap-2 pt-0 pb-4">
+                    <CardFooter className="flex flex-wrap gap-2 py-4">
                       <Badge variant="secondary">{environment.os}</Badge>
                       <Badge variant="secondary">{environment.role}</Badge>
                     </CardFooter>

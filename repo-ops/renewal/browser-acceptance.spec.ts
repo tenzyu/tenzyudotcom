@@ -277,6 +277,74 @@ test("osu settings start current and retain historical tablet and keypad details
 	await expectNoHorizontalOverflow(page);
 });
 
+test("osu tablet settings and diagram follow the selected era", async ({
+	page,
+}) => {
+	await page.goto("/en/osu", { waitUntil: "networkidle" });
+	let tablet = page.getByRole("region", { name: "Tablet" });
+	await expect(tablet.getByText("400 Hz (custom firmware)")).toBeVisible();
+	await expect(tablet.getByText("127", { exact: true })).toBeVisible();
+	await expect(tablet.getByText("22", { exact: true })).toBeVisible();
+	const currentPosition = await tablet
+		.locator(".bg-visualization-primary")
+		.evaluate((element) => ({
+			left: element.style.left,
+			top: element.style.top,
+		}));
+	expect(Number.parseFloat(currentPosition.left)).toBeCloseTo(
+		((127 - 58 / 2) / 152) * 100,
+	);
+	expect(Number.parseFloat(currentPosition.top)).toBeCloseTo(
+		((22 - 45.24 / 2) / 95) * 100,
+	);
+	await page.getByRole("tab", { name: "Until 2025" }).click();
+	tablet = page.getByRole("region", { name: "Tablet" });
+	await expect(tablet.getByText("83.06", { exact: true })).toBeVisible();
+	await expect(tablet.getByText("26.43", { exact: true })).toBeVisible();
+	await expect(tablet.getByText("400 Hz (custom firmware)")).toHaveCount(0);
+});
+
+test("osu links use the same card layout as the links page", async ({
+	page,
+}) => {
+	await page.goto("/en/links", { waitUntil: "networkidle" });
+	const linkCard = page.locator('a[data-slot="item"]').first();
+	await expect(linkCard).toBeVisible();
+	const style = (element: Element) => ({
+		display: getComputedStyle(element).display,
+		border: getComputedStyle(element).borderTopWidth,
+		padding: getComputedStyle(element).padding,
+	});
+	const expected = await linkCard.evaluate(style);
+	await page.goto("/en/osu", { waitUntil: "networkidle" });
+	const osuCard = page.locator('.legacy-osu a[data-slot="item"]').first();
+	await expect(osuCard).toBeVisible();
+	expect(await osuCard.evaluate(style)).toEqual(expected);
+});
+
+test("portfolio shows the current Tailscale devices and balanced tag padding", async ({
+	page,
+}) => {
+	await page.goto("/en/portfolio", { waitUntil: "networkidle" });
+	await page.getByRole("button", { name: "Show environment details" }).click();
+	for (const name of [
+		"neko5 (Laptop)",
+		"neko7 (Remote Server)",
+		"nekosm1 (Android)",
+	]) {
+		await expect(page.getByText(name, { exact: true })).toBeVisible();
+	}
+	await expect(page.getByText(/neko3|neko6/)).toHaveCount(0);
+	await expect(page.getByText(/CPH2523/)).toBeVisible();
+	await expect(page.getByText(/Last updated: November 2026/)).toBeVisible();
+	const footer = page.locator('[data-slot="card-footer"]').first();
+	const padding = await footer.evaluate((element) => ({
+		top: getComputedStyle(element).paddingTop,
+		bottom: getComputedStyle(element).paddingBottom,
+	}));
+	expect(padding.top).toBe(padding.bottom);
+});
+
 test("osu contents navigation is localized", async ({ page }) => {
 	await page.goto("/osu", { waitUntil: "networkidle" });
 	await expect(page.getByRole("navigation", { name: "目次" })).toBeVisible();

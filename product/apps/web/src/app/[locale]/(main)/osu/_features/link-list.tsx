@@ -71,7 +71,7 @@ export async function LinkList() {
                 </ItemGroup>
               </nav>
             </section>
-          )
+          ),
       )}
     </Content>
   )
@@ -95,27 +95,31 @@ function LinkTile({ link }: { link: MyLink }) {
   const { locale } = useLocale()
 
   return (
-    <Item className="w-full">
-      <Link
-        href={getLocalizedUrl(`/links/${link.shortenUrl}`, locale)}
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label={`${content.aria.visitPrefix.value} ${link.name} (${link.id})`}
-      >
-        <ItemMedia variant="icon" className="dark:bg-secondary-foreground">
-          <LinkIcon
-            icon={link.icon}
-            alt={`${link.name} ${content.aria.iconSuffix.value}`}
-          />
-        </ItemMedia>
+    <Item
+      variant="outline"
+      className="w-full pr-11"
+      render={
+        <Link
+          href={getLocalizedUrl(`/links/${link.shortenUrl}`, locale)}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`${content.aria.visitPrefix.value} ${link.name} (${link.id})`}
+        >
+          <ItemMedia variant="icon" className="dark:bg-secondary-foreground">
+            <LinkIcon
+              icon={link.icon}
+              alt={`${link.name} ${content.aria.iconSuffix.value}`}
+            />
+          </ItemMedia>
 
-        <ItemContent className="min-w-0 text-left">
-          <ItemTitle className="truncate text-sm">{link.name}</ItemTitle>
-          <ItemDescription className="truncate text-xs">
-            {link.id}
-          </ItemDescription>
-        </ItemContent>
-      </Link>
-    </Item>
+          <ItemContent className="min-w-0 text-left">
+            <ItemTitle className="truncate text-sm">{link.name}</ItemTitle>
+            <ItemDescription className="truncate text-xs">
+              {link.id}
+            </ItemDescription>
+          </ItemContent>
+        </Link>
+      }
+    />
   )
 }

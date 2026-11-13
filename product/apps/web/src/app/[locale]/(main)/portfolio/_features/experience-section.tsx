@@ -56,7 +56,7 @@ export function ExperienceSection() {
                   ))}
                 </ul>
               </CardContent>
-              <CardFooter className="flex flex-wrap gap-2 pt-0 pb-5">
+              <CardFooter className="flex flex-wrap gap-2 py-4">
                 {experience.technologies.map((tech) => (
                   <Badge key={tech} variant="secondary">
                     {tech}

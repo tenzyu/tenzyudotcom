@@ -166,7 +166,6 @@ export const ProfileCard = async () => {
             <ul className="list-disc space-y-1 pl-5">
               <li>{profile.facts.birthdate}</li>
               <li>{profile.facts.osuStart}</li>
-              <li>{profile.facts.standingUp}</li>
             </ul>
           </div>
         </CardContent>

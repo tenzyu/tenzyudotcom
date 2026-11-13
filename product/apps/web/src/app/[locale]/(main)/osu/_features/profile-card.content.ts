@@ -40,10 +40,6 @@ const profileContent = {
         ja: 'osu! は2021年の5月からプレイしています',
         en: 'Started playing osu! in May 2021',
       }),
-      standingUp: t({
-        ja: '立ちながら osu! をプレイしています',
-        en: 'Standing while playing osu!',
-      }),
     },
     loading: {
       gameplay: t({

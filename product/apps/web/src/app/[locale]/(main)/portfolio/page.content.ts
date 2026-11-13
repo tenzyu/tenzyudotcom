@@ -351,65 +351,51 @@ const portfolioContent = {
       }),
       networkItems: [
         t({
-          ja: 'neko5 から neko3 へ: Parsecによる低遅延リモートデスクトップ接続',
-          en: 'neko5 → neko3: low-latency remote desktop via Parsec',
+          ja: 'neko5 から neko7 へ: Tailscale経由で開発サーバーに接続',
+          en: 'neko5 → neko7: connect to the development server via Tailscale',
         }),
         t({
-          ja: 'neko5 から neko6 へ: SSH接続によるCLI開発',
-          en: 'neko5 → neko6: CLI development over SSH',
-        }),
-        t({
-          ja: 'neko5 から neko7 へ: SSH接続によるリモートデプロイ',
-          en: 'neko5 → neko7: remote deployments over SSH',
+          ja: 'nekosm1 から neko7 へ: Tailscale経由で開発サーバーに接続',
+          en: 'nekosm1 → neko7: connect to the development server via Tailscale',
         }),
       ],
       items: {
-        neko3: {
-          subtitle: t({
-            ja: 'Parsec経由のリモート開発ホスト',
-            en: 'Remote dev host via Parsec',
-          }),
-          description: t({
-            ja: '主にリモート接続を受け入れるためのメインWindows環境。',
-            en: 'Main Windows environment that accepts remote connections.',
-          }),
-        },
         neko5: {
           subtitle: t({
             ja: 'NixOSラップトップ',
             en: 'NixOS laptop',
           }),
           description: t({
-            ja: '全ての環境の中枢を担うメイン開発機。NixOSを採用し、宣言的な環境構築を実践。',
-            en: 'Primary dev machine. Built around NixOS with declarative environment setup.',
+            ja: 'dynabook BJ65/FS（型番 A6BJFSFAL511）。Tailscale経由でneko7に接続。',
+            en: 'dynabook BJ65/FS (model A6BJFSFAL511). Connects to neko7 via Tailscale.',
           }),
         },
-        neko6: {
+        nekosm1: {
           subtitle: t({
-            ja: '開発用Linuxコンテナ・ターゲット',
-            en: 'Linux container target for development',
+            ja: 'Android端末',
+            en: 'Android device',
           }),
           description: t({
-            ja: 'neko3上のWSL2環境でNixOSを稼働させ、SSHのターゲットとして利用。',
-            en: 'Runs NixOS on WSL2 (neko3) and acts as an SSH target.',
+            ja: 'OPPO Reno9 A（型番 CPH2523）。Tailscale経由でneko7に接続。',
+            en: 'OPPO Reno9 A (model CPH2523). Connects to neko7 via Tailscale.',
           }),
         },
         neko7: {
           subtitle: t({
-            ja: 'リモートデプロイ先サーバー',
-            en: 'Remote deployment server',
+            ja: '開発サーバー',
+            en: 'Development server',
           }),
           description: t({
-            ja: 'Proxmox配下のVM環境。検証用のプライベートデプロイターゲット。',
-            en: 'VM under Proxmox. Private deployment target for verification.',
+            ja: '開発を担当するサーバー。neko5とnekosm1からTailscale経由で接続。',
+            en: 'The development server, accessed from neko5 and nekosm1 via Tailscale.',
           }),
         },
       },
     },
     footer: {
       note: t({
-        ja: '初版：2025年7月18日 / 最終更新：2026年3月',
-        en: 'First edition: July 18, 2025 / Last updated: March 2026',
+        ja: '初版：2025年7月18日 / 最終更新：2026年11月',
+        en: 'First edition: July 18, 2025 / Last updated: November 2026',
       }),
     },
   },

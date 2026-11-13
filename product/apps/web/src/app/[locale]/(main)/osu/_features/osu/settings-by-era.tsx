@@ -22,7 +22,7 @@ export function SettingsByEra() {
             <p className="text-muted-foreground">
               {content.historicalNote.value}
             </p>
-            <TabletSettings />
+            <TabletSettings settings={SETTINGS_BY_ERA.until2025.tablet} />
             <KeyboardSettings />
             <MonitorSettings />
           </>
@@ -42,7 +42,7 @@ export function SettingsByEra() {
                 </p>
               </SettingsData>
             </SettingsCard>
-            <TabletSettings />
+            <TabletSettings settings={SETTINGS_BY_ERA.from2026.tablet} />
             <KeyboardSettings />
           </>
         }

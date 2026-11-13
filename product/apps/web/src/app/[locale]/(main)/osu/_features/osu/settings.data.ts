@@ -31,7 +31,11 @@ export const SETTINGS_BY_ERA = {
   },
   from2026: {
     keyboard: KEYPAD_SETTINGS,
-    tablet: TABLET_SETTINGS,
+    tablet: {
+      ...TABLET_SETTINGS,
+      position: { x: 127, y: 22, rotation: 180 },
+      pollingRate: 400,
+    },
     laptop: { name: 'dynabook BJ65/FS', model: 'A6BJFSFAL511' },
   },
 }

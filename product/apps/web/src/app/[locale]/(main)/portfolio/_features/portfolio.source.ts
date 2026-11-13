@@ -75,7 +75,7 @@ export const PORTFOLIO_EXPERIENCES: readonly PortfolioExperience[] = [
   },
 ] as const
 
-type PortfolioEnvironmentId = 'neko3' | 'neko5' | 'neko6' | 'neko7'
+type PortfolioEnvironmentId = 'neko5' | 'neko7' | 'nekosm1'
 
 type PortfolioEnvironment = {
   id: PortfolioEnvironmentId
@@ -86,27 +86,21 @@ type PortfolioEnvironment = {
 
 export const PORTFOLIO_ENVIRONMENTS: readonly PortfolioEnvironment[] = [
   {
-    id: 'neko3',
-    title: 'neko3 (Windows 11 Host)',
-    os: 'Windows 11',
-    role: 'Parsec Host',
-  },
-  {
     id: 'neko5',
-    title: 'neko5 (Main Development Machine)',
+    title: 'neko5 (Laptop)',
     os: 'NixOS',
-    role: 'Primary',
-  },
-  {
-    id: 'neko6',
-    title: 'neko6 (WSL2 on neko3)',
-    os: 'NixOS (WSL2)',
-    role: 'SSH Target',
+    role: 'Tailscale',
   },
   {
     id: 'neko7',
     title: 'neko7 (Remote Server)',
     os: 'NixOS',
-    role: 'Remote VM',
+    role: 'Development',
+  },
+  {
+    id: 'nekosm1',
+    title: 'nekosm1 (Android)',
+    os: 'Android',
+    role: 'Tailscale',
   },
 ] as const
