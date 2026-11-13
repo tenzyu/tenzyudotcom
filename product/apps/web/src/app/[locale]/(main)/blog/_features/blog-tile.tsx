@@ -32,7 +32,7 @@ export function BlogTile({
     <Card
       className={cn(
         'group focus-visible:ring-ring/50 gap-3 p-5 focus-visible:ring-2 focus-visible:outline-none',
-        className
+        className,
       )}
     >
       <Link href={href} prefetch>
@@ -51,20 +51,22 @@ export function BlogTile({
         <p className="text-muted-foreground line-clamp-3 text-sm leading-relaxed">
           {summary}
         </p>
-        {tags && tags.length > 0 ? (
-          <div className="flex flex-wrap gap-2 pt-1">
-            {tags.map((tag) => (
-              <Badge
-                key={tag}
-                variant="secondary"
-                className="group-hover:text-primary/80 transition-colors"
-              >
-                #{tag}
-              </Badge>
-            ))}
-          </div>
-        ) : null}
       </Link>
+      {tags && tags.length > 0 ? (
+        <div className="flex flex-wrap gap-2 pt-1">
+          {tags.map((tag) => (
+            <Link
+              key={tag}
+              href={getLocalizedUrl(
+                `/blog?${new URLSearchParams({ tag })}`,
+                locale,
+              )}
+            >
+              <Badge variant="secondary">#{tag}</Badge>
+            </Link>
+          ))}
+        </div>
+      ) : null}
     </Card>
   )
 }

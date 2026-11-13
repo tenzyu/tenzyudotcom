@@ -1,4 +1,6 @@
 import { useIntlayer } from 'next-intlayer/server'
+import { getLocalizedUrl } from 'intlayer'
+import Link from 'next/link'
 import { Alert, AlertDescription, AlertTitle } from '@tenzyu/ui/alert'
 import { Badge } from '@tenzyu/ui/badge'
 import {
@@ -65,9 +67,16 @@ export function BlogPostPageContent({
               <ul className="mt-4 flex flex-wrap gap-2 text-xs">
                 {post.metadata.tags.map((tag) => (
                   <li key={tag}>
-                    <Badge variant="outline" className="font-medium">
-                      #{tag}
-                    </Badge>
+                    <Link
+                      href={getLocalizedUrl(
+                        `/blog?${new URLSearchParams({ tag })}`,
+                        locale,
+                      )}
+                    >
+                      <Badge variant="outline" className="font-medium">
+                        #{tag}
+                      </Badge>
+                    </Link>
                   </li>
                 ))}
               </ul>

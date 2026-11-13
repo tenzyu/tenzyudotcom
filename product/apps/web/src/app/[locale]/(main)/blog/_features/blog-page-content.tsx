@@ -22,6 +22,7 @@ type BlogPageContentProps = {
   locale: string
   pageItems: BlogListItem[]
   totalPages: number
+  tag?: string
 }
 
 export async function BlogPageContent({
@@ -29,11 +30,15 @@ export async function BlogPageContent({
   locale,
   pageItems,
   totalPages,
+  tag,
 }: BlogPageContentProps) {
   const content = useIntlayer('page-blog')
 
   const pageHref = (page: number) => {
-    const href = page === 1 ? '/blog' : `/blog?page=${page}`
+    const query = new URLSearchParams()
+    if (tag) query.set('tag', tag)
+    if (page > 1) query.set('page', String(page))
+    const href = `/blog${query.size ? `?${query}` : ''}`
     return getLocalizedUrl(href, locale)
   }
 
@@ -43,6 +48,25 @@ export async function BlogPageContent({
         title={content.metadata.title.value}
         description={content.metadata.description.value}
       />
+
+      {tag ? (
+        <div className="flex flex-wrap items-center gap-3">
+          <h2 className="text-lg font-semibold">#{tag}</h2>
+          <Link
+            className="text-primary underline"
+            href={getLocalizedUrl('/blog', locale)}
+          >
+            {locale === 'ja' ? 'すべての記事' : 'All posts'}
+          </Link>
+        </div>
+      ) : null}
+      {tag && pageItems.length === 0 ? (
+        <p>
+          {locale === 'ja'
+            ? 'このタグの記事はありません。'
+            : 'No posts with this tag.'}
+        </p>
+      ) : null}
 
       <AdminGate>
         <Content size="2xl" className="mb-8">
@@ -91,7 +115,7 @@ export async function BlogPageContent({
                     <Link
                       href={getLocalizedUrl(
                         `/editor/blog?slug=${post.slug}`,
-                        locale
+                        locale,
                       )}
                     >
                       <Pencil />

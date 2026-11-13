@@ -10,7 +10,7 @@ export function PortfolioPageContent() {
   const content = useIntlayer('page-portfolio')
 
   return (
-    <>
+    <div className="portfolio-page space-y-16">
       <AboutMeSection />
       <ProjectsSection />
       <ExperienceSection />
@@ -21,6 +21,6 @@ export function PortfolioPageContent() {
         <Separator className="bg-border/50 mb-6" />
         {content.footer.note}
       </footer>
-    </>
+    </div>
   )
 }

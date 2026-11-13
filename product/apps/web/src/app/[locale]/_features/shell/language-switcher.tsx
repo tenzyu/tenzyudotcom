@@ -15,7 +15,8 @@ import {
 export function LanguageSwitcher() {
   const content = useIntlayer('languageSwitcher')
   const { locale, availableLocales, setLocale } = useLocale({
-    onChange: ({ path }) => window.location.replace(path),
+    onChange: ({ locale: nextLocale, path }) =>
+      window.location.replace(nextLocale === 'ja' ? `/ja${path}` : path),
   })
 
   return (

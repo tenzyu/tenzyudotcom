@@ -15,6 +15,7 @@ import {
   buildBlogPostImageUrl,
   buildBlogPostUrl,
   compareBlogPostsByPublishedAtDesc,
+  filterBlogPostsByTag,
   isAiGeneratedPost,
 } from './blog.domain'
 
@@ -35,12 +36,13 @@ export type PaginatedBlogPosts = {
 
 export async function assemblePaginatedBlogPosts(
   rawPage?: string,
+  tag?: string,
 ): Promise<PaginatedBlogPosts> {
-  const posts = await loadBlogPosts()
+  const posts = filterBlogPostsByTag(await loadBlogPosts(), tag)
   const totalPages = Math.ceil(posts.length / PAGE_SIZE)
   const pageParam = Number(rawPage ?? 1)
   const currentPage = Number.isFinite(pageParam)
-    ? Math.min(Math.max(pageParam, 1), Math.max(totalPages, 1))
+    ? Math.min(Math.max(Math.floor(pageParam), 1), Math.max(totalPages, 1))
     : 1
   const startIndex = (currentPage - 1) * PAGE_SIZE
 

@@ -35,6 +35,10 @@ export type BlogPostSummary = {
   slug: string
 }
 
+export function filterBlogPostsByTag(posts: BlogPostSummary[], tag?: string) {
+  return tag ? posts.filter((post) => post.metadata.tags?.includes(tag)) : posts
+}
+
 type BlogPostLike = {
   metadata: Pick<BlogFrontmatter, 'publishedAt'>
   slug: string

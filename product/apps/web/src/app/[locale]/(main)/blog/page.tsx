@@ -13,6 +13,7 @@ export const generateMetadata = createPageMetadata('page-blog', {
 type PageProps = LocalPromiseParams & {
   searchParams?: Promise<{
     page?: string
+    tag?: string
   }>
 }
 
@@ -20,7 +21,10 @@ export default async function Page({ params, searchParams }: PageProps) {
   const locale = await resolvePageLocale(params)
   const resolvedSearchParams = await searchParams
   const { currentPage, pageItems, totalPages } =
-    await assemblePaginatedBlogPosts(resolvedSearchParams?.page)
+    await assemblePaginatedBlogPosts(
+      resolvedSearchParams?.page,
+      resolvedSearchParams?.tag,
+    )
 
   return (
     <IntlayerServerProvider locale={locale}>
@@ -28,6 +32,7 @@ export default async function Page({ params, searchParams }: PageProps) {
         currentPage={currentPage}
         locale={locale}
         pageItems={pageItems}
+        tag={resolvedSearchParams?.tag}
         totalPages={totalPages}
       />
     </IntlayerServerProvider>

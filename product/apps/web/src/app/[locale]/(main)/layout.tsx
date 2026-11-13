@@ -8,7 +8,7 @@ export default function MainLayout({
 }>) {
   return (
     <div className="py-(--tz-page-padding-y)">
-      <Content size="md">
+      <Content size="md" className="main-content">
         <Stack gap="xl">{children}</Stack>
       </Content>
     </div>

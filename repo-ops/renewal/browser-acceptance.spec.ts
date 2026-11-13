@@ -137,7 +137,9 @@ test("primary navigation exposes retained destinations and follows a link", asyn
 	await expectNoHorizontalOverflow(page);
 });
 
-test("language selector changes and retains the selected locale", async ({ page }) => {
+test("language selector changes and retains the selected locale", async ({
+	page,
+}) => {
 	await page.goto("/en/portfolio?from=preview", { waitUntil: "networkidle" });
 	await page.evaluate(() => localStorage.setItem("theme", "dark"));
 	await page.reload({ waitUntil: "networkidle" });
@@ -148,6 +150,7 @@ test("language selector changes and retains the selected locale", async ({ page 
 	await expect.poll(() => new URL(page.url()).search).toBe("?from=preview");
 	await expect(page.locator("html")).toHaveAttribute("lang", "ja");
 	await expect(page.locator("html")).toHaveClass(/dark/);
+	await page.waitForLoadState("networkidle");
 	await page.reload({ waitUntil: "networkidle" });
 	await expect(page.locator("html")).toHaveAttribute("lang", "ja");
 	await page.getByRole("button", { name: "言語を切り替える" }).click();
@@ -156,6 +159,103 @@ test("language selector changes and retains the selected locale", async ({ page 
 	await expect.poll(() => new URL(page.url()).search).toBe("?from=preview");
 	await expect(page.locator("html")).toHaveAttribute("lang", "en");
 	await expect(page.locator("html")).toHaveClass(/dark/);
+	await page.waitForLoadState("networkidle");
+});
+
+test("Japanese selection works when the browser cookie write is delayed", async ({
+	page,
+	context,
+}) => {
+	await context.addCookies([
+		{ name: "INTLAYER_LOCALE", value: "en", domain: "127.0.0.1", path: "/" },
+	]);
+	await page.addInitScript(() => {
+		Object.defineProperty(window.cookieStore, "set", {
+			value: () => new Promise(() => {}),
+			configurable: true,
+		});
+	});
+	await page.goto("/en/portfolio?from=preview", { waitUntil: "networkidle" });
+	await page.getByRole("button", { name: /change language/i }).click();
+	await page.getByRole("menuitem", { name: "日本語" }).click();
+	await expect(page.locator("html")).toHaveAttribute("lang", "ja");
+	await expect(page).toHaveURL(/\/portfolio\?from=preview$/);
+	await page.waitForLoadState("networkidle");
+	await page.reload({ waitUntil: "networkidle" });
+	await expect(page.locator("html")).toHaveAttribute("lang", "ja");
+});
+
+test("osu diagrams use visible colors and the site theme", async ({ page }) => {
+	await page.goto("/osu", { waitUntil: "networkidle" });
+	const diagram = page.locator(".bg-visualization-primary").first();
+	await expect(diagram).toBeVisible();
+	expect(
+		await diagram.evaluate(
+			(element) => getComputedStyle(element).backgroundColor,
+		),
+	).not.toBe("rgba(0, 0, 0, 0)");
+	const colors = await page.locator(".legacy-osu").evaluate((element) => ({
+		page: getComputedStyle(element).getPropertyValue("--background").trim(),
+		site: getComputedStyle(element.closest(".tz-site")!)
+			.getPropertyValue("--background")
+			.trim(),
+	}));
+	expect(colors.page).toBe(colors.site);
+});
+
+test("portfolio uses the wider layout without overflowing", async ({
+	page,
+}) => {
+	await page.setViewportSize({ width: 1440, height: 900 });
+	await page.goto("/portfolio", { waitUntil: "networkidle" });
+	const width = await page
+		.locator(".main-content")
+		.evaluate((element) => element.getBoundingClientRect().width);
+	expect(width).toBeGreaterThan(736);
+	await expectNoHorizontalOverflow(page);
+});
+
+test("dark mode uses the darker site background", async ({ page }) => {
+	await page.goto("/", { waitUntil: "networkidle" });
+	await page.evaluate(() => localStorage.setItem("theme", "dark"));
+	await page.reload({ waitUntil: "networkidle" });
+	await expect(page.locator("html")).toHaveClass(/dark/);
+	await expect(page.locator(".tz-site")).toHaveCSS(
+		"background-color",
+		"rgb(21, 20, 18)",
+	);
+});
+
+test("blog tags open a filtered list and keep the filter on pagination", async ({
+	page,
+	context,
+}) => {
+	await context.addCookies([
+		{ name: "INTLAYER_LOCALE", value: "ja", domain: "127.0.0.1", path: "/" },
+	]);
+	await page.goto("/blog", { waitUntil: "networkidle" });
+	const tagLink = page.locator('a[href^="/blog?tag="]').first();
+	const label = await tagLink.innerText();
+	await tagLink.click();
+	await expect
+		.poll(() => new URL(page.url()).searchParams.get("tag"))
+		.toBe(label.slice(1));
+	await expect(
+		page.getByRole("heading", { name: label, exact: true }),
+	).toBeVisible();
+	const articles = page.locator('a[href^="/blog/"]');
+	await expect(articles.first()).toBeVisible();
+	for (const article of await articles.all()) {
+		await expect(
+			article.locator("..").getByRole("link", { name: label, exact: true }),
+		).toBeVisible();
+	}
+	const next = page.getByRole("link", { name: /next/i });
+	if (await next.count()) {
+		expect(await next.getAttribute("href")).toContain("tag=");
+	}
+	await page.getByRole("link", { name: "すべての記事" }).click();
+	await expect(page).toHaveURL(/\/blog$/);
 });
 
 test("osu settings start current and retain historical tablet and keypad details", async ({
@@ -181,7 +281,9 @@ test("osu contents navigation is localized", async ({ page }) => {
 	await page.goto("/osu", { waitUntil: "networkidle" });
 	await expect(page.getByRole("navigation", { name: "目次" })).toBeVisible();
 	await page.goto("/en/osu", { waitUntil: "networkidle" });
-	await expect(page.getByRole("navigation", { name: "Table of Contents" })).toBeVisible();
+	await expect(
+		page.getByRole("navigation", { name: "Table of Contents" }),
+	).toBeVisible();
 });
 
 test("retired routes return not found", async ({ page }) => {
