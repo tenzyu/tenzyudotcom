@@ -258,6 +258,26 @@ test("blog tags open a filtered list and keep the filter on pagination", async (
 	await expect(page).toHaveURL(/\/blog$/);
 });
 
+test("the stray LLM harness article renders its authored components", async ({
+	page,
+}) => {
+	const response = await page.goto(
+		"/en/blog/i-am-a-stray-llm-harness-engineer",
+		{ waitUntil: "networkidle" },
+	);
+	expect(response?.status()).toBe(200);
+	await expect(
+		page.getByRole("heading", {
+			name: /a stray LLM-harness engineer/i,
+			level: 1,
+		}),
+	).toBeVisible();
+	await expect(
+		page.getByRole("button", { name: "お金くれる人探してます" }),
+	).toHaveAttribute("href", "https://ko-fi.com/tenzyu");
+	await expect(page.getByText("キー配列を変える。")).toBeVisible();
+});
+
 test("osu settings start current and retain historical tablet and keypad details", async ({
 	page,
 }) => {
