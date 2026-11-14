@@ -1,7 +1,7 @@
 # Repository instructions
 
 - Use Bun workspaces and Nx. Inspect `package.json`, `nx.json`, and `bun nx show project <name> --json` before choosing commands.
-- On neko7, run project commands through `nix develop --no-write-lock-file --command`. Use an isolated copy without dotenv files when a tool may load them.
+- On neko7, OpenCode loads this repository's approved `.envrc` through nix-direnv for each shell invocation. Set the shell tool's `workdir` to this repository or a subdirectory and run project commands directly, without wrapping each command in `nix develop`. Use `nix develop --no-write-lock-file --command` outside this integration or select a named devShell explicitly when needed. Use an isolated copy without dotenv files when a tool may load them.
 - Search for relevant paths and symbols before reading files. Read focused sections, then expand when needed to understand behavior and dependencies.
 - Keep command output focused without hiding exit codes or failure details. Preserve full logs outside Git when needed, and inspect the relevant failures.
 - Start verification with the affected project and behavior, then expand to dependent projects or broader checks when the change requires them. Report checks not run.
