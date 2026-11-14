@@ -52,6 +52,8 @@ dist-ssr
 
 # env files (can opt-in for committing if needed)
 .env*
+!.envrc
+.direnv/
 !.env-sample
 !**/.env-sample
 
