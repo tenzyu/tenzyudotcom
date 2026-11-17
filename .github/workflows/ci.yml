@@ -34,6 +34,15 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      # Biome comes from the Nix devShell locally, but CI does not enter that shell.
+      - name: Set up Biome
+        uses: biomejs/setup-biome@4c91541eaada48f67d7dbd7833600ce162b68f51 # v2.7.1
+        with:
+          version: 2.4.16
+
+      - name: Verify Biome executable
+        run: biome --version
+
       - name: Dependency policy
         run: bun run policy:deps
 
@@ -41,10 +50,14 @@ jobs:
         run: bun run verify:workspace
 
       - name: Affected checks
-        run: bun nx affected -t check --base=origin/main --head=HEAD
+        env:
+          BASE_REF: ${{ github.base_ref || 'main' }}
+        run: bun nx affected -t check --base="origin/${BASE_REF}" --head=HEAD
 
       - name: Affected builds
-        run: bun nx affected -t build --base=origin/main --head=HEAD
+        env:
+          BASE_REF: ${{ github.base_ref || 'main' }}
+        run: bun nx affected -t build --base="origin/${BASE_REF}" --head=HEAD
 
       - name: Workbench Rust checks
         run: |
