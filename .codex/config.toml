@@ -2,10 +2,6 @@ model = "gpt-5.5"
 model_reasoning_effort = "high"
 personality = "pragmatic"
 
-[mcp_servers.serena]
-command = "serena"
-args = [ "start-mcp-server", "--context", "codex" ]
-
 [mcp_servers.nx-mcp]
 command = "bunx"
 args = [ "nx", "mcp" ]

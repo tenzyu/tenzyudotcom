@@ -1,15 +1,9 @@
-# Repository instructions
+# Repository agent contract
 
-- Use Bun workspaces and Nx. Inspect `package.json`, `nx.json`, and `bun nx show project <name> --json` before choosing commands.
-- On neko7, OpenCode loads this repository's approved `.envrc` through nix-direnv for each shell invocation. Set the shell tool's `workdir` to this repository or a subdirectory and run project commands directly, without wrapping each command in `nix develop`. Use `nix develop --no-write-lock-file --command` outside this integration or select a named devShell explicitly when needed. Use an isolated copy without dotenv files when a tool may load them.
-- Search for relevant paths and symbols before reading files. Read focused sections, then expand when needed to understand behavior and dependencies.
-- Keep command output focused without hiding exit codes or failure details. Preserve full logs outside Git when needed, and inspect the relevant failures.
-- Start verification with the affected project and behavior, then expand to dependent projects or broader checks when the change requires them. Report checks not run.
-- Avoid extra model calls, parallel agents, and repeated investigation unless they help resolve the task. Preserve decisions, evidence, and next steps when handing work to a new session.
-- Put apps in `product/apps`, shared packages in `product/packages`, and repository tooling in `repo-ops`.
-- Apps may import packages. Packages must not import apps, and product runtime code must not import `repo-ops`.
-- Keep authored content, secrets, and unrelated work intact. Do not read `.env` files or write to the external content repository without an explicit request.
-- Keep `@tenzyu/osu-skin-core` runtime-pure. Keep app-specific behavior out of `@tenzyu/ui`.
-- Atelier, Castalia, pointers, puzzles, recommendations, and the old agent harness are retired. Historical ADRs and reports under `harness` are reference material, not active instructions.
-- Renewal decisions and evidence live in `docs/renewal`. Observation tools live in `repo-ops/renewal`.
-- Make scoped changes, run the relevant commands, and report actual results and remaining issues. Commit or push only when requested.
+- **Authority:** current implementation, package/project manifests, tests and actual observations override [OKF Wiki](docs/wiki/index.md), which overrides dated reports; historical ADRs are decision records, not live instructions. Load only the relevant Wiki concept, not all documentation.
+- **Branch workflow:** base topic branches on `develop`; create PRs against `develop`. Do not deploy, merge or push to `main` without authorization.
+- **Environment:** Bun workspaces and Nx. Inspect `package.json`, `nx.json` and `bun nx show project <name> --json`. On neko7 the approved `.envrc`/nix-direnv enters the shell automatically; run commands directly. Elsewhere enter a Nix devShell once. Do not expose or read `.env*`; use credential-free isolation when exploratory tools may load dotenv.
+- **Boundaries:** apps in `product/apps`, shared packages in `product/packages`, automation in `repo-ops`. Packages must not import apps; runtime code must not import `repo-ops`. Keep `osu-skin-core` runtime-pure and shared UI free of app-specific behavior.
+- **Evidence:** search symbols and own paths first, then read focused code. Make minimal coherent changes; verify affected behavior and dependent checks. Report actual exit results, untested conditions, and rollback. Keep logs private; never suppress test failure.
+- **Permissions:** preserve authored content, external content repo, secrets, unrelated changes and live services. No OS/systemd/Tailscale/deployment/external-write operation without scoped approval. Avoid unnecessary agents and repeated investigations.
+- **Dreaming:** promote code-backed, durable knowledge into one OKF concept with provenance and lifecycle; update its index/log, prune stale duplicates, keep all ADRs unchanged. Never invent human verification or measured savings.

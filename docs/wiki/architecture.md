@@ -1,0 +1,25 @@
+---
+type: Reference
+title: Workspace architecture
+description: Executable ownership of tenzyudotcom apps, packages and routes.
+tags: [architecture, bun, nx]
+status: stable
+sources:
+  - { resource: ../../package.json, title: Root manifest }
+  - { resource: ../../nx.json, title: Nx configuration }
+  - { resource: ../../product/apps/web/src/features/site-navigation/public-routes.data.ts, title: Public routes }
+---
+
+# Implemented boundaries
+
+`product/apps/web` uses Next.js 16, React, Intlayer, MDX and the public routes **blog, notes, scraps, links, tools, osu, portfolio**. Do not follow the older proposed `/engineering` route as if implemented. The route registry and `src/config/site-policy.ts` govern links and sitemap.
+
+`product/apps/osu-skin-workbench` uses Tauri/Rust for native filesystem effects and React/Vite for UI. `product/packages/osu-skin-core` retains runtime-pure contracts/classification. `product/packages/ui` owns shareable presentation/Storybook; `linter` enforces ownership. `repo-ops` is tooling, not a product runtime dependency. Apps may import packages; packages must not import apps.
+
+`product/apps/chatgpt-partial-html-export` reads visible Firefox page DOM and exports local HTML through Downloads or Native Messaging, **not** private ChatGPT APIs.
+
+# Where to start
+
+Inspect `package.json`, `nx.json`, `product/apps/*/project.json` and `bun nx show project <name> --json`. Active Nix shells: default/web, minimal, skin-workbench, browser-verification and repo-ops. If direnv already loaded the shell, don't repeatedly invoke Nix.
+
+The separate `tenzyudotcom-content` repository owns authored content. An external read failure cannot be silently replaced with empty data. Historical host/preview records are not current configuration.
