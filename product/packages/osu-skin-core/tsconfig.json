@@ -4,5 +4,5 @@
     "lib": ["ES2022"]
   },
   "include": ["src/**/*.ts", "tests/**/*.ts"],
-  "exclude": ["dist"]
+  "exclude": ["dist", "tests/package-smoke-entry.ts"]
 }
