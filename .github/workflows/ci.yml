@@ -57,6 +57,12 @@ jobs:
       - name: Affected builds
         env:
           BASE_REF: ${{ github.base_ref || 'main' }}
+          # Public, anonymous read-only source; never supply editor write credentials.
+          GITHUB_CONTENT_TOKEN: ""
+          GITHUB_CONTENT_OWNER: tenzyu
+          GITHUB_CONTENT_REPO: tenzyudotcom-content
+          GITHUB_CONTENT_BRANCH: main
+          GITHUB_CONTENT_ROOT: storage
         run: bun nx affected -t build --base="origin/${BASE_REF}" --head=HEAD
 
       - name: Workbench Rust checks
@@ -66,4 +72,10 @@ jobs:
 
       - name: Full verification on main
         if: github.ref == 'refs/heads/main'
+        env:
+          GITHUB_CONTENT_TOKEN: ""
+          GITHUB_CONTENT_OWNER: tenzyu
+          GITHUB_CONTENT_REPO: tenzyudotcom-content
+          GITHUB_CONTENT_BRANCH: main
+          GITHUB_CONTENT_ROOT: storage
         run: bun nx run-many -t verify
