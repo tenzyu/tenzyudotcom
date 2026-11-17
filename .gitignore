@@ -9,6 +9,7 @@
 .opencode/opencode-goal-plugin/
 .cursor/
 .worktrees/
+.serena/
 dist/
 storage/.sync-state/
 

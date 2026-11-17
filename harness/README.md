@@ -1,12 +1,11 @@
-# Historical records
+# Historical ADRs and reviews
 
-The agent harness, Atelier, and Castalia were retired with the approved renewal on 2026-11-01.
-This directory retains historical ADRs, the inline-editor deviation report, and the lint rollout log.
-These records describe past decisions and observations. Their status fields, paths, and commands are historical, not active repository instructions.
+The legacy agent harness and Atelier/Castalia were retired in 2026. These files are **historical**, not active rules. Preserve the original ADR content unchanged.
 
-- `knowledge/decisions/adr` contains four repository ADRs.
-- `atelier-design-docs/ADRs` contains four historical Atelier ADRs.
-- `observations/audits/admin-inline-editor-deviation-report.md` records editor implementation lessons.
-- `observations/audits/lint-rule-rollout-log.md` records the architecture lint rollout.
+- [Renewal decision](adr/0001-renewal.md)
+- [Repository ADRs](knowledge/decisions/adr/)
+- [Atelier ADRs](atelier-design-docs/ADRs/)
+- [Inline editor retrospective](observations/audits/admin-inline-editor-deviation-report.md)
+- [Lint rollout retrospective](observations/audits/lint-rule-rollout-log.md)
 
-Use root `AGENTS.md` for current agent instructions and `docs/renewal` for renewal decisions and evidence.
+See the [active LLM Wiki](../docs/wiki/index.md) and [dated closure record](../docs/renewal/12-completion.md). Source and current tests override stale reports.

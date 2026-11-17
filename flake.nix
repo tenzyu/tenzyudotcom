@@ -4,17 +4,16 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
-    serena.url = "github:oraios/serena";
   };
 
   outputs =
-    { nixpkgs, flake-utils, serena, ... }:
+    { nixpkgs, flake-utils, ... }:
     flake-utils.lib.eachDefaultSystem (
       system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
         shellHooks = import ./nix/shell-hooks.nix { inherit pkgs; };
-        packageSets = import ./nix/packages.nix { inherit pkgs serena system; };
+        packageSets = import ./nix/packages.nix { inherit pkgs; };
       in
       {
         devShells = import ./nix/devshells.nix {
