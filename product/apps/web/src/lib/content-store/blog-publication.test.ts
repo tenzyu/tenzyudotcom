@@ -72,7 +72,7 @@ const seed = {
   'storage/editor/notes.json': '[]\n',
 }
 
-function fixture(files = seed) {
+function fixture(files: Record<string, string> = seed) {
   const dir = mkdtempSync(join(tmpdir(), 'blog-git-'))
   paths.push(dir)
   return initGitContentFixture(join(dir, 'fixture.git'), files)
