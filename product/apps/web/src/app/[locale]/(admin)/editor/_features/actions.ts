@@ -1,19 +1,22 @@
 'use server'
 
 import { getLocalizedUrl } from 'intlayer'
-import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
-import { StorageVersionConflictError } from '@/lib/content-store/content-store.domain'
+import {
+  StorageCommitUncertainError,
+  StorageError,
+  StorageVersionConflictError,
+} from '@/lib/content-store/content-store.domain'
 import { isWritableEditorCollectionId } from '@/features/content-editor/editor-collections'
 import {
   makeSaveEditorCollectionUseCase,
-  makeSaveBlogPostUseCase,
+  checkEditorBlogPublication,
+  publishEditorBlog,
 } from './editor.assemble'
 import {
   parseEditorBlogSaveInput,
   parseEditorCollectionSaveInput,
   parseEditorLoginInput,
-  validateEditorBlogPostDates,
 } from './editor-input.assemble'
 import type { SaveBlogPostActionState } from './blog-save-form-state'
 import {
@@ -108,86 +111,62 @@ export async function saveEditorCollectionAction(
 }
 
 export async function saveBlogPostAction(
-  _previousState: SaveBlogPostActionState,
+  previous: SaveBlogPostActionState,
   formData: FormData,
 ): Promise<SaveBlogPostActionState> {
+  const locale = formData.get('locale') === 'en' ? 'en' : 'ja'
   await requireEditorSameOriginRequest()
-  await requireEditorAdminSession(formData.get('locale') === 'en' ? 'en' : 'ja')
-  const parsed = parseEditorBlogSaveInput({
-    locale: formData.get('locale'),
-    slug: formData.get('slug'),
-    title: formData.get('title'),
-    summary: formData.get('summary'),
-    publishedAt: formData.get('publishedAt'),
-    updatedAt: formData.get('updatedAt') || undefined,
-    tags: formData.get('tags'),
-    body: formData.get('body'),
-    expectedVersion: formData.get('expectedVersion') || undefined,
-  })
-
-  if (!parsed.success) {
-    return {
-      error: 'invalid',
-      message: 'Required blog fields are missing or invalid.',
-    }
+  await requireEditorAdminSession(locale)
+  if (previous.status === 'uncertain') {
+    if (
+      formData.get('operation') !== 'reconcile' ||
+      !/^[a-z0-9][a-z0-9-]*$/.test(previous.slug)
+    )
+      return previous
+    const result = await checkEditorBlogPublication(
+      previous.candidateOid,
+      previous.slug,
+      locale,
+    ).catch(() => null)
+    return (
+      result ?? {
+        ...previous,
+        message:
+          'Publication is still unconfirmed. Keep your draft and inspect the latest revision before submitting again.',
+      }
+    )
   }
 
-  const validatedDates = validateEditorBlogPostDates({
-    publishedAt: parsed.data.publishedAt,
-    updatedAt: parsed.data.updatedAt,
-  })
-
-  if (!validatedDates.success) {
-    return {
-      error: 'validation',
-      message: validatedDates.message,
-    }
-  }
-
-  const tags = parsed.data.tags
-    ? parsed.data.tags
-        .split(',')
-        .map((t) => t.trim())
-        .filter(Boolean)
-    : []
-
-  const frontmatter = {
-    title: parsed.data.title,
-    summary: parsed.data.summary,
-    publishedAt: validatedDates.data.publishedAt,
-    updatedAt: validatedDates.data.updatedAt,
-    tags,
-  }
+  const parsed = parseEditorBlogSaveInput(formData)
+  if (!parsed.success)
+    return { status: 'error', error: parsed.error, message: parsed.message }
 
   try {
-    const saveUseCase = makeSaveBlogPostUseCase()
-    await saveUseCase.execute(
-      parsed.data.slug,
-      frontmatter,
-      parsed.data.body,
-      parsed.data.expectedVersion,
-    )
-
-    revalidatePath(getLocalizedUrl('/blog', parsed.data.locale))
-    revalidatePath(
-      getLocalizedUrl(`/blog/${parsed.data.slug}`, parsed.data.locale),
-    )
-    revalidatePath(getLocalizedUrl(`/editor/blog`, parsed.data.locale))
+    return await publishEditorBlog(parsed.command, parsed.locale)
   } catch (error) {
-    if (error instanceof StorageVersionConflictError) {
+    if (error instanceof StorageCommitUncertainError) {
       return {
-        error: 'conflict',
+        status: 'uncertain',
+        candidateOid: error.candidateOid,
+        slug: parsed.command.slug,
         message:
-          'This post has been modified by another session. Reload the latest state and retry.',
+          'Publication outcome unknown. Your draft is still here. Check publication before retrying.',
       }
     }
-    console.error('Failed to save blog post:', error)
+    if (error instanceof StorageVersionConflictError) {
+      return {
+        status: 'error',
+        error: 'conflict',
+        message: error.message,
+      }
+    }
     return {
+      status: 'error',
       error: 'save',
       message:
-        'Failed to save the blog post or refresh the blog index in GitHub content storage.',
+        error instanceof StorageError
+          ? `${error.message} Your draft has been kept.`
+          : 'Failed to save the blog post. Your draft has been kept.',
     }
   }
-
-  redirect(getLocalizedUrl(`/editor/blog?saved=1`, parsed.data.locale))
 }

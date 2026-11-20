@@ -4,10 +4,13 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createRequire } from 'node:module';
 import { test } from 'node:test';
+import { initGitContentFixture } from './git-content-fixture.mjs';
 
 test('fixture denies external fetches, bypasses env files and preserves immutable snapshots', async () => {
   const dir = mkdtempSync(join(tmpdir(), 'editor-fixture-test-'));
   process.env.EDITOR_FIXTURE_LEDGER = join(dir, 'ledger.jsonl');
+  process.env.EDITOR_FIXTURE_REPO = join(dir, 'content.git');
+  initGitContentFixture(process.env.EDITOR_FIXTURE_REPO, { 'storage/scraps/index.json': '[]\n' });
   const originalFetch = globalThis.fetch;
   globalThis.fetch = () => { throw new Error('Native network fetch must not run'); };
   try {
@@ -37,13 +40,14 @@ test('fixture denies external fetches, bypasses env files and preserves immutabl
     await api('/git/refs/heads/main', 'PATCH', { sha: commit.sha, force: false });
     assert.equal(Buffer.from((await api('/contents/storage/scraps/test.mdx')).content, 'base64').toString(), 'fixture body');
     assert.equal((await fetch(`${base}/contents/storage/scraps/test.mdx?ref=${old}`)).status, 404);
-    assert.equal((await fetch(`${base}/git/refs/heads/main`, { method: 'PATCH', body: JSON.stringify({ sha: commit.sha, force: false }) })).status, 422);
-    assert.equal((await api('/git/trees/main?recursive=1')).tree.length, 2);
+    assert.equal((await fetch(`${base}/git/refs/heads/main`, { method: 'PATCH', body: JSON.stringify({ sha: commit.sha, force: true }) })).status, 422);
+    assert.equal((await api('/git/trees/main?recursive=1')).tree.filter(row => row.type === 'blob').length, 2);
     const rows = readFileSync(process.env.EDITOR_FIXTURE_LEDGER, 'utf8').trim().split('\n').map(JSON.parse);
     assert.ok(rows.every(row => Object.keys(row).join(',') === 'method,path,status'));
   } finally {
     globalThis.fetch = originalFetch;
     delete process.env.EDITOR_FIXTURE_LEDGER;
+    delete process.env.EDITOR_FIXTURE_REPO;
     rmSync(dir, { recursive: true });
   }
 });

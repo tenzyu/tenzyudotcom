@@ -1,73 +1,76 @@
 import { describe, expect, test } from 'bun:test'
-import {
-  parseEditorBlogSaveInput,
-  validateEditorBlogPostDates,
-} from './editor-input.assemble'
+import { parseEditorBlogSaveInput } from './editor-input.assemble'
 
-describe('validateEditorBlogPostDates', () => {
-  test('rejects invalid publishedAt', () => {
-    expect(
-      validateEditorBlogPostDates({
-        publishedAt: 'not-a-date',
-      }),
-    ).toEqual({
-      success: false,
-      error: 'publishedAt',
-      message: 'Published At must be a valid date and time.',
-    })
-  })
-
-  test('rejects updatedAt earlier than publishedAt', () => {
-    expect(
-      validateEditorBlogPostDates({
-        publishedAt: '2026-03-26T12:00',
-        updatedAt: '2026-03-26T11:59',
-      }),
-    ).toEqual({
-      success: false,
-      error: 'chronology',
-      message: 'Updated At must not be earlier than Published At.',
-    })
-  })
-
-  test('accepts valid chronology', () => {
-    const result = validateEditorBlogPostDates({
-      publishedAt: '2026-03-26T12:00',
-      updatedAt: '2026-03-26T12:01',
-    })
-
-    expect(result.success).toBe(true)
-    if (!result.success) {
-      throw new Error('Expected valid blog post dates')
-    }
-
-    expect(Number.isNaN(result.data.publishedAt.getTime())).toBe(false)
-    expect(Number.isNaN(result.data.updatedAt?.getTime() ?? NaN)).toBe(false)
-    const updatedAt = result.data.updatedAt
-    expect(updatedAt).toBeDefined()
-    if (!updatedAt) {
-      throw new Error('Expected updatedAt to be present')
-    }
-    expect(updatedAt.getTime()).toBeGreaterThan(
-      result.data.publishedAt.getTime(),
-    )
-  })
-})
+function submission(fields: Record<string, string>) {
+  const form = new FormData()
+  for (const [key, value] of Object.entries({
+    locale: 'ja',
+    slug: 'new-post',
+    ...fields,
+  })) {
+    form.set(key, value)
+  }
+  return form
+}
 
 describe('parseEditorBlogSaveInput', () => {
-  test('accepts blog creation input without expectedVersion', () => {
-    const parsed = parseEditorBlogSaveInput({
-      locale: 'ja',
-      slug: 'new-post',
-      title: 'New Post',
-      summary: 'summary',
-      publishedAt: '2026-03-26T12:00',
-      updatedAt: undefined,
-      tags: '',
-      body: '# Hello',
-      expectedVersion: undefined,
+  test('accepts the old empty create precondition and an explicit instant', () => {
+    expect(
+      parseEditorBlogSaveInput(
+        submission({
+          title: 'New Post',
+          summary: 'summary',
+          body: '# Hello  \r\n',
+          publishedAt: '2026-03-26T12:00:16.248+09:00',
+          expectedVersion: '',
+        }),
+      ),
+    ).toMatchObject({
+      success: true,
+      command: {
+        intent: 'create',
+        changes: {
+          publishedAt: '2026-03-26T03:00:16.248Z',
+          body: '# Hello  \r\n',
+        },
+      },
     })
+  })
 
-    expect(parsed.success).toBe(true)
+  test('requires an edit token that is a blob OID', () => {
+    expect(
+      parseEditorBlogSaveInput(submission({ expectedVersion: 'f'.repeat(64) })),
+    ).toMatchObject({ success: false, error: 'conflict' })
+  })
+
+  test('distinguishes omitted fields and explicitly cleared optional fields', () => {
+    expect(
+      parseEditorBlogSaveInput(
+        submission({
+          intent: 'edit',
+          expectedVersion: 'a'.repeat(40),
+          changes: '{"updatedAt":null,"tags":null}',
+        }),
+      ),
+    ).toMatchObject({
+      success: true,
+      command: { intent: 'edit', changes: { updatedAt: null, tags: null } },
+    })
+  })
+
+  test.each([
+    { image: '/replacement.png' },
+    { publishedAt: '2026-03-26T12:00' },
+    { publishedAt: '2026-03-26T12:00+99:99' },
+  ])('rejects disallowed or ambiguous edits (%j)', (changes) => {
+    expect(
+      parseEditorBlogSaveInput(
+        submission({
+          intent: 'edit',
+          expectedVersion: 'a'.repeat(40),
+          changes: JSON.stringify(changes),
+        }),
+      ),
+    ).toMatchObject({ success: false, error: 'invalid' })
   })
 })

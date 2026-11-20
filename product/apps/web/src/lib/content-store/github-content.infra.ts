@@ -2,13 +2,15 @@ import { unstable_cache } from 'next/cache'
 import { env } from '@/config/env.infra'
 import {
   type ContentRepository,
-  type AggregateContentRepository,
   StorageError,
   StorageVersionConflictError,
 } from './content-store.domain'
 import { createContentVersion } from './content-version.infra'
 import { getContentTagForPathname } from './content-tags.infra'
-import { createGitHubAggregateRepository } from './github-aggregate.infra'
+import {
+  createGitHubAggregateRepository,
+  type GitHubAggregateRepository,
+} from './github-aggregate.infra'
 
 type GitHubContentFile = {
   content: string
@@ -25,19 +27,6 @@ type GitHubContentsApiResponse = {
   path: string
   sha: string
   size: number
-}
-
-export type GitHubBlogIndexEntry = {
-  pathname: string
-  slug: string
-  metadata: {
-    image?: string
-    publishedAt: string
-    summary: string
-    tags?: string[]
-    title: string
-    updatedAt?: string
-  }
 }
 
 function getGitHubConfig() {
@@ -246,37 +235,6 @@ async function deleteGitHubTextFile(
   }
 }
 
-export async function loadGitHubBlogIndex() {
-  return (
-    (await loadGitHubJsonFile<GitHubBlogIndexEntry[]>('blog/index.json')) ?? []
-  )
-}
-
-export async function upsertGitHubBlogIndexEntry(entry: GitHubBlogIndexEntry) {
-  const currentIndex = await loadGitHubTextFileFresh('blog/index.json')
-  const entries = currentIndex
-    ? (JSON.parse(currentIndex.content) as GitHubBlogIndexEntry[])
-    : []
-  const nextEntries = entries.filter(
-    (currentEntry) => currentEntry.slug !== entry.slug,
-  )
-
-  nextEntries.push(entry)
-  nextEntries.sort(
-    (a, b) =>
-      new Date(b.metadata.publishedAt).getTime() -
-      new Date(a.metadata.publishedAt).getTime(),
-  )
-
-  await saveGitHubTextFile(
-    'blog/index.json',
-    `${JSON.stringify(nextEntries, null, 2)}\n`,
-    {
-      message: `Update blog index for ${entry.slug}`,
-    },
-  )
-}
-
 async function listGitHubRepositoryFiles(prefix: string) {
   const { root } = getGitHubConfig()
   const normalizedPrefix = [
@@ -311,7 +269,7 @@ async function listGitHubRepositoryFiles(prefix: string) {
 }
 
 export const githubContentRepository: ContentRepository &
-  AggregateContentRepository = {
+  GitHubAggregateRepository = {
   snapshot() {
     return createGitHubAggregateRepository(getGitHubConfig()).snapshot()
   },
@@ -320,6 +278,11 @@ export const githubContentRepository: ContentRepository &
       expectedVersion,
       writes,
       message,
+    )
+  },
+  reconcile(candidateOid) {
+    return createGitHubAggregateRepository(getGitHubConfig()).reconcile(
+      candidateOid,
     )
   },
   async loadText(pathname) {
