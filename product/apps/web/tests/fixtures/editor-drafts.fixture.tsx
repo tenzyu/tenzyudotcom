@@ -50,6 +50,11 @@ mock.module('@tenzyu/ui/editorial', () => ({
   EditorialEntry: ({ children }: PanelProps) => <article>{children}</article>,
 }))
 let failure = 'conflict'
+const navigation = await import('next/navigation')
+mock.module('next/navigation', () => ({
+  ...navigation,
+  useRouter: () => ({ refresh() {} }),
+}))
 mock.module('@/app/[locale]/(admin)/editor/_features/scraps.actions', () => ({
   saveScrapAction: async () => ({
     status: 'error',
@@ -58,7 +63,15 @@ mock.module('@/app/[locale]/(admin)/editor/_features/scraps.actions', () => ({
   }),
 }))
 mock.module('@/app/[locale]/(admin)/editor/_features/actions', () => ({
-  saveBlogPostAction: async () => ({ error: failure, message: 'Draft kept' }),
+  saveBlogPostAction: async () =>
+    failure === 'uncertain'
+      ? {
+          status: 'uncertain',
+          candidateOid: 'a'.repeat(40),
+          slug: 'draft',
+          message: 'Draft kept',
+        }
+      : { status: 'error', error: failure, message: 'Draft kept' },
   saveEditorCollectionAction: async () => ({
     status: 'error',
     error: failure,
@@ -158,6 +171,9 @@ for (failure of ['conflict', 'save', 'uncertain']) {
   assert.equal(
     rootNode.querySelector<HTMLTextAreaElement>('[name="body"]')?.value,
     'Unsaved blog body',
+  )
+  assert.ok(
+    rootNode.querySelector('[role="alert"]')?.textContent?.includes('Draft kept'),
   )
 }
 failure = 'conflict'
