@@ -107,6 +107,27 @@ pub(crate) enum ExportPreset {
     Backup,
 }
 
+impl ExportPreset {
+    pub(crate) const ALL: [Self; 5] = [
+        Self::Full,
+        Self::SdOnly,
+        Self::HdOnly,
+        Self::Diff,
+        Self::Backup,
+    ];
+
+    pub(crate) fn file_name(self, project_id: &str) -> String {
+        let suffix = match self {
+            Self::Full => "full.osk",
+            Self::SdOnly => "sd-only.osk",
+            Self::HdOnly => "hd-only.osk",
+            Self::Diff => "diff.osk",
+            Self::Backup => "backup.zip",
+        };
+        format!("{project_id}.{suffix}")
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct ExportProjectInput {

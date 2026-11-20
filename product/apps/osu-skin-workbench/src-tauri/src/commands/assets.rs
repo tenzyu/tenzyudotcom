@@ -3,7 +3,10 @@ use tauri::AppHandle;
 
 use crate::domain::project::{ApplyAssetGroupInput, AssetMutationResult, DeleteAssetGroupInput};
 use crate::infra::files::{copy_dir_all, rebuild_structured, remove_project_files};
-use crate::infra::paths::{project_raw_dir, project_structured_dir, safe_join, source_raw_dir};
+use crate::infra::lock::lock_workbench;
+use crate::infra::paths::{
+    app_data_root, project_raw_dir, project_structured_dir, safe_join, source_raw_dir,
+};
 
 fn rollback_dir_for(dir: &std::path::Path) -> Result<std::path::PathBuf, String> {
     let parent = dir
@@ -13,10 +16,7 @@ fn rollback_dir_for(dir: &std::path::Path) -> Result<std::path::PathBuf, String>
         .file_name()
         .and_then(|value| value.to_str())
         .ok_or_else(|| format!("directory has no file name: {}", dir.display()))?;
-    Ok(parent.join(format!(
-        "{name}.rollback-{}",
-        uuid::Uuid::new_v4().simple()
-    )))
+    Ok(parent.join(format!("{name}.rollback-{}", uuid::Uuid::new_v4().simple())))
 }
 
 fn with_project_raw_rollback<T>(
@@ -57,9 +57,11 @@ pub(crate) fn apply_asset_group(
     app: AppHandle,
     input: ApplyAssetGroupInput,
 ) -> Result<AssetMutationResult, String> {
-    let project_root = project_raw_dir(&app, &input.project_id)?;
-    let structured_root = project_structured_dir(&app, &input.project_id)?;
-    let source_root = source_raw_dir(&app, &input.project_id, &input.source_id)?;
+    let app_data = app_data_root(&app)?;
+    let _lock = lock_workbench(&app_data)?;
+    let project_root = project_raw_dir(&app_data, &input.project_id)?;
+    let structured_root = project_structured_dir(&app_data, &input.project_id)?;
+    let source_root = source_raw_dir(&app_data, &input.project_id, &input.source_id)?;
     if !source_root.exists() {
         return Err(format!("unknown source: {}", input.source_id));
     }
@@ -100,8 +102,10 @@ pub(crate) fn delete_asset_group(
     app: AppHandle,
     input: DeleteAssetGroupInput,
 ) -> Result<AssetMutationResult, String> {
-    let project_root = project_raw_dir(&app, &input.project_id)?;
-    let structured_root = project_structured_dir(&app, &input.project_id)?;
+    let app_data = app_data_root(&app)?;
+    let _lock = lock_workbench(&app_data)?;
+    let project_root = project_raw_dir(&app_data, &input.project_id)?;
+    let structured_root = project_structured_dir(&app_data, &input.project_id)?;
     with_project_raw_rollback(&project_root, &structured_root, || {
         let deleted_count = remove_project_files(&project_root, &input.project_paths)?;
         let rebuilt_structured_count = rebuild_structured(&project_root, &structured_root)?;
