@@ -1,6 +1,7 @@
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { expect, test } from '@playwright/test';
+import { openGitContentFixture } from './git-content-fixture.mjs';
 
 test('editor creates, edits, appends, publishes and serves only public content', async ({ page, browser }, testInfo) => {
   const errors: string[] = [];
@@ -18,7 +19,7 @@ test('editor creates, edits, appends, publishes and serves only public content',
     await expect(page.getByRole('button', { name: 'Save details and lead', exact: true })).toBeEnabled();
   };
   const hidden = async () => {
-    const response = await publicPage.goto(`${base}/scraps/${slug}`);
+    const response = await publicPage.goto(`${base}/scraps/${slug}`, { waitUntil: 'networkidle' });
     expect(response?.status()).toBe(404);
     await expect(publicPage.getByText('Original fixture lead', { exact: true })).toHaveCount(0);
     await publicPage.goto(`${base}/scraps`);
@@ -88,4 +89,129 @@ test('editor creates, edits, appends, publishes and serves only public content',
   expect(mutations.every(row => /^\{"method":"(?:POST|PATCH)","path":"\/repos\/fixture\/editor\/git\/(?:trees|commits|refs\/heads\/main)","status":20[01]\}$/.test(row))).toBe(true);
   await testInfo.attach('github-ledger', { body: ledger, contentType: 'application/x-ndjson' });
   await reader.close();
+});
+
+test('blog editor preserves Git source, stale drafts and uncertain publication receipts', async ({ browser }) => {
+  const base = 'http://127.0.0.1:4174';
+  const output = resolve(process.env.PLAYWRIGHT_OUTPUT_DIR ?? '/tmp/tenzyudotcom-editor-evidence');
+  const directory = readFileSync(resolve(output, 'fixture-path'), 'utf8');
+  const git = openGitContentFixture(resolve(directory, 'content.git'));
+  const ledger = () => readFileSync(resolve(output, 'github-ledger.jsonl'), 'utf8').trim().split('\n').filter(Boolean).map(line => JSON.parse(line));
+  const start = ledger().length;
+  const context = await browser.newContext({ timezoneId: 'Asia/Tokyo' });
+  const reader = await browser.newContext();
+  const page = await context.newPage();
+  const main = page.getByRole('main');
+  const status = main.getByRole('status');
+  const body = main.getByLabel('Content, in MDX');
+  const save = main.getByRole('button', { name: 'Save post', exact: true });
+  const check = main.getByRole('button', { name: 'Check publication', exact: true });
+  const slug = 'fixture-atomic-blog';
+  const post = `storage/blog/${slug}.mdx`;
+  const index = 'storage/blog/index.json';
+  const draft = 'Draft content with deliberate two spaces.  \n\n| A | B |\n| - | - |\n| 1 | 2 |\n\n<KoFiLink label="Fixture support link" />\n';
+  const editorPost = `${base}/en/editor/blog?slug=${slug}`;
+  try {
+    const initial = git.head();
+    await page.goto(`${base}/en/editor/blog?create=1`);
+    await expect(page).toHaveURL(/\/editor\/login/);
+    expect((await reader.request.get(`${base}/api/editor/blog`)).status()).toBe(401);
+    await page.locator('input[name="password"]').fill('fixture-password-not-a-secret');
+    await page.getByRole('button', { name: 'ログイン', exact: true }).click();
+    await expect(page).toHaveURL(`${base}/en/editor`);
+    await page.goto(`${base}/en/editor/blog?create=1`);
+    await main.getByLabel('Slug', { exact: true }).fill(slug);
+    await main.getByLabel('Title', { exact: true }).fill('Fixture article');
+    await main.getByLabel('Summary', { exact: true }).fill('An invented article');
+    await main.getByLabel('Published at', { exact: true }).fill('2026-04-18T18:20');
+    await main.getByLabel('Tags, separated by commas').fill('second, first');
+    await body.fill(draft);
+    await save.click();
+    await expect(status).toContainText('Saved.');
+    const written = git.head();
+    await expect(status).toContainText(written);
+    expect(git.parents(written)).toEqual([initial]);
+    const authored = git.file(written, post)!.toString();
+    expect(authored).toContain('2026-04-18T09:20:00.000Z');
+    expect(authored.endsWith(draft)).toBe(true);
+    const entries = JSON.parse(git.file(written, index)!.toString());
+    expect(entries[0]).toMatchObject({ slug, metadata: { publishedAt: '2026-04-18T09:20:00.000Z' } });
+
+    entries[0].metadata.publishedAt = '2026-04-18T09:20:27.456Z';
+    entries[0].metadata.image = '/fixture-cover.png';
+    const header = authored.slice(0, -draft.length).replace('09:20:00.000Z', '09:20:27.456Z')
+      .replace('summary: ', '# Keep this author comment\nimage: /fixture-cover.png\ncustom: { first: true }\nsummary: ');
+    const crlfDraft = draft.replaceAll('\n', '\r\n');
+    const precise = git.advance({
+      [post]: header.replaceAll('\n', '\r\n') + crlfDraft,
+      [index]: JSON.stringify(entries) + '\n',
+    }, 'Add precise timestamp and authored metadata');
+
+    const stale = await context.newPage();
+    await stale.goto(editorPost);
+    const staleMain = stale.getByRole('main');
+    await expect(staleMain.getByLabel('Published at', { exact: true })).toHaveValue('2026-04-18T18:20');
+    await page.goto(editorPost);
+    await save.click();
+    await expect(status).toContainText('No changes to save.');
+    expect(git.head()).toBe(precise);
+    await main.getByLabel('Title', { exact: true }).fill('Metadata-only update');
+    await save.click();
+    await expect(status).toContainText('Saved.');
+    const updated = git.head();
+    const updatedSource = git.file(updated, post)!.toString();
+    expect(updatedSource).toContain('# Keep this author comment\r\nimage: /fixture-cover.png\r\ncustom: { first: true }');
+    expect(updatedSource).toContain('2026-04-18T09:20:27.456Z');
+    expect(updatedSource.endsWith(crlfDraft)).toBe(true);
+
+    const unsaved = 'My stale form draft.  \n\n' + draft;
+    const staleBody = staleMain.getByLabel('Content, in MDX');
+    await staleBody.fill(unsaved);
+    await staleMain.getByRole('button', { name: 'Save post', exact: true }).click();
+    await expect(staleMain.getByRole('alert')).toContainText('reload the editor');
+    await expect(staleBody).toHaveValue(unsaved);
+    expect(git.head()).toBe(updated);
+    await stale.close();
+
+    await page.goto(editorPost);
+    await body.fill(unsaved);
+    writeFileSync(resolve(directory, 'drop-ref-response'), 'before', { mode: 0o600 });
+    await save.click();
+    await expect(main.getByRole('alert')).toContainText('Publication outcome unknown');
+    const unreachable = (await main.getByRole('alert').locator('code').textContent())!;
+    expect(git.isAncestor(unreachable, git.head())).toBe(false);
+    await check.click();
+    await expect(main.getByRole('alert')).toContainText('still unconfirmed');
+    await expect(body).toHaveValue(unsaved);
+    await expect(save).toHaveCount(0);
+    expect(git.head()).toBe(updated);
+
+    await page.goto(editorPost);
+    const finalDraft = 'Fresh draft after checking Git.\n\n' + draft;
+    await body.fill(finalDraft);
+    writeFileSync(resolve(directory, 'drop-ref-response'), 'after', { mode: 0o600 });
+    await save.click();
+    await expect(main.getByRole('alert')).toContainText('Publication outcome unknown');
+    const accepted = (await main.getByRole('alert').locator('code').textContent())!;
+    expect(git.head()).toBe(accepted);
+    const later = git.advance({ 'storage/fixture.txt': 'Unrelated revision\n' }, 'Advance fixture');
+    await check.click();
+    await expect(status).toContainText(later);
+    await expect(status).toContainText(accepted);
+    await expect(body).toHaveValue(finalDraft);
+    expect(git.parents(accepted)).toEqual([updated]);
+    expect(git.head()).toBe(later);
+
+    const publicPage = await reader.newPage();
+    expect((await publicPage.goto(`${base}/en/blog/${slug}`))?.status()).toBe(200);
+    await expect(publicPage.getByRole('heading', { name: 'Metadata-only update', exact: true })).toBeVisible();
+    await expect(publicPage.getByRole('table')).toBeVisible();
+    await expect(publicPage.getByRole('button', { name: 'Fixture support link' })).toHaveAttribute('href', 'https://ko-fi.com/tenzyu');
+    await expect(publicPage.getByText('Fresh draft after checking Git.', { exact: true })).toBeVisible();
+    expect(ledger().slice(start).filter(row => row.method === 'PATCH').map(row => row.status))
+      .toEqual([200, 200, 'connection-lost', 'connection-lost']);
+  } finally {
+    await context.close();
+    await reader.close();
+  }
 });

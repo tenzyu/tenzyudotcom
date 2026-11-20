@@ -40,6 +40,7 @@
     "react-tweet": "catalog:",
     "sonner": "catalog:",
     "tw-animate-css": "catalog:",
+    "yaml": "2.8.0",
     "zod": "catalog:"
   },
   "devDependencies": {

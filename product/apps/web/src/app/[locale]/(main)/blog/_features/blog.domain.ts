@@ -16,6 +16,32 @@ export type BlogFrontmatter = Frontmatter<{
   tags?: string[]
 }>
 
+export type BlogChanges = {
+  title?: string
+  summary?: string
+  publishedAt?: string
+  updatedAt?: string | null
+  tags?: string[] | null
+  body?: string
+}
+
+export type BlogSaveCommand = { slug: string } & (
+  | {
+      intent: 'create'
+      changes: BlogChanges &
+        Required<
+          Pick<BlogChanges, 'title' | 'summary' | 'publishedAt' | 'body'>
+        >
+    }
+  | { intent: 'edit'; expectedVersion: string; changes: BlogChanges }
+)
+
+export type BlogPublicationReceipt = {
+  commitOid: string
+  headOid: string
+  status: 'written' | 'unchanged' | 'reconciled'
+}
+
 export type BlogHeading = {
   id: string
   level: 2 | 3
