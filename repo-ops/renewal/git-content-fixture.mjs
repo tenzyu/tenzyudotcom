@@ -18,7 +18,7 @@ const gitEnv = {
 const safePath = (path) => typeof path === 'string' &&
   path.split('/').every((part) => part && part !== '.' && part !== '..' && !/[\\\0\r\n\t]/.test(part));
 
-export function openGitContentFixture(directory) {
+export function openGitContentFixture(directory, { allowNotesWrite = false } = {}) {
   function command(args, { input, index, allowFailure = false } = {}) {
     const result = spawnSync('git', ['-C', directory, ...args], {
       env: { ...gitEnv, ...(index ? { GIT_INDEX_FILE: index } : {}) }, input,
@@ -53,7 +53,7 @@ export function openGitContentFixture(directory) {
       if (base) command(['read-tree', base], { index });
       for (const { path, content, sha } of entries) {
         if (sha === null) {
-          command(['update-index', '--force-remove', '--', path], { index });
+          command(['update-index', '--index-info'], { index, input: `0 ${'0'.repeat(40)}\t${path}\n` });
         } else {
           command(['update-index', '--add', '--cacheinfo', '100644', sha ?? blob(content), path], { index });
         }
@@ -136,6 +136,18 @@ export function openGitContentFixture(directory) {
       if (!common) return respond(404);
       const status = a === b ? 'identical' : common === a ? 'ahead' : common === b ? 'behind' : 'diverged';
       return respond(200, { status, merge_base_commit: { sha: common } });
+    }
+    if (allowNotesWrite && method === 'PUT' && path === '/contents/storage/editor/notes.json') {
+      const body = await request.json();
+      const filename = 'storage/editor/notes.json';
+      const previous = text(['rev-parse', '--verify', `${head()}:${filename}`], { allowFailure: true });
+      if (body.branch !== 'main' || typeof body.message !== 'string' || typeof body.content !== 'string') return denied();
+      if ((body.sha ?? null) !== previous) return respond(409);
+      const bytes = Buffer.from(body.content, 'base64');
+      if (bytes.toString('base64') !== body.content) return respond(422);
+      const revision = advance({ [filename]: bytes.toString('utf8') }, body.message);
+      const sha = text(['rev-parse', `${revision}:${filename}`]);
+      return respond(previous ? 200 : 201, { content: { sha }, commit: { sha: revision } });
     }
     if (!((method === 'POST' && ['/git/blobs', '/git/trees', '/git/commits'].includes(path)) ||
           (method === 'PATCH' && path === '/git/refs/heads/main'))) return denied();

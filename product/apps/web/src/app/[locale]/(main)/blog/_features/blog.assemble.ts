@@ -6,7 +6,8 @@ import {
   getAbsoluteUrl,
 } from '@/config/site'
 import { locales } from 'intlayer'
-import { loadBlogPostBySlug, loadBlogPostSummariesState } from './blog.infra'
+import type { ContentSnapshot } from '@/lib/content-store/content-store.domain'
+import { loadBlogCatalog, loadBlogPostBySlug } from './blog.infra'
 import {
   extractBlogHeadings,
   type BlogPostSummary,
@@ -21,9 +22,13 @@ import {
 
 const PAGE_SIZE = 6
 
-export const loadBlogPosts = cache(async () => {
-  const { collection } = await loadBlogPostSummariesState()
-  return [...collection].sort(compareBlogPostsByPublishedAtDesc)
+const loadCatalog = cache(loadBlogCatalog)
+
+export const loadBlogPosts = cache(async (snapshot: ContentSnapshot) => {
+  return (await loadCatalog(snapshot)).map(({ metadata, slug }) => ({
+    metadata,
+    slug,
+  }))
 })
 
 export type BlogListItem = BlogPostSummary
@@ -35,10 +40,11 @@ export type PaginatedBlogPosts = {
 }
 
 export async function assemblePaginatedBlogPosts(
+  snapshot: ContentSnapshot,
   rawPage?: string,
   tag?: string,
 ): Promise<PaginatedBlogPosts> {
-  const posts = filterBlogPostsByTag(await loadBlogPosts(), tag)
+  const posts = filterBlogPostsByTag(await loadBlogPosts(snapshot), tag)
   const totalPages = Math.ceil(posts.length / PAGE_SIZE)
   const pageParam = Number(rawPage ?? 1)
   const currentPage = Number.isFinite(pageParam)
@@ -56,74 +62,64 @@ export async function assemblePaginatedBlogPosts(
 
 export type BlogPost = MDXData
 
-export async function getBlogStaticParams() {
-  const posts = await loadBlogPosts()
+export const assembleBlogPostPageData = cache(
+  async (snapshot: ContentSnapshot, slug: string) => {
+    const catalog = await loadCatalog(snapshot)
+    const entry = catalog.find((entry) => entry.slug === slug)
+    const post = await loadBlogPostBySlug(snapshot, slug, entry?.pathname)
 
-  return posts.map((post) => ({
-    slug: post.slug,
-  }))
-}
-
-async function getBlogPostBySlug(slug: string) {
-  try {
-    return await loadBlogPostBySlug(slug)
-  } catch {
-    return undefined
-  }
-}
-
-export async function assembleBlogPostPageData(slug: string) {
-  const posts = await loadBlogPosts()
-  const post = await getBlogPostBySlug(slug)
-
-  if (!post) {
-    return undefined
-  }
-
-  const postTags = post.metadata.tags ?? []
-  const rankedByTags = posts
-    .filter((entry) => entry.slug !== slug)
-    .map((entry) => {
-      const overlapCount = (entry.metadata.tags ?? []).filter((tag) =>
-        postTags.includes(tag),
-      ).length
-
-      return {
-        entry,
-        overlapCount,
-      }
-    })
-    .filter(({ overlapCount }) => overlapCount > 0)
-    .sort((a, b) => {
-      if (b.overlapCount !== a.overlapCount) {
-        return b.overlapCount - a.overlapCount
-      }
-
-      return compareBlogPostsByPublishedAtDesc(a.entry, b.entry)
-    })
-    .map(({ entry }) => entry)
-  const fallbackRecentPosts = posts.filter((entry) => entry.slug !== slug)
-  const relatedPosts = [...rankedByTags]
-
-  for (const entry of fallbackRecentPosts) {
-    if (relatedPosts.length >= 3) {
-      break
+    if (!post) {
+      return undefined
     }
 
-    if (relatedPosts.some((relatedEntry) => relatedEntry.slug === entry.slug)) {
-      continue
+    const posts = await loadBlogPosts(snapshot)
+    const postTags = post.metadata.tags ?? []
+    const rankedByTags = posts
+      .filter((entry) => entry.slug !== slug)
+      .map((entry) => {
+        const overlapCount = (entry.metadata.tags ?? []).filter((tag) =>
+          postTags.includes(tag),
+        ).length
+
+        return {
+          entry,
+          overlapCount,
+        }
+      })
+      .filter(({ overlapCount }) => overlapCount > 0)
+      .sort((a, b) => {
+        if (b.overlapCount !== a.overlapCount) {
+          return b.overlapCount - a.overlapCount
+        }
+
+        return compareBlogPostsByPublishedAtDesc(a.entry, b.entry)
+      })
+      .map(({ entry }) => entry)
+    const fallbackRecentPosts = posts.filter((entry) => entry.slug !== slug)
+    const relatedPosts = [...rankedByTags]
+
+    for (const entry of fallbackRecentPosts) {
+      if (relatedPosts.length >= 3) {
+        break
+      }
+
+      if (
+        relatedPosts.some((relatedEntry) => relatedEntry.slug === entry.slug)
+      ) {
+        continue
+      }
+
+      relatedPosts.push(entry)
     }
 
-    relatedPosts.push(entry)
-  }
-
-  return {
-    post,
-    headings: extractBlogHeadings(post.rawContent),
-    relatedPosts,
-    isAiGenerated: isAiGeneratedPost(post.metadata.tags),
-  }
-}
+    return {
+      post,
+      headings: extractBlogHeadings(post.rawContent),
+      relatedPosts,
+      isAiGenerated: isAiGeneratedPost(post.metadata.tags),
+    }
+  },
+)
 
 export function buildBlogPostMetadata(post: BlogPost, locale: string) {
   const {

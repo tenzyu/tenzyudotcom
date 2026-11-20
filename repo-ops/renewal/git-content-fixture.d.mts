@@ -10,5 +10,8 @@ type GitContentFixture = {
 }
 
 export const fixtureBase: string
-export function openGitContentFixture(directory: string): GitContentFixture
+export function openGitContentFixture(
+  directory: string,
+  options?: { allowNotesWrite?: boolean },
+): GitContentFixture
 export function initGitContentFixture(directory: string, files: Record<string, string>): GitContentFixture

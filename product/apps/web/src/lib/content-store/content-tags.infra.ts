@@ -5,12 +5,6 @@ export function getEditorCollectionContentTag(collectionId: string) {
   return `content:editor:${collectionId}`
 }
 
-export const BLOG_INDEX_CONTENT_TAG = 'content:blog:index'
-
-export function getBlogPostContentTag(slug: string) {
-  return `content:blog:${slug}`
-}
-
 export function getScrapContentTag(slug: string) {
   return `content:scraps:${slug}`
 }
@@ -23,10 +17,6 @@ const SCRAPS_PATH_PREFIX = 'scraps/'
 const SCRAP_ENTRY_PATH_RE = /^scraps\/([^/]+)\/entries\/([^/]+)\//
 
 export function getContentTagForPathname(pathname: string) {
-  if (pathname === 'blog/index.json') {
-    return BLOG_INDEX_CONTENT_TAG
-  }
-
   if (pathname === SCRAPS_INDEX_PATHNAME) {
     return SCRAPS_INDEX_CONTENT_TAG
   }
@@ -35,10 +25,6 @@ export function getContentTagForPathname(pathname: string) {
     return getEditorCollectionContentTag(
       pathname.slice('editor/'.length, -'.json'.length),
     )
-  }
-
-  if (pathname.startsWith('blog/') && pathname.endsWith('.mdx')) {
-    return getBlogPostContentTag(pathname.slice('blog/'.length, -'.mdx'.length))
   }
 
   if (pathname.startsWith(SCRAPS_PATH_PREFIX)) {

@@ -4,6 +4,7 @@ import { NavigationTiles } from './navigation-tiles'
 
 type HomePageContentProps = {
   locale: string
+  fragmentsUnavailable: boolean
   latestNotes: {
     body: string
     createdAt: string
@@ -22,6 +23,7 @@ export function HomePageContent({
   locale,
   latestNotes,
   latestPost,
+  fragmentsUnavailable,
 }: HomePageContentProps) {
   return (
     <>
@@ -30,6 +32,7 @@ export function HomePageContent({
         locale={locale}
         latestNotes={latestNotes}
         latestPost={latestPost}
+        unavailable={fragmentsUnavailable}
       />
       <NavigationTiles />
     </>

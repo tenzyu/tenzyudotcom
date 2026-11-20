@@ -6,6 +6,7 @@ import { EditorialEntry, EditorialList } from '@tenzyu/ui/editorial'
 
 type HomeLatestFragmentsProps = {
   locale: string
+  unavailable: boolean
   latestNotes: {
     body: string
     createdAt: string
@@ -32,6 +33,7 @@ export function HomeLatestFragments({
   locale,
   latestNotes,
   latestPost,
+  unavailable,
 }: HomeLatestFragmentsProps) {
   const home = useIntlayer('page-home', locale)
   const formatter = noteDateFormatter(locale)
@@ -76,7 +78,11 @@ export function HomeLatestFragments({
           </EditorialEntry>
         ))}
       </EditorialList>
-      {!latestPost && latestNotes.length === 0 ? (
+      {unavailable ? (
+        <p className="text-sm text-muted-foreground">
+          {home.fragmentsUnavailable}
+        </p>
+      ) : !latestPost && latestNotes.length === 0 ? (
         <p className="text-sm text-muted-foreground">{home.fragmentsEmpty}</p>
       ) : null}
       <Link

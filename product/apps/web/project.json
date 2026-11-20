@@ -123,6 +123,14 @@
         "^build"
       ]
     },
+    "publication-acceptance": {
+      "executor": "nx:run-commands",
+      "cache": false,
+      "inputs": ["default", "^production", "{workspaceRoot}/repo-ops/renewal/**/*"],
+      "options": {
+        "command": "node repo-ops/renewal/run-publication-acceptance.mjs"
+      }
+    },
     "verify": {
       "executor": "nx:run-commands",
       "options": {

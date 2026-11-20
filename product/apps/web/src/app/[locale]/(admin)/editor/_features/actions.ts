@@ -118,15 +118,9 @@ export async function saveBlogPostAction(
   await requireEditorSameOriginRequest()
   await requireEditorAdminSession(locale)
   if (previous.status === 'uncertain') {
-    if (
-      formData.get('operation') !== 'reconcile' ||
-      !/^[a-z0-9][a-z0-9-]*$/.test(previous.slug)
-    )
-      return previous
+    if (formData.get('operation') !== 'reconcile') return previous
     const result = await checkEditorBlogPublication(
       previous.candidateOid,
-      previous.slug,
-      locale,
     ).catch(() => null)
     return (
       result ?? {
@@ -142,13 +136,12 @@ export async function saveBlogPostAction(
     return { status: 'error', error: parsed.error, message: parsed.message }
 
   try {
-    return await publishEditorBlog(parsed.command, parsed.locale)
+    return await publishEditorBlog(parsed.command)
   } catch (error) {
     if (error instanceof StorageCommitUncertainError) {
       return {
         status: 'uncertain',
         candidateOid: error.candidateOid,
-        slug: parsed.command.slug,
         message:
           'Publication outcome unknown. Your draft is still here. Check publication before retrying.',
       }

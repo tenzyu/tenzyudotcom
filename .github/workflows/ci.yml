@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+      - develop
 
 jobs:
   verify:
@@ -16,6 +17,7 @@ jobs:
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Install Bun
         uses: oven-sh/setup-bun@v2
@@ -51,10 +53,29 @@ jobs:
       - name: Workspace boundary policy
         run: bun run verify:workspace
 
+      - name: Select affected comparison
+        id: comparison
+        env:
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+        run: |
+          base="${PR_BASE:-$PUSH_BEFORE}"
+          candidate="$(git rev-parse HEAD)"
+          if [ -z "$base" ] || ! git cat-file -e "${base}^{commit}" 2>/dev/null; then
+            base=''
+          fi
+          printf 'base=%s\n' "$base" >> "$GITHUB_OUTPUT"
+          echo "Candidate $candidate, comparison ${base:-full workspace}"
+
       - name: Affected checks
         env:
-          BASE_REF: ${{ github.base_ref || 'main' }}
-        run: bun nx affected -t check --base="origin/${BASE_REF}" --head=HEAD
+          BASE_SHA: ${{ steps.comparison.outputs.base }}
+        run: |
+          if [ -n "$BASE_SHA" ]; then
+            bun nx affected -t check --base="$BASE_SHA" --head=HEAD --skip-nx-cache
+          else
+            bun nx run-many -t check --skip-nx-cache
+          fi
 
       - name: Verify cross-repository read access
         env:
@@ -67,14 +88,19 @@ jobs:
 
       - name: Affected builds
         env:
-          BASE_REF: ${{ github.base_ref || 'main' }}
+          BASE_SHA: ${{ steps.comparison.outputs.base }}
           # Read-only GITHUB_TOKEN (job permissions: contents: read), no content-repo write access.
           GITHUB_CONTENT_TOKEN: ${{ github.token }}
           GITHUB_CONTENT_OWNER: tenzyu
           GITHUB_CONTENT_REPO: tenzyudotcom-content
           GITHUB_CONTENT_BRANCH: main
           GITHUB_CONTENT_ROOT: storage
-        run: bun nx affected -t build --base="origin/${BASE_REF}" --head=HEAD
+        run: |
+          if [ -n "$BASE_SHA" ]; then
+            bun nx affected -t build --base="$BASE_SHA" --head=HEAD --skip-nx-cache
+          else
+            bun nx run-many -t build --skip-nx-cache
+          fi
 
       - name: Workbench Rust checks
         run: |
@@ -82,12 +108,57 @@ jobs:
           bun nx run skin-workbench:cargo-clippy
           cargo test --locked --manifest-path product/apps/osu-skin-workbench/src-tauri/Cargo.toml
 
-      - name: Full verification on main
-        if: github.ref == 'refs/heads/main'
+      - name: Check integrated develop against main
+        if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
         env:
           GITHUB_CONTENT_TOKEN: ${{ github.token }}
           GITHUB_CONTENT_OWNER: tenzyu
           GITHUB_CONTENT_REPO: tenzyudotcom-content
           GITHUB_CONTENT_BRANCH: main
           GITHUB_CONTENT_ROOT: storage
-        run: bun nx run-many -t verify
+        run: |
+          main_sha="$(git rev-parse origin/main)"
+          candidate_sha="$(git rev-parse HEAD)"
+          echo "Develop candidate $candidate_sha, main base $main_sha"
+          bun nx affected -t check build --base="$main_sha" --head="$candidate_sha" --skip-nx-cache
+
+      - name: Full verification on integration branches
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+        env:
+          GITHUB_CONTENT_TOKEN: ${{ github.token }}
+          GITHUB_CONTENT_OWNER: tenzyu
+          GITHUB_CONTENT_REPO: tenzyudotcom-content
+          GITHUB_CONTENT_BRANCH: main
+          GITHUB_CONTENT_ROOT: storage
+        run: bun nx run-many -t verify --skip-nx-cache
+
+  publication:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.10
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Install Playwright Chromium
+        run: bun x playwright install --with-deps chromium
+
+      - name: Verify publication in a production build
+        env:
+          PUBLICATION_EVIDENCE_DIR: ${{ runner.temp }}/publication
+        run: bun nx run web:publication-acceptance --skip-nx-cache
+
+      - name: Verify editor in Chromium
+        env:
+          PLAYWRIGHT_OUTPUT_DIR: ${{ runner.temp }}/editor
+        run: bun run test:browser:editor

@@ -1,12 +1,21 @@
 import { getMultilingualUrls } from 'intlayer'
 import type { MetadataRoute } from 'next'
+import { connection } from 'next/server'
 import { BASE_URL } from '@/config/site'
 import { STATIC_SITEMAP_ROUTE_PATHS } from '@/config/site-policy'
 import { loadBlogPosts } from '@/app/[locale]/(main)/blog/_features/blog.assemble'
-import { getNoteStaticParams } from '@/app/[locale]/(main)/notes/_features/notes.assemble'
+import { loadPublishedNoteIds } from '@/app/[locale]/(main)/notes/_features/notes.assemble'
 import { loadPublicScraps } from '@/app/[locale]/(main)/scraps/_features/scraps.assemble'
+import { loadPublication } from '@/lib/content-store/publication.assemble'
 
 const sitemap = async (): Promise<MetadataRoute.Sitemap> => {
+  await connection()
+  const snapshot = await loadPublication()
+  const [posts, noteIds, scrapEntries] = await Promise.all([
+    loadBlogPosts(snapshot),
+    loadPublishedNoteIds(snapshot),
+    loadPublicScraps(),
+  ])
   const routesWithAlternates = STATIC_SITEMAP_ROUTE_PATHS.map(
     (route): MetadataRoute.Sitemap[number] => ({
       url: `${BASE_URL}${route}`,
@@ -20,8 +29,7 @@ const sitemap = async (): Promise<MetadataRoute.Sitemap> => {
     }),
   )
 
-  const awaited_blogs = await loadBlogPosts()
-  const blogsWithAlternates = awaited_blogs.map(
+  const blogsWithAlternates = posts.map(
     (post): MetadataRoute.Sitemap[number] => {
       const route = `/blog/${post.slug}`
       return {
@@ -37,9 +45,8 @@ const sitemap = async (): Promise<MetadataRoute.Sitemap> => {
     },
   )
 
-  const noteParams = await getNoteStaticParams()
-  const notesWithAlternates = noteParams.map(
-    ({ id }): MetadataRoute.Sitemap[number] => {
+  const notesWithAlternates = noteIds.map(
+    (id): MetadataRoute.Sitemap[number] => {
       const route = `/notes/${id}`
       return {
         url: `${BASE_URL}${route}`,
@@ -54,7 +61,6 @@ const sitemap = async (): Promise<MetadataRoute.Sitemap> => {
     },
   )
 
-  const scrapEntries = await loadPublicScraps()
   const scrapsWithAlternates = scrapEntries.map(
     (scrap): MetadataRoute.Sitemap[number] => {
       const route = `/scraps/${scrap.slug}`
