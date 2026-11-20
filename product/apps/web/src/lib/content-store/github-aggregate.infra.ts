@@ -227,7 +227,7 @@ export function createGitHubAggregateRepository(
       }
       if (response.status === 409 || response.status === 422) {
         throw new StorageVersionConflictError(
-          'Content changed during save. Your draft has been kept.',
+          'Content changed during save. Copy your draft and reload the latest version.',
         )
       }
       if ([401, 403, 404, 429].includes(response.status)) {

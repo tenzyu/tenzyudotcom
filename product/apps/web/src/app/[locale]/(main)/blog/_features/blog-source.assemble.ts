@@ -12,9 +12,7 @@ export function readBlogSource(source: string, pathname: string) {
 }
 
 function ambiguousEdit() {
-  return new StorageError(
-    'The source frontmatter could not be edited safely. Your draft is still here.',
-  )
+  return new StorageError('The source frontmatter could not be edited safely.')
 }
 
 function splitSource(source: string) {
@@ -160,7 +158,7 @@ export function editBlogSource(
     parsed = readBlogSource(source, pathname)
   } catch {
     throw new StorageError(
-      'The resulting blog fields are invalid. Check the dates and keep your draft.',
+      'The resulting blog fields are invalid. Check the dates.',
     )
   }
   if (parsed.content !== content) throw ambiguousEdit()
