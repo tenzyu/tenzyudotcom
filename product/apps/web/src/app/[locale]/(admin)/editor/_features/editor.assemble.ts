@@ -1,5 +1,4 @@
 import { revalidatePath, revalidateTag } from 'next/cache'
-import { getLocalizedUrl } from 'intlayer'
 import type { BlogSaveCommand } from '@/app/[locale]/(main)/blog/_features/blog.domain'
 import {
   loadBlogPostsState,
@@ -17,11 +16,7 @@ import {
   type EditorCollectionState,
   type WritableEditorCollectionId,
 } from '@/features/content-editor/editor-collections'
-import {
-  BLOG_INDEX_CONTENT_TAG,
-  getBlogPostContentTag,
-  getEditorCollectionContentTag,
-} from '@/lib/content-store/content-tags.infra'
+import { getEditorCollectionContentTag } from '@/lib/content-store/content-tags.infra'
 import { githubContentRepository } from '@/lib/content-store/github-content.infra'
 import { confirmBlogPublication } from './blog-save-form-state'
 
@@ -48,13 +43,12 @@ class SaveEditorCollectionUseCase {
     rawJson: string,
     expectedVersion: string,
   ): Promise<{ version: string }> {
-    const result =
-      collectionId === 'notes'
-        ? await saveNotesState(rawJson, expectedVersion)
-        : await saveLinksState(rawJson, expectedVersion)
-    const collection = getEditorCollectionMeta(collectionId)
+    if (collectionId === 'notes')
+      return saveNotesState(rawJson, expectedVersion)
 
-    revalidateTag(getEditorCollectionContentTag(collectionId), 'max')
+    const result = await saveLinksState(rawJson, expectedVersion)
+    const collection = getEditorCollectionMeta('links')
+    revalidateTag(getEditorCollectionContentTag('links'), 'max')
 
     for (const path of collection.publicPaths) {
       if (path.type) {
@@ -68,37 +62,18 @@ class SaveEditorCollectionUseCase {
   }
 }
 
-function refreshBlogAfterPublication(slug: string, locale: string) {
-  revalidateTag(BLOG_INDEX_CONTENT_TAG, 'max')
-  revalidateTag(getBlogPostContentTag(slug), 'max')
-  for (const language of ['ja', 'en']) {
-    revalidatePath(getLocalizedUrl('/blog', language))
-    revalidatePath(getLocalizedUrl(`/blog/${slug}`, language))
-  }
-  revalidatePath(getLocalizedUrl('/editor/blog', locale))
+export async function publishEditorBlog(command: BlogSaveCommand) {
+  return confirmBlogPublication(await saveBlogPost(command))
 }
 
-export async function publishEditorBlog(
-  command: BlogSaveCommand,
-  locale: string,
-) {
-  const receipt = await saveBlogPost(command)
-  return confirmBlogPublication(receipt, () =>
-    refreshBlogAfterPublication(command.slug, locale),
-  )
-}
-
-export async function checkEditorBlogPublication(
-  candidateOid: string,
-  slug: string,
-  locale: string,
-) {
+export async function checkEditorBlogPublication(candidateOid: string) {
   const headOid = await githubContentRepository.reconcile(candidateOid)
   return headOid
-    ? confirmBlogPublication(
-        { commitOid: candidateOid, headOid, status: 'reconciled' },
-        () => refreshBlogAfterPublication(slug, locale),
-      )
+    ? confirmBlogPublication({
+        commitOid: candidateOid,
+        headOid,
+        status: 'reconciled',
+      })
     : null
 }
 

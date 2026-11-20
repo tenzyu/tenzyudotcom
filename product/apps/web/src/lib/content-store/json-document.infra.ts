@@ -25,8 +25,15 @@ export async function loadJsonCollection<T>(
   getDefaultValue: () => T,
   storage: JsonCollectionStorage = githubJsonStorage,
 ): Promise<StoredCollectionState<T>> {
-  const serialized = (await storage.load(pathname))?.content ?? null
+  const serialized = (await storage.load(pathname))?.content
+  return parseJsonCollection(serialized, parse, getDefaultValue)
+}
 
+export function parseJsonCollection<T>(
+  serialized: string | undefined,
+  parse: (raw: unknown) => T,
+  getDefaultValue: () => T,
+): StoredCollectionState<T> {
   if (!serialized) {
     const collection = getDefaultValue()
     const fallbackSerialized = JSON.stringify(collection, null, 2)

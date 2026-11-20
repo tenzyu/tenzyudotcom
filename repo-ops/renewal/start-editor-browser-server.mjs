@@ -5,6 +5,7 @@ import { initGitContentFixture } from './git-content-fixture.mjs';
 
 const root = resolve(import.meta.dirname, '../..');
 const output = resolve(process.env.PLAYWRIGHT_OUTPUT_DIR ?? '/tmp/tenzyudotcom-editor-evidence');
+const port = process.env.PLAYWRIGHT_EDITOR_PORT ?? '4174';
 if (output === root || output.startsWith(`${root}/`)) throw new Error('Evidence must be outside the repository');
 mkdirSync(output, { recursive: true, mode: 0o700 });
 const fixtureDir = mkdtempSync(resolve(output, 'fixture-'));
@@ -23,6 +24,7 @@ const env = {
   NEXT_TELEMETRY_DISABLED: '1',
   NODE_OPTIONS: `--import=${resolve(import.meta.dirname, 'editor-github-preload.mjs')}`,
   EDITOR_FIXTURE_LEDGER: ledger,
+  EDITOR_FIXTURE_ORIGIN: `http://127.0.0.1:${port}`,
   EDITOR_FIXTURE_REPO: repository,
   EDITOR_FIXTURE_REF_LOSS: resolve(fixtureDir, 'drop-ref-response'),
   EDITOR_ADMIN_PASSWORD: 'fixture-password-not-a-secret',
@@ -33,7 +35,7 @@ const env = {
   GITHUB_CONTENT_BRANCH: 'main',
   GITHUB_CONTENT_ROOT: 'storage',
 };
-const child = spawn('node', [resolve(root, 'node_modules/next/dist/bin/next'), 'dev', '--hostname', '127.0.0.1', '--port', '4174'], {
+const child = spawn('node', [resolve(root, 'node_modules/next/dist/bin/next'), 'dev', '--hostname', '127.0.0.1', '--port', port], {
   cwd: resolve(root, 'product/apps/web'), env, stdio: ['ignore', log, log],
 });
 process.once('SIGINT', () => child.kill('SIGINT'));

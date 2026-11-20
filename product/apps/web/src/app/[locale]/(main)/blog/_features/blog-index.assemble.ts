@@ -5,7 +5,7 @@ import type { BlogFrontmatter } from './blog.domain'
 
 export const BLOG_INDEX_PATH = 'blog/index.json'
 
-const validPathPart = (part: string) =>
+export const isBlogPathPart = (part: string) =>
   part.length > 0 &&
   part !== '.' &&
   part !== '..' &&
@@ -14,14 +14,14 @@ const validPathPart = (part: string) =>
 
 const BlogIndex = z.array(
   z.looseObject({
-    slug: z.string().refine(validPathPart),
+    slug: z.string().refine(isBlogPathPart),
     pathname: z
       .string()
       .refine(
         (pathname) =>
           pathname.startsWith('blog/') &&
           pathname.endsWith('.mdx') &&
-          pathname.split('/').every(validPathPart),
+          pathname.split('/').every(isBlogPathPart),
       ),
     metadata: z.looseObject({ publishedAt: z.string() }),
   }),

@@ -68,7 +68,6 @@ mock.module('@/app/[locale]/(admin)/editor/_features/actions', () => ({
       ? {
           status: 'uncertain',
           candidateOid: 'a'.repeat(40),
-          slug: 'draft',
           message: 'Draft kept',
         }
       : { status: 'error', error: failure, message: 'Draft kept' },

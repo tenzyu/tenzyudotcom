@@ -3,7 +3,7 @@ import type { BlogPublicationReceipt } from '@/app/[locale]/(main)/blog/_feature
 export type SaveBlogPostActionState =
   | { status: 'idle' }
   | { status: 'error'; error: 'conflict' | 'invalid' | 'save'; message: string }
-  | { status: 'uncertain'; candidateOid: string; slug: string; message: string }
+  | { status: 'uncertain'; candidateOid: string; message: string }
   | {
       status: 'saved'
       receipt: BlogPublicationReceipt
@@ -17,7 +17,7 @@ export const INITIAL_SAVE_BLOG_POST_ACTION_STATE: SaveBlogPostActionState = {
 
 export function confirmBlogPublication(
   receipt: BlogPublicationReceipt,
-  refresh: () => void,
+  refresh?: () => void,
 ): SaveBlogPostActionState {
   const message =
     receipt.status === 'unchanged'
@@ -28,7 +28,7 @@ export function confirmBlogPublication(
   let refreshPending = false
   if (receipt.status !== 'unchanged') {
     try {
-      refresh()
+      refresh?.()
     } catch {
       refreshPending = true
     }

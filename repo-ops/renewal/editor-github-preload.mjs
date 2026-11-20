@@ -10,7 +10,7 @@ require.cache[require.resolve('@next/env')].exports = {
 };
 
 const { EDITOR_FIXTURE_LEDGER: ledger, EDITOR_FIXTURE_REPO: repository,
-  EDITOR_FIXTURE_REF_LOSS: refLoss } = process.env;
+  EDITOR_FIXTURE_REF_LOSS: refLoss, EDITOR_FIXTURE_ORIGIN: origin } = process.env;
 if (!ledger || !repository) throw new Error('The editor fixture needs a bare repository and a ledger');
 const fixture = openGitContentFixture(repository);
 
@@ -31,7 +31,7 @@ globalThis.fetch = async (input, init) => {
   const request = new Request(input, init);
   const url = new URL(request.url);
   const { method } = request;
-  if (url.origin === 'http://127.0.0.1:4174' && method === 'GET') return nativeFetch(request, { redirect: 'error' });
+  if (url.origin === origin && method === 'GET') return nativeFetch(request, { redirect: 'error' });
   const loss = method === 'PATCH' && url.href === 'https://api.github.com/repos/fixture/editor/git/refs/heads/main'
     ? takeRefLoss() : null;
   const response = loss === 'before' ? null : await fixture.fetch(request);

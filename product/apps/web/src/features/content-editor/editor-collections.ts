@@ -51,7 +51,7 @@ const EDITOR_COLLECTIONS: Record<EditorCollectionId, EditorCollectionMeta> = {
   notes: {
     id: 'notes',
     label: 'Notes',
-    publicPaths: withLocaleRevalidatePaths('/notes'),
+    publicPaths: [],
   },
   scraps: {
     id: 'scraps',
@@ -72,7 +72,7 @@ const EDITOR_COLLECTIONS: Record<EditorCollectionId, EditorCollectionMeta> = {
   blog: {
     id: 'blog',
     label: 'Blog',
-    publicPaths: withLocaleRevalidatePaths('/blog'),
+    publicPaths: [],
   },
 }
 

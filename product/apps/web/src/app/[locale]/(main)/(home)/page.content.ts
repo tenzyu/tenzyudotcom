@@ -37,6 +37,10 @@ const homeContent = {
       ja: '新しい記録は、ブログとノートに掲載します。',
       en: 'New writing will appear in the blog and notes.',
     }),
+    fragmentsUnavailable: t({
+      ja: '最近の記録を読み込めませんでした。',
+      en: 'Recent writing is temporarily unavailable.',
+    }),
   },
 } satisfies Dictionary
 

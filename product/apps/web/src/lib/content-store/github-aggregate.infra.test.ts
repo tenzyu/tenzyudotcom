@@ -144,4 +144,49 @@ describe('GitHub aggregate publication', () => {
     ).rejects.toBeInstanceOf(StorageVersionConflictError)
     expect(calls).toBe(1)
   })
+
+  test('uses the validator sent by each independent ref request', async () => {
+    let release!: (response: Response) => void
+    const delayed = new Promise<Response>((resolve) => {
+      release = resolve
+    })
+    const validators: (string | null)[] = []
+    const repo = createGitHubAggregateRepository(config, async (_url, init) => {
+      expect(init?.cache).toBe('no-store')
+      validators.push(new Headers(init?.headers).get('if-none-match'))
+      switch (validators.length) {
+        case 1:
+          return Response.json(
+            { object: { sha: headA } },
+            { headers: { etag: '"a"' } },
+          )
+        case 2:
+          return delayed
+        case 3:
+          return Response.json(
+            { object: { sha: headB } },
+            { headers: { etag: '"b"' } },
+          )
+        default:
+          return new Response(null, { status: 304 })
+      }
+    })
+    expect(await repo.validateHead()).toBe(headA)
+    const earlier = repo.validateHead()
+    expect(await repo.validateHead()).toBe(headB)
+    release(new Response(null, { status: 304 }))
+    expect(await earlier).toBe(headA)
+    expect(await repo.validateHead()).toBe(headB)
+    expect(validators).toEqual([null, '"a"', '"a"', '"b"'])
+  })
+
+  test.each([
+    304, 403, 404,
+  ])('fails closed on a cold ref response of %s', async (status) => {
+    const repo = createGitHubAggregateRepository(
+      config,
+      async () => new Response(null, { status }),
+    )
+    await expect(repo.validateHead()).rejects.toBeInstanceOf(StorageError)
+  })
 })

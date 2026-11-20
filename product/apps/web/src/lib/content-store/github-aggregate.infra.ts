@@ -40,6 +40,8 @@ type GitHubContentSnapshot = ContentSnapshot & {
 
 export type GitHubAggregateRepository = {
   snapshot(): Promise<GitHubContentSnapshot>
+  snapshotAt(version: string): GitHubContentSnapshot
+  validateHead(): Promise<string>
   commit(
     version: string,
     writes: readonly ContentWrite[],
@@ -50,7 +52,10 @@ export type GitHubAggregateRepository = {
 
 export function createGitHubAggregateRepository(
   config: GitHubAggregateConfig,
-  request: (url: string, init?: RequestInit) => Promise<Response> = fetch,
+  request: (url: string, init?: RequestInit) => Promise<Response> = (
+    url,
+    init,
+  ) => fetch(url, init),
 ): GitHubAggregateRepository {
   const base = `https://api.github.com/repos/${encodeURIComponent(config.owner)}/${encodeURIComponent(config.repo)}`
   const headers = {
@@ -94,73 +99,99 @@ export function createGitHubAggregateRepository(
     return RefResponse.parse(await api(refPath)).object.sha
   }
 
+  let hint: { etag: string; version: string } | undefined
+
+  async function validateHead() {
+    const sent = hint
+    const response = await request(`${base}${refPath}`, {
+      cache: 'no-store',
+      headers: sent ? { ...headers, 'If-None-Match': sent.etag } : headers,
+    })
+    if (response.status === 304 && sent) return sent.version
+    if (response.status !== 200) {
+      throw new StorageError(
+        `GitHub content ref validation failed (${response.status}).`,
+      )
+    }
+    const version = RefResponse.parse(await response.json()).object.sha
+    const etag = response.headers.get('etag')
+    if (hint === sent) hint = etag ? { etag, version } : undefined
+    return version
+  }
+
+  function snapshotAt(oid: string): GitHubContentSnapshot {
+    const version = oidSchema.parse(oid)
+    return {
+      version,
+      async loadText(pathname) {
+        const path = repositoryPath(pathname)
+          .split('/')
+          .map(encodeURIComponent)
+          .join('/')
+        const response = await request(
+          `${base}/contents/${path}?ref=${encodeURIComponent(version)}`,
+          {
+            cache: 'no-store',
+            headers,
+          },
+        )
+        if (response.status === 404) return null
+        if (!response.ok)
+          throw new StorageError(
+            `GitHub snapshot read failed (${response.status})`,
+          )
+        const file = FileResponse.safeParse(await response.json())
+        if (!file.success) {
+          throw new StorageError(
+            `GitHub did not supply file bytes and a blob OID for ${pathname}.`,
+          )
+        }
+        const encoded = file.data.content.replace(/\r?\n/g, '')
+        const bytes = Buffer.from(encoded, 'base64')
+        const content = bytes.toString('utf8')
+        if (
+          bytes.length !== file.data.size ||
+          bytes.toString('base64') !== encoded ||
+          !Buffer.from(content).equals(bytes)
+        ) {
+          throw new StorageError(
+            `GitHub supplied incomplete or unsupported file bytes for ${pathname}.`,
+          )
+        }
+        return {
+          content,
+          version: file.data.sha,
+        }
+      },
+      async list(prefix) {
+        const directory = repositoryPath(prefix)
+        const commit = CommitResponse.parse(
+          await api(`/git/commits/${version}`),
+        )
+        const result = TreeResponse.safeParse(
+          await api(`/git/trees/${commit.tree.sha}?recursive=1`),
+        )
+        if (!result.success) {
+          throw new StorageError(
+            'GitHub did not supply a complete content tree.',
+          )
+        }
+        const root = config.root.replace(/^\/+|\/+$/g, '')
+        return result.data.tree
+          .filter(
+            ({ path, type }) =>
+              path.startsWith(`${directory}/`) && type !== 'tree',
+          )
+          .map(({ path }) => (root ? path.slice(root.length + 1) : path))
+      },
+    }
+  }
+
   return {
+    snapshotAt,
+    validateHead,
     async snapshot() {
-      const version = await head()
-      return {
-        version,
-        async loadText(pathname) {
-          const path = repositoryPath(pathname)
-            .split('/')
-            .map(encodeURIComponent)
-            .join('/')
-          const response = await request(
-            `${base}/contents/${path}?ref=${encodeURIComponent(version)}`,
-            {
-              cache: 'no-store',
-              headers,
-            },
-          )
-          if (response.status === 404) return null
-          if (!response.ok)
-            throw new StorageError(
-              `GitHub snapshot read failed (${response.status})`,
-            )
-          const file = FileResponse.safeParse(await response.json())
-          if (!file.success) {
-            throw new StorageError(
-              `GitHub did not supply file bytes and a blob OID for ${pathname}.`,
-            )
-          }
-          const encoded = file.data.content.replace(/\r?\n/g, '')
-          const bytes = Buffer.from(encoded, 'base64')
-          const content = bytes.toString('utf8')
-          if (
-            bytes.length !== file.data.size ||
-            bytes.toString('base64') !== encoded ||
-            !Buffer.from(content).equals(bytes)
-          ) {
-            throw new StorageError(
-              `GitHub supplied incomplete or unsupported file bytes for ${pathname}.`,
-            )
-          }
-          return {
-            content,
-            version: file.data.sha,
-          }
-        },
-        async list(prefix) {
-          const directory = repositoryPath(prefix)
-          const commit = CommitResponse.parse(
-            await api(`/git/commits/${version}`),
-          )
-          const result = TreeResponse.safeParse(
-            await api(`/git/trees/${commit.tree.sha}?recursive=1`),
-          )
-          if (!result.success) {
-            throw new StorageError(
-              'GitHub did not supply a complete content tree.',
-            )
-          }
-          const root = config.root.replace(/^\/+|\/+$/g, '')
-          return result.data.tree
-            .filter(
-              ({ path, type }) =>
-                path.startsWith(`${directory}/`) && type !== 'tree',
-            )
-            .map(({ path }) => (root ? path.slice(root.length + 1) : path))
-        },
-      }
+      return snapshotAt(await head())
     },
     async reconcile(candidateOid) {
       const candidate = oidSchema.parse(candidateOid)

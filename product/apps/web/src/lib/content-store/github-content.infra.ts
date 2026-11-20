@@ -2,6 +2,7 @@ import { unstable_cache } from 'next/cache'
 import { env } from '@/config/env.infra'
 import {
   type ContentRepository,
+  type ContentSnapshot,
   StorageError,
   StorageVersionConflictError,
 } from './content-store.domain'
@@ -268,22 +269,71 @@ async function listGitHubRepositoryFiles(prefix: string) {
     .sort()
 }
 
+// Next can load this module in separate page and route-handler bundles.
+const aggregateKey = Symbol.for('tenzyudotcom.github-content-aggregate')
+type Binding = ReturnType<typeof getGitHubConfig>
+const processState = globalThis as typeof globalThis & {
+  [aggregateKey]?: { binding: Binding; repository: GitHubAggregateRepository }
+}
+
+function getAggregateRepository() {
+  const binding = getGitHubConfig()
+  const current = processState[aggregateKey]
+  if (
+    current &&
+    current.binding.owner === binding.owner &&
+    current.binding.repo === binding.repo &&
+    current.binding.branch === binding.branch &&
+    current.binding.root === binding.root &&
+    current.binding.token === binding.token
+  )
+    return current.repository
+  const repository = createGitHubAggregateRepository(binding)
+  processState[aggregateKey] = { binding, repository }
+  return repository
+}
+
+const missingFile = Symbol('Missing immutable content file')
+
+export async function loadGitHubPublication(): Promise<ContentSnapshot> {
+  const repo = getAggregateRepository()
+  const version = await repo.validateHead()
+  const snapshot = repo.snapshotAt(version)
+  const { owner, repo: name, root } = getGitHubConfig()
+  return {
+    version,
+    async loadText(pathname) {
+      try {
+        return await unstable_cache(async () => {
+          const file = await snapshot.loadText(pathname)
+          if (!file) throw missingFile
+          return file
+        }, [
+          'github-immutable-content-v1',
+          owner,
+          name,
+          root,
+          version,
+          pathname,
+        ])()
+      } catch (error) {
+        if (error === missingFile) return null
+        throw error
+      }
+    },
+  }
+}
+
 export const githubContentRepository: ContentRepository &
-  GitHubAggregateRepository = {
+  Pick<GitHubAggregateRepository, 'snapshot' | 'commit' | 'reconcile'> = {
   snapshot() {
-    return createGitHubAggregateRepository(getGitHubConfig()).snapshot()
+    return getAggregateRepository().snapshot()
   },
   commit(expectedVersion, writes, message) {
-    return createGitHubAggregateRepository(getGitHubConfig()).commit(
-      expectedVersion,
-      writes,
-      message,
-    )
+    return getAggregateRepository().commit(expectedVersion, writes, message)
   },
   reconcile(candidateOid) {
-    return createGitHubAggregateRepository(getGitHubConfig()).reconcile(
-      candidateOid,
-    )
+    return getAggregateRepository().reconcile(candidateOid)
   },
   async loadText(pathname) {
     const file = await loadGitHubTextFile(pathname)

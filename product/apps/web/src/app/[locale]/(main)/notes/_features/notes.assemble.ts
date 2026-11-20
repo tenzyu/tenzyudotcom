@@ -5,8 +5,8 @@ import {
   compareNotesByCreatedAtDesc,
 } from './notes.domain'
 import type { NoteSourceEntry } from './notes.domain'
-import type { NotesRepository } from './notes.port'
-import { makeNotesRepository } from './notes.infra'
+import type { ContentSnapshot } from '@/lib/content-store/content-store.domain'
+import { loadPublicNoteEntries } from './notes.infra'
 
 export type NotePageItem = {
   id: string
@@ -33,23 +33,7 @@ export type NoteDetailPageData = {
   replies: NotePageItem[]
 }
 
-class LoadNotesUseCase {
-  constructor(private repository: NotesRepository) {}
-
-  async execute(): Promise<readonly NoteSourceEntry[]> {
-    const entries = await this.repository.loadAll()
-    return entries.filter((entry) => entry.published !== false)
-  }
-}
-
-function makeLoadNotesUseCase() {
-  return new LoadNotesUseCase(makeNotesRepository())
-}
-
-const loadNoteSourceEntries = cache(async () => {
-  const useCase = makeLoadNotesUseCase()
-  return useCase.execute()
-})
+const loadNoteSourceEntries = cache(loadPublicNoteEntries)
 
 function flattenPublishedNoteThread(entries: readonly NoteSourceEntry[]) {
   const publishedEntries = entries.filter((entry) => entry.published !== false)
@@ -139,11 +123,8 @@ export function assembleNoteThreadItems(
   return mapFlattenedNoteItems(flattenPublishedNoteThread(entries), locale)
 }
 
-export async function getNoteStaticParams() {
-  const entries = await loadNoteSourceEntries()
-  return entries.map((entry) => ({
-    id: entry.id,
-  }))
+export async function loadPublishedNoteIds(snapshot: ContentSnapshot) {
+  return (await loadNoteSourceEntries(snapshot)).map(({ id }) => id)
 }
 
 export function assembleNoteDetailPageDataFromEntries(
@@ -154,7 +135,7 @@ export function assembleNoteDetailPageDataFromEntries(
   const entriesById = new Map(entries.map((entry) => [entry.id, entry]))
   const target = entriesById.get(noteId)
 
-  if (!target) {
+  if (!target || target.published === false) {
     return undefined
   }
 
@@ -246,17 +227,21 @@ export function assembleNoteDetailPageDataFromEntries(
   }
 }
 
-export async function assembleNoteDetailPageData(
-  noteId: string,
-  locale: string,
-): Promise<NoteDetailPageData | undefined> {
-  const entries = await loadNoteSourceEntries()
-  return assembleNoteDetailPageDataFromEntries(entries, noteId, locale)
-}
+export const assembleNoteDetailPageData = cache(
+  async (
+    snapshot: ContentSnapshot,
+    noteId: string,
+    locale: string,
+  ): Promise<NoteDetailPageData | undefined> => {
+    const entries = await loadNoteSourceEntries(snapshot)
+    return assembleNoteDetailPageDataFromEntries(entries, noteId, locale)
+  },
+)
 
 export async function assembleNotesPageData(
+  snapshot: ContentSnapshot,
   locale: string,
 ): Promise<NotePageItem[]> {
-  const entries = await loadNoteSourceEntries()
+  const entries = await loadNoteSourceEntries(snapshot)
   return assembleNoteThreadItems(entries, locale)
 }

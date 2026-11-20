@@ -8,20 +8,18 @@ import {
 import { parseBlogFrontmatter } from './blog-frontmatter.assemble'
 import {
   BLOG_INDEX_PATH,
+  isBlogPathPart,
   parseBlogIndex,
   projectBlogIndexEntry,
 } from './blog-index.assemble'
 import { editBlogSource, readBlogSource } from './blog-source.assemble'
-import { createContentVersion } from '@/lib/content-store/content-version.infra'
-import {
-  githubContentRepository,
-  loadGitHubTextFile,
-} from '@/lib/content-store/github-content.infra'
+import { githubContentRepository } from '@/lib/content-store/github-content.infra'
 import type { GitHubAggregateRepository } from '@/lib/content-store/github-aggregate.infra'
 import {
   StorageError,
   StorageVersionConflictError,
   type ContentRepositoryTextFile,
+  type ContentSnapshot,
 } from '@/lib/content-store/content-store.domain'
 
 function parseBlogPost(
@@ -41,27 +39,30 @@ function parseBlogPost(
   }
 }
 
-export async function loadBlogPostSummariesState() {
-  const file = await loadGitHubTextFile(BLOG_INDEX_PATH)
+export async function loadBlogCatalog(snapshot: ContentSnapshot) {
+  const file = await snapshot.loadText(BLOG_INDEX_PATH)
   const entries = parseBlogIndex(file?.content)
-  const collection = entries
+  return entries
     .map(({ pathname, slug, metadata }) => ({
       metadata: parseBlogFrontmatter(metadata, pathname),
+      pathname,
       slug,
     }))
     .sort(compareBlogPostsByPublishedAtDesc)
-  const serialized = JSON.stringify(entries)
-  return { collection, serialized, version: createContentVersion(serialized) }
 }
 
-export async function loadBlogPostBySlug(slug: string) {
-  const pathname = `blog/${slug}.mdx`
-  const file = await loadGitHubTextFile(pathname)
-  if (!file) throw new StorageError(`Blog post not found: ${pathname}`)
-  return parseBlogPost(pathname, slug, {
-    content: file.content,
-    version: file.sha,
-  })
+export async function loadBlogPostBySlug(
+  snapshot: ContentSnapshot,
+  slug: string,
+  indexedPath: string | undefined,
+) {
+  if (!isBlogPathPart(slug)) return undefined
+  const pathname = indexedPath ?? `blog/${slug}.mdx`
+  const file = await snapshot.loadText(pathname)
+  if (file) return parseBlogPost(pathname, slug, file)
+  if (indexedPath)
+    throw new StorageError(`The indexed blog post is missing: ${pathname}`)
+  return undefined
 }
 
 export async function loadBlogPostsState() {
@@ -84,7 +85,10 @@ export async function loadBlogPostsState() {
 
 export async function saveBlogPost(
   command: BlogSaveCommand,
-  repo: GitHubAggregateRepository = githubContentRepository,
+  repo: Pick<
+    GitHubAggregateRepository,
+    'snapshot' | 'commit'
+  > = githubContentRepository,
 ): Promise<BlogPublicationReceipt> {
   const { slug, intent, changes } = command
   if (!/^[a-z0-9][a-z0-9-]*$/.test(slug))
