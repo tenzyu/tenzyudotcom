@@ -3,6 +3,8 @@ import { defineConfig } from '@playwright/test';
 
 const output = resolve(process.env.PLAYWRIGHT_OUTPUT_DIR ?? '/tmp/tenzyudotcom-editor-evidence');
 const executablePath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH;
+const port = process.env.PLAYWRIGHT_EDITOR_PORT ?? '4174';
+const baseURL = `http://127.0.0.1:${port}`;
 export default defineConfig({
   testDir: resolve(process.cwd(), 'repo-ops/renewal'),
   testMatch: 'editor-browser.spec.ts',
@@ -14,7 +16,7 @@ export default defineConfig({
   expect: { timeout: 20_000 },
   reporter: [['line'], ['json', { outputFile: resolve(output, 'results.json') }]],
   use: {
-    baseURL: 'http://127.0.0.1:4174',
+    baseURL,
     viewport: { width: 1440, height: 1000 },
     launchOptions: executablePath ? { executablePath } : {},
     trace: 'on', screenshot: 'only-on-failure',
@@ -22,9 +24,9 @@ export default defineConfig({
   webServer: {
     cwd: process.cwd(),
     command: 'node repo-ops/renewal/start-editor-browser-server.mjs',
-    url: 'http://127.0.0.1:4174/en/editor/login',
+    url: `${baseURL}/en/editor/login`,
     reuseExistingServer: false,
     timeout: 120_000,
-    env: { PLAYWRIGHT_OUTPUT_DIR: output },
+    env: { PLAYWRIGHT_OUTPUT_DIR: output, PLAYWRIGHT_EDITOR_PORT: port },
   },
 });

@@ -133,7 +133,7 @@ jobs:
         run: bun nx run-many -t verify --skip-nx-cache
 
   publication:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
     steps:

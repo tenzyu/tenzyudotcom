@@ -3,13 +3,13 @@ import { resolve } from 'node:path';
 import { expect, test } from '@playwright/test';
 import { openGitContentFixture } from './git-content-fixture.mjs';
 
-test('editor creates, edits, appends, publishes and serves only public content', async ({ page, browser }, testInfo) => {
+test('editor creates, edits, appends, publishes and serves only public content', async ({ page, browser, baseURL }, testInfo) => {
   const errors: string[] = [];
   page.on('pageerror', error => errors.push(error.message));
   const reader = await browser.newContext();
   const publicPage = await reader.newPage();
   publicPage.on('pageerror', error => errors.push(error.message));
-  const base = 'http://127.0.0.1:4174/en';
+  const base = new URL('/en', baseURL).href;
   const slug = 'browser-proof';
   const title = 'Browser lifecycle proof';
   const saved = async () => {
@@ -91,8 +91,9 @@ test('editor creates, edits, appends, publishes and serves only public content',
   await reader.close();
 });
 
-test('blog editor preserves Git source, stale drafts and uncertain publication receipts', async ({ browser }) => {
-  const base = 'http://127.0.0.1:4174';
+test('blog editor preserves Git source, stale drafts and uncertain publication receipts', async ({ browser, baseURL }) => {
+  if (!baseURL) throw new Error('The editor fixture needs a base URL');
+  const base = baseURL;
   const output = resolve(process.env.PLAYWRIGHT_OUTPUT_DIR ?? '/tmp/tenzyudotcom-editor-evidence');
   const directory = readFileSync(resolve(output, 'fixture-path'), 'utf8');
   const git = openGitContentFixture(resolve(directory, 'content.git'));
