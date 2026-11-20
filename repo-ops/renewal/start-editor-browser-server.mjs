@@ -1,11 +1,16 @@
 import { spawn } from 'node:child_process';
-import { mkdirSync, openSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, openSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { initGitContentFixture } from './git-content-fixture.mjs';
 
 const root = resolve(import.meta.dirname, '../..');
 const output = resolve(process.env.PLAYWRIGHT_OUTPUT_DIR ?? '/tmp/tenzyudotcom-editor-evidence');
 if (output === root || output.startsWith(`${root}/`)) throw new Error('Evidence must be outside the repository');
 mkdirSync(output, { recursive: true, mode: 0o700 });
+const fixtureDir = mkdtempSync(resolve(output, 'fixture-'));
+const repository = resolve(fixtureDir, 'content.git');
+initGitContentFixture(repository, { 'storage/scraps/index.json': '[]\n' });
+writeFileSync(resolve(output, 'fixture-path'), fixtureDir, { mode: 0o600 });
 const ledger = resolve(output, 'github-ledger.jsonl');
 writeFileSync(ledger, '', { mode: 0o600 });
 const log = openSync(resolve(output, 'web-server.log'), 'w', 0o600);
@@ -14,9 +19,12 @@ const env = {
   HOME: process.env.HOME,
   LANG: 'C.UTF-8',
   NODE_ENV: 'development',
+  TZ: 'UTC',
   NEXT_TELEMETRY_DISABLED: '1',
   NODE_OPTIONS: `--import=${resolve(import.meta.dirname, 'editor-github-preload.mjs')}`,
   EDITOR_FIXTURE_LEDGER: ledger,
+  EDITOR_FIXTURE_REPO: repository,
+  EDITOR_FIXTURE_REF_LOSS: resolve(fixtureDir, 'drop-ref-response'),
   EDITOR_ADMIN_PASSWORD: 'fixture-password-not-a-secret',
   EDITOR_SESSION_SECRET: 'fixture-session-secret-not-real-credentials-1234567890',
   GITHUB_CONTENT_TOKEN: 'fixture-token-not-a-secret',
