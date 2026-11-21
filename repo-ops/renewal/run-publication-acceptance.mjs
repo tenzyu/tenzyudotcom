@@ -478,7 +478,7 @@ async function verifyWithdrawal() {
       assert.ok(!feed.body.includes(body), 'Withdrawn note text leaked');
       const payload = feed.body.replaceAll('\\"', '"');
       assert.ok(!payload.includes(`"id":"${secondNoteId}"`), 'Withdrawn note DTO leaked');
-      assert.ok(payload.includes(`"parentId":"${secondNoteId}"`), 'Published child lost its parent reference');
+      assert.ok(!payload.includes(`href="${prefix}/notes/${secondNoteId}"`), 'Hidden parent was linked');
     }
     const home = await read(prefix || '/', 'withdrawn home');
     expectContains(home, prefix ? reply.body.en : reply.body.ja);

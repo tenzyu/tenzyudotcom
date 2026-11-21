@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { NoteBodySchema } from './note-command.validation'
 import {
   parseJsonCollection,
   saveJsonCollection,
@@ -13,16 +14,11 @@ import {
   isNoteSnowflakeId,
 } from './notes.domain'
 
-const NOTES_STORAGE_PATH = 'editor/notes.json'
-
-const LocalizedTextSchema = z.object({
-  ja: z.string().trim().min(1),
-  en: z.string().trim().optional().default(''),
-})
+export const NOTES_STORAGE_PATH = 'editor/notes.json'
 
 const RawNoteSourceEntrySchema = z.object({
   id: z.string().trim().min(1).optional(),
-  body: LocalizedTextSchema,
+  body: NoteBodySchema,
   createdAt: z.string().datetime({ offset: true }),
   parentId: z.string().trim().min(1).optional(),
   externalUrl: z.string().trim().min(1).optional(),

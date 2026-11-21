@@ -19,6 +19,10 @@ const shareDialogContent = {
       ja: 'メール',
       en: 'Email',
     }),
+    manualCopy: t({
+      ja: '下のリンクを手動でコピーしてください。',
+      en: 'Copy the link below manually.',
+    }),
     linkCopied: t({
       ja: 'リンクをコピーしました',
       en: 'Link copied to clipboard',

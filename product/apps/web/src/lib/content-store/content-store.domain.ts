@@ -63,6 +63,7 @@ export function withLocaleRevalidatePaths(pathname: string) {
 
 export class StorageError extends Error {}
 export class StorageVersionConflictError extends StorageError {}
+export class StorageDocumentWriteUncertainError extends StorageError {}
 export class StorageCommitUncertainError extends StorageError {
   constructor(
     message: string,

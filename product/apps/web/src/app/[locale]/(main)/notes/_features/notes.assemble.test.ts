@@ -64,11 +64,11 @@ describe('assembleNoteThreadItems', () => {
       'reply-newer',
     ])
     expect(items.map((item) => item.depth)).toEqual([0, 0, 1, 1])
-    expect(items.map((item) => item.hasConnectorBelow)).toEqual([
-      false,
-      true,
-      true,
-      false,
+    expect(items.map((item) => item.parent?.href)).toEqual([
+      undefined,
+      undefined,
+      '/notes/root-1',
+      '/notes/root-1',
     ])
   })
 
@@ -99,11 +99,8 @@ describe('assembleNoteThreadItems', () => {
         createdAt: '2026-03-08T10:00:00Z',
         depth: 0,
         externalUrl: undefined,
-        parentId: 'hidden-parent',
-        hasConnectorAbove: false,
-        hasConnectorBelow: false,
+        parent: undefined,
         sharePath: '/notes/visible-child',
-        showBottomBorder: true,
       },
     ])
   })
