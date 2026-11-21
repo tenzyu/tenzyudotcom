@@ -7,9 +7,13 @@ import {
 } from '@/config/site'
 import { locales } from 'intlayer'
 import type { ContentSnapshot } from '@/lib/content-store/content-store.domain'
+import { githubContentRepository } from '@/lib/content-store/github-content.infra'
+import { parseBlogFrontmatter } from './blog-frontmatter.assemble'
+import { resolveBlogAddress } from './blog-index.assemble'
 import { loadBlogCatalog, loadBlogPostBySlug } from './blog.infra'
 import {
   extractBlogHeadings,
+  type BlogHeading,
   type BlogPostSummary,
   type BlogPostingJsonLd,
   type MDXData,
@@ -24,11 +28,38 @@ const PAGE_SIZE = 6
 
 const loadCatalog = cache(loadBlogCatalog)
 
+export async function canonicalizeBlogRedirect(location: string) {
+  const target = new URL(location)
+  const match = /^(\/en)?\/blog\/([^/]+)$/.exec(target.pathname)
+  if (!match) return
+
+  try {
+    const slug = decodeURIComponent(match[2])
+    const catalog = await loadBlogCatalog(
+      await githubContentRepository.snapshot(),
+    )
+    const address = resolveBlogAddress(catalog, slug)
+    if (address.kind === 'alias') {
+      target.pathname = `${match[1] ?? ''}/blog/${encodeURIComponent(address.entry.slug)}`
+      return target.href
+    }
+  } catch {
+    // Let the localized route handle a content read failure.
+  }
+}
+
 export const loadBlogPosts = cache(async (snapshot: ContentSnapshot) => {
-  return (await loadCatalog(snapshot)).map(({ metadata, slug }) => ({
-    metadata,
-    slug,
-  }))
+  const { canonicals } = await loadCatalog(snapshot)
+  const posts: BlogPostSummary[] = []
+  for (const entry of canonicals.values()) {
+    if (entry) {
+      posts.push({
+        slug: entry.slug,
+        metadata: parseBlogFrontmatter(entry.metadata, entry.pathname),
+      })
+    }
+  }
+  return posts.sort(compareBlogPostsByPublishedAtDesc)
 })
 
 export type BlogListItem = BlogPostSummary
@@ -62,11 +93,28 @@ export async function assemblePaginatedBlogPosts(
 
 export type BlogPost = MDXData
 
+type BlogPostPageData =
+  | { kind: 'redirect'; slug: string }
+  | {
+      kind: 'post'
+      post: BlogPost
+      headings: BlogHeading[]
+      relatedPosts: BlogPostSummary[]
+      isAiGenerated: boolean
+    }
+
 export const assembleBlogPostPageData = cache(
-  async (snapshot: ContentSnapshot, slug: string) => {
-    const catalog = await loadCatalog(snapshot)
-    const entry = catalog.find((entry) => entry.slug === slug)
-    const post = await loadBlogPostBySlug(snapshot, slug, entry?.pathname)
+  async (
+    snapshot: ContentSnapshot,
+    slug: string,
+  ): Promise<BlogPostPageData | undefined> => {
+    const address = resolveBlogAddress(await loadCatalog(snapshot), slug)
+    if (address.kind === 'alias') {
+      return { kind: 'redirect', slug: address.entry.slug }
+    }
+    const pathname =
+      address.kind === 'canonical' ? address.entry.pathname : undefined
+    const post = await loadBlogPostBySlug(snapshot, slug, pathname)
 
     if (!post) {
       return undefined
@@ -113,6 +161,7 @@ export const assembleBlogPostPageData = cache(
     }
 
     return {
+      kind: 'post',
       post,
       headings: extractBlogHeadings(post.rawContent),
       relatedPosts,
