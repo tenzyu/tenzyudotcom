@@ -11,7 +11,7 @@ import {
   loadScrapEditorState,
 } from '@/features/content-editor/scrap-editor.assemble'
 import { isValidScrapSlug } from '@/features/scraps/scraps.domain'
-import { ScrapEditorWorkspace } from './scraps-editor-client'
+import { ScrapWorkspace } from '@/app/[locale]/_features/scrap-editor/scrap-workspace'
 
 export async function ScrapsEditor({
   locale,
@@ -22,26 +22,12 @@ export async function ScrapsEditor({
   slug?: string | null
   create?: boolean
 }) {
-  const nextEntryId = `entry-${crypto.randomUUID()}`
-  if (create)
-    return (
-      <ScrapEditorWorkspace
-        locale={locale}
-        scrap={null}
-        nextEntryId={nextEntryId}
-      />
-    )
+  if (create) return <ScrapWorkspace locale={locale} />
   if (slug) {
     if (!isValidScrapSlug(slug)) notFound()
     const scrap = await loadScrapEditorState(slug)
     if (!scrap) notFound()
-    return (
-      <ScrapEditorWorkspace
-        locale={locale}
-        scrap={scrap}
-        nextEntryId={nextEntryId}
-      />
-    )
+    return <ScrapWorkspace locale={locale} initial={scrap} />
   }
   const scraps = await loadScrapEditorIndex()
   return (

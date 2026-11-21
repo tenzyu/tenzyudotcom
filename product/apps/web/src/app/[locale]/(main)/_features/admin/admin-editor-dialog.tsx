@@ -24,6 +24,7 @@ export function AdminEditorDialog({
   trigger,
   pending,
   destructive = false,
+  className = '',
   onClose,
   children,
 }: {
@@ -32,6 +33,7 @@ export function AdminEditorDialog({
   trigger: RefObject<HTMLButtonElement | null>
   pending: boolean
   destructive?: boolean
+  className?: string
   onClose: () => void
   children: ReactNode
 }) {
@@ -60,7 +62,7 @@ export function AdminEditorDialog({
         initialFocus={heading}
         finalFocus={trigger}
         showCloseButton={false}
-        className="max-h-[calc(100dvh-1rem)] overflow-y-auto sm:max-w-lg"
+        className={`max-h-[calc(100dvh-1rem)] overflow-y-auto sm:max-w-lg ${className}`}
       >
         <DialogHeader>
           <DialogTitle ref={heading} tabIndex={-1}>

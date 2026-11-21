@@ -1,94 +1,159 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { expect, test } from '@playwright/test';
+import { expect, test, type Browser, type BrowserContextOptions } from '@playwright/test';
 import { openGitContentFixture } from './git-content-fixture.mjs';
 
-test('editor creates, edits, appends, publishes and serves only public content', async ({ page, browser, baseURL }, testInfo) => {
-  const errors: string[] = [];
-  page.on('pageerror', error => errors.push(error.message));
-  const reader = await browser.newContext();
-  const publicPage = await reader.newPage();
-  publicPage.on('pageerror', error => errors.push(error.message));
-  const base = new URL('/en', baseURL).href;
-  const slug = 'browser-proof';
-  const title = 'Browser lifecycle proof';
-  const saved = async () => {
-    await expect(page.getByRole('link', { name: 'Load saved scrap', exact: true })).toBeVisible();
-    await expect(page.getByRole('main').getByRole('alert')).toHaveCount(0);
-    await page.getByRole('link', { name: 'Load saved scrap', exact: true }).click();
-    await expect(page.getByRole('button', { name: 'Save details and lead', exact: true })).toBeEnabled();
+async function isolateBrowser(context: import('@playwright/test').BrowserContext, base: string) {
+  await context.route('**/*', route =>
+    new URL(route.request().url()).origin === base ? route.continue() : route.abort());
+}
+
+test.beforeEach(async ({ context, baseURL }) => {
+  await isolateBrowser(context, new URL(baseURL!).origin);
+});
+
+async function readerContext(browser: Browser, base: string, options?: BrowserContextOptions) {
+  const context = await browser.newContext(options);
+  await isolateBrowser(context, base);
+  return context;
+}
+
+test('Scrap draft, repeated writes and publication stay on the public pages', async ({ page, browser, baseURL }) => {
+  const base = new URL(baseURL!).origin;
+  const { directory, git } = editorFixture();
+  const reader = await readerContext(browser, base, { locale: 'ja-JP', viewport: { width: 1440, height: 1000 } });
+  const slug = 'contextual-browser-scrap';
+  const title = 'Contextual Scrap fixture';
+  const path = `storage/scraps/${slug}`;
+  const initial = git.head();
+  const lead = 'Original fixture lead.  \nSecond line.\n\n<Evidence>\n\nFixture evidence.\n\n</Evidence>\n';
+  const readAnonymous = async (status: number) => {
+    for (const prefix of ['', '/en']) {
+      const response = await reader.request.get(`${base}${prefix}/scraps/${slug}`, {
+        headers: { 'Accept-Language': prefix ? 'en' : 'ja' },
+      });
+      expect(response.status()).toBe(status);
+      const html = await response.text();
+      expect(html).not.toContain('HIDDEN SCRAP ENTRY');
+      if (status === 200) {
+        expect(html).toContain(`<title>${title}`);
+        expect(html).toContain('Fixture evidence.');
+        expect(html).toContain(`https://tenzyu.com${prefix}/scraps/${slug}`);
+        if (!prefix) expect(html).toContain('noindex');
+      }
+    }
   };
-  const hidden = async () => {
-    const response = await publicPage.goto(`${base}/scraps/${slug}`, { waitUntil: 'networkidle' });
-    expect(response?.status()).toBe(404);
-    await expect(publicPage.getByText('Original fixture lead', { exact: true })).toHaveCount(0);
-    await publicPage.goto(`${base}/scraps`);
-    await expect(publicPage.getByRole('link', { name: title, exact: true })).toHaveCount(0);
-  };
-  await page.goto(`${base}/editor/scraps`, { waitUntil: 'networkidle' });
-  await expect(page).toHaveURL(/\/editor\/login/);
-  await page.locator('input[name="password"]').fill('fixture-password-not-a-secret');
-  await page.getByRole('button', { name: 'ログイン', exact: true }).click();
-  await expect(page).toHaveURL(`${base}/editor`);
-  await page.goto(`${base}/editor/scraps`, { waitUntil: 'networkidle' });
-  await page.getByRole('link', { name: 'Create a scrap', exact: true }).click();
-  await page.getByLabel('Slug', { exact: true }).fill(slug);
-  await page.getByLabel('Title', { exact: true }).fill(title);
-  await page.getByLabel('Question or hypothesis').fill('Can the editor persist and publish a research log?');
-  await page.getByLabel('Lead, in MDX', { exact: true }).fill('Original fixture lead');
-  await page.getByRole('button', { name: 'Create scrap', exact: true }).click();
-  await saved();
-  await page.reload();
-  await expect(page.getByLabel('Lead, in MDX', { exact: true })).toHaveValue('Original fixture lead');
-  await expect(page.getByLabel('Published on the site')).not.toBeChecked();
-  await hidden();
-  await page.getByLabel('Lead, in MDX', { exact: true }).fill('Edited fixture lead survives reload.');
-  await page.getByRole('button', { name: 'Save details and lead', exact: true }).click();
-  await saved();
-  await page.reload();
-  await expect(page.getByLabel('Lead, in MDX', { exact: true })).toHaveValue('Edited fixture lead survives reload.');
-  const append = page.locator('form').filter({ has: page.getByRole('button', { name: 'Append entry', exact: true }) });
-  await append.getByLabel('Entry, in MDX', { exact: true }).fill('Published fixture entry survives reload.');
-  await append.getByLabel('Published entry', { exact: true }).check();
-  await append.getByRole('button', { name: 'Append entry', exact: true }).click();
-  await saved();
-  await page.reload();
-  const entry = page.locator('form').filter({ has: page.getByRole('button', { name: 'Save entry', exact: true }) });
-  await expect(entry.getByLabel('Entry, in MDX', { exact: true })).toHaveValue('Published fixture entry survives reload.');
-  await append.getByLabel('Entry, in MDX', { exact: true }).fill('Private fixture entry must never reach readers.');
-  await append.getByRole('button', { name: 'Append entry', exact: true }).click();
-  await saved();
-  await page.reload();
-  await expect(page.getByLabel('Entry, in MDX', { exact: true }).filter({ hasText: 'Private fixture entry must never reach readers.' })).toHaveCount(1);
-  await hidden();
-  await page.getByLabel('Published on the site').check();
-  await page.getByRole('button', { name: 'Save details and lead', exact: true }).click();
-  await saved();
-  await page.reload();
-  await expect(page.getByLabel('Published on the site')).toBeChecked();
-  await publicPage.goto(`${base}/scraps`, { waitUntil: 'networkidle' });
-  await publicPage.getByRole('link', { name: title, exact: true }).click();
-  await expect(publicPage).toHaveURL(`${base}/scraps/${slug}`);
-  await expect(publicPage.getByRole('heading', { name: title, exact: true })).toBeVisible();
-  await expect(publicPage.getByText('Edited fixture lead survives reload.', { exact: true })).toBeVisible();
-  await expect(publicPage.getByText('Published fixture entry survives reload.', { exact: true })).toBeVisible();
-  await expect(publicPage.getByText('Private fixture entry must never reach readers.', { exact: true })).toHaveCount(0);
-  expect(await publicPage.content()).not.toContain('Private fixture entry must never reach readers.');
-  await publicPage.reload();
-  await expect(publicPage.getByText('Edited fixture lead survives reload.', { exact: true })).toBeVisible();
-  await expect(publicPage.getByText('Published fixture entry survives reload.', { exact: true })).toBeVisible();
-  await expect(publicPage.getByText('Private fixture entry must never reach readers.', { exact: true })).toHaveCount(0);
-  await publicPage.screenshot({ path: testInfo.outputPath('published.png'), fullPage: true });
-  expect(errors).toEqual([]);
-  const ledger = readFileSync(resolve(process.env.PLAYWRIGHT_OUTPUT_DIR ?? '/tmp/tenzyudotcom-editor-evidence', 'github-ledger.jsonl'), 'utf8');
-  expect(ledger).not.toContain('fixture-token');
-  const rows = ledger.trim().split('\n');
-  expect(rows.filter(row => /^\{"method":"PATCH","path":"\/repos\/fixture\/editor\/git\/refs\/heads\/main","status":200\}$/.test(row))).toHaveLength(5);
-  const mutations = rows.filter(row => !row.startsWith('{"method":"GET"'));
-  expect(mutations).toHaveLength(15);
-  expect(mutations.every(row => /^\{"method":"(?:POST|PATCH)","path":"\/repos\/fixture\/editor\/git\/(?:trees|commits|refs\/heads\/main)","status":20[01]\}$/.test(row))).toBe(true);
-  await testInfo.attach('github-ledger', { body: ledger, contentType: 'application/x-ndjson' });
-  await reader.close();
+  try {
+    await signIn(page, base);
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(`${base}/en/scraps`);
+    const documentStart = await page.evaluate(() => performance.timeOrigin);
+    await readAnonymous(404);
+    await page.getByRole('button', { name: 'Edit this page' }).press('Enter');
+    await page.getByRole('button', { name: 'Create a scrap' }).click();
+    const editor = page.getByRole('dialog', { name: 'Scrap editor' });
+    await editor.getByLabel('Slug', { exact: true }).fill(slug);
+    await editor.getByLabel('Title', { exact: true }).fill(title);
+    await editor.getByLabel('Question or hypothesis').fill('Does a draft become reachable at publication?');
+    const source = editor.getByLabel('Lead, in MDX');
+    await source.focus();
+    const keyboard = await page.context().newCDPSession(page);
+    await keyboard.send('Input.imeSetComposition', { text: 'にほんご', selectionStart: 4, selectionEnd: 4 });
+    await keyboard.send('Input.insertText', { text: '日本語' });
+    await keyboard.detach();
+    await expect(source).toHaveValue('日本語');
+    await source.fill(lead);
+    await source.evaluate((element: HTMLTextAreaElement) => element.setSelectionRange(0, 8));
+    await source.press('Control+k');
+    await expect(source).toHaveValue('[Original](https://example.com)' + lead.slice(8));
+    await source.press('Control+z');
+    await expect(source).toHaveValue(lead);
+    await source.fill(lead + '\n| A | B |\n| - | - |\n| 1 | 2 |\n\n{alert("draft only")}');
+    await editor.getByRole('button', { name: 'Preview', exact: true }).click();
+    await expect(editor.getByRole('table')).toBeVisible();
+    await expect(editor.getByText('Fixture evidence.', { exact: true })).toBeVisible();
+    await expect(editor.getByText(/Unsupported MDX at line/)).toBeVisible();
+    expect(git.head()).toBe(initial);
+    await editor.getByRole('button', { name: 'Write', exact: true }).click();
+    await source.fill(lead);
+    await page.route(url => url.pathname === '/api/editor/scrap' && url.searchParams.get('slug') === slug, route => route.fulfill({ status: 503 }), { times: 1 });
+    await editor.getByRole('button', { name: 'Create draft' }).click();
+    await expect(editor.getByRole('alert')).toContainText('saved version could not be loaded');
+    const created = git.head();
+    expect(git.parents(created)).toEqual([initial]);
+    expect(git.file(created, `${path}/lead.en.mdx`)?.toString()).toBe(lead);
+    await editor.getByRole('button', { name: 'Refresh editor' }).click();
+    await expect(editor.getByRole('button', { name: 'Publish scrap' })).toBeVisible();
+    expect(git.head()).toBe(created);
+    expect((await reader.request.get(`${base}/api/editor/scrap?slug=${slug}`)).status()).toBe(401);
+    await readAnonymous(404);
+
+    await editor.getByRole('button', { name: 'Append entry' }).click();
+    const entry = editor.getByLabel('Entry, in MDX');
+    const append = editor.getByRole('button', { name: 'Append entry' });
+    await entry.fill('First public entry.');
+    await editor.getByLabel('Published entry').check();
+    writeFileSync(resolve(directory, 'drop-ref-response'), 'before', { mode: 0o600 });
+    await append.click();
+    await expect(editor.getByRole('alert')).toContainText('outcome is unknown');
+    await editor.getByRole('button', { name: 'Check saved change' }).click();
+    await expect(editor.getByRole('alert')).toContainText('Git still matches');
+    await expect(entry).toHaveValue('First public entry.');
+    expect(git.head()).toBe(created);
+
+    await append.click();
+    await expect(entry).toHaveValue('');
+    const first = git.head();
+    expect(git.parents(first)).toEqual([created]);
+    await entry.fill('HIDDEN SCRAP ENTRY');
+    writeFileSync(resolve(directory, 'drop-ref-response'), 'after', { mode: 0o600 });
+    await append.click();
+    await expect(editor.getByRole('alert')).toContainText('outcome is unknown');
+    await editor.getByRole('button', { name: 'Check saved change' }).click();
+    await expect(entry).toHaveValue('');
+    const second = git.head();
+    expect(git.parents(second)).toEqual([first]);
+    const manifestPath = `${path}/manifest.json`;
+    const manifest = JSON.parse(git.file(second, manifestPath)!.toString());
+    expect(new Set(manifest.entryIds).size).toBe(2);
+    expect(git.file(second, `${path}/entries/${manifest.entryIds[1]}/entry.en.mdx`)?.toString()).toBe('HIDDEN SCRAP ENTRY');
+
+    page.on('dialog', dialog => dialog.accept());
+    await editor.getByRole('button', { name: 'Back to Scrap controls' }).click();
+    await editor.getByRole('button', { name: 'Edit entry 1' }).click();
+    await expect(entry).toHaveValue('First public entry.');
+    await entry.fill('Edited public entry.');
+    await editor.getByRole('button', { name: 'Save entry' }).click();
+    await expect.poll(() => git.head()).not.toBe(second);
+    await expect(editor.getByRole('status').filter({ hasText: git.head() })).toBeVisible();
+    await editor.getByRole('combobox', { name: /Document language/ }).selectOption('ja');
+    await entry.fill('翻訳された記録。');
+    await editor.getByRole('button', { name: 'Save entry' }).click();
+    await expect(editor.getByText(/Translation state.*manual/)).toBeVisible();
+    await editor.getByRole('button', { name: 'Back to Scrap controls' }).click();
+    await editor.getByRole('button', { name: 'Publish scrap' }).click();
+    await expect(editor.getByRole('status').filter({ hasText: 'Available to readers.' })).toBeVisible();
+    await readAnonymous(200);
+    await editor.getByRole('link', { name: 'Open public scrap' }).click();
+    await expect(page).toHaveURL(`${base}/en/scraps/${slug}`);
+    await expect(page.getByText('Edited public entry.', { exact: true })).toBeVisible();
+    await expect(page.locator('[data-scrap-lead] br')).toHaveCount(1);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+    await page.getByRole('button', { name: 'Manage scrap' }).click();
+    await editor.getByRole('button', { name: 'Close scrap' }).click();
+    await expect(editor.getByRole('button', { name: 'Reopen scrap' })).toBeEnabled();
+    await readAnonymous(200);
+    await editor.getByRole('button', { name: 'Reopen scrap' }).click();
+    await expect(editor.getByRole('button', { name: 'Close scrap' })).toBeEnabled();
+    await editor.getByRole('button', { name: 'Archive scrap' }).click();
+    await expect(page).toHaveURL(`${base}/en/scraps?draft=${slug}`);
+    await expect(editor.getByRole('button', { name: 'Reopen scrap' })).toBeVisible();
+    await readAnonymous(404);
+    expect(JSON.parse(git.file(git.head(), manifestPath)!.toString()).status).toBe('archived');
+    expect(await page.evaluate(() => performance.timeOrigin)).toBe(documentStart);
+  } finally {
+    await reader.close();
+  }
 });
 
 test('blog editor preserves Git source, stale drafts and uncertain publication receipts', async ({ browser, baseURL }) => {
@@ -100,7 +165,7 @@ test('blog editor preserves Git source, stale drafts and uncertain publication r
   const ledger = () => readFileSync(resolve(output, 'github-ledger.jsonl'), 'utf8').trim().split('\n').filter(Boolean).map(line => JSON.parse(line));
   const start = ledger().length;
   const context = await browser.newContext({ timezoneId: 'Asia/Tokyo' });
-  const reader = await browser.newContext();
+  const reader = await readerContext(browser, base);
   const page = await context.newPage();
   const main = page.getByRole('main');
   const status = main.getByRole('status');
@@ -245,7 +310,7 @@ test('Notes project the visible graph and persist item commands with focus and r
   const base = new URL(baseURL!).origin;
   const { directory, git } = editorFixture();
   const seeded = git.advance({ [notesFile]: JSON.stringify(graph, null, 2) + '\n' }, 'Seed branched Notes');
-  const reader = await browser.newContext({ locale: 'ja-JP', viewport: { width: 1440, height: 1000 } });
+  const reader = await readerContext(browser, base, { locale: 'ja-JP', viewport: { width: 1440, height: 1000 } });
   try {
     const ja = await reader.newPage();
     const response = await ja.goto(`${base}/notes`);

@@ -1,4 +1,4 @@
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, openSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { initGitContentFixture } from './git-content-fixture.mjs';
@@ -6,6 +6,7 @@ import { initGitContentFixture } from './git-content-fixture.mjs';
 const root = resolve(import.meta.dirname, '../..');
 const output = resolve(process.env.PLAYWRIGHT_OUTPUT_DIR ?? '/tmp/tenzyudotcom-editor-evidence');
 const port = process.env.PLAYWRIGHT_EDITOR_PORT ?? '4174';
+const production = process.env.EDITOR_BROWSER_PRODUCTION === '1';
 if (output === root || output.startsWith(`${root}/`)) throw new Error('Evidence must be outside the repository');
 mkdirSync(output, { recursive: true, mode: 0o700 });
 const fixtureDir = mkdtempSync(resolve(output, 'fixture-'));
@@ -19,7 +20,7 @@ const env = {
   PATH: process.env.PATH,
   HOME: process.env.HOME,
   LANG: 'C.UTF-8',
-  NODE_ENV: 'development',
+  NODE_ENV: production ? 'production' : 'development',
   TZ: 'UTC',
   NEXT_TELEMETRY_DISABLED: '1',
   NODE_OPTIONS: `--import=${resolve(import.meta.dirname, 'editor-github-preload.mjs')}`,
@@ -36,8 +37,16 @@ const env = {
   GITHUB_CONTENT_BRANCH: 'main',
   GITHUB_CONTENT_ROOT: 'storage',
 };
-const child = spawn('node', [resolve(root, 'node_modules/next/dist/bin/next'), 'dev', '--hostname', '127.0.0.1', '--port', port], {
-  cwd: resolve(root, 'product/apps/web'), env, stdio: ['ignore', log, log],
+const cwd = resolve(root, 'product/apps/web');
+const next = resolve(root, 'node_modules/next/dist/bin/next');
+if (production) {
+  const buildLog = openSync(resolve(output, 'next-build.log'), 'w', 0o600);
+  const build = spawnSync('node', [next, 'build'], { cwd, env, stdio: ['ignore', buildLog, buildLog] });
+  if (build.error) throw build.error;
+  if (build.status !== 0) process.exit(build.status ?? 1);
+}
+const child = spawn('node', [next, production ? 'start' : 'dev', '--hostname', '127.0.0.1', '--port', port], {
+  cwd, env, stdio: ['ignore', log, log],
 });
 process.once('SIGINT', () => child.kill('SIGINT'));
 process.once('SIGTERM', () => child.kill('SIGTERM'));

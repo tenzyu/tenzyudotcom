@@ -26,7 +26,7 @@ export default defineConfig({
     command: 'node repo-ops/renewal/start-editor-browser-server.mjs',
     url: `${baseURL}/en/editor/login`,
     reuseExistingServer: false,
-    timeout: 120_000,
+    timeout: process.env.EDITOR_BROWSER_PRODUCTION === '1' ? 360_000 : 120_000,
     env: { PLAYWRIGHT_OUTPUT_DIR: output, PLAYWRIGHT_EDITOR_PORT: port },
   },
 });

@@ -1,8 +1,6 @@
 import { useIntlayer } from 'next-intlayer/server'
 import { PageIntro, ReadingColumn, EditorialList } from '@tenzyu/ui/editorial'
-import Link from 'next/link'
-import { getLocalizedUrl } from 'intlayer'
-import { AdminGate } from '@/app/[locale]/(main)/_features/admin/admin-gate'
+import { ScrapListEditor } from './scrap-page-editor'
 import { ScrapCard } from './scrap-card'
 import type { ScrapIndexEntry } from '@/features/scraps/scraps.domain'
 
@@ -21,11 +19,7 @@ export function ScrapsPageContent({ locale, scraps }: ScrapsPageContentProps) {
         title={content.metadata.title.value}
         description={content.metadata.description.value}
       />
-      <AdminGate>
-        <Link href={getLocalizedUrl('/editor/scraps?create=1', locale)}>
-          Create a scrap
-        </Link>
-      </AdminGate>
+      <ScrapListEditor locale={locale} />
       {scraps.length === 0 ? (
         <p className="text-muted-foreground text-sm">
           {content.list.empty.value}
