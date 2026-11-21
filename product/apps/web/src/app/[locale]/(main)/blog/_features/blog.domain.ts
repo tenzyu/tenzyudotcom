@@ -44,6 +44,12 @@ export type BlogSaveCommand = { slug: string } & (
   | { intent: 'edit'; expectedVersion: string; changes: BlogChanges }
 )
 
+export type BlogRenameCommand = {
+  oldSlug: string
+  newSlug: string
+  expectedVersion: string
+}
+
 export type BlogPublicationReceipt = {
   commitOid: string
   headOid: string
@@ -62,6 +68,14 @@ export type MDXData = {
   rawContent: string
   fullRawContent: string
   version: string
+}
+
+export type BlogPublicationResult = {
+  receipt: BlogPublicationReceipt
+  view:
+    | { status: 'ready'; post: MDXData }
+    | { status: 'missing' }
+    | { status: 'unavailable' }
 }
 
 export type BlogPostSummary = {

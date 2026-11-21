@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import {
   type ContentSnapshot,
-  type ContentWrite,
+  type ContentTreeChange,
   StorageCommitUncertainError,
   StorageError,
   StorageVersionConflictError,
@@ -25,9 +25,14 @@ const FileResponse = ShaResponse.extend({
   size: z.number().int().nonnegative(),
   content: z.string(),
 })
+const TreeEntry = ShaResponse.extend({
+  path: z.string(),
+  type: z.enum(['blob', 'tree', 'commit']),
+  mode: z.string(),
+})
 const TreeResponse = z.object({
   truncated: z.literal(false),
-  tree: z.array(z.object({ path: z.string(), type: z.string() })),
+  tree: z.array(TreeEntry),
 })
 const CompareResponse = z.object({
   status: z.enum(['identical', 'ahead', 'behind', 'diverged']),
@@ -36,6 +41,7 @@ const CompareResponse = z.object({
 
 type GitHubContentSnapshot = ContentSnapshot & {
   list(prefix: string): Promise<string[]>
+  listTree(prefix: string): Promise<z.infer<typeof TreeEntry>[]>
 }
 
 export type GitHubAggregateRepository = {
@@ -44,7 +50,7 @@ export type GitHubAggregateRepository = {
   validateHead(): Promise<string>
   commit(
     version: string,
-    writes: readonly ContentWrite[],
+    writes: readonly ContentTreeChange[],
     message: string,
   ): Promise<string>
   reconcile(candidateOid: string): Promise<string | null>
@@ -121,8 +127,28 @@ export function createGitHubAggregateRepository(
 
   function snapshotAt(oid: string): GitHubContentSnapshot {
     const version = oidSchema.parse(oid)
+
+    async function listTree(prefix: string) {
+      const directory = repositoryPath(prefix)
+      const commit = CommitResponse.parse(await api(`/git/commits/${version}`))
+      const result = TreeResponse.safeParse(
+        await api(`/git/trees/${commit.tree.sha}?recursive=1`),
+      )
+      if (!result.success) {
+        throw new StorageError('GitHub did not supply a complete content tree.')
+      }
+      const root = config.root.replace(/^\/+|\/+$/g, '')
+      return result.data.tree
+        .filter(({ path }) => path.startsWith(`${directory}/`))
+        .map(({ path, ...entry }) => ({
+          ...entry,
+          path: root ? path.slice(root.length + 1) : path,
+        }))
+    }
+
     return {
       version,
+      listTree,
       async loadText(pathname) {
         const path = repositoryPath(pathname)
           .split('/')
@@ -164,25 +190,9 @@ export function createGitHubAggregateRepository(
         }
       },
       async list(prefix) {
-        const directory = repositoryPath(prefix)
-        const commit = CommitResponse.parse(
-          await api(`/git/commits/${version}`),
-        )
-        const result = TreeResponse.safeParse(
-          await api(`/git/trees/${commit.tree.sha}?recursive=1`),
-        )
-        if (!result.success) {
-          throw new StorageError(
-            'GitHub did not supply a complete content tree.',
-          )
-        }
-        const root = config.root.replace(/^\/+|\/+$/g, '')
-        return result.data.tree
-          .filter(
-            ({ path, type }) =>
-              path.startsWith(`${directory}/`) && type !== 'tree',
-          )
-          .map(({ path }) => (root ? path.slice(root.length + 1) : path))
+        return (await listTree(prefix))
+          .filter(({ type }) => type !== 'tree')
+          .map(({ path }) => path)
       },
     }
   }
@@ -226,9 +236,10 @@ export function createGitHubAggregateRepository(
           base_tree: parent.tree.sha,
           tree: writes.map((write) => ({
             path: repositoryPath(write.pathname),
-            mode: '100644',
             type: 'blob',
-            content: write.content,
+            ...('sha' in write
+              ? { mode: write.mode, sha: write.sha }
+              : { mode: '100644', content: write.content }),
           })),
         }),
       )

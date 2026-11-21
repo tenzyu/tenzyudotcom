@@ -27,6 +27,10 @@ export type ContentSnapshot = {
 
 export type ContentWrite = { pathname: string; content: string }
 
+export type ContentTreeChange =
+  | ContentWrite
+  | { pathname: string; mode: '100644' | '100755'; sha: string | null }
+
 export type AggregateContentRepository = {
   snapshot(): Promise<ContentSnapshot>
   commit(
