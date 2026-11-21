@@ -6,10 +6,6 @@ import type {
   RevalidatePathTarget,
   StoredCollectionState,
 } from '@/lib/content-store/content-store.domain'
-import {
-  LOCALE_PREFIXES,
-  withLocaleRevalidatePaths,
-} from '@/lib/content-store/content-store.domain'
 
 const EDITOR_COLLECTION_IDS = ['notes', 'scraps', 'links', 'blog'] as const
 
@@ -56,18 +52,12 @@ const EDITOR_COLLECTIONS: Record<EditorCollectionId, EditorCollectionMeta> = {
   scraps: {
     id: 'scraps',
     label: 'Scraps',
-    publicPaths: withLocaleRevalidatePaths('/scraps'),
+    publicPaths: [],
   },
   links: {
     id: 'links',
     label: 'Links',
-    publicPaths: [
-      ...withLocaleRevalidatePaths('/links'),
-      ...LOCALE_PREFIXES.map((locale) => ({
-        path: `${locale}/links/[shortUrl]`,
-        type: 'page' as const,
-      })),
-    ],
+    publicPaths: [],
   },
   blog: {
     id: 'blog',
