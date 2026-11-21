@@ -21,6 +21,7 @@ import {
   StorageError,
   StorageVersionConflictError,
 } from '@/lib/content-store/content-store.domain'
+import { githubContentRepository } from '@/lib/content-store/github-content.infra'
 import { createContentVersion } from '@/lib/content-store/content-version.infra'
 import { SCRAPS_INDEX_PATHNAME } from '@/lib/content-store/content-tags.infra'
 import {
@@ -202,7 +203,11 @@ export async function executeScrapEditorCommand(
   } else {
     if (!existing) throw new StorageError('Scrap not found')
     manifest = { ...existing, updatedAt: now }
-    if (input.kind === 'update') {
+    if (input.kind === 'set-status') {
+      manifest = parseScrapManifest({ ...manifest, status: input.status })
+    } else if (input.kind === 'set-visibility') {
+      manifest = parseScrapManifest({ ...manifest, published: input.published })
+    } else if (input.kind === 'update') {
       const current = await snapshot.loadText(paths.lead(input.locale))
       const source = await snapshot.loadText(paths.lead(existing.primaryLocale))
       if (input.locale !== existing.primaryLocale && !source)
@@ -320,4 +325,17 @@ export async function executeScrapEditorCommand(
     `${input.kind} scrap ${input.slug}`,
   )
   return { version, slug: input.slug }
+}
+
+export async function checkScrapPublication(
+  candidate: string,
+  expectedVersion?: string,
+) {
+  if (await githubContentRepository.reconcile(candidate)) return 'saved'
+  if (
+    expectedVersion &&
+    (await githubContentRepository.snapshot()).version === expectedVersion
+  )
+    return 'retry'
+  return 'uncertain'
 }

@@ -62,13 +62,40 @@ export function withLocaleRevalidatePaths(pathname: string) {
 }
 
 export class StorageError extends Error {}
-export class StorageVersionConflictError extends StorageError {}
+export class StorageVersionConflictError extends StorageError {
+  readonly code = 'content-version-conflict'
+}
 export class StorageDocumentWriteUncertainError extends StorageError {}
 export class StorageCommitUncertainError extends StorageError {
+  readonly code = 'content-commit-uncertain'
+
   constructor(
     message: string,
     readonly candidateOid: string,
   ) {
     super(message)
   }
+}
+
+export function isStorageVersionConflict(
+  error: unknown,
+): error is StorageVersionConflictError {
+  return (
+    error instanceof Error &&
+    'code' in error &&
+    error.code === 'content-version-conflict'
+  )
+}
+
+export function isStorageCommitUncertain(
+  error: unknown,
+): error is StorageCommitUncertainError {
+  return (
+    error instanceof Error &&
+    'code' in error &&
+    error.code === 'content-commit-uncertain' &&
+    'candidateOid' in error &&
+    typeof error.candidateOid === 'string' &&
+    /^[0-9a-f]{40}$/.test(error.candidateOid)
+  )
 }

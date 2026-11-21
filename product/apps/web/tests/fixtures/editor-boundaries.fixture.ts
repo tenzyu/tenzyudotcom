@@ -7,7 +7,6 @@ import { StorageVersionConflictError } from '@/lib/content-store/content-store.d
 let authenticated = false
 let writes = 0
 let conflict = false
-let refreshFails = false
 let sameOrigin = true
 const blogCommands: BlogSaveCommand[] = []
 mock.module('@/features/editor-auth/editor-session', () => ({
@@ -64,17 +63,12 @@ mock.module('@/features/content-editor/scrap-editor.assemble', () => ({
   loadScrapEditorIndexState: loadCollection,
 }))
 mock.module('next/cache', () => ({
-  revalidatePath: (path: string) => {
-    if (refreshFails && path === '/[locale]/editor/scraps') {
-      throw new Error('refresh failed')
-    }
-  },
+  revalidatePath: () => {},
   revalidateTag: () => {},
   updateTag: () => {},
 }))
 const { PUT, GET } = await import('@/app/api/editor/[collection]/route')
-const { saveScrapAction } =
-  await import('@/app/[locale]/(admin)/editor/_features/scraps.actions')
+const { POST: postScrap } = await import('@/app/api/editor/scrap/route')
 const { saveEditorCollectionAction, saveBlogPostAction } =
   await import('@/app/[locale]/(admin)/editor/_features/actions')
 const params = { params: Promise.resolve({ collection: 'notes' }) }
@@ -157,27 +151,20 @@ assert.deepEqual(blogCommands[1], {
   changes: {},
 })
 
-const scrapForm = new FormData()
-for (const [key, value] of Object.entries({
-  kind: 'create',
-  slug: 'test-scrap',
-  locale: 'ja',
-  title: 'A draft',
-  hypothesis: 'Question',
-  summary: '',
-  tags: 'research',
-  status: 'open',
-  lead: 'Lead draft',
-}))
-  scrapForm.set(key, value)
-const scrapConflict = await saveScrapAction({ status: 'idle' }, scrapForm)
-assert.equal(scrapConflict.status, 'error')
-assert.equal(scrapForm.get('lead'), 'Lead draft')
+const scrapCommand = {
+  kind: 'create', slug: 'test-scrap', locale: 'ja',
+  title: 'A draft', hypothesis: 'Question', summary: '',
+  tags: ['research'], status: 'open', published: false, lead: 'Lead draft',
+}
+const scrapRequest = (origin = 'http://localhost') =>
+  new NextRequest('http://localhost/api/editor/scrap', {
+    method: 'POST',
+    headers: { origin, 'content-type': 'application/json' },
+    body: JSON.stringify({ operation: 'save', command: scrapCommand }),
+  })
+assert.equal((await postScrap(scrapRequest())).status, 409)
 authenticated = false
-await assert.rejects(
-  saveScrapAction({ status: 'idle' }, scrapForm),
-  /unauthorized/,
-)
+assert.equal((await postScrap(scrapRequest())).status, 401)
 await assert.rejects(
   saveEditorCollectionAction({ status: 'idle' }, collectionForm),
   /unauthorized/,
@@ -187,10 +174,7 @@ assert.equal(writes, 0)
 authenticated = true
 conflict = false
 sameOrigin = false
-await assert.rejects(
-  saveScrapAction({ status: 'idle' }, scrapForm),
-  /forbidden/,
-)
+assert.equal((await postScrap(scrapRequest('http://other.test'))).status, 403)
 await assert.rejects(
   saveEditorCollectionAction({ status: 'idle' }, collectionForm),
   /forbidden/,
@@ -198,13 +182,10 @@ await assert.rejects(
 await assert.rejects(saveBlogPostAction(idle, new FormData()), /forbidden/)
 assert.equal(writes, 0)
 sameOrigin = true
-refreshFails = true
-const result = await saveScrapAction({ status: 'idle' }, scrapForm)
-assert.equal(result.status, 'saved')
+const result = await postScrap(scrapRequest())
+assert.equal(result.status, 200)
+assert.deepEqual(await result.json(), { kind: 'saved', version: 'new-version' })
 assert.equal(writes, 1)
-assert.ok(
-  result.status === 'saved' && result.message.includes('refresh failed'),
-)
 for (const collection of ['blog', 'scraps'])
   assert.equal(
     (await PUT(request(), { params: Promise.resolve({ collection }) })).status,

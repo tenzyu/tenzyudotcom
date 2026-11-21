@@ -478,7 +478,7 @@ async function verifyWithdrawal() {
       assert.ok(!feed.body.includes(body), 'Withdrawn note text leaked');
       const payload = feed.body.replaceAll('\\"', '"');
       assert.ok(!payload.includes(`"id":"${secondNoteId}"`), 'Withdrawn note DTO leaked');
-      assert.ok(payload.includes(`"parentId":"${secondNoteId}"`), 'Published child lost its parent reference');
+      assert.ok(!payload.includes(`href="${prefix}/notes/${secondNoteId}"`), 'Hidden parent was linked');
     }
     const home = await read(prefix || '/', 'withdrawn home');
     expectContains(home, prefix ? reply.body.en : reply.body.ja);
@@ -676,35 +676,37 @@ async function verifyEditorScrap() {
     await main.getByLabel('Slug', { exact: true }).fill(slug);
     await main.getByLabel('Question or hypothesis').fill('Can a warmed reader open a publication?');
     await main.getByLabel('Summary', { exact: true }).fill(summary);
+    const documentStart = await page.evaluate(() => performance.timeOrigin);
+    page.on('dialog', dialog => dialog.accept());
 
     const draft = { title: 'Fixture Scrap Draft', lead: 'Only the editor can see this draft.' };
     const published = { title: 'Fixture Scrap Published', lead: 'Fixture published lead.' };
     const updated = { title: 'Fixture Scrap Updated', lead: 'Fixture updated lead.' };
     const stages = [
       { label: 'draft', ...draft, published: false, status: 'open' },
+      { label: 'prepare', ...published, published: false, status: 'open' },
       { label: 'publish', ...published, published: true, status: 'open' },
       { label: 'update', ...updated, published: true, status: 'open' },
       { label: 'close', ...updated, published: true, status: 'closed' },
       { label: 'unpublish', ...updated, published: false, status: 'closed' },
-      { label: 'archive', ...updated, published: true, status: 'archived' },
+      { label: 'archive', ...updated, published: false, status: 'archived' },
     ];
-    let previousStatus = 'open';
     for (const stage of stages) {
       const parent = git.head();
-      const creating = stage.label === 'draft';
-      const button = page.getByRole('button', { name: creating ? 'Create scrap' : 'Save details and lead', exact: true });
-      const form = main.locator('form').filter({ has: button });
-      await form.getByLabel('Title', { exact: true }).fill(stage.title);
-      await form.getByLabel('Lead, in MDX', { exact: true }).fill(stage.lead);
-      await form.getByLabel('Published on the site').setChecked(stage.published);
-      if (stage.status !== previousStatus) {
-        await form.getByLabel('Status', { exact: true }).click();
-        await page.getByRole('option', { name: stage.status, exact: true }).click();
+      if (['draft', 'prepare', 'update'].includes(stage.label)) {
+        if (stage.label !== 'draft') await main.getByRole('button', { name: 'Edit lead', exact: true }).click();
+        await main.getByLabel('Title', { exact: true }).fill(stage.title);
+        await main.getByLabel('Lead, in MDX', { exact: true }).fill(stage.lead);
+        const submit = main.getByRole('button', { name: stage.label === 'draft' ? 'Create draft' : 'Save details and lead', exact: true });
+        await submit.click();
+      } else {
+        const labels = { publish: 'Publish scrap', close: 'Close scrap', unpublish: 'Unpublish', archive: 'Archive scrap' };
+        await main.getByRole('button', { name: labels[stage.label], exact: true }).click();
       }
-      previousStatus = stage.status;
-      await button.click();
-      const receipt = main.getByRole('link', { name: 'Load saved scrap', exact: true });
-      await receipt.waitFor({ state: 'visible' });
+      await main.getByRole('status').filter({ hasText: 'Saved to Git' }).locator('code').filter({
+        hasNotText: parent,
+      }).waitFor({ state: 'visible' });
+      await main.locator('[aria-busy="false"]').filter({ has: main.getByText('Saved to Git', { exact: false }) }).waitFor({ state: 'visible' });
       const revision = git.head();
       revisions[`scrap-${stage.label}`] = revision;
       assert.deepEqual(git.parents(revision), [parent]);
@@ -730,8 +732,11 @@ async function verifyEditorScrap() {
         }
         await expectScrapListing(expected, ['en'], stage.label);
       }
-      if (stage.label !== 'archive') await receipt.click();
+      if (stage.label === 'prepare' || stage.label === 'update') {
+        await main.getByRole('button', { name: 'Back to Scrap controls' }).click();
+      }
     }
+    assert.equal(await page.evaluate(() => performance.timeOrigin), documentStart);
     assert.deepEqual(ledger().slice(before).filter(row => row.method !== 'GET').map(row => [row.method, row.status]),
       stages.flatMap(() => [['POST', 201], ['POST', 201], ['PATCH', 200]]));
   } finally {

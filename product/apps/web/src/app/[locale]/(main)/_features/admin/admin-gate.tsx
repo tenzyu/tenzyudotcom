@@ -116,7 +116,7 @@ export function PageAdmin({ children }: { children: ReactNode }) {
   const active = available && editing
 
   function saved(message: string, nextPath?: string) {
-    setReceipt({ message, page: nextPath ?? pathname })
+    setReceipt({ message, page: nextPath?.split('?')[0] ?? pathname })
     startTransition(() => {
       if (nextPath) router.replace(nextPath)
       else router.refresh()

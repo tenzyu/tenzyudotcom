@@ -55,10 +55,11 @@ mock.module('next/navigation', () => ({
   ...navigation,
   useRouter: () => ({ refresh() {} }),
 }))
-mock.module('@/app/[locale]/(admin)/editor/_features/scraps.actions', () => ({
-  saveScrapAction: async () => ({
-    status: 'error',
-    error: failure,
+mock.module('@/features/content-editor/scrap-workspace-client', () => ({
+  readPrivateScrap: async () => null,
+  verifiedPublicScrap: async () => false,
+  writeScrap: async () => ({
+    kind: failure === 'save' ? 'unavailable' : failure,
     message: 'Draft kept',
   }),
 }))
@@ -77,8 +78,7 @@ mock.module('@/app/[locale]/(admin)/editor/_features/actions', () => ({
     message: 'Draft kept',
   }),
 }))
-const { ScrapEditorWorkspace } =
-  await import('@/app/[locale]/(admin)/editor/_features/scraps-editor-client')
+const { ScrapWorkspace } = await import('@/features/content-editor/scrap-workspace')
 const { BlogEditor } =
   await import('@/app/[locale]/(admin)/editor/_features/blog-editor')
 const { LinksEditorClient } =
@@ -117,12 +117,7 @@ async function submit(formIndex = 0) {
 for (failure of ['conflict', 'save', 'uncertain']) {
   await act(async () => {
     root.render(
-      <ScrapEditorWorkspace
-        key={`scrap-${failure}`}
-        locale="ja"
-        scrap={null}
-        nextEntryId="entry-one"
-      />,
+      <ScrapWorkspace key={`scrap-${failure}`} locale="ja" />,
     )
   })
   for (const [name, value] of Object.entries({
@@ -148,7 +143,7 @@ for (failure of ['conflict', 'save', 'uncertain']) {
   )
   assert.equal(
     rootNode.querySelector('fieldset')?.disabled,
-    failure === 'uncertain',
+    failure === 'uncertain' || failure === 'conflict',
   )
   await act(async () => {
     root.render(
@@ -220,32 +215,15 @@ const scrap: ScrapEditorState = {
     },
   ],
 }
-await act(async () => {
-  root.render(
-    <ScrapEditorWorkspace
-      key="existing"
-      locale="ja"
-      scrap={scrap}
-      nextEntryId="entry-two"
-    />,
-  )
-})
-await fill('body', 'Unsaved appended entry', 1)
-await submit(1)
-assert.equal(
-  rootNode
-    .querySelectorAll('form')[1]
-    ?.querySelector<HTMLTextAreaElement>('[name="body"]')?.value,
-  'Unsaved appended entry',
-)
-await fill('body', 'Unsaved revised entry', 2)
-await submit(2)
-assert.equal(
-  rootNode
-    .querySelectorAll('form')[2]
-    ?.querySelector<HTMLTextAreaElement>('[name="body"]')?.value,
-  'Unsaved revised entry',
-)
+for (const mode of [{ kind: 'append' }, { kind: 'entry', id: scrap.entries[0].meta.id }] as const) {
+  await act(async () => {
+    root.render(<ScrapWorkspace key={mode.kind} locale="ja" initial={scrap} initialMode={mode} />)
+  })
+  const body = `Unsaved ${mode.kind} source`
+  await fill('body', body)
+  await submit()
+  assert.equal(rootNode.querySelector<HTMLTextAreaElement>('[name="body"]')?.value, body)
+}
 await act(async () => {
   root.render(
     <LinksEditorClient

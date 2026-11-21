@@ -85,7 +85,8 @@ export default async function ScrapDetailPage({ params }: { params: Params }) {
   await connection()
   const locale = await getLocale()
   const { slug } = await params
-  const page = await assembleScrapPage(await loadPublication(), slug, locale)
+  const snapshot = await loadPublication()
+  const page = await assembleScrapPage(snapshot, slug, locale)
 
   if (!page) {
     notFound()
@@ -93,7 +94,11 @@ export default async function ScrapDetailPage({ params }: { params: Params }) {
 
   return (
     <IntlayerServerProvider locale={locale}>
-      <ScrapDetailPageContent locale={locale} page={page} />
+      <ScrapDetailPageContent
+        locale={locale}
+        page={page}
+        revision={snapshot.version}
+      />
     </IntlayerServerProvider>
   )
 }
