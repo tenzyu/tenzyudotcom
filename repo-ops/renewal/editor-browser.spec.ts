@@ -332,6 +332,9 @@ test('Notes project the visible graph and persist item commands with focus and r
     await expect(ja).toHaveURL(`${base}/notes/1801`);
     await ja.getByRole('article').filter({ hasText: '次の返信' }).getByRole('link', { name: 'ノートの固定リンク' }).press('Enter');
     await expect(ja).toHaveURL(`${base}/notes/1803`);
+    await ja.setViewportSize({ width: 390, height: 844 });
+    expect(await ja.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+    await expect(ja.getByRole('link', { name: '返信先 親ノート' })).toHaveAttribute('href', '/notes/1801');
 
     await signIn(page, base);
     await page.setViewportSize({ width: 390, height: 844 });
@@ -530,6 +533,20 @@ test('Links edit category, order and short identity and share the current page',
   expect(withdrawn.status()).toBe(307);
   expect(new URL(withdrawn.headers().location, base).pathname).toBe('/en');
   expect(await page.evaluate(() => performance.timeOrigin)).toBe(documentStart);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.getByRole('button', { name: 'Change language' }).press('Enter');
+  await page.getByRole('menuitem', { name: /Japanese|日本語/ }).press('Enter');
+  await expect(page).toHaveURL(`${base}/links`);
+  await expect(page.locator('html')).toHaveAttribute('lang', 'ja');
+  await page.getByRole('button', { name: 'このページを編集' }).press('Enter');
+  await page.getByRole('button', { name: 'リンクを追加', exact: true }).press('Enter');
+  const localizedEditor = page.getByRole('dialog', { name: 'リンクを追加' });
+  await expect(localizedEditor.getByRole('heading')).toBeFocused();
+  await localizedEditor.getByRole('button', { name: 'キャンセル' }).click();
+  await page.getByRole('contentinfo').getByRole('button', { name: '共有', exact: true }).click();
+  await page.getByRole('dialog').getByRole('button', { name: 'コピー', exact: true }).click();
+  await expect.poll(() => page.evaluate(() => navigator.clipboard.readText())).toBe(`${base}/links`);
+
 });
 
 
@@ -660,6 +677,10 @@ test('Blog edits in place and renames the indexed blob while preserving all old 
     expect(await page.evaluate(() => performance.timeOrigin)).toBe(timeOrigin);
     await expect(page.getByRole('button', { name: 'Contextual support link' })).toHaveAttribute('href', 'https://ko-fi.com/tenzyu');
     await expect(page.getByRole('link', { name: 'Original address' })).toHaveAttribute('href', '/en/blog/contextual-a');
+    await page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
+    await page.getByRole('contentinfo').getByRole('button', { name: 'Share', exact: true }).click();
+    await page.getByRole('dialog').getByRole('button', { name: 'Copy', exact: true }).click();
+    await expect.poll(() => page.evaluate(() => navigator.clipboard.readText())).toBe(`${base}/en/blog/${last}`);
     const outcome = await reader.newPage();
     await outcome.goto(`${base}/en/scraps/authored-outcome`);
     const oldOutcome = outcome.getByRole('link', { name: 'Authored Blog outcome' });
