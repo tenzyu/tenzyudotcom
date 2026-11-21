@@ -345,7 +345,8 @@ test('Notes project the visible graph and persist item commands with focus and r
     await expect(create.getByLabel('English text')).toHaveValue('Recovered fixture note');
     writeFileSync(resolve(directory, 'drop-document-response'), 'after', { mode: 0o600 });
     await create.getByRole('button', { name: 'Post note' }).click();
-    await expect(page.getByText('Recovered fixture note', { exact: true })).toBeVisible();
+    await expect(create).toBeHidden();
+    await expect(page.getByRole('article').getByText('Recovered fixture note', { exact: true })).toBeVisible();
     const recovered = git.head();
     expect(git.parents(recovered)).toEqual([deleted]);
     expect(JSON.parse(git.file(recovered, notesFile)!.toString()).filter((entry: { body: { en: string } }) =>
@@ -411,8 +412,8 @@ test('Links edit category, order and short identity and share the current page',
   await expect(edit.getByRole('alert')).toContainText('Duplicate link shortenUrl');
   expect(git.head()).toBe(started);
   await edit.getByLabel('Short code').fill('moved-fixture');
-  await edit.getByLabel('Category').selectOption('Build');
-  await edit.getByLabel('Position').selectOption('first-fixture');
+  await edit.getByRole('combobox', { name: 'Category', exact: true }).selectOption('Build');
+  await edit.getByRole('combobox', { name: 'Position', exact: true }).selectOption('first-fixture');
   await expect(edit.getByText('/en/links/moved-fixture', { exact: true })).toBeVisible();
   await edit.getByRole('button', { name: 'Save link' }).click();
   await expect(edit).toBeHidden();

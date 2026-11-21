@@ -210,8 +210,8 @@ function LinkFieldsForm({
           </label>
         ))}
         <label className="grid gap-1.5">
-          {ja ? 'カテゴリ' : 'Category'}
-          <select
+          <span id={`${id}-category-label`}>{ja ? 'カテゴリ' : 'Category'}</span>
+          <select aria-labelledby={`${id}-category-label`}
             className="min-h-9 min-w-0 rounded-md border bg-background px-2"
             value={link.category}
             onChange={(event) => {
@@ -228,8 +228,8 @@ function LinkFieldsForm({
           </select>
         </label>
         <label className="grid min-w-0 gap-1.5">
-          {ja ? '表示順' : 'Position'}
-          <select
+          <span id={`${id}-position-label`}>{ja ? '表示順' : 'Position'}</span>
+          <select aria-labelledby={`${id}-position-label`}
             className="min-h-9 min-w-0 rounded-md border bg-background px-2"
             value={before}
             onChange={(event) => setBefore(event.target.value)}
