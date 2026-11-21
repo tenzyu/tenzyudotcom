@@ -110,7 +110,11 @@ function parseSession(
       decodeBase64Url(encodedPayload),
     ) as EditorSessionPayload
 
-    if (payload.sub !== 'editor-admin' || payload.exp <= Date.now()) {
+    if (
+      payload.sub !== 'editor-admin' ||
+      !Number.isFinite(payload.exp) ||
+      payload.exp <= Date.now()
+    ) {
       return null
     }
 
@@ -155,20 +159,24 @@ export async function clearEditorAdminSession() {
   cookieStore.delete(EDITOR_SESSION_COOKIE)
 }
 
-export async function hasEditorAdminSession() {
+export async function getEditorAdminSessionExpiry() {
   try {
     const { sessionSecret } = getRequiredEditorAdminCredentials()
     const cookieStore = await cookies()
     const token = cookieStore.get(EDITOR_SESSION_COOKIE)?.value
 
     if (!token) {
-      return false
+      return null
     }
 
-    return parseSession(token, sessionSecret) !== null
+    return parseSession(token, sessionSecret)?.exp ?? null
   } catch {
-    return false
+    return null
   }
+}
+
+export async function hasEditorAdminSession() {
+  return (await getEditorAdminSessionExpiry()) !== null
 }
 
 function isValidEditorAdminPassword(input: string, expected: string) {

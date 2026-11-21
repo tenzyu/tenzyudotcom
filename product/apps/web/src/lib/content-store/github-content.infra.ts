@@ -3,6 +3,7 @@ import { env } from '@/config/env.infra'
 import {
   type ContentRepository,
   type ContentSnapshot,
+  StorageDocumentWriteUncertainError,
   StorageError,
   StorageVersionConflictError,
 } from './content-store.domain'
@@ -189,7 +190,17 @@ export async function saveGitHubTextFile(
       'Content-Type': 'application/json',
     },
     method: 'PUT',
+  }).catch((error: unknown) => {
+    throw new StorageDocumentWriteUncertainError(
+      'The content write outcome is unknown.',
+      { cause: error },
+    )
   })
+  if (response.status >= 500 || response.status === 408) {
+    throw new StorageDocumentWriteUncertainError(
+      'The content write outcome is unknown.',
+    )
+  }
 
   if (!response.ok) {
     if (response.status === 409 || response.status === 422) {
@@ -325,9 +336,15 @@ export async function loadGitHubPublication(): Promise<ContentSnapshot> {
 }
 
 export const githubContentRepository: ContentRepository &
-  Pick<GitHubAggregateRepository, 'snapshot' | 'commit' | 'reconcile'> = {
+  Pick<
+    GitHubAggregateRepository,
+    'snapshot' | 'snapshotAt' | 'commit' | 'reconcile'
+  > = {
   snapshot() {
     return getAggregateRepository().snapshot()
+  },
+  snapshotAt(version) {
+    return getAggregateRepository().snapshotAt(version)
   },
   commit(expectedVersion, writes, message) {
     return getAggregateRepository().commit(expectedVersion, writes, message)

@@ -2,9 +2,11 @@
 
 import { Link, Mail, Share2 } from 'lucide-react'
 import { useIntlayer } from 'next-intlayer'
-import { useEffect, useState } from 'react'
+import { usePathname } from 'next/navigation'
+import { useEffect, useId, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@tenzyu/ui/button'
+import { Input } from '@tenzyu/ui/input'
 import {
   Dialog,
   DialogContent,
@@ -19,6 +21,7 @@ type FooterShareDialogProps = {
   shareText?: string
   triggerClassName?: string
   triggerLabel?: string
+  itemPath?: string
 }
 
 type SharePlatform = 'twitter' | 'email' | 'copy'
@@ -42,15 +45,18 @@ function ShareButton({
   icon,
   label,
   onClick,
+  disabled,
 }: {
   icon: React.ReactNode
   label: string
   onClick: () => void
+  disabled?: boolean
 }) {
   return (
     <Button
       variant="outline"
       className="flex h-auto flex-col items-center gap-1 py-3"
+      disabled={disabled}
       onClick={onClick}
     >
       {icon}
@@ -64,33 +70,15 @@ function getTwitterShareUri(text: string, url: string): string {
 }
 
 function getEmailShareUri(title: string, url: string): string {
-  return `mailto:?subject=${title}&body=${url}`
+  return `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(url)}`
 }
 
-function copyToClipboard(text: string) {
-  if (typeof navigator !== 'undefined') {
-    void navigator.clipboard.writeText(text)
+function publicShareUrl(itemPath?: string) {
+  const url = new URL(itemPath ?? window.location.href, window.location.origin)
+  for (const key of ['edit', 'editor', 'draft', 'archive', 'preview']) {
+    url.searchParams.delete(key)
   }
-}
-
-function shareContent(platform: SharePlatform, url: string, title: string) {
-  let uri = ''
-  let copied = false
-
-  switch (platform) {
-    case 'twitter':
-      uri = getTwitterShareUri(title, url)
-      break
-    case 'email':
-      uri = getEmailShareUri(title, url)
-      break
-    case 'copy':
-      copyToClipboard(url)
-      copied = true
-      break
-  }
-
-  return { uri, copied }
+  return url.href
 }
 
 export function FooterShareDialog({
@@ -98,29 +86,57 @@ export function FooterShareDialog({
   shareText,
   triggerClassName,
   triggerLabel,
+  itemPath,
 }: FooterShareDialogProps) {
   const content = useIntlayer('shareDialog')
+  const pathname = usePathname()
   const [open, setOpen] = useState(false)
-  const [shareUrl, setShareUrl] = useState('')
+  const [manualUrl, setManualUrl] = useState('')
+  const [copying, setCopying] = useState(false)
+  const copyFieldId = useId()
+  const fallback = useRef<HTMLInputElement>(null)
   const shareMessage = shareText ?? title
 
   useEffect(() => {
-    setShareUrl(window.location.href)
-  }, [])
-
-  const handleShare = (platform: SharePlatform) => {
-    const result = shareContent(platform, shareUrl, shareMessage)
-    if (result.copied) {
-      toast.success(content.linkCopied, { description: shareUrl })
-      setOpen(false)
-    } else if (result.uri) {
-      window.open(result.uri, '_blank', 'noopener,noreferrer')
-      setOpen(false)
+    if (manualUrl) {
+      fallback.current?.focus()
+      fallback.current?.select()
     }
+  }, [manualUrl])
+
+  function changeOpen(next: boolean) {
+    setOpen(next)
+    if (!next) setManualUrl('')
   }
 
+  async function handleShare(platform: SharePlatform) {
+    const url = publicShareUrl(itemPath)
+    if (platform === 'copy') {
+      setCopying(true)
+      try {
+        await navigator.clipboard.writeText(url)
+        toast.success(content.linkCopied, { description: url })
+        changeOpen(false)
+      } catch {
+        setManualUrl(url)
+      } finally {
+        setCopying(false)
+      }
+      return
+    }
+
+    const uri =
+      platform === 'twitter'
+        ? getTwitterShareUri(shareMessage, url)
+        : getEmailShareUri(shareMessage, url)
+    window.open(uri, '_blank', 'noopener,noreferrer')
+    changeOpen(false)
+  }
+
+  if (pathname?.match(/^\/(?:en\/|ja\/)?editor(?:\/|$)/)) return null
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={changeOpen}>
       <DialogTrigger
         render={
           <Button
@@ -150,6 +166,7 @@ export function FooterShareDialog({
           <ShareButton
             icon={<Link className="h-5 w-5" />}
             label={content.copy.value}
+            disabled={copying}
             onClick={() => {
               handleShare('copy')
             }}
@@ -169,6 +186,12 @@ export function FooterShareDialog({
             }}
           />
         </div>
+        {manualUrl && (
+          <label htmlFor={copyFieldId} className="grid gap-2">
+            <span role="alert">{content.manualCopy.value}</span>
+            <Input id={copyFieldId} ref={fallback} value={manualUrl} readOnly />
+          </label>
+        )}
       </DialogContent>
     </Dialog>
   )

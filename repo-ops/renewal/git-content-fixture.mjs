@@ -18,7 +18,7 @@ const gitEnv = {
 const safePath = (path) => typeof path === 'string' &&
   path.split('/').every((part) => part && part !== '.' && part !== '..' && !/[\\\0\r\n\t]/.test(part));
 
-export function openGitContentFixture(directory, { allowNotesWrite = false } = {}) {
+export function openGitContentFixture(directory, { allowNotesWrite = false, allowLinksWrite = false } = {}) {
   function command(args, { input, index, allowFailure = false } = {}) {
     const result = spawnSync('git', ['-C', directory, ...args], {
       env: { ...gitEnv, ...(index ? { GIT_INDEX_FILE: index } : {}) }, input,
@@ -137,9 +137,12 @@ export function openGitContentFixture(directory, { allowNotesWrite = false } = {
       const status = a === b ? 'identical' : common === a ? 'ahead' : common === b ? 'behind' : 'diverged';
       return respond(200, { status, merge_base_commit: { sha: common } });
     }
-    if (allowNotesWrite && method === 'PUT' && path === '/contents/storage/editor/notes.json') {
+    if (method === 'PUT' && (
+      (allowNotesWrite && path === '/contents/storage/editor/notes.json') ||
+      (allowLinksWrite && path === '/contents/storage/editor/links.json')
+    )) {
       const body = await request.json();
-      const filename = 'storage/editor/notes.json';
+      const filename = path.slice('/contents/'.length);
       const previous = text(['rev-parse', '--verify', `${head()}:${filename}`], { allowFailure: true });
       if (body.branch !== 'main' || typeof body.message !== 'string' || typeof body.content !== 'string') return denied();
       if ((body.sha ?? null) !== previous) return respond(409);

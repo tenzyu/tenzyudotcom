@@ -26,6 +26,7 @@ const env = {
   EDITOR_FIXTURE_LEDGER: ledger,
   EDITOR_FIXTURE_ORIGIN: `http://127.0.0.1:${port}`,
   EDITOR_FIXTURE_REPO: repository,
+  EDITOR_FIXTURE_DOCUMENT_LOSS: resolve(fixtureDir, 'drop-document-response'),
   EDITOR_FIXTURE_REF_LOSS: resolve(fixtureDir, 'drop-ref-response'),
   EDITOR_ADMIN_PASSWORD: 'fixture-password-not-a-secret',
   EDITOR_SESSION_SECRET: 'fixture-session-secret-not-real-credentials-1234567890',

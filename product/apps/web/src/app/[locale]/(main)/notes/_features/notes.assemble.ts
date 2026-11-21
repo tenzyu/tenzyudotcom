@@ -3,8 +3,8 @@ import {
   buildLocalizedNotePath,
   compareNotesByCreatedAtAsc,
   compareNotesByCreatedAtDesc,
+  type NoteSourceEntry,
 } from './notes.domain'
-import type { NoteSourceEntry } from './notes.domain'
 import type { ContentSnapshot } from '@/lib/content-store/content-store.domain'
 import { loadPublicNoteEntries } from './notes.infra'
 
@@ -14,17 +14,8 @@ export type NotePageItem = {
   createdAt: string
   depth: number
   externalUrl?: string
-  parentId?: string
-  hasConnectorAbove: boolean
-  hasConnectorBelow: boolean
+  parent?: { href: string; excerpt: string }
   sharePath: string
-  showBottomBorder: boolean
-}
-
-type FlattenedNoteItem = {
-  entry: NoteSourceEntry
-  depth: number
-  threadRootId: string
 }
 
 export type NoteDetailPageData = {
@@ -35,92 +26,84 @@ export type NoteDetailPageData = {
 
 const loadNoteSourceEntries = cache(loadPublicNoteEntries)
 
-function flattenPublishedNoteThread(entries: readonly NoteSourceEntry[]) {
-  const publishedEntries = entries.filter((entry) => entry.published !== false)
-  const publishedEntryIds = new Set(publishedEntries.map((entry) => entry.id))
-  const childrenByParentId = new Map<string, NoteSourceEntry[]>()
-  const topLevelEntries: NoteSourceEntry[] = []
-
-  for (const entry of publishedEntries) {
-    if (entry.parentId && publishedEntryIds.has(entry.parentId)) {
-      const siblings = childrenByParentId.get(entry.parentId) ?? []
+function publicNoteGraph(entries: readonly NoteSourceEntry[], locale: string) {
+  const visibleById = new Map(
+    entries
+      .filter((entry) => entry.published !== false)
+      .map((entry) => [entry.id, entry]),
+  )
+  const childrenByParent = new Map<string, NoteSourceEntry[]>()
+  const roots: NoteSourceEntry[] = []
+  for (const entry of visibleById.values()) {
+    if (entry.parentId && visibleById.has(entry.parentId)) {
+      const siblings = childrenByParent.get(entry.parentId) ?? []
       siblings.push(entry)
-      childrenByParentId.set(entry.parentId, siblings)
-      continue
+      childrenByParent.set(entry.parentId, siblings)
+    } else {
+      roots.push(entry)
     }
-
-    topLevelEntries.push(entry)
   }
-
-  topLevelEntries.sort(compareNotesByCreatedAtDesc)
-
-  for (const siblings of childrenByParentId.values()) {
+  roots.sort(compareNotesByCreatedAtDesc)
+  for (const siblings of childrenByParent.values())
     siblings.sort(compareNotesByCreatedAtAsc)
+
+  function body(entry: NoteSourceEntry) {
+    return locale === 'ja' ? entry.body.ja : entry.body.en || entry.body.ja
   }
 
-  const items: FlattenedNoteItem[] = []
-
-  function appendEntry(
-    entry: NoteSourceEntry,
-    depth: number,
-    threadRootId: string,
-  ) {
-    items.push({
-      entry,
-      depth,
-      threadRootId,
-    })
-
-    const children = childrenByParentId.get(entry.id) ?? []
-
-    for (const child of children) {
-      appendEntry(child, depth + 1, threadRootId)
-    }
+  function parentOf(entry: NoteSourceEntry) {
+    return entry.parentId ? visibleById.get(entry.parentId) : undefined
   }
 
-  for (const entry of topLevelEntries) {
-    appendEntry(entry, 0, entry.id)
-  }
-
-  return items
-}
-
-function mapFlattenedNoteItems(
-  items: readonly FlattenedNoteItem[],
-  locale: string,
-): NotePageItem[] {
-  const noteLocale = locale === 'ja' ? 'ja' : 'en'
-
-  return items.map((item, index) => {
-    const previousItem = items[index - 1]
-    const nextItem = items[index + 1]
-    const hasConnectorAbove =
-      item.depth > 0 && previousItem?.threadRootId === item.threadRootId
-    const hasConnectorBelow =
-      Boolean(nextItem) &&
-      nextItem.threadRootId === item.threadRootId &&
-      nextItem.depth > 0
-
+  function item(entry: NoteSourceEntry, depth: number): NotePageItem {
+    const parent = parentOf(entry)
     return {
-      id: item.entry.id,
-      body: item.entry.body[noteLocale] || item.entry.body.ja,
-      createdAt: item.entry.createdAt,
-      depth: item.depth,
-      externalUrl: item.entry.externalUrl,
-      parentId: item.entry.parentId,
-      hasConnectorAbove,
-      hasConnectorBelow,
-      sharePath: buildLocalizedNotePath(locale, item.entry.id),
-      showBottomBorder: !hasConnectorBelow,
+      id: entry.id,
+      body: body(entry),
+      createdAt: entry.createdAt,
+      depth,
+      externalUrl: entry.externalUrl,
+      parent: parent && {
+        href: buildLocalizedNotePath(locale, parent.id),
+        excerpt: body(parent).replace(/\s+/g, ' ').trim().slice(0, 60),
+      },
+      sharePath: buildLocalizedNotePath(locale, entry.id),
     }
-  })
+  }
+
+  function flatten(start: readonly NoteSourceEntry[], initialDepth: number) {
+    const items: NotePageItem[] = []
+    function visit(entry: NoteSourceEntry, depth: number) {
+      items.push(item(entry, depth))
+      for (const child of childrenByParent.get(entry.id) ?? [])
+        visit(child, depth + 1)
+    }
+    for (const entry of start) visit(entry, initialDepth)
+    return items
+  }
+
+  return {
+    feed: () => flatten(roots, 0),
+    thread(id: string): NoteDetailPageData | undefined {
+      const target = visibleById.get(id)
+      if (!target) return undefined
+      const ancestors: NoteSourceEntry[] = []
+      for (let parent = parentOf(target); parent; parent = parentOf(parent))
+        ancestors.unshift(parent)
+      return {
+        ancestors: ancestors.map(item),
+        note: item(target, ancestors.length),
+        replies: flatten(childrenByParent.get(id) ?? [], ancestors.length + 1),
+      }
+    },
+  }
 }
 
 export function assembleNoteThreadItems(
   entries: readonly NoteSourceEntry[],
   locale: string,
-): NotePageItem[] {
-  return mapFlattenedNoteItems(flattenPublishedNoteThread(entries), locale)
+) {
+  return publicNoteGraph(entries, locale).feed()
 }
 
 export async function loadPublishedNoteIds(snapshot: ContentSnapshot) {
@@ -131,108 +114,12 @@ export function assembleNoteDetailPageDataFromEntries(
   entries: readonly NoteSourceEntry[],
   noteId: string,
   locale: string,
-): NoteDetailPageData | undefined {
-  const entriesById = new Map(entries.map((entry) => [entry.id, entry]))
-  const target = entriesById.get(noteId)
-
-  if (!target || target.published === false) {
-    return undefined
-  }
-
-  const targetEntry = target
-
-  const ancestorEntries: NoteSourceEntry[] = []
-  let currentParentId = targetEntry.parentId
-
-  while (currentParentId) {
-    const parent = entriesById.get(currentParentId)
-
-    if (!parent || parent.published === false) {
-      break
-    }
-
-    ancestorEntries.unshift(parent)
-    currentParentId = parent.parentId
-  }
-
-  const replyEntries: FlattenedNoteItem[] = []
-  const visibleEntries = entries.filter((entry) => entry.published !== false)
-  const childrenByParentId = new Map<string, NoteSourceEntry[]>()
-
-  for (const entry of visibleEntries) {
-    if (!entry.parentId) {
-      continue
-    }
-
-    const siblings = childrenByParentId.get(entry.parentId) ?? []
-    siblings.push(entry)
-    childrenByParentId.set(entry.parentId, siblings)
-  }
-
-  for (const siblings of childrenByParentId.values()) {
-    siblings.sort(compareNotesByCreatedAtAsc)
-  }
-
-  function appendReplyTree(entry: NoteSourceEntry, depth: number) {
-    replyEntries.push({
-      entry,
-      depth,
-      threadRootId: ancestorEntries[0]?.id ?? targetEntry.id,
-    })
-
-    const children = childrenByParentId.get(entry.id) ?? []
-
-    for (const child of children) {
-      appendReplyTree(child, depth + 1)
-    }
-  }
-
-  for (const child of childrenByParentId.get(targetEntry.id) ?? []) {
-    appendReplyTree(child, ancestorEntries.length + 1)
-  }
-
-  const detailItems = mapFlattenedNoteItems(
-    [
-      ...ancestorEntries.map((entry, index) => ({
-        entry,
-        depth: index,
-        threadRootId: ancestorEntries[0]?.id ?? targetEntry.id,
-      })),
-      {
-        entry: targetEntry,
-        depth: ancestorEntries.length,
-        threadRootId: ancestorEntries[0]?.id ?? targetEntry.id,
-      },
-      ...replyEntries,
-    ],
-    locale,
-  )
-
-  const noteIndex = detailItems.findIndex((item) => item.id === target.id)
-
-  if (noteIndex < 0) {
-    return undefined
-  }
-
-  const note = detailItems[noteIndex]
-
-  if (!note) {
-    return undefined
-  }
-
-  return {
-    ancestors: detailItems.slice(0, noteIndex),
-    note,
-    replies: detailItems.slice(noteIndex + 1),
-  }
+) {
+  return publicNoteGraph(entries, locale).thread(noteId)
 }
 
 export const assembleNoteDetailPageData = cache(
-  async (
-    snapshot: ContentSnapshot,
-    noteId: string,
-    locale: string,
-  ): Promise<NoteDetailPageData | undefined> => {
+  async (snapshot: ContentSnapshot, noteId: string, locale: string) => {
     const entries = await loadNoteSourceEntries(snapshot)
     return assembleNoteDetailPageDataFromEntries(entries, noteId, locale)
   },
@@ -241,7 +128,7 @@ export const assembleNoteDetailPageData = cache(
 export async function assembleNotesPageData(
   snapshot: ContentSnapshot,
   locale: string,
-): Promise<NotePageItem[]> {
+) {
   const entries = await loadNoteSourceEntries(snapshot)
   return assembleNoteThreadItems(entries, locale)
 }
