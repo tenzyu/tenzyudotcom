@@ -7,11 +7,22 @@ import {
   parseBlogIndex,
   projectBlogIndexEntry,
 } from '@/app/[locale]/(main)/blog/_features/blog-index.assemble'
+import {
+  assembleBlogPostPageData,
+  loadBlogPosts,
+} from '@/app/[locale]/(main)/blog/_features/blog.assemble'
 import type {
   BlogChanges,
+  BlogRenameCommand,
   BlogSaveCommand,
 } from '@/app/[locale]/(main)/blog/_features/blog.domain'
-import { saveBlogPost } from '@/app/[locale]/(main)/blog/_features/blog.infra'
+import {
+  loadBlogPostForEdit,
+  reconcileBlogPublication,
+  refreshBlogPublication,
+  renameBlogPost,
+  saveBlogPost,
+} from '@/app/[locale]/(main)/blog/_features/blog.infra'
 import { readBlogSource } from '@/app/[locale]/(main)/blog/_features/blog-source.assemble'
 import { auditBlogProjection } from '../../../../../../repo-ops/renewal/audit-blog-projection'
 import { initGitContentFixture } from '../../../../../../repo-ops/renewal/git-content-fixture.mjs'
@@ -99,6 +110,34 @@ function edit(
   return { intent: 'edit', slug, expectedVersion, changes }
 }
 
+function rename(
+  expectedVersion: string,
+  newSlug: string,
+  oldSlug = 'first',
+): BlogRenameCommand {
+  return { oldSlug, newSlug, expectedVersion }
+}
+
+function changedLeafPaths(
+  git: ReturnType<typeof fixture>,
+  before: string,
+  after: string,
+) {
+  function leaves(ref: string) {
+    return new Map(
+      git
+        .listing(ref)
+        ?.filter(({ type }) => type !== 'tree')
+        .map(({ path, sha, mode }) => [path, `${mode} ${sha}`]),
+    )
+  }
+  const previous = leaves(before)
+  const current = leaves(after)
+  return [...new Set([...previous.keys(), ...current.keys()])]
+    .filter((path) => previous.get(path) !== current.get(path))
+    .sort()
+}
+
 async function initialVersion(
   repo: ReturnType<typeof createGitHubAggregateRepository>,
 ) {
@@ -156,6 +195,501 @@ function expectTree(
 afterEach(() => {
   for (const dir of paths.splice(0))
     rmSync(dir, { recursive: true, force: true })
+})
+
+describe('blog catalog addresses', () => {
+  test('aliases resolve ahead of a legacy fallback and reserve the slug on create', async () => {
+    const git = fixture({
+      ...seed,
+      [index]: serialize([{ ...summary, aliases: ['old'] }]),
+      [post('old')]: original.replace('First post', 'Unlisted post'),
+      [post('legacy')]: original.replace('First post', 'Legacy post'),
+    })
+    const initial = git.head()
+    const repo = createGitHubAggregateRepository(config, git.fetch)
+    const snapshot = await repo.snapshot()
+
+    expect(await assembleBlogPostPageData(snapshot, 'old')).toEqual({
+      kind: 'redirect',
+      slug: 'first',
+    })
+    expect(await assembleBlogPostPageData(snapshot, 'legacy')).toMatchObject({
+      kind: 'post',
+      post: { slug: 'legacy', metadata: { title: 'Legacy post' } },
+    })
+    expect((await loadBlogPosts(snapshot)).map(({ slug }) => slug)).toEqual([
+      'first',
+    ])
+
+    for (const slug of ['first', 'old']) {
+      await expect(saveBlogPost(create(slug), repo)).rejects.toBeInstanceOf(
+        StorageVersionConflictError,
+      )
+    }
+    expect(git.history()).toEqual([initial])
+  })
+
+  test('a canonical address still opens if another entry claims it as an alias', async () => {
+    const git = fixture({
+      ...seed,
+      [index]: serialize([
+        { ...summary, aliases: ['second'] },
+        { ...summary, slug: 'second', pathname: 'blog/second.mdx' },
+      ]),
+      [post('second')]: original.replace('First post', 'Second post'),
+    })
+    const initial = git.head()
+    const repo = createGitHubAggregateRepository(config, git.fetch)
+    const snapshot = await repo.snapshot()
+
+    expect(await assembleBlogPostPageData(snapshot, 'second')).toMatchObject({
+      kind: 'post',
+      post: { slug: 'second', metadata: { title: 'Second post' } },
+    })
+    await expect(saveBlogPost(create('third'), repo)).rejects.toThrow(
+      'conflicts with a canonical slug',
+    )
+    expect(git.history()).toEqual([initial])
+  })
+
+  test.each([
+    [
+      'canonical slug',
+      { slug: 'first', pathname: 'blog/second.mdx' },
+      ['third'],
+    ],
+    [
+      'pathname',
+      { slug: 'second', pathname: 'blog/first.mdx' },
+      ['first', 'second', 'third'],
+    ],
+    [
+      'alias',
+      { slug: 'second', pathname: 'blog/second.mdx', aliases: ['old'] },
+      ['first', 'second', 'third'],
+    ],
+  ] as const)('reports a duplicate %s and keeps safe catalog entries available', async (kind, duplicate, visible) => {
+    const git = fixture({
+      ...seed,
+      [post('third')]: original.replace('First post', 'Third post'),
+      [index]: serialize([
+        { ...summary, aliases: ['old'] },
+        { ...summary, ...duplicate },
+        { ...summary, slug: 'third', pathname: 'blog/third.mdx' },
+      ]),
+    })
+    const initial = git.head()
+    const repo = createGitHubAggregateRepository(config, git.fetch)
+    const snapshot = await repo.snapshot()
+
+    expect((await loadBlogPosts(snapshot)).map(({ slug }) => slug)).toEqual([
+      ...visible,
+    ])
+    expect(await assembleBlogPostPageData(snapshot, 'third')).toMatchObject({
+      kind: 'post',
+      post: { slug: 'third', metadata: { title: 'Third post' } },
+    })
+    if (kind !== 'pathname') {
+      await expect(assembleBlogPostPageData(snapshot, 'old')).rejects.toThrow(
+        'ambiguous catalog ownership',
+      )
+    }
+    await expect(saveBlogPost(create('fourth'), repo)).rejects.toThrow(
+      `duplicate ${kind}`,
+    )
+    expect(git.history()).toEqual([initial])
+  })
+})
+
+describe('blog rename using real Git trees and non-forced refs', () => {
+  test('moves the exact indexed blob twice, keeping earlier addresses and unrelated files', async () => {
+    const actualSource = 'storage/blog/nested/actual-source.mdx'
+    const authoredLink = '\n[First post](/blog/first)\n'
+    const scrap = 'storage/scraps/example/manifest.json'
+    const related = { ...summary, slug: 'other', pathname: 'blog/other.mdx' }
+    const git = fixture({
+      ...seed,
+      [actualSource]: original,
+      [post('first')]: 'Unlisted file at the guessed source pathname.\n',
+      [post('other')]: original + authoredLink,
+      [scrap]: '{"outcomes":[{"kind":"blog","slug":"first"}]}\n',
+      [index]: serialize([
+        { ...summary, pathname: 'blog/nested/actual-source.mdx' },
+        related,
+      ]),
+    })
+    const initial = git.head()
+    const repo = createGitHubAggregateRepository(config, git.fetch)
+    const initialPost = await loadBlogPostForEdit('first', repo)
+    expect(initialPost?.fullRawContent).toBe(original)
+    const version = initialPost?.version ?? ''
+    const first = await renameBlogPost(rename(version, 'second'), repo)
+    const second = await renameBlogPost(
+      rename(version, 'third', 'second'),
+      repo,
+    )
+
+    expect(git.history()).toEqual([second.commitOid, first.commitOid, initial])
+    expect(git.parents(first.commitOid)).toEqual([initial])
+    expect(git.parents(second.commitOid)).toEqual([first.commitOid])
+    expect(changedLeafPaths(git, initial, first.commitOid)).toEqual([
+      index,
+      actualSource,
+      post('second'),
+    ])
+    expect(changedLeafPaths(git, first.commitOid, second.commitOid)).toEqual([
+      index,
+      post('second'),
+      post('third'),
+    ])
+    for (const [head, path] of [
+      [first.commitOid, post('second')],
+      [second.commitOid, post('third')],
+    ]) {
+      expect(git.listing(head)?.find((entry) => entry.path === path)?.sha).toBe(
+        version,
+      )
+      expect(git.file(head, path)).toEqual(Buffer.from(original))
+      expect(git.file(head, post('other'))?.toString()).toEndWith(authoredLink)
+      expect(git.file(head, scrap)?.toString()).toBe(
+        '{"outcomes":[{"kind":"blog","slug":"first"}]}\n',
+      )
+    }
+    expect(
+      parseBlogIndex(git.file(second.commitOid, index)?.toString()),
+    ).toEqual([
+      {
+        ...summary,
+        slug: 'third',
+        pathname: 'blog/third.mdx',
+        aliases: ['first', 'second'],
+      },
+      related,
+    ])
+    const snapshot = await repo.snapshot()
+    for (const oldSlug of ['first', 'second']) {
+      expect(await assembleBlogPostPageData(snapshot, oldSlug)).toEqual({
+        kind: 'redirect',
+        slug: 'third',
+      })
+      await expect(saveBlogPost(create(oldSlug), repo)).rejects.toBeInstanceOf(
+        StorageVersionConflictError,
+      )
+    }
+    expect((await loadBlogPosts(snapshot)).map(({ slug }) => slug)).toEqual([
+      'third',
+      'other',
+    ])
+    expect(git.head()).toBe(second.commitOid)
+  })
+
+  test('same slug checks the source version without a write, and an already correct path only changes the index', async () => {
+    const git = fixture({
+      [post('second')]: original,
+      [index]: serialize([{ ...summary, pathname: 'blog/second.mdx' }]),
+    })
+    const initial = git.head()
+    const repo = createGitHubAggregateRepository(config, git.fetch)
+    const version = (await loadBlogPostForEdit('first', repo))?.version ?? ''
+    await expect(
+      renameBlogPost(rename('a'.repeat(40), 'first'), repo),
+    ).rejects.toBeInstanceOf(StorageVersionConflictError)
+    expect(await renameBlogPost(rename(version, 'first'), repo)).toEqual({
+      commitOid: initial,
+      headOid: initial,
+      status: 'unchanged',
+    })
+    expect(git.history()).toEqual([initial])
+
+    const moved = await renameBlogPost(rename(version, 'second'), repo)
+    expect(changedLeafPaths(git, initial, moved.commitOid)).toEqual([index])
+    expect(await loadBlogPostForEdit('first', repo)).toMatchObject({
+      slug: 'second',
+      version,
+    })
+  })
+
+  test.each([
+    ['invalid destination slug', 'Wrong slug', [], {}, 'Invalid blog slug'],
+    [
+      'canonical destination',
+      'second',
+      [{ slug: 'second', pathname: 'blog/nested/other.mdx' }],
+      {},
+      'already in use',
+    ],
+    [
+      'alias destination',
+      'second',
+      [{ slug: 'other', pathname: 'blog/other.mdx', aliases: ['second'] }],
+      {},
+      'already in use',
+    ],
+    [
+      'indexed destination path',
+      'second',
+      [{ slug: 'other', pathname: 'blog/second.mdx' }],
+      {},
+      'owns this pathname',
+    ],
+    [
+      'indexed descendant of the destination',
+      'second',
+      [{ slug: 'other', pathname: 'blog/second.mdx/child.mdx' }],
+      {},
+      'owns this pathname',
+    ],
+    [
+      'unlisted destination file',
+      'second',
+      [],
+      { [post('second')]: original },
+      'unlisted blog file',
+    ],
+    [
+      'unlisted destination directory',
+      'second',
+      [],
+      { 'storage/blog/second.mdx/child.mdx': original },
+      'unlisted blog file or directory',
+    ],
+    [
+      'ambiguous source path',
+      'second',
+      [{ slug: 'other' }],
+      {},
+      'duplicate pathname',
+    ],
+    [
+      'ambiguous source slug',
+      'second',
+      [{ pathname: 'blog/other.mdx' }],
+      {},
+      'duplicate canonical slug',
+    ],
+    [
+      'ambiguous alias ownership',
+      'second',
+      [{ slug: 'other', pathname: 'blog/other.mdx', aliases: ['prior'] }],
+      {},
+      'duplicate alias',
+    ],
+  ] as const)('refuses a rename with %s', async (_name, nextSlug, extras, files, message) => {
+    const git = fixture({
+      ...seed,
+      ...files,
+      [index]: serialize([
+        { ...summary, aliases: ['prior'] },
+        ...extras.map((entry) => ({ ...summary, ...entry })),
+      ]),
+    })
+    const initial = git.head()
+    const repo = createGitHubAggregateRepository(config, git.fetch)
+    await expect(
+      renameBlogPost(rename(await initialVersion(repo), nextSlug), repo),
+    ).rejects.toThrow(message)
+    expect(git.history()).toEqual([initial])
+  })
+
+  test('refuses an alias, an unlisted file, and a missing body as the source', async () => {
+    const git = fixture({
+      [post('unlisted')]: original,
+      [index]: serialize([{ ...summary, aliases: ['prior'] }]),
+    })
+    const initial = git.head()
+    const repo = createGitHubAggregateRepository(config, git.fetch)
+    const version = 'a'.repeat(40)
+    for (const slug of ['prior', 'unlisted']) {
+      await expect(
+        renameBlogPost(rename(version, 'next', slug), repo),
+      ).rejects.toBeInstanceOf(StorageVersionConflictError)
+    }
+    await expect(renameBlogPost(rename(version, 'next'), repo)).rejects.toThrow(
+      'indexed blog source is missing',
+    )
+    expect(git.history()).toEqual([initial])
+  })
+
+  test('an edit that wins the ref race invalidates the version held by a rename', async () => {
+    const git = fixture()
+    const initial = git.head()
+    const repo = createGitHubAggregateRepository(config, git.fetch)
+    const version = await initialVersion(repo)
+    const race = racingRepo(git)
+    const losingRename = renameBlogPost(rename(version, 'next'), race.repo)
+    await race.ready.wait
+    const winner = await saveBlogPost(
+      edit(version, { title: 'Winning edit' }),
+      repo,
+    )
+    race.release.open()
+    await expect(losingRename).rejects.toBeInstanceOf(
+      StorageVersionConflictError,
+    )
+    await expect(renameBlogPost(rename(version, 'next'), repo)).rejects.toThrow(
+      'This blog post changed',
+    )
+    expect(git.history()).toEqual([winner.commitOid, initial])
+    expect(await loadBlogPostForEdit('first', repo)).toMatchObject({
+      metadata: { title: 'Winning edit' },
+    })
+    expectTree(git, git.head(), ['first'])
+  })
+
+  test('a rename that wins the ref race keeps its destination and reserves the old address', async () => {
+    const git = fixture()
+    const initial = git.head()
+    const repo = createGitHubAggregateRepository(config, git.fetch)
+    const version = await initialVersion(repo)
+    const race = racingRepo(git)
+    const losingCreate = saveBlogPost(create('next'), race.repo)
+    await race.ready.wait
+    const winner = await renameBlogPost(rename(version, 'next'), repo)
+    race.release.open()
+    await expect(losingCreate).rejects.toBeInstanceOf(
+      StorageVersionConflictError,
+    )
+    await expect(saveBlogPost(create('next'), repo)).rejects.toBeInstanceOf(
+      StorageVersionConflictError,
+    )
+    await expect(
+      saveBlogPost(edit(version, { title: 'Old form' }), repo),
+    ).rejects.toBeInstanceOf(StorageVersionConflictError)
+    expect(git.history()).toEqual([winner.commitOid, initial])
+    expectTree(git, git.head(), ['next'])
+  })
+
+  test.each([
+    false,
+    true,
+  ])('reconciles a lost ref response with applied=%s and returns a fresh view only after acceptance', async (applied) => {
+    const git = fixture()
+    const initial = git.head()
+    const repo = createGitHubAggregateRepository(config, git.fetch)
+    const version = await initialVersion(repo)
+    const lost = createGitHubAggregateRepository(config, async (url, init) => {
+      if (init?.method !== 'PATCH') return git.fetch(url, init)
+      if (applied) await git.fetch(url, init)
+      throw new TypeError('Fixture lost the rename response')
+    })
+    const error = await renameBlogPost(rename(version, 'next'), lost).catch(
+      (failure: unknown) => failure,
+    )
+    if (!(error instanceof StorageCommitUncertainError))
+      throw new Error('Missing uncertain candidate')
+    const { candidateOid } = error
+    expect(git.parents(candidateOid)).toEqual([initial])
+    expectTree(git, candidateOid, ['next'])
+    if (!applied) {
+      expect(
+        await reconcileBlogPublication({ slug: 'next', candidateOid }, repo),
+      ).toBeNull()
+      expect(git.history()).toEqual([initial])
+      expectTree(git, git.head(), ['first'])
+      return
+    }
+
+    const laterRename = await renameBlogPost(
+      rename(version, 'latest', 'next'),
+      repo,
+    )
+    const laterEdit = await saveBlogPost(
+      edit(version, { body: 'Latest body.  \r\n' }, 'latest'),
+      repo,
+    )
+    const result = await reconcileBlogPublication(
+      { slug: 'next', candidateOid },
+      repo,
+    )
+    const actual = git
+      .listing(laterEdit.commitOid)
+      ?.find(({ path }) => path === post('latest'))
+    expect(result).toMatchObject({
+      receipt: {
+        commitOid: candidateOid,
+        headOid: laterEdit.commitOid,
+        status: 'reconciled',
+      },
+      view: {
+        status: 'ready',
+        post: {
+          slug: 'latest',
+          rawContent: 'Latest body.  \r\n',
+          version: actual?.sha,
+        },
+      },
+    })
+    expect(git.history()).toEqual([
+      laterEdit.commitOid,
+      laterRename.commitOid,
+      candidateOid,
+      initial,
+    ])
+  })
+
+  test('refreshes only the selected body and gives two successive saves their own edit version', async () => {
+    const git = fixture()
+    const repo = createGitHubAggregateRepository(config, git.fetch)
+    const unrelated = await saveBlogPost(create('unrelated'), repo)
+    const selected = await saveBlogPost(create('selected'), repo)
+    const reads: string[] = []
+    let readFailure = true
+    const editor = createGitHubAggregateRepository(
+      config,
+      async (url, init) => {
+        const { pathname } = new URL(url)
+        if (pathname.includes('/contents/'))
+          reads.push(pathname.split('/contents/')[1])
+        if (readFailure && pathname.endsWith('/blog/selected.mdx'))
+          return new Response(null, { status: 503 })
+        return git.fetch(url, init)
+      },
+    )
+    expect(
+      await refreshBlogPublication(
+        { slug: 'selected', receipt: selected },
+        editor,
+      ),
+    ).toEqual({
+      receipt: selected,
+      view: { status: 'unavailable' },
+    })
+    expect(git.history().slice(0, 2)).toEqual([
+      selected.commitOid,
+      unrelated.commitOid,
+    ])
+    readFailure = false
+    reads.length = 0
+    const before = await loadBlogPostForEdit('selected', editor)
+    expect(reads).toEqual([index, post('selected')])
+    expect(before?.metadata.title).toBe('selected')
+
+    const first = await saveBlogPost(
+      edit(before?.version ?? '', { title: 'First edit' }, 'selected'),
+      repo,
+    )
+    const refreshed = await refreshBlogPublication(
+      { slug: 'selected', receipt: first },
+      repo,
+    )
+    if (refreshed.view.status !== 'ready')
+      throw new Error('Missing current editor view')
+    expect(refreshed.view.post.metadata.title).toBe('First edit')
+    expect(refreshed.view.post.version).not.toBe(before?.version)
+    const second = await saveBlogPost(
+      edit(
+        refreshed.view.post.version,
+        { body: 'Second edit.  \r\n' },
+        'selected',
+      ),
+      repo,
+    )
+    expect(git.parents(second.commitOid)).toEqual([first.commitOid])
+    expect(await loadBlogPostForEdit('selected', repo)).toMatchObject({
+      metadata: { title: 'First edit' },
+      rawContent: 'Second edit.  \r\n',
+    })
+  })
 })
 
 describe('blog publication using real Git trees and non-forced refs', () => {

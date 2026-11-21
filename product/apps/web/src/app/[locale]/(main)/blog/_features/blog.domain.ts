@@ -25,6 +25,14 @@ export type BlogChanges = {
   body?: string
 }
 
+export const blogWriteSlugPattern = /^[a-z0-9][a-z0-9-]*$/
+
+export class BlogSlugValidationError extends Error {
+  constructor(readonly field: 'slug' | 'oldSlug' | 'newSlug') {
+    super('Invalid blog slug.')
+  }
+}
+
 export type BlogSaveCommand = { slug: string } & (
   | {
       intent: 'create'
@@ -35,6 +43,12 @@ export type BlogSaveCommand = { slug: string } & (
     }
   | { intent: 'edit'; expectedVersion: string; changes: BlogChanges }
 )
+
+export type BlogRenameCommand = {
+  oldSlug: string
+  newSlug: string
+  expectedVersion: string
+}
 
 export type BlogPublicationReceipt = {
   commitOid: string
@@ -54,6 +68,14 @@ export type MDXData = {
   rawContent: string
   fullRawContent: string
   version: string
+}
+
+export type BlogPublicationResult = {
+  receipt: BlogPublicationReceipt
+  view:
+    | { status: 'ready'; post: MDXData }
+    | { status: 'missing' }
+    | { status: 'unavailable' }
 }
 
 export type BlogPostSummary = {

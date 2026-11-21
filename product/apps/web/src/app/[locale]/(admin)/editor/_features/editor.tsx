@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { PageIntro, ReadingColumn } from '@tenzyu/ui/editorial'
 import type { EditorCollectionId } from '@/features/content-editor/editor-collections'
 import { getEditorCollectionMeta } from '@/features/content-editor/editor-collections'
+import { readBlogEditorSummaries } from '@/app/[locale]/(main)/blog/_features/blog-workspace.assemble'
 import { makeLoadEditorCollectionUseCase } from './editor.assemble'
 import { BlogEditor } from './blog-editor'
 import { LinksEditor } from './links-editor'
@@ -13,7 +14,6 @@ export async function EditorCollectionEditor({
   locale,
   collectionId,
   saved,
-  error,
   slug,
   create,
 }: {
@@ -28,13 +28,12 @@ export async function EditorCollectionEditor({
   async function collectionEditor() {
     switch (collectionId) {
       case 'blog': {
-        const state = await loader.execute('blog')
+        const posts = create || slug ? [] : await readBlogEditorSummaries()
         return (
           <BlogEditor
             locale={locale}
-            posts={[...state.collection]}
+            posts={posts}
             slug={slug}
-            error={error}
             startCreating={create}
           />
         )

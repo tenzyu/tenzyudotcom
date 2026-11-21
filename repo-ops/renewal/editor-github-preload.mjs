@@ -32,6 +32,9 @@ globalThis.fetch = async (input, init) => {
   const url = new URL(request.url);
   const { method } = request;
   if (url.origin === origin && method === 'GET') return nativeFetch(request, { redirect: 'error' });
+  if (method === 'GET' && url.origin === 'https://cdn.syndication.twimg.com' && url.pathname === '/tweet-result') {
+    return Response.json({ message: 'Synthetic Tweet response' }, { status: 404 });
+  }
   const loss = method === 'PATCH' && url.href === 'https://api.github.com/repos/fixture/editor/git/refs/heads/main'
     ? takeRule(refLoss) : null;
   const documentRule = method === 'PUT' && /^\/repos\/fixture\/editor\/contents\/storage\/editor\/(notes|links)\.json$/.test(url.pathname)

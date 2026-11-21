@@ -161,4 +161,5 @@ jobs:
       - name: Verify editor in Chromium
         env:
           PLAYWRIGHT_OUTPUT_DIR: ${{ runner.temp }}/editor
+          EDITOR_BROWSER_PRODUCTION: "1"
         run: bun run test:browser:editor

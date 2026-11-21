@@ -17,6 +17,8 @@ export default defineConfig({
   reporter: [['line'], ['json', { outputFile: resolve(output, 'results.json') }]],
   use: {
     baseURL,
+    actionTimeout: 20_000,
+    navigationTimeout: 30_000,
     viewport: { width: 1440, height: 1000 },
     launchOptions: executablePath ? { executablePath } : {},
     trace: 'on', screenshot: 'only-on-failure',
