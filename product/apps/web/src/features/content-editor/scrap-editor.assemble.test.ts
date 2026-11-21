@@ -11,7 +11,6 @@ import {
   loadScrapEditorIndex,
 } from './scrap-editor.assemble'
 import type { ScrapEditorCommand } from './scrap-editor.validation'
-import { setScrapsRepositoryOverride } from '@/features/scraps/scraps.infra'
 import {
   assembleScrapPage,
   filterPublicScrapIndex,
@@ -246,112 +245,70 @@ describe('scrap editor lifecycle', () => {
 
   test('public readers see only published scraps and entries, with safe locale fallback', async () => {
     const repo = new MemoryAggregate()
-    setScrapsRepositoryOverride({
-      snapshot: () => repo.snapshot(),
-      commit: (version, writes) => repo.commit(version, writes),
-      async loadText(pathname) {
-        return (await repo.snapshot()).loadText(pathname)
+    let saved = await executeScrapEditorCommand(create, repo)
+    expect(
+      await assembleScrapPage(await repo.snapshot(), create.slug, 'ja'),
+    ).toBeNull()
+    expect(filterPublicScrapIndex(await loadScrapEditorIndex(repo))).toEqual([])
+    saved = await executeScrapEditorCommand(
+      {
+        ...create,
+        kind: 'update',
+        published: true,
+        expectedVersion: saved.version,
       },
-      async loadJson<T>(pathname: string): Promise<T | null> {
-        const file = repo.files.get(pathname)
-        return file ? JSON.parse(file) : null
-      },
-      async saveText() {
-        throw new Error('read only')
-      },
-      async saveJson() {
-        throw new Error('read only')
-      },
-      async list() {
-        return [...repo.files.keys()]
-      },
-      async delete() {
-        throw new Error('read only')
-      },
-    })
-    try {
-      let saved = await executeScrapEditorCommand(create, repo)
-      expect(
-        await assembleScrapPage({
-          slug: create.slug,
-          locale: 'ja',
-          audience: 'public',
-        }),
-      ).toBeNull()
-      expect(filterPublicScrapIndex(await loadScrapEditorIndex(repo))).toEqual(
-        [],
-      )
-      saved = await executeScrapEditorCommand(
-        {
-          ...create,
-          kind: 'update',
-          published: true,
-          expectedVersion: saved.version,
-        },
-        repo,
-      )
-      saved = await executeScrapEditorCommand(
-        {
-          kind: 'append',
-          slug: create.slug,
-          locale: 'ja',
-          entryId: 'draft',
-          entryKind: 'note',
-          published: false,
-          body: 'Private entry',
-          expectedVersion: saved.version,
-        },
-        repo,
-      )
-      expect(
-        (
-          await assembleScrapPage({
-            slug: create.slug,
-            locale: 'ja',
-            audience: 'public',
-          })
-        )?.entries,
-      ).toEqual([])
-      saved = await executeScrapEditorCommand(
-        {
-          kind: 'edit-entry',
-          slug: create.slug,
-          locale: 'ja',
-          entryId: 'draft',
-          entryKind: 'note',
-          published: true,
-          body: 'Public entry',
-          expectedVersion: saved.version,
-        },
-        repo,
-      )
-      const page = await assembleScrapPage({
+      repo,
+    )
+    saved = await executeScrapEditorCommand(
+      {
+        kind: 'append',
         slug: create.slug,
-        locale: 'en',
-        audience: 'public',
-      })
-      expect(page?.entries[0]?.localizedSource).toBe('Public entry')
-      expect(page?.entries[0]?.localizedState).toBe('fallback')
-      expect(page?.pageIsIndexable).toBe(false)
-      saved = await executeScrapEditorCommand(
-        {
-          ...create,
-          kind: 'update',
-          published: true,
-          status: 'archived',
-          expectedVersion: saved.version,
-        },
-        repo,
-      )
-      expect(
-        await assembleScrapPage({
-          slug: create.slug,
-          locale: 'ja',
-          audience: 'public',
-        }),
-      ).toBeNull()
-    } finally {
-      setScrapsRepositoryOverride(null)
-    }
+        locale: 'ja',
+        entryId: 'draft',
+        entryKind: 'note',
+        published: false,
+        body: 'Private entry',
+        expectedVersion: saved.version,
+      },
+      repo,
+    )
+    expect(
+      (await assembleScrapPage(await repo.snapshot(), create.slug, 'ja'))
+        ?.entries,
+    ).toEqual([])
+    saved = await executeScrapEditorCommand(
+      {
+        kind: 'edit-entry',
+        slug: create.slug,
+        locale: 'ja',
+        entryId: 'draft',
+        entryKind: 'note',
+        published: true,
+        body: 'Public entry',
+        expectedVersion: saved.version,
+      },
+      repo,
+    )
+    const page = await assembleScrapPage(
+      await repo.snapshot(),
+      create.slug,
+      'en',
+    )
+    expect(page?.entries[0]?.localizedSource).toBe('Public entry')
+    expect(page?.entries[0]?.localizedState).toBe('fallback')
+    expect(page?.pageIsIndexable).toBe(false)
+    saved = await executeScrapEditorCommand(
+      {
+        ...create,
+        kind: 'update',
+        published: true,
+        status: 'archived',
+        expectedVersion: saved.version,
+      },
+      repo,
+    )
+    expect(
+      await assembleScrapPage(await repo.snapshot(), create.slug, 'ja'),
+    ).toBeNull()
   })
 })

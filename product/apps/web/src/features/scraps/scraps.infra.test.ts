@@ -105,12 +105,7 @@ function makeManifest(slug: string, overrides: Partial<ScrapManifest> = {}) {
 describe('scraps infra (in-memory repository)', () => {
   test('loadScrapIndex returns [] when no projection exists', async () => {
     const repo = new InMemoryRepo()
-    setScrapsRepositoryOverride(repo)
-    try {
-      expect(await loadScrapIndex()).toEqual([])
-    } finally {
-      setScrapsRepositoryOverride(null)
-    }
+    expect(await loadScrapIndex(await repo.snapshot())).toEqual([])
   })
 
   test('saveScrapIndexProjection + loadScrapIndex round-trip', async () => {
@@ -122,7 +117,7 @@ describe('scraps infra (in-memory repository)', () => {
         projectScrapIndexEntry(makeManifest('second')),
       ]
       await saveScrapIndexProjection(projection)
-      const loaded = await loadScrapIndex()
+      const loaded = await loadScrapIndex(await repo.snapshot())
       expect(loaded.map((entry) => entry.slug)).toEqual(['first', 'second'])
     } finally {
       setScrapsRepositoryOverride(null)

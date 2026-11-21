@@ -1,41 +1,31 @@
-import type { MyLink } from './links.domain'
-import {
-  LINKS_STORAGE_PATH,
-  parseLinkSourceEntries,
-} from './link-command.validation'
-import type { LinksRepository } from './links.port'
+import type { ContentSnapshot } from '@/lib/content-store/content-store.domain'
 import {
   loadJsonCollection,
   saveJsonCollection,
 } from '@/lib/content-store/json-document.infra'
+import {
+  LINKS_STORAGE_PATH,
+  parseLinkSourceEntries,
+} from './link-command.validation'
+
+export async function loadPublicLinks(snapshot: ContentSnapshot) {
+  const file = await snapshot.loadText(LINKS_STORAGE_PATH)
+  return file ? parseLinkSourceEntries(JSON.parse(file.content)) : []
+}
 
 export async function loadLinksState() {
   return loadJsonCollection(
     LINKS_STORAGE_PATH,
     parseLinkSourceEntries,
-    () => [] as readonly MyLink[],
+    () => [],
   )
 }
 
-export async function saveLinksState(
-  rawJson: string,
-  expectedVersion?: string,
-) {
+export async function saveLinksState(rawJson: string, expectedVersion?: string) {
   return saveJsonCollection(
     LINKS_STORAGE_PATH,
     rawJson,
     parseLinkSourceEntries,
     expectedVersion,
   )
-}
-
-class LinksStorageRepository implements LinksRepository {
-  async loadAll(): Promise<readonly MyLink[]> {
-    const { collection } = await loadLinksState()
-    return collection
-  }
-}
-
-export function makeLinksRepository() {
-  return new LinksStorageRepository()
 }
