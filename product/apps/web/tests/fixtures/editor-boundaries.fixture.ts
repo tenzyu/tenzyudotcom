@@ -64,11 +64,13 @@ mock.module('@/features/content-editor/scrap-editor.assemble', () => ({
   loadScrapEditorIndexState: loadCollection,
 }))
 mock.module('next/cache', () => ({
-  revalidatePath: () => {},
-  revalidateTag: () => {},
-  updateTag: () => {
-    if (refreshFails) throw new Error('refresh failed')
+  revalidatePath: (path: string) => {
+    if (refreshFails && path === '/[locale]/editor/scraps') {
+      throw new Error('refresh failed')
+    }
   },
+  revalidateTag: () => {},
+  updateTag: () => {},
 }))
 const { PUT, GET } = await import('@/app/api/editor/[collection]/route')
 const { saveScrapAction } =

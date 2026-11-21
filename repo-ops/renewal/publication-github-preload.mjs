@@ -43,6 +43,7 @@ async function holdResponse(rule, response) {
 
 globalThis.fetch = async (input, init) => {
   const request = new Request(input, init);
+  if (request.headers.has('authorization')) throw new Error('Publication fixture requires credential-free origin requests');
   const url = new URL(request.url);
   const started = performance.now();
   const rule = matchesFixture(url) ? matchingRule(request, url) : null;
