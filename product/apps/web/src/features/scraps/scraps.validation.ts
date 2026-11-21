@@ -44,7 +44,7 @@ const IsoDateSchema = z
     'invalid ISO date',
   )
 
-export const LocalizedDocumentRefSchema = z.object({
+const LocalizedDocumentRefSchema = z.object({
   locale: LocaleSchema,
   pathname: z.string().trim().min(1),
   state: TranslationStateSchema,

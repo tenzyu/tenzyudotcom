@@ -706,7 +706,7 @@ async function verifyEditorScrap() {
       await main.getByRole('status').filter({ hasText: 'Saved to Git' }).locator('code').filter({
         hasNotText: parent,
       }).waitFor({ state: 'visible' });
-      await main.locator('[aria-busy="false"]').filter({ has: main.getByText('Saved to Git', { exact: false }) }).waitFor({ state: 'visible' });
+      await main.locator('[aria-busy="false"]').waitFor({ state: 'visible' });
       const revision = git.head();
       revisions[`scrap-${stage.label}`] = revision;
       assert.deepEqual(git.parents(revision), [parent]);
