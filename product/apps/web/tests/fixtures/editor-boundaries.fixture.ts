@@ -61,6 +61,9 @@ mock.module('@/lib/content-store/github-content.infra', () => ({
 mock.module('@/features/content-editor/scrap-editor.assemble', () => ({
   executeScrapEditorCommand: save,
   loadScrapEditorIndexState: loadCollection,
+  loadScrapEditorIndex: async () => [],
+  loadScrapEditorState: async () => null,
+  checkScrapPublication: async () => 'uncertain',
 }))
 mock.module('next/cache', () => ({
   revalidatePath: () => {},

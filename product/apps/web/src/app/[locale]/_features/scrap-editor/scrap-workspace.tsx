@@ -8,7 +8,7 @@ import {
   isPublicScrap,
   type ContentLocale,
 } from '@/features/scraps/scraps.domain'
-import type { ScrapEditorCommand } from './scrap-editor.validation'
+import type { ScrapEditorCommand } from '@/features/content-editor/scrap-editor.validation'
 import type {
   ScrapWorkspaceResult,
   ScrapWorkspaceView,

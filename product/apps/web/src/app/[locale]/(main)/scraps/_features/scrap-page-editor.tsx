@@ -12,8 +12,8 @@ import {
 } from 'react'
 import { Button } from '@tenzyu/ui/button'
 import { buildLocalizedUrl } from '@/lib/intlayer/localized-url'
-import type { ScrapWorkspaceMode } from '@/features/content-editor/scrap-workspace'
-import type { ScrapWorkspaceView } from '@/features/content-editor/scrap-workspace.validation'
+import type { ScrapWorkspaceMode } from '@/app/[locale]/_features/scrap-editor/scrap-workspace'
+import type { ScrapWorkspaceView } from '@/app/[locale]/_features/scrap-editor/scrap-workspace.validation'
 import { isPublicScrap } from '@/features/scraps/scraps.domain'
 import { AdminGate, useSavedPage } from '../../_features/admin/admin-gate'
 

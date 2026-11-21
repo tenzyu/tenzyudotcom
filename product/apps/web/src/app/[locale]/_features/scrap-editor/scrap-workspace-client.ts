@@ -1,5 +1,5 @@
-import { ScrapIndexProjectionSchema } from '@/features/scraps/scraps.validation'
-import type { ScrapEditorCommand } from './scrap-editor.validation'
+import { parseScrapIndexProjection } from '@/features/scraps/scraps.validation'
+import type { ScrapEditorCommand } from '@/features/content-editor/scrap-editor.validation'
 import {
   type ScrapWorkspaceView,
   ScrapWorkspaceResult,
@@ -18,7 +18,7 @@ async function read(path: string) {
 }
 
 export async function readPrivateScrapIndex() {
-  return ScrapIndexProjectionSchema.parse(await read(endpoint))
+  return parseScrapIndexProjection(await read(endpoint))
 }
 
 export async function readPrivateScrap(slug: string) {

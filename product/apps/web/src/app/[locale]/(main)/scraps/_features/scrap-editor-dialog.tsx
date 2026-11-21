@@ -13,8 +13,8 @@ import { buildLocalizedUrl } from '@/lib/intlayer/localized-url'
 import {
   ScrapWorkspace,
   type ScrapWorkspaceMode,
-} from '@/features/content-editor/scrap-workspace'
-import type { ScrapWorkspaceView } from '@/features/content-editor/scrap-workspace.validation'
+} from '@/app/[locale]/_features/scrap-editor/scrap-workspace'
+import type { ScrapWorkspaceView } from '@/app/[locale]/_features/scrap-editor/scrap-workspace.validation'
 import {
   isPublicScrap,
   isValidScrapSlug,
@@ -198,7 +198,7 @@ function PrivateScrapChoices({
   const [error, setError] = useState(false)
   useEffect(() => {
     let active = true
-    void import('@/features/content-editor/scrap-workspace-client')
+    void import('@/app/[locale]/_features/scrap-editor/scrap-workspace-client')
       .then((module) => module.readPrivateScrapIndex())
       .then(
         (items) => {

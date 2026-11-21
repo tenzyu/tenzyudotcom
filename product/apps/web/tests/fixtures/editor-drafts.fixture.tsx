@@ -55,7 +55,7 @@ mock.module('next/navigation', () => ({
   ...navigation,
   useRouter: () => ({ refresh() {} }),
 }))
-mock.module('@/features/content-editor/scrap-workspace-client', () => ({
+mock.module('@/app/[locale]/_features/scrap-editor/scrap-workspace-client', () => ({
   readPrivateScrap: async () => null,
   verifiedPublicScrap: async () => false,
   writeScrap: async () => ({
@@ -78,7 +78,7 @@ mock.module('@/app/[locale]/(admin)/editor/_features/actions', () => ({
     message: 'Draft kept',
   }),
 }))
-const { ScrapWorkspace } = await import('@/features/content-editor/scrap-workspace')
+const { ScrapWorkspace } = await import('@/app/[locale]/_features/scrap-editor/scrap-workspace')
 const { BlogEditor } =
   await import('@/app/[locale]/(admin)/editor/_features/blog-editor')
 const { LinksEditorClient } =

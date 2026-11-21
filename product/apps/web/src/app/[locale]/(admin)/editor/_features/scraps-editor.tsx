@@ -11,7 +11,7 @@ import {
   loadScrapEditorState,
 } from '@/features/content-editor/scrap-editor.assemble'
 import { isValidScrapSlug } from '@/features/scraps/scraps.domain'
-import { ScrapWorkspace } from '@/features/content-editor/scrap-workspace'
+import { ScrapWorkspace } from '@/app/[locale]/_features/scrap-editor/scrap-workspace'
 
 export async function ScrapsEditor({
   locale,

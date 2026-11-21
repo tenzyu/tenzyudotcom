@@ -9,9 +9,9 @@ import {
   SCRAP_ENTRY_KINDS,
   type ContentLocale,
 } from '@/features/scraps/scraps.domain'
-import type { ScrapEditorCommand } from './scrap-editor.validation'
+import type { ScrapEditorCommand } from '@/features/content-editor/scrap-editor.validation'
 import type { ScrapWorkspaceView } from './scrap-workspace.validation'
-import { SourceField } from './source/source-field'
+import { SourceField } from '../source/source-field'
 
 type Document = ScrapWorkspaceView['lead'][number]
 
