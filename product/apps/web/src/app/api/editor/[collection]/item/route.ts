@@ -1,22 +1,19 @@
 import { Payload } from './item-command.validation'
-import { revalidatePath, revalidateTag } from 'next/cache'
+import { refreshLinksAfterSave } from '@/app/[locale]/(admin)/editor/_features/editor.assemble'
 import { NextResponse } from 'next/server'
 import { NoteCommand } from '@/app/[locale]/(main)/notes/_features/note-command.validation'
 import {
   loadNoteEditView,
   runNoteCommand,
-} from '@/app/[locale]/(main)/notes/_features/note-command.infra'
-import { getEditorCollectionMeta } from '@/features/content-editor/editor-collections'
-import { getEditorCollectionContentTag } from '@/lib/content-store/content-tags.infra'
+} from '@/app/[locale]/(main)/notes/_features/note-command.assemble'
 import {
-  hasEditorAdminSession,
+  getEditorAdminSessionExpiry,
   isSameOriginEditorRequest,
 } from '@/features/editor-auth/editor-session'
-import { LinkCommand } from '@/features/links/link-command.validation'
 import {
   loadLinkEditView,
   runLinkCommand,
-} from '@/features/links/link-command.infra'
+} from '@/features/links/link-command.assemble'
 import {
   InvalidItemCommand,
   type ItemCommandResult,
@@ -32,7 +29,8 @@ function json(body: unknown, status = 200) {
 }
 
 export async function GET(request: Request, { params }: Context) {
-  if (!(await hasEditorAdminSession())) return json({ kind: 'denied' }, 401)
+  if (!(await getEditorAdminSessionExpiry()))
+    return json({ kind: 'denied' }, 401)
   const { collection } = await params
   const query = new URL(request.url).searchParams
   try {
@@ -54,7 +52,8 @@ export async function GET(request: Request, { params }: Context) {
 export async function POST(request: Request, { params }: Context) {
   if (!request.headers.has('origin') || !isSameOriginEditorRequest(request))
     return json({ kind: 'denied' }, 403)
-  if (!(await hasEditorAdminSession())) return json({ kind: 'denied' }, 401)
+  if (!(await getEditorAdminSessionExpiry()))
+    return json({ kind: 'denied' }, 401)
   const { collection } = await params
   if (collection !== 'notes' && collection !== 'links')
     return json({ kind: 'invalid', message: 'Unknown collection.' }, 404)
@@ -71,17 +70,11 @@ export async function POST(request: Request, { params }: Context) {
         return json({ kind: 'invalid', message: 'Check the note fields.' }, 400)
       result = await runNoteCommand(base, operation, note.data)
     } else {
-      const link = LinkCommand.safeParse(command)
-      if (!link.success)
-        return json({ kind: 'invalid', message: 'Check the link fields.' }, 400)
-      result = await runLinkCommand(base, operation, link.data)
+      result = await runLinkCommand(base, operation, command)
     }
     if (collection === 'links' && result.kind === 'saved') {
       try {
-        revalidateTag(getEditorCollectionContentTag('links'), { expire: 0 })
-        for (const path of getEditorCollectionMeta('links').publicPaths) {
-          revalidatePath(path.path, path.type)
-        }
+        refreshLinksAfterSave()
       } catch (error) {
         console.error('Unable to refresh links after a confirmed save', error)
       }

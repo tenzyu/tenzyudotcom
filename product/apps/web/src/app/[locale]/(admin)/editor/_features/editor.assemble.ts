@@ -47,18 +47,16 @@ class SaveEditorCollectionUseCase {
       return saveNotesState(rawJson, expectedVersion)
 
     const result = await saveLinksState(rawJson, expectedVersion)
-    const collection = getEditorCollectionMeta('links')
-    revalidateTag(getEditorCollectionContentTag('links'), 'max')
-
-    for (const path of collection.publicPaths) {
-      if (path.type) {
-        revalidatePath(path.path, path.type)
-      } else {
-        revalidatePath(path.path)
-      }
-    }
+    refreshLinksAfterSave()
 
     return result
+  }
+}
+
+export function refreshLinksAfterSave() {
+  revalidateTag(getEditorCollectionContentTag('links'), { expire: 0 })
+  for (const path of getEditorCollectionMeta('links').publicPaths) {
+    revalidatePath(path.path, path.type)
   }
 }
 

@@ -8,8 +8,8 @@ import {
   requireItem,
 } from '@/lib/content-store/json-item-command.infra'
 import {
-  type LinkCommand,
-  type LinkEditView,
+  LinkCommand,
+  LinkEditView,
   LINKS_STORAGE_PATH,
   parseLinkSourceEntries,
 } from './link-command.validation'
@@ -29,7 +29,7 @@ export async function loadLinkEditView(
     items
       .slice(items.indexOf(target) + 1)
       .find((item) => item.category === target.category)?.shortenUrl
-  return {
+  return LinkEditView.parse({
     base,
     target,
     before: before ?? null,
@@ -40,14 +40,17 @@ export async function loadLinkEditView(
         shortenUrl,
         category,
       })),
-  }
+  })
 }
 
 export function runLinkCommand(
   base: DocumentBase,
   operation: 'apply' | 'check',
-  command: LinkCommand,
+  raw: unknown,
 ) {
+  const parsed = LinkCommand.safeParse(raw)
+  if (!parsed.success) throw new InvalidItemCommand('Check the link fields.')
+  const command = parsed.data
   return executeItemCommand({
     pathname: LINKS_STORAGE_PATH,
     parse: parseLinkSourceEntries,
