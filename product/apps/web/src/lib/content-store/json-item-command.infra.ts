@@ -12,7 +12,7 @@ import {
   InvalidItemCommand,
   type DocumentBase,
   type ItemCommandResult,
-} from './json-item-command.domain'
+} from './json-item-command.validation'
 
 export async function loadItemDocument<T>(
   pathname: string,

@@ -1,7 +1,7 @@
 import {
   type DocumentBase,
   InvalidItemCommand,
-} from '@/lib/content-store/json-item-command.domain'
+} from '@/lib/content-store/json-item-command.validation'
 import {
   executeItemCommand,
   loadItemDocument,
@@ -12,7 +12,7 @@ import {
   type LinkEditView,
   LINKS_STORAGE_PATH,
   parseLinkSourceEntries,
-} from './link-command.domain'
+} from './link-command.validation'
 
 export async function loadLinkEditView(
   shortCode: string | null,

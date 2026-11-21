@@ -7,7 +7,7 @@ import { buildLocalizedUrl } from '@/lib/intlayer/localized-url'
 import {
   LinkEditView,
   type LinkCommand,
-} from '@/features/links/link-command.domain'
+} from '@/features/links/link-command.validation'
 import { LINK_CATEGORY_ORDER, type MyLink } from '@/features/links/links.domain'
 import { useSavedPage } from '../../_features/admin/admin-gate'
 import {

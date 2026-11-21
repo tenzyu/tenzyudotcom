@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { NoteBodySchema } from './note-command.domain'
+import { NoteBodySchema } from './note-command.validation'
 import {
   parseJsonCollection,
   saveJsonCollection,

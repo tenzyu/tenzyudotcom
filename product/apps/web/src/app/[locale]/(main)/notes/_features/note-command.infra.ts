@@ -1,14 +1,14 @@
 import {
   InvalidItemCommand,
   type DocumentBase,
-} from '@/lib/content-store/json-item-command.domain'
+} from '@/lib/content-store/json-item-command.validation'
 import {
   executeItemCommand,
   loadItemDocument,
   requireItem,
 } from '@/lib/content-store/json-item-command.infra'
 import type { z } from 'zod'
-import type { NoteCommand, NoteEditView } from './note-command.domain'
+import type { NoteCommand, NoteEditView } from './note-command.validation'
 import {
   type NoteSourceEntry,
   compareNotesByCreatedAtDesc,

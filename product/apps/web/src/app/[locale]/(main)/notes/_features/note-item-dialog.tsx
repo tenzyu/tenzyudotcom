@@ -15,7 +15,7 @@ import {
   type NoteCommand,
   NoteEditView,
   type NoteFields,
-} from './note-command.domain'
+} from './note-command.validation'
 import { buildLocalizedNotePath, createNoteId } from './notes.domain'
 
 export type NoteEditorMode = 'create' | 'reply' | 'edit' | 'delete'
@@ -249,7 +249,10 @@ function NoteFieldsForm({
             }
           />
         </label>
-        <p id={`${id}-fallback`} className="-mt-2 text-xs text-muted-foreground">
+        <p
+          id={`${id}-fallback`}
+          className="-mt-2 text-xs text-muted-foreground"
+        >
           {ja
             ? '未入力の場合は日本語を表示します。'
             : 'Leave blank to show the Japanese text on the English page.'}

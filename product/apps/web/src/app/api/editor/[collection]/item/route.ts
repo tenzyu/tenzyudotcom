@@ -1,7 +1,7 @@
+import { Payload } from './item-command.validation'
 import { revalidatePath, revalidateTag } from 'next/cache'
 import { NextResponse } from 'next/server'
-import { z } from 'zod'
-import { NoteCommand } from '@/app/[locale]/(main)/notes/_features/note-command.domain'
+import { NoteCommand } from '@/app/[locale]/(main)/notes/_features/note-command.validation'
 import {
   loadNoteEditView,
   runNoteCommand,
@@ -12,24 +12,17 @@ import {
   hasEditorAdminSession,
   isSameOriginEditorRequest,
 } from '@/features/editor-auth/editor-session'
-import { LinkCommand } from '@/features/links/link-command.domain'
+import { LinkCommand } from '@/features/links/link-command.validation'
 import {
   loadLinkEditView,
   runLinkCommand,
 } from '@/features/links/link-command.infra'
 import {
-  DocumentBaseSchema,
   InvalidItemCommand,
   type ItemCommandResult,
-} from '@/lib/content-store/json-item-command.domain'
+} from '@/lib/content-store/json-item-command.validation'
 
 type Context = { params: Promise<{ collection: string }> }
-
-const Payload = z.object({
-  base: DocumentBaseSchema,
-  operation: z.enum(['apply', 'check']),
-  command: z.unknown(),
-})
 
 function json(body: unknown, status = 200) {
   return NextResponse.json(body, {

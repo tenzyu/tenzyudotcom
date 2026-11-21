@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { DocumentBaseSchema } from '@/lib/content-store/json-item-command.domain'
+import { DocumentBaseSchema } from '@/lib/content-store/json-item-command.validation'
 
 export const NoteBodySchema = z.object({
   ja: z.string().trim().min(1),

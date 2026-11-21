@@ -2,7 +2,7 @@ import type { MyLink } from './links.domain'
 import {
   LINKS_STORAGE_PATH,
   parseLinkSourceEntries,
-} from './link-command.domain'
+} from './link-command.validation'
 import type { LinksRepository } from './links.port'
 import {
   loadJsonCollection,

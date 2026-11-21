@@ -1,20 +1,12 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { z } from 'zod'
-import type {
-  DocumentBase,
-  ItemCommandResult,
-} from '@/lib/content-store/json-item-command.domain'
+import {
+  type DocumentBase,
+  type ItemCommandResult,
+  ItemCommandResultSchema,
+} from '@/lib/content-store/json-item-command.validation'
 import { invalidateAdminSession } from './admin-gate'
-
-const Result = z.discriminatedUnion('kind', [
-  z.object({ kind: z.literal('saved'), version: z.string() }),
-  z.object({
-    kind: z.enum(['unchanged', 'conflict', 'unknown', 'unavailable', 'denied']),
-  }),
-  z.object({ kind: z.literal('invalid'), message: z.string() }),
-])
 
 type Failure = Exclude<ItemCommandResult, { kind: 'saved' }>
 type Submission<T> = { base: DocumentBase; command: T }
@@ -29,7 +21,7 @@ export function useItemEditor<View extends { base: DocumentBase }, Command>({
   collection: 'notes' | 'links'
   id?: string
   locale: string
-  viewSchema: z.ZodType<View>
+  viewSchema: { parse: (input: unknown) => View }
   onSaved: (command: Command, view: View) => void
 }) {
   const url = `/api/editor/${collection}/item`
@@ -52,7 +44,9 @@ export function useItemEditor<View extends { base: DocumentBase }, Command>({
         const response = await fetch(readUrl, { cache: 'no-store' })
         if (response.status === 401) invalidateAdminSession()
         if (!response.ok) {
-          const result = Result.safeParse(await response.json())
+          const result = ItemCommandResultSchema.safeParse(
+            await response.json(),
+          )
           setFailure(
             result.success && result.data.kind !== 'saved'
               ? result.data
@@ -96,7 +90,7 @@ export function useItemEditor<View extends { base: DocumentBase }, Command>({
         cache: 'no-store',
       })
       if (response.status === 401) invalidateAdminSession()
-      result = Result.parse(await response.json())
+      result = ItemCommandResultSchema.parse(await response.json())
     } catch {
       result = { kind: 'unknown' }
     } finally {
