@@ -45,9 +45,7 @@ const cwd = resolve(root, 'product/apps/web');
 const next = resolve(root, 'node_modules/next/dist/bin/next');
 if (production) {
   const buildLog = openSync(resolve(output, 'next-build.log'), 'w', 0o600);
-  const build = spawnSync('bun', ['--no-env-file', 'nx', 'run', 'web:build', '--skip-nx-cache'], {
-    cwd: root, env, stdio: ['ignore', buildLog, buildLog],
-  });
+  const build = spawnSync('node', [next, 'build'], { cwd, env, stdio: ['ignore', buildLog, buildLog] });
   if (build.error) throw build.error;
   if (build.status !== 0) process.exit(build.status ?? 1);
 }
