@@ -570,7 +570,12 @@ test('Blog edits in place and renames the indexed blob while preserving all old 
     expect((await reader.request.get(`${base}/api/editor/blog/article?slug=${first}`)).status()).toBe(401);
     await page.waitForLoadState('networkidle');
     const legacyStart = fileReads().length;
-    expect((await page.request.get(`${base}/api/editor/blog`)).status()).toBe(200);
+    const legacyStatus = await page.evaluate(async () => {
+      const response = await fetch('/api/editor/blog', { cache: 'no-store' });
+      await response.text();
+      return response.status;
+    });
+    expect(legacyStatus).toBe(200);
     const legacyReads = fileReads().slice(legacyStart);
     expect(legacyReads.filter(row => row.path.endsWith('.mdx'))).toHaveLength(index.length + 1);
     const cursor = fileReads().length;
