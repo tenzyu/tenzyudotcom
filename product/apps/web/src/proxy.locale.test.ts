@@ -3,15 +3,15 @@ import { NextRequest } from 'next/server'
 import { proxy } from './proxy'
 
 describe('locale proxy', () => {
-  test('does not rewrite locale roots to a trailing slash that redirects back', () => {
-    const response = proxy(new NextRequest('https://example.com/en'))
+  test('does not rewrite locale roots to a trailing slash that redirects back', async () => {
+    const response = await proxy(new NextRequest('https://example.com/en'))
     expect(response.headers.get('x-middleware-rewrite')).toBe(
       'https://example.com/en',
     )
   })
 
-  test('rewrites the default locale internally without changing the public route', () => {
-    const response = proxy(
+  test('rewrites the default locale internally without changing the public route', async () => {
+    const response = await proxy(
       new NextRequest('https://example.com/links?q=1', {
         headers: { 'accept-language': 'ja' },
       }),
@@ -23,8 +23,8 @@ describe('locale proxy', () => {
     )
   })
 
-  test('preserves an explicit Japanese choice across canonical redirects', () => {
-    const response = proxy(
+  test('preserves an explicit Japanese choice across canonical redirects', async () => {
+    const response = await proxy(
       new NextRequest('https://example.com/ja/tools?q=1', {
         headers: { cookie: 'INTLAYER_LOCALE=en', 'accept-language': 'en' },
       }),
@@ -37,8 +37,8 @@ describe('locale proxy', () => {
     expect(response.cookies.get('INTLAYER_LOCALE')?.value).toBe('ja')
   })
 
-  test('does not persist Japanese for a similarly named path', () => {
-    const response = proxy(new NextRequest('https://example.com/japan'))
+  test('does not persist Japanese for a similarly named path', async () => {
+    const response = await proxy(new NextRequest('https://example.com/japan'))
     expect(response.cookies.get('INTLAYER_LOCALE')).toBeUndefined()
   })
 })

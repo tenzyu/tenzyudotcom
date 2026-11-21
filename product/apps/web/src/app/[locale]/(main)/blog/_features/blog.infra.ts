@@ -1,16 +1,19 @@
 import { isDeepStrictEqual } from 'node:util'
 import {
+  BlogSlugValidationError,
+  blogWriteSlugPattern,
   compareBlogPostsByPublishedAtDesc,
   type BlogPublicationReceipt,
   type BlogSaveCommand,
   type MDXData,
 } from './blog.domain'
-import { parseBlogFrontmatter } from './blog-frontmatter.assemble'
 import {
+  assertUniqueBlogOwnership,
   BLOG_INDEX_PATH,
   isBlogPathPart,
   parseBlogIndex,
   projectBlogIndexEntry,
+  readBlogCatalog,
 } from './blog-index.assemble'
 import { editBlogSource, readBlogSource } from './blog-source.assemble'
 import { githubContentRepository } from '@/lib/content-store/github-content.infra'
@@ -41,14 +44,7 @@ function parseBlogPost(
 
 export async function loadBlogCatalog(snapshot: ContentSnapshot) {
   const file = await snapshot.loadText(BLOG_INDEX_PATH)
-  const entries = parseBlogIndex(file?.content)
-  return entries
-    .map(({ pathname, slug, metadata }) => ({
-      metadata: parseBlogFrontmatter(metadata, pathname),
-      pathname,
-      slug,
-    }))
-    .sort(compareBlogPostsByPublishedAtDesc)
+  return readBlogCatalog(file?.content)
 }
 
 export async function loadBlogPostBySlug(
@@ -91,8 +87,8 @@ export async function saveBlogPost(
   > = githubContentRepository,
 ): Promise<BlogPublicationReceipt> {
   const { slug, intent, changes } = command
-  if (!/^[a-z0-9][a-z0-9-]*$/.test(slug))
-    throw new StorageError('Invalid blog slug.')
+  if (!blogWriteSlugPattern.test(slug))
+    throw new BlogSlugValidationError('slug')
   if (intent === 'edit' && !/^[0-9a-f]{40}$/.test(command.expectedVersion)) {
     throw new StorageVersionConflictError(
       'This form has an old edit version. Copy your draft and reload the editor.',
@@ -101,14 +97,18 @@ export async function saveBlogPost(
   const defaultPath = `blog/${slug}.mdx`
   const snapshot = await repo.snapshot()
   const index = await snapshot.loadText(BLOG_INDEX_PATH)
-  const entries = parseBlogIndex(index?.content)
-  const entry = entries.find((entry) => entry.slug === slug)
-  const pathname = entry?.pathname ?? defaultPath
-  if (
-    entries.some(
-      (other) => other.slug !== slug && other.pathname === defaultPath,
+  const catalog = readBlogCatalog(index?.content)
+  assertUniqueBlogOwnership(catalog)
+  const { entries, canonicals, aliases, pathnames } = catalog
+  const entry = canonicals.get(slug) ?? undefined
+  if (intent === 'create' && (entry || aliases.has(slug))) {
+    throw new StorageVersionConflictError(
+      'This blog slug is already in use. Choose another URL.',
     )
-  ) {
+  }
+  const pathname = entry?.pathname ?? defaultPath
+  const defaultOwner = pathnames.get(defaultPath)
+  if (defaultOwner && defaultOwner !== entry) {
     throw new StorageError(
       'Another blog entry owns this pathname. The blog index needs inspection.',
     )
@@ -122,10 +122,6 @@ export async function saveBlogPost(
     )
 
   if (intent === 'create') {
-    if (entry)
-      throw new StorageVersionConflictError(
-        'This blog slug already exists. Copy your draft and reload the editor.',
-      )
     if (current)
       throw new StorageError(
         'An unlisted blog post already exists at this pathname. It needs inspection.',

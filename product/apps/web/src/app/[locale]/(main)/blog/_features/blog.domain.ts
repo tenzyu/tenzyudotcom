@@ -25,6 +25,14 @@ export type BlogChanges = {
   body?: string
 }
 
+export const blogWriteSlugPattern = /^[a-z0-9][a-z0-9-]*$/
+
+export class BlogSlugValidationError extends Error {
+  constructor(readonly field: 'slug' | 'oldSlug' | 'newSlug') {
+    super('Invalid blog slug.')
+  }
+}
+
 export type BlogSaveCommand = { slug: string } & (
   | {
       intent: 'create'

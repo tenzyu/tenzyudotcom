@@ -7,6 +7,10 @@ import {
   parseBlogIndex,
   projectBlogIndexEntry,
 } from '@/app/[locale]/(main)/blog/_features/blog-index.assemble'
+import {
+  assembleBlogPostPageData,
+  loadBlogPosts,
+} from '@/app/[locale]/(main)/blog/_features/blog.assemble'
 import type {
   BlogChanges,
   BlogSaveCommand,
@@ -156,6 +160,110 @@ function expectTree(
 afterEach(() => {
   for (const dir of paths.splice(0))
     rmSync(dir, { recursive: true, force: true })
+})
+
+describe('blog catalog addresses', () => {
+  test('aliases resolve ahead of a legacy fallback and reserve the slug on create', async () => {
+    const git = fixture({
+      ...seed,
+      [index]: serialize([{ ...summary, aliases: ['old'] }]),
+      [post('old')]: original.replace('First post', 'Unlisted post'),
+      [post('legacy')]: original.replace('First post', 'Legacy post'),
+    })
+    const initial = git.head()
+    const repo = createGitHubAggregateRepository(config, git.fetch)
+    const snapshot = await repo.snapshot()
+
+    expect(await assembleBlogPostPageData(snapshot, 'old')).toEqual({
+      kind: 'redirect',
+      slug: 'first',
+    })
+    expect(await assembleBlogPostPageData(snapshot, 'legacy')).toMatchObject({
+      kind: 'post',
+      post: { slug: 'legacy', metadata: { title: 'Legacy post' } },
+    })
+    expect((await loadBlogPosts(snapshot)).map(({ slug }) => slug)).toEqual([
+      'first',
+    ])
+
+    for (const slug of ['first', 'old']) {
+      await expect(saveBlogPost(create(slug), repo)).rejects.toBeInstanceOf(
+        StorageVersionConflictError,
+      )
+    }
+    expect(git.history()).toEqual([initial])
+  })
+
+  test('a canonical address still opens if another entry claims it as an alias', async () => {
+    const git = fixture({
+      ...seed,
+      [index]: serialize([
+        { ...summary, aliases: ['second'] },
+        { ...summary, slug: 'second', pathname: 'blog/second.mdx' },
+      ]),
+      [post('second')]: original.replace('First post', 'Second post'),
+    })
+    const initial = git.head()
+    const repo = createGitHubAggregateRepository(config, git.fetch)
+    const snapshot = await repo.snapshot()
+
+    expect(await assembleBlogPostPageData(snapshot, 'second')).toMatchObject({
+      kind: 'post',
+      post: { slug: 'second', metadata: { title: 'Second post' } },
+    })
+    await expect(saveBlogPost(create('third'), repo)).rejects.toThrow(
+      'conflicts with a canonical slug',
+    )
+    expect(git.history()).toEqual([initial])
+  })
+
+  test.each([
+    [
+      'canonical slug',
+      { slug: 'first', pathname: 'blog/second.mdx' },
+      ['third'],
+    ],
+    [
+      'pathname',
+      { slug: 'second', pathname: 'blog/first.mdx' },
+      ['first', 'second', 'third'],
+    ],
+    [
+      'alias',
+      { slug: 'second', pathname: 'blog/second.mdx', aliases: ['old'] },
+      ['first', 'second', 'third'],
+    ],
+  ] as const)('reports a duplicate %s and keeps safe catalog entries available', async (kind, duplicate, visible) => {
+    const git = fixture({
+      ...seed,
+      [post('third')]: original.replace('First post', 'Third post'),
+      [index]: serialize([
+        { ...summary, aliases: ['old'] },
+        { ...summary, ...duplicate },
+        { ...summary, slug: 'third', pathname: 'blog/third.mdx' },
+      ]),
+    })
+    const initial = git.head()
+    const repo = createGitHubAggregateRepository(config, git.fetch)
+    const snapshot = await repo.snapshot()
+
+    expect((await loadBlogPosts(snapshot)).map(({ slug }) => slug)).toEqual(
+      [...visible],
+    )
+    expect(await assembleBlogPostPageData(snapshot, 'third')).toMatchObject({
+      kind: 'post',
+      post: { slug: 'third', metadata: { title: 'Third post' } },
+    })
+    if (kind !== 'pathname') {
+      await expect(assembleBlogPostPageData(snapshot, 'old')).rejects.toThrow(
+        'ambiguous catalog ownership',
+      )
+    }
+    await expect(saveBlogPost(create('fourth'), repo)).rejects.toThrow(
+      `duplicate ${kind}`,
+    )
+    expect(git.history()).toEqual([initial])
+  })
 })
 
 describe('blog publication using real Git trees and non-forced refs', () => {
