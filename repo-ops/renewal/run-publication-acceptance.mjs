@@ -196,8 +196,9 @@ async function read(route, label, options = {}, measure = true) {
   const rows = measure ? ledger().slice(before) : [];
   const counts = countReads(rows);
   const location = response.headers.get('location');
+  const cacheControl = response.headers.get('cache-control');
   if (measure) metrics.push({ label, route, status: response.status, ...(location && { location }), elapsedMs: Math.round(performance.now() - started), ...counts });
-  return { status: response.status, body, location, counts, rows };
+  return { status: response.status, body, location, cacheControl, counts, rows };
 }
 
 function expectContains(result, expected, status = 200) {
@@ -593,6 +594,58 @@ async function productionAcceptance() {
     ['PUT', contents(notesPath), 200],
   ]);
   await verifyScrapsAndLinks();
+  await verifyBlogAliases();
+}
+
+async function verifyBlogAliases() {
+  const original = article('rename-proof-a', 'Fixture canonical article', '2026-07-01T00:00:00.000Z', 'Fixture canonical article body.');
+  const prior = git.file(git.head(), blogIndexPath);
+  const existing = prior ? JSON.parse(prior.toString()) : [];
+  const b = 'rename-proof-b';
+  const c = 'rename-proof-c';
+  revisions.aliasFixture = git.advance({
+    [original.path]: original.source,
+    [blogIndexPath]: serialize([original.projection, ...existing]),
+  }, 'Seed original Blog address');
+  for (const prefix of localePrefixes) {
+    exactArticle(await read(`${prefix}/blog/rename-proof-a`, 'Original Blog address'), original.projection.metadata.title, 'Fixture canonical article body.', prefix, 'rename-proof-a');
+  }
+
+  function move(old, next, aliases) {
+    return git.advance({
+      [`storage/blog/${old}.mdx`]: null,
+      [`storage/blog/${next}.mdx`]: original.source,
+      [blogIndexPath]: serialize([{
+        ...original.projection, slug: next, pathname: `blog/${next}.mdx`, aliases,
+      }, ...existing]),
+    }, `Move fixture Blog address to ${next}`);
+  }
+
+  revisions.aliasFirstMove = move('rename-proof-a', b, ['rename-proof-a']);
+  for (const prefix of localePrefixes) {
+    const response = await read(`${prefix}/blog/rename-proof-a`, 'First Blog redirect');
+    assert.equal(response.status, 307);
+    assert.equal(new URL(response.location, base).pathname, `${prefix}/blog/${b}`);
+  }
+
+  revisions.aliasSecondMove = move(b, c, ['rename-proof-a', b]);
+  for (const prefix of localePrefixes) {
+    for (const old of ['rename-proof-a', b]) {
+      const alias = await read(`${prefix}/blog/${old}?tag=fixture`, 'Current Blog alias redirect');
+      assert.equal(alias.status, 307);
+      assert.equal(new URL(alias.location, base).href, `${base}${prefix}/blog/${c}?tag=fixture`);
+      assert.match(alias.cacheControl, /no-store/);
+    }
+    const post = await read(`${prefix}/blog/${c}`, 'Current canonical Blog article');
+    exactArticle(post, original.projection.metadata.title, 'Fixture canonical article body.', prefix, c);
+    expectWarm(await read(`${prefix}/blog/${c}`, 'Warm canonical Blog article'), `${prefix}/blog/${c}`);
+    const list = await read(`${prefix}/blog`, 'Canonical Blog listing');
+    expectContains(list, `href="${prefix}/blog/${c}"`);
+    for (const old of ['rename-proof-a', b]) assert.ok(!list.body.includes(`href="${prefix}/blog/${old}"`));
+  }
+  const sitemap = await read('/sitemap.xml', 'Canonical Blog sitemap');
+  expectContains(sitemap, `https://tenzyu.com/en/blog/${c}`);
+  for (const old of ['rename-proof-a', b]) assert.ok(!sitemap.body.includes(`/blog/${old}`));
 }
 
 function alternates(markup, element) {

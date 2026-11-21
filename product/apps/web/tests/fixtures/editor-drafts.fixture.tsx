@@ -63,6 +63,14 @@ mock.module('@/app/[locale]/_features/scrap-editor/scrap-workspace-client', () =
     message: 'Draft kept',
   }),
 }))
+mock.module('@/app/[locale]/_features/blog-editor/blog-workspace-client', () => ({
+  readBlogEditArticle: async () => null,
+  writeBlogArticle: async () => ({
+    kind: failure === 'save' ? 'unavailable' : failure,
+    candidateOid: failure === 'uncertain' ? 'a'.repeat(40) : undefined,
+    message: 'Draft kept',
+  }),
+}))
 mock.module('@/app/[locale]/(admin)/editor/_features/actions', () => ({
   saveBlogPostAction: async () =>
     failure === 'uncertain'

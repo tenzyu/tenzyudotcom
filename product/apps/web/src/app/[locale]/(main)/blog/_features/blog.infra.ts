@@ -92,7 +92,11 @@ export async function loadBlogPostForEdit(
   const catalog = await loadBlogCatalog(snapshot)
   assertUniqueBlogOwnership(catalog)
   const address = resolveBlogAddress(catalog, slug)
-  if (address.kind === 'unlisted') return null
+  if (address.kind === 'unlisted') {
+    const pathname = `blog/${slug}.mdx`
+    if (catalog.pathnames.has(pathname)) return null
+    return (await loadBlogPostBySlug(snapshot, slug, undefined)) ?? null
+  }
   const { slug: canonical, pathname } = address.entry
   return (await loadBlogPostBySlug(snapshot, canonical, pathname)) ?? null
 }

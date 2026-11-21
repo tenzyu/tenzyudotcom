@@ -23,6 +23,10 @@ const env = {
   NODE_ENV: production ? 'production' : 'development',
   TZ: 'UTC',
   NEXT_TELEMETRY_DISABLED: '1',
+  NX_DAEMON: 'false',
+  NX_NO_CLOUD: 'true',
+  NX_TUI: 'false',
+  NX_LOAD_DOT_ENV_FILES: 'false',
   NODE_OPTIONS: `--import=${resolve(import.meta.dirname, 'editor-github-preload.mjs')}`,
   EDITOR_FIXTURE_LEDGER: ledger,
   EDITOR_FIXTURE_ORIGIN: `http://127.0.0.1:${port}`,
@@ -41,7 +45,9 @@ const cwd = resolve(root, 'product/apps/web');
 const next = resolve(root, 'node_modules/next/dist/bin/next');
 if (production) {
   const buildLog = openSync(resolve(output, 'next-build.log'), 'w', 0o600);
-  const build = spawnSync('node', [next, 'build'], { cwd, env, stdio: ['ignore', buildLog, buildLog] });
+  const build = spawnSync('bun', ['--no-env-file', 'nx', 'run', 'web:build', '--skip-nx-cache'], {
+    cwd: root, env, stdio: ['ignore', buildLog, buildLog],
+  });
   if (build.error) throw build.error;
   if (build.status !== 0) process.exit(build.status ?? 1);
 }

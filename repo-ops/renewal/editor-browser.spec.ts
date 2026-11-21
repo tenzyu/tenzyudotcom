@@ -2,6 +2,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { expect, test, type Browser, type BrowserContextOptions } from '@playwright/test';
 import { openGitContentFixture } from './git-content-fixture.mjs';
+import { article, scrap, serialize } from './publication-fixture.mjs';
 
 async function isolateBrowser(context: import('@playwright/test').BrowserContext, base: string) {
   await context.route('**/*', route =>
@@ -168,7 +169,7 @@ test('blog editor preserves Git source, stale drafts and uncertain publication r
   const reader = await readerContext(browser, base);
   const page = await context.newPage();
   const main = page.getByRole('main');
-  const status = main.getByRole('status');
+  const status = main.getByRole('status').filter({ hasText: /Saved\.|No changes to save/ });
   const body = main.getByLabel('Content, in MDX');
   const save = main.getByRole('button', { name: 'Save post', exact: true });
   const check = main.getByRole('button', { name: 'Check publication', exact: true });
@@ -234,7 +235,7 @@ test('blog editor preserves Git source, stale drafts and uncertain publication r
     const staleBody = staleMain.getByLabel('Content, in MDX');
     await staleBody.fill(unsaved);
     await staleMain.getByRole('button', { name: 'Save post', exact: true }).click();
-    await expect(staleMain.getByRole('alert')).toContainText('reload the editor');
+    await expect(staleMain.getByRole('alert')).toContainText(/changed|old edit version/);
     await expect(staleBody).toHaveValue(unsaved);
     expect(git.head()).toBe(updated);
     await stale.close();
@@ -249,7 +250,7 @@ test('blog editor preserves Git source, stale drafts and uncertain publication r
     await check.click();
     await expect(main.getByRole('alert')).toContainText('still unconfirmed');
     await expect(body).toHaveValue(unsaved);
-    await expect(save).toHaveCount(0);
+    await expect(save).toBeDisabled();
     expect(git.head()).toBe(updated);
 
     await page.goto(editorPost);
@@ -309,7 +310,12 @@ async function signIn(page: import('@playwright/test').Page, base: string) {
 test('Notes project the visible graph and persist item commands with focus and recovery', async ({ page, browser, baseURL }) => {
   const base = new URL(baseURL!).origin;
   const { directory, git } = editorFixture();
-  const seeded = git.advance({ [notesFile]: JSON.stringify(graph, null, 2) + '\n' }, 'Seed branched Notes');
+  const blogIndex = 'storage/blog/index.json';
+  const originalBlog = git.file(git.head(), blogIndex);
+  const seeded = git.advance({
+    [notesFile]: serialize(graph),
+    [blogIndex]: '{ malformed fixture Blog index',
+  }, 'Seed branched Notes with an unrelated Blog error');
   const reader = await readerContext(browser, base, { locale: 'ja-JP', viewport: { width: 1440, height: 1000 } });
   try {
     const ja = await reader.newPage();
@@ -322,6 +328,10 @@ test('Notes project the visible graph and persist item commands with focus and r
     await expect(ja.getByRole('link', { name: 'ノートの固定リンク' }).and(ja.locator('[aria-current="page"]'))).toHaveAttribute('href', '/notes/1804');
     await ja.getByRole('link', { name: '返信先 最初の返信' }).press('Enter');
     await expect(ja).toHaveURL(`${base}/notes/1802`);
+    await ja.getByRole('link', { name: '返信先 親ノート' }).press('Enter');
+    await expect(ja).toHaveURL(`${base}/notes/1801`);
+    await ja.getByRole('article').filter({ hasText: '次の返信' }).getByRole('link', { name: 'ノートの固定リンク' }).press('Enter');
+    await expect(ja).toHaveURL(`${base}/notes/1803`);
 
     await signIn(page, base);
     await page.setViewportSize({ width: 390, height: 844 });
@@ -365,6 +375,9 @@ test('Notes project the visible graph and persist item commands with focus and r
     expect(git.head()).toBe(edited);
     await stale.close();
 
+    await page.getByRole('article').filter({ hasText: 'Edited first reply' })
+      .filter({ hasNotText: 'Grandchild' }).getByRole('link', { name: 'Note permalink' }).click();
+    await expect(page).toHaveURL(`${base}/en/notes/1802`);
     const openDelete = async () => {
       await page.getByRole('article').filter({ hasText: 'Edited first reply' }).filter({ hasNotText: 'Grandchild' })
         .getByRole('button', { name: 'Note actions' }).click();
@@ -384,6 +397,7 @@ test('Notes project the visible graph and persist item commands with focus and r
     expect(git.head()).toBe(edited);
     await confirmation.getByRole('button', { name: 'Delete', exact: true }).click();
     await expect(confirmation).toBeHidden();
+    await expect(page).toHaveURL(`${base}/en/notes/1801`);
     await expect(page.getByText('Edited first reply', { exact: true })).toHaveCount(0);
     const deleted = git.head();
     expect(git.parents(deleted)).toEqual([edited]);
@@ -397,6 +411,7 @@ test('Notes project the visible graph and persist item commands with focus and r
     expect(denied.status()).toBe(403);
     expect(git.head()).toBe(deleted);
 
+    await page.getByRole('link', { name: 'Back to notes' }).click();
     await page.getByRole('button', { name: 'Write note' }).click();
     const create = page.getByRole('dialog', { name: 'Write note' });
     await create.getByLabel('Japanese text', { exact: true }).fill('同じ下書き');
@@ -422,6 +437,7 @@ test('Notes project the visible graph and persist item commands with focus and r
     await expect(page.getByRole('button', { name: 'Exit edit mode' })).toHaveCount(0);
     await expect(page.getByRole('button', { name: 'Write note' })).toHaveCount(0);
   } finally {
+    git.advance({ [blogIndex]: originalBlog?.toString() ?? null }, 'Restore fixture Blog catalog');
     await reader.close();
   }
 });
@@ -489,4 +505,164 @@ test('Links edit category, order and short identity and share the current page',
   const redirect = await page.request.get(`${base}/en/links/moved-fixture`, { maxRedirects: 0 });
   expect(redirect.status()).toBe(307);
   expect(redirect.headers().location).toBe('https://example.com/second');
+
+  await page.getByRole('button', { name: 'Add link', exact: true }).click();
+  const add = page.getByRole('dialog', { name: 'Add link' });
+  await add.getByLabel('Name', { exact: true }).fill('Added fixture link');
+  await add.getByLabel('Display ID', { exact: true }).fill('shown-id');
+  await add.getByLabel('Destination URL').fill('https://example.com/added');
+  await add.getByLabel('Short code').fill('added-fixture');
+  await add.getByLabel('Icon name').fill('github');
+  await add.getByRole('button', { name: 'Save link' }).click();
+  await expect(add).toBeHidden();
+  const added = git.head();
+  expect(git.parents(added)).toEqual([saved]);
+  expect((await page.request.get(`${base}/en/links/added-fixture`, { maxRedirects: 0 })).headers().location)
+    .toBe('https://example.com/added');
+  await page.getByRole('button', { name: 'Link actions for added-fixture' }).click();
+  await page.getByRole('menuitem', { name: 'Delete', exact: true }).click();
+  const remove = page.getByRole('alertdialog', { name: 'Delete link?' });
+  await remove.getByRole('button', { name: 'Delete', exact: true }).click();
+  await expect(remove).toBeHidden();
+  const removed = git.head();
+  expect(git.parents(removed)).toEqual([added]);
+  const withdrawn = await page.request.get(`${base}/en/links/added-fixture`, { maxRedirects: 0 });
+  expect(withdrawn.status()).toBe(307);
+  expect(new URL(withdrawn.headers().location, base).pathname).toBe('/en');
+  expect(await page.evaluate(() => performance.timeOrigin)).toBe(documentStart);
+});
+
+
+test('Blog edits in place and renames the indexed blob while preserving all old addresses', async ({ page, browser, baseURL }) => {
+  const base = new URL(baseURL!).origin;
+  const { directory, git } = editorFixture();
+  const indexPath = 'storage/blog/index.json';
+  const first = 'contextual-a';
+  const middle = 'contextual-b';
+  const last = 'contextual-c';
+  const oldFile = 'storage/blog/nested/owned-source.mdx';
+  const title = 'Contextual Blog article';
+  const body = 'Original hard break.  \nSecond line.\n\n[Original address](/en/blog/contextual-a)\n\n<KoFiLink label="Contextual support link" />\n';
+  const source = article(first, title, '2026-05-23T12:34:56.789Z', body.trimEnd());
+  const post = { ...source.projection, pathname: 'blog/nested/owned-source.mdx', extension: { fixture: true } };
+  const index = JSON.parse(git.file(git.head(), indexPath)?.toString() ?? '[]');
+  const proof = scrap('authored-outcome', 'Authored Scrap outcome', { en: { state: 'original', text: 'Outcome leads to the old Blog address.' } }, { primaryLocale: 'en' });
+  const scrapsIndexPath = 'storage/scraps/index.json';
+  const scraps = JSON.parse(git.file(git.head(), scrapsIndexPath)?.toString() ?? '[]');
+  const authored = source.source.replace('summary: ', '# Preserve this comment\nfixtureField: { untouched: true }\nsummary: ').replaceAll('\n', '\r\n');
+  const seeded = git.advance({
+    [oldFile]: authored,
+    [indexPath]: serialize([post, ...index]),
+    ...proof.files,
+    [proof.manifestPath]: serialize({ ...proof.manifest, outcomes: [{ kind: 'blog', relation: 'derived-into', slug: first, title: 'Authored Blog outcome' }] }),
+    [scrapsIndexPath]: serialize([{ ...proof.projection, hasOutcomes: true }, ...scraps]),
+    'storage/unrelated.txt': 'Keep these bytes.\n',
+  }, 'Seed Blog URL identity fixtures');
+  const output = resolve(process.env.PLAYWRIGHT_OUTPUT_DIR ?? '/tmp/tenzyudotcom-editor-evidence');
+  const fileReads = () => readFileSync(resolve(output, 'github-ledger.jsonl'), 'utf8').trim().split('\n').filter(Boolean)
+    .map(line => JSON.parse(line)).filter(row => row.method === 'GET' && row.path.includes('/contents/storage/blog/'));
+  const reader = await readerContext(browser, base, { locale: 'ja-JP' });
+  try {
+    await signIn(page, base);
+    await page.goto(`${base}/en/blog/${first}`);
+    const timeOrigin = await page.evaluate(() => performance.timeOrigin);
+    await page.getByRole('button', { name: 'Edit this page' }).click();
+    expect((await reader.request.get(`${base}/api/editor/blog/article?slug=${first}`)).status()).toBe(401);
+    await page.waitForLoadState('networkidle');
+    const legacyStart = fileReads().length;
+    expect((await page.request.get(`${base}/api/editor/blog`)).status()).toBe(200);
+    const legacyReads = fileReads().slice(legacyStart);
+    expect(legacyReads.filter(row => row.path.endsWith('.mdx'))).toHaveLength(index.length + 1);
+    const cursor = fileReads().length;
+    await page.getByRole('button', { name: 'Edit post', exact: true }).click();
+    const edit = page.getByRole('dialog', { name: 'Edit post' });
+    const input = edit.getByLabel('Content, in MDX');
+    await expect(input).toHaveValue(body);
+    const selectedReads = fileReads().slice(cursor).map(row => row.path);
+    expect([...new Set(selectedReads)]).toEqual([
+      '/repos/fixture/editor/contents/storage/blog/index.json',
+      '/repos/fixture/editor/contents/storage/blog/nested/owned-source.mdx',
+    ]);
+    if (process.env.EDITOR_BROWSER_PRODUCTION === '1') expect(selectedReads).toHaveLength(2);
+    await edit.getByLabel('Title', { exact: true }).fill('Updated contextual article');
+    await edit.getByRole('button', { name: 'Save post' }).click();
+    await expect(edit.getByRole('status').filter({ hasText: 'Saved.' })).toBeVisible();
+    await expect(edit.getByRole('button', { name: 'Save post' })).toBeEnabled();
+    const edited = git.head();
+    expect(git.parents(edited)).toEqual([seeded]);
+    expect(git.file(edited, oldFile)?.toString()).toContain('# Preserve this comment\r\nfixtureField: { untouched: true }');
+    expect(git.file(edited, oldFile)?.toString().endsWith(body.replaceAll('\n', '\r\n'))).toBe(true);
+    await input.fill(body + '\nOne more edit.\n');
+    await edit.getByRole('button', { name: 'Save post' }).click();
+    await expect.poll(() => git.head()).not.toBe(edited);
+    await expect(edit.getByRole('status').filter({ hasText: git.head() })).toBeVisible();
+    const sourceHead = git.head();
+    const exact = git.file(sourceHead, oldFile)!;
+    expect(exact.toString().endsWith('One more edit.\r\n')).toBe(true);
+    expect(git.parents(sourceHead)).toEqual([edited]);
+    await edit.getByRole('button', { name: 'Close editor' }).click();
+    await expect(edit).toBeHidden();
+
+    const rename = page.getByRole('dialog', { name: 'Change URL' });
+    const startRename = async (next: string) => {
+      await page.getByRole('button', { name: 'Change URL', exact: true }).click();
+      await rename.getByLabel('New slug').fill(next);
+      await expect(rename.getByText(`/en/blog/${next}`, { exact: true })).toBeVisible();
+    };
+    await startRename(middle);
+    expect(git.head()).toBe(sourceHead);
+    writeFileSync(resolve(directory, 'drop-ref-response'), 'after', { mode: 0o600 });
+    await rename.getByRole('button', { name: 'Confirm URL change' }).click();
+    await expect(rename.getByRole('alert')).toContainText('Publication outcome unknown');
+    const firstMove = git.head();
+    expect(git.parents(firstMove)).toEqual([sourceHead]);
+    await rename.getByRole('button', { name: 'Check publication' }).click();
+    await expect(page).toHaveURL(`${base}/en/blog/${middle}`);
+    expect(git.head()).toBe(firstMove);
+    expect(git.file(firstMove, oldFile)).toBeNull();
+    expect(git.file(firstMove, `storage/blog/${middle}.mdx`)).toEqual(exact);
+
+    await startRename(last);
+    await rename.getByRole('button', { name: 'Confirm URL change' }).click();
+    await expect(page).toHaveURL(`${base}/en/blog/${last}`);
+    const secondMove = git.head();
+    expect(git.parents(secondMove)).toEqual([firstMove]);
+    expect(git.file(secondMove, `storage/blog/${last}.mdx`)).toEqual(exact);
+    expect(git.file(secondMove, `storage/blog/${middle}.mdx`)).toBeNull();
+    expect(git.file(secondMove, 'storage/unrelated.txt')?.toString()).toBe('Keep these bytes.\n');
+    const stored = JSON.parse(git.file(secondMove, indexPath)!.toString());
+    expect(stored.filter((entry: { slug: string }) => [first, middle, last].includes(entry.slug))).toEqual([
+      expect.objectContaining({ slug: last, aliases: [first, middle], extension: { fixture: true } }),
+    ]);
+
+    for (const prefix of ['', '/en']) {
+      await reader.clearCookies();
+      const headers = { 'Accept-Language': prefix ? 'en' : 'ja' };
+      for (const old of [first, middle]) {
+        const response = await reader.request.get(`${base}${prefix}/blog/${old}?tag=fixture`, { maxRedirects: 0, headers });
+        expect(response.status()).toBe(307);
+        expect(new URL(response.headers().location, base).href).toBe(`${base}${prefix}/blog/${last}?tag=fixture`);
+        expect(response.headers()['cache-control']).toContain('no-store');
+      }
+      const latest = await reader.request.get(`${base}${prefix}/blog/${last}`, { headers });
+      expect(latest.status()).toBe(200);
+      expect(await latest.text()).toContain(`https://tenzyu.com${prefix}/blog/${last}`);
+      const list = await reader.request.get(`${base}${prefix}/blog`, { headers });
+      const html = await list.text();
+      expect(html).toContain(`href="${prefix}/blog/${last}"`);
+      expect(html).not.toContain(`href="${prefix}/blog/${first}"`);
+    }
+    expect(await page.evaluate(() => performance.timeOrigin)).toBe(timeOrigin);
+    await expect(page.getByRole('button', { name: 'Contextual support link' })).toHaveAttribute('href', 'https://ko-fi.com/tenzyu');
+    await expect(page.getByRole('link', { name: 'Original address' })).toHaveAttribute('href', '/en/blog/contextual-a');
+    const outcome = await reader.newPage();
+    await outcome.goto(`${base}/en/scraps/authored-outcome`);
+    const oldOutcome = outcome.getByRole('link', { name: 'Authored Blog outcome' });
+    await expect(oldOutcome).toHaveAttribute('href', '/en/blog/contextual-a');
+    await oldOutcome.click();
+    await expect(outcome).toHaveURL(`${base}/en/blog/${last}`);
+    expect(git.head()).toBe(secondMove);
+  } finally {
+    await reader.close();
+  }
 });
