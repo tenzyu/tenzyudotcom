@@ -16,6 +16,46 @@ export type BlogFrontmatter = Frontmatter<{
   tags?: string[]
 }>
 
+export type BlogChanges = {
+  title?: string
+  summary?: string
+  publishedAt?: string
+  updatedAt?: string | null
+  tags?: string[] | null
+  body?: string
+}
+
+export const blogWriteSlugPattern = /^[a-z0-9][a-z0-9-]*$/
+
+export class BlogSlugValidationError extends Error {
+  constructor(readonly field: 'slug' | 'oldSlug' | 'newSlug') {
+    super('Invalid blog slug.')
+  }
+}
+
+export type BlogSaveCommand = { slug: string } & (
+  | {
+      intent: 'create'
+      changes: BlogChanges &
+        Required<
+          Pick<BlogChanges, 'title' | 'summary' | 'publishedAt' | 'body'>
+        >
+    }
+  | { intent: 'edit'; expectedVersion: string; changes: BlogChanges }
+)
+
+export type BlogRenameCommand = {
+  oldSlug: string
+  newSlug: string
+  expectedVersion: string
+}
+
+export type BlogPublicationReceipt = {
+  commitOid: string
+  headOid: string
+  status: 'written' | 'unchanged' | 'reconciled'
+}
+
 export type BlogHeading = {
   id: string
   level: 2 | 3
@@ -28,6 +68,14 @@ export type MDXData = {
   rawContent: string
   fullRawContent: string
   version: string
+}
+
+export type BlogPublicationResult = {
+  receipt: BlogPublicationReceipt
+  view:
+    | { status: 'ready'; post: MDXData }
+    | { status: 'missing' }
+    | { status: 'unavailable' }
 }
 
 export type BlogPostSummary = {

@@ -1,18 +1,11 @@
 import { getLocalizedUrl, locales } from 'intlayer'
 import { notFound } from 'next/navigation'
+import { connection } from 'next/server'
 import { getLocale } from 'next-intlayer/server'
 import { buildOgTitleImageUrl, getAbsoluteUrl } from '@/config/site'
-import {
-  assembleNoteDetailPageData,
-  getNoteStaticParams,
-} from '../_features/notes.assemble'
+import { assembleNoteDetailPageData } from '../_features/notes.assemble'
 import { NoteDetailPageContent } from './_features/note-detail-page-content'
-
-export const dynamicParams = false
-
-export async function generateStaticParams() {
-  return getNoteStaticParams()
-}
+import { loadPublication } from '@/lib/content-store/publication.assemble'
 
 type Params = Promise<{
   id: string
@@ -27,9 +20,14 @@ function createMetadataText(body: string) {
 }
 
 export async function generateMetadata({ params }: { params: Params }) {
+  await connection()
   const locale = await getLocale()
   const { id } = await params
-  const pageData = await assembleNoteDetailPageData(id, locale)
+  const pageData = await assembleNoteDetailPageData(
+    await loadPublication(),
+    id,
+    locale,
+  )
 
   if (!pageData) {
     return
@@ -70,9 +68,14 @@ export async function generateMetadata({ params }: { params: Params }) {
 }
 
 export default async function NoteDetailPage({ params }: { params: Params }) {
+  await connection()
   const locale = await getLocale()
   const { id } = await params
-  const pageData = await assembleNoteDetailPageData(id, locale)
+  const pageData = await assembleNoteDetailPageData(
+    await loadPublication(),
+    id,
+    locale,
+  )
 
   if (!pageData) {
     notFound()

@@ -1,8 +1,12 @@
 import { NextResponse } from 'next/server'
-import { hasEditorAdminSession } from '@/features/editor-auth/editor-session'
+import { getEditorAdminSessionExpiry } from '@/features/editor-auth/editor-session'
 
 export async function GET() {
-  const isAdmin = await hasEditorAdminSession()
-
-  return NextResponse.json({ isAdmin })
+  const expiresAt = await getEditorAdminSessionExpiry()
+  return NextResponse.json(
+    { isAdmin: expiresAt !== null, expiresAt },
+    {
+      headers: { 'Cache-Control': 'private, no-store' },
+    },
+  )
 }

@@ -77,8 +77,9 @@ function assertEntryId(entryId: string) {
   }
 }
 
-export async function loadScrapIndex(): Promise<ScrapIndexProjection> {
-  const snapshot = await getScrapsAggregateRepository().snapshot()
+export async function loadScrapIndex(
+  snapshot: ContentSnapshot,
+): Promise<ScrapIndexProjection> {
   const file = await snapshot.loadText(SCRAPS_INDEX_PATHNAME)
   if (!file) {
     return []

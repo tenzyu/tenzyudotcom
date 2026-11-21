@@ -1,19 +1,15 @@
-import { getLocalizedUrl, locales } from 'intlayer'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { getLocale } from 'next-intlayer/server'
-import { buildOgTitleImageUrl, getAbsoluteUrl } from '@/config/site'
+import { connection } from 'next/server'
+import { getLocale, IntlayerServerProvider } from 'next-intlayer/server'
+import { buildOgTitleImageUrl } from '@/config/site'
+import { loadPublication } from '@/lib/content-store/publication.assemble'
 import {
   assembleScrapPage,
-  getScrapStaticParams,
+  buildScrapAlternateLanguages,
+  buildScrapDetailUrl,
 } from '../_features/scraps.assemble'
 import { ScrapDetailPageContent } from './_features/scrap-detail-page-content'
-
-export const dynamicParams = true
-
-export async function generateStaticParams() {
-  return getScrapStaticParams()
-}
 
 type Params = Promise<{
   slug: string
@@ -29,28 +25,19 @@ export async function generateMetadata({
 }: {
   params: Params
 }): Promise<Metadata | undefined> {
+  await connection()
   const locale = await getLocale()
   const { slug } = await params
-  const page = await assembleScrapPage({ slug, locale, audience: 'public' })
+  const page = await assembleScrapPage(await loadPublication(), slug, locale)
   if (!page) {
     return undefined
   }
   const entry = page.manifest
 
-  const path = `/scraps/${slug}`
-  const canonicalUrl = getAbsoluteUrl(getLocalizedUrl(path, locale))
-  const indexableLocales = page.alternateLocales
-
-  const alternateLanguages = Object.fromEntries(
-    locales
-      .map((candidate) => candidate as string)
-      .filter((candidate) =>
-        (indexableLocales as readonly string[]).includes(candidate),
-      )
-      .map((candidate) => [
-        candidate,
-        getAbsoluteUrl(getLocalizedUrl(path, candidate)),
-      ]),
+  const canonicalUrl = buildScrapDetailUrl(slug, locale)
+  const alternateLanguages = buildScrapAlternateLanguages(
+    slug,
+    page.indexableLocales,
   )
 
   const ogImage = buildOgTitleImageUrl(entry.title)
@@ -95,17 +82,23 @@ export async function generateMetadata({
 }
 
 export default async function ScrapDetailPage({ params }: { params: Params }) {
+  await connection()
   const locale = await getLocale()
   const { slug } = await params
-  const page = await assembleScrapPage({
-    slug,
-    locale,
-    audience: 'public',
-  })
+  const snapshot = await loadPublication()
+  const page = await assembleScrapPage(snapshot, slug, locale)
 
   if (!page) {
     notFound()
   }
 
-  return <ScrapDetailPageContent locale={locale} page={page} />
+  return (
+    <IntlayerServerProvider locale={locale}>
+      <ScrapDetailPageContent
+        locale={locale}
+        page={page}
+        revision={snapshot.version}
+      />
+    </IntlayerServerProvider>
+  )
 }

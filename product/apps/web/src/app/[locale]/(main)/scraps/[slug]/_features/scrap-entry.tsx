@@ -3,6 +3,7 @@ import { Badge } from '@tenzyu/ui/badge'
 import { EditorialEntry } from '@tenzyu/ui/editorial'
 import { ScrapMdxRenderer } from '../../_features/scrap-mdx-renderer'
 import type { AssembledScrapEntry } from '../../_features/scraps.assemble'
+import { ScrapEditButton } from '../../_features/scrap-page-editor'
 import { formatDate } from '../../../_features/format-date'
 
 type ScrapEntryProps = {
@@ -55,6 +56,9 @@ export function ScrapEntry({ entry, locale, className }: ScrapEntryProps) {
           >
             {formatDate(created, dateLocale)}
           </time>
+          <ScrapEditButton mode={{ kind: 'entry', id: entry.meta.id }}>
+            {locale === 'ja' ? '記録を編集' : 'Edit entry'}
+          </ScrapEditButton>
         </header>
         {entry.localizedSource ? (
           <div className="prose prose-zinc dark:prose-invert max-w-none text-sm leading-7 prose-pre:overflow-x-auto">

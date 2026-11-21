@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import {
-  type AggregateContentRepository,
+  type ContentSnapshot,
+  type ContentTreeChange,
   StorageCommitUncertainError,
   StorageError,
   StorageVersionConflictError,
@@ -14,15 +15,54 @@ type GitHubAggregateConfig = {
   token?: string
 }
 
-const ShaResponse = z.object({ sha: z.string().min(1) })
+const oidSchema = z.string().regex(/^[0-9a-f]{40}$/)
+const ShaResponse = z.object({ sha: oidSchema })
 const RefResponse = z.object({ object: ShaResponse })
 const CommitResponse = z.object({ tree: ShaResponse })
-const FileResponse = z.object({ content: z.string(), sha: z.string() })
+const FileResponse = ShaResponse.extend({
+  type: z.literal('file'),
+  encoding: z.literal('base64'),
+  size: z.number().int().nonnegative(),
+  content: z.string(),
+})
+const TreeEntry = ShaResponse.extend({
+  path: z.string(),
+  type: z.enum(['blob', 'tree', 'commit']),
+  mode: z.string(),
+})
+const TreeResponse = z.object({
+  truncated: z.literal(false),
+  tree: z.array(TreeEntry),
+})
+const CompareResponse = z.object({
+  status: z.enum(['identical', 'ahead', 'behind', 'diverged']),
+  merge_base_commit: ShaResponse,
+})
+
+type GitHubContentSnapshot = ContentSnapshot & {
+  list(prefix: string): Promise<string[]>
+  listTree(prefix: string): Promise<z.infer<typeof TreeEntry>[]>
+}
+
+export type GitHubAggregateRepository = {
+  snapshot(): Promise<GitHubContentSnapshot>
+  snapshotAt(version: string): GitHubContentSnapshot
+  validateHead(): Promise<string>
+  commit(
+    version: string,
+    writes: readonly ContentTreeChange[],
+    message: string,
+  ): Promise<string>
+  reconcile(candidateOid: string): Promise<string | null>
+}
 
 export function createGitHubAggregateRepository(
   config: GitHubAggregateConfig,
-  request: (url: string, init?: RequestInit) => Promise<Response> = fetch,
-): AggregateContentRepository {
+  request: (url: string, init?: RequestInit) => Promise<Response> = (
+    url,
+    init,
+  ) => fetch(url, init),
+): GitHubAggregateRepository {
   const base = `https://api.github.com/repos/${encodeURIComponent(config.owner)}/${encodeURIComponent(config.repo)}`
   const headers = {
     Accept: 'application/vnd.github+json',
@@ -65,38 +105,115 @@ export function createGitHubAggregateRepository(
     return RefResponse.parse(await api(refPath)).object.sha
   }
 
-  return {
-    async snapshot() {
-      const version = await head()
-      return {
-        version,
-        async loadText(pathname) {
-          const path = repositoryPath(pathname)
-            .split('/')
-            .map(encodeURIComponent)
-            .join('/')
-          const response = await request(
-            `${base}/contents/${path}?ref=${encodeURIComponent(version)}`,
-            {
-              cache: 'no-store',
-              headers,
-            },
-          )
-          if (response.status === 404) return null
-          if (!response.ok)
-            throw new StorageError(
-              `GitHub snapshot read failed (${response.status})`,
-            )
-          const file = FileResponse.parse(await response.json())
-          return {
-            content: Buffer.from(
-              file.content.replace(/\n/g, ''),
-              'base64',
-            ).toString('utf8'),
-            version: file.sha,
-          }
-        },
+  let hint: { etag: string; version: string } | undefined
+
+  async function validateHead() {
+    const sent = hint
+    const response = await request(`${base}${refPath}`, {
+      cache: 'no-store',
+      headers: sent ? { ...headers, 'If-None-Match': sent.etag } : headers,
+    })
+    if (response.status === 304 && sent) return sent.version
+    if (response.status !== 200) {
+      throw new StorageError(
+        `GitHub content ref validation failed (${response.status}).`,
+      )
+    }
+    const version = RefResponse.parse(await response.json()).object.sha
+    const etag = response.headers.get('etag')
+    if (hint === sent) hint = etag ? { etag, version } : undefined
+    return version
+  }
+
+  function snapshotAt(oid: string): GitHubContentSnapshot {
+    const version = oidSchema.parse(oid)
+
+    async function listTree(prefix: string) {
+      const directory = repositoryPath(prefix)
+      const commit = CommitResponse.parse(await api(`/git/commits/${version}`))
+      const result = TreeResponse.safeParse(
+        await api(`/git/trees/${commit.tree.sha}?recursive=1`),
+      )
+      if (!result.success) {
+        throw new StorageError('GitHub did not supply a complete content tree.')
       }
+      const root = config.root.replace(/^\/+|\/+$/g, '')
+      return result.data.tree
+        .filter(({ path }) => path.startsWith(`${directory}/`))
+        .map(({ path, ...entry }) => ({
+          ...entry,
+          path: root ? path.slice(root.length + 1) : path,
+        }))
+    }
+
+    return {
+      version,
+      listTree,
+      async loadText(pathname) {
+        const path = repositoryPath(pathname)
+          .split('/')
+          .map(encodeURIComponent)
+          .join('/')
+        const response = await request(
+          `${base}/contents/${path}?ref=${encodeURIComponent(version)}`,
+          {
+            cache: 'no-store',
+            headers,
+          },
+        )
+        if (response.status === 404) return null
+        if (!response.ok)
+          throw new StorageError(
+            `GitHub snapshot read failed (${response.status})`,
+          )
+        const file = FileResponse.safeParse(await response.json())
+        if (!file.success) {
+          throw new StorageError(
+            `GitHub did not supply file bytes and a blob OID for ${pathname}.`,
+          )
+        }
+        const encoded = file.data.content.replace(/\r?\n/g, '')
+        const bytes = Buffer.from(encoded, 'base64')
+        const content = bytes.toString('utf8')
+        if (
+          bytes.length !== file.data.size ||
+          bytes.toString('base64') !== encoded ||
+          !Buffer.from(content).equals(bytes)
+        ) {
+          throw new StorageError(
+            `GitHub supplied incomplete or unsupported file bytes for ${pathname}.`,
+          )
+        }
+        return {
+          content,
+          version: file.data.sha,
+        }
+      },
+      async list(prefix) {
+        return (await listTree(prefix))
+          .filter(({ type }) => type !== 'tree')
+          .map(({ path }) => path)
+      },
+    }
+  }
+
+  return {
+    snapshotAt,
+    validateHead,
+    async snapshot() {
+      return snapshotAt(await head())
+    },
+    async reconcile(candidateOid) {
+      const candidate = oidSchema.parse(candidateOid)
+      const current = await head()
+      if (current === candidate) return current
+      const comparison = CompareResponse.parse(
+        await api(`/compare/${candidate}...${current}`),
+      )
+      return comparison.status === 'ahead' &&
+        comparison.merge_base_commit.sha === candidate
+        ? current
+        : null
     },
     async commit(expectedVersion, writes, message) {
       if (writes.length === 0)
@@ -119,9 +236,10 @@ export function createGitHubAggregateRepository(
           base_tree: parent.tree.sha,
           tree: writes.map((write) => ({
             path: repositoryPath(write.pathname),
-            mode: '100644',
             type: 'blob',
-            content: write.content,
+            ...('sha' in write
+              ? { mode: write.mode, sha: write.sha }
+              : { mode: '100644', content: write.content }),
           })),
         }),
       )
@@ -133,28 +251,38 @@ export function createGitHubAggregateRepository(
         }),
       )
       // A single parent plus non-force fast-forward rejects a competing branch update.
+      const uncertain = () =>
+        new StorageCommitUncertainError(
+          `Publication outcome unknown. Keep your draft and check publication before retrying. Candidate commit ${commit.sha}.`,
+          commit.sha,
+        )
       let response: Response
       try {
         response = await request(`${base}${updateRefPath}`, {
+          cache: 'no-store',
           headers,
           method: 'PATCH',
           body: JSON.stringify({ sha: commit.sha, force: false }),
         })
       } catch {
-        throw new StorageCommitUncertainError(
-          `Publication outcome unknown. Keep your draft and reload before retrying. Candidate commit ${commit.sha}.`,
-        )
+        throw uncertain()
       }
       if (response.status === 409 || response.status === 422) {
         throw new StorageVersionConflictError(
-          'Content changed during save. Your draft has been kept.',
+          'Content changed during save. Copy your draft and reload the latest version.',
         )
       }
-      if (!response.ok) {
-        throw new StorageCommitUncertainError(
-          `Publication could not be confirmed (${response.status}). Keep your draft and reload before retrying. Candidate commit ${commit.sha}.`,
+      if ([401, 403, 404, 429].includes(response.status)) {
+        throw new StorageError(
+          `GitHub rejected the ref update (${response.status}).`,
         )
       }
+      if (!response.ok) throw uncertain()
+      const updated = RefResponse.safeParse(
+        await response.json().catch(() => null),
+      )
+      if (!updated.success || updated.data.object.sha !== commit.sha)
+        throw uncertain()
       return commit.sha
     },
   }

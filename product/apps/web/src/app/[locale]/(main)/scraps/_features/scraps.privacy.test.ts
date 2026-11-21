@@ -1,4 +1,4 @@
-import { afterEach, expect, test } from 'bun:test'
+import { expect, test } from 'bun:test'
 import {
   type AggregateContentRepository,
   type ContentSnapshot,
@@ -9,7 +9,6 @@ import { executeScrapEditorCommand } from '@/features/content-editor/scrap-edito
 import type { ScrapEditorCommand } from '@/features/content-editor/scrap-editor.validation'
 import { assembleScrapPage, loadPublicScraps } from './scraps.assemble'
 import { getScrapStoragePaths } from '@/features/scraps/scraps.domain'
-import { setScrapsRepositoryOverride } from '@/features/scraps/scraps.infra'
 import { SCRAPS_INDEX_PATHNAME } from '@/lib/content-store/content-tags.infra'
 
 class InterleavedRepository implements AggregateContentRepository {
@@ -38,28 +37,6 @@ class InterleavedRepository implements AggregateContentRepository {
     return String(++this.revision)
   }
 
-  install() {
-    setScrapsRepositoryOverride({
-      snapshot: () => this.snapshot(),
-      commit: (version, writes) => this.commit(version, writes),
-      loadText: async (pathname) => (await this.snapshot()).loadText(pathname),
-      loadJson: async <T>(pathname: string): Promise<T | null> => {
-        const file = await (await this.snapshot()).loadText(pathname)
-        return file ? JSON.parse(file.content) : null
-      },
-      list: async () => [...this.files.keys()],
-      saveText: async () => {
-        throw new Error('Use aggregate commands')
-      },
-      saveJson: async () => {
-        throw new Error('Use aggregate commands')
-      },
-      delete: async () => {
-        throw new Error('Use aggregate commands')
-      },
-    })
-  }
-
   interleave(path: string, update: () => Promise<unknown>) {
     this.afterRead = async (pathname) => {
       if (pathname !== path) return
@@ -81,19 +58,15 @@ const create = {
   published: true,
   lead: 'Published lead',
 } satisfies ScrapEditorCommand
-const pageParams = {
-  slug: create.slug,
-  locale: 'ja',
-  audience: 'public',
-} as const
 const paths = getScrapStoragePaths(create.slug)
 
-afterEach(() => setScrapsRepositoryOverride(null))
+async function readScrap(repo: InterleavedRepository) {
+  return assembleScrapPage(await repo.snapshot(), create.slug, 'ja')
+}
 
 test('public detail keeps the published snapshot when an update unpublishes and replaces the lead', async () => {
   const repo = new InterleavedRepository()
   const saved = await executeScrapEditorCommand(create, repo)
-  repo.install()
   repo.interleave(paths.manifest, () =>
     executeScrapEditorCommand(
       {
@@ -107,12 +80,12 @@ test('public detail keeps the published snapshot when an update unpublishes and 
     ),
   )
 
-  const page = await assembleScrapPage(pageParams)
+  const page = await readScrap(repo)
   expect(repo.revision).toBe(2)
   expect(page?.leadSource).toBe('Published lead')
   expect(page?.pageIsIndexable).toBe(true)
-  expect(await assembleScrapPage(pageParams)).toBeNull()
-  expect(await loadPublicScraps()).toEqual([])
+  expect(await readScrap(repo)).toBeNull()
+  expect(await loadPublicScraps(await repo.snapshot())).toEqual([])
 })
 
 test.each([
@@ -134,7 +107,6 @@ test.each([
     },
     repo,
   )
-  repo.install()
   repo.interleave(pausePath, () =>
     executeScrapEditorCommand(
       {
@@ -151,18 +123,17 @@ test.each([
     ),
   )
 
-  const page = await assembleScrapPage(pageParams)
+  const page = await readScrap(repo)
   expect(repo.revision).toBe(3)
   expect(page?.entries[0]?.localizedSource).toBe('Published entry')
   expect(page?.leadSource).toBe('Published lead')
   expect(page?.pageIsIndexable).toBe(true)
-  expect((await assembleScrapPage(pageParams))?.entries).toEqual([])
+  expect((await readScrap(repo))?.entries).toEqual([])
 })
 
 test('public index returns one published revision during an unpublish and hides the current draft', async () => {
   const repo = new InterleavedRepository()
   const saved = await executeScrapEditorCommand(create, repo)
-  repo.install()
   repo.interleave(SCRAPS_INDEX_PATHNAME, () =>
     executeScrapEditorCommand(
       {
@@ -176,9 +147,9 @@ test('public index returns one published revision during an unpublish and hides 
     ),
   )
 
-  expect((await loadPublicScraps()).map((entry) => entry.title)).toEqual([
+  expect((await loadPublicScraps(await repo.snapshot())).map((entry) => entry.title)).toEqual([
     'Public title',
   ])
   expect(repo.revision).toBe(2)
-  expect(await loadPublicScraps()).toEqual([])
+  expect(await loadPublicScraps(await repo.snapshot())).toEqual([])
 })

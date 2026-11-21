@@ -1,7 +1,8 @@
 import type { NextRequest } from 'next/server'
 import { intlayerProxy } from 'next-intlayer/proxy'
+import { canonicalizeBlogRedirect } from '@/app/[locale]/(main)/blog/_features/blog.assemble'
 
-export function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const response = intlayerProxy(request)
   const pathname = request.nextUrl.pathname
 
@@ -19,6 +20,15 @@ export function proxy(request: NextRequest) {
       path: '/',
       sameSite: 'lax',
     })
+  }
+
+  const location = response.headers.get('location')
+  if (location && (request.method === 'GET' || request.method === 'HEAD')) {
+    const canonical = await canonicalizeBlogRedirect(location)
+    if (canonical) {
+      response.headers.set('location', canonical)
+      response.headers.set('cache-control', 'private, no-store')
+    }
   }
 
   return response

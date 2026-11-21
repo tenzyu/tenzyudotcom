@@ -1,18 +1,19 @@
 import type { NextPageIntlayer } from 'next-intlayer'
+import { connection } from 'next/server'
 import { IntlayerServerProvider } from 'next-intlayer/server'
 import { createPageMetadata, resolvePageLocale } from '@/lib/intlayer/page'
 import { assembleNotesPageData } from './_features/notes.assemble'
 import { NotesPageContent } from './_features/notes-page-content'
-
-export const dynamic = 'force-static'
+import { loadPublication } from '@/lib/content-store/publication.assemble'
 
 export const generateMetadata = createPageMetadata('page-notes', {
   pathname: '/notes',
 })
 
 const NotesPage: NextPageIntlayer = async ({ params }) => {
+  await connection()
   const locale = await resolvePageLocale(params)
-  const notes = await assembleNotesPageData(locale)
+  const notes = await assembleNotesPageData(await loadPublication(), locale)
 
   return (
     <IntlayerServerProvider locale={locale}>

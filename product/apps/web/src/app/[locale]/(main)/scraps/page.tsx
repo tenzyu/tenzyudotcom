@@ -1,18 +1,19 @@
+import { connection } from 'next/server'
 import type { NextPageIntlayer } from 'next-intlayer'
 import { IntlayerServerProvider } from 'next-intlayer/server'
 import { createPageMetadata, resolvePageLocale } from '@/lib/intlayer/page'
+import { loadPublication } from '@/lib/content-store/publication.assemble'
 import { loadPublicScraps } from './_features/scraps.assemble'
 import { ScrapsPageContent } from './_features/scraps-page-content'
-
-export const dynamic = 'force-static'
 
 export const generateMetadata = createPageMetadata('page-scraps', {
   pathname: '/scraps',
 })
 
 const ScrapsPage: NextPageIntlayer = async ({ params }) => {
+  await connection()
   const locale = await resolvePageLocale(params)
-  const scraps = await loadPublicScraps()
+  const scraps = await loadPublicScraps(await loadPublication())
 
   return (
     <IntlayerServerProvider locale={locale}>

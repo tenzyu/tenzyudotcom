@@ -150,16 +150,7 @@ export function getIndexableLocaleVariants(
     .map((ref) => ref.locale)
 }
 
-/**
- * Resolve which localized document should be rendered for a requested locale.
- *
- * Public renderers should treat the returned `state` as:
- *   - `original` or `manual` → render directly
- *   - `machine-draft` → only render in admin context; mark noindex publicly
- *   - `stale` → render but treat as fallback (also noindex)
- *
- * If no suitable variant exists, `null` is returned.
- */
+/** Public readers see a reviewed translation or the reviewed primary document. */
 export function resolveLocalizedDocumentRef(params: {
   refs: readonly LocalizedDocumentRef[]
   requestedLocale: ContentLocale
@@ -202,15 +193,7 @@ export function resolveLocalizedDocumentRef(params: {
   return null
 }
 
-/**
- * Whether a scrap is part of the public-facing surface (list page, sitemap,
- * static params, detail page).
- *
- * - `archived` is always excluded from public listings (and from
- *   `generateStaticParams`).
- * - `published === false` is always excluded from public surfaces.
- * - `closed` is public if `published === true`.
- */
+/** Published scraps stay public when closed. Archived scraps are always hidden. */
 export function isPublicScrap(scrap: {
   status: ScrapStatus
   published: boolean

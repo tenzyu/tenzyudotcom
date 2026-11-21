@@ -1,26 +1,38 @@
 use std::fs;
-use std::io::Write;
-use tauri::AppHandle;
+use std::io::{Read, Write};
+use std::path::Path;
 
 use crate::domain::project::{ProjectManifest, SourceManifest, MAIN_SOURCE_ID};
-use crate::infra::paths::{manifest_path, now, project_dir};
+use crate::infra::paths::{manifest_path, now, open_managed_file, project_dir};
 
-pub(crate) fn read_manifest(app: &AppHandle, project_id: &str) -> Result<ProjectManifest, String> {
-    let content = fs::read_to_string(manifest_path(app, project_id)?)
+pub(crate) fn read_manifest(app_data: &Path, project_id: &str) -> Result<ProjectManifest, String> {
+    let project = project_dir(app_data, project_id)?;
+    let path = manifest_path(&project)?;
+    let (mut file, _) = open_managed_file(&path, fs::OpenOptions::new().read(true))
+        .map_err(|error| format!("failed to open manifest: {error}"))?;
+    let mut content = String::new();
+    file.read_to_string(&mut content)
         .map_err(|error| format!("failed to read manifest: {error}"))?;
-    serde_json::from_str(&content).map_err(|error| format!("failed to parse manifest: {error}"))
+    let manifest: ProjectManifest = serde_json::from_str(&content)
+        .map_err(|error| format!("failed to parse manifest: {error}"))?;
+    if manifest.id != project_id {
+        return Err(format!(
+            "project manifest ID does not match directory: {project_id:?}"
+        ));
+    }
+    Ok(manifest)
 }
 
 pub(crate) fn write_manifest(
-    app: &AppHandle,
+    app_data: &Path,
     manifest: &mut ProjectManifest,
 ) -> Result<(), String> {
     manifest.updated_at = now();
-    let dir = project_dir(app, &manifest.id)?;
+    let dir = project_dir(app_data, &manifest.id)?;
     fs::create_dir_all(&dir).map_err(|error| format!("failed to create project dir: {error}"))?;
     let content = serde_json::to_string_pretty(manifest)
         .map_err(|error| format!("failed to encode manifest: {error}"))?;
-    let target = manifest_path(app, &manifest.id)?;
+    let target = manifest_path(&dir)?;
     let temp = target.with_extension(format!("json.tmp-{}", uuid::Uuid::new_v4().simple()));
     let mut file = fs::File::create(&temp)
         .map_err(|error| format!("failed to create manifest temp file: {error}"))?;

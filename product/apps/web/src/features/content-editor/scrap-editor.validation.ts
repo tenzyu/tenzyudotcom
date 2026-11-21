@@ -48,6 +48,18 @@ export const ScrapEditorCommandSchema = z.discriminatedUnion('kind', [
     ...metadata,
   }),
   z.object({
+    kind: z.literal('set-status'),
+    slug,
+    expectedVersion: version,
+    status: z.enum(SCRAP_STATUSES),
+  }),
+  z.object({
+    kind: z.literal('set-visibility'),
+    slug,
+    expectedVersion: version,
+    published: z.boolean(),
+  }),
+  z.object({
     kind: z.literal('append'),
     slug,
     locale,

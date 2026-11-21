@@ -13,11 +13,9 @@ import {
   ItemMedia,
   ItemTitle,
 } from '@tenzyu/ui/item'
-import { AdminGate } from '@/app/[locale]/(main)/_features/admin/admin-gate'
 import { loadLinks } from '@/features/links/links.assemble'
 import { LINK_CATEGORY_ORDER, type MyLink } from '@/features/links/links.domain'
-import { LinkAddButton } from './link-add-button'
-import { LinkAdminMenu } from './link-admin-menu'
+import { LinkControls } from './link-controls'
 
 export async function LinkTreePageContent() {
   const content = useIntlayer('page-links')
@@ -45,9 +43,7 @@ export async function LinkTreePageContent() {
       />
       <Content size="2xl" className="space-y-6">
         <div className="flex justify-end">
-          <AdminGate>
-            <LinkAddButton />
-          </AdminGate>
+          <LinkControls locale={locale || 'ja'} />
         </div>
         {groupedLinks.map(
           (group) =>
@@ -74,7 +70,7 @@ export async function LinkTreePageContent() {
                   </ItemGroup>
                 </nav>
               </section>
-            )
+            ),
         )}
       </Content>
     </>
@@ -108,9 +104,7 @@ function LinkTile({
   return (
     <div className="relative">
       <div className="absolute top-2 right-2 z-10">
-        <AdminGate>
-          <LinkAdminMenu shortenUrl={link.shortenUrl} />
-        </AdminGate>
+        <LinkControls locale={locale} shortCode={link.shortenUrl} />
       </div>
       <Item
         variant="outline"

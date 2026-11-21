@@ -1,3 +1,4 @@
+import { BlogPageEditor } from '../../_features/blog-page-editor'
 import { useIntlayer } from 'next-intlayer/server'
 import { getLocalizedUrl } from 'intlayer'
 import Link from 'next/link'
@@ -95,6 +96,7 @@ export function BlogPostPageContent({
           <BlogPostTableOfContents headings={headings} />
         </div>
 
+        <BlogPageEditor locale={locale} slug={post.slug} />
         <article className="prose prose-zinc dark:prose-invert max-w-none text-[1.02rem] leading-8 prose-headings:scroll-mt-24 prose-pre:overflow-x-auto prose-img:rounded-xl">
           <CustomMDX source={bodySource} />
         </article>

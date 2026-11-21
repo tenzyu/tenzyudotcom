@@ -1,12 +1,15 @@
 import { cache } from 'react'
 import { BASE_URL, getAbsoluteUrl } from '@/config/site'
 import { buildLocalizedUrl } from '@/lib/intlayer/localized-url'
-import type { ContentSnapshot } from '@/lib/content-store/content-store.domain'
+import {
+  type ContentSnapshot,
+  StorageError,
+} from '@/lib/content-store/content-store.domain'
 import {
   CONTENT_LOCALES,
   type ContentLocale,
+  type LocalizedDocumentRef,
   type ScrapEntryMeta,
-  type ScrapIndexEntry,
   type ScrapIndexProjection,
   type ScrapManifest,
   compareScrapEntryMetaByCreatedAtAsc,
@@ -14,6 +17,7 @@ import {
   getIndexableLocaleVariants,
   isPublicScrap,
   isIndexableTranslationState,
+  isValidScrapSlug,
   resolveLocalizedDocumentRef,
 } from '@/features/scraps/scraps.domain'
 import {
@@ -25,10 +29,6 @@ import {
   loadScrapMdxDocument,
 } from '@/features/scraps/scraps.infra'
 
-export type ScrapListAudience = 'public' | 'admin'
-
-export type ScrapListItem = ScrapIndexEntry
-
 export function filterPublicScrapIndex(
   projection: ScrapIndexProjection,
 ): ScrapIndexProjection {
@@ -37,27 +37,9 @@ export function filterPublicScrapIndex(
     .sort(compareScrapsByUpdatedAtDesc)
 }
 
-export function getPublicScrapStaticParams(
-  projection: ScrapIndexProjection,
-): Array<{ slug: string }> {
-  return filterPublicScrapIndex(projection).map((entry) => ({
-    slug: entry.slug,
-  }))
-}
-
-export const loadScrapIndexCached = cache(async () => {
-  return loadScrapIndex()
-})
-
-export const loadPublicScraps = cache(async () => {
-  const projection = await loadScrapIndexCached()
-  return filterPublicScrapIndex(projection)
-})
-
-export async function getScrapStaticParams() {
-  const projection = await loadScrapIndexCached()
-  return getPublicScrapStaticParams(projection)
-}
+export const loadPublicScraps = cache(async (snapshot: ContentSnapshot) =>
+  filterPublicScrapIndex(await loadScrapIndex(snapshot)),
+)
 
 export type AssembledScrapEntry = {
   meta: ScrapEntryMeta
@@ -74,28 +56,30 @@ export type AssembledScrapPage = {
   leadLocale: ContentLocale | null
   entries: AssembledScrapEntry[]
   indexableLocales: ContentLocale[]
-  /** locale alternates that are safe to expose to search engines */
-  alternateLocales: ContentLocale[]
   /** true when the resolved page mixes only indexable variants */
   pageIsIndexable: boolean
 }
 
-function resolveContentLocale(value: string): ContentLocale {
-  return value === 'en' ? 'en' : 'ja'
+async function loadPublicScrapSource(
+  snapshot: ContentSnapshot,
+  ref: LocalizedDocumentRef,
+) {
+  const document = await loadScrapMdxDocument(ref, snapshot)
+  if (!document) throw new StorageError(`Missing Scrap source: ${ref.pathname}`)
+  return document.source
 }
 
 async function assembleEntry(
   meta: ScrapEntryMeta,
   requestedLocale: ContentLocale,
   primaryLocale: ContentLocale,
-  audience: ScrapListAudience,
   snapshot: ContentSnapshot,
 ): Promise<AssembledScrapEntry> {
   const resolved = resolveLocalizedDocumentRef({
     refs: meta.documents,
     requestedLocale,
     primaryLocale,
-    audience,
+    audience: 'public',
   })
 
   if (!resolved) {
@@ -107,126 +91,92 @@ async function assembleEntry(
     }
   }
 
-  const loaded = await loadScrapMdxDocument(resolved, snapshot)
-  if (!loaded) {
-    return {
-      meta,
-      localizedSource: null,
-      localizedState: 'missing',
-      renderedLocale: null,
-    }
-  }
-
   return {
     meta,
-    localizedSource: loaded.source,
+    localizedSource: await loadPublicScrapSource(snapshot, resolved),
     localizedState:
       resolved.locale === requestedLocale ? 'rendered' : 'fallback',
     renderedLocale: resolved.locale,
   }
 }
 
-export async function assembleScrapPage(params: {
-  slug: string
-  locale: string
-  audience: ScrapListAudience
-}): Promise<AssembledScrapPage | null> {
-  const requestedLocale = resolveContentLocale(params.locale)
-  const snapshot = await getScrapsAggregateRepository().snapshot()
-  const loadedManifest = await loadScrapManifest(params.slug, snapshot)
-  if (!loadedManifest) {
-    return null
-  }
-  const { manifest } = loadedManifest
-
-  if (params.audience === 'public' && !isPublicScrap(manifest)) {
-    return null
-  }
-
-  const leadRef = resolveLocalizedDocumentRef({
-    refs: manifest.lead,
-    requestedLocale,
-    primaryLocale: manifest.primaryLocale,
-    audience: params.audience,
-  })
-
-  let leadSource: string | null = null
-  let leadState: AssembledScrapPage['leadState'] = 'missing'
-  let leadLocale: ContentLocale | null = null
-
-  if (leadRef) {
-    const loadedLead = await loadScrapMdxDocument(leadRef, snapshot)
-    if (loadedLead) {
-      leadSource = loadedLead.source
-      leadState = leadRef.locale === requestedLocale ? 'rendered' : 'fallback'
-      leadLocale = leadRef.locale
-    }
-  }
-
-  const entries: AssembledScrapEntry[] = []
-  for (const entryId of manifest.entryIds) {
-    const loadedEntry = await loadScrapEntryMeta(
-      manifest.slug,
-      entryId,
-      snapshot,
-    )
-    if (!loadedEntry) {
-      continue
-    }
-    if (params.audience === 'public' && !loadedEntry.meta.published) {
-      continue
-    }
-    entries.push(
-      await assembleEntry(
-        loadedEntry.meta,
-        requestedLocale,
-        manifest.primaryLocale,
-        params.audience,
-        snapshot,
-      ),
-    )
-  }
-
-  entries.sort((a, b) => compareScrapEntryMetaByCreatedAtAsc(a.meta, b.meta))
-
-  const indexableLocales = getIndexableLocaleVariants(manifest.lead).filter(
-    (locale) =>
-      entries.every((entry) =>
-        entry.meta.documents.some(
-          (ref) =>
-            ref.locale === locale && isIndexableTranslationState(ref.state),
-        ),
-      ),
-  )
-  const alternateLocales = indexableLocales
-
-  const pageIsIndexable =
-    params.audience === 'public' &&
-    indexableLocales.includes(requestedLocale) &&
-    leadSource !== null &&
-    leadRef !== null &&
-    isIndexableTranslationState(leadRef.state) &&
-    entries.every((entry) => {
-      if (entry.renderedLocale === null) {
-        return false
+export const assembleScrapPage = cache(
+  async (
+    snapshot: ContentSnapshot,
+    slug: string,
+    locale: string,
+  ): Promise<AssembledScrapPage | null> => {
+    if (!isValidScrapSlug(slug)) return null
+    const loadedManifest = await loadScrapManifest(slug, snapshot)
+    if (!loadedManifest) {
+      const listed = await loadPublicScraps(snapshot)
+      if (listed.some((entry) => entry.slug === slug)) {
+        throw new StorageError(`Missing manifest for listed Scrap: ${slug}`)
       }
-      const ref = entry.meta.documents.find(
-        (candidate) => candidate.locale === entry.renderedLocale,
-      )
-      return ref ? isIndexableTranslationState(ref.state) : false
-    })
+      return null
+    }
+    const { manifest } = loadedManifest
+    if (!isPublicScrap(manifest)) return null
 
-  return {
-    manifest,
-    leadSource,
-    leadState,
-    leadLocale,
-    entries,
-    indexableLocales,
-    alternateLocales,
-    pageIsIndexable,
-  }
-}
+    const requestedLocale = locale === 'en' ? 'en' : 'ja'
+    const leadRef = resolveLocalizedDocumentRef({
+      refs: manifest.lead,
+      requestedLocale,
+      primaryLocale: manifest.primaryLocale,
+      audience: 'public',
+    })
+    const leadSource =
+      leadRef && (await loadPublicScrapSource(snapshot, leadRef))
+
+    const entries: AssembledScrapEntry[] = []
+    for (const entryId of manifest.entryIds) {
+      const loadedEntry = await loadScrapEntryMeta(
+        manifest.slug,
+        entryId,
+        snapshot,
+      )
+      if (!loadedEntry) {
+        throw new StorageError(
+          `Missing Scrap entry metadata: ${slug}/${entryId}`,
+        )
+      }
+      if (!loadedEntry.meta.published) continue
+      entries.push(
+        await assembleEntry(
+          loadedEntry.meta,
+          requestedLocale,
+          manifest.primaryLocale,
+          snapshot,
+        ),
+      )
+    }
+    entries.sort((a, b) => compareScrapEntryMetaByCreatedAtAsc(a.meta, b.meta))
+
+    const indexableLocales = getIndexableLocaleVariants(manifest.lead).filter(
+      (locale) =>
+        entries.every((entry) =>
+          entry.meta.documents.some(
+            (ref) =>
+              ref.locale === locale && isIndexableTranslationState(ref.state),
+          ),
+        ),
+    )
+
+    return {
+      manifest,
+      leadSource,
+      leadState: leadRef
+        ? leadRef.locale === requestedLocale
+          ? 'rendered'
+          : 'fallback'
+        : 'missing',
+      leadLocale: leadRef?.locale ?? null,
+      entries,
+      indexableLocales,
+      pageIsIndexable: indexableLocales.includes(requestedLocale),
+    }
+  },
+)
 
 export async function loadEntryDocumentsForAdmin(meta: ScrapEntryMeta) {
   const snapshot = await getScrapsAggregateRepository().snapshot()

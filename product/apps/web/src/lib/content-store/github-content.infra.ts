@@ -2,13 +2,17 @@ import { unstable_cache } from 'next/cache'
 import { env } from '@/config/env.infra'
 import {
   type ContentRepository,
-  type AggregateContentRepository,
+  type ContentSnapshot,
+  StorageDocumentWriteUncertainError,
   StorageError,
   StorageVersionConflictError,
 } from './content-store.domain'
 import { createContentVersion } from './content-version.infra'
 import { getContentTagForPathname } from './content-tags.infra'
-import { createGitHubAggregateRepository } from './github-aggregate.infra'
+import {
+  createGitHubAggregateRepository,
+  type GitHubAggregateRepository,
+} from './github-aggregate.infra'
 
 type GitHubContentFile = {
   content: string
@@ -25,19 +29,6 @@ type GitHubContentsApiResponse = {
   path: string
   sha: string
   size: number
-}
-
-export type GitHubBlogIndexEntry = {
-  pathname: string
-  slug: string
-  metadata: {
-    image?: string
-    publishedAt: string
-    summary: string
-    tags?: string[]
-    title: string
-    updatedAt?: string
-  }
 }
 
 function getGitHubConfig() {
@@ -199,7 +190,17 @@ export async function saveGitHubTextFile(
       'Content-Type': 'application/json',
     },
     method: 'PUT',
+  }).catch((error: unknown) => {
+    throw new StorageDocumentWriteUncertainError(
+      'The content write outcome is unknown.',
+      { cause: error },
+    )
   })
+  if (response.status >= 500 || response.status === 408) {
+    throw new StorageDocumentWriteUncertainError(
+      'The content write outcome is unknown.',
+    )
+  }
 
   if (!response.ok) {
     if (response.status === 409 || response.status === 422) {
@@ -246,37 +247,6 @@ async function deleteGitHubTextFile(
   }
 }
 
-export async function loadGitHubBlogIndex() {
-  return (
-    (await loadGitHubJsonFile<GitHubBlogIndexEntry[]>('blog/index.json')) ?? []
-  )
-}
-
-export async function upsertGitHubBlogIndexEntry(entry: GitHubBlogIndexEntry) {
-  const currentIndex = await loadGitHubTextFileFresh('blog/index.json')
-  const entries = currentIndex
-    ? (JSON.parse(currentIndex.content) as GitHubBlogIndexEntry[])
-    : []
-  const nextEntries = entries.filter(
-    (currentEntry) => currentEntry.slug !== entry.slug,
-  )
-
-  nextEntries.push(entry)
-  nextEntries.sort(
-    (a, b) =>
-      new Date(b.metadata.publishedAt).getTime() -
-      new Date(a.metadata.publishedAt).getTime(),
-  )
-
-  await saveGitHubTextFile(
-    'blog/index.json',
-    `${JSON.stringify(nextEntries, null, 2)}\n`,
-    {
-      message: `Update blog index for ${entry.slug}`,
-    },
-  )
-}
-
 async function listGitHubRepositoryFiles(prefix: string) {
   const { root } = getGitHubConfig()
   const normalizedPrefix = [
@@ -310,17 +280,77 @@ async function listGitHubRepositoryFiles(prefix: string) {
     .sort()
 }
 
+// Next can load this module in separate page and route-handler bundles.
+const aggregateKey = Symbol.for('tenzyudotcom.github-content-aggregate')
+type Binding = ReturnType<typeof getGitHubConfig>
+const processState = globalThis as typeof globalThis & {
+  [aggregateKey]?: { binding: Binding; repository: GitHubAggregateRepository }
+}
+
+function getAggregateRepository() {
+  const binding = getGitHubConfig()
+  const current = processState[aggregateKey]
+  if (
+    current &&
+    current.binding.owner === binding.owner &&
+    current.binding.repo === binding.repo &&
+    current.binding.branch === binding.branch &&
+    current.binding.root === binding.root &&
+    current.binding.token === binding.token
+  )
+    return current.repository
+  const repository = createGitHubAggregateRepository(binding)
+  processState[aggregateKey] = { binding, repository }
+  return repository
+}
+
+const missingFile = Symbol('Missing immutable content file')
+
+export async function loadGitHubPublication(): Promise<ContentSnapshot> {
+  const repo = getAggregateRepository()
+  const version = await repo.validateHead()
+  const snapshot = repo.snapshotAt(version)
+  const { owner, repo: name, root } = getGitHubConfig()
+  return {
+    version,
+    async loadText(pathname) {
+      try {
+        return await unstable_cache(async () => {
+          const file = await snapshot.loadText(pathname)
+          if (!file) throw missingFile
+          return file
+        }, [
+          'github-immutable-content-v1',
+          owner,
+          name,
+          root,
+          version,
+          pathname,
+        ])()
+      } catch (error) {
+        if (error === missingFile) return null
+        throw error
+      }
+    },
+  }
+}
+
 export const githubContentRepository: ContentRepository &
-  AggregateContentRepository = {
+  Pick<
+    GitHubAggregateRepository,
+    'snapshot' | 'snapshotAt' | 'commit' | 'reconcile'
+  > = {
   snapshot() {
-    return createGitHubAggregateRepository(getGitHubConfig()).snapshot()
+    return getAggregateRepository().snapshot()
+  },
+  snapshotAt(version) {
+    return getAggregateRepository().snapshotAt(version)
   },
   commit(expectedVersion, writes, message) {
-    return createGitHubAggregateRepository(getGitHubConfig()).commit(
-      expectedVersion,
-      writes,
-      message,
-    )
+    return getAggregateRepository().commit(expectedVersion, writes, message)
+  },
+  reconcile(candidateOid) {
+    return getAggregateRepository().reconcile(candidateOid)
   },
   async loadText(pathname) {
     const file = await loadGitHubTextFile(pathname)

@@ -1,9 +1,11 @@
 import { z } from 'zod'
+import { NoteBodySchema } from './note-command.validation'
 import {
-  loadJsonCollection,
+  parseJsonCollection,
   saveJsonCollection,
 } from '@/lib/content-store/json-document.infra'
-import type { NotesRepository } from './notes.port'
+import { loadGitHubTextFileFresh } from '@/lib/content-store/github-content.infra'
+import type { ContentSnapshot } from '@/lib/content-store/content-store.domain'
 import type { NoteSourceEntry } from './notes.domain'
 import { normalizeExternalUrl } from '@/lib/url/external-url.domain'
 import {
@@ -12,16 +14,11 @@ import {
   isNoteSnowflakeId,
 } from './notes.domain'
 
-const NOTES_STORAGE_PATH = 'editor/notes.json'
-
-const LocalizedTextSchema = z.object({
-  ja: z.string().trim().min(1),
-  en: z.string().trim().optional().default(''),
-})
+export const NOTES_STORAGE_PATH = 'editor/notes.json'
 
 const RawNoteSourceEntrySchema = z.object({
   id: z.string().trim().min(1).optional(),
-  body: LocalizedTextSchema,
+  body: NoteBodySchema,
   createdAt: z.string().datetime({ offset: true }),
   parentId: z.string().trim().min(1).optional(),
   externalUrl: z.string().trim().min(1).optional(),
@@ -166,8 +163,9 @@ export function parseNoteSourceEntries(raw: unknown) {
 }
 
 export async function loadNotesState() {
-  return loadJsonCollection(
-    NOTES_STORAGE_PATH,
+  const file = await loadGitHubTextFileFresh(NOTES_STORAGE_PATH)
+  return parseJsonCollection(
+    file?.content,
     parseNoteSourceEntries,
     () => [] as readonly NoteSourceEntry[],
   )
@@ -185,13 +183,10 @@ export async function saveNotesState(
   )
 }
 
-class NotesStorageRepository implements NotesRepository {
-  async loadAll(): Promise<readonly NoteSourceEntry[]> {
-    const { collection } = await loadNotesState()
-    return collection
-  }
-}
-
-export function makeNotesRepository() {
-  return new NotesStorageRepository()
+export async function loadPublicNoteEntries(snapshot: ContentSnapshot) {
+  const file = await snapshot.loadText(NOTES_STORAGE_PATH)
+  if (!file) return []
+  return parseNoteSourceEntries(JSON.parse(file.content)).filter(
+    ({ published }) => published !== false,
+  )
 }

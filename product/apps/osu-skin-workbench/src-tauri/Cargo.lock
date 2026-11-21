@@ -2464,12 +2464,15 @@ name = "osu-skin-workbench"
 version = "0.1.0"
 dependencies = [
  "chrono",
+ "icu_normalizer",
+ "libc",
  "serde",
  "serde_json",
  "tauri",
  "tauri-build",
  "tauri-plugin-dialog",
  "tauri-plugin-opener",
+ "tempfile",
  "uuid",
  "walkdir",
  "zip",

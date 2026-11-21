@@ -2,7 +2,7 @@ import { getLocalizedUrl } from 'intlayer'
 import { redirect } from 'next/navigation'
 import { resolvePageLocale } from '@/lib/intlayer/page'
 import { EditorLogin } from '../_features/login'
-import { hasEditorAdminSession } from '@/features/editor-auth/editor-session'
+import { getEditorAdminSessionExpiry } from '@/features/editor-auth/editor-session'
 
 export const dynamic = 'force-dynamic'
 
@@ -26,7 +26,7 @@ export default async function EditorLoginPage({
   const locale = (await resolvePageLocale(params))!
   const search = await searchParams
 
-  if (await hasEditorAdminSession()) {
+  if (await getEditorAdminSessionExpiry()) {
     redirect(getLocalizedUrl('/editor', locale))
   }
 

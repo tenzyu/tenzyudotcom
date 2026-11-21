@@ -1,9 +1,8 @@
 import { revalidatePath, revalidateTag } from 'next/cache'
-import { createContentVersion } from '@/lib/content-store/content-version.infra'
-import type { BlogFrontmatter } from '@/app/[locale]/(main)/blog/_features/blog.domain'
+import type { BlogSaveCommand } from '@/app/[locale]/(main)/blog/_features/blog.domain'
 import {
   loadBlogPostsState,
-  saveBlogPostState,
+  saveBlogPost,
 } from '@/app/[locale]/(main)/blog/_features/blog.infra'
 import {
   loadNotesState,
@@ -17,11 +16,9 @@ import {
   type EditorCollectionState,
   type WritableEditorCollectionId,
 } from '@/features/content-editor/editor-collections'
-import {
-  BLOG_INDEX_CONTENT_TAG,
-  getBlogPostContentTag,
-  getEditorCollectionContentTag,
-} from '@/lib/content-store/content-tags.infra'
+import { getEditorCollectionContentTag } from '@/lib/content-store/content-tags.infra'
+import { githubContentRepository } from '@/lib/content-store/github-content.infra'
+import { confirmBlogPublication } from './blog-save-form-state'
 
 const collectionLoaders: {
   [K in EditorCollectionId]: () => Promise<EditorCollectionState<K>>
@@ -46,37 +43,36 @@ class SaveEditorCollectionUseCase {
     rawJson: string,
     expectedVersion: string,
   ): Promise<{ version: string }> {
-    const result =
-      collectionId === 'notes'
-        ? await saveNotesState(rawJson, expectedVersion)
-        : await saveLinksState(rawJson, expectedVersion)
-    const collection = getEditorCollectionMeta(collectionId)
+    if (collectionId === 'notes')
+      return saveNotesState(rawJson, expectedVersion)
 
-    revalidateTag(getEditorCollectionContentTag(collectionId), 'max')
-
-    for (const path of collection.publicPaths) {
-      if (path.type) {
-        revalidatePath(path.path, path.type)
-      } else {
-        revalidatePath(path.path)
-      }
-    }
+    const result = await saveLinksState(rawJson, expectedVersion)
+    refreshLinksAfterSave()
 
     return result
   }
 }
 
-class SaveBlogPostUseCase {
-  async execute(
-    slug: string,
-    frontmatter: BlogFrontmatter,
-    body: string,
-    expectedVersion: string = createContentVersion(''),
-  ) {
-    await saveBlogPostState(slug, frontmatter, body, expectedVersion)
-    revalidateTag(BLOG_INDEX_CONTENT_TAG, 'max')
-    revalidateTag(getBlogPostContentTag(slug), 'max')
+export function refreshLinksAfterSave() {
+  revalidateTag(getEditorCollectionContentTag('links'), { expire: 0 })
+  for (const path of getEditorCollectionMeta('links').publicPaths) {
+    revalidatePath(path.path, path.type)
   }
+}
+
+export async function publishEditorBlog(command: BlogSaveCommand) {
+  return confirmBlogPublication(await saveBlogPost(command))
+}
+
+export async function checkEditorBlogPublication(candidateOid: string) {
+  const headOid = await githubContentRepository.reconcile(candidateOid)
+  return headOid
+    ? confirmBlogPublication({
+        commitOid: candidateOid,
+        headOid,
+        status: 'reconciled',
+      })
+    : null
 }
 
 export function makeLoadEditorCollectionUseCase() {
@@ -85,8 +81,4 @@ export function makeLoadEditorCollectionUseCase() {
 
 export function makeSaveEditorCollectionUseCase() {
   return new SaveEditorCollectionUseCase()
-}
-
-export function makeSaveBlogPostUseCase() {
-  return new SaveBlogPostUseCase()
 }

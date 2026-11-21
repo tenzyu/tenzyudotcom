@@ -1,91 +1,132 @@
-use std::fs::{self, File};
-use std::path::PathBuf;
+use std::fs;
+use std::path::Path;
 use tauri::AppHandle;
 
 use crate::domain::project::{ExportPreset, ExportProjectInput, ExportResult, MAIN_SOURCE_ID};
-use crate::infra::archive::{add_dir_to_zip, files_equal, is_hd_path};
-use crate::infra::files::walk_relative_files;
-use crate::infra::paths::{exports_root, project_dir, project_raw_dir, safe_join, source_raw_dir};
+use crate::infra::archive::add_project_to_zip;
+use crate::infra::lock::lock_workbench;
+use crate::infra::manifest::read_manifest;
+use crate::infra::paths::{
+    app_data_root, export_dir, export_file, project_dir, project_raw_dir, require_directory,
+    source_raw_dir,
+};
 
 #[tauri::command]
 pub(crate) fn export_project(
     app: AppHandle,
     input: ExportProjectInput,
 ) -> Result<ExportResult, String> {
-    let output_root = exports_root(&app)?.join(&input.project_id);
-    if output_root.exists() {
-        fs::remove_dir_all(&output_root)
-            .map_err(|error| format!("failed to clean export dir: {error}"))?;
-    }
-    fs::create_dir_all(&output_root)
-        .map_err(|error| format!("failed to create export dir: {error}"))?;
-    let stage_root = output_root.join("stage");
-    fs::create_dir_all(&stage_root)
-        .map_err(|error| format!("failed to create export stage: {error}"))?;
-    let raw_root = match input.preset {
-        ExportPreset::Backup => project_dir(&app, &input.project_id)?,
-        _ => project_raw_dir(&app, &input.project_id)?,
-    };
-    let main_root = source_raw_dir(&app, &input.project_id, MAIN_SOURCE_ID)?;
-    let mut copied = 0;
-    let mut skipped = 0;
+    export_at(&app_data_root(&app)?, input)
+}
 
-    for file in walk_relative_files(&raw_root)? {
-        let include = match input.preset {
-            ExportPreset::Backup | ExportPreset::Full => true,
-            ExportPreset::SdOnly => !is_hd_path(&file.relative_path),
-            ExportPreset::HdOnly => is_hd_path(&file.relative_path),
-            ExportPreset::Diff => !files_equal(
-                &PathBuf::from(&file.full_path),
-                &safe_join(&main_root, &file.relative_path)?,
-            ),
-        };
-        if !include {
-            skipped += 1;
-            continue;
-        }
-        let target = safe_join(&stage_root, &file.relative_path)?;
-        if let Some(parent) = target.parent() {
-            fs::create_dir_all(parent)
-                .map_err(|error| format!("failed to create export parent: {error}"))?;
-        }
-        fs::copy(&file.full_path, target)
-            .map_err(|error| format!("failed to stage export file: {error}"))?;
-        copied += 1;
-    }
-
-    let file_name = match input.preset {
-        ExportPreset::Backup => format!("{}.backup.zip", input.project_id),
-        ExportPreset::Full => format!("{}.full.osk", input.project_id),
-        ExportPreset::SdOnly => format!("{}.sd-only.osk", input.project_id),
-        ExportPreset::HdOnly => format!("{}.hd-only.osk", input.project_id),
-        ExportPreset::Diff => format!("{}.diff.osk", input.project_id),
+fn export_at(app_data: &Path, input: ExportProjectInput) -> Result<ExportResult, String> {
+    let _lock = lock_workbench(app_data)?;
+    let ExportProjectInput { project_id, preset } = input;
+    read_manifest(app_data, &project_id)?;
+    let root = match preset {
+        ExportPreset::Backup => project_dir(app_data, &project_id)?,
+        _ => project_raw_dir(app_data, &project_id)?,
     };
-    let output_path = output_root.join(file_name);
-    let output = File::create(&output_path)
-        .map_err(|error| format!("failed to create export file: {error}"))?;
+    let root_metadata = require_directory(&root)?;
+    let main = if matches!(preset, ExportPreset::Diff) {
+        let path = source_raw_dir(app_data, &project_id, MAIN_SOURCE_ID)?;
+        let metadata = require_directory(&path)?;
+        Some((path, metadata))
+    } else {
+        None
+    };
+
+    let output_dir = export_dir(app_data, &project_id)?;
+    let file_name = preset.file_name(&project_id);
+    let output_path = export_file(&output_dir, &project_id, &file_name)?;
+    fs::create_dir_all(&output_dir)
+        .map_err(|error| format!("failed to create export directory: {error}"))?;
+
+    let mut temporary = tempfile::Builder::new()
+        .prefix(".workbench-export-")
+        .suffix(".tmp")
+        .tempfile_in(&output_dir)
+        .map_err(|error| format!("failed to create temporary export: {error}"))?;
+
+    #[cfg(test)]
+    let temporary_path = temporary.path().to_path_buf();
+    #[cfg(test)]
+    let output = tests::TestWriter(temporary.as_file_mut());
+    #[cfg(not(test))]
+    let output = temporary.as_file_mut();
     let mut writer = zip::ZipWriter::new(output);
-    let zip_count = add_dir_to_zip(&mut writer, &stage_root)?;
+    #[cfg(test)]
+    tests::checkpoint(tests::Phase::Walk, &root)
+        .map_err(|error| format!("failed to prepare export walk: {error}"))?;
+    let (file_count, excluded_count) = add_project_to_zip(
+        &mut writer,
+        &root,
+        &root_metadata,
+        preset,
+        main.as_ref()
+            .map(|(path, metadata)| (path.as_path(), metadata)),
+    )?;
+    #[cfg(test)]
+    tests::checkpoint(tests::Phase::Finish, &temporary_path)
+        .map_err(|error| format!("failed to prepare ZIP finalization: {error}"))?;
     writer
         .finish()
-        .map_err(|error| format!("failed to finish export zip: {error}"))?;
-    fs::remove_dir_all(stage_root).ok();
+        .map_err(|error| format!("failed to finish export ZIP: {error}"))?;
+    #[cfg(test)]
+    tests::checkpoint(tests::Phase::SyncTemp, &temporary_path)
+        .map_err(|error| format!("failed to sync temporary export: {error}"))?;
+    temporary
+        .as_file()
+        .sync_all()
+        .map_err(|error| format!("failed to sync temporary export: {error}"))?;
+    let temporary_path = temporary.into_temp_path();
 
-    let notes = match input.preset {
-        ExportPreset::SdOnly => vec!["Excluded @2x HD assets.".into()],
-        ExportPreset::HdOnly => vec!["Included only @2x HD assets.".into()],
-        ExportPreset::Diff => {
-            vec!["Included only files that differ from the main source snapshot.".into()]
-        }
-        ExportPreset::Backup => vec!["Included the whole editor project directory.".into()],
-        ExportPreset::Full => vec!["Included all project raw files.".into()],
+    // Check the destination again after streaming, before handing it to the OS.
+    let output_dir = export_dir(app_data, &project_id)?;
+    export_file(&output_dir, &project_id, &file_name)?;
+    #[cfg(unix)]
+    let parent = fs::File::open(output_dir)
+        .map_err(|error| format!("failed to open export directory for sync: {error}"))?;
+    #[cfg(test)]
+    tests::checkpoint(tests::Phase::Replace, &temporary_path)
+        .map_err(|error| format!("failed to prepare export replacement: {error}"))?;
+    temporary_path.persist(&output_path).map_err(|error| {
+        format!(
+            "failed to replace export {}: {error}",
+            output_path.display()
+        )
+    })?;
+
+    #[cfg(unix)]
+    {
+        #[cfg(test)]
+        let sync = tests::checkpoint(tests::Phase::SyncParent, &output_path)
+            .and_then(|()| parent.sync_all());
+        #[cfg(not(test))]
+        let sync = parent.sync_all();
+        sync.map_err(|error| {
+            format!(
+                "export published at {}, but durability could not be confirmed: {error}",
+                output_path.display()
+            )
+        })?;
+    }
+
+    let note = match preset {
+        ExportPreset::SdOnly => "Excluded @2x HD assets.",
+        ExportPreset::HdOnly => "Included only @2x HD assets.",
+        ExportPreset::Diff => "Included only files that differ from the main source snapshot.",
+        ExportPreset::Backup => "Included the whole editor project directory.",
+        ExportPreset::Full => "Included all project raw files.",
     };
-
     Ok(ExportResult {
-        preset: input.preset,
-        output_path: output_path.to_string_lossy().to_string(),
-        file_count: zip_count.max(copied),
-        excluded_count: skipped,
-        notes,
+        preset,
+        output_path: output_path.to_string_lossy().into_owned(),
+        file_count,
+        excluded_count,
+        notes: vec![note.into()],
     })
 }
+
+#[cfg(test)]
+mod tests;

@@ -6,9 +6,14 @@ import {
   getAbsoluteUrl,
 } from '@/config/site'
 import { locales } from 'intlayer'
-import { loadBlogPostBySlug, loadBlogPostSummariesState } from './blog.infra'
+import type { ContentSnapshot } from '@/lib/content-store/content-store.domain'
+import { githubContentRepository } from '@/lib/content-store/github-content.infra'
+import { parseBlogFrontmatter } from './blog-frontmatter.assemble'
+import { resolveBlogAddress } from './blog-index.assemble'
+import { loadBlogCatalog, loadBlogPostBySlug } from './blog.infra'
 import {
   extractBlogHeadings,
+  type BlogHeading,
   type BlogPostSummary,
   type BlogPostingJsonLd,
   type MDXData,
@@ -21,9 +26,40 @@ import {
 
 const PAGE_SIZE = 6
 
-export const loadBlogPosts = cache(async () => {
-  const { collection } = await loadBlogPostSummariesState()
-  return [...collection].sort(compareBlogPostsByPublishedAtDesc)
+const loadCatalog = cache(loadBlogCatalog)
+
+export async function canonicalizeBlogRedirect(location: string) {
+  const target = new URL(location)
+  const match = /^(\/en)?\/blog\/([^/]+)$/.exec(target.pathname)
+  if (!match) return
+
+  try {
+    const slug = decodeURIComponent(match[2])
+    const catalog = await loadBlogCatalog(
+      await githubContentRepository.snapshot(),
+    )
+    const address = resolveBlogAddress(catalog, slug)
+    if (address.kind === 'alias') {
+      target.pathname = `${match[1] ?? ''}/blog/${encodeURIComponent(address.entry.slug)}`
+      return target.href
+    }
+  } catch {
+    // Let the localized route handle a content read failure.
+  }
+}
+
+export const loadBlogPosts = cache(async (snapshot: ContentSnapshot) => {
+  const { canonicals } = await loadCatalog(snapshot)
+  const posts: BlogPostSummary[] = []
+  for (const entry of canonicals.values()) {
+    if (entry) {
+      posts.push({
+        slug: entry.slug,
+        metadata: parseBlogFrontmatter(entry.metadata, entry.pathname),
+      })
+    }
+  }
+  return posts.sort(compareBlogPostsByPublishedAtDesc)
 })
 
 export type BlogListItem = BlogPostSummary
@@ -35,10 +71,11 @@ export type PaginatedBlogPosts = {
 }
 
 export async function assemblePaginatedBlogPosts(
+  snapshot: ContentSnapshot,
   rawPage?: string,
   tag?: string,
 ): Promise<PaginatedBlogPosts> {
-  const posts = filterBlogPostsByTag(await loadBlogPosts(), tag)
+  const posts = filterBlogPostsByTag(await loadBlogPosts(snapshot), tag)
   const totalPages = Math.ceil(posts.length / PAGE_SIZE)
   const pageParam = Number(rawPage ?? 1)
   const currentPage = Number.isFinite(pageParam)
@@ -56,74 +93,82 @@ export async function assemblePaginatedBlogPosts(
 
 export type BlogPost = MDXData
 
-export async function getBlogStaticParams() {
-  const posts = await loadBlogPosts()
-
-  return posts.map((post) => ({
-    slug: post.slug,
-  }))
-}
-
-async function getBlogPostBySlug(slug: string) {
-  try {
-    return await loadBlogPostBySlug(slug)
-  } catch {
-    return undefined
-  }
-}
-
-export async function assembleBlogPostPageData(slug: string) {
-  const posts = await loadBlogPosts()
-  const post = await getBlogPostBySlug(slug)
-
-  if (!post) {
-    return undefined
-  }
-
-  const postTags = post.metadata.tags ?? []
-  const rankedByTags = posts
-    .filter((entry) => entry.slug !== slug)
-    .map((entry) => {
-      const overlapCount = (entry.metadata.tags ?? []).filter((tag) =>
-        postTags.includes(tag),
-      ).length
-
-      return {
-        entry,
-        overlapCount,
-      }
-    })
-    .filter(({ overlapCount }) => overlapCount > 0)
-    .sort((a, b) => {
-      if (b.overlapCount !== a.overlapCount) {
-        return b.overlapCount - a.overlapCount
-      }
-
-      return compareBlogPostsByPublishedAtDesc(a.entry, b.entry)
-    })
-    .map(({ entry }) => entry)
-  const fallbackRecentPosts = posts.filter((entry) => entry.slug !== slug)
-  const relatedPosts = [...rankedByTags]
-
-  for (const entry of fallbackRecentPosts) {
-    if (relatedPosts.length >= 3) {
-      break
+type BlogPostPageData =
+  | { kind: 'redirect'; slug: string }
+  | {
+      kind: 'post'
+      post: BlogPost
+      headings: BlogHeading[]
+      relatedPosts: BlogPostSummary[]
+      isAiGenerated: boolean
     }
 
-    if (relatedPosts.some((relatedEntry) => relatedEntry.slug === entry.slug)) {
-      continue
+export const assembleBlogPostPageData = cache(
+  async (
+    snapshot: ContentSnapshot,
+    slug: string,
+  ): Promise<BlogPostPageData | undefined> => {
+    const address = resolveBlogAddress(await loadCatalog(snapshot), slug)
+    if (address.kind === 'alias') {
+      return { kind: 'redirect', slug: address.entry.slug }
+    }
+    const pathname =
+      address.kind === 'canonical' ? address.entry.pathname : undefined
+    const post = await loadBlogPostBySlug(snapshot, slug, pathname)
+
+    if (!post) {
+      return undefined
     }
 
-    relatedPosts.push(entry)
-  }
+    const posts = await loadBlogPosts(snapshot)
+    const postTags = post.metadata.tags ?? []
+    const rankedByTags = posts
+      .filter((entry) => entry.slug !== slug)
+      .map((entry) => {
+        const overlapCount = (entry.metadata.tags ?? []).filter((tag) =>
+          postTags.includes(tag),
+        ).length
 
-  return {
-    post,
-    headings: extractBlogHeadings(post.rawContent),
-    relatedPosts,
-    isAiGenerated: isAiGeneratedPost(post.metadata.tags),
-  }
-}
+        return {
+          entry,
+          overlapCount,
+        }
+      })
+      .filter(({ overlapCount }) => overlapCount > 0)
+      .sort((a, b) => {
+        if (b.overlapCount !== a.overlapCount) {
+          return b.overlapCount - a.overlapCount
+        }
+
+        return compareBlogPostsByPublishedAtDesc(a.entry, b.entry)
+      })
+      .map(({ entry }) => entry)
+    const fallbackRecentPosts = posts.filter((entry) => entry.slug !== slug)
+    const relatedPosts = [...rankedByTags]
+
+    for (const entry of fallbackRecentPosts) {
+      if (relatedPosts.length >= 3) {
+        break
+      }
+
+      if (
+        relatedPosts.some((relatedEntry) => relatedEntry.slug === entry.slug)
+      ) {
+        continue
+      }
+
+      relatedPosts.push(entry)
+    }
+
+    return {
+      kind: 'post',
+      post,
+      headings: extractBlogHeadings(post.rawContent),
+      relatedPosts,
+      isAiGenerated: isAiGeneratedPost(post.metadata.tags),
+    }
+  },
+)
 
 export function buildBlogPostMetadata(post: BlogPost, locale: string) {
   const {
