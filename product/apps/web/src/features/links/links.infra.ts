@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import type { MyLink } from './links.domain'
 import { defineLinks } from './links.domain'
-import type { LinksRepository } from './links.port'
+import type { ContentSnapshot } from '@/lib/content-store/content-store.domain'
 import {
   loadJsonCollection,
   saveJsonCollection,
@@ -23,6 +23,11 @@ function parseLinkSourceEntries(raw: unknown) {
   return defineLinks(links)
 }
 
+export async function loadPublicLinks(snapshot: ContentSnapshot) {
+  const file = await snapshot.loadText(LINKS_STORAGE_PATH)
+  return file ? parseLinkSourceEntries(JSON.parse(file.content)) : []
+}
+
 export async function loadLinksState() {
   return loadJsonCollection(
     LINKS_STORAGE_PATH,
@@ -41,15 +46,4 @@ export async function saveLinksState(
     parseLinkSourceEntries,
     expectedVersion,
   )
-}
-
-class LinksStorageRepository implements LinksRepository {
-  async loadAll(): Promise<readonly MyLink[]> {
-    const { collection } = await loadLinksState()
-    return collection
-  }
-}
-
-export function makeLinksRepository() {
-  return new LinksStorageRepository()
 }

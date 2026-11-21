@@ -3,7 +3,6 @@ import {
   buildScrapAlternateLanguages,
   buildScrapListAlternateLanguages,
   filterPublicScrapIndex,
-  getPublicScrapStaticParams,
 } from './scraps.assemble'
 import {
   projectScrapIndexEntry,
@@ -76,20 +75,6 @@ describe('filterPublicScrapIndex', () => {
       'newer',
       'middle',
       'older',
-    ])
-  })
-})
-
-describe('getPublicScrapStaticParams', () => {
-  test('returns only public scrap slugs', () => {
-    const projection: ScrapIndexProjection = [
-      projectScrapIndexEntry(makeManifest({ slug: 'public' })),
-      projectScrapIndexEntry(
-        makeManifest({ slug: 'archived', status: 'archived' }),
-      ),
-    ]
-    expect(getPublicScrapStaticParams(projection)).toEqual([
-      { slug: 'public' },
     ])
   })
 })
