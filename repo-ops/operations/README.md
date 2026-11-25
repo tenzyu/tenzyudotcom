@@ -31,7 +31,9 @@ bash repo-ops/preview/readonly-preview.sh stop
 
 This copies committed `HEAD` into a fresh snapshot under `/tmp/opencode`, builds UI and serves loopback `127.0.0.1:43192` for at most one hour. It rejects editor writes/server actions and most WebSocket traffic and is not exposed to Tailscale. It has resource/filesystem constraints, **not arbitrary untrusted-code isolation**. Commit intended changes first; preserve logs privately.
 
-## Browser checks
+## CI evidence and browser checks
+
+The opt-in evidence workflow records the Git commit and tree, lockfile/config digests and toolchain versions for each artifact. Audit reports distinguish a valid empty response from a failed scanner; an advisory observation is not a vulnerability-free attestation. The workspace utility gate runs the path/runner, editor preload, preview gate and sanitizer tests.
 
 ```sh
 PLAYWRIGHT_OUTPUT_DIR="$NEW_EXTERNAL_EVIDENCE" bun run test:browser

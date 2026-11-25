@@ -60,6 +60,9 @@ jobs:
               done
               cargo metadata --no-deps --format-version 1 --locked --manifest-path product/apps/osu-skin-workbench/src-tauri/Cargo.toml > "$out/cargo-metadata.json"
               { git rev-parse HEAD; node --version; bun --version; rustc --version; uname -a; } > "$out/environment.txt"
+              { git rev-parse HEAD HEAD^{tree}; sha256sum bun.lock package.json nx.json; } > "$out/revision.txt"
+              git ls-files repo-ops > "$out/repo-ops-paths.txt"
+              while IFS= read -r path; do printf '%s\t%s\n' "$path" "$(git cat-file -s "HEAD:$path")"; done < "$out/repo-ops-paths.txt" > "$out/repo-ops-sizes.tsv"
               git ls-files -z | du --files0-from=- -b --total | tail -1 > "$out/tracked-bytes.txt"
             )
           done
@@ -90,6 +93,7 @@ jobs:
       - name: Frozen dependency install
         run: |
           mkdir -p "$RUNNER_TEMP/package-evidence"
+          { git rev-parse HEAD HEAD^{tree}; sha256sum bun.lock package.json nx.json; node --version; bun --version; rustc --version; } > "$RUNNER_TEMP/package-evidence/revision.txt"
           /usr/bin/time -v -o "$RUNNER_TEMP/package-evidence/install-time.txt" bun install --frozen-lockfile --ignore-scripts
       - name: Build browser-safe packages and workbench frontend
         run: |
@@ -102,9 +106,11 @@ jobs:
         run: |
           set +e
           bun audit --json > "$RUNNER_TEMP/package-evidence/bun-audit.json" 2> "$RUNNER_TEMP/package-evidence/bun-audit.stderr"
-          printf '%s\n' "$?" > "$RUNNER_TEMP/package-evidence/bun-audit-exit.txt"
-          cat "$RUNNER_TEMP/package-evidence/bun-audit-exit.txt"
-          # Audit evidence is not an assertion that every dependency is safe.
+          status=$?
+          set -e
+          printf '%s\n' "$status" > "$RUNNER_TEMP/package-evidence/bun-audit-exit.txt"
+          node repo-ops/evidence/audit-status.mjs "$RUNNER_TEMP/package-evidence/bun-audit.json" "$status" "$RUNNER_TEMP/package-evidence/bun-audit.stderr"
+          # Confirmed advisory results are observations; scanner failure is a failed job.
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -133,6 +139,9 @@ jobs:
       - name: Set evidence destinations on runner
         run: |
           printf 'PUBLICATION_EVIDENCE_DIR=%s/publication\nPLAYWRIGHT_OUTPUT_DIR=%s/editor\n' "$RUNNER_TEMP" "$RUNNER_TEMP" >> "$GITHUB_ENV"
+      - name: Record fixture provenance
+        run: |
+          { git rev-parse HEAD HEAD^{tree}; sha256sum bun.lock package.json nx.json; node --version; bun --version; } > "$RUNNER_TEMP/fixture-revision.txt"
       - run: bun install --frozen-lockfile
       - run: bun x playwright install --with-deps chromium
       - name: Publication fixture and fault-injection evidence
@@ -155,6 +164,7 @@ jobs:
         with:
           name: fixture-evidence
           path: |
+            ${{ runner.temp }}/fixture-revision.txt
             ${{ runner.temp }}/publication/time.txt
             ${{ runner.temp }}/publication/publication-*/results.json
             ${{ runner.temp }}/publication/publication-*/next-build.log
