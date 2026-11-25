@@ -52,6 +52,8 @@
     "product/apps/web": {
       "name": "@tenzyu/web",
       "dependencies": {
+        "@tenzyu/publishing-domain": "workspace:*",
+        "@tenzyu/revisioned-content": "workspace:*",
         "@tenzyu/ui": "workspace:*",
         "@vercel/analytics": "catalog:",
         "@vercel/speed-insights": "catalog:",
@@ -101,6 +103,28 @@
     "product/packages/osu-skin-core": {
       "name": "@tenzyu/osu-skin-core",
       "version": "0.1.0",
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "product/packages/publishing-domain": {
+      "name": "@tenzyu/publishing-domain",
+      "version": "0.1.0",
+      "dependencies": {
+        "zod": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "product/packages/revisioned-content": {
+      "name": "@tenzyu/revisioned-content",
+      "version": "0.1.0",
+      "dependencies": {
+        "zod": "catalog:",
+      },
       "devDependencies": {
         "@types/bun": "catalog:",
         "typescript": "catalog:",
@@ -1426,6 +1450,10 @@
     "@tenzyu/osu-skin-core": ["@tenzyu/osu-skin-core@workspace:product/packages/osu-skin-core"],
 
     "@tenzyu/osu-skin-workbench": ["@tenzyu/osu-skin-workbench@workspace:product/apps/osu-skin-workbench"],
+
+    "@tenzyu/publishing-domain": ["@tenzyu/publishing-domain@workspace:product/packages/publishing-domain"],
+
+    "@tenzyu/revisioned-content": ["@tenzyu/revisioned-content@workspace:product/packages/revisioned-content"],
 
     "@tenzyu/ui": ["@tenzyu/ui@workspace:product/packages/ui"],
 

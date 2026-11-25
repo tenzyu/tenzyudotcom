@@ -14,7 +14,7 @@ import {
   ItemTitle,
 } from '@tenzyu/ui/item'
 import { loadLinks } from '@/features/links/links.assemble'
-import { LINK_CATEGORY_ORDER, type MyLink } from '@/features/links/links.domain'
+import { LINK_CATEGORY_ORDER, type MyLink } from '@tenzyu/publishing-domain/links'
 import { LinkControls } from './link-controls'
 
 export async function LinkTreePageContent() {

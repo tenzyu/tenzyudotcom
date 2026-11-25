@@ -5,14 +5,14 @@ import {
   saveJsonCollection,
 } from '@/platform/content-store/json-document.infra'
 import { loadGitHubTextFileFresh } from '@/platform/content-store/github-content.infra'
-import type { ContentSnapshot } from '@/platform/content-store/content-store.domain'
-import type { NoteSourceEntry } from './notes.domain'
-import { normalizeExternalUrl } from '@/lib/url/external-url.domain'
+import type { ContentSnapshot } from '@tenzyu/revisioned-content/contracts'
+import type { NoteSourceEntry } from '@tenzyu/publishing-domain/notes'
+import { normalizeExternalUrl } from '@tenzyu/publishing-domain/external-url'
 import {
   compareNotesByCreatedAtAsc,
   createNoteSnowflakeId,
   isNoteSnowflakeId,
-} from './notes.domain'
+} from '@tenzyu/publishing-domain/notes'
 
 export const NOTES_STORAGE_PATH = 'editor/notes.json'
 

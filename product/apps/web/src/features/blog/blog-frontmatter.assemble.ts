@@ -1,5 +1,5 @@
 import { parseFrontmatterBase } from './frontmatter.assemble'
-import type { BlogFrontmatter } from './blog.domain'
+import type { BlogFrontmatter } from '@tenzyu/publishing-domain/blog'
 
 function parseTags(value: unknown, filePath: string) {
   if (value == null) {

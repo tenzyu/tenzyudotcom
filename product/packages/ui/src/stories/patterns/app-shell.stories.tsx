@@ -1,14 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
-import { Button } from '../../components/ui/button'
+import { Button } from '../../generic/components/button'
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '../../components/ui/card'
-import { Separator } from '../../components/ui/separator'
+} from '../../generic/components/card'
+import { Separator } from '../../generic/components/separator'
 import { navigationItems } from '../../testing/fixtures'
 
 const meta = {

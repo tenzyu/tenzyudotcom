@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
-import { Button } from '../../components/ui/button'
+import { Button } from '../../generic/components/button'
 import {
   Dialog,
   DialogContent,
@@ -9,14 +9,14 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '../../components/ui/dialog'
+} from '../../generic/components/dialog'
 import {
   Field,
   FieldDescription,
   FieldGroup,
   FieldLabel,
-} from '../../components/ui/field'
-import { Input } from '../../components/ui/input'
+} from '../../supporting/components/field'
+import { Input } from '../../generic/components/input'
 
 const meta = {
   title: 'Patterns/DialogForm',

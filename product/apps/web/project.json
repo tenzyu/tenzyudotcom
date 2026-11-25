@@ -9,11 +9,6 @@
   ],
   "targets": {
     "dev": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "product/apps/web",
-        "command": "bun run dev"
-      },
       "cache": false,
       "dependsOn": [
         "^build"
@@ -31,19 +26,9 @@
       ]
     },
     "clean": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "product/apps/web",
-        "command": "bun run clean"
-      },
       "cache": false
     },
     "build": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "product/apps/web",
-        "command": "bun run build"
-      },
       "outputs": [
         "{projectRoot}/.next"
       ],
@@ -67,11 +52,6 @@
       "cache": false
     },
     "start": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "product/apps/web",
-        "command": "bun run start"
-      },
       "cache": false
     },
     "start-intlayer": {
@@ -83,11 +63,6 @@
       "cache": false
     },
     "lint": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "product/apps/web",
-        "command": "bun run lint"
-      },
       "inputs": [
         "default",
         "^production",
@@ -95,29 +70,14 @@
       ]
     },
     "format": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "product/apps/web",
-        "command": "bun run format"
-      },
       "cache": false
     },
     "typecheck": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "product/apps/web",
-        "command": "bun run typecheck"
-      },
       "dependsOn": [
         "^build"
       ]
     },
     "test": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "product/apps/web",
-        "command": "bun run test"
-      },
       "dependsOn": [
         "^build"
       ]
@@ -152,11 +112,6 @@
       "cache": false
     },
     "analyze": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "product/apps/web",
-        "command": "bun run analyze"
-      },
       "cache": false
     }
   }

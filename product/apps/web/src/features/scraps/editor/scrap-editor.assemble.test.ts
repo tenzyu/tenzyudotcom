@@ -4,7 +4,7 @@ import {
   type ContentWrite,
   StorageError,
   StorageVersionConflictError,
-} from '@/platform/content-store/content-store.domain'
+} from '@tenzyu/revisioned-content/contracts'
 import {
   executeScrapEditorCommand,
   loadScrapEditorState,

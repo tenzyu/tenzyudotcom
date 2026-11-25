@@ -1,4 +1,4 @@
-import type { ContentSnapshot } from '@/platform/content-store/content-store.domain'
+import type { ContentSnapshot } from '@tenzyu/revisioned-content/contracts'
 import {
   loadJsonCollection,
   saveJsonCollection,

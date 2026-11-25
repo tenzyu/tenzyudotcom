@@ -54,9 +54,21 @@ function resolve(from, spec) {
   if (spec.startsWith('@/')) return candidate(p+'/src/'+spec.slice(2))
   for (const [name, pkg] of Object.entries(packages)) {
     if (spec !== name && !spec.startsWith(name+'/')) continue
-    const sub = spec === name ? '' : spec.slice(name.length+1)
-    const choices = sub === '' ? ['src/index'] : ['src/'+sub,'src/components/ui/'+sub,sub==='styles.css'?'src/index.css':'']
-    return choices.map(x=>candidate(pkg.root+'/'+x)).find(Boolean)
+    const sub = spec === name ? '.' : './'+spec.slice(name.length+1)
+    let entry = pkg.manifest.exports?.[sub]
+    if (!entry && sub !== '.' && pkg.manifest.exports?.['./*']) {
+      const pattern = pkg.manifest.exports['./*']
+      const replace = value => typeof value === 'string' ? value.replace('*',sub.slice(2)) : Object.fromEntries(Object.entries(value).map(([key,val])=>[key,replace(val)]))
+      entry = replace(pattern)
+    }
+    const target = typeof entry === 'string' ? entry : entry?.types ?? entry?.import ?? entry?.default
+    if (target) {
+      const source = target.replace(/^\.\/dist\/src\//,'src/').replace(/^\.\/dist\//,'src/').replace(/^\.\//,'').replace(/\.d\.ts$/,'')
+      if (sub === './styles.css' && name === '@tenzyu/ui') return candidate(pkg.root+'/src/index.css')
+      const resolved = candidate(pkg.root+'/'+source)
+      if (resolved) return resolved
+    }
+    return sub === '.' ? candidate(pkg.root+'/src/index') : undefined
   }
   const resolved = ts.resolveModuleName(spec,path.join(root,from),opts.get(p) || {},ts.sys).resolvedModule?.resolvedFileName
   if (resolved) {

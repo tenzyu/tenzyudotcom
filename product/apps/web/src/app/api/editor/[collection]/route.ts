@@ -11,7 +11,7 @@ import {
   isEditorCollectionId,
   isWritableEditorCollectionId,
 } from '@/composition/editor/editor-collections'
-import { StorageVersionConflictError } from '@/platform/content-store/content-store.domain'
+import { StorageVersionConflictError } from '@tenzyu/revisioned-content/contracts'
 import { isEditorValidationError } from '@/features/content-editor/editor.validation'
 import { CollectionSavePayload } from './_features/collection-save.validation'
 

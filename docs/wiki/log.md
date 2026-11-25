@@ -16,3 +16,5 @@
 - 2026-11-25: Corrected editor composition ownership and Links post-commit refresh semantics after independent PR #69–71 review. Native Biome cycle detection enabled; expanded fixture assertions. Full comparative review remains pending execution.
 
 - 2026-11-25: Moved eight shared route-local modules to component, i18n and YouTube owners after scanning all 284 tracked Web TS/JS source modules. Added native reverse-alias restrictions; the static tracked-path graph after relocation has no multi-node SCC at file or owner level. Not a substitute for compiler resolution or matched previews.
+
+- 2026-11-25: Renewal candidate separates generic/supporting presentation, revisioned persistence, publishing domain and native wire contract. See [architecture](architecture.md). Verification is revision-specific; candidate CI is required.

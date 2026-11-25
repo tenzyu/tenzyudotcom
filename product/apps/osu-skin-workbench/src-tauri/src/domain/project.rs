@@ -4,6 +4,7 @@ use std::collections::HashMap;
 pub(crate) const MAIN_SOURCE_ID: &str = "main";
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+#[cfg_attr(test, derive(ts_rs::TS))]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct SourceManifest {
     pub(crate) id: String,
@@ -11,10 +12,12 @@ pub(crate) struct SourceManifest {
     pub(crate) source_path: String,
     pub(crate) created_at: String,
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(test, ts(optional))]
     pub(crate) readonly: Option<bool>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+#[cfg_attr(test, derive(ts_rs::TS))]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct ProjectManifest {
     pub(crate) id: String,
@@ -26,21 +29,26 @@ pub(crate) struct ProjectManifest {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(test, derive(ts_rs::TS))]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct CreateProjectInput {
     pub(crate) source_path: String,
+    #[cfg_attr(test, ts(optional = nullable))]
     pub(crate) name: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(test, derive(ts_rs::TS))]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct AddProjectSourceInput {
     pub(crate) project_id: String,
     pub(crate) source_path: String,
+    #[cfg_attr(test, ts(optional = nullable))]
     pub(crate) name: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(test, derive(ts_rs::TS))]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct RenameProjectSourceInput {
     pub(crate) project_id: String,
@@ -49,6 +57,7 @@ pub(crate) struct RenameProjectSourceInput {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(test, derive(ts_rs::TS))]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct DeleteProjectSourceInput {
     pub(crate) project_id: String,
@@ -56,6 +65,7 @@ pub(crate) struct DeleteProjectSourceInput {
 }
 
 #[derive(Debug, Serialize)]
+#[cfg_attr(test, derive(ts_rs::TS))]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct RawFileEntry {
     pub(crate) relative_path: String,
@@ -63,6 +73,7 @@ pub(crate) struct RawFileEntry {
 }
 
 #[derive(Debug, Serialize)]
+#[cfg_attr(test, derive(ts_rs::TS))]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct RawSourceFiles {
     pub(crate) id: String,
@@ -75,6 +86,7 @@ pub(crate) struct RawSourceFiles {
 }
 
 #[derive(Debug, Serialize)]
+#[cfg_attr(test, derive(ts_rs::TS))]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct RawProjectFilesResponse {
     pub(crate) project: Vec<RawFileEntry>,
@@ -83,21 +95,29 @@ pub(crate) struct RawProjectFilesResponse {
 }
 
 #[derive(Debug, Serialize)]
+#[cfg_attr(test, derive(ts_rs::TS))]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct RebuildStructuredResult {
+    #[cfg_attr(test, ts(type = "number"))]
     pub(crate) project_file_count: usize,
+    #[cfg_attr(test, ts(type = "Record<string, number>"))]
     pub(crate) source_file_counts: HashMap<String, usize>,
 }
 
 #[derive(Debug, Serialize)]
+#[cfg_attr(test, derive(ts_rs::TS))]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct AssetMutationResult {
+    #[cfg_attr(test, ts(type = "number"))]
     pub(crate) copied_count: usize,
+    #[cfg_attr(test, ts(type = "number"))]
     pub(crate) deleted_count: usize,
+    #[cfg_attr(test, ts(type = "number"))]
     pub(crate) rebuilt_structured_count: usize,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Copy)]
+#[cfg_attr(test, derive(ts_rs::TS))]
 #[serde(rename_all = "kebab-case")]
 pub(crate) enum ExportPreset {
     Full,
@@ -129,6 +149,7 @@ impl ExportPreset {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(test, derive(ts_rs::TS))]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct ExportProjectInput {
     pub(crate) project_id: String,
@@ -136,27 +157,65 @@ pub(crate) struct ExportProjectInput {
 }
 
 #[derive(Debug, Serialize)]
+#[cfg_attr(test, derive(ts_rs::TS))]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct ExportResult {
     pub(crate) preset: ExportPreset,
     pub(crate) output_path: String,
+    #[cfg_attr(test, ts(type = "number"))]
     pub(crate) file_count: usize,
+    #[cfg_attr(test, ts(type = "number"))]
     pub(crate) excluded_count: usize,
     pub(crate) notes: Vec<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(test, derive(ts_rs::TS))]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct ApplyAssetGroupInput {
     pub(crate) project_id: String,
     pub(crate) source_id: String,
     pub(crate) source_paths: Vec<String>,
+    #[cfg_attr(test, ts(optional = nullable))]
     pub(crate) replace_project_paths: Option<Vec<String>>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(test, derive(ts_rs::TS))]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct DeleteAssetGroupInput {
     pub(crate) project_id: String,
     pub(crate) project_paths: Vec<String>,
+}
+
+#[cfg(test)]
+mod wire_contract {
+    use super::*;
+    use ts_rs::{Config, TS};
+
+    #[test]
+    fn export_wire_contract() {
+        let Some(path) = std::env::var_os("SKIN_IPC_EXPORT") else { return };
+        let config = Config::default();
+        let declarations = [
+            SourceManifest::decl(&config),
+            ProjectManifest::decl(&config),
+            CreateProjectInput::decl(&config),
+            AddProjectSourceInput::decl(&config),
+            RenameProjectSourceInput::decl(&config),
+            DeleteProjectSourceInput::decl(&config),
+            RawFileEntry::decl(&config),
+            RawSourceFiles::decl(&config),
+            RawProjectFilesResponse::decl(&config),
+            RebuildStructuredResult::decl(&config),
+            AssetMutationResult::decl(&config),
+            ExportPreset::decl(&config),
+            ExportProjectInput::decl(&config),
+            ExportResult::decl(&config),
+            ApplyAssetGroupInput::decl(&config),
+            DeleteAssetGroupInput::decl(&config),
+        ];
+        let output = declarations.into_iter().map(|decl| format!("export {decl}\n")).collect::<String>();
+        std::fs::write(path, output).expect("write TypeScript wire contract");
+    }
 }

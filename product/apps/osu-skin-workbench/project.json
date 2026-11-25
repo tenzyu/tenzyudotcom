@@ -10,11 +10,6 @@
   ],
   "targets": {
     "dev": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "product/apps/osu-skin-workbench",
-        "command": "bun run dev"
-      },
       "cache": false,
       "dependsOn": [
         "^build"
@@ -32,11 +27,6 @@
       ]
     },
     "build": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "product/apps/osu-skin-workbench",
-        "command": "bun run build"
-      },
       "outputs": [
         "{projectRoot}/src-tauri/target",
         "{projectRoot}/dist"
@@ -61,21 +51,11 @@
       ]
     },
     "typecheck": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "product/apps/osu-skin-workbench",
-        "command": "bun run typecheck"
-      },
       "dependsOn": [
         "^build"
       ]
     },
     "test": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "product/apps/osu-skin-workbench",
-        "command": "bun run test"
-      },
       "dependsOn": [
         "^build"
       ]
@@ -131,8 +111,13 @@
       "dependsOn": [
         "check",
         "cargo-check",
-        "cargo-clippy"
+        "cargo-clippy",
+        "cargo-test"
       ],
+      "cache": false
+    },
+    "cargo-test": {
+      "command": "cargo test --locked --manifest-path product/apps/osu-skin-workbench/src-tauri/Cargo.toml",
       "cache": false
     }
   }

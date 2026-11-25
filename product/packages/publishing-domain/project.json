@@ -1,0 +1,27 @@
+{
+  "name": "publishing-domain",
+  "projectType": "library",
+  "sourceRoot": "product/packages/publishing-domain/src",
+  "tags": [
+    "type:library",
+    "domain:publishing",
+    "runtime:pure"
+  ],
+  "targets": {
+    "check": {
+      "executor": "nx:noop",
+      "dependsOn": [
+        "typecheck",
+        "test"
+      ],
+      "cache": false
+    },
+    "verify": {
+      "executor": "nx:noop",
+      "dependsOn": [
+        "check"
+      ],
+      "cache": false
+    }
+  }
+}

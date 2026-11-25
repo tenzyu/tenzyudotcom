@@ -4,11 +4,11 @@ import {
   type ContentSnapshot,
   type ContentWrite,
   StorageVersionConflictError,
-} from '@/platform/content-store/content-store.domain'
+} from '@tenzyu/revisioned-content/contracts'
 import { executeScrapEditorCommand } from '@/features/scraps/editor/scrap-editor.assemble'
 import type { ScrapEditorCommand } from '@/features/scraps/editor/scrap-editor.validation'
 import { assembleScrapPage, loadPublicScraps } from './scraps.assemble'
-import { getScrapStoragePaths } from '@/features/scraps/scraps.domain'
+import { getScrapStoragePaths } from '@tenzyu/publishing-domain/scraps'
 import { SCRAPS_INDEX_PATHNAME } from '@/config/content-cache'
 
 class InterleavedRepository implements AggregateContentRepository {

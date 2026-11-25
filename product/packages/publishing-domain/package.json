@@ -1,0 +1,25 @@
+{
+  "name": "@tenzyu/publishing-domain",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./blog": "./src/blog.ts",
+    "./notes": "./src/notes.ts",
+    "./links": "./src/links.ts",
+    "./scraps": "./src/scraps.ts",
+    "./scraps-validation": "./src/scraps-validation.ts",
+    "./external-url": "./src/external-url.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "bun test src"
+  },
+  "dependencies": {
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "typescript": "catalog:"
+  }
+}

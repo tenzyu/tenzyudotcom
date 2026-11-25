@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { useIntlayer } from 'next-intlayer/server'
-import type { BlogHeading } from '@/features/blog/blog.domain'
+import type { BlogHeading } from '@tenzyu/publishing-domain/blog'
 
 export function BlogPostTableOfContents({
   headings,

@@ -1,4 +1,4 @@
-import { parseScrapIndexProjection } from '@/features/scraps/scraps.validation'
+import { parseScrapIndexProjection } from '@tenzyu/publishing-domain/scraps-validation'
 import type { ScrapEditorCommand } from './scrap-editor.validation'
 import {
   type ScrapWorkspaceView,

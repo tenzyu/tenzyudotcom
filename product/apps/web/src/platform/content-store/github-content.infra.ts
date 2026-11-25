@@ -6,13 +6,13 @@ import {
   StorageDocumentWriteUncertainError,
   StorageError,
   StorageVersionConflictError,
-} from './content-store.domain'
-import { createContentVersion } from './content-version.infra'
+} from '@tenzyu/revisioned-content/contracts'
+import { createContentVersion } from '@tenzyu/revisioned-content/version'
 import { getContentTagForPathname } from '@/config/content-cache'
 import {
   createGitHubAggregateRepository,
   type GitHubAggregateRepository,
-} from './github-aggregate.infra'
+} from '@tenzyu/revisioned-content/github'
 
 type GitHubContentFile = {
   content: string

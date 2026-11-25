@@ -14,7 +14,7 @@ import { Button } from '@tenzyu/ui/button'
 import { buildLocalizedUrl } from '@/lib/intlayer/localized-url'
 import type { ScrapWorkspaceMode } from '@/features/scraps/editor/scrap-workspace'
 import type { ScrapWorkspaceView } from '@/features/scraps/editor/scrap-workspace.validation'
-import { isPublicScrap } from '@/features/scraps/scraps.domain'
+import { isPublicScrap } from '@tenzyu/publishing-domain/scraps'
 import { AdminGate, useSavedPage } from '@/features/content-editor/ui/admin-gate'
 
 const ScrapDetailDialog = dynamic(() =>

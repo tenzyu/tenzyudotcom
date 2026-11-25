@@ -1,4 +1,3 @@
-// src/index.ts
 import './index.css'
 
 export { ThemeProvider } from './components/theme-provider'

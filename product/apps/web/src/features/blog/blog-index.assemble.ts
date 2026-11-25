@@ -1,7 +1,7 @@
 import { z } from 'zod'
-import { StorageError } from '@/platform/content-store/content-store.domain'
+import { StorageError } from '@tenzyu/revisioned-content/contracts'
 import { parseBlogFrontmatter } from './blog-frontmatter.assemble'
-import type { BlogFrontmatter } from './blog.domain'
+import type { BlogFrontmatter } from '@tenzyu/publishing-domain/blog'
 
 export const BLOG_INDEX_PATH = 'blog/index.json'
 

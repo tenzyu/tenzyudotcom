@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import type { MyLink } from '@/features/links/links.domain'
+import type { MyLink } from '@tenzyu/publishing-domain/links'
 import { LinksEditorClient } from './links-editor-client'
 import { Loader2 } from 'lucide-react'
 

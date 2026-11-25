@@ -10,35 +10,13 @@
   ],
   "targets": {
     "build": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "product/packages/osu-skin-core",
-        "command": "bun run build"
-      },
       "outputs": [
         "{projectRoot}/dist"
       ]
     },
-    "typecheck": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "product/packages/osu-skin-core",
-        "command": "bun run typecheck"
-      }
-    },
-    "test": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "product/packages/osu-skin-core",
-        "command": "bun run test"
-      }
-    },
+    "typecheck": {},
+    "test": {},
     "package-smoke": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "product/packages/osu-skin-core",
-        "command": "bun run package-smoke"
-      },
       "dependsOn": [
         "build"
       ],
