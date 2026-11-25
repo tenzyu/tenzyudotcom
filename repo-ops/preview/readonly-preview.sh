@@ -26,7 +26,7 @@ case "${1:-}" in
       "XDG_CACHE_HOME=$snapshot/cache" "SSL_CERT_FILE=${SSL_CERT_FILE:-/etc/ssl/certs/ca-certificates.crt}" \
       LANG=C.UTF-8 CI=1 __ETC_PROFILE_DONE=1 NX_DAEMON=false NX_NO_CLOUD=true NEXT_TELEMETRY_DISABLED=1 \
       GITHUB_CONTENT_OWNER=tenzyu GITHUB_CONTENT_REPO=tenzyudotcom-content GITHUB_CONTENT_BRANCH=main GITHUB_CONTENT_ROOT=storage \
-      "$(command -v bash)" -c 'set -eu; bun install --frozen-lockfile --no-env-file --backend=copyfile; bun --no-env-file nx run ui:build; export NODE_OPTIONS="--import=$PWD/repo-ops/renewal/readonly-preview-preload.mjs"; exec node repo-ops/renewal/readonly-preview-server.mjs'
+      "$(command -v bash)" -c 'set -eu; bun install --frozen-lockfile --no-env-file --backend=copyfile; bun --no-env-file nx run ui:build; export NODE_OPTIONS="--import=$PWD/repo-ops/preview/readonly-preview-preload.mjs"; exec node repo-ops/preview/readonly-preview-server.mjs'
     ;;
   stop) systemctl --user stop "$unit" ;;
   status) systemctl --user status "$unit" --no-pager ;;
