@@ -4,7 +4,7 @@ import { PageIntro, ReadingColumn } from '@tenzyu/ui/editorial'
 import type { EditorCollectionId } from '@/features/content-editor/editor-collections'
 import { getEditorCollectionMeta } from '@/features/content-editor/editor-collections'
 import { readBlogEditorSummaries } from '@/app/[locale]/(main)/blog/_features/blog-workspace.assemble'
-import { makeLoadEditorCollectionUseCase } from './editor.assemble'
+import { loadEditorCollection } from './editor.assemble'
 import { BlogEditor } from './blog-editor'
 import { LinksEditor } from '../../../../../features/links/editor/links-editor'
 import { NotesEditor } from '@/features/notes/editor/notes-editor'
@@ -24,7 +24,6 @@ export async function EditorCollectionEditor({
   slug?: string | null
   create?: boolean
 }) {
-  const loader = makeLoadEditorCollectionUseCase()
   async function collectionEditor() {
     switch (collectionId) {
       case 'blog': {
@@ -39,7 +38,7 @@ export async function EditorCollectionEditor({
         )
       }
       case 'notes': {
-        const state = await loader.execute('notes')
+        const state = await loadEditorCollection('notes')
         return (
           <NotesEditor
             locale={locale}
@@ -49,7 +48,7 @@ export async function EditorCollectionEditor({
         )
       }
       case 'links': {
-        const state = await loader.execute('links')
+        const state = await loadEditorCollection('links')
         return (
           <LinksEditor
             locale={locale}
