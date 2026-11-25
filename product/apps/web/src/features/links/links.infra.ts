@@ -1,8 +1,8 @@
-import type { ContentSnapshot } from '@/lib/content-store/content-store.domain'
+import type { ContentSnapshot } from '@/platform/content-store/content-store.domain'
 import {
   loadJsonCollection,
   saveJsonCollection,
-} from '@/lib/content-store/json-document.infra'
+} from '@/platform/content-store/json-document.infra'
 import {
   LINKS_STORAGE_PATH,
   parseLinkSourceEntries,

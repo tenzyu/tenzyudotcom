@@ -1,7 +1,7 @@
 import type { NextPageIntlayer } from 'next-intlayer'
 import { IntlayerServerProvider } from 'next-intlayer/server'
 import { createPageMetadata, resolvePageLocale } from '@/lib/intlayer/page'
-import { OsuProfileContent } from './_features/page-content'
+import { OsuProfileContent } from '@/features/osu/page-content'
 
 
 export const revalidate = 60

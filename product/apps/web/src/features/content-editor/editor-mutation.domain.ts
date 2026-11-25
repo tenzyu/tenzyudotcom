@@ -1,8 +1,9 @@
 import { isEditorValidationError } from './editor.validation'
 import {
   StorageCommitUncertainError,
+  StorageDocumentWriteUncertainError,
   StorageVersionConflictError,
-} from '@/lib/content-store/content-store.domain'
+} from '@/platform/content-store/content-store.domain'
 
 export type CollectionSaveState =
   | { status: 'idle' }
@@ -23,7 +24,7 @@ export function editorMutationFailure(
       message:
         'Another session changed this content. Your draft is still here. Copy it before loading the latest version.',
     }
-  if (error instanceof StorageCommitUncertainError)
+  if (error instanceof StorageCommitUncertainError || error instanceof StorageDocumentWriteUncertainError)
     return { status: 'error', error: 'uncertain', message: error.message }
   if (isEditorValidationError(error))
     return {

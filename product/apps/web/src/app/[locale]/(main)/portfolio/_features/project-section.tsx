@@ -1,5 +1,5 @@
 import { useIntlayer } from 'next-intlayer/server'
-import { ExternalLink } from '@/app/[locale]/_features/external-link'
+import { ExternalLink } from '@/components/site/external-link'
 import { SectionHeader } from '@/components/site/section-header'
 import { Badge } from '@tenzyu/ui/badge'
 import { Button } from '@tenzyu/ui/button'

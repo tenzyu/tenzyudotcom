@@ -12,7 +12,7 @@ sources:
 
 # MDX rendering
 
-An article can compile yet fail when `KoFiLink` is absent from `blog/_features/mdx-components.tsx`. That failure was observed in the “a stray LLM-harness engineer” post: validate actual React render and link output as well as MDX compilation.[^past]
+An article can compile yet fail when `KoFiLink` is absent from `features/blog/mdx-components.tsx`. That failure was observed in the “a stray LLM-harness engineer” post: validate actual React render and link output as well as MDX compilation.[^past]
 
 # Locale
 

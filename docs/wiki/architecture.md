@@ -14,9 +14,35 @@ sources:
 
 `product/apps/web` uses Next.js 16, React, Intlayer, MDX and the public routes **blog, notes, scraps, links, tools, osu, portfolio**. Do not follow the older proposed `/engineering` route as if implemented. The route registry and `src/config/site-policy.ts` govern links and sitemap.
 
-`product/apps/osu-skin-workbench` uses Tauri/Rust for native filesystem effects and React/Vite for UI. `product/packages/osu-skin-core` retains runtime-pure contracts/classification. `product/packages/ui` owns shareable presentation/Storybook; `linter` enforces ownership. `repo-ops` is tooling, not a product runtime dependency. Apps may import packages; packages must not import apps.
+`product/apps/osu-skin-workbench` uses Tauri/Rust for native filesystem effects and React/Vite for UI. `product/packages/osu-skin-core` retains runtime-pure contracts/classification. `product/packages/ui` owns shareable presentation/Storybook. `repo-ops` is tooling, not a product runtime dependency. Apps may import packages; packages must not import apps.
 
 `product/apps/chatgpt-partial-html-export` reads visible Firefox page DOM and exports local HTML through Downloads or Native Messaging, **not** private ChatGPT APIs.
+
+# Web domain ownership
+
+`src/app` owns Next.js routing, HTTP adapters, layouts and route composition. The following product capabilities have a single implementation owner:
+
+| Owner | Responsibilities |
+| --- | --- |
+| `features/blog` | Article metadata, source, catalog, aliases, public UI, authoring commands, editor validation and publication tests |
+| `features/notes` | Note identities, thread invariants, public views, item commands and editor |
+| `features/scraps` | Manifest, entry, translation and visibility rules, public views, editor and aggregate publication |
+| `features/links` | Link validation, short-link behavior, public projections, item commands, editor and cache invalidation |
+| `features/osu` | Profile, API access, settings history, embedded media and presentation |
+| `composition/editor` | Workspace navigation, typed collection routing and domain editor composition; no feature imports this owner |
+| `features/content-editor` | Shared editor UI, login, source editing, collection form validation/authorization and save hook; no domain dispatch |
+| `platform/content-store` | Revisioned snapshots, tree commits, reconciliation, JSON document operations and transport errors |
+| `config/content-cache.ts` | Application-owned pathname-to-cache-tag integration policy |
+
+Blog consumes the structural `RevisionedContentRepository` capability; the GitHub adapter implements it. Scraps keeps the narrower aggregate contract; Notes and Links retain document-level version checks. The platform is not an owner of Blog aliases, Scrap visibility, note threads, link ordering, or Next route paths.
+
+Use immutable publication snapshots for routes that already require request-time revision consistency. The osu profile's existing cached Links projection remains an explicit Links API; its ISR behavior is not changed by this refactor. Preserve private draft isolation, no-force ref updates, version conflicts, uncertain publication reconciliation, metadata/source fidelity and existing URL contracts. No content migration is required.
+
+Home, portfolio, tools and shell keep their route-local composition. Shared MDX, external links, Ko-fi, sharing, and aside components live in `components/site`; date formatting lives in `lib/i18n`; YouTube presentation lives with `features/youtube`. Authentication remains in `features/editor-auth`. Do not infer that every route-local module is obsolete or that the complete dependency graph has been proven acyclic. CI acceptance remains required.
+
+# Architecture checks
+
+The bespoke architecture linter is retired. Use TypeScript, Biome (including `noImportCycles` for Web module imports), the dependency policy, code review and behavioral tests. A module-cycle check alone does not prove the owner quotient acyclic. The native restricted-import override prohibits reverse `@/app/` and `@/composition/` imports from feature and shared-leaf directories; relative paths and the owner quotient still require graph inspection. Composition imports domains; domains import reusable editor capabilities, not composition. Domain-specific server actions bind the collection; shared form handling authenticates and rejects a mismatched collection before saving. Links owns post-confirmation cache invalidation; refresh failure is logged without converting a confirmed write into a failed save. Authentication, origin checks, private draft isolation and publication consistency remain requirements.
 
 # Where to start
 

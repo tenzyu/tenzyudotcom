@@ -1,18 +1,19 @@
 import {
   type DocumentBase,
   InvalidItemCommand,
-} from '@/lib/content-store/json-item-command.validation'
+} from '@/platform/content-store/json-item-command.validation'
 import {
   executeItemCommand,
   loadItemDocument,
   requireItem,
-} from '@/lib/content-store/json-item-command.infra'
+} from '@/platform/content-store/json-item-command.infra'
 import {
   LinkCommand,
   LinkEditView,
   LINKS_STORAGE_PATH,
   parseLinkSourceEntries,
 } from './link-command.validation'
+import { refreshLinksAfterSave } from './links-cache'
 
 export async function loadLinkEditView(
   shortCode: string | null,
@@ -43,7 +44,7 @@ export async function loadLinkEditView(
   })
 }
 
-export function runLinkCommand(
+export async function runLinkCommand(
   base: DocumentBase,
   operation: 'apply' | 'check',
   raw: unknown,
@@ -51,7 +52,7 @@ export function runLinkCommand(
   const parsed = LinkCommand.safeParse(raw)
   if (!parsed.success) throw new InvalidItemCommand('Check the link fields.')
   const command = parsed.data
-  return executeItemCommand({
+  const result = await executeItemCommand({
     pathname: LINKS_STORAGE_PATH,
     parse: parseLinkSourceEntries,
     base,
@@ -104,6 +105,8 @@ export function runLinkCommand(
       return validate(remaining)
     },
   })
+  if (result.kind === 'saved') refreshLinksAfterSave()
+  return result
 }
 
 function validate(links: Parameters<typeof parseLinkSourceEntries>[0]) {

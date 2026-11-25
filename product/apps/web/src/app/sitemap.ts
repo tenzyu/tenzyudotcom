@@ -3,14 +3,14 @@ import type { MetadataRoute } from 'next'
 import { connection } from 'next/server'
 import { BASE_URL } from '@/config/site'
 import { STATIC_SITEMAP_ROUTE_PATHS } from '@/config/site-policy'
-import { loadBlogPosts } from '@/app/[locale]/(main)/blog/_features/blog.assemble'
-import { loadPublishedNoteIds } from '@/app/[locale]/(main)/notes/_features/notes.assemble'
+import { loadBlogPosts } from '@/features/blog/blog.assemble'
+import { loadPublishedNoteIds } from '@/features/notes/notes.assemble'
 import {
   buildScrapAlternateLanguages,
   buildScrapDetailUrl,
   loadPublicScraps,
-} from '@/app/[locale]/(main)/scraps/_features/scraps.assemble'
-import { loadPublication } from '@/lib/content-store/publication.assemble'
+} from '@/features/scraps/scraps.assemble'
+import { loadPublication } from '@/platform/content-store/publication.assemble'
 
 const sitemap = async (): Promise<MetadataRoute.Sitemap> => {
   await connection()

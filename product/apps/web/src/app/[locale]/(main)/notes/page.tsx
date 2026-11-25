@@ -2,9 +2,9 @@ import type { NextPageIntlayer } from 'next-intlayer'
 import { connection } from 'next/server'
 import { IntlayerServerProvider } from 'next-intlayer/server'
 import { createPageMetadata, resolvePageLocale } from '@/lib/intlayer/page'
-import { assembleNotesPageData } from './_features/notes.assemble'
-import { NotesPageContent } from './_features/notes-page-content'
-import { loadPublication } from '@/lib/content-store/publication.assemble'
+import { assembleNotesPageData } from '@/features/notes/notes.assemble'
+import { NotesPageContent } from '@/features/notes/notes-page-content'
+import { loadPublication } from '@/platform/content-store/publication.assemble'
 
 export const generateMetadata = createPageMetadata('page-notes', {
   pathname: '/notes',

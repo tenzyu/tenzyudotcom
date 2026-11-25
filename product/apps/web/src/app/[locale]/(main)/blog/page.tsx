@@ -2,9 +2,9 @@ import type { LocalPromiseParams } from 'next-intlayer'
 import { connection } from 'next/server'
 import { IntlayerServerProvider } from 'next-intlayer/server'
 import { createPageMetadata, resolvePageLocale } from '@/lib/intlayer/page'
-import { BlogPageContent } from './_features/blog-page-content'
-import { assemblePaginatedBlogPosts } from './_features/blog.assemble'
-import { loadPublication } from '@/lib/content-store/publication.assemble'
+import { BlogPageContent } from '@/features/blog/blog-page-content'
+import { assemblePaginatedBlogPosts } from '@/features/blog/blog.assemble'
+import { loadPublication } from '@/platform/content-store/publication.assemble'
 
 export const generateMetadata = createPageMetadata('page-blog', {
   pathname: '/blog',

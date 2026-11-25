@@ -30,7 +30,6 @@ const nextConfig: NextConfig = {
       'sonner',
       'class-variance-authority',
       'next-themes',
-      'embla-carousel-react',
     ],
     optimizeCss: true,
     webpackBuildWorker: true,

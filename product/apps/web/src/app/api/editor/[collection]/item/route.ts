@@ -1,11 +1,10 @@
 import { Payload } from './item-command.validation'
-import { refreshLinksAfterSave } from '@/app/[locale]/(admin)/editor/_features/editor.assemble'
 import { NextResponse } from 'next/server'
-import { NoteCommand } from '@/app/[locale]/(main)/notes/_features/note-command.validation'
+import { NoteCommand } from '@/features/notes/note-command.validation'
 import {
   loadNoteEditView,
   runNoteCommand,
-} from '@/app/[locale]/(main)/notes/_features/note-command.assemble'
+} from '@/features/notes/note-command.assemble'
 import {
   getEditorAdminSessionExpiry,
   isSameOriginEditorRequest,
@@ -17,7 +16,7 @@ import {
 import {
   InvalidItemCommand,
   type ItemCommandResult,
-} from '@/lib/content-store/json-item-command.validation'
+} from '@/platform/content-store/json-item-command.validation'
 
 type Context = { params: Promise<{ collection: string }> }
 
@@ -71,13 +70,6 @@ export async function POST(request: Request, { params }: Context) {
       result = await runNoteCommand(base, operation, note.data)
     } else {
       result = await runLinkCommand(base, operation, command)
-    }
-    if (collection === 'links' && result.kind === 'saved') {
-      try {
-        refreshLinksAfterSave()
-      } catch (error) {
-        console.error('Unable to refresh links after a confirmed save', error)
-      }
     }
     return json(result, result.kind === 'conflict' ? 409 : 200)
   } catch (error) {

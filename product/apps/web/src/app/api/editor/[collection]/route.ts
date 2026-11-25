@@ -4,14 +4,14 @@ import {
   isSameOriginEditorRequest,
 } from '@/features/editor-auth/editor-session'
 import {
-  makeLoadEditorCollectionUseCase,
-  makeSaveEditorCollectionUseCase,
-} from '@/app/[locale]/(admin)/editor/_features/editor.assemble'
+  loadEditorCollection,
+  saveEditorCollection,
+} from '@/composition/editor/editor.assemble'
 import {
   isEditorCollectionId,
   isWritableEditorCollectionId,
-} from '@/features/content-editor/editor-collections'
-import { StorageVersionConflictError } from '@/lib/content-store/content-store.domain'
+} from '@/composition/editor/editor-collections'
+import { StorageVersionConflictError } from '@/platform/content-store/content-store.domain'
 import { isEditorValidationError } from '@/features/content-editor/editor.validation'
 import { CollectionSavePayload } from './_features/collection-save.validation'
 
@@ -30,8 +30,7 @@ export async function GET(
   }
 
   try {
-    const loadUseCase = makeLoadEditorCollectionUseCase()
-    const state = await loadUseCase.execute(collection)
+    const state = await loadEditorCollection(collection)
     return NextResponse.json(state)
   } catch (error) {
     console.error('Failed to load collection:', error)
@@ -70,8 +69,7 @@ export async function PUT(
   try {
     const body = CollectionSavePayload.parse(await request.json())
 
-    const saveUseCase = makeSaveEditorCollectionUseCase()
-    const result = await saveUseCase.execute(
+    const result = await saveEditorCollection(
       collection,
       body.sourceJson,
       body.expectedVersion,

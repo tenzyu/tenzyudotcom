@@ -4,20 +4,22 @@ import type { ReactNode } from 'react'
 import Image from 'next/image'
 import { Dialog, DialogTrigger } from '@tenzyu/ui/dialog'
 import { Card } from '@tenzyu/ui/card'
-import { ExternalLink as SiteExternalLink } from '@/app/[locale]/_features/external-link'
+import { ExternalLink as SiteExternalLink } from '@/components/site/external-link'
 import { TikTokDialogContent } from '@/app/[locale]/(main)/_features/tiktok/tiktok-dialog-content'
-import { formatTikTokLikeCount } from '@/features/tiktok/tiktok.domain'
-import type { HomeTikTokCard } from './tiktok.assemble'
+import {
+  formatTikTokLikeCount,
+  type TikTokVideoMetadata,
+} from '@/features/tiktok/tiktok.domain'
 
 type TikTokEmbedItemProps = {
-  video: HomeTikTokCard
+  video: TikTokVideoMetadata
 }
 
 function TikTokThumbnail({
   video,
   overlay,
 }: {
-  video: HomeTikTokCard
+  video: TikTokVideoMetadata
   overlay?: ReactNode
 }) {
   const aspectRatio =
@@ -115,7 +117,7 @@ function TikTokEmbedItem({ video }: TikTokEmbedItemProps) {
 }
 
 type TikTokEmbedListProps = {
-  videos: HomeTikTokCard[]
+  videos: TikTokVideoMetadata[]
 }
 
 export function TikTokEmbedList({ videos }: TikTokEmbedListProps) {

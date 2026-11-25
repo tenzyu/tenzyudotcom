@@ -34,16 +34,28 @@ const rootPackageJson = JSON.parse(
 ) as PackageJson
 
 let failed = false
-const standardVersions = new Map([
-  ['typescript', '6.0.3'],
-  ['react', '^19.2.6'],
-  ['react-dom', '^19.2.6'],
-  ['@types/react', '^19.2.15'],
-  ['@types/react-dom', '^19.2.3'],
-  ['vite', '^8.0.13'],
-  ['tailwindcss', '^4.2.1'],
-  ['@tailwindcss/postcss', '^4.3.0'],
-])
+// The workspace catalog is the version authority. Keep the policy's scope,
+// not a second table of pinned versions.
+const alignedDependencies = [
+  'typescript',
+  'react',
+  'react-dom',
+  '@types/react',
+  '@types/react-dom',
+  'vite',
+  'tailwindcss',
+  '@tailwindcss/postcss',
+]
+const standardVersions = new Map<string, string>()
+for (const name of alignedDependencies) {
+  const version = rootPackageJson.workspaces?.catalog?.[name]
+  if (!version) {
+    failed = true
+    console.error(`package.json: missing required catalog entry ${name}`)
+  } else {
+    standardVersions.set(name, version)
+  }
+}
 
 const peerVersionOverrides = new Map([
   ['react', '>=19 <20'],
