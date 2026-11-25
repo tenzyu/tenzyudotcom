@@ -126,7 +126,7 @@ jobs:
   cross-browser-fixture:
     if: startsWith(github.head_ref, 'evidence/') || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 45
     env:
       NX_DAEMON: 'false'
       NX_TUI: 'false'
@@ -156,6 +156,7 @@ jobs:
           path: |
             ${{ runner.temp }}/public-fixture/revision.txt
             ${{ runner.temp }}/public-fixture/fixture-*/results.json
+            ${{ runner.temp }}/public-fixture/fixture-*/quality-*.json
             ${{ runner.temp }}/public-fixture/fixture-*/artifacts/**/error-context.md
           if-no-files-found: error
           retention-days: 7
