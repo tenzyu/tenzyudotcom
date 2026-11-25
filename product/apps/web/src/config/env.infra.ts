@@ -55,6 +55,7 @@ export const env = {
   youtubeDataApiKey: readOptionalString('YOUTUBE_DATA_API_KEY'),
   osuClientId: readOptionalInteger('OSU_CLIENT_ID'),
   osuClientSecret: readOptionalString('OSU_CLIENT_SECRET'),
+  editorAllowedOrigin: readOptionalString('EDITOR_ALLOWED_ORIGIN'),
   editorAdminPassword: readOptionalString('EDITOR_ADMIN_PASSWORD'),
   editorSessionSecret: readOptionalString('EDITOR_SESSION_SECRET'),
   githubContentToken: readOptionalString('GITHUB_CONTENT_TOKEN'),

@@ -119,6 +119,7 @@ await new Promise(resolve => allocation.listen(0, '127.0.0.1', resolve));
 const { port } = allocation.address();
 await new Promise((resolve, reject) => allocation.close(error => error ? reject(error) : resolve()));
 const base = `http://127.0.0.1:${port}`;
+env.EDITOR_ALLOWED_ORIGIN = base;
 
 async function start(label) {
   const log = openSync(join(evidence, `${label}.log`), 'w', 0o600);

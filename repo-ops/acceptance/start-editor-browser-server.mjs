@@ -35,6 +35,7 @@ const env = {
   NODE_OPTIONS: `--import=${resolve(import.meta.dirname, 'editor-github-preload.mjs')}`,
   EDITOR_FIXTURE_LEDGER: ledger,
   EDITOR_FIXTURE_ORIGIN: `http://127.0.0.1:${port}`,
+  EDITOR_ALLOWED_ORIGIN: `http://127.0.0.1:${port}`,
   EDITOR_FIXTURE_REPO: repository,
   EDITOR_FIXTURE_DOCUMENT_LOSS: resolve(fixtureDir, 'drop-document-response'),
   EDITOR_FIXTURE_REF_LOSS: resolve(fixtureDir, 'drop-ref-response'),
