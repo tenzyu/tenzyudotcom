@@ -42,7 +42,7 @@ node --test repo-ops/acceptance/editor-github-preload.test.mjs
 node --test repo-ops/evidence/run.test.mjs
 ```
 
-If necessary, enter `nix develop .#browser-verification` once. Public acceptance uses Playwright/Chromium 1440/390 px, server at port 4173, credential-free and read-only external public content. Editor acceptance uses port 4174, dummy credentials and an in-memory fake GitHub that refuses external fetch; fixture writes do **not** reach GitHub. **Do not run public and editor suites concurrently**: they share the app's `.next`. Evidence contains `results.json`, server log, event attachments and traces; never commit it. Firefox/WebKit are not configured.
+If necessary, enter `nix develop .#browser-verification` once. Public acceptance uses Playwright/Chromium 1440/390 px, server at port 4173, credential-free and read-only external public content. Editor acceptance uses port 4174, dummy credentials and an in-memory fake GitHub that refuses external fetch; fixture writes do **not** reach GitHub. **Do not run public and editor suites concurrently**: they share the app's `.next`. Evidence contains `results.json`, server log, event attachments and traces; never commit it. The live-content suite remains Chromium-only. The separate deterministic public fixture uses all three Playwright engines, desktop and narrow viewports, port 4175, and a synthetic Git seed. It is opt-in via `bun --no-env-file run test:browser:fixture` or the evidence workflow. Do not run it concurrently with the editor/public suite in one checkout.
 
 See the [Web verification skill](../../product/apps/web/.claude/skills/verify/SKILL.md) and [OKF operations notes](../../docs/wiki/operations.md).
 
