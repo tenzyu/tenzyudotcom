@@ -4,13 +4,13 @@ import {
   saveNotesState,
 } from '@/features/notes/notes.infra'
 import { loadScrapEditorIndexState } from '@/features/scraps/editor/scrap-editor.assemble'
-import { loadLinksState, saveLinksState } from '@/features/links/links.infra'
-import { refreshLinksAfterSave } from '@/features/links/links-cache'
+import { loadLinksState } from '@/features/links/links.infra'
+import { saveLinksCollection } from '@/features/links/links-cache'
 import {
   type EditorCollectionId,
   type EditorCollectionState,
   type WritableEditorCollectionId,
-} from '@/features/content-editor/editor-collections'
+} from './editor-collections'
 
 const collectionLoaders: {
   [K in EditorCollectionId]: () => Promise<EditorCollectionState<K>>
@@ -35,8 +35,5 @@ export async function saveEditorCollection(
   if (collectionId === 'notes')
     return saveNotesState(rawJson, expectedVersion)
 
-  const result = await saveLinksState(rawJson, expectedVersion)
-  refreshLinksAfterSave()
-
-  return result
+  return saveLinksCollection(rawJson, expectedVersion)
 }

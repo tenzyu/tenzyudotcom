@@ -24,6 +24,8 @@ import { Textarea } from '@tenzyu/ui/textarea'
 import { useCollectionSave } from '@/features/content-editor/use-collection-save'
 import { moveItem } from '@/features/content-editor/editor-utils'
 
+import { saveNotesCollectionAction } from './notes-actions'
+
 const ROOT_PARENT = '__root__'
 
 type NotesEditorClientProps = {
@@ -76,7 +78,7 @@ export function NotesEditorClient({
   labels,
 }: NotesEditorClientProps) {
   const [entries, setEntries] = useState<NoteSourceEntry[]>(initialEntries)
-  const { state, action, pending, version } = useCollectionSave(expectedVersion)
+  const { state, action, pending, version } = useCollectionSave(expectedVersion, saveNotesCollectionAction)
   const sourceJson = JSON.stringify(entries, null, 2)
   const titleKey = locale === 'ja' ? 'ja' : 'en'
   const isInline = variant === 'inline'

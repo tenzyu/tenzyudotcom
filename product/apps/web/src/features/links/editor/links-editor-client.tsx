@@ -16,7 +16,9 @@ import { NativeSelect, NativeSelectOption } from '@tenzyu/ui/native-select'
 import type { LinkCategory, MyLink } from '@/features/links/links.domain'
 import { useCollectionSave } from '@/features/content-editor/use-collection-save'
 import { moveItem } from '@/features/content-editor/editor-utils'
-import { fetchUrlMetadataAction } from '@/features/content-editor/metadata.actions'
+import { fetchUrlMetadataAction } from './metadata.actions'
+
+import { saveLinksCollectionAction } from './links-actions'
 
 type LinksEditorClientProps = {
   initialEntries: MyLink[]
@@ -66,7 +68,7 @@ export function LinksEditorClient({
       editorKey: crypto.randomUUID(),
     })),
   )
-  const { state, action, pending, version } = useCollectionSave(expectedVersion)
+  const { state, action, pending, version } = useCollectionSave(expectedVersion, saveLinksCollectionAction)
   const [loadingIndex, setLoadingIndex] = useState<number | null>(null)
   const sourceJson = JSON.stringify(
     entries.map(({ editorKey: _editorKey, ...entry }) => entry),

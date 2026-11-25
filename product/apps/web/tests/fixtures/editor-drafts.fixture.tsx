@@ -81,8 +81,15 @@ mock.module('@/features/blog/editor/blog-actions', () => ({
         }
       : { status: 'error', error: failure, message: 'Draft kept' }
 }))
-mock.module('@/features/content-editor/actions', () => ({
-  saveEditorCollectionAction: async () => ({
+mock.module('@/features/notes/editor/notes-actions', () => ({
+  saveNotesCollectionAction: async () => ({
+    status: 'error',
+    error: failure,
+    message: 'Draft kept',
+  }),
+}))
+mock.module('@/features/links/editor/links-actions', () => ({
+  saveLinksCollectionAction: async () => ({
     status: 'error',
     error: failure,
     message: 'Draft kept',

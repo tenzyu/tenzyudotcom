@@ -29,7 +29,8 @@ sources:
 | `features/scraps` | Manifest, entry, translation and visibility rules, public views, editor and aggregate publication |
 | `features/links` | Link validation, short-link behavior, public projections, item commands, editor and cache invalidation |
 | `features/osu` | Profile, API access, settings history, embedded media and presentation |
-| `features/content-editor` | Shared editor UI, login, collection dispatch and navigation; not Blog/Scraps authoring policy |
+| `composition/editor` | Workspace navigation, typed collection routing and domain editor composition; no feature imports this owner | 
+| `features/content-editor` | Shared editor UI, login, source editing, collection form validation/authorization and save hook; no domain dispatch |
 | `platform/content-store` | Revisioned snapshots, tree commits, reconciliation, JSON document operations and transport errors |
 | `config/content-cache.ts` | Application-owned pathname-to-cache-tag integration policy |
 
@@ -41,7 +42,7 @@ Other features (including home, portfolio, tools, shell and authentication) stil
 
 # Architecture checks
 
-The bespoke architecture linter is retired. Use TypeScript, Biome, the dependency policy, code review and behavioral tests. Authentication, origin checks, private draft isolation and publication consistency remain requirements.
+The bespoke architecture linter is retired. Use TypeScript, Biome (including `noImportCycles` for Web module imports), the dependency policy, code review and behavioral tests. A module-cycle check alone does not prove the owner quotient acyclic. Composition imports domains; domains import reusable editor capabilities, not composition. Domain-specific server actions bind the collection; shared form handling authenticates and rejects a mismatched collection before saving. Links owns post-confirmation cache invalidation; refresh failure is logged without converting a confirmed write into a failed save. Authentication, origin checks, private draft isolation and publication consistency remain requirements.
 
 # Where to start
 

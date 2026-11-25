@@ -6,9 +6,9 @@ import {
   EditorialList,
   EditorialEntry,
 } from '@tenzyu/ui/editorial'
-import { listEditorCollectionMeta } from '@/features/content-editor/editor-collections'
+import { listEditorCollectionMeta } from './editor-collections'
 import { isEditorGithubStorage } from '@/config/env.infra'
-import { logoutEditorAdminAction } from './actions'
+import { logoutEditorAdminAction } from '@/features/content-editor/actions'
 
 const descriptions = {
   blog: 'Longer articles, drafts, and published posts.',

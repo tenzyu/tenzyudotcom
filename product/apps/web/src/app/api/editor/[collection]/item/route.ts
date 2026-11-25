@@ -1,5 +1,4 @@
 import { Payload } from './item-command.validation'
-import { refreshLinksAfterSave } from '@/features/links/links-cache'
 import { NextResponse } from 'next/server'
 import { NoteCommand } from '@/features/notes/note-command.validation'
 import {
@@ -71,13 +70,6 @@ export async function POST(request: Request, { params }: Context) {
       result = await runNoteCommand(base, operation, note.data)
     } else {
       result = await runLinkCommand(base, operation, command)
-    }
-    if (collection === 'links' && result.kind === 'saved') {
-      try {
-        refreshLinksAfterSave()
-      } catch (error) {
-        console.error('Unable to refresh links after a confirmed save', error)
-      }
     }
     return json(result, result.kind === 'conflict' ? 409 : 200)
   } catch (error) {

@@ -2,23 +2,13 @@
 
 import { getLocalizedUrl } from 'intlayer'
 import { redirect } from 'next/navigation'
-import { isWritableEditorCollectionId } from '@/features/content-editor/editor-collections'
-import { saveEditorCollection } from './editor.assemble'
-import {
-  parseEditorCollectionSaveInput,
-  parseEditorLoginInput,
-} from './editor-input.assemble'
-import {
-  type CollectionSaveState,
-  editorMutationFailure,
-} from '@/features/content-editor/editor-mutation.domain'
+import { parseEditorLoginInput } from './editor-input.assemble'
 import {
   clearEditorAdminSession,
   checkEditorLoginRateLimit,
   clearEditorLoginRateLimit,
   createEditorAdminSession,
   requireEditorSameOriginRequest,
-  requireEditorAdminSession,
   verifyEditorAdminPassword,
 } from '@/features/editor-auth/editor-session'
 
@@ -55,45 +45,4 @@ export async function logoutEditorAdminAction(formData: FormData) {
       : 'ja'
   await clearEditorAdminSession()
   redirect(getLocalizedUrl('/editor/login', locale))
-}
-
-export async function saveEditorCollectionAction(
-  _previous: CollectionSaveState,
-  formData: FormData,
-): Promise<CollectionSaveState> {
-  await requireEditorSameOriginRequest()
-  await requireEditorAdminSession(formData.get('locale') === 'en' ? 'en' : 'ja')
-  const parsed = parseEditorCollectionSaveInput({
-    locale: formData.get('locale'),
-    collectionId: formData.get('collectionId'),
-    sourceJson: formData.get('sourceJson'),
-    expectedVersion: formData.get('expectedVersion'),
-  })
-
-  if (!parsed.success) {
-    return {
-      status: 'error',
-      error: 'invalid',
-      message: 'The collection fields are invalid. Your draft has been kept.',
-    }
-  }
-
-  if (!isWritableEditorCollectionId(parsed.data.collectionId)) {
-    return {
-      status: 'error',
-      error: 'invalid',
-      message: 'This collection is not writable.',
-    }
-  }
-
-  try {
-    const result = await saveEditorCollection(
-      parsed.data.collectionId,
-      parsed.data.sourceJson,
-      parsed.data.expectedVersion,
-    )
-    return { status: 'saved', version: result.version, message: 'Saved.' }
-  } catch (error) {
-    return editorMutationFailure(error)
-  }
 }

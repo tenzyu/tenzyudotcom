@@ -29,7 +29,8 @@
         "noProcessEnv": "error"
       },
       "suspicious": {
-        "noUnknownAtRules": "off"
+        "noUnknownAtRules": "off",
+        "noImportCycles": "error"
       }
     },
     "domains": {

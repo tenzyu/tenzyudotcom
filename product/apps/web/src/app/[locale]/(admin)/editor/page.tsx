@@ -1,4 +1,4 @@
-import { EditorDashboard } from '@/features/content-editor/dashboard'
+import { EditorDashboard } from '@/composition/editor/dashboard'
 import { requireEditorAdminSession } from '@/features/editor-auth/editor-session'
 import { resolvePageLocale } from '@/lib/intlayer/page'
 
