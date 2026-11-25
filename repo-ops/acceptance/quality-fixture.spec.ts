@@ -54,10 +54,37 @@ for (const theme of ['light', 'dark'] as const) {
 test('navigation and scripted interaction performance inventory', async ({ browser, baseURL, viewport }, info) => {
   test.setTimeout(360_000);
   const results = [];
+  // Next's installed copy is the same web-vitals implementation used by
+  // next/web-vitals, without a new package or production instrumentation.
+  const nextRequire = createRequire(resolve('product/apps/web/package.json'));
+  const vitalsSource = readFileSync(nextRequire.resolve('next/dist/compiled/web-vitals'), 'utf8');
+  const initVitals = `
+    (() => {
+      const module = { exports: {} }; const exports = module.exports;
+      ${vitalsSource}
+      const vitals = module.exports;
+      const key = 'quality-vitals-' + performance.timeOrigin;
+      const values = {};
+      for (const name of ['LCP','INP','CLS']) {
+        if (typeof vitals['on' + name] !== 'function') throw new Error('Missing web-vitals metric ' + name);
+        vitals['on' + name](metric => {
+          values[name] = { value: metric.value, rating: metric.rating, id: metric.id, navigationType: metric.navigationType };
+          try { sessionStorage.setItem(key, JSON.stringify(values)); } catch {}
+        }, { reportAllChanges: true });
+      }
+      window.__qualityVitalsInstalled = true;
+    })();
+  `;
   for (const path of ['/en','/en/portfolio','/en/blog','/en/notes','/en/scraps','/en/tools','/en/osu']) {
     for (let repetition = 0; repetition < 3; repetition++) {
-      const context = await browser.newContext({ viewport: viewport ?? undefined, locale: 'en-US' });
-      await context.route('**/*', route => new URL(route.request().url()).origin === baseURL ? route.continue() : route.abort());
+      const context = await browser.newContext({
+        viewport: viewport ?? undefined, locale: 'en-US',
+        // A deliberately dead external proxy preserves the HTTP cache, unlike
+        // Playwright route interception. Only the loopback fixture bypasses it.
+        proxy: { server: 'http://127.0.0.1:9', bypass: '127.0.0.1,localhost' },
+        serviceWorkers: 'block',
+      });
+      await context.addInitScript({ content: initVitals });
       await context.addInitScript(() => {
         const observations: Record<string, any[]> = {};
         for (const type of ['largest-contentful-paint','layout-shift','event','longtask']) {
@@ -74,15 +101,40 @@ test('navigation and scripted interaction performance inventory', async ({ brows
       });
       try {
         const page = await context.newPage();
-        for (const phase of ['fresh-context','repeat-same-context']) {
+        const cdp = await context.newCDPSession(page);
+        await cdp.send('Network.enable');
+        const requests = new Map<string, any>();
+        cdp.on('Network.requestWillBeSent', event => {
+          const url = new URL(event.request.url);
+          requests.set(event.requestId, { id: event.requestId, local: url.origin === baseURL, path: url.pathname, initiator: event.initiator.type, initiatorUrl: event.initiator.url ? new URL(event.initiator.url).pathname : null, start: event.timestamp });
+        });
+        cdp.on('Network.responseReceived', event => {
+          const row = requests.get(event.requestId);
+          if (row) Object.assign(row, { status: event.response.status, mime: event.response.mimeType, fromDiskCache: event.response.fromDiskCache, timing: event.response.timing });
+        });
+        cdp.on('Network.requestServedFromCache', event => {
+          const row = requests.get(event.requestId); if (row) row.servedFromCache = true;
+        });
+        cdp.on('Network.loadingFinished', event => {
+          const row = requests.get(event.requestId); if (row) Object.assign(row, { encodedDataLength: event.encodedDataLength, end: event.timestamp });
+        });
+        let previous: any;
+        for (const phase of ['cold-browser-cache','warm-browser-cache']) {
+          requests.clear();
           expect((await page.goto(baseURL + path, { waitUntil: 'load' }))?.status(), path).toBe(200);
+          expect(await page.evaluate(() => (window as any).__qualityVitalsInstalled), 'installed web-vitals callbacks').toBe(true);
+          if (previous) {
+            previous.webVitals = await page.evaluate(key => JSON.parse(sessionStorage.getItem(key) ?? '{}'), previous.vitalsKey);
+          }
           await page.evaluate(() => document.fonts.ready.then(() => undefined));
           await page.waitForTimeout(500);
           // Trusted browser input, not dispatchEvent().
           await page.getByRole('button', { name: /change language/i }).press('Enter');
           await expect(page.getByRole('menuitem', { name: '日本語' })).toBeVisible();
           await page.keyboard.press('Escape');
-          await page.waitForTimeout(200);
+          await page.getByRole('button', { name: /change language/i }).press('Enter');
+          await page.keyboard.press('Escape');
+          await page.waitForTimeout(300);
           const metrics = await page.evaluate(() => {
             const obs = (window as any).__qualityObservations as Record<string, any[]>;
             const lcp = obs['largest-contentful-paint']?.at(-1);
@@ -103,11 +155,17 @@ test('navigation and scripted interaction performance inventory', async ({ brows
           expect(metrics.supported).toContain('largest-contentful-paint');
           expect(metrics.supported).toContain('event');
           expect(metrics.lcpMs, path).not.toBeNull();
-          results.push({ path, repetition, phase, ...metrics });
+          const vitalsKey = await page.evaluate(() => 'quality-vitals-' + performance.timeOrigin);
+          previous = { path, repetition, phase, ...metrics, vitalsKey, waterfall: [...requests.values()].filter(r => r.local), webVitals: {} };
+          results.push(previous);
         }
+        // Same-origin navigation flushes pagehide/visibility metrics and preserves
+        // the previous document's sessionStorage; it is not a measured route.
+        await page.goto(baseURL + '/en/editor/login');
+        previous.webVitals = await page.evaluate(key => JSON.parse(sessionStorage.getItem(key) ?? '{}'), previous.vitalsKey);
       } finally { await context.close(); }
     }
   }
-  report(info.project.name + '-performance', { scope: 'local production fixture; HTTP cache disabled by request isolation; no throttle; Event Timing sample, not field INP', viewport, results });
-  console.log(JSON.stringify({ project: info.project.name, navigations: results.length, lcpSamples: results.filter(r => r.lcpMs !== null).length, observedInteractionSamples: results.filter(r => r.interactionSampleMaxMs !== null).length }));
+  report(info.project.name + '-performance', { scope: 'local production fixture; browser cold/warm cache; external proxy blocked; no throttle; Next bundled web-vitals, scripted laboratory lifecycle, not field p75', viewport, results });
+  console.log(JSON.stringify({ project: info.project.name, navigations: results.length, lcpSamples: results.filter(r => r.lcpMs !== null).length, observedInteractionSamples: results.filter(r => r.interactionSampleMaxMs !== null).length, officialINPSamples: results.filter((r: any) => typeof r.webVitals?.INP?.value === 'number').length, warmCacheHits: results.filter((r: any) => r.phase === 'warm-browser-cache').flatMap((r: any) => r.waterfall).filter((r: any) => r.fromDiskCache || r.servedFromCache).length }));
 });
