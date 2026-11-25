@@ -106,6 +106,10 @@ function run(command, args, cwd, environment, label) {
   const log = openSync(logPath, 'w', 0o600);
   const result = spawnSync(command, args, { cwd, env: environment, stdio: ['ignore', log, log] });
   if (result.error) throw result.error;
+  if (result.status !== 0 && (label === 'next-build' || label === 'ui-build')) {
+    // These builds use the isolated publication fixture, not production credentials.
+    console.error(readFileSync(logPath, 'utf8').slice(-24000));
+  }
   assert.equal(result.status, 0, `${label} exited ${result.status}. See ${logPath}`);
 }
 

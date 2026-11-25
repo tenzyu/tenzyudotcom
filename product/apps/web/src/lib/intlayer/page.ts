@@ -16,8 +16,8 @@ type MetadataLike = Partial<Metadata> & {
 }
 
 type CreatePageMetadataOptions<K extends DictionaryKeys> = {
-  pathname?: string | ((content: ReturnType<typeof getIntlayer<K>>) => string)
-  select?: (content: ReturnType<typeof getIntlayer<K>>) => MetadataLike
+  pathname?: string | ((content: ReturnType<typeof getIntlayer<K, Awaited<ReturnType<typeof resolvePageLocale>>>>) => string)
+  select?: (content: ReturnType<typeof getIntlayer<K, Awaited<ReturnType<typeof resolvePageLocale>>>>) => MetadataLike
 }
 
 export async function resolvePageLocale(params: LocalPromiseParams['params']) {
@@ -35,7 +35,7 @@ const normalizeNullable = <T>(value: T | null | undefined) => value ?? undefined
 
 const resolvePathname = <K extends DictionaryKeys>(
   pathname: CreatePageMetadataOptions<K>['pathname'],
-  content: ReturnType<typeof getIntlayer<K>>
+  content: ReturnType<typeof getIntlayer<K, Awaited<ReturnType<typeof resolvePageLocale>>>>
 ) => {
   if (typeof pathname === 'function') {
     return pathname(content)
@@ -137,7 +137,7 @@ export function createPageMetadata<K extends DictionaryKeys>(
 ) {
   return async ({ params }: LocalPromiseParams): Promise<Metadata> => {
     const locale = await resolvePageLocale(params)
-    const content = getIntlayer(key, locale)
+    const content = getIntlayer<K, Awaited<ReturnType<typeof resolvePageLocale>>>(key, locale)
     const defaultMetadata = (content as { metadata?: MetadataLike })?.metadata
     const selectedMetadata = options.select?.(content) ?? defaultMetadata ?? {}
     const pathname = resolvePathname(options.pathname, content)
