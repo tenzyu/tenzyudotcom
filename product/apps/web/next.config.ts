@@ -5,6 +5,7 @@ import type { NextConfig } from 'next'
 import { isProduction } from './src/config/env.infra'
 
 const nextConfig: NextConfig = {
+  transpilePackages: ['@tenzyu/revisioned-content', '@tenzyu/publishing-domain'],
   skipProxyUrlNormalize: true,
   images: {
     remotePatterns: [

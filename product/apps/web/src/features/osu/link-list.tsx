@@ -17,7 +17,7 @@ import {
   LINK_CATEGORY_ORDER,
   type LinkCategory,
   type MyLink,
-} from '@/features/links/links.domain'
+} from '@tenzyu/publishing-domain/links'
 
 const CATEGORY_KEYS: Record<
   LinkCategory,

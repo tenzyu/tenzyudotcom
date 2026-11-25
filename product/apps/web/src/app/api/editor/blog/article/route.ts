@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { parseEditorBlogSaveInput } from '@/features/blog/editor/blog-save-input'
-import { BlogSlugValidationError } from '@/features/blog/blog.domain'
+import { BlogSlugValidationError } from '@tenzyu/publishing-domain/blog'
 import {
   checkBlogWorkspacePublication,
   readEditableBlogArticle,
@@ -15,7 +15,7 @@ import {
 import {
   isStorageCommitUncertain,
   isStorageVersionConflict,
-} from '@/platform/content-store/content-store.domain'
+} from '@tenzyu/revisioned-content/contracts'
 
 function json(value: unknown, status = 200) {
   return NextResponse.json(value, {

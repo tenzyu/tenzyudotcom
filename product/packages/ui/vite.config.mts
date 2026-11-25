@@ -11,7 +11,6 @@ import dts from 'vite-plugin-dts'
 
 const projectRoot = import.meta.dirname
 const srcRoot = path.resolve(projectRoot, 'src')
-const uiRoot = path.resolve(srcRoot, 'components/ui')
 const outDir = path.resolve(projectRoot, './dist')
 const packageJson = JSON.parse(
   fs.readFileSync(path.join(projectRoot, 'package.json'), 'utf8')
@@ -27,19 +26,12 @@ function isExternal(id: string) {
 }
 
 const componentEntries = Object.fromEntries(
-  fs
-    .readdirSync(uiRoot)
-    .filter((file) => /\.(ts|tsx)$/.test(file))
-    .filter((file) => !file.endsWith('.test.ts'))
-    .filter((file) => !file.endsWith('.test.tsx'))
-    .filter((file) => !file.endsWith('.spec.ts'))
-    .filter((file) => !file.endsWith('.spec.tsx'))
-    .filter((file) => !file.endsWith('.stories.ts'))
-    .filter((file) => !file.endsWith('.stories.tsx'))
-    .map((file) => {
-      const entryName = path.basename(file, path.extname(file))
-
-      return [entryName, path.resolve(uiRoot, file)] as const
+  Object.keys(packageJson.exports)
+    .filter((entry) => entry !== '.' && entry !== './styles.css')
+    .map((entry) => {
+      const declaration = packageJson.exports[entry].types as string
+      const source = declaration.replace(/^\.\/dist\//, './').replace(/\.d\.ts$/, '.tsx')
+      return [entry.slice(2), path.resolve(projectRoot, source)] as const
     })
 )
 

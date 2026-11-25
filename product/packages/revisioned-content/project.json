@@ -1,0 +1,26 @@
+{
+  "name": "revisioned-content",
+  "projectType": "library",
+  "sourceRoot": "product/packages/revisioned-content/src",
+  "tags": [
+    "type:library",
+    "runtime:server"
+  ],
+  "targets": {
+    "check": {
+      "executor": "nx:noop",
+      "dependsOn": [
+        "typecheck",
+        "test"
+      ],
+      "cache": false
+    },
+    "verify": {
+      "executor": "nx:noop",
+      "dependsOn": [
+        "check"
+      ],
+      "cache": false
+    }
+  }
+}

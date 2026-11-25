@@ -19,7 +19,7 @@ import {
   isPublicScrap,
   isValidScrapSlug,
   type ScrapIndexEntry,
-} from '@/features/scraps/scraps.domain'
+} from '@tenzyu/publishing-domain/scraps'
 import { AdminEditorDialog } from '@/features/content-editor/ui/admin-editor-dialog'
 
 type Selection = { kind: 'new' | 'list' } | { kind: 'scrap'; slug: string }

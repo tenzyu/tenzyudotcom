@@ -10,58 +10,42 @@
   ],
   "targets": {
     "build": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "product/packages/osu-skin-core",
-        "command": "bun run build"
-      },
       "outputs": [
         "{projectRoot}/dist"
       ]
     },
-    "typecheck": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "product/packages/osu-skin-core",
-        "command": "bun run typecheck"
-      }
-    },
-    "test": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "product/packages/osu-skin-core",
-        "command": "bun run test"
-      }
-    },
+    "typecheck": {},
+    "test": {},
     "package-smoke": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "product/packages/osu-skin-core",
-        "command": "bun run build && bun run package-smoke"
-      },
-      "outputs": [
-        "{projectRoot}/dist"
-      ]
+      "dependsOn": [
+        "build"
+      ],
+      "cache": false
     },
     "check": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "product/packages/osu-skin-core",
-        "command": "bun run check"
-      },
-      "outputs": [
-        "{projectRoot}/dist"
-      ]
+      "executor": "nx:noop",
+      "dependsOn": [
+        "typecheck",
+        "test",
+        "browser-boundary",
+        "package-smoke"
+      ],
+      "cache": false
     },
     "verify": {
+      "executor": "nx:noop",
+      "dependsOn": [
+        "check"
+      ],
+      "cache": false
+    },
+    "browser-boundary": {
       "executor": "nx:run-commands",
       "options": {
         "cwd": "product/packages/osu-skin-core",
-        "command": "bun run check"
+        "command": "bun run check:browser-boundary"
       },
-      "outputs": [
-        "{projectRoot}/dist"
-      ]
+      "cache": false
     }
   }
 }

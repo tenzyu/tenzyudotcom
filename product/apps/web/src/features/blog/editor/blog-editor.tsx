@@ -11,7 +11,7 @@ import {
   EditorialEntry,
 } from '@tenzyu/ui/editorial'
 import { buildLocalizedUrl } from '@/lib/intlayer/localized-url'
-import type { BlogPostSummary } from '@/features/blog/blog.domain'
+import type { BlogPostSummary } from '@tenzyu/publishing-domain/blog'
 import { BlogWorkspace } from './blog-workspace'
 
 export function BlogEditor({

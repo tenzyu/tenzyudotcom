@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { DocumentBaseSchema } from '@/platform/content-store/json-item-command.validation'
-import { defineLinks, LINK_CATEGORY_ORDER } from './links.domain'
+import { defineLinks, LINK_CATEGORY_ORDER } from '@tenzyu/publishing-domain/links'
 
 export const LinkSourceEntrySchema = z.object({
   name: z.string().trim().min(1),

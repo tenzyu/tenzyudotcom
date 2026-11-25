@@ -1,10 +1,10 @@
-import { createContentVersion } from '@/platform/content-store/content-version.infra'
+import { createContentVersion } from '@tenzyu/revisioned-content/version'
 import {
   StorageError,
   type ContentRepository,
   type AggregateContentRepository,
   type ContentSnapshot,
-} from '@/platform/content-store/content-store.domain'
+} from '@tenzyu/revisioned-content/contracts'
 import { githubContentRepository } from '@/platform/content-store/github-content.infra'
 import { SCRAPS_INDEX_PATHNAME } from '@/config/content-cache'
 import {
@@ -20,12 +20,12 @@ import {
   isValidScrapEntryId,
   isValidScrapSlug,
   projectScrapIndexEntry,
-} from './scraps.domain'
+} from '@tenzyu/publishing-domain/scraps'
 import {
   parseScrapEntryMeta,
   parseScrapIndexProjection,
   parseScrapManifest,
-} from './scraps.validation'
+} from '@tenzyu/publishing-domain/scraps-validation'
 
 const SCRAPS_PREFIX = 'scraps/'
 

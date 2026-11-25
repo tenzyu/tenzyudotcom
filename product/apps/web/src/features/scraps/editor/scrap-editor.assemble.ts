@@ -7,12 +7,12 @@ import {
   projectScrapIndexEntry,
   compareScrapsByUpdatedAtDesc,
   isIndexableTranslationState,
-} from '@/features/scraps/scraps.domain'
+} from '@tenzyu/publishing-domain/scraps'
 import {
   parseScrapManifest,
   parseScrapEntryMeta,
   parseScrapIndexProjection,
-} from '@/features/scraps/scraps.validation'
+} from '@tenzyu/publishing-domain/scraps-validation'
 import { getScrapsAggregateRepository } from '@/features/scraps/scraps.infra'
 import {
   type AggregateContentRepository,
@@ -20,9 +20,9 @@ import {
   type ContentWrite,
   StorageError,
   StorageVersionConflictError,
-} from '@/platform/content-store/content-store.domain'
+} from '@tenzyu/revisioned-content/contracts'
 import { githubContentRepository } from '@/platform/content-store/github-content.infra'
-import { createContentVersion } from '@/platform/content-store/content-version.infra'
+import { createContentVersion } from '@tenzyu/revisioned-content/version'
 import { SCRAPS_INDEX_PATHNAME } from '@/config/content-cache'
 import {
   type ScrapEditorCommand,

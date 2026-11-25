@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { mock } from 'bun:test'
 import { NextRequest } from 'next/server'
 import type { BlogSaveCommand } from '../../src/features/blog/blog.domain'
-import { StorageVersionConflictError, StorageDocumentWriteUncertainError } from '../../src/platform/content-store/content-store.domain'
+import { StorageVersionConflictError, StorageDocumentWriteUncertainError } from '@tenzyu/revisioned-content/contracts'
 
 let authenticated = false
 let writes = 0

@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test'
 import {
   compareNotesByCreatedAtDesc,
   reparentChildrenAfterNoteDelete,
-} from './notes.domain'
+} from '@tenzyu/publishing-domain/notes'
 import {
   assembleNoteDetailPageDataFromEntries,
   assembleNoteThreadItems,

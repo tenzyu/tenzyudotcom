@@ -5,7 +5,7 @@ import { Button } from '@tenzyu/ui/button'
 import { Input } from '@tenzyu/ui/input'
 import { Textarea } from '@tenzyu/ui/textarea'
 import { SourceField } from '@/features/content-editor/source/source-field'
-import type { BlogChanges } from '@/features/blog/blog.domain'
+import type { BlogChanges } from '@tenzyu/publishing-domain/blog'
 import type {
   BlogArticleView,
   BlogWorkspaceRequest,

@@ -7,16 +7,8 @@
     "scope:web",
     "type:app"
   ],
-  "implicitDependencies": [
-    "ui"
-  ],
   "targets": {
     "dev": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "product/apps/web",
-        "command": "bun run dev"
-      },
       "cache": false,
       "dependsOn": [
         "^build"
@@ -34,25 +26,16 @@
       ]
     },
     "clean": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "product/apps/web",
-        "command": "bun run clean"
-      },
       "cache": false
     },
     "build": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "product/apps/web",
-        "command": "bun run build"
-      },
       "outputs": [
         "{projectRoot}/.next"
       ],
       "dependsOn": [
         "^build"
-      ]
+      ],
+      "cache": false
     },
     "build-prod": {
       "executor": "nx:run-commands",
@@ -65,14 +48,10 @@
       ],
       "dependsOn": [
         "^build"
-      ]
+      ],
+      "cache": false
     },
     "start": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "product/apps/web",
-        "command": "bun run start"
-      },
       "cache": false
     },
     "start-intlayer": {
@@ -84,43 +63,33 @@
       "cache": false
     },
     "lint": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "product/apps/web",
-        "command": "bun run lint"
-      }
+      "inputs": [
+        "default",
+        "^production",
+        "{workspaceRoot}/repo-ops/scripts/biome"
+      ]
     },
     "format": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "product/apps/web",
-        "command": "bun run format"
-      },
       "cache": false
     },
     "typecheck": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "product/apps/web",
-        "command": "bun run typecheck"
-      }
-    },
-    "test": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "product/apps/web",
-        "command": "bun run test"
-      }
-    },
-    "check": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "product/apps/web",
-        "command": "bun run verify:quick"
-      },
       "dependsOn": [
         "^build"
       ]
+    },
+    "test": {
+      "dependsOn": [
+        "^build"
+      ]
+    },
+    "check": {
+      "executor": "nx:noop",
+      "dependsOn": [
+        "lint",
+        "typecheck",
+        "test"
+      ],
+      "cache": false
     },
     "publication-acceptance": {
       "executor": "nx:run-commands",
@@ -135,24 +104,14 @@
       }
     },
     "verify": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "product/apps/web",
-        "command": "bun run verify"
-      },
-      "outputs": [
-        "{projectRoot}/.next"
-      ],
+      "executor": "nx:noop",
       "dependsOn": [
-        "^build"
-      ]
+        "check",
+        "build"
+      ],
+      "cache": false
     },
     "analyze": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "product/apps/web",
-        "command": "bun run analyze"
-      },
       "cache": false
     }
   }

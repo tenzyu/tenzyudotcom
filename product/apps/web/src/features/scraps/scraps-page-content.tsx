@@ -2,7 +2,7 @@ import { useIntlayer } from 'next-intlayer/server'
 import { PageIntro, ReadingColumn, EditorialList } from '@tenzyu/ui/editorial'
 import { ScrapListEditor } from './scrap-page-editor'
 import { ScrapCard } from './scrap-card'
-import type { ScrapIndexEntry } from '@/features/scraps/scraps.domain'
+import type { ScrapIndexEntry } from '@tenzyu/publishing-domain/scraps'
 
 type ScrapsPageContentProps = {
   locale: string

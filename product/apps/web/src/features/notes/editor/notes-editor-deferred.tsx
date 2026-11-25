@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import type { NoteSourceEntry } from '../notes.domain'
+import type { NoteSourceEntry } from '@tenzyu/publishing-domain/notes'
 import { NotesEditorClient } from './notes-editor-client'
 import { Loader2 } from 'lucide-react'
 

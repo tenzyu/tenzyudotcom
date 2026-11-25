@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { fetchProjectFiles as fetchProjectFilesApi } from "../lib/client/project-api";
 import type { AssetMatrix } from "@tenzyu/osu-skin-core/project";
-import type { ProjectFilesResponse } from "@tenzyu/osu-skin-core/contract";
+import type { DesktopProjectFilesResponse } from "@tenzyu/osu-skin-core/contract";
 
 const emptyAssetMatrix: AssetMatrix = {
   columns: [{ id: "project", label: "Project", kind: "project" }],
@@ -11,11 +11,11 @@ const emptyAssetMatrix: AssetMatrix = {
 };
 
 export function useProjectFiles() {
-  const [files, setFiles] = useState<ProjectFilesResponse | null>(null);
+  const [files, setFiles] = useState<DesktopProjectFilesResponse | null>(null);
 
   const matrix = useMemo(() => files?.matrix ?? emptyAssetMatrix, [files?.matrix]);
 
-  async function fetchProjectFiles(projectId: string): Promise<ProjectFilesResponse> {
+  async function fetchProjectFiles(projectId: string): Promise<DesktopProjectFilesResponse> {
     const nextFiles = await fetchProjectFilesApi(projectId);
     setFiles(nextFiles);
     return nextFiles;

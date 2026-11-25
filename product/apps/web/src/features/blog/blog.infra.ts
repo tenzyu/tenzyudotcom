@@ -8,7 +8,7 @@ import {
   type BlogRenameCommand,
   type BlogSaveCommand,
   type MDXData,
-} from './blog.domain'
+} from '@tenzyu/publishing-domain/blog'
 import {
   assertUniqueBlogOwnership,
   BLOG_INDEX_PATH,
@@ -27,7 +27,7 @@ import {
   type ContentSnapshot,
   type ContentTreeChange,
   type RevisionedContentRepository,
-} from '@/platform/content-store/content-store.domain'
+} from '@tenzyu/revisioned-content/contracts'
 
 function parseBlogPost(
   pathname: string,

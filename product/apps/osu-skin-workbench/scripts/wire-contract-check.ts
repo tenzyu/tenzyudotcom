@@ -1,0 +1,21 @@
+import type * as Snapshot from '@tenzyu/osu-skin-core/contract';
+import type * as Generated from '../src-tauri/target/wire.generated';
+
+type Assert<T extends true> = T;
+type Equal<A, B> = [A] extends [B] ? [B] extends [A] ? keyof A extends keyof B ? keyof B extends keyof A ? true : false : false : false : false;
+type SourceManifestMatches = Assert<Equal<Snapshot.SourceManifest, Generated.SourceManifest>>;
+type ProjectManifestMatches = Assert<Equal<Snapshot.ProjectManifest, Generated.ProjectManifest>>;
+type CreateProjectInputMatches = Assert<Equal<Snapshot.CreateProjectInput, Generated.CreateProjectInput>>;
+type AddProjectSourceInputMatches = Assert<Equal<Snapshot.AddProjectSourceInput, Generated.AddProjectSourceInput>>;
+type RenameProjectSourceInputMatches = Assert<Equal<Snapshot.RenameProjectSourceInput, Generated.RenameProjectSourceInput>>;
+type DeleteProjectSourceInputMatches = Assert<Equal<Snapshot.DeleteProjectSourceInput, Generated.DeleteProjectSourceInput>>;
+type RawFileEntryMatches = Assert<Equal<Snapshot.RawFileEntry, Generated.RawFileEntry>>;
+type RawSourceFilesMatches = Assert<Equal<Snapshot.RawSourceFiles, Generated.RawSourceFiles>>;
+type RawProjectFilesResponseMatches = Assert<Equal<Snapshot.RawProjectFilesResponse, Generated.RawProjectFilesResponse>>;
+type RebuildStructuredResultMatches = Assert<Equal<Snapshot.RebuildStructuredResult, Generated.RebuildStructuredResult>>;
+type AssetMutationResultMatches = Assert<Equal<Snapshot.AssetMutationResult, Generated.AssetMutationResult>>;
+type ExportPresetMatches = Assert<Equal<Snapshot.ExportPreset, Generated.ExportPreset>>;
+type ExportProjectInputMatches = Assert<Equal<Snapshot.ExportProjectInput, Generated.ExportProjectInput>>;
+type ExportResultMatches = Assert<Equal<Snapshot.ExportResult, Generated.ExportResult>>;
+type ApplyAssetGroupInputMatches = Assert<Equal<Snapshot.ApplyAssetGroupInput, Generated.ApplyAssetGroupInput>>;
+type DeleteAssetGroupInputMatches = Assert<Equal<Snapshot.DeleteAssetGroupInput, Generated.DeleteAssetGroupInput>>;

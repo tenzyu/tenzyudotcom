@@ -62,7 +62,7 @@ export function verifyStorybookDeclarations(sourceRoot) {
     const buildEnv = { ...env, PATH: `${join(copy, 'node_modules/.bin')}:${env.PATH}` };
     run('bun', ['--no-env-file', 'run', '--shell=bun', 'build'], ui, buildEnv);
     const dist = join(ui, 'dist');
-    const input = readFileSync(join(dist, 'src/components/ui/input.d.ts'), 'utf8');
+    const input = readFileSync(join(dist, 'src/generic/components/input.d.ts'), 'utf8');
     assert.match(input, /from\s+['"]react['"]/);
     assert.doesNotMatch(input, /node_modules[\\/]/);
     const before = declarations(dist);

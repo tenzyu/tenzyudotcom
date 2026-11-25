@@ -1,10 +1,17 @@
 import { convertFileSrc, invoke } from "@tauri-apps/api/core";
 import type {
   AssetMutationResult,
-  ExportPreset,
+  CreateProjectInput,
+  AddProjectSourceInput,
+  RenameProjectSourceInput,
+  DeleteProjectSourceInput,
+  ExportProjectInput,
+  ApplyAssetGroupInput,
+  DeleteAssetGroupInput,
   ExportResult,
   ProjectManifest,
   RebuildStructuredResult,
+  RawProjectFilesResponse,
 } from "@tenzyu/osu-skin-core/contract";
 
 export function desktopFileSrc(fullPath: string): string {
@@ -15,10 +22,7 @@ export async function listProjectManifests(): Promise<ProjectManifest[]> {
   return await invoke<ProjectManifest[]>("list_projects");
 }
 
-export async function invokeCreateProject(input: {
-  sourcePath: string;
-  name?: string;
-}): Promise<ProjectManifest> {
+export async function invokeCreateProject(input: CreateProjectInput): Promise<ProjectManifest> {
   return await invoke<ProjectManifest>("create_project", { input });
 }
 
@@ -30,37 +34,23 @@ export async function invokeDeleteProject(projectId: string): Promise<void> {
   await invoke<void>("delete_project", { projectId });
 }
 
-export async function invokeGetProjectFiles<T>(projectId: string): Promise<T> {
-  return await invoke<T>("get_project_files", { projectId });
+export async function invokeGetProjectFiles(projectId: string): Promise<RawProjectFilesResponse> {
+  return await invoke<RawProjectFilesResponse>("get_project_files", { projectId });
 }
 
-export async function invokeAddProjectSource(input: {
-  projectId: string;
-  sourcePath: string;
-  name?: string;
-}): Promise<ProjectManifest> {
+export async function invokeAddProjectSource(input: AddProjectSourceInput): Promise<ProjectManifest> {
   return await invoke<ProjectManifest>("add_project_source", { input });
 }
 
-export async function invokeRenameProjectSource(input: {
-  projectId: string;
-  sourceId: string;
-  name: string;
-}): Promise<ProjectManifest> {
+export async function invokeRenameProjectSource(input: RenameProjectSourceInput): Promise<ProjectManifest> {
   return await invoke<ProjectManifest>("rename_project_source", { input });
 }
 
-export async function invokeDeleteProjectSource(input: {
-  projectId: string;
-  sourceId: string;
-}): Promise<ProjectManifest> {
+export async function invokeDeleteProjectSource(input: DeleteProjectSourceInput): Promise<ProjectManifest> {
   return await invoke<ProjectManifest>("delete_project_source", { input });
 }
 
-export async function invokeExportProject(input: {
-  projectId: string;
-  preset: ExportPreset;
-}): Promise<ExportResult> {
+export async function invokeExportProject(input: ExportProjectInput): Promise<ExportResult> {
   return await invoke<ExportResult>("export_project", { input });
 }
 
@@ -70,19 +60,11 @@ export async function invokeRebuildStructuredMirrors(
   return await invoke<RebuildStructuredResult>("rebuild_structured_mirrors", { projectId });
 }
 
-export async function invokeApplyAssetGroup(input: {
-  projectId: string;
-  sourceId: string;
-  sourcePaths: string[];
-  replaceProjectPaths: string[];
-}): Promise<AssetMutationResult> {
+export async function invokeApplyAssetGroup(input: ApplyAssetGroupInput): Promise<AssetMutationResult> {
   return await invoke<AssetMutationResult>("apply_asset_group", { input });
 }
 
-export async function invokeDeleteAssetGroup(input: {
-  projectId: string;
-  projectPaths: string[];
-}): Promise<AssetMutationResult> {
+export async function invokeDeleteAssetGroup(input: DeleteAssetGroupInput): Promise<AssetMutationResult> {
   return await invoke<AssetMutationResult>("delete_asset_group", { input });
 }
 
