@@ -4,11 +4,6 @@ export type StoredCollectionState<T> = {
   version: string
 }
 
-export type RevalidatePathTarget = {
-  path: string
-  type?: 'page' | 'layout'
-}
-
 export type ContentRepositoryTextFile = {
   content: string
   path?: string
@@ -30,6 +25,30 @@ export type ContentWrite = { pathname: string; content: string }
 export type ContentTreeChange =
   | ContentWrite
   | { pathname: string; mode: '100644' | '100755'; sha: string | null }
+
+// A revisioned tree is a storage capability, not a GitHub API contract.
+export type ContentTreeEntry = {
+  path: string
+  sha: string
+  type: 'blob' | 'tree' | 'commit'
+  mode: string
+}
+
+export type ContentTreeSnapshot = ContentSnapshot & {
+  list(prefix: string): Promise<string[]>
+  listTree(prefix: string): Promise<ContentTreeEntry[]>
+}
+
+export type RevisionedContentRepository = {
+  snapshot(): Promise<ContentTreeSnapshot>
+  snapshotAt(version: string): ContentTreeSnapshot
+  commit(
+    expectedVersion: string,
+    writes: readonly ContentTreeChange[],
+    message: string,
+  ): Promise<string>
+  reconcile(candidateOid: string): Promise<string | null>
+}
 
 export type AggregateContentRepository = {
   snapshot(): Promise<ContentSnapshot>
@@ -55,14 +74,6 @@ export type ContentRepository = {
   ): Promise<void>
   list(prefix: string): Promise<string[]>
   delete(pathname: string, options?: { message?: string }): Promise<void>
-}
-
-export const LOCALE_PREFIXES = ['/ja', '/en'] as const
-
-export function withLocaleRevalidatePaths(pathname: string) {
-  return LOCALE_PREFIXES.map((locale) => ({
-    path: `${locale}${pathname}`,
-  })) satisfies readonly RevalidatePathTarget[]
 }
 
 export class StorageError extends Error {}

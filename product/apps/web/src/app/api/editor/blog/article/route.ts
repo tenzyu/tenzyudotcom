@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { parseEditorBlogSaveInput } from '@/features/content-editor/editor-input.assemble'
+import { parseEditorBlogSaveInput } from '@/features/blog/editor/blog-save-input'
 import { BlogSlugValidationError } from '@/features/blog/blog.domain'
 import {
   checkBlogWorkspacePublication,

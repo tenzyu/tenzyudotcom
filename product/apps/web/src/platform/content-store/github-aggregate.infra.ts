@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import {
-  type ContentSnapshot,
-  type ContentTreeChange,
+  type ContentTreeSnapshot,
+  type RevisionedContentRepository,
   StorageCommitUncertainError,
   StorageError,
   StorageVersionConflictError,
@@ -39,21 +39,8 @@ const CompareResponse = z.object({
   merge_base_commit: ShaResponse,
 })
 
-type GitHubContentSnapshot = ContentSnapshot & {
-  list(prefix: string): Promise<string[]>
-  listTree(prefix: string): Promise<z.infer<typeof TreeEntry>[]>
-}
-
-export type GitHubAggregateRepository = {
-  snapshot(): Promise<GitHubContentSnapshot>
-  snapshotAt(version: string): GitHubContentSnapshot
+export type GitHubAggregateRepository = RevisionedContentRepository & {
   validateHead(): Promise<string>
-  commit(
-    version: string,
-    writes: readonly ContentTreeChange[],
-    message: string,
-  ): Promise<string>
-  reconcile(candidateOid: string): Promise<string | null>
 }
 
 export function createGitHubAggregateRepository(
@@ -125,7 +112,7 @@ export function createGitHubAggregateRepository(
     return version
   }
 
-  function snapshotAt(oid: string): GitHubContentSnapshot {
+  function snapshotAt(oid: string): ContentTreeSnapshot {
     const version = oidSchema.parse(oid)
 
     async function listTree(prefix: string) {

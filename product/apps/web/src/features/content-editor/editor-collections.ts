@@ -3,7 +3,6 @@ import type { NoteSourceEntry } from '@/features/notes/notes.domain'
 import type { ScrapIndexEntry } from '@/features/scraps/scraps.domain'
 import type { MyLink } from '@/features/links/links.domain'
 import type {
-  RevalidatePathTarget,
   StoredCollectionState,
 } from '@/platform/content-store/content-store.domain'
 
@@ -22,6 +21,11 @@ export type EditorCollectionState<K extends EditorCollectionId> =
   StoredCollectionState<EditorCollectionData[K]>
 
 export type WritableEditorCollectionId = 'notes' | 'links'
+
+type RevalidatePathTarget = {
+  path: string
+  type?: 'page' | 'layout'
+}
 
 export type EditorCollectionMeta = {
   id: EditorCollectionId

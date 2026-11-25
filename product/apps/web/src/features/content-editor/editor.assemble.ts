@@ -1,8 +1,5 @@
-import { revalidatePath, revalidateTag } from 'next/cache'
-import type { BlogSaveCommand } from '@/features/blog/blog.domain'
 import {
   loadBlogPostsState,
-  saveBlogPost,
 } from '@/features/blog/blog.infra'
 import {
   loadNotesState,
@@ -10,15 +7,12 @@ import {
 } from '@/features/notes/notes.infra'
 import { loadScrapEditorIndexState } from '@/features/scraps/editor/scrap-editor.assemble'
 import { loadLinksState, saveLinksState } from '@/features/links/links.infra'
+import { refreshLinksAfterSave } from '@/features/links/links.assemble'
 import {
-  getEditorCollectionMeta,
   type EditorCollectionId,
   type EditorCollectionState,
   type WritableEditorCollectionId,
 } from '@/features/content-editor/editor-collections'
-import { getEditorCollectionContentTag } from '@/config/content-cache'
-import { githubContentRepository } from '@/platform/content-store/github-content.infra'
-import { confirmBlogPublication } from '@/features/blog/editor/blog-save-form-state'
 
 const collectionLoaders: {
   [K in EditorCollectionId]: () => Promise<EditorCollectionState<K>>
@@ -47,26 +41,4 @@ export async function saveEditorCollection(
   refreshLinksAfterSave()
 
   return result
-}
-
-export function refreshLinksAfterSave() {
-  revalidateTag(getEditorCollectionContentTag('links'), { expire: 0 })
-  for (const path of getEditorCollectionMeta('links').publicPaths) {
-    revalidatePath(path.path, path.type)
-  }
-}
-
-export async function publishEditorBlog(command: BlogSaveCommand) {
-  return confirmBlogPublication(await saveBlogPost(command))
-}
-
-export async function checkEditorBlogPublication(candidateOid: string) {
-  const headOid = await githubContentRepository.reconcile(candidateOid)
-  return headOid
-    ? confirmBlogPublication({
-        commitOid: candidateOid,
-        headOid,
-        status: 'reconciled',
-      })
-    : null
 }

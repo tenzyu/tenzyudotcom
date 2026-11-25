@@ -71,7 +71,7 @@ mock.module('../../src/features/blog/editor/blog-workspace-client', () => ({
     message: 'Draft kept',
   }),
 }))
-mock.module('../../src/features/content-editor/actions', () => ({
+mock.module('@/features/blog/editor/blog-actions', () => ({
   saveBlogPostAction: async () =>
     failure === 'uncertain'
       ? {
@@ -79,7 +79,9 @@ mock.module('../../src/features/content-editor/actions', () => ({
           candidateOid: 'a'.repeat(40),
           message: 'Draft kept',
         }
-      : { status: 'error', error: failure, message: 'Draft kept' },
+      : { status: 'error', error: failure, message: 'Draft kept' }
+}))
+mock.module('@/features/content-editor/actions', () => ({
   saveEditorCollectionAction: async () => ({
     status: 'error',
     error: failure,

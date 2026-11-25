@@ -20,13 +20,13 @@ import {
 } from './blog-index.assemble'
 import { editBlogSource, readBlogSource } from './blog-source.assemble'
 import { githubContentRepository } from '@/platform/content-store/github-content.infra'
-import type { GitHubAggregateRepository } from '@/platform/content-store/github-aggregate.infra'
 import {
   StorageError,
   StorageVersionConflictError,
   type ContentRepositoryTextFile,
   type ContentSnapshot,
   type ContentTreeChange,
+  type RevisionedContentRepository,
 } from '@/platform/content-store/content-store.domain'
 
 function parseBlogPost(
@@ -85,7 +85,7 @@ export async function loadBlogPostsState() {
 
 export async function loadBlogPostForEdit(
   slug: string,
-  repo: Pick<GitHubAggregateRepository, 'snapshot'> = githubContentRepository,
+  repo: Pick<RevisionedContentRepository, 'snapshot'> = githubContentRepository,
 ): Promise<MDXData | null> {
   if (!isBlogPathPart(slug)) return null
   const snapshot = await repo.snapshot()
@@ -103,7 +103,7 @@ export async function loadBlogPostForEdit(
 
 export async function refreshBlogPublication(
   { slug, receipt }: { slug: string; receipt: BlogPublicationReceipt },
-  repo: Pick<GitHubAggregateRepository, 'snapshot'> = githubContentRepository,
+  repo: Pick<RevisionedContentRepository, 'snapshot'> = githubContentRepository,
 ): Promise<BlogPublicationResult> {
   try {
     const post = await loadBlogPostForEdit(slug, repo)
@@ -119,7 +119,7 @@ export async function refreshBlogPublication(
 export async function reconcileBlogPublication(
   { slug, candidateOid }: { slug: string; candidateOid: string },
   repo: Pick<
-    GitHubAggregateRepository,
+    RevisionedContentRepository,
     'reconcile' | 'snapshot'
   > = githubContentRepository,
 ): Promise<BlogPublicationResult | null> {
@@ -145,7 +145,7 @@ function requireBlogEditVersion(expectedVersion: string) {
 export async function saveBlogPost(
   command: BlogSaveCommand,
   repo: Pick<
-    GitHubAggregateRepository,
+    RevisionedContentRepository,
     'snapshot' | 'commit'
   > = githubContentRepository,
 ): Promise<BlogPublicationReceipt> {
@@ -246,7 +246,7 @@ export async function saveBlogPost(
 export async function renameBlogPost(
   { oldSlug, newSlug, expectedVersion }: BlogRenameCommand,
   repo: Pick<
-    GitHubAggregateRepository,
+    RevisionedContentRepository,
     'snapshot' | 'commit'
   > = githubContentRepository,
 ): Promise<BlogPublicationReceipt> {

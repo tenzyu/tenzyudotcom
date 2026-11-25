@@ -72,8 +72,8 @@ mock.module('next/cache', () => ({
 }))
 const { PUT, GET } = await import('@/app/api/editor/[collection]/route')
 const { POST: postScrap } = await import('@/app/api/editor/scrap/route')
-const { saveEditorCollectionAction, saveBlogPostAction } =
-  await import('../../src/features/content-editor/actions')
+const { saveEditorCollectionAction } = await import('@/features/content-editor/actions')
+const { saveBlogPostAction } = await import('@/features/blog/editor/blog-actions')
 const params = { params: Promise.resolve({ collection: 'notes' }) }
 const request = (
   origin = 'http://localhost',

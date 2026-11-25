@@ -1,5 +1,5 @@
 import { Payload } from './item-command.validation'
-import { refreshLinksAfterSave } from '@/features/content-editor/editor.assemble'
+import { refreshLinksAfterSave } from '@/features/links/links.assemble'
 import { NextResponse } from 'next/server'
 import { NoteCommand } from '@/features/notes/note-command.validation'
 import {

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test'
-import { parseEditorBlogSaveInput } from './editor-input.assemble'
+import { parseEditorBlogSaveInput } from './blog-save-input'
 
 function submission(fields: Record<string, string>) {
   const form = new FormData()
