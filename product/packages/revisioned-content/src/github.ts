@@ -358,42 +358,43 @@ export function createGitHubDocumentRepository(
         currentVersion !== options.expectedVersion)
       throw new StorageVersionConflictError(`${pathname} has changed since it was loaded.`)
 
+    await mutateDocument('PUT', pathname, {
+      branch: config.branch,
+      content: Buffer.from(content).toString('base64'),
+      message: options.message ?? `Update ${pathname}`,
+      sha: current?.sha,
+    })
+  }
+
+  // The same blob CAS and uncertain-outcome boundary applies to saves and deletes.
+  async function mutateDocument(method: 'PUT' | 'DELETE', pathname: string, body: unknown) {
     const response = await request(contentsUrl(pathname), {
-      body: JSON.stringify({
-        branch: config.branch,
-        content: Buffer.from(content).toString('base64'),
-        message: options.message ?? `Update ${pathname}`,
-        sha: current?.sha,
-      }),
+      body: JSON.stringify(body),
       headers,
-      method: 'PUT',
+      method,
+      cache: 'no-store',
+      redirect: 'error',
     }).catch((error: unknown) => {
       throw new StorageDocumentWriteUncertainError(
-        'The content write outcome is unknown.', { cause: error },
+        'The content write outcome is unknown. Check storage before retrying.', { cause: error },
       )
     })
     if (response.status >= 500 || response.status === 408)
-      throw new StorageDocumentWriteUncertainError('The content write outcome is unknown.')
+      throw new StorageDocumentWriteUncertainError('The content write outcome is unknown. Check storage before retrying.')
     if (response.status === 409 || response.status === 422)
-      throw new StorageVersionConflictError(`${pathname} changed during save.`)
+      throw new StorageVersionConflictError(`${pathname} changed during ${method === 'PUT' ? 'save' : 'delete'}.`)
     if (!response.ok)
-      throw new StorageError(`Failed to save GitHub content (${pathname}): ${response.status}`)
+      throw new StorageError(`Failed to mutate GitHub content (${pathname}): ${response.status}`)
   }
 
   async function deleteText(pathname: string, options: { message?: string } = {}) {
     const current = await loadText(pathname)
     if (!current) return
-    const response = await request(contentsUrl(pathname), {
-      body: JSON.stringify({
-        branch: config.branch,
-        message: options.message ?? `Delete ${pathname}`,
-        sha: current.sha,
-      }),
-      headers,
-      method: 'DELETE',
+    await mutateDocument('DELETE', pathname, {
+      branch: config.branch,
+      message: options.message ?? `Delete ${pathname}`,
+      sha: current.sha,
     })
-    if (!response.ok)
-      throw new StorageError(`Failed to delete GitHub content (${pathname}): ${response.status}`)
   }
 
   async function list(prefix: string) {

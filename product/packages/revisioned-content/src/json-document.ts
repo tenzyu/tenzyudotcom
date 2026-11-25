@@ -23,7 +23,7 @@ export function parseJsonCollection<T>(
   parse: (raw: unknown) => T,
   getDefaultValue: () => T,
 ): StoredCollectionState<T> {
-  if (!serialized) {
+  if (serialized === undefined) {
     const collection = getDefaultValue()
     const fallbackSerialized = JSON.stringify(collection, null, 2)
 
@@ -55,10 +55,9 @@ export async function saveJsonCollection<T>(
   const nextVersion = createContentVersion(serialized)
 
   if (expectedVersion) {
-    const currentSerialized = (
-      (await storage.loadFresh(pathname))?.content ?? ''
-    ).trimEnd()
-    const currentVersion = createContentVersion(currentSerialized)
+    const current = await storage.loadFresh(pathname)
+    // An existing empty/malformed JSON document is corruption, not absence.
+    const currentVersion = parseJsonCollection(current?.content, parse, () => parsed).version
 
     if (currentVersion !== expectedVersion) {
       throw new StorageVersionConflictError(
