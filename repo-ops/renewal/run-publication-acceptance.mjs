@@ -14,6 +14,7 @@ import { pathToFileURL } from 'node:url';
 import { parseArgs } from 'node:util';
 import { chromium } from '@playwright/test';
 import { publicBrowserEnvironment } from './browser-environment.mjs';
+import { externalEvidencePath } from './external-evidence-path.mjs';
 import { initGitContentFixture } from './git-content-fixture.mjs';
 import {
   article, blogIndexPath, directLink, directScrap, firstNote, firstNoteId, firstPost, initialFiles, latePost,
@@ -32,8 +33,7 @@ const baseline = options.baseline ?? options['scraps-baseline'];
 assert.ok(baseline === undefined || /^[0-9a-f]{40}$/.test(baseline), 'Pass an exact baseline commit');
 const buildSeed = options['scraps-build'];
 assert.ok(['empty', 'populated'].includes(buildSeed), 'Choose an empty or populated Scrap build');
-const evidenceRoot = resolve(process.env.PUBLICATION_EVIDENCE_DIR ?? tmpdir());
-assert.ok(evidenceRoot !== source && !evidenceRoot.startsWith(`${source}/`), 'Keep fixture evidence outside the checkout');
+const evidenceRoot = externalEvidencePath(source, process.env.PUBLICATION_EVIDENCE_DIR ?? tmpdir(), { disjoint: false });
 mkdirSync(evidenceRoot, { recursive: true, mode: 0o700 });
 const evidence = mkdtempSync(join(evidenceRoot, 'publication-'));
 const checkout = join(evidence, 'workspace');

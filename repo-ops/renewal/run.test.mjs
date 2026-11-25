@@ -89,3 +89,16 @@ test('source preservation fails closed on missing saved entries and handles dang
     assert.equal(JSON.parse(readFileSync(join(dir, 'complete.json'), 'utf8')).checked, 2);
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
+
+test('runner refuses evidence through a symlink into the working tree', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'renewal-output-alias-'));
+  try {
+    const cwd = join(dir, 'workspace');
+    mkdirSync(cwd);
+    symlinkSync(cwd, join(dir, 'alias'));
+    const result = spawnSync(process.execPath, [runner, '--cwd', cwd, '--out', join(dir, 'alias', 'evidence'), '--', process.execPath, '-e', 'process.exit(0)'], { encoding: 'utf8' });
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /outside the checkout/);
+    assert.equal(existsSync(join(cwd, 'evidence')), false);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});

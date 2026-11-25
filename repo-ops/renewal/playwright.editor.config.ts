@@ -1,7 +1,8 @@
 import { resolve } from 'node:path';
 import { defineConfig } from '@playwright/test';
+import { externalEvidencePath } from './external-evidence-path.mjs';
 
-const output = resolve(process.env.PLAYWRIGHT_OUTPUT_DIR ?? '/tmp/tenzyudotcom-editor-evidence');
+const output = externalEvidencePath(process.cwd(), process.env.PLAYWRIGHT_OUTPUT_DIR ?? '/tmp/tenzyudotcom-editor-evidence');
 const executablePath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH;
 const port = process.env.PLAYWRIGHT_EDITOR_PORT ?? '4174';
 const baseURL = `http://127.0.0.1:${port}`;
