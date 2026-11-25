@@ -46,6 +46,23 @@ jobs:
           GITHUB_CONTENT_BRANCH: main
           GITHUB_CONTENT_ROOT: storage
         run: bun nx run-many -t verify --exclude=skin-workbench --skip-nx-cache
+      - name: Verify relocatable UI font assets
+        run: |
+          node --input-type=module <<'JS'
+          import { readFileSync, existsSync } from 'node:fs'
+          import { dirname, resolve } from 'node:path'
+          const file = 'product/packages/ui/dist/styles.css'
+          const css = readFileSync(file, 'utf8')
+          if (/url\(['"]?data:font\//i.test(css)) throw new Error('Font data remains in CSS')
+          const fonts = [...css.matchAll(/url\(['"]?([^'"()]+\.woff2)['"]?\)/g)].map(m => m[1])
+          if (!fonts.length) throw new Error('No external font assets emitted')
+          for (const font of fonts) {
+            if (font.startsWith('/') || !existsSync(resolve(dirname(file), font))) {
+              throw new Error('Non-relocatable font URL: ' + font)
+            }
+          }
+          console.log(JSON.stringify({cssBytes: Buffer.byteLength(css), externalFonts: new Set(fonts).size}))
+          JS
       - name: Repository utility tests
         run: bun run test:scripts
 
