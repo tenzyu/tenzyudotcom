@@ -1,6 +1,6 @@
 import { Stack } from '@/components/site/stack'
 import { Content } from '@/components/site/content'
-import { PageAdmin } from './_features/admin/admin-gate'
+import { PageAdmin } from '@/features/content-editor/ui/admin-gate'
 
 export default function MainLayout({
   children,

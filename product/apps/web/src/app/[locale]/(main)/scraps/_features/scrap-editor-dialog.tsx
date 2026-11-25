@@ -20,7 +20,7 @@ import {
   isValidScrapSlug,
   type ScrapIndexEntry,
 } from '@/features/scraps/scraps.domain'
-import { AdminEditorDialog } from '../../_features/admin/admin-editor-dialog'
+import { AdminEditorDialog } from '@/features/content-editor/ui/admin-editor-dialog'
 
 type Selection = { kind: 'new' | 'list' } | { kind: 'scrap'; slug: string }
 

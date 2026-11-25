@@ -3,8 +3,8 @@
 import dynamic from 'next/dynamic'
 import { useRef, useState } from 'react'
 import { Button } from '@tenzyu/ui/button'
-import { AdminGate } from '../../app/[locale]/(main)/_features/admin/admin-gate'
-import { AdminItemMenu } from '../../app/[locale]/(main)/_features/admin/admin-item-menu'
+import { AdminGate } from '@/features/content-editor/ui/admin-gate'
+import { AdminItemMenu } from '@/features/content-editor/ui/admin-item-menu'
 
 const LinkItemDialog = dynamic(() =>
   import('./link-item-dialog').then((module) => module.LinkItemDialog),

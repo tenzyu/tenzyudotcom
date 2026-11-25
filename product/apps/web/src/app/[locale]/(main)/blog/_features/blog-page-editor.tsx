@@ -6,8 +6,8 @@ import { type RefObject, useRef, useState, useTransition } from 'react'
 import { Pencil } from 'lucide-react'
 import { Button } from '@tenzyu/ui/button'
 import { buildLocalizedUrl } from '@/lib/intlayer/localized-url'
-import { AdminGate, useSavedPage } from '../../_features/admin/admin-gate'
-import { AdminEditorDialog } from '../../_features/admin/admin-editor-dialog'
+import { AdminGate, useSavedPage } from '@/features/content-editor/ui/admin-gate'
+import { AdminEditorDialog } from '@/features/content-editor/ui/admin-editor-dialog'
 
 const BlogWorkspace = dynamic(() =>
   import('@/app/[locale]/_features/blog-editor/blog-workspace').then(

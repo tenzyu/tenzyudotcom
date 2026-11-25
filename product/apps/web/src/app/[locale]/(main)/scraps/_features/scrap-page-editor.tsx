@@ -15,7 +15,7 @@ import { buildLocalizedUrl } from '@/lib/intlayer/localized-url'
 import type { ScrapWorkspaceMode } from '@/app/[locale]/_features/scrap-editor/scrap-workspace'
 import type { ScrapWorkspaceView } from '@/app/[locale]/_features/scrap-editor/scrap-workspace.validation'
 import { isPublicScrap } from '@/features/scraps/scraps.domain'
-import { AdminGate, useSavedPage } from '../../_features/admin/admin-gate'
+import { AdminGate, useSavedPage } from '@/features/content-editor/ui/admin-gate'
 
 const ScrapDetailDialog = dynamic(() =>
   import('./scrap-editor-dialog').then((module) => module.ScrapDetailDialog),
