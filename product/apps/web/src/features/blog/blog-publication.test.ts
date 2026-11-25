@@ -24,8 +24,8 @@ import {
   saveBlogPost,
 } from './blog.infra'
 import { readBlogSource } from './blog-source.assemble'
-import { auditBlogProjection } from '../../../../../../repo-ops/renewal/audit-blog-projection'
-import { initGitContentFixture } from '../../../../../../repo-ops/renewal/git-content-fixture.mjs'
+import { auditBlogProjection } from '../../../../../../repo-ops/acceptance/audit-blog-projection'
+import { initGitContentFixture } from '../../../../../../repo-ops/acceptance/git-content-fixture.mjs'
 import {
   StorageCommitUncertainError,
   StorageError,

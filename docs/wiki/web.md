@@ -7,7 +7,7 @@ status: stable
 sources:
   - { id: past, resource: "https://github.com/tenzyu/tenzyudotcom/tree/c3e70610b4300cdefc4f6bf08c8d84803ba11621/docs/renewal/wiki-web-decisions.md", title: Web decisions 2026-11-13 }
   - { id: completion, resource: ../renewal/12-completion.md, title: Renewal closure }
-  - { resource: ../../repo-ops/renewal/browser-acceptance.spec.ts, title: Browser tests }
+  - { resource: ../../repo-ops/acceptance/browser-acceptance.spec.ts, title: Browser tests }
 ---
 
 # MDX rendering

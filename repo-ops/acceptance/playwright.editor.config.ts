@@ -1,13 +1,13 @@
 import { resolve } from 'node:path';
 import { defineConfig } from '@playwright/test';
-import { externalEvidencePath } from './external-evidence-path.mjs';
+import { externalEvidencePath } from '../renewal/external-evidence-path.mjs';
 
 const output = externalEvidencePath(process.cwd(), process.env.PLAYWRIGHT_OUTPUT_DIR ?? '/tmp/tenzyudotcom-editor-evidence');
 const executablePath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH;
 const port = process.env.PLAYWRIGHT_EDITOR_PORT ?? '4174';
 const baseURL = `http://127.0.0.1:${port}`;
 export default defineConfig({
-  testDir: resolve(process.cwd(), 'repo-ops/renewal'),
+  testDir: resolve(process.cwd(), 'repo-ops/acceptance'),
   testMatch: 'editor-browser.spec.ts',
   outputDir: resolve(output, 'artifacts'),
   workers: 1,
@@ -26,7 +26,7 @@ export default defineConfig({
   },
   webServer: {
     cwd: process.cwd(),
-    command: 'node repo-ops/renewal/start-editor-browser-server.mjs',
+    command: 'node repo-ops/acceptance/start-editor-browser-server.mjs',
     url: `${baseURL}/en/editor/login`,
     reuseExistingServer: false,
     timeout: process.env.EDITOR_BROWSER_PRODUCTION === '1' ? 360_000 : 120_000,

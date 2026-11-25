@@ -38,8 +38,8 @@
     "graph": "nx graph",
     "policy:deps": "bun repo-ops/scripts/check-dependency-policy.ts",
     "test:scripts": "bun test repo-ops/scripts/docs-rename.test.ts repo-ops/scripts/migrate-notes-threading.test.ts && node --test repo-ops/renewal/external-evidence-path.test.mjs repo-ops/renewal/run.test.mjs",
-    "test:browser": "playwright test --config repo-ops/renewal/playwright.config.ts",
-    "test:browser:editor": "bun --no-env-file nx run ui:build && playwright test --config repo-ops/renewal/playwright.editor.config.ts",
+    "test:browser": "playwright test --config repo-ops/acceptance/playwright.config.ts",
+    "test:browser:editor": "bun --no-env-file nx run ui:build && playwright test --config repo-ops/acceptance/playwright.editor.config.ts",
     "docs-rename": "bun repo-ops/scripts/docs-rename.ts"
   },
   "workspaces": {

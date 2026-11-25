@@ -34,7 +34,7 @@ This copies committed `HEAD` into a fresh snapshot under `/tmp/opencode`, builds
 ```sh
 PLAYWRIGHT_OUTPUT_DIR="$NEW_EXTERNAL_EVIDENCE" bun run test:browser
 PLAYWRIGHT_OUTPUT_DIR="$NEW_EXTERNAL_EVIDENCE" bun --no-env-file run test:browser:editor
-node --test repo-ops/renewal/editor-github-preload.test.mjs
+node --test repo-ops/acceptance/editor-github-preload.test.mjs
 node --test repo-ops/renewal/run.test.mjs
 ```
 
