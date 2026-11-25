@@ -1,10 +1,9 @@
 import { z } from 'zod'
 import { DocumentBaseSchema } from '@/platform/content-store/json-item-command.validation'
 
-export const NoteBodySchema = z.object({
-  ja: z.string().trim().min(1),
-  en: z.string().trim().optional().default(''),
-})
+import { NoteBodySchema } from '@tenzyu/publishing-domain/notes'
+
+export { NoteBodySchema } from '@tenzyu/publishing-domain/notes'
 
 const NoteId = z.string().regex(/^\d+$/)
 const NoteFields = z.object({
