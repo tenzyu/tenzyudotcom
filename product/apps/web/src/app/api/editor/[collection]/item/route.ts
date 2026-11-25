@@ -1,11 +1,11 @@
 import { Payload } from './item-command.validation'
 import { refreshLinksAfterSave } from '@/app/[locale]/(admin)/editor/_features/editor.assemble'
 import { NextResponse } from 'next/server'
-import { NoteCommand } from '@/app/[locale]/(main)/notes/_features/note-command.validation'
+import { NoteCommand } from '@/features/notes/note-command.validation'
 import {
   loadNoteEditView,
   runNoteCommand,
-} from '@/app/[locale]/(main)/notes/_features/note-command.assemble'
+} from '@/features/notes/note-command.assemble'
 import {
   getEditorAdminSessionExpiry,
   isSameOriginEditorRequest,

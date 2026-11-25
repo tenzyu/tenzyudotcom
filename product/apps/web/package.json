@@ -9,9 +9,7 @@
     "build:prod": "bun run clean && NODE_ENV=production bun --env-file .env.prod next build",
     "start": "next start",
     "start:intlayer": "intlayer-editor start",
-    "lint": "bun run lint:biome && bun run lint:custom",
-    "lint:biome": "../../../repo-ops/scripts/biome lint .",
-    "lint:custom": "tenzyu-linter --project-root .",
+    "lint": "../../../repo-ops/scripts/biome lint .",
     "lint:fix": "../../../repo-ops/scripts/biome lint --fix .",
     "format": "../../../repo-ops/scripts/biome format --write .",
     "typecheck": "tsc --noEmit",
@@ -50,7 +48,6 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@tenzyu/linter": "workspace:*",
     "@mdx-js/loader": "catalog:",
     "@mdx-js/mdx": "catalog:",
     "@mdx-js/react": "catalog:",

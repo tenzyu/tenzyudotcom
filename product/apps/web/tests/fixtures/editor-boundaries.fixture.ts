@@ -35,7 +35,7 @@ const loadCollection = async () => ({
   serialized: '[]',
   version: 'old',
 })
-mock.module('@/app/[locale]/(main)/notes/_features/notes.infra', () => ({
+mock.module('@/features/notes/notes.infra', () => ({
   loadNotesState: loadCollection,
   saveNotesState: save,
 }))

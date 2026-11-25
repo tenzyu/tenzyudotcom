@@ -3,8 +3,8 @@ import { notFound } from 'next/navigation'
 import { connection } from 'next/server'
 import { getLocale } from 'next-intlayer/server'
 import { buildOgTitleImageUrl, getAbsoluteUrl } from '@/config/site'
-import { assembleNoteDetailPageData } from '../_features/notes.assemble'
-import { NoteDetailPageContent } from './_features/note-detail-page-content'
+import { assembleNoteDetailPageData } from '@/features/notes/notes.assemble'
+import { NoteDetailPageContent } from '@/features/notes/detail/note-detail-page-content'
 import { loadPublication } from '@/lib/content-store/publication.assemble'
 
 type Params = Promise<{

@@ -2,13 +2,13 @@
 
 import { ArrowDown, ArrowUp, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
-import type { NoteSourceEntry } from '@/app/[locale]/(main)/notes/_features/notes.domain'
+import type { NoteSourceEntry } from '../notes.domain'
 import {
   compareNotesByCreatedAtDesc,
   createNoteId,
   listAvailableParentNotes,
   reparentChildrenAfterNoteDelete,
-} from '@/app/[locale]/(main)/notes/_features/notes.domain'
+} from '../notes.domain'
 import { Button } from '@tenzyu/ui/button'
 import { EditorPanel } from '@tenzyu/ui/editorial'
 import { Input } from '@tenzyu/ui/input'
@@ -21,8 +21,8 @@ import {
 } from '@tenzyu/ui/select'
 import { Switch } from '@tenzyu/ui/switch'
 import { Textarea } from '@tenzyu/ui/textarea'
-import { useCollectionSave } from './use-collection-save'
-import { moveItem } from './editor-utils'
+import { useCollectionSave } from '@/app/[locale]/(admin)/editor/_features/use-collection-save'
+import { moveItem } from '@/app/[locale]/(admin)/editor/_features/editor-utils'
 
 const ROOT_PARENT = '__root__'
 

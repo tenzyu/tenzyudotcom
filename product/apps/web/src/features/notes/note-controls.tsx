@@ -4,8 +4,8 @@ import dynamic from 'next/dynamic'
 import { MessageCircle } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { Button } from '@tenzyu/ui/button'
-import { AdminGate } from '../../_features/admin/admin-gate'
-import { AdminItemMenu } from '../../_features/admin/admin-item-menu'
+import { AdminGate } from '@/features/content-editor/ui/admin-gate'
+import { AdminItemMenu } from '@/features/content-editor/ui/admin-item-menu'
 import type { NoteEditorMode } from './note-item-dialog'
 
 const NoteItemDialog = dynamic(() =>

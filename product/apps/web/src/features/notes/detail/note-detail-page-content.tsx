@@ -2,8 +2,8 @@ import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { getLocalizedUrl } from 'intlayer'
 import { ReadingColumn } from '@tenzyu/ui/editorial'
-import { NoteFeedItem } from '../../_features/note-feed-item'
-import type { NoteDetailPageData } from '../../_features/notes.assemble'
+import { NoteFeedItem } from '../note-feed-item'
+import type { NoteDetailPageData } from '../notes.assemble'
 
 export function NoteDetailPageContent({
   locale,

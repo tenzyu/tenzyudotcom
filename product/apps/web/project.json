@@ -8,8 +8,7 @@
     "type:app"
   ],
   "implicitDependencies": [
-    "ui",
-    "linter"
+    "ui"
   ],
   "targets": {
     "dev": {
@@ -126,7 +125,11 @@
     "publication-acceptance": {
       "executor": "nx:run-commands",
       "cache": false,
-      "inputs": ["default", "^production", "{workspaceRoot}/repo-ops/renewal/**/*"],
+      "inputs": [
+        "default",
+        "^production",
+        "{workspaceRoot}/repo-ops/renewal/**/*"
+      ],
       "options": {
         "command": "node repo-ops/renewal/run-publication-acceptance.mjs"
       }

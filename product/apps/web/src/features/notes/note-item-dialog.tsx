@@ -5,12 +5,12 @@ import { Button } from '@tenzyu/ui/button'
 import { Input } from '@tenzyu/ui/input'
 import { Textarea } from '@tenzyu/ui/textarea'
 import { buildLocalizedUrl } from '@/lib/intlayer/localized-url'
-import { useSavedPage } from '../../_features/admin/admin-gate'
+import { useSavedPage } from '@/features/content-editor/ui/admin-gate'
 import {
   AdminEditorDialog,
   ItemEditorFeedback,
-} from '../../_features/admin/admin-editor-dialog'
-import { useItemEditor } from '../../_features/admin/editor-item-client'
+} from '@/features/content-editor/ui/admin-editor-dialog'
+import { useItemEditor } from '@/features/content-editor/ui/editor-item-client'
 import {
   type NoteCommand,
   NoteEditView,

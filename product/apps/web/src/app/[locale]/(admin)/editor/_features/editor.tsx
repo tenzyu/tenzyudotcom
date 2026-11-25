@@ -6,8 +6,8 @@ import { getEditorCollectionMeta } from '@/features/content-editor/editor-collec
 import { readBlogEditorSummaries } from '@/app/[locale]/(main)/blog/_features/blog-workspace.assemble'
 import { makeLoadEditorCollectionUseCase } from './editor.assemble'
 import { BlogEditor } from './blog-editor'
-import { LinksEditor } from './links-editor'
-import { NotesEditor } from './notes-editor'
+import { LinksEditor } from '../../../../../features/links/editor/links-editor'
+import { NotesEditor } from '@/features/notes/editor/notes-editor'
 import { ScrapsEditor } from './scraps-editor'
 
 export async function EditorCollectionEditor({

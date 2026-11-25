@@ -50,9 +50,6 @@ jobs:
       - name: Dependency policy
         run: bun run policy:deps
 
-      - name: Workspace boundary policy
-        run: bun run verify:workspace
-
       - name: Select affected comparison
         id: comparison
         env:

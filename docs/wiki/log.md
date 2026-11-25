@@ -6,3 +6,5 @@
 - **Consolidation:** Promoted implemented workspace rules and Web failure modes from dated handoffs; preserved recovery paths to the exact Git snapshot.
 - **Deprecation:** Removed obsolete handoffs and Serena memory; preserved all nine ADRs without modification.
 - **Qualification:** No live host, production deployment or repository-wide check is claimed by this documentation rewrite.
+
+- 2026-11-25: Retired bespoke architecture lint and began feature-owned Web organization (Links, Notes, contextual editor UI). CI acceptance pending.

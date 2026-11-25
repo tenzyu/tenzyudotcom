@@ -7,7 +7,7 @@ import {
 import {
   loadNotesState,
   saveNotesState,
-} from '@/app/[locale]/(main)/notes/_features/notes.infra'
+} from '@/features/notes/notes.infra'
 import { loadScrapEditorIndexState } from '@/features/content-editor/scrap-editor.assemble'
 import { loadLinksState, saveLinksState } from '@/features/links/links.infra'
 import {
