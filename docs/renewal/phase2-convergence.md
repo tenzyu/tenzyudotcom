@@ -5,7 +5,7 @@ DAG node's handoff record, not a declaration that Phase 2 is done.
 
 Baseline develop: `ca801532fd7109c953ad655a729eda5ac44d4d34`.
 N0 verified starting point: #89, `dbecaae79c3019595dda9a3f84f5bd8e1480ca5a`.
-N8 code candidate: #97, `fc4bcda0e23db10d09939242d3eb8f678ab8dd61`, tree `134bbc8c6a050e2b599abfd167915f880968ec32`.
+N8 code candidate: #97, `8f329f92a1e01971c64a28a9dbdb50ce898c4343`, tree `86ee5d0b55ed3c5119acbff4cda8a063afb3feca`.
 N9 changes only this handback document; require its own head/tree evidence.
 All constituent PRs target develop for CI; their shared history overlaps.
 Do not merge them independently or squash their cumulative diffs in sequence.
@@ -20,9 +20,9 @@ Do not merge them independently or squash their cumulative diffs in sequence.
 | N3 | N0 | #92 | a7754eeea84650cd6d43f3435f45a6f96f472eac | Output lease, cancellation, inventory; revert N3 with N6/N7 dependents |
 | N4 | N0 | #93 | 05d9fa2c0bc7d14213ecf762ed8eff3c40ba0752 | Exporter injection, native framing, actual Firefox fixture; revert product and acceptance changes as a unit |
 | N5 | N0 | #94 | 487d9e7a4fe04f9377f1139776025115befc43c1 | Native release executable and real WebView IPC acceptance; revert runner and harness changes |
-| N6 | N1,N3 | #95 | e390282b42288d0cfef343991e089775c817df34 | web-vitals lifecycle, HTTP cache, CDP waterfall; revert N6-only performance changes, keep upstream accessibility fixes |
+| N6 | N1,N3 | #95 | 186db559bb25929fd7871ab8fea22df889bdb2fd | web-vitals lifecycle, HTTP cache, CDP waterfall; revert N6-only performance changes, keep upstream accessibility fixes |
 | N7 | N3 | #96 | 81b874de4234248d022cecc8fa93e8bd5773cf72 | Isolated cold/restored/invalidated Nx UI output proof; remove probe without changing policy |
-| N8 | N2,N4,N5,N6,N7 | #97 | fc4bcda0e23db10d09939242d3eb8f678ab8dd61 | Integration only; discard candidate branch if rejected; no production rollback required |
+| N8 | N2,N4,N5,N6,N7 | #97 | 8f329f92a1e01971c64a28a9dbdb50ce898c4343 | Integration only; discard candidate branch if rejected; no production rollback required |
 | N9 | N8 | this PR | current head | Review/evidence acceptance; documentation only |
 
 Rollback requires a new reviewed candidate, not a force push or history rewrite.
@@ -49,7 +49,7 @@ parent relationships and compare final tree. No deploy or real content write.
   and [quality 45649320959](https://github.com/tenzyu/tenzyudotcom/actions/runs/45649320959).
 - N3 quality [45649419550](https://github.com/tenzyu/tenzyudotcom/actions/runs/45649419550) passed.
   Normal [45649419568](https://github.com/tenzyu/tenzyudotcom/actions/runs/45649419568)
-  not confirmed at record creation. Baseline disposition: [inventory](phase2-disposition.md).
+  passed. Baseline disposition: [inventory](phase2-disposition.md).
 - N4 Firefox 160.0 / GeckoDriver 0.37.1: 23 unit tests and actual download passed,
   but native-mode acceptance failed because WebDriver content context cannot
   navigate an extension options URL ([45649936984](https://github.com/tenzyu/tenzyudotcom/actions/runs/45649936984)).
@@ -61,7 +61,7 @@ parent relationships and compare final tree. No deploy or real content write.
   matching WebKitGTK driver. Runtime success still unverified.
 - N6/N7 new probes must produce actual metrics/cache results, not merely green
   test process exits. Earlier N6 ancestor [45649839977](https://github.com/tenzyu/tenzyudotcom/actions/runs/45649839977);
-  N7 cache run [45650224652](https://github.com/tenzyu/tenzyudotcom/actions/runs/45650224652).
+  N7 cache run [45650224652](https://github.com/tenzyu/tenzyudotcom/actions/runs/45650224652) passed; artifact contents still require review. Earlier N6 failed browser callback initialization (job 139331016911); follow-up bundles the installed library with Bun for the browser. Latest metrics remain unverified.
 
 ### Before/after axe evidence (same 72-scan fixture)
 
