@@ -186,7 +186,14 @@ function countReads(rows) {
 async function read(route, label, options = {}, measure = true) {
   const before = ledger().length;
   const started = performance.now();
-  const response = await fetch(`${base}${route}`, {
+  const url = new URL(`${base}${route}`);
+  // Next 16.4 validates the RSC cache-busting query against the router headers.
+  // This fixture sends only RSC: 1 (no prefetch, state tree or next-url), so
+  // the protocol requires an empty _rsc value, not an absent parameter.
+  if (new Headers(options.headers).get('rsc') === '1') {
+    url.searchParams.set('_rsc', '');
+  }
+  const response = await fetch(url, {
     ...options,
     headers: {
       'accept-language': route.startsWith('/en') ? 'en-US' : 'ja-JP',
@@ -202,11 +209,14 @@ async function read(route, label, options = {}, measure = true) {
   const location = response.headers.get('location');
   const cacheControl = response.headers.get('cache-control');
   if (measure) metrics.push({ label, route, status: response.status, ...(location && { location }), elapsedMs: Math.round(performance.now() - started), ...counts });
-  return { status: response.status, body, location, cacheControl, counts, rows };
+  if (new Headers(options.headers).get('rsc') === '1' && response.status === 200) {
+    assert.match(response.headers.get('content-type') ?? '', /^text\/x-component(?:;|$)/i, `Expected RSC payload for ${route}`);
+  }
+  return { status: response.status, body, location, cacheControl, counts, rows, route };
 }
 
 function expectContains(result, expected, status = 200) {
-  assert.equal(result.status, status, `Expected status ${status} and marker ${expected}`);
+  assert.equal(result.status, status, `Expected status ${status} and marker ${expected} for ${result.route ?? 'unknown route'}${result.location ? `; Location: ${result.location}` : ''}`);
   assert.ok(result.body.includes(expected), `Missing response marker: ${expected}`);
 }
 
