@@ -8,7 +8,6 @@ import {
   Item,
   ItemContent,
   ItemDescription,
-  ItemGroup,
   ItemMedia,
   ItemTitle,
 } from '@tenzyu/ui/item'
@@ -64,11 +63,11 @@ export async function LinkList() {
               <nav
                 aria-label={`${group.label.value} ${content.aria.groupLabelSuffix.value}`}
               >
-                <ItemGroup className="xs:grid-cols-2 grid grid-cols-1 gap-4 p-0 sm:grid-cols-3">
+                <ul className="xs:grid-cols-2 grid grid-cols-1 gap-4 p-0 sm:grid-cols-3 list-none">
                   {group.links.map((link) => (
                     <LinkTile key={link.shortenUrl} link={link} />
                   ))}
-                </ItemGroup>
+                </ul>
               </nav>
             </section>
           ),
@@ -94,7 +93,7 @@ function LinkTile({ link }: { link: MyLink }) {
   const { locale } = useLocale()
 
   return (
-    <div role="listitem">
+    <li>
     <Item
       variant="outline"
       className="w-full pr-11"
@@ -120,6 +119,6 @@ function LinkTile({ link }: { link: MyLink }) {
         </Link>
       }
     />
-    </div>
+    </li>
   )
 }
