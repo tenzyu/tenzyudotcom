@@ -1,0 +1,22 @@
+name: Firefox runtime acceptance
+on:
+  pull_request:
+    branches: [develop]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: firefox-runtime-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  firefox-extension:
+    if: startsWith(github.head_ref, 'evidence/phase2-') || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - run: firefox --version && geckodriver --version && node --version
+      - run: node --test product/apps/chatgpt-partial-html-export/tests/*.test.mjs
+      - run: python3 product/apps/chatgpt-partial-html-export/tests/firefox-runtime.py
