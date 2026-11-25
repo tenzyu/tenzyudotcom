@@ -1,4 +1,5 @@
-import { createHmac, timingSafeEqual } from 'node:crypto'
+import { timingSafeEqual } from 'node:crypto'
+import { parseSession, serializeSession, type EditorSessionPayload } from './session-token'
 import { getLocalizedUrl } from 'intlayer'
 import { cookies, headers } from 'next/headers'
 import { redirect } from 'next/navigation'
@@ -20,29 +21,6 @@ const loginAttempts = createLoginRateLimiter({
   maxClients: 1,
 })
 let warnedWeakSessionSecret = false
-
-type EditorSessionPayload = {
-  sub: 'editor-admin'
-  exp: number
-}
-
-function encodeBase64Url(value: string) {
-  return Buffer.from(value).toString('base64url')
-}
-
-function decodeBase64Url(value: string) {
-  return Buffer.from(value, 'base64url').toString('utf8')
-}
-
-function signToken(payload: string, secret: string) {
-  return createHmac('sha256', secret).update(payload).digest('base64url')
-}
-
-function serializeSession(payload: EditorSessionPayload, secret: string) {
-  const encodedPayload = encodeBase64Url(JSON.stringify(payload))
-  const signature = signToken(encodedPayload, secret)
-  return `${encodedPayload}.${signature}`
-}
 
 function warnWeakSessionSecret(sessionSecret: string) {
   if (sessionSecret.length >= 32 || isProduction || warnedWeakSessionSecret) {
@@ -74,52 +52,13 @@ function assertSameOrigin(headerStore: Headers) {
   throw new Error('Editor mutation rejected: origin is not authorized.')
 }
 
-function parseSession(
-  token: string,
-  secret: string,
-): EditorSessionPayload | null {
-  const [encodedPayload, signature, ...extra] = token.split('.')
-  if (!encodedPayload || !signature || extra.length !== 0) {
-    return null
-  }
-
-  const expectedSignature = signToken(encodedPayload, secret)
-  const signatureBuffer = Buffer.from(signature)
-  const expectedBuffer = Buffer.from(expectedSignature)
-
-  if (
-    signatureBuffer.length !== expectedBuffer.length ||
-    !timingSafeEqual(signatureBuffer, expectedBuffer)
-  ) {
-    return null
-  }
-
-  try {
-    const payload = JSON.parse(
-      decodeBase64Url(encodedPayload),
-    ) as EditorSessionPayload
-
-    if (
-      payload.sub !== 'editor-admin' ||
-      !Number.isFinite(payload.exp) ||
-      payload.exp <= Date.now()
-    ) {
-      return null
-    }
-
-    return payload
-  } catch {
-    return null
-  }
-}
-
 export async function createEditorAdminSession() {
   const { sessionSecret } = getRequiredEditorAdminCredentials()
   warnWeakSessionSecret(sessionSecret)
 
-  if (sessionSecret.length < 32 && isProduction) {
+  if (sessionSecret.length < 32) {
     throw new Error(
-      'EDITOR_SESSION_SECRET must be at least 32 characters in production.',
+      'EDITOR_SESSION_SECRET must be at least 32 characters .',
     )
   }
 
@@ -151,7 +90,7 @@ export async function clearEditorAdminSession() {
 export async function getEditorAdminSessionExpiry() {
   try {
     const { sessionSecret } = getRequiredEditorAdminCredentials()
-    if (isProduction && sessionSecret.length < 32) return null
+    if (sessionSecret.length < 32) return null
     const cookieStore = await cookies()
     const token = cookieStore.get(EDITOR_SESSION_COOKIE)?.value
 
