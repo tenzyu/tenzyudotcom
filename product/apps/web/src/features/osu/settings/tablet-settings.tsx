@@ -52,7 +52,7 @@ const TabletArea = memo(function TabletArea({
             height: `${(height / 95) * 100}%`,
           }}
         >
-          <div className="text-visualization-fg absolute top-1/2 left-1/2 z-30 -translate-x-1/2 -translate-y-1/2 transform px-2 py-0.5 text-lg">
+          <div className="bg-background text-foreground rounded-sm absolute top-1/2 left-1/2 z-30 -translate-x-1/2 -translate-y-1/2 transform px-2 py-0.5 text-lg">
             {width} x {height}
           </div>
         </div>
