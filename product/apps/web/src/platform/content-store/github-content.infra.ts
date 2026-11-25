@@ -40,9 +40,10 @@ function getDocumentRepository() {
 
 export async function loadGitHubTextFile(pathname: string) {
   const tag = getContentTagForPathname(pathname)
+  const { owner, repo, branch, root } = getGitHubConfig()
   return unstable_cache(
     async () => getDocumentRepository().loadText(pathname),
-    ['github-content-file', pathname],
+    ['github-content-file-v2', owner, repo, branch, root, pathname],
     { tags: [tag] },
   )()
 }
