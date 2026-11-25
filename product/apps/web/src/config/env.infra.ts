@@ -72,8 +72,12 @@ export function shouldLoadReactGrabOverlay() {
   return isDevelopment && env.enableReactGrabOverlay
 }
 
-export function isEditorLoginConfigured() {
-  return !!env.editorAdminPassword && !!env.editorSessionSecret
+type EditorLoginConfig = Pick<typeof env, 'editorAdminPassword' | 'editorSessionSecret'>
+
+export function isEditorLoginConfigured(
+  config: EditorLoginConfig = env,
+): config is { editorAdminPassword: string; editorSessionSecret: string } {
+  return !!config.editorAdminPassword && (config.editorSessionSecret?.length ?? 0) >= 32
 }
 export const isEditorGithubStorage =
   !!env.githubContentOwner &&
@@ -94,9 +98,9 @@ export const getRequiredOsuApiCredentials = () => {
 }
 
 export const getRequiredEditorAdminCredentials = () => {
-  if (!env.editorAdminPassword || !env.editorSessionSecret) {
+  if (!isEditorLoginConfigured(env)) {
     throw new Error(
-      'Editor admin credentials are missing. Please set EDITOR_ADMIN_PASSWORD and EDITOR_SESSION_SECRET.',
+      'Editor admin credentials are not configured correctly. Set EDITOR_ADMIN_PASSWORD and an EDITOR_SESSION_SECRET of at least 32 characters.',
     )
   }
 

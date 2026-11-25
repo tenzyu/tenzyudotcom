@@ -25,8 +25,8 @@ const editorAdminContent = {
         en: 'Incorrect password.',
       }),
       missingMessage: t({
-        ja: '環境変数が未設定です。',
-        en: 'Required environment variables are not configured.',
+        ja: '必要な環境変数が未設定か、設定が無効です。',
+        en: 'Required environment variables are missing or invalid.',
       }),
     },
     dashboard: {

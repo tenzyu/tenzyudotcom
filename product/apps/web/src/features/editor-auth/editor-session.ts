@@ -20,19 +20,6 @@ const loginAttempts = createLoginRateLimiter({
   maxAttempts: LOGIN_RATE_LIMIT_MAX_ATTEMPTS,
   maxClients: 1,
 })
-let warnedWeakSessionSecret = false
-
-function warnWeakSessionSecret(sessionSecret: string) {
-  if (sessionSecret.length >= 32 || isProduction || warnedWeakSessionSecret) {
-    return
-  }
-
-  warnedWeakSessionSecret = true
-  console.warn(
-    'EDITOR_SESSION_SECRET should be at least 32 characters before production.',
-  )
-}
-
 // A client-supplied Host or forwarded header is not an authorization authority.
 // Production defaults to the configured canonical site, not the request host.
 function assertSameOrigin(headerStore: Headers) {
@@ -54,13 +41,6 @@ function assertSameOrigin(headerStore: Headers) {
 
 export async function createEditorAdminSession() {
   const { sessionSecret } = getRequiredEditorAdminCredentials()
-  warnWeakSessionSecret(sessionSecret)
-
-  if (sessionSecret.length < 32) {
-    throw new Error(
-      'EDITOR_SESSION_SECRET must be at least 32 characters .',
-    )
-  }
 
   const payload: EditorSessionPayload = {
     sub: 'editor-admin',
@@ -90,7 +70,6 @@ export async function clearEditorAdminSession() {
 export async function getEditorAdminSessionExpiry() {
   try {
     const { sessionSecret } = getRequiredEditorAdminCredentials()
-    if (sessionSecret.length < 32) return null
     const cookieStore = await cookies()
     const token = cookieStore.get(EDITOR_SESSION_COOKIE)?.value
 
