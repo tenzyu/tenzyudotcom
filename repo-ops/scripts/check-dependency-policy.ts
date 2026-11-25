@@ -98,6 +98,34 @@ for (const relativePath of packageJsonPaths) {
   }
 }
 
+// Consume Nx's existing project graph rather than maintaining an independent graph.
+const graphPath = process.argv[2]
+if (graphPath) {
+  type Project = { data: { root: string; tags?: string[] } }
+  type Edge = { source: string; target: string }
+  const { graph } = JSON.parse(await Bun.file(graphPath).text()) as {
+    graph: { nodes: Record<string, Project>; dependencies: Record<string, Edge[]> }
+  }
+  for (const edges of Object.values(graph.dependencies)) {
+    for (const { source, target } of edges) {
+      const from = graph.nodes[source]
+      const to = graph.nodes[target]
+      if (!from || !to) continue // External npm dependencies are not workspace projects.
+      const fromTags = from.data.tags ?? []
+      const toTags = to.data.tags ?? []
+      const violation =
+        to.data.root.startsWith('product/apps/') ||
+        (fromTags.includes('runtime:pure') && !toTags.includes('runtime:pure')) ||
+        (fromTags.includes('domain:design-system') && !toTags.includes('domain:design-system')) ||
+        (fromTags.includes('runtime:server') && toTags.includes('domain:publishing'))
+      if (violation) {
+        failed = true
+        console.error(`Forbidden workspace dependency: ${source} -> ${target}`)
+      }
+    }
+  }
+}
+
 if (failed) process.exit(1)
 
 function isForbiddenFloatingRange(version: string) {
