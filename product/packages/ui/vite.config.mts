@@ -36,6 +36,30 @@ const componentEntries = Object.fromEntries(
 
 export default defineConfig(() => ({
   root: projectRoot,
+  // A library stylesheet must resolve emitted assets relative to itself.
+  base: './',
+  css: {
+    postcss: {
+      plugins: [
+        {
+          postcssPlugin: 'ui-external-font-assets',
+          OnceExit(root) {
+            // Vite library mode inlines assets by default. The explicit
+            // no-inline query overrides that behavior for local WOFF2 files.
+            root.walkDecls('src', (declaration) => {
+              declaration.value = declaration.value.replace(
+                /url\((['"]?)([^'"()]+\.woff2)\1\)/g,
+                (match: string, quote: string, url: string) =>
+                  /^(?:data:|https?:|\/\/)/i.test(url)
+                    ? match
+                    : `url(${quote}${url}?no-inline${quote})`,
+              )
+            })
+          },
+        },
+      ],
+    },
+  },
   resolve: { alias: { '@': srcRoot } },
 
   plugins: [
