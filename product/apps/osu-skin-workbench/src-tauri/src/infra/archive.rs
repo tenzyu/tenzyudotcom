@@ -53,7 +53,7 @@ pub(crate) fn extract_osk(source: &Path, target: &Path) -> Result<(), String> {
             }
             let enclosed = member
                 .enclosed_name()
-                .ok_or_else(|| format!("unsafe archive member: {}", member.name()))?
+                .ok_or_else(|| format!("unsafe archive member at index {index}: {:?}", member.name()))?
                 .to_owned();
             let out_path = temp_target.join(enclosed);
             if member.is_dir() {

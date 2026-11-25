@@ -24,6 +24,28 @@
         "storybook:build"
       ],
       "cache": false
+    },
+    "storybook:build": {
+      "command": "bun run build:storybook",
+      "options": {
+        "cwd": "product/packages/ui"
+      },
+      "inputs": [
+        "default",
+        "^default"
+      ],
+      "outputs": [
+        "{projectRoot}/storybook-static"
+      ],
+      "cache": true
+    },
+    "serve:storybook": {
+      "command": "bun run storybook",
+      "options": {
+        "cwd": "product/packages/ui"
+      },
+      "continuous": true,
+      "cache": false
     }
   }
 }
