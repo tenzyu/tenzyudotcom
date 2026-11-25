@@ -44,7 +44,12 @@ def main():
         xpi = root / "fixture.xpi"
         with zipfile.ZipFile(xpi, "w") as z:
             z.writestr("manifest.json", json.dumps(manifest))
-            z.writestr("fixture-locator.js", "document.documentElement.dataset.fixtureOptionsUrl = browser.runtime.getURL(\'options/options.html\');")
+            z.writestr("fixture-locator.js", """document.addEventListener('fixture-configure-native', async () => {
+              try {
+                await browser.storage.local.set({ exportMode: 'native', nativeOutputDir: document.documentElement.dataset.fixtureNativeDir, fallbackToDownload: false });
+                document.documentElement.dataset.fixtureConfigured = 'yes';
+              } catch (error) { document.documentElement.dataset.fixtureConfigured = String(error); }
+            });""")
             for folder in ("src", "options", "popup"):
                 for p in (ROOT / folder).rglob("*"):
                     if p.is_file():
@@ -100,12 +105,10 @@ def main():
                     assert all(x not in data for x in ("EXCLUDED_FIRST","EXCLUDED_CONTROL","EXCLUDED_SCRIPT"))
                 click_second()
                 verify(downloads)
-                options_url = until(lambda: js("return document.documentElement.dataset.fixtureOptionsUrl"), "actual runtime options URL")
-                assert options_url.startswith("moz-extension://")
-                go(options_url)
-                until(lambda: js("return document.querySelector('#filenamePrefix').value === 'chatgpt'"), "extension options initialized")
-                js("document.querySelector('[value=native]').checked=true;document.querySelector('#nativeOutputDir').value=arguments[0];document.querySelector('#optionsForm').requestSubmit()", str(native))
-                until(lambda: js("return document.querySelector('#status').textContent === 'Saved.'"), "native mode saved")
+                # WebDriver content context cannot navigate moz-extension: pages.
+                # Configure via the actual storage API in the temporary addon.
+                js("document.documentElement.dataset.fixtureNativeDir=arguments[0];document.dispatchEvent(new Event('fixture-configure-native'))", str(native))
+                assert until(lambda: js("return document.documentElement.dataset.fixtureConfigured"), "native storage configured") == "yes"
                 click_second()
                 verify(native)
                 print(json.dumps({"download": "passed", "nativeMessaging": "passed", "stableInjection": "passed", "manifestScope": "loopback test XPI only"}))
