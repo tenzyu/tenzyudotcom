@@ -23,7 +23,6 @@
     "@vercel/analytics": "catalog:",
     "@vercel/speed-insights": "catalog:",
     "critters": "^0.0.25",
-    "embla-carousel-react": "catalog:",
     "gray-matter": "catalog:",
     "hast-util-to-jsx-runtime": "2.3.6",
     "intlayer": "catalog:",

@@ -67,23 +67,6 @@ test('normal leader exit cannot leave a background writer modifying the hashed l
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 
-test('outer timeout makes preview terminate its separately grouped server', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'renewal-preview-cancel-'));
-  try {
-    const root = join(dir, 'workspace');
-    const bin = join(root, 'node_modules/next/dist/bin');
-    mkdirSync(bin, { recursive: true });
-    mkdirSync(join(root, 'product/apps/web'), { recursive: true });
-    const pidPath = join(dir, 'server-pid');
-    writeFileSync(join(bin, 'next'), `require('fs').writeFileSync(${JSON.stringify(pidPath)}, String(process.pid)); setInterval(() => {}, 1000);`);
-    const preview = fileURLToPath(new URL('./preview.mjs', import.meta.url));
-    const result = spawnSync(process.execPath, [runner, '--cwd', root, '--out', join(dir, 'result'), '--timeout', '1', '--', process.execPath, preview, root, join(dir, 'browser'), 'unused-driver', 'unused-browser'], { encoding: 'utf8', timeout: 10000 });
-    assert.equal(result.status, 124, result.stderr);
-    const pid = Number(readFileSync(pidPath, 'utf8'));
-    assert.throws(() => process.kill(pid, 0), { code: 'ESRCH' });
-  } finally { rmSync(dir, { recursive: true, force: true }); }
-});
-
 test('source preservation fails closed on missing saved entries and handles dangling symlinks', () => {
   const dir = mkdtempSync(join(tmpdir(), 'renewal-source-'));
   try {

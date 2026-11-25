@@ -29,28 +29,24 @@ const collectionLoaders: {
   scraps: loadScrapEditorIndexState,
 }
 
-class LoadEditorCollectionUseCase {
-  async execute<K extends EditorCollectionId>(
-    collectionId: K,
-  ): Promise<EditorCollectionState<K>> {
-    return collectionLoaders[collectionId]()
-  }
+export async function loadEditorCollection<K extends EditorCollectionId>(
+  collectionId: K,
+): Promise<EditorCollectionState<K>> {
+  return collectionLoaders[collectionId]()
 }
 
-class SaveEditorCollectionUseCase {
-  async execute(
-    collectionId: WritableEditorCollectionId,
-    rawJson: string,
-    expectedVersion: string,
-  ): Promise<{ version: string }> {
-    if (collectionId === 'notes')
-      return saveNotesState(rawJson, expectedVersion)
+export async function saveEditorCollection(
+  collectionId: WritableEditorCollectionId,
+  rawJson: string,
+  expectedVersion: string,
+): Promise<{ version: string }> {
+  if (collectionId === 'notes')
+    return saveNotesState(rawJson, expectedVersion)
 
-    const result = await saveLinksState(rawJson, expectedVersion)
-    refreshLinksAfterSave()
+  const result = await saveLinksState(rawJson, expectedVersion)
+  refreshLinksAfterSave()
 
-    return result
-  }
+  return result
 }
 
 export function refreshLinksAfterSave() {
@@ -73,12 +69,4 @@ export async function checkEditorBlogPublication(candidateOid: string) {
         status: 'reconciled',
       })
     : null
-}
-
-export function makeLoadEditorCollectionUseCase() {
-  return new LoadEditorCollectionUseCase()
-}
-
-export function makeSaveEditorCollectionUseCase() {
-  return new SaveEditorCollectionUseCase()
 }

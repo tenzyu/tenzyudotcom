@@ -17,7 +17,7 @@ import { ThemeProvider } from '@/app/[locale]/_features/shell/theme-provider'
 import { Toaster } from '@tenzyu/ui/sonner'
 import { SiteFrame } from '@tenzyu/ui/editorial'
 import { TooltipProvider } from '@tenzyu/ui/tooltip'
-import { shouldLoadReactGrabOverlay } from '@/config/env.assemble'
+import { shouldLoadReactGrabOverlay } from '@/config/env.infra'
 import { buildSiteMetadata } from './_features/site-metadata'
 import { buildSiteStructuredData } from './_features/site-structured-data'
 

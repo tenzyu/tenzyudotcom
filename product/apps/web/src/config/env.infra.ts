@@ -66,6 +66,14 @@ export const env = {
 
 export const isDevelopment = env.nodeEnv === 'development'
 export const isProduction = env.nodeEnv === 'production'
+
+export function shouldLoadReactGrabOverlay() {
+  return isDevelopment && env.enableReactGrabOverlay
+}
+
+export function isEditorLoginConfigured() {
+  return !!env.editorAdminPassword && !!env.editorSessionSecret
+}
 export const isEditorGithubStorage =
   !!env.githubContentOwner &&
   !!env.githubContentRepo &&

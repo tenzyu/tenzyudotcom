@@ -7,7 +7,7 @@ import {
   EditorialEntry,
 } from '@tenzyu/ui/editorial'
 import { listEditorCollectionMeta } from '@/features/content-editor/editor-collections'
-import { usesEditorGithubStorage } from './editor-config.assemble'
+import { isEditorGithubStorage } from '@/config/env.infra'
 import { logoutEditorAdminAction } from './actions'
 
 const descriptions = {
@@ -31,7 +31,7 @@ export function EditorDashboard({ locale }: { locale: string }) {
           </form>
         }
       />
-      {!usesEditorGithubStorage() ? (
+      {!isEditorGithubStorage ? (
         <p role="status">GitHub content storage is not configured.</p>
       ) : null}
       <EditorialList>

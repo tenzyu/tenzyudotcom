@@ -4,7 +4,7 @@ import { Input } from '@tenzyu/ui/input'
 import { Button } from '@tenzyu/ui/button'
 import { EDITOR_ADMIN_LOCALE } from './editor-admin.constants'
 import { loginEditorAdminAction } from './actions'
-import { isEditorLoginConfigured } from './editor-config.assemble'
+import { isEditorLoginConfigured } from '@/config/env.infra'
 
 export function EditorLogin({
   locale,

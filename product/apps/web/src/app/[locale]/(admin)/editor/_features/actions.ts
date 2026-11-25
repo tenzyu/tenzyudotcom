@@ -9,7 +9,7 @@ import {
 } from '@/lib/content-store/content-store.domain'
 import { isWritableEditorCollectionId } from '@/features/content-editor/editor-collections'
 import {
-  makeSaveEditorCollectionUseCase,
+  saveEditorCollection,
   checkEditorBlogPublication,
   publishEditorBlog,
 } from './editor.assemble'
@@ -98,8 +98,7 @@ export async function saveEditorCollectionAction(
   }
 
   try {
-    const saveUseCase = makeSaveEditorCollectionUseCase()
-    const result = await saveUseCase.execute(
+    const result = await saveEditorCollection(
       parsed.data.collectionId,
       parsed.data.sourceJson,
       parsed.data.expectedVersion,
