@@ -1,8 +1,8 @@
 import type { Tweet } from 'react-tweet/api'
 
 export function normalizeTweetEntities(
-  entities: Partial<Tweet['entities']>,
-): Tweet['entities'] {
+  entities: Partial<NonNullable<Tweet['entities']>> = {},
+): NonNullable<Tweet['entities']> {
   return {
     ...entities,
     hashtags: entities.hashtags ?? [],

@@ -161,7 +161,7 @@ fn read_zip(file: File) -> ZipContents {
         assert_eq!(entry.compression(), CompressionMethod::Deflated);
         let mut bytes = Vec::new();
         entry.read_to_end(&mut bytes).unwrap();
-        assert!(contents.insert(entry.name().into(), bytes).is_none());
+        assert!(contents.insert(entry.name().unwrap().into_owned(), bytes).is_none());
     }
     contents
 }
