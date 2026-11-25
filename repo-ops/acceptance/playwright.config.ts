@@ -12,7 +12,7 @@ const chromiumExecutablePath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH;
 export default defineConfig({
 	testDir: resolve(repositoryRoot, "repo-ops/acceptance"),
 	testMatch: "browser-acceptance.spec.ts",
-	outputDir,
+	outputDir: resolve(outputDir, 'artifacts'),
 	fullyParallel: false,
 	forbidOnly: true,
 	retries: 0,
@@ -65,6 +65,7 @@ export default defineConfig({
 		},
 		url: "http://127.0.0.1:4173/en/tools",
 		reuseExistingServer: false,
+		gracefulShutdown: { signal: 'SIGTERM', timeout: 8000 },
 		timeout: 120_000,
 	},
 });

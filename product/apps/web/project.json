@@ -114,6 +114,39 @@
     },
     "analyze": {
       "cache": false
+    },
+    "browser-public": {
+      "executor": "nx:run-commands",
+      "cache": false,
+      "parallelism": false,
+      "dependsOn": [
+        "^build"
+      ],
+      "options": {
+        "command": "bun --no-env-file x --no-install playwright test --config repo-ops/acceptance/playwright.config.ts"
+      }
+    },
+    "browser-editor": {
+      "executor": "nx:run-commands",
+      "cache": false,
+      "parallelism": false,
+      "dependsOn": [
+        "^build"
+      ],
+      "options": {
+        "command": "bun --no-env-file x --no-install playwright test --config repo-ops/acceptance/playwright.editor.config.ts"
+      }
+    },
+    "browser-fixture": {
+      "executor": "nx:run-commands",
+      "cache": false,
+      "parallelism": false,
+      "dependsOn": [
+        "^build"
+      ],
+      "options": {
+        "command": "bun --no-env-file x --no-install playwright test --config repo-ops/acceptance/playwright.fixture.config.ts"
+      }
     }
   }
 }

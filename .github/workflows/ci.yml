@@ -121,13 +121,38 @@ jobs:
       - name: Install Playwright Chromium
         run: bun x playwright install --with-deps chromium
 
+      - name: Set fixture evidence destinations
+        run: |
+          printf 'PUBLICATION_EVIDENCE_DIR=%s/publication\nPLAYWRIGHT_OUTPUT_DIR=%s/editor\n' "$RUNNER_TEMP" "$RUNNER_TEMP" >> "$GITHUB_ENV"
+          mkdir -p "$RUNNER_TEMP/publication" "$RUNNER_TEMP/editor"
+          { git rev-parse HEAD HEAD^{tree}; sha256sum bun.lock package.json nx.json; node --version; bun --version; } > "$RUNNER_TEMP/fixture-revision.txt"
       - name: Verify publication in a production build
-        env:
-          PUBLICATION_EVIDENCE_DIR: ${{ runner.temp }}/publication
-        run: bun nx run web:publication-acceptance --skip-nx-cache
+        run: /usr/bin/time -v -o "$PUBLICATION_EVIDENCE_DIR/time.txt" bun nx run web:publication-acceptance --skip-nx-cache
 
       - name: Verify editor in Chromium
+        if: always()
         env:
-          PLAYWRIGHT_OUTPUT_DIR: ${{ runner.temp }}/editor
           EDITOR_BROWSER_PRODUCTION: "1"
-        run: bun run test:browser:editor
+        run: /usr/bin/time -v -o "$PLAYWRIGHT_OUTPUT_DIR/time.txt" bun --no-env-file run test:browser:editor
+      - name: Record production static chunk sizes
+        if: always()
+        run: |
+          if test -d product/apps/web/.next/static; then
+            find product/apps/web/.next/static -type f -printf '%s %P\n' | sort -nr > "$PLAYWRIGHT_OUTPUT_DIR/static-chunks.txt"
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fixture-evidence
+          path: |
+            ${{ runner.temp }}/fixture-revision.txt
+            ${{ runner.temp }}/publication/time.txt
+            ${{ runner.temp }}/publication/publication-*/results.json
+            ${{ runner.temp }}/publication/publication-*/next-build.log
+            ${{ runner.temp }}/editor/time.txt
+            ${{ runner.temp }}/editor/static-chunks.txt
+            ${{ runner.temp }}/editor/editor-*/results.json
+            ${{ runner.temp }}/editor/editor-*/next-build.log
+            ${{ runner.temp }}/editor/editor-*/artifacts/**/error-context.md
+          if-no-files-found: error
+          retention-days: 7
