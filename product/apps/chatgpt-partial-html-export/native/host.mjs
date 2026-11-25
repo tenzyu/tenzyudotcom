@@ -77,31 +77,23 @@ export function resolveOutputPath(outputDir, filename) {
 async function readNativeMessage() {
   const chunks = [];
   let total = 0;
-
+  let length;
   for await (const chunk of process.stdin) {
     chunks.push(chunk);
     total += chunk.length;
-    if (total > MAX_MESSAGE_BYTES + 4) {
-      throw new Error('Native message is too large.');
+    if (total > MAX_MESSAGE_BYTES + 4) throw new Error('Native message is too large.');
+    if (length === undefined && total >= 4) {
+      length = Buffer.concat(chunks, total).readUInt32LE(0);
+      if (length > MAX_MESSAGE_BYTES) throw new Error('Native message exceeds maximum size: ' + length);
+    }
+    // Firefox may keep stdin open while waiting for the reply. Read the frame,
+    // not EOF. This host intentionally accepts only one request per process.
+    if (length !== undefined && total >= 4 + length) {
+      if (total !== 4 + length) throw new Error('Unexpected trailing native message bytes.');
+      return JSON.parse(Buffer.concat(chunks, total).subarray(4).toString('utf8'));
     }
   }
-
-  const buffer = Buffer.concat(chunks);
-  if (buffer.length < 4) {
-    throw new Error('Native message length prefix is missing.');
-  }
-
-  const length = buffer.readUInt32LE(0);
-  if (length > MAX_MESSAGE_BYTES) {
-    throw new Error(`Native message exceeds maximum size: ${length}`);
-  }
-
-  const body = buffer.subarray(4, 4 + length);
-  if (body.length !== length) {
-    throw new Error('Native message body is truncated.');
-  }
-
-  return JSON.parse(body.toString('utf8'));
+  throw new Error(length === undefined ? 'Native message length prefix is missing.' : 'Native message body is truncated.');
 }
 
 function writeNativeMessage(message) {
