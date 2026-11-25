@@ -29,7 +29,8 @@ sources:
 | `features/scraps` | Manifest, entry, translation and visibility rules, public views, editor and aggregate publication |
 | `features/links` | Link validation, short-link behavior, public projections, item commands, editor and cache invalidation |
 | `features/osu` | Profile, API access, settings history, embedded media and presentation |
-| `features/content-editor` | Shared editor UI, login, collection dispatch and navigation; not Blog/Scraps authoring policy |
+| `composition/editor` | Workspace navigation, typed collection routing and domain editor composition; no feature imports this owner |
+| `features/content-editor` | Shared editor UI, login, source editing, collection form validation/authorization and save hook; no domain dispatch |
 | `platform/content-store` | Revisioned snapshots, tree commits, reconciliation, JSON document operations and transport errors |
 | `config/content-cache.ts` | Application-owned pathname-to-cache-tag integration policy |
 
@@ -37,11 +38,11 @@ Blog consumes the structural `RevisionedContentRepository` capability; the GitHu
 
 Use immutable publication snapshots for routes that already require request-time revision consistency. The osu profile's existing cached Links projection remains an explicit Links API; its ISR behavior is not changed by this refactor. Preserve private draft isolation, no-force ref updates, version conflicts, uncertain publication reconciliation, metadata/source fidelity and existing URL contracts. No content migration is required.
 
-Other features (including home, portfolio, tools, shell and authentication) still use their existing layout. Do not infer that every route-local module is obsolete or that the complete dependency graph has been proven acyclic. CI acceptance remains required.
+Home, portfolio, tools and shell keep their route-local composition. Shared MDX, external links, Ko-fi, sharing, and aside components live in `components/site`; date formatting lives in `lib/i18n`; YouTube presentation lives with `features/youtube`. Authentication remains in `features/editor-auth`. Do not infer that every route-local module is obsolete or that the complete dependency graph has been proven acyclic. CI acceptance remains required.
 
 # Architecture checks
 
-The bespoke architecture linter is retired. Use TypeScript, Biome, the dependency policy, code review and behavioral tests. Authentication, origin checks, private draft isolation and publication consistency remain requirements.
+The bespoke architecture linter is retired. Use TypeScript, Biome (including `noImportCycles` for Web module imports), the dependency policy, code review and behavioral tests. A module-cycle check alone does not prove the owner quotient acyclic. The native restricted-import override prohibits reverse `@/app/` and `@/composition/` imports from feature and shared-leaf directories; relative paths and the owner quotient still require graph inspection. Composition imports domains; domains import reusable editor capabilities, not composition. Domain-specific server actions bind the collection; shared form handling authenticates and rejects a mismatched collection before saving. Links owns post-confirmation cache invalidation; refresh failure is logged without converting a confirmed write into a failed save. Authentication, origin checks, private draft isolation and publication consistency remain requirements.
 
 # Where to start
 

@@ -1,5 +1,5 @@
 import { Coffee } from 'lucide-react'
-import { ExternalLink } from '@/app/[locale]/_features/external-link'
+import { ExternalLink } from '@/components/site/external-link'
 import { Button } from '@tenzyu/ui/button'
 
 const KOFI_URL = 'https://ko-fi.com/tenzyu'

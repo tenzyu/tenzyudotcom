@@ -12,3 +12,7 @@
 - 2026-11-25: Removed obsolete renewal utilities, stale workbench lockfile, stateless editor factories and pass-through modules; consolidated equivalent Nix shells and dependency version authority. CI pending.
 
 - 2026-11-25: Aligned Blog, Notes, Scraps, Links, osu and shared editor ownership; separated Content Store contracts from application cache policy. Publication and editor regression verification pending CI.
+
+- 2026-11-25: Corrected editor composition ownership and Links post-commit refresh semantics after independent PR #69–71 review. Native Biome cycle detection enabled; expanded fixture assertions. Full comparative review remains pending execution.
+
+- 2026-11-25: Moved eight shared route-local modules to component, i18n and YouTube owners after scanning all 284 tracked Web TS/JS source modules. Added native reverse-alias restrictions; the static tracked-path graph after relocation has no multi-node SCC at file or owner level. Not a substitute for compiler resolution or matched previews.

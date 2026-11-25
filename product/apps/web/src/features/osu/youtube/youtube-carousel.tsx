@@ -8,8 +8,8 @@ import {
   CarouselPrevious,
 } from '@tenzyu/ui/carousel'
 import { Dialog, DialogTrigger } from '@tenzyu/ui/dialog'
-import { YouTubeDialogContent } from '@/app/[locale]/(main)/_features/youtube/youtube-dialog-content'
-import { YouTubeThumbnailImage } from '@/app/[locale]/(main)/_features/youtube/youtube-thumbnail-image'
+import { YouTubeDialogContent } from '@/features/youtube/youtube-dialog-content'
+import { YouTubeThumbnailImage } from '@/features/youtube/youtube-thumbnail-image'
 import { cn } from '@tenzyu/ui'
 
 type YouTubeVideo = {

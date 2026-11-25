@@ -11,7 +11,7 @@ import {
 } from '@/features/scraps/scraps.domain'
 import type { ScrapEditorCommand } from './scrap-editor.validation'
 import type { ScrapWorkspaceView } from './scrap-workspace.validation'
-import { SourceField } from '@/app/[locale]/_features/source/source-field'
+import { SourceField } from '@/features/content-editor/source/source-field'
 
 type Document = ScrapWorkspaceView['lead'][number]
 

@@ -1,6 +1,6 @@
 import { HeartHandshake } from 'lucide-react'
 import { useIntlayer } from 'next-intlayer/server'
-import { KoFiLink } from '@/app/[locale]/_features/shell/kofi-link'
+import { KoFiLink } from '@/components/site/kofi-link'
 
 export function BlogSupportCard() {
   const content = useIntlayer('page-blog')

@@ -25,20 +25,6 @@ export type EditorCollectionMeta = {
   label: string
 }
 
-export type EditorCollectionDefinition<K extends EditorCollectionId> =
-  EditorCollectionMeta & {
-    load: () => Promise<EditorCollectionState<K>>
-  }
-
-export type WritableEditorCollectionDefinition<
-  K extends WritableEditorCollectionId,
-> = EditorCollectionDefinition<K> & {
-  save: (
-    sourceJson: string,
-    expectedVersion: string,
-  ) => Promise<{ version: string }>
-}
-
 const EDITOR_COLLECTIONS: Record<EditorCollectionId, EditorCollectionMeta> = {
   notes: {
     id: 'notes',

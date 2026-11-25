@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { ContentMDX } from '@/app/[locale]/(main)/_features/content-mdx'
+import { ContentMDX } from '@/components/site/content-mdx'
 import { blogMdxComponents } from './mdx-components'
 
 test('renders the article’s aside and support link', async () => {
