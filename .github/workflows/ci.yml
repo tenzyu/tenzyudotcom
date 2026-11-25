@@ -67,7 +67,7 @@ jobs:
         run: bun run test:scripts
 
   native:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     env:
       NX_DAEMON: 'false'
       NX_NO_CLOUD: 'true'
