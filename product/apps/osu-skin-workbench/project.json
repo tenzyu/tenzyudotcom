@@ -8,10 +8,6 @@
     "type:app",
     "runtime:tauri"
   ],
-  "implicitDependencies": [
-    "ui",
-    "osu-skin-core"
-  ],
   "targets": {
     "dev": {
       "executor": "nx:run-commands",
@@ -46,7 +42,7 @@
         "{projectRoot}/dist"
       ],
       "dependsOn": [
-        "^build"
+        "check"
       ],
       "cache": false
     },
@@ -54,13 +50,14 @@
       "executor": "nx:run-commands",
       "options": {
         "cwd": "product/apps/osu-skin-workbench",
-        "command": "bun run build:vite"
+        "command": "bun run vite build"
       },
       "outputs": [
         "{projectRoot}/dist"
       ],
       "dependsOn": [
-        "^build"
+        "^build",
+        "typecheck"
       ]
     },
     "typecheck": {
@@ -68,14 +65,20 @@
       "options": {
         "cwd": "product/apps/osu-skin-workbench",
         "command": "bun run typecheck"
-      }
+      },
+      "dependsOn": [
+        "^build"
+      ]
     },
     "test": {
       "executor": "nx:run-commands",
       "options": {
         "cwd": "product/apps/osu-skin-workbench",
         "command": "bun run test"
-      }
+      },
+      "dependsOn": [
+        "^build"
+      ]
     },
     "cargo-check": {
       "executor": "nx:run-commands",
@@ -115,30 +118,20 @@
       "cache": false
     },
     "check": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "product/apps/osu-skin-workbench",
-        "command": "bun run check"
-      },
-      "outputs": [
-        "{projectRoot}/dist"
-      ],
+      "executor": "nx:noop",
       "dependsOn": [
-        "^build"
-      ]
+        "typecheck",
+        "test",
+        "build-vite"
+      ],
+      "cache": false
     },
     "verify": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "product/apps/osu-skin-workbench",
-        "command": "bun run verify && bun run cargo:check && bun run cargo:clippy"
-      },
-      "outputs": [
-        "{projectRoot}/src-tauri/target",
-        "{projectRoot}/dist"
-      ],
+      "executor": "nx:noop",
       "dependsOn": [
-        "^build"
+        "check",
+        "cargo-check",
+        "cargo-clippy"
       ],
       "cache": false
     }
