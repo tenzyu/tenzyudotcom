@@ -8,3 +8,5 @@
 - **Qualification:** No live host, production deployment or repository-wide check is claimed by this documentation rewrite.
 
 - 2026-11-25: Retired bespoke architecture lint and began feature-owned Web organization (Links, Notes, contextual editor UI). CI acceptance pending.
+
+- 2026-11-25: Removed obsolete renewal utilities, stale workbench lockfile, stateless editor factories and pass-through modules; consolidated equivalent Nix shells and dependency version authority. CI pending.

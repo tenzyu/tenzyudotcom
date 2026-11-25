@@ -24,7 +24,7 @@ bun nx show projects
 bun nx run web:dev
 ```
 
-On neko7, the approved `.envrc` loads the development shell with nix-direnv; execute commands directly instead of wrapping each call in `nix develop -c`. The Web dev URL is printed by Next.js. Production builds may need legitimate read-only access to external content; do not replace failures with synthetic empty data.
+The root `bun.lock` is the only JavaScript lockfile for the workspace; run installs from the repository root. On neko7, the approved `.envrc` loads the development shell with nix-direnv; execute commands directly instead of wrapping each call in `nix develop -c`. The Web dev URL is printed by Next.js. Production builds may need legitimate read-only access to external content; do not replace failures with synthetic empty data.
 
 For native work: `nix develop .#skin-workbench`, then `bun nx run skin-workbench:dev`. For Vite-only work: `bun nx run skin-workbench:dev-vite`. The Firefox extension has its [own installation guide](product/apps/chatgpt-partial-html-export/README.md).
 

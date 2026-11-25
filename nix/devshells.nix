@@ -13,14 +13,12 @@
         shellHooks.common
         + pkgs.lib.optionalString tauri shellHooks.tauri;
     };
+  webShell = mkDevShell {
+    packages = packageSets.productWeb;
+  };
 in {
-  default = mkDevShell {
-    packages = packageSets.productWeb;
-  };
-
-  web = mkDevShell {
-    packages = packageSets.productWeb;
-  };
+  default = webShell;
+  web = webShell;
 
   browser-verification = pkgs.mkShell {
     packages = packageSets.browserVerification;
@@ -36,9 +34,7 @@ in {
     tauri = true;
   };
 
-  repo-ops = mkDevShell {
-    packages = packageSets.repoOpsShell;
-  };
+  repo-ops = webShell;
 
   minimal = mkDevShell {
     packages = packageSets.common;

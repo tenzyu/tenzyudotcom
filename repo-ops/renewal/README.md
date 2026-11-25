@@ -40,4 +40,8 @@ node --test repo-ops/renewal/run.test.mjs
 
 If necessary, enter `nix develop .#browser-verification` once. Public acceptance uses Playwright/Chromium 1440/390 px, server at port 4173, credential-free and read-only external public content. Editor acceptance uses port 4174, dummy credentials and an in-memory fake GitHub that refuses external fetch; fixture writes do **not** reach GitHub. **Do not run public and editor suites concurrently**: they share the app's `.next`. Evidence contains `results.json`, server log, event attachments and traces; never commit it. Firefox/WebKit are not configured.
 
-See the [Web verification skill](../../product/apps/web/.claude/skills/verify/SKILL.md) and [OKF operations notes](../../docs/wiki/operations.md). Candidate state [simulation](candidate-state.md)/[CLI](candidate-state-cli.md) merely record untrusted proposals and operator assertions; they cannot safely automate real external effects.
+See the [Web verification skill](../../product/apps/web/.claude/skills/verify/SKILL.md) and [OKF operations notes](../../docs/wiki/operations.md).
+
+## Retired renewal utilities
+
+The candidate-state simulation, old preview probe (which targeted retired routes), host-specific OpenCode pairing helper, and one-off notes publication helper are no longer active tooling. Their original source and tests are preserved at [the pre-retirement commit](https://github.com/tenzyu/tenzyudotcom/tree/03d8ecd60828640836a3044d19fb0236ce157cb7/repo-ops/renewal). Use the retained browser suites for verification and the current infrastructure repository for host operations. This retirement does not remove any local data or change a running service.
