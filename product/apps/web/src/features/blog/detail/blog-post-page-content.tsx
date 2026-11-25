@@ -12,7 +12,7 @@ import {
 import type { BlogHeading } from '@/features/blog/blog.domain'
 import { stripLeadingBlogTitle } from '@/features/blog/blog.domain'
 import { CustomMDX } from '@/features/blog/custom-mdx'
-import { formatDate } from '@/app/[locale]/(main)/_features/format-date'
+import { formatDate } from '@/lib/i18n/format-date'
 import { BlogPostTableOfContents } from './blog-post-table-of-contents'
 import { BlogRelatedPosts } from './blog-related-posts'
 import { BlogSupportCard } from './blog-support-card'

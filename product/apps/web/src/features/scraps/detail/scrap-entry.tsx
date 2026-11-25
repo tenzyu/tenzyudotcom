@@ -4,7 +4,7 @@ import { EditorialEntry } from '@tenzyu/ui/editorial'
 import { ScrapMdxRenderer } from '@/features/scraps/scrap-mdx-renderer'
 import type { AssembledScrapEntry } from '@/features/scraps/scraps.assemble'
 import { ScrapEditButton } from '@/features/scraps/scrap-page-editor'
-import { formatDate } from '@/app/[locale]/(main)/_features/format-date'
+import { formatDate } from '@/lib/i18n/format-date'
 
 type ScrapEntryProps = {
   entry: AssembledScrapEntry

@@ -1,12 +1,21 @@
-import { requireEditorSameOriginRequest, requireEditorAdminSession } from '@/features/editor-auth/editor-session'
+import {
+  requireEditorSameOriginRequest,
+  requireEditorAdminSession,
+} from '@/features/editor-auth/editor-session'
 import { parseEditorCollectionSaveInput } from './editor-input.assemble'
-import { type CollectionSaveState, editorMutationFailure } from './editor-mutation.domain'
+import {
+  type CollectionSaveState,
+  editorMutationFailure,
+} from './editor-mutation.domain'
 
 // Shared transport validation; the calling feature owns the mutation.
 export async function saveCollectionForm(
   formData: FormData,
   collectionId: 'notes' | 'links',
-  save: (sourceJson: string, expectedVersion: string) => Promise<{ version: string }>,
+  save: (
+    sourceJson: string,
+    expectedVersion: string,
+  ) => Promise<{ version: string }>,
 ): Promise<CollectionSaveState> {
   await requireEditorSameOriginRequest()
   await requireEditorAdminSession(formData.get('locale') === 'en' ? 'en' : 'ja')
@@ -34,10 +43,7 @@ export async function saveCollectionForm(
   }
 
   try {
-    const result = await save(
-      parsed.data.sourceJson,
-      parsed.data.expectedVersion,
-    )
+    const result = await save(parsed.data.sourceJson, parsed.data.expectedVersion)
     return { status: 'saved', version: result.version, message: 'Saved.' }
   } catch (error) {
     return editorMutationFailure(error)

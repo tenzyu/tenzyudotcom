@@ -1,4 +1,4 @@
-import { ContentMDX } from '@/app/[locale]/(main)/_features/content-mdx'
+import { ContentMDX } from '@/components/site/content-mdx'
 import { SCRAP_MDX_COMPONENTS } from './scrap-mdx-components'
 
 type ScrapMdxRendererProps = {

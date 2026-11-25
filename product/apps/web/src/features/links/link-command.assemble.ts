@@ -13,6 +13,7 @@ import {
   LINKS_STORAGE_PATH,
   parseLinkSourceEntries,
 } from './link-command.validation'
+import { refreshLinksAfterSave } from './links-cache'
 
 export async function loadLinkEditView(
   shortCode: string | null,
@@ -42,8 +43,6 @@ export async function loadLinkEditView(
       })),
   })
 }
-
-import { refreshLinksAfterSave } from './links-cache'
 
 export async function runLinkCommand(
   base: DocumentBase,

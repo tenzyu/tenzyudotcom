@@ -1,9 +1,11 @@
 import { revalidateTag } from 'next/cache'
 import { getEditorCollectionContentTag } from '@/config/content-cache'
-
 import { saveLinksState } from './links.infra'
 
-export async function saveLinksCollection(rawJson: string, expectedVersion: string) {
+export async function saveLinksCollection(
+  rawJson: string,
+  expectedVersion: string,
+) {
   const result = await saveLinksState(rawJson, expectedVersion)
   refreshLinksAfterSave()
   return result

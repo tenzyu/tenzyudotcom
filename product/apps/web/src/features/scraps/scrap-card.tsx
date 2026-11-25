@@ -2,7 +2,7 @@ import { getLocalizedUrl } from 'intlayer'
 import Link from 'next/link'
 import { useIntlayer } from 'next-intlayer/server'
 import { EditorialEntry } from '@tenzyu/ui/editorial'
-import { formatDate } from '@/app/[locale]/(main)/_features/format-date'
+import { formatDate } from '@/lib/i18n/format-date'
 import type { ScrapIndexEntry } from '@/features/scraps/scraps.domain'
 
 export function ScrapCard({

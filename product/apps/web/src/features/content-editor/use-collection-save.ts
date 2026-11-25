@@ -5,7 +5,10 @@ import type { CollectionSaveState } from '@/features/content-editor/editor-mutat
 
 export function useCollectionSave(
   initialVersion: string,
-  save: (previous: CollectionSaveState, form: FormData) => Promise<CollectionSaveState>,
+  save: (
+    previous: CollectionSaveState,
+    form: FormData,
+  ) => Promise<CollectionSaveState>,
 ) {
   const [version, setVersion] = useState(initialVersion)
   const [state, action, pending] = useActionState(

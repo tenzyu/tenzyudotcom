@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { Avatar, AvatarFallback, AvatarImage } from '@tenzyu/ui/avatar'
 import { cn } from '@tenzyu/ui'
-import { FooterShareDialog } from '@/app/[locale]/_features/shell/footer-share-dialog'
+import { FooterShareDialog } from '@/components/site/footer-share-dialog'
 import { NoteRelativeTime } from './note-relative-time-view'
 import { NoteControls } from './note-controls'
 import type { NotePageItem } from './notes.assemble'

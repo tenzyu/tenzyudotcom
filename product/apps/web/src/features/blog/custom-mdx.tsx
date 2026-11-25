@@ -1,5 +1,5 @@
 import type { MDXComponents } from 'mdx/types'
-import { ContentMDX } from '@/app/[locale]/(main)/_features/content-mdx'
+import { ContentMDX } from '@/components/site/content-mdx'
 import { blogMdxComponents } from './mdx-components'
 
 type CustomMDXProps = {

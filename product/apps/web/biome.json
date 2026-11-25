@@ -40,11 +40,42 @@
   },
   "overrides": [
     {
-      "includes": ["src/config/env.infra.ts"],
+      "includes": [
+        "src/config/env.infra.ts"
+      ],
       "linter": {
         "rules": {
           "style": {
             "noProcessEnv": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "src/features/**/*.{ts,tsx,js,jsx}",
+        "src/components/**/*.{ts,tsx,js,jsx}",
+        "src/lib/**/*.{ts,tsx,js,jsx}",
+        "src/platform/**/*.{ts,tsx,js,jsx}",
+        "src/config/**/*.{ts,tsx,js,jsx}"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "@/app/**",
+                      "@/composition/**"
+                    ],
+                    "message": "Routing/composition depends on product features and shared leaves, not the reverse."
+                  }
+                ]
+              }
+            }
           }
         }
       }

@@ -4,7 +4,7 @@ import { useIntlayer } from 'next-intlayer/server'
 import { Suspense } from 'react'
 
 import { Content } from '@/components/site/content'
-import { ExternalLink } from '@/app/[locale]/_features/external-link'
+import { ExternalLink } from '@/components/site/external-link'
 import { Button } from '@tenzyu/ui/button'
 import { Card, CardContent } from '@tenzyu/ui/card'
 import { Skeleton } from '@tenzyu/ui/skeleton'

@@ -4,7 +4,7 @@ import type { ReactNode } from 'react'
 import Image from 'next/image'
 import { Dialog, DialogTrigger } from '@tenzyu/ui/dialog'
 import { Card } from '@tenzyu/ui/card'
-import { ExternalLink as SiteExternalLink } from '@/app/[locale]/_features/external-link'
+import { ExternalLink as SiteExternalLink } from '@/components/site/external-link'
 import { TikTokDialogContent } from '@/app/[locale]/(main)/_features/tiktok/tiktok-dialog-content'
 import {
   formatTikTokLikeCount,

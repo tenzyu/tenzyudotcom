@@ -1,8 +1,8 @@
 import { useIntlayer } from 'next-intlayer/server'
-import { ExternalLink } from '@/app/[locale]/_features/external-link'
+import { ExternalLink } from '@/components/site/external-link'
 import { Container } from './container'
-import { FooterShareDialog } from './footer-share-dialog'
-import { KoFiLink } from './kofi-link'
+import { FooterShareDialog } from '@/components/site/footer-share-dialog'
+import { KoFiLink } from '@/components/site/kofi-link'
 
 const socialLinks = [
   { href: 'https://twitch.tv/tenzyudotcom', label: 'Twitch' },
