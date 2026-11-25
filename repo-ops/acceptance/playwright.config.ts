@@ -1,6 +1,6 @@
 import { resolve } from "node:path";
 import { defineConfig, devices } from "@playwright/test";
-import { externalEvidencePath } from "../renewal/external-evidence-path.mjs";
+import { externalEvidencePath } from "../evidence/external-evidence-path.mjs";
 
 const repositoryRoot = resolve(process.cwd());
 const outputDir = externalEvidencePath(

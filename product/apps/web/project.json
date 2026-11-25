@@ -98,7 +98,7 @@
         "default",
         "^production",
         "{workspaceRoot}/repo-ops/acceptance/**/*",
-        "{workspaceRoot}/repo-ops/renewal/external-evidence-path.mjs"
+        "{workspaceRoot}/repo-ops/evidence/external-evidence-path.mjs"
       ],
       "options": {
         "command": "node repo-ops/acceptance/run-publication-acceptance.mjs"

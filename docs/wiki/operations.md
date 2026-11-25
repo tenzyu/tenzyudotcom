@@ -14,7 +14,7 @@ sources:
 
 In an already entered nix-direnv shell run project commands directly. Otherwise enter `nix develop` once. Focus on changed project checks, then `bun nx affected -t check --base=origin/develop --head=HEAD` and build when relevant. CI defines frozen root Bun install, catalog-derived dependency policy, affected check/build and Rust cargo checks; a PR is only green once **actual** checks complete.
 
-`repo-ops/renewal/run.mjs` controls environment inheritance and records exit codes/timeouts/hash, but does **not** isolate network or filesystem. Keep evidence outside Git. Nx/Next may read dotenv automatically: use credential-free copies for exploration.
+`repo-ops/evidence/run.mjs` controls environment inheritance and records exit codes/timeouts/hash, but does **not** isolate network or filesystem. Keep evidence outside Git. Nx/Next may read dotenv automatically: use credential-free copies for exploration.
 
 Public Playwright suite runs Chromium desktop/mobile on port 4173. Editor suite uses an in-memory GitHub fixture on 4174. They share `.next`: **never run concurrently**. Fake GitHub success is not live write authorization. See [tool manual](../../repo-ops/renewal/README.md).
 

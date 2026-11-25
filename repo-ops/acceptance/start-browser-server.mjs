@@ -2,7 +2,7 @@ import { spawn, spawnSync } from "node:child_process";
 import { mkdirSync, openSync } from "node:fs";
 import { resolve } from "node:path";
 import { publicBrowserEnvironment } from "./browser-environment.mjs";
-import { externalEvidencePath } from "../renewal/external-evidence-path.mjs";
+import { externalEvidencePath } from "../evidence/external-evidence-path.mjs";
 
 const repositoryRoot = resolve(import.meta.dirname, "../..");
 const evidenceDir = externalEvidencePath(

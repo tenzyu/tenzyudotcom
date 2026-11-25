@@ -14,7 +14,7 @@ import { pathToFileURL } from 'node:url';
 import { parseArgs } from 'node:util';
 import { chromium } from '@playwright/test';
 import { publicBrowserEnvironment } from './browser-environment.mjs';
-import { externalEvidencePath } from '../renewal/external-evidence-path.mjs';
+import { externalEvidencePath } from '../evidence/external-evidence-path.mjs';
 import { initGitContentFixture } from './git-content-fixture.mjs';
 import {
   article, blogIndexPath, directLink, directScrap, firstNote, firstNoteId, firstPost, initialFiles, latePost,

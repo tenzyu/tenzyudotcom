@@ -7,7 +7,7 @@ Node 22+; use only a credential-free evaluation copy. **These tools are not an O
 ```sh
 node repo-ops/renewal/inventory.mjs "$SOURCE_REPO" "$NEW_EXTERNAL_JSON"
 node repo-ops/renewal/catalog.mjs "$NEW_EXTERNAL_JSON" "$NEW_EXTERNAL_CSV"
-node repo-ops/renewal/run.mjs --cwd "$EVALUATION_REPO" --out "$NEW_EXTERNAL_RESULT_DIR" --timeout 120 -- bun test ./product/apps/web/src
+node repo-ops/evidence/run.mjs --cwd "$EVALUATION_REPO" --out "$NEW_EXTERNAL_RESULT_DIR" --timeout 120 -- bun test ./product/apps/web/src
 node repo-ops/renewal/verify-restore.mjs "$TAR" "$RESTORED_PARENT" "$NEW_PRIVATE_REPORT"
 node repo-ops/renewal/verify-source.mjs "$INVENTORY" "$RESTORED_REPO" "$NEW_PRIVATE_REPORT"
 node repo-ops/renewal/preserve-worktrees.mjs "$SOURCE_REPO" "$NEW_EXTERNAL_DIRECTORY"
@@ -35,7 +35,7 @@ This copies committed `HEAD` into a fresh snapshot under `/tmp/opencode`, builds
 PLAYWRIGHT_OUTPUT_DIR="$NEW_EXTERNAL_EVIDENCE" bun run test:browser
 PLAYWRIGHT_OUTPUT_DIR="$NEW_EXTERNAL_EVIDENCE" bun --no-env-file run test:browser:editor
 node --test repo-ops/acceptance/editor-github-preload.test.mjs
-node --test repo-ops/renewal/run.test.mjs
+node --test repo-ops/evidence/run.test.mjs
 ```
 
 If necessary, enter `nix develop .#browser-verification` once. Public acceptance uses Playwright/Chromium 1440/390 px, server at port 4173, credential-free and read-only external public content. Editor acceptance uses port 4174, dummy credentials and an in-memory fake GitHub that refuses external fetch; fixture writes do **not** reach GitHub. **Do not run public and editor suites concurrently**: they share the app's `.next`. Evidence contains `results.json`, server log, event attachments and traces; never commit it. Firefox/WebKit are not configured.

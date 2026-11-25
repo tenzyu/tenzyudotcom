@@ -1,6 +1,6 @@
 import { resolve } from 'node:path';
 import { defineConfig } from '@playwright/test';
-import { externalEvidencePath } from '../renewal/external-evidence-path.mjs';
+import { externalEvidencePath } from '../evidence/external-evidence-path.mjs';
 
 const output = externalEvidencePath(process.cwd(), process.env.PLAYWRIGHT_OUTPUT_DIR ?? '/tmp/tenzyudotcom-editor-evidence');
 const executablePath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH;
