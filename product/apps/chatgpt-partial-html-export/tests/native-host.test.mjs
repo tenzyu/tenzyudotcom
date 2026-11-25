@@ -79,7 +79,7 @@ test('handleMessage rejects missing html', async () => {
   assert.match(response.error, /html/);
 });
 
-test('native messaging protocol reads one request and writes one framed response', async () => {
+test('native messaging protocol replies to one complete frame before stdin EOF', { timeout: 10000 }, async () => {
   const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'cphe-protocol-'));
   const hostPath = fileURLToPath(new URL('../native/host.mjs', import.meta.url));
   const child = spawn(process.execPath, [hostPath], { stdio: ['pipe', 'pipe', 'pipe'] });
@@ -92,9 +92,15 @@ test('native messaging protocol reads one request and writes one framed response
   const header = Buffer.alloc(4);
   header.writeUInt32LE(request.length, 0);
 
-  child.stdin.end(Buffer.concat([header, request]));
+  child.stdin.write(Buffer.concat([header, request]));
   const chunks = [];
-  for await (const chunk of child.stdout) chunks.push(chunk);
+  try {
+    for await (const chunk of child.stdout) {
+      chunks.push(chunk);
+      const data = Buffer.concat(chunks);
+      if (data.length >= 4 && data.length >= 4 + data.readUInt32LE(0)) break;
+    }
+  } finally { child.stdin.end(); child.kill(); }
   const output = Buffer.concat(chunks);
 
   assert.ok(output.length >= 4);

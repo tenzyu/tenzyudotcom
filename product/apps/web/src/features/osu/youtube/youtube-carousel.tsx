@@ -115,14 +115,14 @@ export function YouTubeCarousel({
         </CarouselContent>
         <CarouselPrevious
           className={cn(
-            'dark:bg-popover dark:text-popover-foreground absolute top-1/2 z-10 -translate-y-1/2 transform',
+            'bg-popover text-popover-foreground absolute top-1/2 z-10 -translate-y-1/2 transform',
             isShort ? 'left-2' : 'left-4',
           )}
           // label={content.previous.value}
         />
         <CarouselNext
           className={cn(
-            'dark:bg-popover dark:text-popover-foreground absolute top-1/2 z-10 -translate-y-1/2 transform',
+            'bg-popover text-popover-foreground absolute top-1/2 z-10 -translate-y-1/2 transform',
             isShort ? 'right-2' : 'right-4',
           )}
           // label={content.next.value}

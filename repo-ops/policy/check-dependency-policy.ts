@@ -114,6 +114,7 @@ if (graphPath) {
       const fromTags = from.data.tags ?? []
       const toTags = to.data.tags ?? []
       const violation =
+        (from.data.root.startsWith('product/') && (to.data.root === 'repo-ops' || to.data.root.startsWith('repo-ops/'))) ||
         to.data.root.startsWith('product/apps/') ||
         (fromTags.includes('runtime:pure') && !toTags.includes('runtime:pure')) ||
         (fromTags.includes('domain:design-system') && !toTags.includes('domain:design-system')) ||

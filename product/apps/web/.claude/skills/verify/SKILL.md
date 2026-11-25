@@ -27,7 +27,7 @@ nix develop .#browser-verification -c sh -c '
   test "$(bun pm ls | grep -c "@playwright/test@1.59.1")" -ge 1 &&
   test -x "$PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH" &&
   "$PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH" --version &&
-  bunx playwright test --config repo-ops/renewal/playwright.config.ts --list
+  bunx playwright test --config repo-ops/acceptance/playwright.config.ts --list
 '
 ```
 
@@ -43,7 +43,7 @@ PLAYWRIGHT_OUTPUT_DIR="$NEW_EXTERNAL_EVIDENCE" \
   bun run test:browser --grep "osu settings"
 ```
 
-Use role, label, and route selectors already present in `repo-ops/renewal/browser-acceptance.spec.ts`. Do not replace observable assertions with implementation selectors. Read `features/README.md` before choosing a journey.
+Use role, label, and route selectors already present in `repo-ops/acceptance/browser-acceptance.spec.ts`. Do not replace observable assertions with implementation selectors. Read `features/README.md` before choosing a journey.
 
 ## Evidence
 
@@ -61,4 +61,4 @@ Do not delete `.next` or `product/packages/ui/dist` as cleanup. They are build o
 
 ## Helpers
 
-`repo-ops/renewal/start-browser-server.mjs` is internal to Playwright's `webServer`. Do not invoke it directly. `repo-ops/renewal/playwright.config.ts` owns loopback startup, viewport projects, evidence paths, credential clearing, and cleanup.
+`repo-ops/acceptance/start-browser-server.mjs` is internal to Playwright's `webServer`. Do not invoke it directly. `repo-ops/acceptance/playwright.config.ts` owns loopback startup, viewport projects, evidence paths, credential clearing, and cleanup.

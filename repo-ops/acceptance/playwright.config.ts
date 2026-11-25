@@ -1,23 +1,18 @@
 import { resolve } from "node:path";
 import { defineConfig, devices } from "@playwright/test";
+import { externalEvidencePath } from "../evidence/external-evidence-path.mjs";
 
 const repositoryRoot = resolve(process.cwd());
-const outputDir = resolve(
+const outputDir = externalEvidencePath(
+	repositoryRoot,
 	process.env.PLAYWRIGHT_OUTPUT_DIR ?? "/tmp/tenzyudotcom-browser-evidence",
 );
 const chromiumExecutablePath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH;
 
-if (
-	outputDir === repositoryRoot ||
-	outputDir.startsWith(`${repositoryRoot}/`)
-) {
-	throw new Error("PLAYWRIGHT_OUTPUT_DIR must be outside the repository");
-}
-
 export default defineConfig({
-	testDir: resolve(repositoryRoot, "repo-ops/renewal"),
+	testDir: resolve(repositoryRoot, "repo-ops/acceptance"),
 	testMatch: "browser-acceptance.spec.ts",
-	outputDir,
+	outputDir: resolve(outputDir, 'artifacts'),
 	fullyParallel: false,
 	forbidOnly: true,
 	retries: 0,
@@ -53,7 +48,7 @@ export default defineConfig({
 		},
 	],
 	webServer: {
-		command: "node repo-ops/renewal/start-browser-server.mjs",
+		command: "node repo-ops/acceptance/start-browser-server.mjs",
 		cwd: repositoryRoot,
 		env: {
 			BROWSER_EVIDENCE_DIR: outputDir,
@@ -70,6 +65,7 @@ export default defineConfig({
 		},
 		url: "http://127.0.0.1:4173/en/tools",
 		reuseExistingServer: false,
+		gracefulShutdown: { signal: 'SIGTERM', timeout: 8000 },
 		timeout: 120_000,
 	},
 });

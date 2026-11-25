@@ -13,6 +13,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: evidence-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   evidence:
     if: startsWith(github.head_ref, 'evidence/') || github.head_ref == 'renewal/architecture-20261125' || github.event_name == 'workflow_dispatch'
@@ -44,7 +48,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          collector="$GITHUB_WORKSPACE/repo-ops/renewal/architecture-evidence.mjs"
+          collector="$GITHUB_WORKSPACE/repo-ops/evidence/architecture-evidence.mjs"
           for label in baseline candidate; do
             if [ "$label" = baseline ]; then checkout="$RUNNER_TEMP/baseline"; else checkout="$GITHUB_WORKSPACE"; fi
             out="$RUNNER_TEMP/evidence/$label"
@@ -60,6 +64,9 @@ jobs:
               done
               cargo metadata --no-deps --format-version 1 --locked --manifest-path product/apps/osu-skin-workbench/src-tauri/Cargo.toml > "$out/cargo-metadata.json"
               { git rev-parse HEAD; node --version; bun --version; rustc --version; uname -a; } > "$out/environment.txt"
+              { git rev-parse HEAD HEAD^{tree}; sha256sum bun.lock package.json nx.json; } > "$out/revision.txt"
+              git ls-files repo-ops > "$out/repo-ops-paths.txt"
+              while IFS= read -r path; do printf '%s\t%s\n' "$path" "$(git cat-file -s "HEAD:$path")"; done < "$out/repo-ops-paths.txt" > "$out/repo-ops-sizes.tsv"
               git ls-files -z | du --files0-from=- -b --total | tail -1 > "$out/tracked-bytes.txt"
             )
           done
@@ -90,21 +97,24 @@ jobs:
       - name: Frozen dependency install
         run: |
           mkdir -p "$RUNNER_TEMP/package-evidence"
+          { git rev-parse HEAD HEAD^{tree}; sha256sum bun.lock package.json nx.json; node --version; bun --version; rustc --version; } > "$RUNNER_TEMP/package-evidence/revision.txt"
           /usr/bin/time -v -o "$RUNNER_TEMP/package-evidence/install-time.txt" bun install --frozen-lockfile --ignore-scripts
       - name: Build browser-safe packages and workbench frontend
         run: |
           /usr/bin/time -v -o "$RUNNER_TEMP/package-evidence/build-time.txt" bun nx run skin-workbench:build-vite --skip-nx-cache
       - name: Verify public export artifacts and record sizes
-        run: node repo-ops/renewal/package-evidence.mjs "$RUNNER_TEMP/package-evidence/packages.json"
+        run: node repo-ops/evidence/package-evidence.mjs "$RUNNER_TEMP/package-evidence/packages.json"
       - name: Record Rust dependency graph
         run: cargo tree --locked --manifest-path product/apps/osu-skin-workbench/src-tauri/Cargo.toml > "$RUNNER_TEMP/package-evidence/cargo-tree.txt"
       - name: Record registry advisory response
         run: |
           set +e
           bun audit --json > "$RUNNER_TEMP/package-evidence/bun-audit.json" 2> "$RUNNER_TEMP/package-evidence/bun-audit.stderr"
-          printf '%s\n' "$?" > "$RUNNER_TEMP/package-evidence/bun-audit-exit.txt"
-          cat "$RUNNER_TEMP/package-evidence/bun-audit-exit.txt"
-          # Audit evidence is not an assertion that every dependency is safe.
+          status=$?
+          set -e
+          printf '%s\n' "$status" > "$RUNNER_TEMP/package-evidence/bun-audit-exit.txt"
+          node repo-ops/evidence/audit-status.mjs "$RUNNER_TEMP/package-evidence/bun-audit.json" "$status" "$RUNNER_TEMP/package-evidence/bun-audit.stderr"
+          # Confirmed advisory results are observations; scanner failure is a failed job.
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -113,15 +123,15 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
-  fixture-evidence:
+  cross-browser-fixture:
     if: startsWith(github.head_ref, 'evidence/') || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-24.04
-    timeout-minutes: 35
+    timeout-minutes: 45
     env:
       NX_DAEMON: 'false'
       NX_TUI: 'false'
       NX_NO_CLOUD: 'true'
-      EDITOR_BROWSER_PRODUCTION: '1'
+      NX_LOAD_DOT_ENV_FILES: 'false'
     steps:
       - uses: actions/checkout@v5
         with:
@@ -130,38 +140,23 @@ jobs:
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: 1.4.5
-      - name: Set evidence destinations on runner
-        run: |
-          printf 'PUBLICATION_EVIDENCE_DIR=%s/publication\nPLAYWRIGHT_OUTPUT_DIR=%s/editor\n' "$RUNNER_TEMP" "$RUNNER_TEMP" >> "$GITHUB_ENV"
       - run: bun install --frozen-lockfile
-      - run: bun x playwright install --with-deps chromium
-      - name: Publication fixture and fault-injection evidence
-        run: |
-          mkdir -p "$PUBLICATION_EVIDENCE_DIR"
-          /usr/bin/time -v -o "$PUBLICATION_EVIDENCE_DIR/time.txt" bun nx run web:publication-acceptance --skip-nx-cache
-      - name: Editor fixture evidence
-        if: always()
+      - run: bun x playwright install --with-deps chromium firefox webkit
+      - name: Set public fixture evidence destination
+        run: printf 'PLAYWRIGHT_OUTPUT_DIR=%s/public-fixture\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
+      - name: Record revision
         run: |
           mkdir -p "$PLAYWRIGHT_OUTPUT_DIR"
-          /usr/bin/time -v -o "$PLAYWRIGHT_OUTPUT_DIR/time.txt" bun run test:browser:editor
-      - name: Record production static chunk sizes
-        if: always()
-        run: |
-          if test -d product/apps/web/.next/static; then
-            find product/apps/web/.next/static -type f -printf '%s %P\n' | sort -nr > "$PLAYWRIGHT_OUTPUT_DIR/static-chunks.txt"
-          fi
+          { git rev-parse HEAD HEAD^{tree}; sha256sum bun.lock package.json; bun --version; } > "$PLAYWRIGHT_OUTPUT_DIR/revision.txt"
+      - run: bun --no-env-file run test:browser:fixture
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: fixture-evidence
+          name: public-cross-browser-fixture
           path: |
-            ${{ runner.temp }}/publication/time.txt
-            ${{ runner.temp }}/publication/publication-*/results.json
-            ${{ runner.temp }}/publication/publication-*/next-build.log
-            ${{ runner.temp }}/editor/time.txt
-            ${{ runner.temp }}/editor/results.json
-            ${{ runner.temp }}/editor/static-chunks.txt
-            ${{ runner.temp }}/editor/next-build.log
-            ${{ runner.temp }}/editor/artifacts/**/error-context.md
+            ${{ runner.temp }}/public-fixture/revision.txt
+            ${{ runner.temp }}/public-fixture/fixture-*/results.json
+            ${{ runner.temp }}/public-fixture/fixture-*/quality-*.json
+            ${{ runner.temp }}/public-fixture/fixture-*/artifacts/**/error-context.md
           if-no-files-found: error
           retention-days: 7

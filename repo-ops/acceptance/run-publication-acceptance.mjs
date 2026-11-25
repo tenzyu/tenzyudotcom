@@ -3,7 +3,7 @@ import { spawn, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { once } from 'node:events';
 import {
-  copyFileSync, existsSync, lstatSync, mkdirSync, mkdtempSync, openSync,
+  closeSync, copyFileSync, existsSync, lstatSync, mkdirSync, mkdtempSync, openSync,
   readFileSync, renameSync, rmSync, unlinkSync, writeFileSync,
 } from 'node:fs';
 import { createServer } from 'node:net';
@@ -14,6 +14,7 @@ import { pathToFileURL } from 'node:url';
 import { parseArgs } from 'node:util';
 import { chromium } from '@playwright/test';
 import { publicBrowserEnvironment } from './browser-environment.mjs';
+import { externalEvidencePath } from '../evidence/external-evidence-path.mjs';
 import { initGitContentFixture } from './git-content-fixture.mjs';
 import {
   article, blogIndexPath, directLink, directScrap, firstNote, firstNoteId, firstPost, initialFiles, latePost,
@@ -32,8 +33,7 @@ const baseline = options.baseline ?? options['scraps-baseline'];
 assert.ok(baseline === undefined || /^[0-9a-f]{40}$/.test(baseline), 'Pass an exact baseline commit');
 const buildSeed = options['scraps-build'];
 assert.ok(['empty', 'populated'].includes(buildSeed), 'Choose an empty or populated Scrap build');
-const evidenceRoot = resolve(process.env.PUBLICATION_EVIDENCE_DIR ?? tmpdir());
-assert.ok(evidenceRoot !== source && !evidenceRoot.startsWith(`${source}/`), 'Keep fixture evidence outside the checkout');
+const evidenceRoot = externalEvidencePath(source, process.env.PUBLICATION_EVIDENCE_DIR ?? tmpdir(), { disjoint: false });
 mkdirSync(evidenceRoot, { recursive: true, mode: 0o700 });
 const evidence = mkdtempSync(join(evidenceRoot, 'publication-'));
 const checkout = join(evidence, 'workspace');
@@ -53,6 +53,8 @@ const revisionA = git.head();
 const metrics = [];
 const revisions = { A: revisionA };
 let server;
+let building;
+let interrupted = false;
 
 const baseEnv = {
   ...publicBrowserEnvironment(),
@@ -101,16 +103,18 @@ function copyCheckout() {
   }
 }
 
-function run(command, args, cwd, environment, label) {
+async function run(command, args, cwd, environment, label) {
   const logPath = join(evidence, `${label}.log`);
   const log = openSync(logPath, 'w', 0o600);
-  const result = spawnSync(command, args, { cwd, env: environment, stdio: ['ignore', log, log] });
-  if (result.error) throw result.error;
-  if (result.status !== 0 && (label === 'next-build' || label === 'ui-build')) {
-    // These builds use the isolated publication fixture, not production credentials.
+  try {
+    building = spawn(command, args, { cwd, env: environment, stdio: ['ignore', log, log], detached: true });
+  } finally { closeSync(log); }
+  const [status] = await once(building, 'exit');
+  building = undefined;
+  if (status !== 0 && (label === 'next-build' || label === 'ui-build'))
     console.error(readFileSync(logPath, 'utf8').slice(-24000));
-  }
-  assert.equal(result.status, 0, `${label} exited ${result.status}. See ${logPath}`);
+  assert.equal(status, 0, `${label} exited ${status}. See ${logPath}`);
+  assert.ok(!interrupted, 'Publication interrupted');
 }
 
 const next = join(checkout, 'node_modules/next/dist/bin/next');
@@ -119,12 +123,14 @@ await new Promise(resolve => allocation.listen(0, '127.0.0.1', resolve));
 const { port } = allocation.address();
 await new Promise((resolve, reject) => allocation.close(error => error ? reject(error) : resolve()));
 const base = `http://127.0.0.1:${port}`;
+env.EDITOR_ALLOWED_ORIGIN = base;
 
 async function start(label) {
   const log = openSync(join(evidence, `${label}.log`), 'w', 0o600);
   server = spawn('node', [next, 'start', '--hostname', '127.0.0.1', '--port', String(port)], {
-    cwd: app, env, stdio: ['ignore', log, log],
+    cwd: app, env, stdio: ['ignore', log, log], detached: true,
   });
+  closeSync(log);
   let spawnError;
   server.once('error', error => { spawnError = error; });
   const deadline = Date.now() + 45_000;
@@ -141,16 +147,32 @@ async function start(label) {
   throw new Error(`next start did not respond. See ${label}.log`);
 }
 
+async function terminate(child) {
+  if (!child?.pid) return;
+  const signalGroup = signal => {
+    try { process.kill(-child.pid, signal); }
+    catch (error) { if (error.code !== 'ESRCH') throw error; }
+  };
+  const exited = child.exitCode !== null || child.signalCode !== null
+    ? Promise.resolve() : once(child, 'exit').catch(() => {});
+  signalGroup('SIGTERM');
+  const timeout = setTimeout(() => signalGroup('SIGKILL'), 5000);
+  try { await exited; }
+  finally { clearTimeout(timeout); signalGroup('SIGKILL'); }
+}
 async function stop() {
-  const running = server;
-  if (!running || running.exitCode !== null || running.signalCode !== null) return;
-  const exited = once(running, 'exit');
-  running.kill('SIGTERM');
-  await exited;
+  await terminate(server);
   server = undefined;
 }
 for (const signal of ['SIGINT', 'SIGTERM']) {
-  process.on(signal, () => { server?.kill(signal); process.exit(signal === 'SIGINT' ? 130 : 143); });
+  process.once(signal, async () => {
+    if (interrupted) return;
+    interrupted = true;
+    await Promise.allSettled([terminate(building), stop()]);
+    writeFileSync(join(evidence, 'interrupted.json'), serialize({ signal, requests: metrics, revisions }));
+    // Keep the interrupted checkout for diagnosis; do not race cleanup with an active browser.
+    process.exit(signal === 'SIGINT' ? 130 : 143);
+  });
 }
 
 const branchEndpoint = '/repos/fixture/editor/git/ref/heads/main';
@@ -324,12 +346,12 @@ let buildId;
 console.log(`Publication fixture evidence: ${evidence}`);
 try {
   copyCheckout();
-  run('bun', ['--no-env-file', 'install', '--frozen-lockfile'], checkout, baseEnv, 'install');
-  run('bun', ['--no-env-file', 'run', 'build'], join(checkout, 'product/packages/ui'), baseEnv, 'ui-build');
-  run('node', ['--input-type=module', '-e',
+  await run('bun', ['--no-env-file', 'install', '--frozen-lockfile'], checkout, baseEnv, 'install');
+  await run('bun', ['--no-env-file', 'run', 'build'], join(checkout, 'product/packages/ui'), baseEnv, 'ui-build');
+  await run('node', ['--input-type=module', '-e',
     'import { getTweet } from "react-tweet/api"; import assert from "node:assert/strict"; await assert.rejects(getTweet("123"), error => error.name === "TwitterApiError" && error.status === 403);'],
   app, { ...env, PUBLICATION_TWEET_STATUS: '403' }, 'provider-error-control');
-  run('node', [next, 'build'], app, env, 'next-build');
+  await run('node', [next, 'build'], app, env, 'next-build');
   buildId = readFileSync(join(app, '.next/BUILD_ID'), 'utf8');
   await start('next-start');
   if (options['scraps-baseline']) await scrapsBaselineControl();
@@ -339,7 +361,7 @@ try {
 } finally {
   await stop();
   writeFileSync(join(evidence, 'results.json'), serialize({ code, buildSeed, buildId, revisions, requests: metrics }));
-  rmSync(checkout, { recursive: true, force: true });
+  if (!interrupted) rmSync(checkout, { recursive: true, force: true });
 }
 
 function readIndex(revision = git.head()) {
