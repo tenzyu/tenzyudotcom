@@ -78,6 +78,7 @@ jobs:
           }
           pkg.overrides = {
             ...pkg.overrides,
+            '@ts-morph/common': { 'minimatch': '11.0.9' },
             '@tailwindcss/typography': { 'postcss-selector-parser': '6.1.5' },
             '@storybook/react-vite': { '@joshwooding/vite-plugin-react-docgen-typescript': '0.9.1' },
           };
@@ -88,6 +89,18 @@ jobs:
           git diff --check -- package.json bun.lock
           git diff -- package.json bun.lock > "$out/resolution.patch"
           cp package.json bun.lock "$out/"
+          for file in package.json bun.lock; do
+            printf 'PHASE2_BLOB %s %s\n' "$file" "$(git hash-object "$file")"
+          done
+          python - <<'PY'
+          import difflib, json, subprocess
+          for path in ('package.json', 'bun.lock'):
+              old = subprocess.check_output(['git','show','HEAD:'+path]).decode().splitlines(keepends=True)
+              new = open(path, encoding='utf-8', newline='').read().splitlines(keepends=True)
+              for tag, a, b, c, d in difflib.SequenceMatcher(None, old, new, autojunk=False).get_opcodes():
+                  if tag != 'equal':
+                      print('PHASE2_EDIT '+json.dumps([path,a,b,new[c:d]],ensure_ascii=True,separators=(',',':')))
+          PY
           for pkg in glob minimatch postcss-selector-parser; do
             bun why "$pkg" > "$out/why-$pkg.txt"
           done
@@ -99,6 +112,8 @@ jobs:
           node -e 'JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8"))' "$out/audit.json"
           bun nx graph --file="$out/project-graph.json"
           bun run policy:deps "$out/project-graph.json"
+      - name: Smoke-test shadcn CLI
+        run: bun --no-env-file run --cwd product/packages/ui shadcn --help
       - name: Verify UI declarations and Storybook with candidate
         run: bun nx run ui:verify --skip-nx-cache
       - name: Verify workbench frontend with candidate
