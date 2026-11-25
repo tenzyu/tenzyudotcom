@@ -60,6 +60,7 @@
         "@tenzyu/ui": "workspace:*",
         "@vercel/analytics": "catalog:",
         "@vercel/speed-insights": "catalog:",
+        "class-variance-authority": "catalog:",
         "critters": "^0.0.25",
         "gray-matter": "catalog:",
         "hast-util-to-jsx-runtime": "2.3.7",
@@ -85,6 +86,7 @@
         "zod": "catalog:",
       },
       "devDependencies": {
+        "@intlayer/types": "9.9.0",
         "@mdx-js/loader": "catalog:",
         "@mdx-js/mdx": "catalog:",
         "@mdx-js/react": "catalog:",
@@ -95,6 +97,7 @@
         "@types/mdx": "catalog:",
         "@types/react": "catalog:",
         "@types/react-dom": "catalog:",
+        "jsdom": "~31.0.1",
         "rehype-autolink-headings": "catalog:",
         "rehype-pretty-code": "catalog:",
         "rehype-slug": "catalog:",
