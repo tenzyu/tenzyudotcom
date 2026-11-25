@@ -185,7 +185,6 @@ jobs:
       NX_TUI: 'false'
       NX_NO_CLOUD: 'true'
       NX_LOAD_DOT_ENV_FILES: 'false'
-      PLAYWRIGHT_OUTPUT_DIR: ${{ runner.temp }}/public-fixture
     steps:
       - uses: actions/checkout@v5
         with:
@@ -196,6 +195,8 @@ jobs:
           bun-version: 1.4.5
       - run: bun install --frozen-lockfile
       - run: bun x playwright install --with-deps chromium firefox webkit
+      - name: Set public fixture evidence destination
+        run: printf 'PLAYWRIGHT_OUTPUT_DIR=%s/public-fixture\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
       - name: Record revision
         run: |
           mkdir -p "$PLAYWRIGHT_OUTPUT_DIR"
