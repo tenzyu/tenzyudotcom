@@ -40,7 +40,8 @@
     "test:scripts": "bun test repo-ops/policy/check-dependency-policy.test.ts repo-ops/scripts/docs-rename.test.ts repo-ops/scripts/migrate-notes-threading.test.ts && node --test repo-ops/evidence/external-evidence-path.test.mjs repo-ops/evidence/run.test.mjs repo-ops/evidence/audit-status.test.mjs repo-ops/acceptance/editor-github-preload.test.mjs repo-ops/preview/readonly-preview-gate.test.mjs && python3 repo-ops/evidence/sanitize-evidence.test.py",
     "test:browser": "playwright test --config repo-ops/acceptance/playwright.config.ts",
     "test:browser:editor": "bun --no-env-file nx run ui:build && playwright test --config repo-ops/acceptance/playwright.editor.config.ts",
-    "docs-rename": "bun repo-ops/scripts/docs-rename.ts"
+    "docs-rename": "bun repo-ops/scripts/docs-rename.ts",
+    "test:browser:fixture": "bun --no-env-file nx run ui:build && playwright test --config repo-ops/acceptance/playwright.fixture.config.ts"
   },
   "workspaces": {
     "catalog": {

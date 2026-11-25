@@ -175,3 +175,39 @@ jobs:
             ${{ runner.temp }}/editor/artifacts/**/error-context.md
           if-no-files-found: error
           retention-days: 7
+
+  cross-browser-fixture:
+    if: startsWith(github.head_ref, 'evidence/') || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      NX_DAEMON: 'false'
+      NX_TUI: 'false'
+      NX_NO_CLOUD: 'true'
+      NX_LOAD_DOT_ENV_FILES: 'false'
+      PLAYWRIGHT_OUTPUT_DIR: ${{ runner.temp }}/public-fixture
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.5
+      - run: bun install --frozen-lockfile
+      - run: bun x playwright install --with-deps chromium firefox webkit
+      - name: Record revision
+        run: |
+          mkdir -p "$PLAYWRIGHT_OUTPUT_DIR"
+          { git rev-parse HEAD HEAD^{tree}; sha256sum bun.lock package.json; bun --version; } > "$PLAYWRIGHT_OUTPUT_DIR/revision.txt"
+      - run: bun --no-env-file run test:browser:fixture
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: public-cross-browser-fixture
+          path: |
+            ${{ runner.temp }}/public-fixture/revision.txt
+            ${{ runner.temp }}/public-fixture/results.json
+            ${{ runner.temp }}/public-fixture/artifacts/**/error-context.md
+          if-no-files-found: error
+          retention-days: 7
