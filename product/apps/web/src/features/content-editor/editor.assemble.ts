@@ -5,7 +5,7 @@ import {
 } from '@/features/notes/notes.infra'
 import { loadScrapEditorIndexState } from '@/features/scraps/editor/scrap-editor.assemble'
 import { loadLinksState, saveLinksState } from '@/features/links/links.infra'
-import { refreshLinksAfterSave } from '@/features/links/links.assemble'
+import { refreshLinksAfterSave } from '@/features/links/links-cache'
 import {
   type EditorCollectionId,
   type EditorCollectionState,
