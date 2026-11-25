@@ -1,7 +1,7 @@
 import { getLocalizedUrl } from 'intlayer'
 import { redirect } from 'next/navigation'
 import { resolvePageLocale } from '@/lib/intlayer/page'
-import { EditorLogin } from '../_features/login'
+import { EditorLogin } from '@/features/content-editor/login'
 import { getEditorAdminSessionExpiry } from '@/features/editor-auth/editor-session'
 
 export const dynamic = 'force-dynamic'

@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict'
 import { mock } from 'bun:test'
 import { NextRequest } from 'next/server'
-import type { BlogSaveCommand } from '@/app/[locale]/(main)/blog/_features/blog.domain'
-import { StorageVersionConflictError } from '@/lib/content-store/content-store.domain'
+import type { BlogSaveCommand } from '../../src/features/blog/blog.domain'
+import { StorageVersionConflictError } from '../../src/platform/content-store/content-store.domain'
 
 let authenticated = false
 let writes = 0
@@ -43,7 +43,7 @@ mock.module('@/features/links/links.infra', () => ({
   loadLinksState: loadCollection,
   saveLinksState: save,
 }))
-mock.module('@/app/[locale]/(main)/blog/_features/blog.infra', () => ({
+mock.module('../../src/features/blog/blog.infra', () => ({
   loadBlogPostsState: loadCollection,
   saveBlogPost: async (command: BlogSaveCommand) => {
     blogCommands.push(command)
@@ -55,10 +55,10 @@ mock.module('@/app/[locale]/(main)/blog/_features/blog.infra', () => ({
     }
   },
 }))
-mock.module('@/lib/content-store/github-content.infra', () => ({
+mock.module('../../src/platform/content-store/github-content.infra', () => ({
   githubContentRepository: { reconcile: async () => null },
 }))
-mock.module('@/features/content-editor/scrap-editor.assemble', () => ({
+mock.module('../../src/features/scraps/editor/scrap-editor.assemble', () => ({
   executeScrapEditorCommand: save,
   loadScrapEditorIndexState: loadCollection,
   loadScrapEditorIndex: async () => [],
@@ -73,7 +73,7 @@ mock.module('next/cache', () => ({
 const { PUT, GET } = await import('@/app/api/editor/[collection]/route')
 const { POST: postScrap } = await import('@/app/api/editor/scrap/route')
 const { saveEditorCollectionAction, saveBlogPostAction } =
-  await import('@/app/[locale]/(admin)/editor/_features/actions')
+  await import('../../src/features/content-editor/actions')
 const params = { params: Promise.resolve({ collection: 'notes' }) }
 const request = (
   origin = 'http://localhost',

@@ -1,12 +1,12 @@
-import { createContentVersion } from '@/lib/content-store/content-version.infra'
+import { createContentVersion } from '@/platform/content-store/content-version.infra'
 import {
   StorageError,
   type ContentRepository,
   type AggregateContentRepository,
   type ContentSnapshot,
-} from '@/lib/content-store/content-store.domain'
-import { githubContentRepository } from '@/lib/content-store/github-content.infra'
-import { SCRAPS_INDEX_PATHNAME } from '@/lib/content-store/content-tags.infra'
+} from '@/platform/content-store/content-store.domain'
+import { githubContentRepository } from '@/platform/content-store/github-content.infra'
+import { SCRAPS_INDEX_PATHNAME } from '@/config/content-cache'
 import {
   CONTENT_LOCALES,
   type ContentLocale,

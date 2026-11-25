@@ -2,10 +2,10 @@ import type { NextPageIntlayer } from 'next-intlayer'
 import { connection } from 'next/server'
 import { IntlayerServerProvider } from 'next-intlayer/server'
 import { createPageMetadata, resolvePageLocale } from '@/lib/intlayer/page'
-import { loadBlogPosts } from '@/app/[locale]/(main)/blog/_features/blog.assemble'
+import { loadBlogPosts } from '@/features/blog/blog.assemble'
 import { assembleNotesPageData } from '@/features/notes/notes.assemble'
 import { HomePageContent } from './_features/home-page-content'
-import { loadPublication } from '@/lib/content-store/publication.assemble'
+import { loadPublication } from '@/platform/content-store/publication.assemble'
 
 export const generateMetadata = createPageMetadata('page-home', {
   pathname: '/',

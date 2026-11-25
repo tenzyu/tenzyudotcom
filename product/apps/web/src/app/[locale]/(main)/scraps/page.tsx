@@ -2,9 +2,9 @@ import { connection } from 'next/server'
 import type { NextPageIntlayer } from 'next-intlayer'
 import { IntlayerServerProvider } from 'next-intlayer/server'
 import { createPageMetadata, resolvePageLocale } from '@/lib/intlayer/page'
-import { loadPublication } from '@/lib/content-store/publication.assemble'
-import { loadPublicScraps } from './_features/scraps.assemble'
-import { ScrapsPageContent } from './_features/scraps-page-content'
+import { loadPublication } from '@/platform/content-store/publication.assemble'
+import { loadPublicScraps } from '@/features/scraps/scraps.assemble'
+import { ScrapsPageContent } from '@/features/scraps/scraps-page-content'
 
 export const generateMetadata = createPageMetadata('page-scraps', {
   pathname: '/scraps',

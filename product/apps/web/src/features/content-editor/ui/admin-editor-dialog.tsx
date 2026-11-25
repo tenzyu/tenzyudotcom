@@ -16,7 +16,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@tenzyu/ui/alert-dialog'
-import type { ItemCommandResult } from '@/lib/content-store/json-item-command.validation'
+import type { ItemCommandResult } from '@/platform/content-store/json-item-command.validation'
 
 export function AdminEditorDialog({
   title,

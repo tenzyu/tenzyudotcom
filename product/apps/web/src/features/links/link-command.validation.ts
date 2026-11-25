@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { DocumentBaseSchema } from '@/lib/content-store/json-item-command.validation'
+import { DocumentBaseSchema } from '@/platform/content-store/json-item-command.validation'
 import { defineLinks, LINK_CATEGORY_ORDER } from './links.domain'
 
 export const LinkSourceEntrySchema = z.object({

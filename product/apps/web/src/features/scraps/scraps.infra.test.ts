@@ -2,8 +2,8 @@ import { describe, expect, test } from 'bun:test'
 import type {
   ContentRepository,
   ContentRepositoryTextFile,
-} from '@/lib/content-store/content-store.domain'
-import { createContentVersion } from '@/lib/content-store/content-version.infra'
+} from '@/platform/content-store/content-store.domain'
+import { createContentVersion } from '@/platform/content-store/content-version.infra'
 import {
   applyScrapIndexProjectionDelta,
   loadScrapEntryMeta,

@@ -1,11 +1,11 @@
-import type { MDXData } from '@/app/[locale]/(main)/blog/_features/blog.domain'
+import type { MDXData } from '@/features/blog/blog.domain'
 import type { NoteSourceEntry } from '@/features/notes/notes.domain'
 import type { ScrapIndexEntry } from '@/features/scraps/scraps.domain'
 import type { MyLink } from '@/features/links/links.domain'
 import type {
   RevalidatePathTarget,
   StoredCollectionState,
-} from '@/lib/content-store/content-store.domain'
+} from '@/platform/content-store/content-store.domain'
 
 const EDITOR_COLLECTION_IDS = ['notes', 'scraps', 'links', 'blog'] as const
 

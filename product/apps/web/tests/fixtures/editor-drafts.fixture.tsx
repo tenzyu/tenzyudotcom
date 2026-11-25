@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { createRequire } from 'node:module'
 import { mock } from 'bun:test'
 import type { ReactNode } from 'react'
-import type { ScrapEditorState } from '@/features/content-editor/scrap-editor.assemble'
+import type { ScrapEditorState } from '../../src/features/scraps/editor/scrap-editor.assemble'
 
 const require = createRequire(import.meta.url)
 const { JSDOM } = require('jsdom')
@@ -55,7 +55,7 @@ mock.module('next/navigation', () => ({
   ...navigation,
   useRouter: () => ({ refresh() {} }),
 }))
-mock.module('@/app/[locale]/_features/scrap-editor/scrap-workspace-client', () => ({
+mock.module('../../src/features/scraps/editor/scrap-workspace-client', () => ({
   readPrivateScrap: async () => null,
   verifiedPublicScrap: async () => false,
   writeScrap: async () => ({
@@ -63,7 +63,7 @@ mock.module('@/app/[locale]/_features/scrap-editor/scrap-workspace-client', () =
     message: 'Draft kept',
   }),
 }))
-mock.module('@/app/[locale]/_features/blog-editor/blog-workspace-client', () => ({
+mock.module('../../src/features/blog/editor/blog-workspace-client', () => ({
   readBlogEditArticle: async () => null,
   writeBlogArticle: async () => ({
     kind: failure === 'save' ? 'unavailable' : failure,
@@ -71,7 +71,7 @@ mock.module('@/app/[locale]/_features/blog-editor/blog-workspace-client', () => 
     message: 'Draft kept',
   }),
 }))
-mock.module('@/app/[locale]/(admin)/editor/_features/actions', () => ({
+mock.module('../../src/features/content-editor/actions', () => ({
   saveBlogPostAction: async () =>
     failure === 'uncertain'
       ? {
@@ -86,9 +86,9 @@ mock.module('@/app/[locale]/(admin)/editor/_features/actions', () => ({
     message: 'Draft kept',
   }),
 }))
-const { ScrapWorkspace } = await import('@/app/[locale]/_features/scrap-editor/scrap-workspace')
+const { ScrapWorkspace } = await import('../../src/features/scraps/editor/scrap-workspace')
 const { BlogEditor } =
-  await import('@/app/[locale]/(admin)/editor/_features/blog-editor')
+  await import('../../src/features/blog/editor/blog-editor')
 const { LinksEditorClient } =
   await import('@/features/links/editor/links-editor-client')
 const { NotesEditorClient } =

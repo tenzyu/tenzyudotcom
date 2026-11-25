@@ -5,7 +5,7 @@ import {
   type DocumentBase,
   type ItemCommandResult,
   ItemCommandResultSchema,
-} from '@/lib/content-store/json-item-command.validation'
+} from '@/platform/content-store/json-item-command.validation'
 import { invalidateAdminSession } from './admin-gate'
 
 type Failure = Exclude<ItemCommandResult, { kind: 'saved' }>

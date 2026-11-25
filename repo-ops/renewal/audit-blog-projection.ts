@@ -1,6 +1,6 @@
 import { isDeepStrictEqual } from 'node:util';
-import { parseBlogIndex, projectBlogIndexEntry } from '../../product/apps/web/src/app/[locale]/(main)/blog/_features/blog-index.assemble';
-import { readBlogSource } from '../../product/apps/web/src/app/[locale]/(main)/blog/_features/blog-source.assemble';
+import { parseBlogIndex, projectBlogIndexEntry } from '../../product/apps/web/src/features/blog/blog-index.assemble';
+import { readBlogSource } from '../../product/apps/web/src/features/blog/blog-source.assemble';
 import { openGitContentFixture } from './git-content-fixture.mjs';
 
 export function auditBlogProjection(

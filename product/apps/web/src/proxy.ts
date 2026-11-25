@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server'
 import { intlayerProxy } from 'next-intlayer/proxy'
-import { canonicalizeBlogRedirect } from '@/app/[locale]/(main)/blog/_features/blog.assemble'
+import { canonicalizeBlogRedirect } from '@/features/blog/blog.assemble'
 
 export async function proxy(request: NextRequest) {
   const response = intlayerProxy(request)

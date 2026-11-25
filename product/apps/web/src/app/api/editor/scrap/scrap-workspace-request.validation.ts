@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { ScrapEditorCommandSchema } from '@/features/content-editor/scrap-editor.validation'
+import { ScrapEditorCommandSchema } from '@/features/scraps/editor/scrap-editor.validation'
 
 const oid = z.string().regex(/^[0-9a-f]{40}$/)
 

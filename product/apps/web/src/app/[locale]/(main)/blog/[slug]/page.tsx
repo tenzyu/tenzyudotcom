@@ -1,12 +1,12 @@
 import { notFound, redirect } from 'next/navigation'
 import { connection } from 'next/server'
 import { getLocale } from 'next-intlayer/server'
-import { BlogPostPageContent } from './_features/blog-post-page-content'
+import { BlogPostPageContent } from '@/features/blog/detail/blog-post-page-content'
 import {
   assembleBlogPostPageData,
   buildBlogPostMetadata,
-} from '../_features/blog.assemble'
-import { loadPublication } from '@/lib/content-store/publication.assemble'
+} from '@/features/blog/blog.assemble'
+import { loadPublication } from '@/platform/content-store/publication.assemble'
 import { buildLocalizedUrl } from '@/lib/intlayer/localized-url'
 
 type Params = Promise<{

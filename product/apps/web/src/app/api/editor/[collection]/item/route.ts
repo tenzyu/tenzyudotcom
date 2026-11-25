@@ -1,5 +1,5 @@
 import { Payload } from './item-command.validation'
-import { refreshLinksAfterSave } from '@/app/[locale]/(admin)/editor/_features/editor.assemble'
+import { refreshLinksAfterSave } from '@/features/content-editor/editor.assemble'
 import { NextResponse } from 'next/server'
 import { NoteCommand } from '@/features/notes/note-command.validation'
 import {
@@ -17,7 +17,7 @@ import {
 import {
   InvalidItemCommand,
   type ItemCommandResult,
-} from '@/lib/content-store/json-item-command.validation'
+} from '@/platform/content-store/json-item-command.validation'
 
 type Context = { params: Promise<{ collection: string }> }
 
