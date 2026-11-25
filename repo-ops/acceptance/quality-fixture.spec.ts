@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { createRequire } from 'node:module';
+import { execFileSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { openGitContentFixture } from './git-content-fixture.mjs';
@@ -58,24 +59,26 @@ test('navigation and scripted interaction performance inventory', async ({ brows
   // Next's installed copy is the same web-vitals implementation used by
   // next/web-vitals, without a new package or production instrumentation.
   const nextRequire = createRequire(resolve('product/apps/web/package.json'));
-  const vitalsSource = readFileSync(nextRequire.resolve('next/dist/compiled/web-vitals'), 'utf8');
-  const initVitals = `
-    (() => {
-      const module = { exports: {} }; const exports = module.exports;
-      ${vitalsSource}
-      const vitals = module.exports;
+  const vitalsEntry = resolve(output(), 'quality-' + info.project.name + '-vitals-entry.mjs');
+  const vitalsBundle = resolve(output(), 'quality-' + info.project.name + '-vitals-bundle.js');
+  writeFileSync(vitalsEntry, `
+    import * as vitals from ${JSON.stringify(nextRequire.resolve('next/dist/compiled/web-vitals'))};
+    try {
       const key = 'quality-vitals-' + performance.timeOrigin;
       const values = {};
       for (const name of ['LCP','INP','CLS']) {
-        if (typeof vitals['on' + name] !== 'function') throw new Error('Missing web-vitals metric ' + name);
-        vitals['on' + name](metric => {
+        const subscribe = vitals['on' + name] ?? vitals.default?.['on' + name];
+        if (typeof subscribe !== 'function') throw new Error('Missing web-vitals metric ' + name);
+        subscribe(metric => {
           values[name] = { value: metric.value, rating: metric.rating, id: metric.id, navigationType: metric.navigationType };
           try { sessionStorage.setItem(key, JSON.stringify(values)); } catch {}
         }, { reportAllChanges: true });
       }
       window.__qualityVitalsInstalled = true;
-    })();
-  `;
+    } catch (error) { window.__qualityVitalsError = String(error); }
+  `, { flag: 'wx', mode: 0o600 });
+  execFileSync('bun', ['build', vitalsEntry, '--target=browser', '--format=iife', '--outfile=' + vitalsBundle], { stdio: 'inherit' });
+  const initVitals = readFileSync(vitalsBundle, 'utf8');
   for (const path of ['/en','/en/portfolio','/en/blog','/en/notes','/en/scraps','/en/tools','/en/osu']) {
     for (let repetition = 0; repetition < 3; repetition++) {
       const context = await browser.newContext({
@@ -123,7 +126,8 @@ test('navigation and scripted interaction performance inventory', async ({ brows
         for (const phase of ['cold-browser-cache','warm-browser-cache']) {
           requests.clear();
           expect((await page.goto(baseURL + path, { waitUntil: 'load' }))?.status(), path).toBe(200);
-          expect(await page.evaluate(() => (window as any).__qualityVitalsInstalled), 'installed web-vitals callbacks').toBe(true);
+          const installation = await page.evaluate(() => ({ installed: (window as any).__qualityVitalsInstalled, error: (window as any).__qualityVitalsError }));
+          expect(installation, 'installed web-vitals callbacks').toMatchObject({ installed: true });
           if (previous) {
             previous.webVitals = await page.evaluate(key => JSON.parse(sessionStorage.getItem(key) ?? '{}'), previous.vitalsKey);
           }
