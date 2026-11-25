@@ -11,7 +11,7 @@ import {
   isEditorCollectionId,
   isWritableEditorCollectionId,
 } from '@/composition/editor/editor-collections'
-import { StorageVersionConflictError } from '@tenzyu/revisioned-content/contracts'
+import { StorageDocumentWriteUncertainError, StorageVersionConflictError } from '@tenzyu/revisioned-content/contracts'
 import { isEditorValidationError } from '@/features/content-editor/editor.validation'
 import { CollectionSavePayload } from './_features/collection-save.validation'
 
@@ -80,6 +80,9 @@ export async function PUT(
   } catch (error) {
     if (isEditorValidationError(error)) {
       return json({ error: 'Invalid payload' }, 400)
+    }
+    if (error instanceof StorageDocumentWriteUncertainError) {
+      return json({ error: 'uncertain', message: 'Check storage before retrying; your draft is kept.' }, 503)
     }
     if (error instanceof StorageVersionConflictError) {
       return json({ error: 'conflict' }, 409)

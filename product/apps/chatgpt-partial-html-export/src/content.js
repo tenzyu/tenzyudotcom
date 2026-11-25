@@ -117,6 +117,8 @@ function injectButtons() {
     root.classList.add(CPHE_BOUNDARY_CLASS);
 
     const existingButton = root.querySelector(`:scope > .${CPHE_BUTTON_CLASS}`);
+    // Do not retrigger our own MutationObserver when the index is unchanged.
+    if (existingButton?.dataset.cpheIndex === String(index)) return;
     const button = document.createElement('button');
     button.type = 'button';
     button.className = CPHE_BUTTON_CLASS;
