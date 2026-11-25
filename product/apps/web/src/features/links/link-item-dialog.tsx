@@ -9,12 +9,12 @@ import {
   type LinkCommand,
 } from '@/features/links/link-command.validation'
 import { LINK_CATEGORY_ORDER, type MyLink } from '@/features/links/links.domain'
-import { useSavedPage } from '../../_features/admin/admin-gate'
+import { useSavedPage } from '../../app/[locale]/(main)/_features/admin/admin-gate'
 import {
   AdminEditorDialog,
   ItemEditorFeedback,
-} from '../../_features/admin/admin-editor-dialog'
-import { useItemEditor } from '../../_features/admin/editor-item-client'
+} from '../../app/[locale]/(main)/_features/admin/admin-editor-dialog'
+import { useItemEditor } from '../../app/[locale]/(main)/_features/admin/editor-item-client'
 
 export function LinkItemDialog({
   mode,

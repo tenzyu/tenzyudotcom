@@ -90,7 +90,7 @@ const { ScrapWorkspace } = await import('@/app/[locale]/_features/scrap-editor/s
 const { BlogEditor } =
   await import('@/app/[locale]/(admin)/editor/_features/blog-editor')
 const { LinksEditorClient } =
-  await import('@/app/[locale]/(admin)/editor/_features/links-editor-client')
+  await import('@/features/links/editor/links-editor-client')
 const { NotesEditorClient } =
   await import('@/app/[locale]/(admin)/editor/_features/notes-editor-client')
 const rootNode = document.getElementById('root')

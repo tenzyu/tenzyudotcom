@@ -14,9 +14,9 @@ import { EditorPanel } from '@tenzyu/ui/editorial'
 import { Input } from '@tenzyu/ui/input'
 import { NativeSelect, NativeSelectOption } from '@tenzyu/ui/native-select'
 import type { LinkCategory, MyLink } from '@/features/links/links.domain'
-import { useCollectionSave } from './use-collection-save'
-import { moveItem } from './editor-utils'
-import { fetchUrlMetadataAction } from './metadata.actions'
+import { useCollectionSave } from '../../../app/[locale]/(admin)/editor/_features/use-collection-save'
+import { moveItem } from '../../../app/[locale]/(admin)/editor/_features/editor-utils'
+import { fetchUrlMetadataAction } from '../../../app/[locale]/(admin)/editor/_features/metadata.actions'
 
 type LinksEditorClientProps = {
   initialEntries: MyLink[]
