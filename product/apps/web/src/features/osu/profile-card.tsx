@@ -71,16 +71,12 @@ function ProfileImage() {
 function SocialButton({
   href,
   iconSrc,
-  iconAlt,
   children,
 }: {
   href: string
   iconSrc: string
-  iconAlt: string
   children: React.ReactNode
 }) {
-  const profile = useIntlayer('profile')
-
   return (
     <Button
       nativeButton={false}
@@ -90,11 +86,10 @@ function SocialButton({
         <ExternalLink
           href={href}
           rel="noreferrer"
-          aria-label={`${profile.aria.visitPrefix.value} ${iconAlt}`}
         >
           <Image
             src={iconSrc}
-            alt={iconAlt}
+            alt=""
             width={20}
             height={20}
             className="rounded-full"
@@ -143,7 +138,6 @@ export const ProfileCard = async () => {
               <SocialButton
                 href="https://osu.ppy.sh/users/23318599"
                 iconSrc="/images/osu-logo.png"
-                iconAlt={profile.aria.osuLogoAlt.value}
               >
                 tenzyu
               </SocialButton>
@@ -154,7 +148,6 @@ export const ProfileCard = async () => {
               <SocialButton
                 href="https://tenzyu.com/u/twitch"
                 iconSrc="/images/twitch-logo.png"
-                iconAlt={profile.aria.twitchLogoAlt.value}
               >
                 tenzyudotcom
               </SocialButton>

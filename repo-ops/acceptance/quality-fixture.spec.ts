@@ -44,6 +44,9 @@ for (const theme of ['light', 'dark'] as const) {
       }
     }
     report(info.project.name + '-axe-' + theme, { scope: 'automated inventory, not conformance', reports });
+    // Gate newly introduced rule IDs; existing baseline rules remain visible for triage.
+    const baselineRules = new Set(['label-content-name-mismatch', 'aria-required-children', 'target-size', 'color-contrast']);
+    expect(reports.flatMap(r => r.violations.filter((v: any) => !baselineRules.has(v.id))), 'new automated WCAG rule violations').toEqual([]);
     console.log(JSON.stringify({ project: info.project.name, theme, scans: reports.length, violations: reports.reduce((n,r) => n + r.violations.length, 0), severe: reports.reduce((n,r) => n + r.violations.filter((v: any) => ['critical','serious'].includes(v.impact)).length,0) }));
   });
 }

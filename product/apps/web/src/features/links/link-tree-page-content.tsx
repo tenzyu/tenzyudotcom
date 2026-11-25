@@ -64,7 +64,6 @@ export async function LinkTreePageContent() {
                         link={link}
                         locale={locale || 'ja'}
                         visitPrefix={linksContent.aria.visitPrefix.value}
-                        iconSuffix={linksContent.aria.iconSuffix.value}
                       />
                     ))}
                   </ItemGroup>
@@ -94,15 +93,13 @@ function LinkTile({
   link,
   locale,
   visitPrefix,
-  iconSuffix,
 }: {
   link: MyLink
   locale: string
   visitPrefix: string
-  iconSuffix: string
 }) {
   return (
-    <div className="relative">
+    <div role="listitem" className="relative">
       <div className="absolute top-2 right-2 z-10">
         <LinkControls locale={locale} shortCode={link.shortenUrl} />
       </div>
@@ -114,10 +111,10 @@ function LinkTile({
             href={getLocalizedUrl(`/links/${link.shortenUrl}`, locale)}
             target="_blank"
             rel="noopener noreferrer"
-            aria-label={`${visitPrefix} ${link.name} (${link.id})`}
+            aria-label={`${link.name} ${link.id} — ${visitPrefix}`}
           >
             <ItemMedia variant="icon" className="dark:bg-secondary-foreground">
-              <LinkIcon icon={link.icon} alt={`${link.name} ${iconSuffix}`} />
+              <LinkIcon icon={link.icon} alt="" />
             </ItemMedia>
 
             <ItemContent className="min-w-0 text-left">

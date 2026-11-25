@@ -95,6 +95,7 @@ function LinkTile({ link }: { link: MyLink }) {
   const { locale } = useLocale()
 
   return (
+    <div role="listitem">
     <Item
       variant="outline"
       className="w-full pr-11"
@@ -103,12 +104,12 @@ function LinkTile({ link }: { link: MyLink }) {
           href={getLocalizedUrl(`/links/${link.shortenUrl}`, locale)}
           target="_blank"
           rel="noopener noreferrer"
-          aria-label={`${content.aria.visitPrefix.value} ${link.name} (${link.id})`}
+          aria-label={`${link.name} ${link.id} — ${content.aria.visitPrefix.value}`}
         >
           <ItemMedia variant="icon" className="dark:bg-secondary-foreground">
             <LinkIcon
               icon={link.icon}
-              alt={`${link.name} ${content.aria.iconSuffix.value}`}
+              alt=""
             />
           </ItemMedia>
 
@@ -121,5 +122,6 @@ function LinkTile({ link }: { link: MyLink }) {
         </Link>
       }
     />
+    </div>
   )
 }
