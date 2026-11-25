@@ -1,6 +1,6 @@
 # tenzyudotcom
 
-The [tenzyu.com](https://tenzyu.com) monorepo: a Next.js 16 personal website, a Tauri/Rust osu! skin workbench, a personal Firefox conversation exporter, and shared TypeScript packages. Toolchain: **Bun 1.3.10 (package declaration), Nx 22, Node.js 22, Nix devShells**.
+The [tenzyu.com](https://tenzyu.com) monorepo: a Next.js 16 personal website, a Tauri/Rust osu! skin workbench, a personal Firefox conversation exporter, and shared TypeScript packages. Toolchain: **Bun 1.4.5 (package declaration), Nx 22, Node.js 22, Nix devShells**.
 
 ## Workspace
 

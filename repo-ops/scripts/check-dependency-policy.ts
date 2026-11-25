@@ -62,9 +62,9 @@ const peerVersionOverrides = new Map([
   ['react-dom', '>=19 <20'],
 ])
 
-if (rootPackageJson.packageManager !== 'bun@1.3.10') {
+if (rootPackageJson.packageManager !== 'bun@1.4.5') {
   failed = true
-  console.error('package.json: packageManager must be bun@1.3.10')
+  console.error('package.json: packageManager must be bun@1.4.5')
 }
 
 for (const relativePath of packageJsonPaths) {

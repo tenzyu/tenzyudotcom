@@ -1,0 +1,141 @@
+name: One-shot dependency renewal
+
+on:
+  pull_request:
+    branches: [renewal/architecture-20261125]
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  javascript:
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'renewal/dependencies-20261125'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: '1.4.5'
+      - name: Update all workspaces, catalogs and transitive dependencies
+        run: |
+          bun outdated --recursive || true
+          bun update --recursive --latest --ignore-scripts
+          # Node runtime is still 22 in the Nix shell. Keep its type contract on that major.
+          node --input-type=module <<'JS'
+          import { readFileSync, writeFileSync } from 'node:fs';
+          import { execFileSync } from 'node:child_process';
+          const p = JSON.parse(readFileSync('package.json', 'utf8'));
+          const versions = JSON.parse(execFileSync('npm', ['view', '@types/node@22', 'version', '--json'], {encoding:'utf8'}));
+          const version = Array.isArray(versions) ? versions.at(-1) : versions;
+          if (!/^22\.\d+\.\d+$/.test(version)) throw Error('Unexpected Node 22 type version');
+          p.workspaces.catalog['@types/node'] = '^' + version;
+          writeFileSync('package.json', JSON.stringify(p, null, 2) + '\n');
+          JS
+          bun install --ignore-scripts
+          bun install --frozen-lockfile --ignore-scripts
+          bun run policy:deps
+          git diff --stat
+          mkdir -p "$RUNNER_TEMP/dependency-patches"
+          git diff --binary -- package.json bun.lock ':(glob)product/**/package.json' > "$RUNNER_TEMP/dependency-patches/javascript.patch"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dependency-patch-javascript
+          path: ${{ runner.temp }}/dependency-patches/javascript.patch
+          retention-days: 7
+  rust:
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'renewal/dependencies-20261125'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - name: Upgrade direct and transitive crates
+        run: |
+          cargo install cargo-edit --version 0.13.14 --locked
+          cd product/apps/osu-skin-workbench/src-tauri
+          cargo upgrade --incompatible allow --pinned allow
+          cargo update
+          cargo metadata --locked --no-deps --format-version 1
+          cd "$GITHUB_WORKSPACE"
+          mkdir -p "$RUNNER_TEMP/dependency-patches"
+          git diff --stat
+          git diff --binary -- product/apps/osu-skin-workbench/src-tauri/Cargo.toml product/apps/osu-skin-workbench/src-tauri/Cargo.lock > "$RUNNER_TEMP/dependency-patches/rust.patch"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dependency-patch-rust
+          path: ${{ runner.temp }}/dependency-patches/rust.patch
+          retention-days: 7
+  nix:
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'renewal/dependencies-20261125'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: cachix/install-nix-action@v32.1.0
+      - name: Refresh flake inputs
+        run: |
+          nix flake update
+          nix flake check --no-build
+          mkdir -p "$RUNNER_TEMP/dependency-patches"
+          git diff --stat
+          git diff --binary -- flake.lock > "$RUNNER_TEMP/dependency-patches/nix.patch"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dependency-patch-nix
+          path: ${{ runner.temp }}/dependency-patches/nix.patch
+          retention-days: 7
+  publish:
+    needs: [javascript, rust, nix]
+    if: always() && github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'renewal/dependencies-20261125' && (needs.javascript.result == 'success' || needs.rust.result == 'success' || needs.nix.result == 'success')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: dependency-patch-*
+          path: ${{ runner.temp }}/dependency-patches
+          merge-multiple: true
+      - name: Publish only dependency manifests and lockfiles to the dedicated branch
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          branch=refs/heads/renewal/dependencies-20261125
+          test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+          test "$(git ls-remote origin "$branch" | cut -f1)" = "$EXPECTED_HEAD"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          for kind in javascript rust nix; do
+            patch="$RUNNER_TEMP/dependency-patches/$kind.patch"
+            [ -s "$patch" ] || continue
+            git apply --check "$patch"
+            git apply --index "$patch"
+            python3 - <<'PY'
+          import re, subprocess
+          paths = subprocess.check_output(['git','diff','--cached','--name-only','-z']).decode().split('\0')
+          for p in filter(None, paths):
+              if p not in {'package.json','bun.lock','flake.lock','product/apps/osu-skin-workbench/src-tauri/Cargo.toml','product/apps/osu-skin-workbench/src-tauri/Cargo.lock'} and not re.fullmatch(r'product/(apps|packages)/[^/]+/package\.json', p):
+                  raise SystemExit('Unexpected changed path: ' + p)
+          PY
+            git diff --cached --stat
+            git commit -m "chore(deps): refresh $kind dependencies"
+          done
+          if [ "$(git rev-parse HEAD)" != "$EXPECTED_HEAD" ]; then
+            git push origin "HEAD:$branch"
+          fi
+          echo "Published candidate $(git rev-parse HEAD)"
