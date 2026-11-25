@@ -92,7 +92,7 @@ const { BlogEditor } =
 const { LinksEditorClient } =
   await import('@/features/links/editor/links-editor-client')
 const { NotesEditorClient } =
-  await import('@/app/[locale]/(admin)/editor/_features/notes-editor-client')
+  await import('@/features/notes/editor/notes-editor-client')
 const rootNode = document.getElementById('root')
 assert.ok(rootNode)
 const root = createRoot(rootNode)

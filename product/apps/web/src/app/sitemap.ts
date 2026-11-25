@@ -4,7 +4,7 @@ import { connection } from 'next/server'
 import { BASE_URL } from '@/config/site'
 import { STATIC_SITEMAP_ROUTE_PATHS } from '@/config/site-policy'
 import { loadBlogPosts } from '@/app/[locale]/(main)/blog/_features/blog.assemble'
-import { loadPublishedNoteIds } from '@/app/[locale]/(main)/notes/_features/notes.assemble'
+import { loadPublishedNoteIds } from '@/features/notes/notes.assemble'
 import {
   buildScrapAlternateLanguages,
   buildScrapDetailUrl,

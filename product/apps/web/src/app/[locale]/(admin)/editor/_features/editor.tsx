@@ -7,7 +7,7 @@ import { readBlogEditorSummaries } from '@/app/[locale]/(main)/blog/_features/bl
 import { makeLoadEditorCollectionUseCase } from './editor.assemble'
 import { BlogEditor } from './blog-editor'
 import { LinksEditor } from '../../../../../features/links/editor/links-editor'
-import { NotesEditor } from './notes-editor'
+import { NotesEditor } from '@/features/notes/editor/notes-editor'
 import { ScrapsEditor } from './scraps-editor'
 
 export async function EditorCollectionEditor({
