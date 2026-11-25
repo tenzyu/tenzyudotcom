@@ -1,6 +1,4 @@
-import {
-  loadBlogPostsState,
-} from '@/features/blog/blog.infra'
+import { loadBlogPostsState } from '@/features/blog/blog.infra'
 import {
   loadNotesState,
   saveNotesState,

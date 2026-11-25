@@ -18,9 +18,26 @@ sources:
 
 `product/apps/chatgpt-partial-html-export` reads visible Firefox page DOM and exports local HTML through Downloads or Native Messaging, **not** private ChatGPT APIs.
 
-# Web ownership transition
+# Web domain ownership
 
-The target is a feature-oriented modular monolith: `src/app` owns framework routes and composition, `src/features/<feature>` owns product behavior, and a shared technical layer owns storage/auth/locale/URL capabilities. Links and Notes public and editor implementations now live in `src/features/links` and `src/features/notes`; contextual editor UI lives in `src/features/content-editor/ui`. Other features and shared infrastructure still use their incumbent paths pending migration. Keep route URLs and content schemas unchanged; do not introduce a mandatory domain/port/adapter hierarchy. This transition is not proof that CI passed.
+`src/app` owns Next.js routing, HTTP adapters, layouts and route composition. The following product capabilities have a single implementation owner:
+
+| Owner | Responsibilities |
+| --- | --- |
+| `features/blog` | Article metadata, source, catalog, aliases, public UI, authoring commands, editor validation and publication tests |
+| `features/notes` | Note identities, thread invariants, public views, item commands and editor |
+| `features/scraps` | Manifest, entry, translation and visibility rules, public views, editor and aggregate publication |
+| `features/links` | Link validation, short-link behavior, public projections, item commands, editor and cache invalidation |
+| `features/osu` | Profile, API access, settings history, embedded media and presentation |
+| `features/content-editor` | Shared editor UI, login, collection dispatch and navigation; not Blog/Scraps authoring policy |
+| `platform/content-store` | Revisioned snapshots, tree commits, reconciliation, JSON document operations and transport errors |
+| `config/content-cache.ts` | Application-owned pathname-to-cache-tag integration policy |
+
+Blog consumes the structural `RevisionedContentRepository` capability; the GitHub adapter implements it. Scraps keeps the narrower aggregate contract; Notes and Links retain document-level version checks. The platform is not an owner of Blog aliases, Scrap visibility, note threads, link ordering, or Next route paths.
+
+Use immutable publication snapshots for routes that already require request-time revision consistency. The osu profile's existing cached Links projection remains an explicit Links API; its ISR behavior is not changed by this refactor. Preserve private draft isolation, no-force ref updates, version conflicts, uncertain publication reconciliation, metadata/source fidelity and existing URL contracts. No content migration is required.
+
+Other features (including home, portfolio, tools, shell and authentication) still use their existing layout. Do not infer that every route-local module is obsolete or that the complete dependency graph has been proven acyclic. CI acceptance remains required.
 
 # Architecture checks
 

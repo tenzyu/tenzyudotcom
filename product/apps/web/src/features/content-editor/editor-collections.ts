@@ -2,9 +2,7 @@ import type { MDXData } from '@/features/blog/blog.domain'
 import type { NoteSourceEntry } from '@/features/notes/notes.domain'
 import type { ScrapIndexEntry } from '@/features/scraps/scraps.domain'
 import type { MyLink } from '@/features/links/links.domain'
-import type {
-  StoredCollectionState,
-} from '@/platform/content-store/content-store.domain'
+import type { StoredCollectionState } from '@/platform/content-store/content-store.domain'
 
 const EDITOR_COLLECTION_IDS = ['notes', 'scraps', 'links', 'blog'] as const
 
@@ -22,15 +20,9 @@ export type EditorCollectionState<K extends EditorCollectionId> =
 
 export type WritableEditorCollectionId = 'notes' | 'links'
 
-type RevalidatePathTarget = {
-  path: string
-  type?: 'page' | 'layout'
-}
-
 export type EditorCollectionMeta = {
   id: EditorCollectionId
   label: string
-  publicPaths: readonly RevalidatePathTarget[]
 }
 
 export type EditorCollectionDefinition<K extends EditorCollectionId> =
@@ -51,22 +43,18 @@ const EDITOR_COLLECTIONS: Record<EditorCollectionId, EditorCollectionMeta> = {
   notes: {
     id: 'notes',
     label: 'Notes',
-    publicPaths: [],
   },
   scraps: {
     id: 'scraps',
     label: 'Scraps',
-    publicPaths: [],
   },
   links: {
     id: 'links',
     label: 'Links',
-    publicPaths: [],
   },
   blog: {
     id: 'blog',
     label: 'Blog',
-    publicPaths: [],
   },
 }
 
