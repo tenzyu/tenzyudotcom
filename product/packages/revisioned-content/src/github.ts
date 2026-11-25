@@ -1,11 +1,14 @@
 import { z } from 'zod'
 import {
+  type ContentRepositorySaveOptions,
   type ContentTreeSnapshot,
   type RevisionedContentRepository,
   StorageCommitUncertainError,
+  StorageDocumentWriteUncertainError,
   StorageError,
   StorageVersionConflictError,
 } from './contracts'
+import { createContentVersion } from './version'
 
 type GitHubAggregateConfig = {
   owner: string
@@ -273,4 +276,144 @@ export function createGitHubAggregateRepository(
       return commit.sha
     },
   }
+}
+
+/**
+ * Mutable, single-document GitHub Contents API. Unlike aggregate commits,
+ * its optimistic concurrency token is the normalized document hash.
+ * Consumers own caching and product rules, not HTTP or GitHub paths.
+ */
+export function createGitHubDocumentRepository(
+  config: GitHubAggregateConfig,
+  request: (url: string, init?: RequestInit) => Promise<Response> = (
+    url,
+    init,
+  ) => fetch(url, init),
+) {
+  const base = `https://api.github.com/repos/${encodeURIComponent(config.owner)}/${encodeURIComponent(config.repo)}`
+  const headers = {
+    Accept: 'application/vnd.github+json',
+    'Content-Type': 'application/json',
+    'User-Agent': 'tenzyudotcom-content-sync',
+    'X-GitHub-Api-Version': '2022-11-28',
+    ...(config.token ? { Authorization: `Bearer ${config.token}` } : {}),
+  }
+  const root = config.root.replace(/^\/+|\/+$/g, '')
+
+  function repositoryPath(pathname: string) {
+    const relative = pathname.replace(/^\/+/, '')
+    const path = [root, relative].filter(Boolean).join('/')
+    if (!relative || path.split('/').some((part) => !part || part === '.' || part === '..'))
+      throw new StorageError('Invalid content path')
+    return path
+  }
+
+  function contentsUrl(pathname: string) {
+    return `${base}/contents/${repositoryPath(pathname).split('/').map(encodeURIComponent).join('/')}`
+  }
+
+  async function loadText(pathname: string) {
+    const response = await request(
+      `${contentsUrl(pathname)}?ref=${encodeURIComponent(config.branch)}`,
+      { cache: 'no-store', headers },
+    )
+    if (response.status === 404) return null
+    if (!response.ok)
+      throw new StorageError(`Failed to read GitHub content (${pathname}): ${response.status}`)
+
+    const file = FileResponse.extend({
+      path: z.string(),
+      html_url: z.string().nullable().optional(),
+      download_url: z.string().nullable().optional(),
+    }).safeParse(await response.json())
+    if (!file.success)
+      throw new StorageError(`GitHub content payload is invalid: ${pathname}`)
+
+    const encoded = file.data.content.replace(/\r?\n/g, '')
+    const bytes = Buffer.from(encoded, 'base64')
+    const content = bytes.toString('utf8')
+    if (file.data.path !== repositoryPath(pathname) ||
+        bytes.length !== file.data.size ||
+        bytes.toString('base64') !== encoded ||
+        !Buffer.from(content).equals(bytes))
+      throw new StorageError(`GitHub supplied incomplete or unsupported file bytes for ${pathname}.`)
+
+    return {
+      content,
+      htmlUrl: file.data.html_url ?? file.data.download_url ?? undefined,
+      path: file.data.path,
+      sha: file.data.sha,
+      size: file.data.size,
+    }
+  }
+
+  async function saveText(
+    pathname: string,
+    content: string,
+    options: ContentRepositorySaveOptions = {},
+  ) {
+    const current = await loadText(pathname)
+    const currentVersion = createContentVersion((current?.content ?? '').trimEnd())
+    if (typeof options.expectedVersion === 'string' &&
+        currentVersion !== options.expectedVersion)
+      throw new StorageVersionConflictError(`${pathname} has changed since it was loaded.`)
+
+    const response = await request(contentsUrl(pathname), {
+      body: JSON.stringify({
+        branch: config.branch,
+        content: Buffer.from(content).toString('base64'),
+        message: options.message ?? `Update ${pathname}`,
+        sha: current?.sha,
+      }),
+      headers,
+      method: 'PUT',
+    }).catch((error: unknown) => {
+      throw new StorageDocumentWriteUncertainError(
+        'The content write outcome is unknown.', { cause: error },
+      )
+    })
+    if (response.status >= 500 || response.status === 408)
+      throw new StorageDocumentWriteUncertainError('The content write outcome is unknown.')
+    if (response.status === 409 || response.status === 422)
+      throw new StorageVersionConflictError(`${pathname} changed during save.`)
+    if (!response.ok)
+      throw new StorageError(`Failed to save GitHub content (${pathname}): ${response.status}`)
+  }
+
+  async function deleteText(pathname: string, options: { message?: string } = {}) {
+    const current = await loadText(pathname)
+    if (!current) return
+    const response = await request(contentsUrl(pathname), {
+      body: JSON.stringify({
+        branch: config.branch,
+        message: options.message ?? `Delete ${pathname}`,
+        sha: current.sha,
+      }),
+      headers,
+      method: 'DELETE',
+    })
+    if (!response.ok)
+      throw new StorageError(`Failed to delete GitHub content (${pathname}): ${response.status}`)
+  }
+
+  async function list(prefix: string) {
+    const relative = prefix.replace(/^\/+|\/+$/g, '')
+    const directory = relative ? repositoryPath(relative) : root
+    const boundary = directory ? `${directory}/` : ''
+    const response = await request(
+      `${base}/git/trees/${encodeURIComponent(config.branch)}?recursive=1`,
+      { cache: 'no-store', headers },
+    )
+    if (!response.ok)
+      throw new StorageError(`Failed to list GitHub repository files: ${response.status}`)
+    const result = TreeResponse.safeParse(await response.json())
+    if (!result.success)
+      throw new StorageError('GitHub did not supply a complete content tree.')
+    return result.data.tree
+      .filter((entry) => entry.type === 'blob' && entry.path.startsWith(boundary))
+      .map((entry) => root ? entry.path.slice(root.length + 1) : entry.path)
+      .sort()
+  }
+
+  return { loadText, saveText, deleteText, list }
 }

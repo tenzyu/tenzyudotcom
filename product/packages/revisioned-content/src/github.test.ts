@@ -1,7 +1,9 @@
 import { describe, expect, test } from 'bun:test'
-import { createGitHubAggregateRepository } from './github'
+import { createGitHubAggregateRepository, createGitHubDocumentRepository } from './github'
+import { createContentVersion } from './version'
 import {
   StorageCommitUncertainError,
+  StorageDocumentWriteUncertainError,
   StorageError,
   StorageVersionConflictError,
 } from './contracts'
@@ -188,5 +190,64 @@ describe('GitHub aggregate publication', () => {
       async () => new Response(null, { status }),
     )
     await expect(repo.validateHead()).rejects.toBeInstanceOf(StorageError)
+  })
+})
+
+describe('GitHub single-document persistence', () => {
+  const file = (content: string) => ({
+    type: 'file', encoding: 'base64', sha: blob, path: 'storage/editor/notes.json',
+    size: Buffer.byteLength(content), content: Buffer.from(content).toString('base64'),
+  })
+
+  test('accepts an empty file but rejects incomplete bytes', async () => {
+    const empty = createGitHubDocumentRepository(config, async () => Response.json(file('')))
+    expect((await empty.loadText('editor/notes.json'))?.content).toBe('')
+    const corrupt = createGitHubDocumentRepository(config, async () =>
+      Response.json({ ...file('notes'), size: 99 }))
+    await expect(corrupt.loadText('editor/notes.json')).rejects.toBeInstanceOf(StorageError)
+  })
+
+  test('rejects stale versions before writing and preserves blob compare-and-swap', async () => {
+    let writes = 0
+    const repo = createGitHubDocumentRepository(config, async (_url, init) => {
+      if (init?.method === 'PUT') {
+        writes++
+        expect(JSON.parse(String(init.body))).toEqual({
+          branch: config.branch, content: Buffer.from('next').toString('base64'),
+          message: 'Update editor/notes.json', sha: blob,
+        })
+        return new Response(null, { status: 409 })
+      }
+      return Response.json(file('current\n'))
+    })
+    await expect(repo.saveText('editor/notes.json', 'next', {
+      expectedVersion: createContentVersion('stale'),
+    })).rejects.toBeInstanceOf(StorageVersionConflictError)
+    expect(writes).toBe(0)
+    await expect(repo.saveText('editor/notes.json', 'next', {
+      expectedVersion: createContentVersion('current'),
+    })).rejects.toBeInstanceOf(StorageVersionConflictError)
+    expect(writes).toBe(1)
+  })
+
+  test('does not misclassify an ambiguous write as a conflict', async () => {
+    const repo = createGitHubDocumentRepository(config, async (_url, init) => {
+      if (init?.method === 'PUT') throw new TypeError('lost response')
+      return Response.json(file('current'))
+    })
+    await expect(repo.saveText('editor/notes.json', 'next'))
+      .rejects.toBeInstanceOf(StorageDocumentWriteUncertainError)
+  })
+
+  test('rejects truncated listings and does not cross the directory boundary', async () => {
+    const entries = ['storage/scraps/a', 'storage/scraps-other/b'].map(path => ({
+      path, sha: blob, mode: '100644', type: 'blob',
+    }))
+    const complete = createGitHubDocumentRepository(config, async () =>
+      Response.json({ truncated: false, tree: entries }))
+    expect(await complete.list('scraps/')).toEqual(['scraps/a'])
+    const truncated = createGitHubDocumentRepository(config, async () =>
+      Response.json({ truncated: true, tree: entries }))
+    await expect(truncated.list('scraps/')).rejects.toBeInstanceOf(StorageError)
   })
 })
