@@ -36,7 +36,7 @@ for (const theme of ['light', 'dark'] as const) {
         await page.addScriptTag({ path: axePath });
         const result = await page.evaluate(async () => {
           const result = await (window as any).axe.run(document, { runOnly: { type: 'tag', values: ['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22a','wcag22aa'] } });
-          const rules = (items: any[]) => items.map(r => ({ id: r.id, impact: r.impact, help: r.help, helpUrl: r.helpUrl, tags: r.tags, targets: r.nodes.map((n: any) => n.target) }));
+          const rules = (items: any[]) => items.map(r => ({ id: r.id, impact: r.impact, help: r.help, helpUrl: r.helpUrl, tags: r.tags, targets: r.nodes.map((n: any) => n.target), details: r.nodes.map((n: any) => ({ target: n.target, html: n.html, failureSummary: n.failureSummary })) }));
           return { version: result.testEngine.version, passes: result.passes.length, violations: rules(result.violations), incomplete: rules(result.incomplete) };
         });
         expect(result.passes + result.violations.length + result.incomplete.length, path).toBeGreaterThan(0);
@@ -45,8 +45,9 @@ for (const theme of ['light', 'dark'] as const) {
     }
     report(info.project.name + '-axe-' + theme, { scope: 'automated inventory, not conformance', reports });
     // Gate newly introduced rule IDs; existing baseline rules remain visible for triage.
-    const baselineRules = new Set(['label-content-name-mismatch', 'aria-required-children', 'target-size', 'color-contrast']);
+    const baselineRules = new Set(['color-contrast']);
     expect(reports.flatMap(r => r.violations.filter((v: any) => !baselineRules.has(v.id))), 'new automated WCAG rule violations').toEqual([]);
+    expect(reports.flatMap(r => r.violations.filter((v: any) => v.id === 'color-contrast').map(() => r.path)).every(p => p === '/osu' || p === '/en/osu'), 'contrast residual confined to osu fixture').toBe(true);
     console.log(JSON.stringify({ project: info.project.name, theme, scans: reports.length, violations: reports.reduce((n,r) => n + r.violations.length, 0), severe: reports.reduce((n,r) => n + r.violations.filter((v: any) => ['critical','serious'].includes(v.impact)).length,0) }));
   });
 }

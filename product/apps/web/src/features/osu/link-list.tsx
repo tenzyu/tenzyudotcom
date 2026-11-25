@@ -91,7 +91,6 @@ function LinkIcon({ icon, alt }: { icon: string; alt: string }) {
 }
 
 function LinkTile({ link }: { link: MyLink }) {
-  const content = useIntlayer('linksFeature')
   const { locale } = useLocale()
 
   return (
@@ -104,7 +103,6 @@ function LinkTile({ link }: { link: MyLink }) {
           href={getLocalizedUrl(`/links/${link.shortenUrl}`, locale)}
           target="_blank"
           rel="noopener noreferrer"
-          aria-label={`${link.name} ${link.id} — ${content.aria.visitPrefix.value}`}
         >
           <ItemMedia variant="icon" className="dark:bg-secondary-foreground">
             <LinkIcon
