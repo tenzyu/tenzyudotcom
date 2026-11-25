@@ -12,7 +12,6 @@ import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
 ID = "chatgpt-partial-html-export@tenzyudotcom.local"
-UUID = "d95f1452-0356-411b-97e7-f060fe32fd37"
 
 def until(fn, description, seconds=30):
     deadline = time.monotonic() + seconds
@@ -40,9 +39,12 @@ def main():
         local = "http://127.0.0.1/*"
         manifest["permissions"] = [p for p in manifest["permissions"] if not p.startswith("https://")] + [local]
         manifest["content_scripts"][0]["matches"] = [local]
+        # Test-only locator, not a mock of the production extension API.
+        manifest["content_scripts"][0]["js"].append("fixture-locator.js")
         xpi = root / "fixture.xpi"
         with zipfile.ZipFile(xpi, "w") as z:
             z.writestr("manifest.json", json.dumps(manifest))
+            z.writestr("fixture-locator.js", "document.documentElement.dataset.fixtureOptionsUrl = browser.runtime.getURL(\'options/options.html\');")
             for folder in ("src", "options", "popup"):
                 for p in (ROOT / folder).rglob("*"):
                     if p.is_file():
@@ -67,14 +69,17 @@ def main():
             def request(method, path, body=None):
                 data = json.dumps(body).encode() if body is not None else None
                 req = urllib.request.Request(endpoint + path, data=data, method=method, headers={"Content-Type":"application/json"})
-                with urllib.request.urlopen(req, timeout=60) as response:
-                    return json.load(response)["value"]
+                try:
+                    with urllib.request.urlopen(req, timeout=60) as response:
+                        return json.load(response)["value"]
+                except urllib.error.HTTPError as error:
+                    raise RuntimeError(error.read().decode()) from error
             def ready():
                 try: return request("GET", "/status").get("ready")
                 except OSError: return False
             try:
                 until(ready, "geckodriver ready")
-                created = request("POST", "/session", {"capabilities":{"alwaysMatch":{"browserName":"firefox","moz:firefoxOptions":{"args":["-headless"],"prefs":{"browser.download.folderList":2,"browser.download.dir":str(downloads),"browser.download.useDownloadDir":True,"browser.helperApps.neverAsk.saveToDisk":"text/html","extensions.webextensions.uuids":json.dumps({ID:UUID}),"network.proxy.type":0}}}}})
+                created = request("POST", "/session", {"capabilities":{"alwaysMatch":{"browserName":"firefox","moz:firefoxOptions":{"args":["-headless"],"prefs":{"browser.download.folderList":2,"browser.download.dir":str(downloads),"browser.download.useDownloadDir":True,"browser.helperApps.neverAsk.saveToDisk":"text/html","network.proxy.type":0}}}}})
                 session = "/session/" + created["sessionId"]
                 print(json.dumps({"browser":created["capabilities"].get("browserVersion"),"driver":created["capabilities"].get("moz:geckodriverVersion")}))
                 request("POST", session + "/moz/addon/install", {"path":str(xpi),"temporary":True})
@@ -95,7 +100,9 @@ def main():
                     assert all(x not in data for x in ("EXCLUDED_FIRST","EXCLUDED_CONTROL","EXCLUDED_SCRIPT"))
                 click_second()
                 verify(downloads)
-                go("moz-extension://" + UUID + "/options/options.html")
+                options_url = until(lambda: js("return document.documentElement.dataset.fixtureOptionsUrl"), "actual runtime options URL")
+                assert options_url.startswith("moz-extension://")
+                go(options_url)
                 until(lambda: js("return document.querySelector('#filenamePrefix').value === 'chatgpt'"), "extension options initialized")
                 js("document.querySelector('[value=native]').checked=true;document.querySelector('#nativeOutputDir').value=arguments[0];document.querySelector('#optionsForm').requestSubmit()", str(native))
                 until(lambda: js("return document.querySelector('#status').textContent === 'Saved.'"), "native mode saved")
