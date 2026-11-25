@@ -23,7 +23,7 @@ icu_normalizer = { version = "2", default-features = false, features = ["compile
 tempfile = "3"
 uuid = { version = "1", features = ["v4"] }
 walkdir = "2"
-zip = "2"
+zip = "9"
 
 [target.'cfg(unix)'.dependencies]
 libc = "0.2"
