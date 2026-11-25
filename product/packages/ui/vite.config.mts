@@ -2,8 +2,6 @@
 
 import * as fs from 'node:fs'
 import * as path from 'node:path'
-import { nxCopyAssetsPlugin } from '@nx/vite/plugins/nx-copy-assets.plugin'
-import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { defineConfig } from 'vite'
@@ -41,8 +39,6 @@ export default defineConfig(() => ({
   plugins: [
     react(),
     tailwindcss(),
-    nxViteTsPaths(),
-    nxCopyAssetsPlugin(['*.md']),
   ],
   // Configuration for building your library.
   // See: https://vite.dev/guide/build.html#library-mode
