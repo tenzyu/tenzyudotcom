@@ -3,9 +3,9 @@ import { NoteBodySchema } from './note-command.validation'
 import {
   parseJsonCollection,
   saveJsonCollection,
-} from '@/lib/content-store/json-document.infra'
-import { loadGitHubTextFileFresh } from '@/lib/content-store/github-content.infra'
-import type { ContentSnapshot } from '@/lib/content-store/content-store.domain'
+} from '@/platform/content-store/json-document.infra'
+import { loadGitHubTextFileFresh } from '@/platform/content-store/github-content.infra'
+import type { ContentSnapshot } from '@/platform/content-store/content-store.domain'
 import type { NoteSourceEntry } from './notes.domain'
 import { normalizeExternalUrl } from '@/lib/url/external-url.domain'
 import {

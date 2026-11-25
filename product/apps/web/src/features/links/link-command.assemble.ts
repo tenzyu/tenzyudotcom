@@ -1,12 +1,12 @@
 import {
   type DocumentBase,
   InvalidItemCommand,
-} from '@/lib/content-store/json-item-command.validation'
+} from '@/platform/content-store/json-item-command.validation'
 import {
   executeItemCommand,
   loadItemDocument,
   requireItem,
-} from '@/lib/content-store/json-item-command.infra'
+} from '@/platform/content-store/json-item-command.infra'
 import {
   LinkCommand,
   LinkEditView,

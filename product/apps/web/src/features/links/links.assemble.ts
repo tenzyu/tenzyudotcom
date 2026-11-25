@@ -1,4 +1,4 @@
-import { loadPublication } from '@/lib/content-store/publication.assemble'
+import { loadPublication } from '@/platform/content-store/publication.assemble'
 import { loadLinksState, loadPublicLinks } from './links.infra'
 
 export async function loadLinks() {

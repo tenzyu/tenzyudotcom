@@ -4,7 +4,7 @@ import { IntlayerServerProvider } from 'next-intlayer/server'
 import { createPageMetadata, resolvePageLocale } from '@/lib/intlayer/page'
 import { assembleNotesPageData } from '@/features/notes/notes.assemble'
 import { NotesPageContent } from '@/features/notes/notes-page-content'
-import { loadPublication } from '@/lib/content-store/publication.assemble'
+import { loadPublication } from '@/platform/content-store/publication.assemble'
 
 export const generateMetadata = createPageMetadata('page-notes', {
   pathname: '/notes',

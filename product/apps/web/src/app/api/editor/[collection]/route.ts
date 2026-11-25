@@ -6,12 +6,12 @@ import {
 import {
   loadEditorCollection,
   saveEditorCollection,
-} from '@/app/[locale]/(admin)/editor/_features/editor.assemble'
+} from '@/features/content-editor/editor.assemble'
 import {
   isEditorCollectionId,
   isWritableEditorCollectionId,
 } from '@/features/content-editor/editor-collections'
-import { StorageVersionConflictError } from '@/lib/content-store/content-store.domain'
+import { StorageVersionConflictError } from '@/platform/content-store/content-store.domain'
 import { isEditorValidationError } from '@/features/content-editor/editor.validation'
 import { CollectionSavePayload } from './_features/collection-save.validation'
 

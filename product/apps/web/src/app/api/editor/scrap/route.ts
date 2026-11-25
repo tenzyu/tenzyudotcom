@@ -8,14 +8,14 @@ import {
   executeScrapEditorCommand,
   loadScrapEditorIndex,
   loadScrapEditorState,
-} from '@/features/content-editor/scrap-editor.assemble'
+} from '@/features/scraps/editor/scrap-editor.assemble'
 import { isEditorValidationError } from '@/features/content-editor/editor.validation'
 import { ScrapWorkspaceRequest } from './scrap-workspace-request.validation'
 import { isValidScrapSlug } from '@/features/scraps/scraps.domain'
 import {
   isStorageCommitUncertain,
   isStorageVersionConflict,
-} from '@/lib/content-store/content-store.domain'
+} from '@/platform/content-store/content-store.domain'
 
 function json(body: unknown, status = 200) {
   return NextResponse.json(body, {

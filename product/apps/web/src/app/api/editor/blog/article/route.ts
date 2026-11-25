@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server'
-import { parseEditorBlogSaveInput } from '@/app/[locale]/(admin)/editor/_features/editor-input.assemble'
-import { BlogSlugValidationError } from '@/app/[locale]/(main)/blog/_features/blog.domain'
+import { parseEditorBlogSaveInput } from '@/features/blog/editor/blog-save-input'
+import { BlogSlugValidationError } from '@/features/blog/blog.domain'
 import {
   checkBlogWorkspacePublication,
   readEditableBlogArticle,
   renameBlogPost,
   saveBlogPost,
-} from '@/app/[locale]/(main)/blog/_features/blog-workspace.assemble'
-import { BlogWorkspaceRequestSchema } from '@/app/[locale]/_features/blog-editor/blog-workspace.validation'
+} from '@/features/blog/blog-workspace.assemble'
+import { BlogWorkspaceRequestSchema } from '@/features/blog/editor/blog-workspace.validation'
 import {
   hasEditorAdminSession,
   isSameOriginEditorRequest,
@@ -15,7 +15,7 @@ import {
 import {
   isStorageCommitUncertain,
   isStorageVersionConflict,
-} from '@/lib/content-store/content-store.domain'
+} from '@/platform/content-store/content-store.domain'
 
 function json(value: unknown, status = 200) {
   return NextResponse.json(value, {

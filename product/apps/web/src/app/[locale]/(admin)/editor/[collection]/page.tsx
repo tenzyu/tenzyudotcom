@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation'
 import { resolvePageLocale } from '@/lib/intlayer/page'
-import { EditorCollectionEditor } from '../_features/editor'
+import { EditorCollectionEditor } from '@/features/content-editor/editor'
 import { requireEditorAdminSession } from '@/features/editor-auth/editor-session'
 import { isEditorCollectionId } from '@/features/content-editor/editor-collections'
 

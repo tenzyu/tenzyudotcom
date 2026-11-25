@@ -3,13 +3,13 @@ import { notFound } from 'next/navigation'
 import { connection } from 'next/server'
 import { getLocale, IntlayerServerProvider } from 'next-intlayer/server'
 import { buildOgTitleImageUrl } from '@/config/site'
-import { loadPublication } from '@/lib/content-store/publication.assemble'
+import { loadPublication } from '@/platform/content-store/publication.assemble'
 import {
   assembleScrapPage,
   buildScrapAlternateLanguages,
   buildScrapDetailUrl,
-} from '../_features/scraps.assemble'
-import { ScrapDetailPageContent } from './_features/scrap-detail-page-content'
+} from '@/features/scraps/scraps.assemble'
+import { ScrapDetailPageContent } from '@/features/scraps/detail/scrap-detail-page-content'
 
 type Params = Promise<{
   slug: string

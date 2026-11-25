@@ -2,7 +2,7 @@ import { isEditorValidationError } from './editor.validation'
 import {
   StorageCommitUncertainError,
   StorageVersionConflictError,
-} from '@/lib/content-store/content-store.domain'
+} from '@/platform/content-store/content-store.domain'
 
 export type CollectionSaveState =
   | { status: 'idle' }

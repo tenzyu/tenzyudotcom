@@ -5,7 +5,7 @@ import {
   compareNotesByCreatedAtDesc,
   type NoteSourceEntry,
 } from './notes.domain'
-import type { ContentSnapshot } from '@/lib/content-store/content-store.domain'
+import type { ContentSnapshot } from '@/platform/content-store/content-store.domain'
 import { loadPublicNoteEntries } from './notes.infra'
 
 export type NotePageItem = {

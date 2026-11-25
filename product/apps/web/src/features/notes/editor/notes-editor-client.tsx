@@ -21,8 +21,8 @@ import {
 } from '@tenzyu/ui/select'
 import { Switch } from '@tenzyu/ui/switch'
 import { Textarea } from '@tenzyu/ui/textarea'
-import { useCollectionSave } from '@/app/[locale]/(admin)/editor/_features/use-collection-save'
-import { moveItem } from '@/app/[locale]/(admin)/editor/_features/editor-utils'
+import { useCollectionSave } from '@/features/content-editor/use-collection-save'
+import { moveItem } from '@/features/content-editor/editor-utils'
 
 const ROOT_PARENT = '__root__'
 

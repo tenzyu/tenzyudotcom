@@ -1,13 +1,14 @@
 import assert from 'node:assert/strict'
 import { mock } from 'bun:test'
 import { NextRequest } from 'next/server'
-import type { BlogSaveCommand } from '@/app/[locale]/(main)/blog/_features/blog.domain'
-import { StorageVersionConflictError } from '@/lib/content-store/content-store.domain'
+import type { BlogSaveCommand } from '../../src/features/blog/blog.domain'
+import { StorageVersionConflictError } from '../../src/platform/content-store/content-store.domain'
 
 let authenticated = false
 let writes = 0
 let conflict = false
 let sameOrigin = true
+const invalidations: Array<{ tag: string; options: unknown }> = []
 const blogCommands: BlogSaveCommand[] = []
 mock.module('@/features/editor-auth/editor-session', () => ({
   hasEditorAdminSession: async () => authenticated,
@@ -43,7 +44,7 @@ mock.module('@/features/links/links.infra', () => ({
   loadLinksState: loadCollection,
   saveLinksState: save,
 }))
-mock.module('@/app/[locale]/(main)/blog/_features/blog.infra', () => ({
+mock.module('../../src/features/blog/blog.infra', () => ({
   loadBlogPostsState: loadCollection,
   saveBlogPost: async (command: BlogSaveCommand) => {
     blogCommands.push(command)
@@ -55,10 +56,10 @@ mock.module('@/app/[locale]/(main)/blog/_features/blog.infra', () => ({
     }
   },
 }))
-mock.module('@/lib/content-store/github-content.infra', () => ({
+mock.module('../../src/platform/content-store/github-content.infra', () => ({
   githubContentRepository: { reconcile: async () => null },
 }))
-mock.module('@/features/content-editor/scrap-editor.assemble', () => ({
+mock.module('../../src/features/scraps/editor/scrap-editor.assemble', () => ({
   executeScrapEditorCommand: save,
   loadScrapEditorIndexState: loadCollection,
   loadScrapEditorIndex: async () => [],
@@ -67,13 +68,15 @@ mock.module('@/features/content-editor/scrap-editor.assemble', () => ({
 }))
 mock.module('next/cache', () => ({
   revalidatePath: () => {},
-  revalidateTag: () => {},
+  revalidateTag: (tag: string, options: unknown) => {
+    invalidations.push({ tag, options })
+  },
   updateTag: () => {},
 }))
 const { PUT, GET } = await import('@/app/api/editor/[collection]/route')
 const { POST: postScrap } = await import('@/app/api/editor/scrap/route')
-const { saveEditorCollectionAction, saveBlogPostAction } =
-  await import('@/app/[locale]/(admin)/editor/_features/actions')
+const { saveEditorCollectionAction } = await import('@/features/content-editor/actions')
+const { saveBlogPostAction } = await import('@/features/blog/editor/blog-actions')
 const params = { params: Promise.resolve({ collection: 'notes' }) }
 const request = (
   origin = 'http://localhost',
@@ -189,6 +192,7 @@ const result = await postScrap(scrapRequest())
 assert.equal(result.status, 200)
 assert.deepEqual(await result.json(), { kind: 'saved', version: 'new-version' })
 assert.equal(writes, 1)
+assert.deepEqual(invalidations, [])
 for (const collection of ['blog', 'scraps'])
   assert.equal(
     (await PUT(request(), { params: Promise.resolve({ collection }) })).status,
@@ -200,3 +204,6 @@ for (const collection of ['links', 'notes'])
     200,
   )
 assert.equal(writes, 3)
+assert.deepEqual(invalidations, [
+  { tag: 'content:editor:links', options: { expire: 0 } },
+])
