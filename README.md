@@ -11,7 +11,6 @@ The [tenzyu.com](https://tenzyu.com) monorepo: a Next.js 16 personal website, a 
 | ChatGPT HTML exporter | `product/apps/chatgpt-partial-html-export` | Firefox extension; visible DOM → local HTML |
 | UI | `product/packages/ui` | Shared components, styles and Storybook |
 | Skin core | `product/packages/osu-skin-core` | Runtime-pure classification, models and contracts |
-| Linter | `product/packages/linter` | Dependency and ownership checks |
 | Repository tools | `repo-ops` | Observation, maintenance and verification tools |
 
 Apps may import packages; packages must not import apps. Product runtime code must not import `repo-ops`. Authored content lives in the **separate** `tenzyudotcom-content` repository.
@@ -33,7 +32,6 @@ For native work: `nix develop .#skin-workbench`, then `bun nx run skin-workbench
 
 ```sh
 bun run policy:deps
-bun run verify:workspace
 bun run test:scripts
 bun nx show project web --json
 bun nx run web:check

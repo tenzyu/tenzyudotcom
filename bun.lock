@@ -88,7 +88,6 @@
         "@next/mdx": "catalog:",
         "@tailwindcss/postcss": "catalog:",
         "@tailwindcss/typography": "catalog:",
-        "@tenzyu/linter": "workspace:*",
         "@types/bun": "catalog:",
         "@types/mdx": "catalog:",
         "@types/react": "catalog:",
@@ -99,20 +98,6 @@
         "rimraf": "catalog:",
         "tailwindcss": "catalog:",
         "typescript": "catalog:",
-      },
-    },
-    "product/packages/linter": {
-      "name": "@tenzyu/linter",
-      "version": "0.1.0",
-      "bin": {
-        "tenzyu-linter": "./src/cli.ts",
-      },
-      "dependencies": {
-        "typescript": "catalog:",
-      },
-      "devDependencies": {
-        "@types/bun": "catalog:",
-        "@types/picomatch": "catalog:",
       },
     },
     "product/packages/osu-skin-core": {
@@ -1440,8 +1425,6 @@
     "@tauri-apps/plugin-dialog": ["@tauri-apps/plugin-dialog@2.7.1", "", { "dependencies": { "@tauri-apps/api": "^2.11.0" } }, "sha512-OK1UBXYt+ojcmxMktzzuyonYIFta8CmAASpX+CA+DTGK24KlHjhYI6x2iOJ/TjZF4N7/ACK1oFmEOjIY9IhzOQ=="],
 
     "@tenzyu/chatgpt-partial-html-export": ["@tenzyu/chatgpt-partial-html-export@workspace:product/apps/chatgpt-partial-html-export"],
-
-    "@tenzyu/linter": ["@tenzyu/linter@workspace:product/packages/linter"],
 
     "@tenzyu/osu-skin-core": ["@tenzyu/osu-skin-core@workspace:product/packages/osu-skin-core"],
 
