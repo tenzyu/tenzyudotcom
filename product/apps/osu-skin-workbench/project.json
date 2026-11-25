@@ -47,7 +47,8 @@
       ],
       "dependsOn": [
         "^build"
-      ]
+      ],
+      "cache": false
     },
     "build-vite": {
       "executor": "nx:run-commands",
@@ -84,7 +85,8 @@
       },
       "outputs": [
         "{projectRoot}/src-tauri/target"
-      ]
+      ],
+      "cache": false
     },
     "cargo-clippy": {
       "executor": "nx:run-commands",
@@ -94,7 +96,8 @@
       },
       "outputs": [
         "{projectRoot}/src-tauri/target"
-      ]
+      ],
+      "cache": false
     },
     "tauri-build": {
       "executor": "nx:run-commands",
@@ -108,7 +111,8 @@
       ],
       "dependsOn": [
         "^build"
-      ]
+      ],
+      "cache": false
     },
     "check": {
       "executor": "nx:run-commands",
@@ -135,7 +139,8 @@
       ],
       "dependsOn": [
         "^build"
-      ]
+      ],
+      "cache": false
     }
   }
 }

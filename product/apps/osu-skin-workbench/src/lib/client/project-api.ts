@@ -10,29 +10,8 @@ import {
   toDesktopAssetTreeDto,
   toDesktopSkinAssetDto,
 } from "@tenzyu/osu-skin-core/contract";
-import type {
-  AssetMutationResult,
-  DesktopProjectFilesResponse,
-  ExportPreset,
-  ExportResult,
-  ProjectManifest,
-  RebuildStructuredResult,
-} from "@tenzyu/osu-skin-core/contract";
-import { chooseSkinFilePath, chooseSkinFolderPath } from "../tauri/file-dialog.adapter";
-import {
-  invokeAddProjectSource,
-  invokeApplyAssetGroup,
-  invokeCreateProject,
-  invokeDeleteAssetGroup,
-  invokeDeleteProject,
-  invokeDeleteProjectSource,
-  invokeExportProject,
-  invokeGetProjectFiles,
-  invokeRebuildStructuredMirrors,
-  invokeRenameProject,
-  invokeRenameProjectSource,
-  listProjectManifests,
-} from "../tauri/project-command.adapter";
+import type { DesktopProjectFilesResponse } from "@tenzyu/osu-skin-core/contract";
+import { invokeGetProjectFiles } from "../tauri/project-command.adapter";
 
 type RawFileEntry = {
   relativePath: string;
@@ -55,36 +34,25 @@ type RawProjectFilesResponse = {
   sources: RawSourceFiles[];
 };
 
-export async function chooseSkinFile(): Promise<string | null> {
-  return chooseSkinFilePath();
-}
-
-export async function chooseSkinDirectory(): Promise<string | null> {
-  return chooseSkinFolderPath();
-}
-
-export async function chooseSkinPath(): Promise<string | null> {
-  return chooseSkinFile();
-}
-
-export async function fetchProjects(): Promise<ProjectManifest[]> {
-  return await listProjectManifests();
-}
-
-export async function createProject(input: {
-  sourcePath: string;
-  name?: string;
-}): Promise<ProjectManifest> {
-  return await invokeCreateProject(input);
-}
-
-export async function renameProject(projectId: string, name: string): Promise<ProjectManifest> {
-  return await invokeRenameProject(projectId, name);
-}
-
-export async function deleteProject(projectId: string): Promise<void> {
-  await invokeDeleteProject(projectId);
-}
+// Preserve the existing application API without a second implementation of IPC forwarding.
+export {
+  chooseSkinFilePath as chooseSkinFile,
+  chooseSkinFilePath as chooseSkinPath,
+  chooseSkinFolderPath as chooseSkinDirectory,
+} from "../tauri/file-dialog.adapter";
+export {
+  listProjectManifests as fetchProjects,
+  invokeCreateProject as createProject,
+  invokeRenameProject as renameProject,
+  invokeDeleteProject as deleteProject,
+  invokeAddProjectSource as addProjectSource,
+  invokeRenameProjectSource as renameProjectSource,
+  invokeDeleteProjectSource as deleteProjectSource,
+  invokeExportProject as exportProject,
+  invokeRebuildStructuredMirrors as rebuildStructuredMirrors,
+  invokeApplyAssetGroup as applyAssetGroup,
+  invokeDeleteAssetGroup as deleteAssetGroup,
+} from "../tauri/project-command.adapter";
 
 export async function fetchProjectFiles(projectId: string): Promise<DesktopProjectFilesResponse> {
   const raw = await invokeGetProjectFiles<RawProjectFilesResponse>(projectId);
@@ -140,54 +108,4 @@ export async function fetchProjectFiles(projectId: string): Promise<DesktopProje
     })),
     matrix: toDesktopAssetMatrixDto(matrix),
   };
-}
-
-export async function addProjectSource(input: {
-  projectId: string;
-  sourcePath: string;
-  name?: string;
-}): Promise<ProjectManifest> {
-  return await invokeAddProjectSource(input);
-}
-
-export async function renameProjectSource(input: {
-  projectId: string;
-  sourceId: string;
-  name: string;
-}): Promise<ProjectManifest> {
-  return await invokeRenameProjectSource(input);
-}
-
-export async function deleteProjectSource(input: {
-  projectId: string;
-  sourceId: string;
-}): Promise<ProjectManifest> {
-  return await invokeDeleteProjectSource(input);
-}
-
-export async function exportProject(input: {
-  projectId: string;
-  preset: ExportPreset;
-}): Promise<ExportResult> {
-  return await invokeExportProject(input);
-}
-
-export async function rebuildStructuredMirrors(projectId: string): Promise<RebuildStructuredResult> {
-  return await invokeRebuildStructuredMirrors(projectId);
-}
-
-export async function applyAssetGroup(input: {
-  projectId: string;
-  sourceId: string;
-  sourcePaths: string[];
-  replaceProjectPaths: string[];
-}): Promise<AssetMutationResult> {
-  return await invokeApplyAssetGroup(input);
-}
-
-export async function deleteAssetGroup(input: {
-  projectId: string;
-  projectPaths: string[];
-}): Promise<AssetMutationResult> {
-  return await invokeDeleteAssetGroup(input);
 }

@@ -37,11 +37,12 @@
       "executor": "nx:run-commands",
       "options": {
         "cwd": "product/packages/osu-skin-core",
-        "command": "bun run build && bun run package-smoke"
+        "command": "bun run package-smoke"
       },
-      "outputs": [
-        "{projectRoot}/dist"
-      ]
+      "dependsOn": [
+        "build"
+      ],
+      "cache": false
     },
     "check": {
       "executor": "nx:run-commands",
