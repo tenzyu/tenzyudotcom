@@ -20,6 +20,7 @@ export default defineConfig({
     command: 'node repo-ops/acceptance/start-editor-browser-server.mjs',
     url: baseURL + '/en/editor/login',
     reuseExistingServer: false,
+    gracefulShutdown: { signal: 'SIGTERM', timeout: 8000 },
     timeout: 360_000,
     env: { PLAYWRIGHT_OUTPUT_DIR: output, PLAYWRIGHT_EDITOR_PORT: '4175', EDITOR_BROWSER_PRODUCTION: '1', EDITOR_FIXTURE_SEED: 'public' },
   },

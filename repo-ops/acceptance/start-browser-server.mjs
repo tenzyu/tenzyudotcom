@@ -1,4 +1,4 @@
-import { spawn, spawnSync } from "node:child_process";
+import { spawn } from "node:child_process";
 import { mkdirSync, openSync } from "node:fs";
 import { resolve } from "node:path";
 import { publicBrowserEnvironment } from "./browser-environment.mjs";
@@ -13,15 +13,6 @@ const evidenceDir = externalEvidencePath(
 mkdirSync(evidenceDir, { recursive: true, mode: 0o700 });
 const log = openSync(`${evidenceDir}/web-server.log`, "w", 0o600);
 const env = publicBrowserEnvironment();
-const build = spawnSync("bun", ["--no-env-file", "nx", "run", "ui:build"], {
-	cwd: repositoryRoot,
-	env,
-	stdio: ["ignore", log, log],
-});
-if (build.error) throw build.error;
-if (build.status !== 0) {
-	throw new Error(`UI dependency build exited ${build.status}`);
-}
 
 const child = spawn(
 	"bun",
