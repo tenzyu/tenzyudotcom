@@ -9,7 +9,6 @@ import {
   Item,
   ItemContent,
   ItemDescription,
-  ItemGroup,
   ItemMedia,
   ItemTitle,
 } from '@tenzyu/ui/item'
@@ -57,16 +56,15 @@ export async function LinkTreePageContent() {
                 <nav
                   aria-label={`${group.label} ${linksContent.aria.groupLabelSuffix.value}`}
                 >
-                  <ItemGroup className="xs:grid-cols-2 grid grid-cols-1 gap-4 p-0 sm:grid-cols-3">
+                  <ul className="xs:grid-cols-2 grid grid-cols-1 gap-4 p-0 sm:grid-cols-3 list-none">
                     {group.links.map((link) => (
                       <LinkTile
                         key={link.shortenUrl}
                         link={link}
                         locale={locale || 'ja'}
-                        visitPrefix={linksContent.aria.visitPrefix.value}
                       />
                     ))}
-                  </ItemGroup>
+                  </ul>
                 </nav>
               </section>
             ),
@@ -92,14 +90,12 @@ function LinkIcon({ icon, alt }: { icon: string; alt: string }) {
 function LinkTile({
   link,
   locale,
-  visitPrefix,
 }: {
   link: MyLink
   locale: string
-  visitPrefix: string
 }) {
   return (
-    <div role="listitem" className="relative">
+    <li className="relative">
       <div className="absolute top-2 right-2 z-10">
         <LinkControls locale={locale} shortCode={link.shortenUrl} />
       </div>
@@ -111,7 +107,6 @@ function LinkTile({
             href={getLocalizedUrl(`/links/${link.shortenUrl}`, locale)}
             target="_blank"
             rel="noopener noreferrer"
-            aria-label={`${link.name} ${link.id} — ${visitPrefix}`}
           >
             <ItemMedia variant="icon" className="dark:bg-secondary-foreground">
               <LinkIcon icon={link.icon} alt="" />
@@ -126,6 +121,6 @@ function LinkTile({
           </Link>
         }
       ></Item>
-    </div>
+    </li>
   )
 }
