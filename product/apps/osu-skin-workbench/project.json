@@ -34,7 +34,12 @@
       "dependsOn": [
         "check"
       ],
-      "cache": false
+      "cache": false,
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "product/apps/osu-skin-workbench",
+        "command": "bun run tauri:build --config '{\"build\":{\"beforeBuildCommand\":null}}'"
+      }
     },
     "build-vite": {
       "executor": "nx:run-commands",
@@ -83,17 +88,9 @@
       "cache": false
     },
     "tauri-build": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "product/apps/osu-skin-workbench",
-        "command": "bun run tauri:build"
-      },
-      "outputs": [
-        "{projectRoot}/src-tauri/target",
-        "{projectRoot}/dist"
-      ],
+      "executor": "nx:noop",
       "dependsOn": [
-        "^build"
+        "build"
       ],
       "cache": false
     },
