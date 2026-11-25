@@ -1,0 +1,112 @@
+name: Phase 2 isolated investigation
+on:
+  pull_request:
+    branches: [develop]
+permissions:
+  contents: read
+jobs:
+  caller-inventory:
+    if: github.head_ref == 'probe/phase-2-resolution'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Record baseline paths and candidate callers (filenames only)
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          out="$RUNNER_TEMP/phase-2-inventory"
+          mkdir "$out"
+          git rev-parse HEAD HEAD^{tree} > "$out/revision.txt"
+          git ls-files repo-ops > "$out/paths.txt"
+          test "$(wc -l < "$out/paths.txt")" -eq 43
+          while IFS= read -r path; do
+            printf '%s\t%s\n' "$path" "$(git cat-file -s "HEAD:$path")" >> "$out/sizes.tsv"
+            set +e
+            git grep --cached -I -l -F -e "$path" -e "${path##*/}" -- . ':(exclude,glob)**/.env*' ':(exclude,glob)**/.env*/**' ':(exclude,glob).env*' > "$out/matches.tmp"
+            status=$?
+            set -e
+            test "$status" -le 1
+            while IFS= read -r caller; do printf '%s\t%s\n' "$path" "$caller"; done < "$out/matches.tmp" >> "$out/candidate-callers.tsv"
+          done < "$out/paths.txt"
+          rm "$out/matches.tmp"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: phase-2-caller-inventory
+          path: ${{ runner.temp }}/phase-2-inventory
+          retention-days: 7
+          if-no-files-found: error
+
+  resolve-advisories:
+    if: github.head_ref == 'probe/phase-2-resolution'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      NX_DAEMON: 'false'
+      NX_NO_CLOUD: 'true'
+      NX_TUI: 'false'
+      NX_LOAD_DOT_ENV_FILES: 'false'
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.5
+      - name: Verify and resolve the candidate with Bun (not a hand-edited lockfile)
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          out="$RUNNER_TEMP/phase-2-resolution"
+          mkdir "$out"
+          git rev-parse HEAD HEAD^{tree} > "$out/revision.txt"
+          bun --version > "$out/bun-version.txt"
+          node --input-type=module <<'JS'
+          import { readFileSync, writeFileSync } from 'node:fs';
+          const pkg = JSON.parse(readFileSync('package.json', 'utf8'));
+          for (const [name, version] of Object.entries(pkg.devDependencies)) {
+            if (name === 'nx' || name.startsWith('@nx/')) {
+              if (version !== '24.0.6') throw Error('unexpected Nx baseline: ' + name);
+              pkg.devDependencies[name] = '24.0.7';
+            }
+          }
+          pkg.overrides = {
+            ...pkg.overrides,
+            '@tailwindcss/typography': { 'postcss-selector-parser': '6.1.5' },
+            '@storybook/react-vite': { '@joshwooding/vite-plugin-react-docgen-typescript': '0.9.1' },
+          };
+          writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
+          JS
+          bun --no-env-file install --ignore-scripts
+          bun --no-env-file install --frozen-lockfile --ignore-scripts
+          git diff --check -- package.json bun.lock
+          git diff -- package.json bun.lock > "$out/resolution.patch"
+          cp package.json bun.lock "$out/"
+          for pkg in glob minimatch postcss-selector-parser; do
+            bun why "$pkg" > "$out/why-$pkg.txt"
+          done
+          set +e
+          bun audit --json > "$out/audit.json" 2> "$out/audit.stderr"
+          status=$?
+          set -e
+          printf '%s\n' "$status" > "$out/audit-exit.txt"
+          node -e 'JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8"))' "$out/audit.json"
+          bun nx graph --file="$out/project-graph.json"
+          bun run policy:deps "$out/project-graph.json"
+      - name: Verify UI declarations and Storybook with candidate
+        run: bun nx run ui:verify --skip-nx-cache
+      - name: Verify workbench frontend with candidate
+        run: bun nx run skin-workbench:build-vite --skip-nx-cache
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: phase-2-dependency-resolution
+          path: ${{ runner.temp }}/phase-2-resolution
+          if-no-files-found: error
+          retention-days: 7
