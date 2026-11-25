@@ -24,7 +24,7 @@ export function projectWorkspace(raw: RawProjectFilesResponse): DesktopProjectFi
       name: source.name,
       sourcePath: source.sourcePath,
       createdAt: source.createdAt,
-      readonly: source.readonly,
+      readonly: source.readonly ?? undefined,
       assets,
       tree: buildAssetTree(assets),
     };

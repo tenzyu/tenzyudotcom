@@ -48,7 +48,7 @@ export type RawSourceFiles = {
   name: string;
   sourcePath: string;
   createdAt: string;
-  readonly?: boolean;
+  readonly: boolean | null;
   files: RawFileEntry[];
   skinIni: string | null;
 };

@@ -64,7 +64,7 @@ jobs:
           mkdir -p product/apps/osu-skin-workbench/src-tauri/target
           SKIN_IPC_EXPORT="$PWD/product/apps/osu-skin-workbench/src-tauri/target/wire.generated.ts" cargo test --locked --manifest-path product/apps/osu-skin-workbench/src-tauri/Cargo.toml export_wire_contract
           bun nx run osu-skin-core:build
-          bun x tsc --noEmit --strict --skipLibCheck --moduleResolution bundler --module esnext --target es2022 product/apps/osu-skin-workbench/scripts/wire-contract-check.ts
+          bun x tsc --ignoreConfig --noEmit --strict --skipLibCheck --moduleResolution bundler --module esnext --target es2022 product/apps/osu-skin-workbench/scripts/wire-contract-check.ts
       - name: Verify native product and build its distributable
         run: bun nx run-many -t verify build --projects=skin-workbench --skip-nx-cache
 
