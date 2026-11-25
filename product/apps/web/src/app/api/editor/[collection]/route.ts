@@ -16,7 +16,7 @@ import { isEditorValidationError } from '@/features/content-editor/editor.valida
 import { CollectionSavePayload } from './_features/collection-save.validation'
 
 function json(body: unknown, status = 200) {
-  return json(body, {
+  return NextResponse.json(body, {
     status,
     headers: { 'Cache-Control': 'private, no-store' },
   })
@@ -28,7 +28,7 @@ export async function GET(
 ) {
   const isAdmin = await hasEditorAdminSession()
   if (!isAdmin) {
-    return NextResponse.json({ error: 'Unauthorized' }, 401)
+    return json({ error: 'Unauthorized' }, 401)
   }
 
   const { collection } = await params
@@ -41,8 +41,7 @@ export async function GET(
     return json(state)
   } catch (error) {
     console.error('Failed to load collection:', error)
-    return NextResponse.json(
-      { error: 'Failed to load collection' }, 500)
+    return json({ error: 'Failed to load collection' }, 500)
   }
 }
 
@@ -80,7 +79,7 @@ export async function PUT(
     return json(result)
   } catch (error) {
     if (isEditorValidationError(error)) {
-      return NextResponse.json({ error: 'Invalid payload' }, 400)
+      return json({ error: 'Invalid payload' }, 400)
     }
     if (error instanceof StorageVersionConflictError) {
       return json({ error: 'conflict' }, 409)
