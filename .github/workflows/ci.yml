@@ -96,9 +96,8 @@ jobs:
           bun x tsc --ignoreConfig --noEmit --strict --skipLibCheck --moduleResolution bundler --module esnext --target es2022 product/apps/osu-skin-workbench/scripts/wire-contract-check.ts
       - name: Verify native product and build its distributable
         run: bun nx run-many -t verify build --projects=skin-workbench --skip-nx-cache
-      - name: Install pinned Tauri WebDriver
+      - name: Record native WebKit driver version
         run: |
-          cargo install tauri-driver --version 2.1.0 --locked
           command -v WebKitWebDriver
           dpkg-query -W webkit2gtk-driver libwebkit2gtk-4.1-0
       - name: Verify native WebView and real IPC with isolated skin data
