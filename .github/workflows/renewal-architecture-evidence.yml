@@ -67,6 +67,15 @@ jobs:
               { git rev-parse HEAD HEAD^{tree}; sha256sum bun.lock package.json nx.json; } > "$out/revision.txt"
               git ls-files repo-ops > "$out/repo-ops-paths.txt"
               while IFS= read -r path; do printf '%s\t%s\n' "$path" "$(git cat-file -s "HEAD:$path")"; done < "$out/repo-ops-paths.txt" > "$out/repo-ops-sizes.tsv"
+              # Candidate callers only: review literal matches for actual invocation edges.
+              while IFS= read -r path; do
+                set +e
+                git grep -I -l -F -e "$path" -e "${path##*/}" HEAD -- . ':(exclude,glob)**/.env*' ':(exclude,glob)**/.env*/**' |
+                  while IFS= read -r caller; do printf '%s\t%s\n' "$path" "${caller#HEAD:}"; done
+                status=${PIPESTATUS[0]}
+                set -e
+                [[ "$status" = 0 || "$status" = 1 ]]
+              done < "$out/repo-ops-paths.txt" > "$out/repo-ops-callers.tsv"
               git ls-files -z | du --files0-from=- -b --total | tail -1 > "$out/tracked-bytes.txt"
             )
           done
