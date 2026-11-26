@@ -52,29 +52,37 @@ for (const locale of ['ja', 'en'] as const) {
   test('settings groups have native names in both eras: ' + locale, async ({ page }) => {
     await page.goto(locale === 'en' ? '/en/osu' : '/osu');
     const tablist = page.getByRole('tablist', { name: locale === 'en' ? 'Settings era' : '設定の年代' });
-    const current = tablist.getByRole('tab', { name: locale === 'en' ? 'From 2026' : '2026年から' });
-    const historical = tablist.getByRole('tab', { name: locale === 'en' ? 'Until 2025' : '2025年まで' });
-    const panel = page.getByRole('tabpanel');
-    async function assertSettingsNames() {
+    const currentName = locale === 'en' ? 'From 2026' : '2026年から';
+    const historicalName = locale === 'en' ? 'Until 2025' : '2025年まで';
+    const current = tablist.getByRole('tab', { name: currentName, exact: true });
+    const historical = tablist.getByRole('tab', { name: historicalName, exact: true });
+    async function assertSettingsNames(tabName: string) {
+      // Bind the query to the selected tab's accessible panel, not any
+      // panel that may still exist during a WebKit transition.
+      const panel = page.getByRole('tabpanel', { name: tabName, exact: true });
+      await expect(panel).toBeVisible();
       const legends = panel.locator('fieldset > legend');
-      expect(await legends.count()).toBeGreaterThan(1);
-      for (const legend of await legends.all()) {
-        await expect(legend.locator('..')).toHaveAccessibleName((await legend.innerText()).trim());
+      await expect.poll(() => legends.count()).toBeGreaterThan(1);
+      const names = (await legends.allTextContents()).map(name => name.trim());
+      expect(names.length).toBeGreaterThan(1);
+      for (const name of new Set(names)) {
+        expect(name).not.toBe('');
+        await expect(panel.getByRole('group', { name, exact: true })).toHaveCount(names.filter(value => value === name).length);
       }
       expect(await panel.getByRole('group', { name: locale === 'en' ? 'Name:' : '名前:', exact: true }).count()).toBeGreaterThan(1);
       await expect(panel.locator('[id^="settings-label-"], [aria-labelledby^="settings-label-"]')).toHaveCount(0);
     }
     await expect(current).toHaveAttribute('aria-selected', 'true');
-    await assertSettingsNames();
+    await assertSettingsNames(currentName);
     await current.press('ArrowLeft');
     await expect(historical).toBeFocused();
     await historical.press('Enter');
     await expect(historical).toHaveAttribute('aria-selected', 'true');
-    await assertSettingsNames();
+    await assertSettingsNames(historicalName);
     await historical.press('ArrowRight');
     await expect(current).toBeFocused();
     await current.press('Enter');
     await expect(current).toHaveAttribute('aria-selected', 'true');
-    await assertSettingsNames();
+    await assertSettingsNames(currentName);
   });
 }
