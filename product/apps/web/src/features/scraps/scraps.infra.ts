@@ -8,13 +8,10 @@ import {
 import { githubContentRepository } from '@/platform/content-store/github-content.infra'
 import { SCRAPS_INDEX_PATHNAME } from '@/config/content-cache'
 import {
-  CONTENT_LOCALES,
-  type ContentLocale,
   type LocalizedDocumentRef,
   type ScrapEntryMeta,
   type ScrapIndexProjection,
   type ScrapManifest,
-  buildLocalizedEntryPathname,
   compareScrapsByUpdatedAtDesc,
   getScrapStoragePaths,
   isValidScrapEntryId,
@@ -138,16 +135,6 @@ export async function loadScrapMdxDocument(
   }
 }
 
-export async function loadScrapEntryDocuments(
-  meta: ScrapEntryMeta,
-  snapshot: ContentSnapshot,
-): Promise<LoadedScrapDocument[]> {
-  const documents = await Promise.all(
-    meta.documents.map(async (ref) => loadScrapMdxDocument(ref, snapshot)),
-  )
-  return documents.filter((doc): doc is LoadedScrapDocument => doc !== null)
-}
-
 async function listManifestPathnames() {
   const repo = getScrapsRepository()
   const all = await repo.list(SCRAPS_PREFIX)
@@ -208,72 +195,4 @@ export function removeFromScrapIndexProjection(
   slug: string,
 ): ScrapIndexProjection {
   return projection.filter((entry) => entry.slug !== slug)
-}
-
-export async function saveScrapManifest(manifest: ScrapManifest) {
-  const repo = getScrapsRepository()
-  const validated = parseScrapManifest(manifest)
-  const paths = getScrapStoragePaths(validated.slug)
-  await repo.saveJson(paths.manifest, validated, {
-    message: `Update scrap manifest: ${validated.slug}`,
-  })
-}
-
-export async function saveScrapLeadDocument(
-  slug: string,
-  ref: LocalizedDocumentRef,
-  source: string,
-) {
-  assertSlug(slug)
-  if (!CONTENT_LOCALES.includes(ref.locale)) {
-    throw new StorageError(`Unsupported content locale: ${ref.locale}`)
-  }
-  const repo = getScrapsRepository()
-  const expectedPath = getScrapStoragePaths(slug).lead(ref.locale)
-  if (ref.pathname !== expectedPath) {
-    throw new StorageError(
-      `Lead pathname mismatch: expected ${expectedPath}, got ${ref.pathname}`,
-    )
-  }
-  await repo.saveText(ref.pathname, source, {
-    message: `Update scrap lead: ${slug} (${ref.locale})`,
-  })
-}
-
-export async function saveScrapEntryMeta(meta: ScrapEntryMeta) {
-  const repo = getScrapsRepository()
-  const validated = parseScrapEntryMeta(meta)
-  const paths = getScrapStoragePaths(validated.scrapSlug)
-  await repo.saveJson(paths.entryMeta(validated.id), validated, {
-    message: `Update scrap entry meta: ${validated.scrapSlug}/${validated.id}`,
-  })
-}
-
-export async function saveScrapEntryDocument(
-  slug: string,
-  entryId: string,
-  locale: ContentLocale,
-  source: string,
-) {
-  assertSlug(slug)
-  assertEntryId(entryId)
-  const repo = getScrapsRepository()
-  const pathname = buildLocalizedEntryPathname(slug, entryId, locale)
-  await repo.saveText(pathname, source, {
-    message: `Update scrap entry: ${slug}/${entryId} (${locale})`,
-  })
-  return { pathname }
-}
-
-export async function deleteScrapEntryDocuments(meta: ScrapEntryMeta) {
-  const repo = getScrapsRepository()
-  for (const ref of meta.documents) {
-    await repo.delete(ref.pathname, {
-      message: `Delete scrap entry document: ${ref.pathname}`,
-    })
-  }
-  const paths = getScrapStoragePaths(meta.scrapSlug)
-  await repo.delete(paths.entryMeta(meta.id), {
-    message: `Delete scrap entry meta: ${meta.scrapSlug}/${meta.id}`,
-  })
 }
