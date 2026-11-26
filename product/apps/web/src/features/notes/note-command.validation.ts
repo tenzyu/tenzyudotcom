@@ -3,8 +3,6 @@ import { DocumentBaseSchema } from '@/platform/content-store/json-item-command.v
 
 import { NoteBodySchema } from '@tenzyu/publishing-domain/notes'
 
-export { NoteBodySchema } from '@tenzyu/publishing-domain/notes'
-
 const NoteId = z.string().regex(/^\d+$/)
 const NoteFields = z.object({
   body: NoteBodySchema,
