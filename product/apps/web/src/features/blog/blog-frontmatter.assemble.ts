@@ -1,5 +1,52 @@
-import { parseFrontmatterBase } from './frontmatter.assemble'
 import type { BlogFrontmatter } from '@tenzyu/publishing-domain/blog'
+
+type RawFrontmatter = Record<string, unknown>
+
+const isRecord = (value: unknown): value is RawFrontmatter =>
+  typeof value === 'object' && value !== null && !Array.isArray(value)
+
+const readRequiredString = (value: unknown, name: string, filePath: string) => {
+  if (typeof value !== 'string' || value.length === 0) {
+    throw new Error(
+      `${filePath}: frontmatter "${name}" must be a non-empty string`,
+    )
+  }
+
+  return value
+}
+
+const readOptionalString = (value: unknown, name: string, filePath: string) => {
+  if (value == null) {
+    return undefined
+  }
+
+  return readRequiredString(value, name, filePath)
+}
+
+const parseDateLike = (value: unknown) =>
+  value instanceof Date
+    ? value
+    : typeof value === 'string'
+      ? new Date(value)
+      : null
+
+const readRequiredDate = (value: unknown, name: string, filePath: string) => {
+  const parsed = parseDateLike(value)
+
+  if (!(parsed instanceof Date) || Number.isNaN(parsed.getTime())) {
+    throw new Error(`${filePath}: frontmatter "${name}" must be a valid date`)
+  }
+
+  return parsed
+}
+
+const readOptionalDate = (value: unknown, name: string, filePath: string) => {
+  if (value == null) {
+    return undefined
+  }
+
+  return readRequiredDate(value, name, filePath)
+}
 
 function parseTags(value: unknown, filePath: string) {
   if (value == null) {
@@ -29,25 +76,39 @@ export function parseBlogFrontmatter(
   value: unknown,
   filePath: string,
 ): BlogFrontmatter {
-  const metadata = parseFrontmatterBase(value, filePath)
+  if (!isRecord(value)) {
+    throw new Error(`${filePath}: frontmatter must be an object`)
+  }
+
+  const title = readRequiredString(value.title, 'title', filePath)
+  const summary = readRequiredString(value.summary, 'summary', filePath)
+  const image = readOptionalString(value.image, 'image', filePath)
+  const publishedAt = readRequiredDate(
+    value.publishedAt,
+    'publishedAt',
+    filePath,
+  )
+  const updatedAt = readOptionalDate(value.updatedAt, 'updatedAt', filePath)
+
+  const rawTags = Object.entries(value).find(([key]) => key === 'tags')?.[1]
 
   if (
-    metadata.updatedAt &&
-    metadata.updatedAt.getTime() < metadata.publishedAt.getTime()
+    updatedAt &&
+    updatedAt.getTime() < publishedAt.getTime()
   ) {
     throw new Error(
       `${filePath}: frontmatter "updatedAt" must not be earlier than "publishedAt"`,
     )
   }
 
-  const tags = parseTags(metadata.rest.tags, filePath)
+  const tags = parseTags(rawTags, filePath)
 
   return {
-    title: metadata.title,
-    summary: metadata.summary,
-    image: metadata.image,
-    publishedAt: metadata.publishedAt,
-    updatedAt: metadata.updatedAt,
+    title,
+    summary,
+    image,
+    publishedAt,
+    updatedAt,
     tags,
   }
 }
