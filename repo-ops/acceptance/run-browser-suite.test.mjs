@@ -14,8 +14,10 @@ test('browser checkout lease rejects collisions and releases after cancellation'
   const bin = join(dir, 'bin');
   mkdirSync(join(checkout, 'repo-ops/acceptance'), { recursive: true });
   mkdirSync(join(checkout, 'repo-ops/evidence'), { recursive: true });
+  mkdirSync(join(checkout, 'repo-ops/operations'), { recursive: true });
   mkdirSync(bin);
   cpSync(new URL('./run-browser-suite.mjs', import.meta.url), join(checkout, 'repo-ops/acceptance/run-browser-suite.mjs'));
+  cpSync(new URL('../operations/owned-process-group.mjs', import.meta.url), join(checkout, 'repo-ops/operations/owned-process-group.mjs'));
   cpSync(new URL('../evidence/external-evidence-path.mjs', import.meta.url), join(checkout, 'repo-ops/evidence/external-evidence-path.mjs'));
   writeFileSync(join(bin, 'bun'), '#!/bin/sh\nif [ "${LEASE_FAST:-}" = 1 ]; then exit 0; fi\necho $$ > "$PLAYWRIGHT_OUTPUT_DIR/leader"\nsleep 60 &\necho $! > "$PLAYWRIGHT_OUTPUT_DIR/descendant"\nwait\n', { mode: 0o700 });
   const env = { ...process.env, PATH: bin + ':' + process.env.PATH, PLAYWRIGHT_OUTPUT_DIR: output };

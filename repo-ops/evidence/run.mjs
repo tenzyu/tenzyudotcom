@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto';
 import { createReadStream, mkdirSync, openSync, closeSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { parseArgs } from 'node:util';
+import { drainOwnedProcessGroup, signalOwnedGroup } from '../operations/owned-process-group.mjs';
 import { externalEvidencePath } from './external-evidence-path.mjs';
 
 // Keep raw output private and outside Git. No application credentials are inherited.
@@ -34,8 +35,7 @@ let interrupted;
 let spawnError;
 let escalation;
 const killGroup = (signal) => {
-  if (!child.pid) return;
-  try { process.kill(-child.pid, signal); } catch (error) { if (error.code !== 'ESRCH') throw error; }
+  signalOwnedGroup(child.pid, signal);
 };
 const timer = setTimeout(() => {
   timedOut = true;
@@ -52,20 +52,20 @@ child.on('close', async (exitCode, signal) => {
   clearTimeout(timer);
   clearTimeout(escalation);
   // Also stop background descendants of an otherwise successful leader before hashing.
-  killGroup('SIGTERM');
-  await new Promise((r) => setTimeout(r, 300));
-  killGroup('SIGKILL');
+  let cleanupError;
+  try { await drainOwnedProcessGroup(child.pid); }
+  catch (error) { cleanupError = String(error); }
   closeSync(log);
   const hash = createHash('sha256');
   for await (const chunk of createReadStream(logPath)) hash.update(chunk);
   const result = {
     schemaVersion: 1, cwd, command: positionals, startedAt,
     durationMs: Math.round(performance.now() - start),
-    status: interrupted ? 'cancelled' : timedOut ? 'timeout' : spawnError ? 'not-run' : exitCode === 0 ? 'passed' : 'failed',
-    exitCode, signal, spawnError, logSha256: hash.digest('hex'),
+    status: interrupted ? 'cancelled' : timedOut ? 'timeout' : spawnError ? 'not-run' : exitCode === 0 && !cleanupError ? 'passed' : 'failed',
+    exitCode, signal, spawnError, cleanupError, logSha256: hash.digest('hex'),
     environment: 'allowlisted; application .env files must be excluded from the evaluation copy',
   };
   writeFileSync(`${out}/result.json`, `${JSON.stringify(result, null, 2)}\n`, { mode: 0o600, flag: 'wx' });
   console.log(JSON.stringify(result));
-  process.exitCode = interrupted ? (interrupted === 'SIGINT' ? 130 : 143) : timedOut ? 124 : spawnError ? 127 : exitCode ?? 1;
+  process.exitCode = interrupted ? (interrupted === 'SIGINT' ? 130 : 143) : timedOut ? 124 : spawnError ? 127 : cleanupError ? 1 : exitCode ?? 1;
 });

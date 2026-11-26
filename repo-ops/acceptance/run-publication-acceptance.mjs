@@ -14,6 +14,7 @@ import { pathToFileURL } from 'node:url';
 import { parseArgs } from 'node:util';
 import { chromium } from '@playwright/test';
 import { publicBrowserEnvironment } from './browser-environment.mjs';
+import { drainOwnedProcessGroup } from '../operations/owned-process-group.mjs';
 import { externalEvidencePath } from '../evidence/external-evidence-path.mjs';
 import { initGitContentFixture } from './git-content-fixture.mjs';
 import { archivePublicationCheckout, gitRevision } from './publication-checkout.mjs';
@@ -83,8 +84,13 @@ async function run(command, args, cwd, environment, label) {
   try {
     building = spawn(command, args, { cwd, env: environment, stdio: ['ignore', log, log], detached: true });
   } finally { closeSync(log); }
-  const [status] = await once(building, 'exit');
-  building = undefined;
+  const child = building;
+  let status;
+  try { [status] = await once(child, 'exit'); }
+  finally {
+    await drainOwnedProcessGroup(child.pid);
+    building = undefined;
+  }
   if (status !== 0 && (label === 'next-build' || label === 'ui-build'))
     console.error(readFileSync(logPath, 'utf8').slice(-24000));
   assert.equal(status, 0, `${label} exited ${status}. See ${logPath}`);
@@ -123,16 +129,10 @@ async function start(label) {
 
 async function terminate(child) {
   if (!child?.pid) return;
-  const signalGroup = signal => {
-    try { process.kill(-child.pid, signal); }
-    catch (error) { if (error.code !== 'ESRCH') throw error; }
-  };
   const exited = child.exitCode !== null || child.signalCode !== null
-    ? Promise.resolve() : once(child, 'exit').catch(() => {});
-  signalGroup('SIGTERM');
-  const timeout = setTimeout(() => signalGroup('SIGKILL'), 5000);
-  try { await exited; }
-  finally { clearTimeout(timeout); signalGroup('SIGKILL'); }
+    ? Promise.resolve() : once(child, 'exit');
+  await drainOwnedProcessGroup(child.pid);
+  await exited;
 }
 async function stop() {
   await terminate(server);
@@ -142,8 +142,9 @@ for (const signal of ['SIGINT', 'SIGTERM']) {
   process.once(signal, async () => {
     if (interrupted) return;
     interrupted = true;
-    await Promise.allSettled([terminate(building), stop()]);
-    writeFileSync(join(evidence, 'interrupted.json'), serialize({ signal, requests: metrics, revisions }));
+    const cleanup = await Promise.allSettled([terminate(building), stop()]);
+    const cleanupErrors = cleanup.filter(result => result.status === 'rejected').map(result => String(result.reason));
+    writeFileSync(join(evidence, 'interrupted.json'), serialize({ signal, cleanupErrors, requests: metrics, revisions }));
     // Keep the interrupted checkout for diagnosis; do not race cleanup with an active browser.
     process.exit(signal === 'SIGINT' ? 130 : 143);
   });
@@ -335,9 +336,12 @@ try {
   else await productionAcceptance();
   console.log(`Publication ${baseline ? 'control' : 'acceptance'} passed on ${code}, build ${buildId}`);
 } finally {
-  await stop();
-  writeFileSync(join(evidence, 'results.json'), serialize({ code, tree: candidate.tree, harness, buildSeed, buildId, revisions, requests: metrics }));
-  if (!interrupted) rmSync(checkout, { recursive: true, force: true });
+  let cleanupError;
+  try { await stop(); }
+  catch (error) { cleanupError = error; }
+  writeFileSync(join(evidence, 'results.json'), serialize({ code, tree: candidate.tree, harness, buildSeed, buildId, revisions, requests: metrics, ...(cleanupError && { cleanupError: String(cleanupError) }) }));
+  if (!interrupted && !cleanupError) rmSync(checkout, { recursive: true, force: true });
+  if (cleanupError) throw cleanupError;
 }
 
 function readIndex(revision = git.head()) {

@@ -37,7 +37,7 @@
     "nx": "nx",
     "graph": "nx graph",
     "policy:deps": "bun repo-ops/policy/check-dependency-policy.ts",
-    "test:scripts": "bun test repo-ops/policy/check-dependency-policy.test.ts repo-ops/scripts/docs-rename.test.ts repo-ops/scripts/migrate-notes-threading.test.ts && node --test repo-ops/acceptance/run-browser-suite.test.mjs repo-ops/acceptance/publication-checkout.test.mjs repo-ops/evidence/external-evidence-path.test.mjs repo-ops/evidence/run.test.mjs repo-ops/evidence/audit-status.test.mjs repo-ops/acceptance/editor-github-preload.test.mjs repo-ops/preview/readonly-preview-gate.test.mjs && python3 repo-ops/evidence/sanitize-evidence.test.py",
+    "test:scripts": "bun test repo-ops/policy/check-dependency-policy.test.ts repo-ops/scripts/docs-rename.test.ts repo-ops/scripts/migrate-notes-threading.test.ts && node --test repo-ops/operations/owned-process-group.test.mjs repo-ops/acceptance/run-browser-suite.test.mjs repo-ops/acceptance/publication-checkout.test.mjs repo-ops/evidence/external-evidence-path.test.mjs repo-ops/evidence/run.test.mjs repo-ops/evidence/audit-status.test.mjs repo-ops/acceptance/editor-github-preload.test.mjs repo-ops/preview/readonly-preview-gate.test.mjs && python3 repo-ops/evidence/sanitize-evidence.test.py",
     "test:browser": "node repo-ops/acceptance/run-browser-suite.mjs public",
     "test:browser:editor": "node repo-ops/acceptance/run-browser-suite.mjs editor",
     "docs-rename": "bun repo-ops/scripts/docs-rename.ts",
