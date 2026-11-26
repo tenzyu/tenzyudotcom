@@ -5,9 +5,15 @@ import { proxy } from './proxy'
 describe('locale proxy', () => {
   test('does not rewrite locale roots to a trailing slash that redirects back', async () => {
     const response = await proxy(new NextRequest('https://example.com/en'))
-    expect(response.headers.get('x-middleware-rewrite')).toBe(
-      'https://example.com/en',
-    )
+    expect(response.status).toBe(200)
+    expect(response.headers.get('location')).toBeNull()
+    const rewrite = response.headers.get('x-middleware-rewrite')
+    if (rewrite === null) {
+      // Intlayer 9 can pass an already canonical locale route through unchanged.
+      expect(response.headers.get('x-middleware-next')).toBe('1')
+    } else {
+      expect(rewrite).toBe('https://example.com/en')
+    }
   })
 
   test('rewrites the default locale internally without changing the public route', async () => {

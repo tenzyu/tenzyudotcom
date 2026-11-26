@@ -7,7 +7,6 @@ import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { defineConfig } from 'vite'
-import dts from 'vite-plugin-dts'
 
 const projectRoot = import.meta.dirname
 const srcRoot = path.resolve(projectRoot, 'src')
@@ -44,13 +43,6 @@ export default defineConfig(() => ({
     tailwindcss(),
     nxViteTsPaths(),
     nxCopyAssetsPlugin(['*.md']),
-    process.env.STORYBOOK !== 'true' && dts({
-      entryRoot: 'src',
-      outDirs: [outDir],
-      tsconfigPath: path.join(projectRoot, 'tsconfig.lib.json'),
-      pathsToAliases: false,
-      exclude: ['**/*.test.*', '**/*.spec.*', '**/*.stories.*'],
-    }),
   ],
   // Configuration for building your library.
   // See: https://vite.dev/guide/build.html#library-mode

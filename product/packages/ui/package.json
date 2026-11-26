@@ -241,7 +241,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && tsc -p tsconfig.lib.json --noEmit false --declaration --emitDeclarationOnly --noEmitOnError --rootDir . --outDir dist",
     "lint": "eslint . --ignore-pattern storybook-static",
     "format": "prettier --write \"**/*.{ts,tsx}\"",
     "test": "vitest run",

@@ -120,17 +120,6 @@
 				"buildDepsTargetName": "build-deps",
 				"watchDepsTargetName": "watch-deps"
 			}
-		},
-		{
-			"plugin": "@nx/storybook/plugin",
-			"options": {
-				"serveStorybookTargetName": "serve:storybook",
-				"buildStorybookTargetName": "storybook:build",
-				"testStorybookTargetName": "test-storybook",
-				"staticStorybookTargetName": "static-storybook",
-				"buildDepsTargetName": "storybook:build-deps",
-				"watchDepsTargetName": "storybook:watch-deps"
-			}
 		}
 	],
 	"analytics": false,

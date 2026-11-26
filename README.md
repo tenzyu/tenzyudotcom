@@ -1,6 +1,8 @@
 # tenzyudotcom
 
-The [tenzyu.com](https://tenzyu.com) monorepo: a Next.js 16 personal website, a Tauri/Rust osu! skin workbench, a personal Firefox conversation exporter, and shared TypeScript packages. Toolchain: **Bun 1.3.10 (package declaration), Nx 22, Node.js 22, Nix devShells**.
+The [tenzyu.com](https://tenzyu.com) monorepo: a Next.js 16 personal website, a Tauri/Rust osu! skin workbench, a personal Firefox conversation exporter, and shared TypeScript packages. Toolchain: **Bun 1.4.5 (package declaration), Nx 24, TypeScript 7.0.2, Node.js 22, Nix devShells**.
+
+TypeScript 7 runs the native `tsc` executable (`@typescript/native`). The official `@typescript/typescript6` compatibility alias supplies the JavaScript compiler API for Nx, declaration generation and framework tooling. `@typescript/old` is pinned explicitly to avoid Bun resolving the compatibility package to itself. CI verifies both paths; this is not a compiler downgrade.
 
 ## Workspace
 
