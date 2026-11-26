@@ -1,5 +1,5 @@
 import { githubContentRepository } from '@/platform/content-store/github-content.infra'
-import { compareBlogPostsByPublishedAtDesc, type MDXData } from './blog.domain'
+import { compareBlogPostsByPublishedAtDesc, type MDXData } from '@tenzyu/publishing-domain/blog'
 import { parseBlogFrontmatter } from './blog-frontmatter.assemble'
 import {
   loadBlogCatalog,

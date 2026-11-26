@@ -37,9 +37,9 @@ export function NoteFeedItem({
             <Link
               href={note.sharePath}
               aria-current={focused ? 'page' : undefined}
-              aria-label={ja ? 'ノートの固定リンク' : 'Note permalink'}
               className="text-muted-foreground underline-offset-4 hover:underline"
             >
+              <span className="sr-only">{ja ? 'ノートの固定リンク: ' : 'Note permalink: '}</span>
               <NoteRelativeTime createdAt={note.createdAt} locale={locale} />
             </Link>
           </div>

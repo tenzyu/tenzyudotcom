@@ -51,7 +51,6 @@ export function AboutMeSection() {
                   render={
                     <ExternalLink
                       href={link.url}
-                      aria-label={linkContent.ariaLabel.value}
                     >
                       {linkContent.label} &rarr;
                     </ExternalLink>

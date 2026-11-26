@@ -1,5 +1,5 @@
 import { useIntlayer } from 'next-intlayer/server'
-import type { NoteSourceEntry } from '../notes.domain'
+import type { NoteSourceEntry } from '@tenzyu/publishing-domain/notes'
 import { EDITOR_ADMIN_LOCALE } from '@/features/content-editor/editor-admin.constants'
 import { NotesEditorClient } from './notes-editor-client'
 

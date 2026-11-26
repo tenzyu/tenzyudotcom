@@ -8,7 +8,7 @@ import {
   projectScrapIndexEntry,
   type ScrapIndexProjection,
   type ScrapManifest,
-} from '@/features/scraps/scraps.domain'
+} from '@tenzyu/publishing-domain/scraps'
 
 function makeManifest(overrides: Partial<ScrapManifest> = {}): ScrapManifest {
   return {

@@ -3,131 +3,105 @@ name: CI
 on:
   pull_request:
   push:
-    branches:
-      - main
-      - develop
+    branches: [main, develop]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  verify:
+  workspace:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
+    env:
+      NX_DAEMON: 'false'
+      NX_NO_CLOUD: 'true'
+      NX_TUI: 'false'
     steps:
-      - name: Checkout
-        uses: actions/checkout@v5
+      - uses: actions/checkout@v5
         with:
-          fetch-depth: 0
           persist-credentials: false
-
-      - name: Install Bun
-        uses: oven-sh/setup-bun@v2
+      - uses: oven-sh/setup-bun@v2
         with:
-          bun-version: 1.3.10
-
-      - name: Install Tauri Linux dependencies
+          bun-version: 1.4.5
+      - run: bun install --frozen-lockfile
+      - name: Verify native TypeScript 7 and legacy compiler API coexist
         run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            libwebkit2gtk-4.1-dev \
-            libgtk-3-dev \
-            libayatana-appindicator3-dev \
-            librsvg2-dev \
-            patchelf \
-            pkg-config
-
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
-
-      # Biome comes from the Nix devShell locally, but CI does not enter that shell.
-      - name: Set up Biome
-        uses: biomejs/setup-biome@4c91541eaada48f67d7dbd7833600ce162b68f51 # v2.7.1
+          test "$(bun x --no-install tsc --version)" = 'Version 7.0.2'
+          node -e 'const ts = require("typescript"); if (typeof ts.readConfigFile !== "function" || typeof ts.createProgram !== "function") throw new Error("TypeScript compatibility API unavailable")'
+      - uses: biomejs/setup-biome@4c91541eaada48f67d7dbd7833600ce162b68f51
         with:
           version: 2.4.16
-
-      - name: Verify Biome executable
-        run: biome --version
-
-      - name: Dependency policy
-        run: bun run policy:deps
-
-      - name: Select affected comparison
-        id: comparison
-        env:
-          PR_BASE: ${{ github.event.pull_request.base.sha }}
-          PUSH_BEFORE: ${{ github.event.before }}
+      - name: Verify dependency versions and project boundaries
         run: |
-          base="${PR_BASE:-$PUSH_BEFORE}"
-          candidate="$(git rev-parse HEAD)"
-          if [ -z "$base" ] || ! git cat-file -e "${base}^{commit}" 2>/dev/null; then
-            base=''
-          fi
-          printf 'base=%s\n' "$base" >> "$GITHUB_OUTPUT"
-          echo "Candidate $candidate, comparison ${base:-full workspace}"
-
-      - name: Affected checks
-        env:
-          BASE_SHA: ${{ steps.comparison.outputs.base }}
-        run: |
-          if [ -n "$BASE_SHA" ]; then
-            bun nx affected -t check --base="$BASE_SHA" --head=HEAD --skip-nx-cache
-          else
-            bun nx run-many -t check --skip-nx-cache
-          fi
-
-      - name: Verify cross-repository read access
-        env:
-          GITHUB_CONTENT_TOKEN: ${{ github.token }}
-        run: |
-          curl --fail --silent --show-error --output /dev/null \
-            --header "Authorization: Bearer ${GITHUB_CONTENT_TOKEN}" \
-            --header "Accept: application/vnd.github+json" \
-            "https://api.github.com/repos/tenzyu/tenzyudotcom-content/contents/storage/editor/links.json?ref=main"
-
-      - name: Affected builds
-        env:
-          BASE_SHA: ${{ steps.comparison.outputs.base }}
-          # Read-only GITHUB_TOKEN (job permissions: contents: read), no content-repo write access.
-          GITHUB_CONTENT_TOKEN: ${{ github.token }}
-          GITHUB_CONTENT_OWNER: tenzyu
-          GITHUB_CONTENT_REPO: tenzyudotcom-content
-          GITHUB_CONTENT_BRANCH: main
-          GITHUB_CONTENT_ROOT: storage
-        run: |
-          if [ -n "$BASE_SHA" ]; then
-            bun nx affected -t build --base="$BASE_SHA" --head=HEAD --skip-nx-cache
-          else
-            bun nx run-many -t build --skip-nx-cache
-          fi
-
-      - name: Workbench Rust checks
-        run: |
-          bun nx run skin-workbench:cargo-check
-          bun nx run skin-workbench:cargo-clippy
-          cargo test --locked --manifest-path product/apps/osu-skin-workbench/src-tauri/Cargo.toml
-
-      - name: Check integrated develop against main
-        if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+          bun nx graph --file="$RUNNER_TEMP/project-graph.json"
+          bun run policy:deps "$RUNNER_TEMP/project-graph.json"
+      - name: Verify all non-native products and libraries in one task DAG
         env:
           GITHUB_CONTENT_TOKEN: ${{ github.token }}
           GITHUB_CONTENT_OWNER: tenzyu
           GITHUB_CONTENT_REPO: tenzyudotcom-content
           GITHUB_CONTENT_BRANCH: main
           GITHUB_CONTENT_ROOT: storage
+        run: bun nx run-many -t verify --exclude=skin-workbench --skip-nx-cache
+      - name: Verify relocatable UI font assets
         run: |
-          main_sha="$(git rev-parse origin/main)"
-          candidate_sha="$(git rev-parse HEAD)"
-          echo "Develop candidate $candidate_sha, main base $main_sha"
-          bun nx affected -t check build --base="$main_sha" --head="$candidate_sha" --skip-nx-cache
+          node --input-type=module <<'JS'
+          import { readFileSync, existsSync } from 'node:fs'
+          import { dirname, resolve } from 'node:path'
+          const file = 'product/packages/ui/dist/styles.css'
+          const css = readFileSync(file, 'utf8')
+          if (/url\(['"]?data:font\//i.test(css)) throw new Error('Font data remains in CSS')
+          const fonts = [...css.matchAll(/url\(['"]?([^'"()]+\.woff2)['"]?\)/g)].map(m => m[1])
+          if (!fonts.length) throw new Error('No external font assets emitted')
+          for (const font of fonts) {
+            if (font.startsWith('/') || !existsSync(resolve(dirname(file), font))) {
+              throw new Error('Non-relocatable font URL: ' + font)
+            }
+          }
+          console.log(JSON.stringify({cssBytes: Buffer.byteLength(css), externalFonts: new Set(fonts).size}))
+          JS
+      - name: Repository utility tests
+        run: bun run test:scripts
 
-      - name: Full verification on integration branches
-        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
-        env:
-          GITHUB_CONTENT_TOKEN: ${{ github.token }}
-          GITHUB_CONTENT_OWNER: tenzyu
-          GITHUB_CONTENT_REPO: tenzyudotcom-content
-          GITHUB_CONTENT_BRANCH: main
-          GITHUB_CONTENT_ROOT: storage
-        run: bun nx run-many -t verify --skip-nx-cache
+  native:
+    runs-on: ubuntu-24.04
+    env:
+      NX_DAEMON: 'false'
+      NX_NO_CLOUD: 'true'
+      NX_TUI: 'false'
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.5
+      - run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev patchelf pkg-config webkit2gtk-driver xvfb dbus-x11
+      - run: bun install --frozen-lockfile
+      - name: Verify native TypeScript 7 and legacy compiler API coexist
+        run: |
+          test "$(bun x --no-install tsc --version)" = 'Version 7.0.2'
+          node -e 'const ts = require("typescript"); if (typeof ts.readConfigFile !== "function" || typeof ts.createProgram !== "function") throw new Error("TypeScript compatibility API unavailable")'
+      - name: Generate IPC contract and verify TypeScript projection
+        run: |
+          mkdir -p product/apps/osu-skin-workbench/src-tauri/target
+          SKIN_IPC_EXPORT="$PWD/product/apps/osu-skin-workbench/src-tauri/target/wire.generated.ts" cargo test --locked --manifest-path product/apps/osu-skin-workbench/src-tauri/Cargo.toml export_wire_contract
+          bun nx run osu-skin-core:build
+          bun x tsc --ignoreConfig --noEmit --strict --skipLibCheck --moduleResolution bundler --module esnext --target es2022 product/apps/osu-skin-workbench/scripts/wire-contract-check.ts
+      - name: Verify native product and build its distributable
+        run: bun nx run-many -t verify build --projects=skin-workbench --skip-nx-cache
+      - name: Install pinned Tauri WebDriver
+        run: |
+          cargo install tauri-driver --version 2.1.0 --locked
+          command -v WebKitWebDriver
+          dpkg-query -W webkit2gtk-driver libwebkit2gtk-4.1-0
+      - name: Verify native WebView and real IPC with isolated skin data
+        run: xvfb-run -a dbus-run-session -- python3 product/apps/osu-skin-workbench/tests/tauri-runtime.py
 
   publication:
     runs-on: ubuntu-24.04
@@ -142,21 +116,50 @@ jobs:
       - name: Install Bun
         uses: oven-sh/setup-bun@v2
         with:
-          bun-version: 1.3.10
+          bun-version: 1.4.5
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
+      - name: Verify native TypeScript 7 and legacy compiler API coexist
+        run: |
+          test "$(bun x --no-install tsc --version)" = 'Version 7.0.2'
+          node -e 'const ts = require("typescript"); if (typeof ts.readConfigFile !== "function" || typeof ts.createProgram !== "function") throw new Error("TypeScript compatibility API unavailable")'
 
       - name: Install Playwright Chromium
         run: bun x playwright install --with-deps chromium
 
+      - name: Set fixture evidence destinations
+        run: |
+          printf 'PUBLICATION_EVIDENCE_DIR=%s/publication\nPLAYWRIGHT_OUTPUT_DIR=%s/editor\n' "$RUNNER_TEMP" "$RUNNER_TEMP" >> "$GITHUB_ENV"
+          mkdir -p "$RUNNER_TEMP/publication" "$RUNNER_TEMP/editor"
+          { git rev-parse HEAD HEAD^{tree}; sha256sum bun.lock package.json nx.json; node --version; bun --version; } > "$RUNNER_TEMP/fixture-revision.txt"
       - name: Verify publication in a production build
-        env:
-          PUBLICATION_EVIDENCE_DIR: ${{ runner.temp }}/publication
-        run: bun nx run web:publication-acceptance --skip-nx-cache
+        run: /usr/bin/time -v -o "$PUBLICATION_EVIDENCE_DIR/time.txt" bun nx run web:publication-acceptance --skip-nx-cache
 
       - name: Verify editor in Chromium
+        if: always()
         env:
-          PLAYWRIGHT_OUTPUT_DIR: ${{ runner.temp }}/editor
           EDITOR_BROWSER_PRODUCTION: "1"
-        run: bun run test:browser:editor
+        run: /usr/bin/time -v -o "$PLAYWRIGHT_OUTPUT_DIR/time.txt" bun --no-env-file run test:browser:editor
+      - name: Record production static chunk sizes
+        if: always()
+        run: |
+          if test -d product/apps/web/.next/static; then
+            find product/apps/web/.next/static -type f -printf '%s %P\n' | sort -nr > "$PLAYWRIGHT_OUTPUT_DIR/static-chunks.txt"
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fixture-evidence
+          path: |
+            ${{ runner.temp }}/fixture-revision.txt
+            ${{ runner.temp }}/publication/time.txt
+            ${{ runner.temp }}/publication/publication-*/results.json
+            ${{ runner.temp }}/publication/publication-*/next-build.log
+            ${{ runner.temp }}/editor/time.txt
+            ${{ runner.temp }}/editor/static-chunks.txt
+            ${{ runner.temp }}/editor/editor-*/results.json
+            ${{ runner.temp }}/editor/editor-*/next-build.log
+            ${{ runner.temp }}/editor/editor-*/artifacts/**/error-context.md
+          if-no-files-found: error
+          retention-days: 7

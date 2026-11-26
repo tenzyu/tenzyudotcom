@@ -15,7 +15,7 @@ import type {
   BlogChanges,
   BlogRenameCommand,
   BlogSaveCommand,
-} from './blog.domain'
+} from '@tenzyu/publishing-domain/blog'
 import {
   loadBlogPostForEdit,
   reconcileBlogPublication,
@@ -24,14 +24,14 @@ import {
   saveBlogPost,
 } from './blog.infra'
 import { readBlogSource } from './blog-source.assemble'
-import { auditBlogProjection } from '../../../../../../repo-ops/renewal/audit-blog-projection'
-import { initGitContentFixture } from '../../../../../../repo-ops/renewal/git-content-fixture.mjs'
+import { auditBlogProjection } from '../../../../../../repo-ops/acceptance/audit-blog-projection'
+import { initGitContentFixture } from '../../../../../../repo-ops/acceptance/git-content-fixture.mjs'
 import {
   StorageCommitUncertainError,
   StorageError,
   StorageVersionConflictError,
-} from '@/platform/content-store/content-store.domain'
-import { createGitHubAggregateRepository } from '@/platform/content-store/github-aggregate.infra'
+} from '@tenzyu/revisioned-content/contracts'
+import { createGitHubAggregateRepository } from '@tenzyu/revisioned-content/github'
 
 const config = {
   owner: 'fixture',

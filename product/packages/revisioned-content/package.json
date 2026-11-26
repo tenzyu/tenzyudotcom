@@ -1,0 +1,25 @@
+{
+  "name": "@tenzyu/revisioned-content",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./contracts": "./src/contracts.ts",
+    "./github": "./src/github.ts",
+    "./version": "./src/version.ts",
+    "./json-document": "./src/json-document.ts",
+    "./item-command": "./src/item-command.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "bun test src",
+    "check": "bun run typecheck && bun run test"
+  },
+  "dependencies": {
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "typescript": "catalog:"
+  }
+}

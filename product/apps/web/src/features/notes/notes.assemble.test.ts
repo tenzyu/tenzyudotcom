@@ -1,13 +1,13 @@
 import { describe, expect, test } from 'bun:test'
 import {
   compareNotesByCreatedAtDesc,
+  parseNoteSourceEntries,
   reparentChildrenAfterNoteDelete,
-} from './notes.domain'
+} from '@tenzyu/publishing-domain/notes'
 import {
   assembleNoteDetailPageDataFromEntries,
   assembleNoteThreadItems,
 } from './notes.assemble'
-import { parseNoteSourceEntries } from './notes.infra'
 
 describe('compareNotesByCreatedAtDesc', () => {
   test('sorts by parsed timestamps instead of raw ISO strings', () => {

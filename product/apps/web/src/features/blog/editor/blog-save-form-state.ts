@@ -1,4 +1,4 @@
-import type { BlogPublicationReceipt } from '@/features/blog/blog.domain'
+import type { BlogPublicationReceipt } from '@tenzyu/publishing-domain/blog'
 
 export type SaveBlogPostActionState =
   | { status: 'idle' }

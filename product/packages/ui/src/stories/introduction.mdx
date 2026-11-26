@@ -2,12 +2,14 @@ import { Meta } from '@storybook/addon-docs/blocks'
 
 <Meta title="Introduction" />
 
-# @tenzyu/ui-react
+# @tenzyu/ui
 
-`@tenzyu/ui-react` keeps root exports focused on foundations and publishes
-components through subpath entries such as `@tenzyu/ui-react/button`.
+`@tenzyu/ui` keeps root exports focused on foundations and exposes reusable
+components through subpath entries such as `@tenzyu/ui/button`.
 
 Component stories are colocated with their implementation. This `src/stories`
-area is reserved for foundations, composed patterns, and visual regression
+area is reserved for the catalog overview, foundations, composed patterns, and visual regression
 checks that span multiple components.
 
+
+Generic primitives own presentation contracts over Base UI and other established primitives. Supporting components compose these primitives into reusable interaction and editorial patterns. All 56 component APIs remain public, with stories, including components not yet used by an app. Core product workflows do not belong in this library.

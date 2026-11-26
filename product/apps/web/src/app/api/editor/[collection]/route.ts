@@ -11,9 +11,16 @@ import {
   isEditorCollectionId,
   isWritableEditorCollectionId,
 } from '@/composition/editor/editor-collections'
-import { StorageVersionConflictError } from '@/platform/content-store/content-store.domain'
+import { StorageDocumentWriteUncertainError, StorageVersionConflictError } from '@tenzyu/revisioned-content/contracts'
 import { isEditorValidationError } from '@/features/content-editor/editor.validation'
 import { CollectionSavePayload } from './_features/collection-save.validation'
+
+function json(body: unknown, status = 200) {
+  return NextResponse.json(body, {
+    status,
+    headers: { 'Cache-Control': 'private, no-store' },
+  })
+}
 
 export async function GET(
   _request: NextRequest,
@@ -21,23 +28,20 @@ export async function GET(
 ) {
   const isAdmin = await hasEditorAdminSession()
   if (!isAdmin) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    return json({ error: 'Unauthorized' }, 401)
   }
 
   const { collection } = await params
   if (!isEditorCollectionId(collection)) {
-    return NextResponse.json({ error: 'Unknown collection' }, { status: 404 })
+    return json({ error: 'Unknown collection' }, 404)
   }
 
   try {
     const state = await loadEditorCollection(collection)
-    return NextResponse.json(state)
+    return json(state)
   } catch (error) {
     console.error('Failed to load collection:', error)
-    return NextResponse.json(
-      { error: 'Failed to load collection' },
-      { status: 500 },
-    )
+    return json({ error: 'Failed to load collection' }, 500)
   }
 }
 
@@ -46,24 +50,21 @@ export async function PUT(
   { params }: { params: Promise<{ collection: string }> },
 ) {
   if (!isSameOriginEditorRequest(request)) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    return json({ error: 'Forbidden' }, 403)
   }
 
   const isAdmin = await hasEditorAdminSession()
   if (!isAdmin) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    return json({ error: 'Unauthorized' }, 401)
   }
 
   const { collection } = await params
   if (!isEditorCollectionId(collection)) {
-    return NextResponse.json({ error: 'Unknown collection' }, { status: 404 })
+    return json({ error: 'Unknown collection' }, 404)
   }
 
   if (!isWritableEditorCollectionId(collection)) {
-    return NextResponse.json(
-      { error: 'Collection is read-only' },
-      { status: 405 },
-    )
+    return json({ error: 'Collection is read-only' }, 405)
   }
 
   try {
@@ -75,19 +76,19 @@ export async function PUT(
       body.expectedVersion,
     )
 
-    return NextResponse.json(result)
+    return json(result)
   } catch (error) {
     if (isEditorValidationError(error)) {
-      return NextResponse.json({ error: 'Invalid payload' }, { status: 400 })
+      return json({ error: 'Invalid payload' }, 400)
+    }
+    if (error instanceof StorageDocumentWriteUncertainError) {
+      return json({ error: 'uncertain', message: 'Check storage before retrying; your draft is kept.' }, 503)
     }
     if (error instanceof StorageVersionConflictError) {
-      return NextResponse.json({ error: 'conflict' }, { status: 409 })
+      return json({ error: 'conflict' }, 409)
     }
 
     console.error('Failed to save collection:', error)
-    return NextResponse.json(
-      { error: 'Failed to save collection' },
-      { status: 500 },
-    )
+    return json({ error: 'Failed to save collection' }, 500)
   }
 }

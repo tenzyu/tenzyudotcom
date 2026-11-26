@@ -26,37 +26,42 @@ const TabletArea = memo(function TabletArea({
   const settings = useIntlayer('settings')
 
   return (
-    <div
-      className="bg-visualization-bg relative mx-auto overflow-hidden rounded-md"
-      style={{
-        aspectRatio: '152/95',
-        width: '100%',
-        maxWidth: '400px',
-      }}
-      role="img"
-      aria-label={settings.aria.tabletArea.value}
-    >
+    <div>
       <div
-        className="bg-visualization-secondary absolute inset-2 rounded-md"
-        role="presentation"
-        aria-hidden="true"
+        className="bg-visualization-bg relative mx-auto overflow-hidden rounded-md"
+        style={{
+          aspectRatio: '152/95',
+          width: '100%',
+          maxWidth: '400px',
+        }}
+        role="img"
+        aria-label={settings.aria.tabletArea.value}
       >
         <div
+          className="bg-visualization-secondary absolute inset-2 rounded-md"
           role="presentation"
           aria-hidden="true"
-          className="bg-visualization-primary absolute rounded-sm"
-          style={{
-            left: `${((x - width / 2) / 152) * 100}%`,
-            top: `${((y - height / 2) / 95) * 100}%`,
-            width: `${(width / 152) * 100}%`,
-            height: `${(height / 95) * 100}%`,
-          }}
         >
-          <div className="text-visualization-fg absolute top-1/2 left-1/2 z-30 -translate-x-1/2 -translate-y-1/2 transform px-2 py-0.5 text-lg">
-            {width} x {height}
-          </div>
+          <div
+            role="presentation"
+            aria-hidden="true"
+            className="bg-visualization-primary absolute rounded-sm"
+            style={{
+              left: `${((x - width / 2) / 152) * 100}%`,
+              top: `${((y - height / 2) / 95) * 100}%`,
+              width: `${(width / 152) * 100}%`,
+              height: `${(height / 95) * 100}%`,
+            }}
+          />
         </div>
       </div>
+      {/* Keep text independent of the scaled, clipped active-area geometry. */}
+      <p
+        data-tablet-area-label=""
+        className="text-foreground mt-2 text-center text-sm"
+      >
+        {width} x {height}
+      </p>
     </div>
   )
 })

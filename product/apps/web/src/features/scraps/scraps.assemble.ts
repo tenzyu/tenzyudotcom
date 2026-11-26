@@ -4,7 +4,7 @@ import { buildLocalizedUrl } from '@/lib/intlayer/localized-url'
 import {
   type ContentSnapshot,
   StorageError,
-} from '@/platform/content-store/content-store.domain'
+} from '@tenzyu/revisioned-content/contracts'
 import {
   CONTENT_LOCALES,
   type ContentLocale,
@@ -19,7 +19,7 @@ import {
   isIndexableTranslationState,
   isValidScrapSlug,
   resolveLocalizedDocumentRef,
-} from '@/features/scraps/scraps.domain'
+} from '@tenzyu/publishing-domain/scraps'
 import {
   getScrapsAggregateRepository,
   loadScrapEntryDocuments,

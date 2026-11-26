@@ -1,14 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
-import { Button } from '../../components/ui/button'
+import { Button } from '../../generic/components/button'
 import {
   Field,
   FieldDescription,
   FieldError,
   FieldGroup,
   FieldLabel,
-} from '../../components/ui/field'
-import { Input } from '../../components/ui/input'
+} from '../../supporting/components/field'
+import { Input } from '../../generic/components/input'
 import { StoryPage, StorySection } from '../../testing/story-helpers'
 
 const meta = {

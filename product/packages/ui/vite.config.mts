@@ -2,16 +2,12 @@
 
 import * as fs from 'node:fs'
 import * as path from 'node:path'
-import { nxCopyAssetsPlugin } from '@nx/vite/plugins/nx-copy-assets.plugin'
-import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { defineConfig } from 'vite'
-import dts from 'vite-plugin-dts'
 
 const projectRoot = import.meta.dirname
 const srcRoot = path.resolve(projectRoot, 'src')
-const uiRoot = path.resolve(srcRoot, 'components/ui')
 const outDir = path.resolve(projectRoot, './dist')
 const packageJson = JSON.parse(
   fs.readFileSync(path.join(projectRoot, 'package.json'), 'utf8')
@@ -27,38 +23,46 @@ function isExternal(id: string) {
 }
 
 const componentEntries = Object.fromEntries(
-  fs
-    .readdirSync(uiRoot)
-    .filter((file) => /\.(ts|tsx)$/.test(file))
-    .filter((file) => !file.endsWith('.test.ts'))
-    .filter((file) => !file.endsWith('.test.tsx'))
-    .filter((file) => !file.endsWith('.spec.ts'))
-    .filter((file) => !file.endsWith('.spec.tsx'))
-    .filter((file) => !file.endsWith('.stories.ts'))
-    .filter((file) => !file.endsWith('.stories.tsx'))
-    .map((file) => {
-      const entryName = path.basename(file, path.extname(file))
-
-      return [entryName, path.resolve(uiRoot, file)] as const
+  Object.keys(packageJson.exports)
+    .filter((entry) => entry !== '.' && entry !== './styles.css')
+    .map((entry) => {
+      const declaration = packageJson.exports[entry].types as string
+      const source = declaration.replace(/^\.\/dist\//, './').replace(/\.d\.ts$/, '.tsx')
+      return [entry.slice(2), path.resolve(projectRoot, source)] as const
     })
 )
 
 export default defineConfig(() => ({
   root: projectRoot,
+  // A library stylesheet must resolve emitted assets relative to itself.
+  base: './',
+  css: {
+    postcss: {
+      plugins: [
+        {
+          postcssPlugin: 'ui-external-font-assets',
+          OnceExit(root) {
+            // Vite library mode inlines assets by default. The explicit
+            // no-inline query overrides that behavior for local WOFF2 files.
+            root.walkDecls('src', (declaration) => {
+              declaration.value = declaration.value.replace(
+                /url\((['"]?)([^'"()]+\.woff2)\1\)/g,
+                (match: string, quote: string, url: string) =>
+                  /^(?:data:|https?:|\/\/)/i.test(url)
+                    ? match
+                    : `url(${quote}${url}?no-inline${quote})`,
+              )
+            })
+          },
+        },
+      ],
+    },
+  },
   resolve: { alias: { '@': srcRoot } },
 
   plugins: [
     react(),
     tailwindcss(),
-    nxViteTsPaths(),
-    nxCopyAssetsPlugin(['*.md']),
-    process.env.STORYBOOK !== 'true' && dts({
-      entryRoot: 'src',
-      outDirs: [outDir],
-      tsconfigPath: path.join(projectRoot, 'tsconfig.lib.json'),
-      pathsToAliases: false,
-      exclude: ['**/*.test.*', '**/*.spec.*', '**/*.stories.*'],
-    }),
   ],
   // Configuration for building your library.
   // See: https://vite.dev/guide/build.html#library-mode

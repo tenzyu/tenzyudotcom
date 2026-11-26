@@ -1,0 +1,25 @@
+{
+  "name": "@tenzyu/chatgpt-partial-html-export",
+  "projectType": "application",
+  "tags": [
+    "type:app",
+    "runtime:firefox"
+  ],
+  "targets": {
+    "check": {
+      "executor": "nx:noop",
+      "dependsOn": [
+        "check:syntax",
+        "test"
+      ],
+      "cache": false
+    },
+    "verify": {
+      "executor": "nx:noop",
+      "dependsOn": [
+        "check"
+      ],
+      "cache": false
+    }
+  }
+}

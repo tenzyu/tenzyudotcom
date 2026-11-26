@@ -5,7 +5,10 @@
 		"libsDir": "product/packages"
 	},
 	"namedInputs": {
-		"default": ["{projectRoot}/**/*", "sharedGlobals"],
+		"default": [
+			"{projectRoot}/**/*",
+			"sharedGlobals"
+		],
 		"production": [
 			"default",
 			"!{projectRoot}/README.md",
@@ -27,42 +30,72 @@
 			"{workspaceRoot}/tsconfig.json",
 			"{workspaceRoot}/tsconfig.next.json",
 			"{workspaceRoot}/tsconfig.react-lib.json",
-			"{workspaceRoot}/tsconfig.vite.json",
-			"{workspaceRoot}/product/apps/osu-skin-workbench/src-tauri/Cargo.lock"
+			"{workspaceRoot}/tsconfig.vite.json"
 		]
 	},
 	"targetDefaults": {
 		"build": {
-			"dependsOn": ["^build"],
-			"inputs": ["production", "^production"],
+			"dependsOn": [
+				"^build"
+			],
+			"inputs": [
+				"production",
+				"^production"
+			],
 			"cache": true
 		},
 		"build-vite": {
-			"dependsOn": ["^build"],
-			"inputs": ["production", "^production"],
+			"dependsOn": [
+				"^build"
+			],
+			"inputs": [
+				"production",
+				"^production"
+			],
 			"cache": true
 		},
 		"typecheck": {
-			"inputs": ["default", "^production"],
+			"inputs": [
+				"default",
+				"^production"
+			],
 			"cache": true
 		},
 		"lint": {
-			"inputs": ["default", "^production"],
+			"inputs": [
+				"default",
+				"^production"
+			],
 			"cache": true
 		},
 		"test": {
-			"inputs": ["default", "^production"],
+			"inputs": [
+				"default",
+				"^production"
+			],
 			"cache": true
 		},
 		"check": {
-			"dependsOn": ["typecheck", "test"],
-			"inputs": ["default", "^production"],
-			"cache": true
+			"dependsOn": [
+				"typecheck",
+				"test"
+			],
+			"inputs": [
+				"default",
+				"^production"
+			],
+			"cache": false
 		},
 		"verify": {
-			"dependsOn": ["check", "build"],
-			"inputs": ["production", "^production"],
-			"cache": true
+			"dependsOn": [
+				"check",
+				"build"
+			],
+			"inputs": [
+				"production",
+				"^production"
+			],
+			"cache": false
 		}
 	},
 	"plugins": [
@@ -86,17 +119,6 @@
 				"typecheckTargetName": "vite:typecheck",
 				"buildDepsTargetName": "build-deps",
 				"watchDepsTargetName": "watch-deps"
-			}
-		},
-		{
-			"plugin": "@nx/storybook/plugin",
-			"options": {
-				"serveStorybookTargetName": "serve:storybook",
-				"buildStorybookTargetName": "storybook:build",
-				"testStorybookTargetName": "test-storybook",
-				"staticStorybookTargetName": "static-storybook",
-				"buildDepsTargetName": "storybook:build-deps",
-				"watchDepsTargetName": "storybook:watch-deps"
 			}
 		}
 	],

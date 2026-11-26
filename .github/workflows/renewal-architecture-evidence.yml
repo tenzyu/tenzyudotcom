@@ -1,0 +1,193 @@
+name: Repository quality evidence
+
+on:
+  pull_request:
+    branches: [develop]
+  workflow_dispatch:
+    inputs:
+      baseline:
+        description: 'Optional baseline commit SHA (defaults to first parent)'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: evidence-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  evidence:
+    if: startsWith(github.head_ref, 'evidence/') || github.head_ref == 'renewal/architecture-20261125' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      NX_DAEMON: 'false'
+      NX_TUI: 'false'
+      NX_NO_CLOUD: 'true'
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.5
+      - name: Prepare pinned baseline
+        env:
+          BASELINE: ${{ inputs.baseline || github.event.pull_request.base.sha }}
+        run: |
+          set -euo pipefail
+          baseline="${BASELINE:-$(git rev-parse HEAD^)}"
+          [[ "$baseline" =~ ^[0-9a-f]{40}$ ]]
+          git worktree add --detach "$RUNNER_TEMP/baseline" "$baseline"
+          mkdir -p "$RUNNER_TEMP/evidence"/{baseline,candidate}
+      - name: Collect AST, owner graph, Nx project graph, task graph and history
+        shell: bash
+        run: |
+          set -euo pipefail
+          collector="$GITHUB_WORKSPACE/repo-ops/evidence/architecture-evidence.mjs"
+          for label in baseline candidate; do
+            if [ "$label" = baseline ]; then checkout="$RUNNER_TEMP/baseline"; else checkout="$GITHUB_WORKSPACE"; fi
+            out="$RUNNER_TEMP/evidence/$label"
+            (
+              cd "$checkout"
+              bun install --frozen-lockfile --ignore-scripts
+              node "$collector" "$checkout" "$out/architecture.json" | tee "$out/summary.json"
+              bun nx graph --file="$out/project-graph.json"
+              bun nx run-many -t check build verify --graph="$out/task-graph.json"
+              bun nx show projects --json > "$out/projects.json"
+              node -e 'for (const p of JSON.parse(require("fs").readFileSync(process.argv[1],"utf8"))) console.log(p)' "$out/projects.json" | while IFS= read -r project; do
+                bun nx show project "$project" --json > "$out/project-${project//\//_}.json"
+              done
+              cargo metadata --no-deps --format-version 1 --locked --manifest-path product/apps/osu-skin-workbench/src-tauri/Cargo.toml > "$out/cargo-metadata.json"
+              { git rev-parse HEAD; node --version; bun --version; rustc --version; uname -a; } > "$out/environment.txt"
+              { git rev-parse HEAD HEAD^{tree}; sha256sum bun.lock package.json nx.json; } > "$out/revision.txt"
+              git ls-files repo-ops > "$out/repo-ops-paths.txt"
+              while IFS= read -r path; do printf '%s\t%s\n' "$path" "$(git cat-file -s "HEAD:$path")"; done < "$out/repo-ops-paths.txt" > "$out/repo-ops-sizes.tsv"
+              # Candidate callers only: review literal matches for actual invocation edges.
+              while IFS= read -r path; do
+                set +e
+                git grep -I -l -F -e "$path" -e "${path##*/}" HEAD -- . ':(exclude,glob)**/.env*' ':(exclude,glob)**/.env*/**' |
+                  while IFS= read -r caller; do printf '%s\t%s\n' "$path" "${caller#HEAD:}"; done
+                status=${PIPESTATUS[0]}
+                set -e
+                [[ "$status" = 0 || "$status" = 1 ]]
+              done < "$out/repo-ops-paths.txt" > "$out/repo-ops-callers.tsv"
+              git ls-files -z | du --files0-from=- -b --total | tail -1 > "$out/tracked-bytes.txt"
+            )
+          done
+      - name: Execute matched disposable change-cost probes
+        run: |
+          node repo-ops/evidence/change-cost-probe.mjs "$GITHUB_WORKSPACE" "$RUNNER_TEMP/evidence/change-cost.json" ca801532fd7109c953ad655a729eda5ac44d4d34
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: renewal-architecture-evidence
+          path: ${{ runner.temp }}/evidence
+          if-no-files-found: error
+          retention-days: 7
+
+  package-evidence:
+    if: startsWith(github.head_ref, 'evidence/') || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      NX_DAEMON: 'false'
+      NX_TUI: 'false'
+      NX_NO_CLOUD: 'true'
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.5
+      - name: Frozen dependency install
+        run: |
+          mkdir -p "$RUNNER_TEMP/package-evidence"
+          { git rev-parse HEAD HEAD^{tree}; sha256sum bun.lock package.json nx.json; node --version; bun --version; rustc --version; } > "$RUNNER_TEMP/package-evidence/revision.txt"
+          /usr/bin/time -v -o "$RUNNER_TEMP/package-evidence/install-time.txt" bun install --frozen-lockfile --ignore-scripts
+      - name: Build browser-safe packages and workbench frontend
+        run: |
+          /usr/bin/time -v -o "$RUNNER_TEMP/package-evidence/build-time.txt" bun nx run skin-workbench:build-vite --skip-nx-cache
+      - name: Native Next.js route and module analysis with synthetic content
+        env:
+          EDITOR_BROWSER_PRODUCTION: '1'
+          EDITOR_FIXTURE_SEED: public
+          PLAYWRIGHT_OUTPUT_DIR: ${{ runner.temp }}/analyze-fixture
+        run: |
+          node repo-ops/acceptance/start-editor-browser-server.mjs --analyze-only
+          cp -a "$PLAYWRIGHT_OUTPUT_DIR/next-analysis" "$RUNNER_TEMP/package-evidence/next-analysis"
+          cp "$PLAYWRIGHT_OUTPUT_DIR/next-analyze.log" "$RUNNER_TEMP/package-evidence/next-analyze.log"
+      - name: Verify public export artifacts and record sizes
+        run: node repo-ops/evidence/package-evidence.mjs "$RUNNER_TEMP/package-evidence/packages.json"
+      - name: Record Rust dependency graph
+        run: cargo tree --locked --manifest-path product/apps/osu-skin-workbench/src-tauri/Cargo.toml > "$RUNNER_TEMP/package-evidence/cargo-tree.txt"
+      - name: Record registry advisory response
+        run: |
+          set +e
+          bun audit --json > "$RUNNER_TEMP/package-evidence/bun-audit.json" 2> "$RUNNER_TEMP/package-evidence/bun-audit.stderr"
+          status=$?
+          set -e
+          printf '%s\n' "$status" > "$RUNNER_TEMP/package-evidence/bun-audit-exit.txt"
+          node repo-ops/evidence/audit-status.mjs "$RUNNER_TEMP/package-evidence/bun-audit.json" "$status" "$RUNNER_TEMP/package-evidence/bun-audit.stderr"
+          # Confirmed advisory results are observations; scanner failure is a failed job.
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: package-evidence
+          path: ${{ runner.temp }}/package-evidence
+          if-no-files-found: error
+          retention-days: 7
+
+  cross-browser-fixture:
+    if: startsWith(github.head_ref, 'evidence/') || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      NX_DAEMON: 'false'
+      NX_TUI: 'false'
+      NX_NO_CLOUD: 'true'
+      NX_LOAD_DOT_ENV_FILES: 'false'
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.5
+      - run: bun install --frozen-lockfile
+      - run: bun x playwright install --with-deps chromium firefox webkit
+      - name: Set public fixture evidence destination
+        run: printf 'PLAYWRIGHT_OUTPUT_DIR=%s/public-fixture\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
+      - name: Record revision
+        run: |
+          mkdir -p "$PLAYWRIGHT_OUTPUT_DIR"
+          { git rev-parse HEAD HEAD^{tree}; sha256sum bun.lock package.json; bun --version; } > "$PLAYWRIGHT_OUTPUT_DIR/revision.txt"
+      - name: Inspect background video stream types for caption applicability
+        run: |
+          if ! command -v ffprobe >/dev/null; then
+            sudo apt-get update
+            sudo apt-get install -y --no-install-recommends ffmpeg
+          fi
+          ffprobe -version | head -n 1
+          ffprobe -v error -show_entries stream=codec_type,codec_name:format=duration -of json product/apps/web/public/header-background.webm > "$PLAYWRIGHT_OUTPUT_DIR/quality-background-video-streams.json"
+      - run: bun --no-env-file run test:browser:fixture
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: public-cross-browser-fixture
+          path: |
+            ${{ runner.temp }}/public-fixture/revision.txt
+            ${{ runner.temp }}/public-fixture/quality-background-video-streams.json
+            ${{ runner.temp }}/public-fixture/fixture-*/results.json
+            ${{ runner.temp }}/public-fixture/fixture-*/quality-*.json
+            ${{ runner.temp }}/public-fixture/fixture-*/quality-*.png
+            ${{ runner.temp }}/public-fixture/fixture-*/artifacts/**/error-context.md
+          if-no-files-found: error
+          retention-days: 7

@@ -1,11 +1,10 @@
 import { cache } from 'react'
 import {
   buildLocalizedNotePath,
-  compareNotesByCreatedAtAsc,
-  compareNotesByCreatedAtDesc,
   type NoteSourceEntry,
 } from './notes.domain'
-import type { ContentSnapshot } from '@/platform/content-store/content-store.domain'
+import { createPublicNoteGraph, type PublicNoteThreadItem } from '@tenzyu/publishing-domain/notes'
+import type { ContentSnapshot } from '@tenzyu/revisioned-content/contracts'
 import { loadPublicNoteEntries } from './notes.infra'
 
 export type NotePageItem = {
@@ -27,36 +26,10 @@ export type NoteDetailPageData = {
 const loadNoteSourceEntries = cache(loadPublicNoteEntries)
 
 function publicNoteGraph(entries: readonly NoteSourceEntry[], locale: string) {
-  const visibleById = new Map(
-    entries
-      .filter((entry) => entry.published !== false)
-      .map((entry) => [entry.id, entry]),
-  )
-  const childrenByParent = new Map<string, NoteSourceEntry[]>()
-  const roots: NoteSourceEntry[] = []
-  for (const entry of visibleById.values()) {
-    if (entry.parentId && visibleById.has(entry.parentId)) {
-      const siblings = childrenByParent.get(entry.parentId) ?? []
-      siblings.push(entry)
-      childrenByParent.set(entry.parentId, siblings)
-    } else {
-      roots.push(entry)
-    }
-  }
-  roots.sort(compareNotesByCreatedAtDesc)
-  for (const siblings of childrenByParent.values())
-    siblings.sort(compareNotesByCreatedAtAsc)
-
-  function body(entry: NoteSourceEntry) {
-    return locale === 'ja' ? entry.body.ja : entry.body.en || entry.body.ja
-  }
-
-  function parentOf(entry: NoteSourceEntry) {
-    return entry.parentId ? visibleById.get(entry.parentId) : undefined
-  }
-
-  function item(entry: NoteSourceEntry, depth: number): NotePageItem {
-    const parent = parentOf(entry)
+  const graph = createPublicNoteGraph(entries)
+  const body = (entry: NoteSourceEntry) =>
+    locale === 'ja' ? entry.body.ja : entry.body.en || entry.body.ja
+  function item({ entry, depth, parent }: PublicNoteThreadItem): NotePageItem {
     return {
       id: entry.id,
       body: body(entry),
@@ -70,30 +43,15 @@ function publicNoteGraph(entries: readonly NoteSourceEntry[], locale: string) {
       sharePath: buildLocalizedNotePath(locale, entry.id),
     }
   }
-
-  function flatten(start: readonly NoteSourceEntry[], initialDepth: number) {
-    const items: NotePageItem[] = []
-    function visit(entry: NoteSourceEntry, depth: number) {
-      items.push(item(entry, depth))
-      for (const child of childrenByParent.get(entry.id) ?? [])
-        visit(child, depth + 1)
-    }
-    for (const entry of start) visit(entry, initialDepth)
-    return items
-  }
-
   return {
-    feed: () => flatten(roots, 0),
+    feed: () => graph.feed().map(item),
     thread(id: string): NoteDetailPageData | undefined {
-      const target = visibleById.get(id)
-      if (!target) return undefined
-      const ancestors: NoteSourceEntry[] = []
-      for (let parent = parentOf(target); parent; parent = parentOf(parent))
-        ancestors.unshift(parent)
+      const thread = graph.thread(id)
+      if (!thread) return undefined
       return {
-        ancestors: ancestors.map(item),
-        note: item(target, ancestors.length),
-        replies: flatten(childrenByParent.get(id) ?? [], ancestors.length + 1),
+        ancestors: thread.ancestors.map(item),
+        note: item(thread.note),
+        replies: thread.replies.map(item),
       }
     },
   }

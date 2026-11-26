@@ -1,8 +1,9 @@
-import type { ContentSnapshot } from '@/platform/content-store/content-store.domain'
+import type { ContentSnapshot } from '@tenzyu/revisioned-content/contracts'
 import {
-  loadJsonCollection,
+  parseJsonCollection,
   saveJsonCollection,
 } from '@/platform/content-store/json-document.infra'
+import { loadGitHubTextFileFresh } from '@/platform/content-store/github-content.infra'
 import {
   LINKS_STORAGE_PATH,
   parseLinkSourceEntries,
@@ -14,8 +15,9 @@ export async function loadPublicLinks(snapshot: ContentSnapshot) {
 }
 
 export async function loadLinksState() {
-  return loadJsonCollection(
-    LINKS_STORAGE_PATH,
+  const file = await loadGitHubTextFileFresh(LINKS_STORAGE_PATH)
+  return parseJsonCollection(
+    file?.content,
     parseLinkSourceEntries,
     () => [],
   )

@@ -2,13 +2,13 @@
 
 import { ArrowDown, ArrowUp, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
-import type { NoteSourceEntry } from '../notes.domain'
+import type { NoteSourceEntry } from '@tenzyu/publishing-domain/notes'
 import {
   compareNotesByCreatedAtDesc,
   createNoteId,
   listAvailableParentNotes,
   reparentChildrenAfterNoteDelete,
-} from '../notes.domain'
+} from '@tenzyu/publishing-domain/notes'
 import { Button } from '@tenzyu/ui/button'
 import { EditorPanel } from '@tenzyu/ui/editorial'
 import { Input } from '@tenzyu/ui/input'

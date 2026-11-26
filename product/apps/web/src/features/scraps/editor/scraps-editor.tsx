@@ -10,7 +10,7 @@ import {
   loadScrapEditorIndex,
   loadScrapEditorState,
 } from './scrap-editor.assemble'
-import { isValidScrapSlug } from '@/features/scraps/scraps.domain'
+import { isValidScrapSlug } from '@tenzyu/publishing-domain/scraps'
 import { ScrapWorkspace } from './scrap-workspace'
 
 export async function ScrapsEditor({

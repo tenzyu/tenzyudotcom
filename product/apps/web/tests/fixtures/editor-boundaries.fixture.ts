@@ -2,10 +2,12 @@ import assert from 'node:assert/strict'
 import { mock } from 'bun:test'
 import { NextRequest } from 'next/server'
 import type { BlogSaveCommand } from '../../src/features/blog/blog.domain'
-import { StorageVersionConflictError, StorageDocumentWriteUncertainError } from '../../src/platform/content-store/content-store.domain'
+import { StorageVersionConflictError, StorageDocumentWriteUncertainError } from '@tenzyu/revisioned-content/contracts'
 
 let authenticated = false
 let writes = 0
+let loginAttempts = 0
+let loginSessions = 0
 let conflict = false
 let sameOrigin = true
 let uncertain = false
@@ -27,9 +29,9 @@ mock.module('@/features/editor-auth/editor-session', () => ({
     if (!authenticated) throw new Error('unauthorized')
   },
   clearEditorAdminSession: async () => {},
-  checkEditorLoginRateLimit: async () => true,
+  checkEditorLoginRateLimit: async () => { loginAttempts++; return true },
   clearEditorLoginRateLimit: async () => {},
-  createEditorAdminSession: async () => {},
+  createEditorAdminSession: async () => { loginSessions++ },
   verifyEditorAdminPassword: () => false,
 }))
 async function save() {
@@ -95,6 +97,24 @@ mock.module('next/cache', () => ({
   },
   updateTag: () => {},
 }))
+const { POST: postLogin } = await import('@/app/api/editor/login/route')
+const loginUrl = 'http://localhost/api/editor/login'
+const loginBody = 'locale=ja&password=' + 'x'.repeat(1024 * 1024)
+const tooLarge = await postLogin(new Request(loginUrl, {
+  method: 'POST',
+  headers: { origin: 'http://localhost', 'content-type': 'application/x-www-form-urlencoded' },
+  body: loginBody,
+}))
+assert.equal(tooLarge.status, 413)
+assert.equal(tooLarge.headers.get('cache-control'), 'private, no-store')
+const invalidLocale = await postLogin(new Request(loginUrl, {
+  method: 'POST',
+  headers: { origin: 'http://localhost' },
+  body: new URLSearchParams({ locale: 'unsupported', password: 'fixture' }),
+}))
+assert.equal(invalidLocale.status, 303)
+assert.equal(loginAttempts, 0)
+assert.equal(loginSessions, 0)
 const { PUT, GET } = await import('@/app/api/editor/[collection]/route')
 const { POST: postScrap } = await import('@/app/api/editor/scrap/route')
 const { saveNotesCollectionAction } = await import('@/features/notes/editor/notes-actions')

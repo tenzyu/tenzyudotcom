@@ -9,12 +9,11 @@ import {
   Item,
   ItemContent,
   ItemDescription,
-  ItemGroup,
   ItemMedia,
   ItemTitle,
 } from '@tenzyu/ui/item'
 import { loadLinks } from '@/features/links/links.assemble'
-import { LINK_CATEGORY_ORDER, type MyLink } from '@/features/links/links.domain'
+import { LINK_CATEGORY_ORDER, type MyLink } from '@tenzyu/publishing-domain/links'
 import { LinkControls } from './link-controls'
 
 export async function LinkTreePageContent() {
@@ -57,17 +56,15 @@ export async function LinkTreePageContent() {
                 <nav
                   aria-label={`${group.label} ${linksContent.aria.groupLabelSuffix.value}`}
                 >
-                  <ItemGroup className="xs:grid-cols-2 grid grid-cols-1 gap-4 p-0 sm:grid-cols-3">
+                  <ul className="xs:grid-cols-2 grid grid-cols-1 gap-4 p-0 sm:grid-cols-3 list-none">
                     {group.links.map((link) => (
                       <LinkTile
                         key={link.shortenUrl}
                         link={link}
                         locale={locale || 'ja'}
-                        visitPrefix={linksContent.aria.visitPrefix.value}
-                        iconSuffix={linksContent.aria.iconSuffix.value}
                       />
                     ))}
-                  </ItemGroup>
+                  </ul>
                 </nav>
               </section>
             ),
@@ -93,16 +90,12 @@ function LinkIcon({ icon, alt }: { icon: string; alt: string }) {
 function LinkTile({
   link,
   locale,
-  visitPrefix,
-  iconSuffix,
 }: {
   link: MyLink
   locale: string
-  visitPrefix: string
-  iconSuffix: string
 }) {
   return (
-    <div className="relative">
+    <li className="relative">
       <div className="absolute top-2 right-2 z-10">
         <LinkControls locale={locale} shortCode={link.shortenUrl} />
       </div>
@@ -114,10 +107,9 @@ function LinkTile({
             href={getLocalizedUrl(`/links/${link.shortenUrl}`, locale)}
             target="_blank"
             rel="noopener noreferrer"
-            aria-label={`${visitPrefix} ${link.name} (${link.id})`}
           >
             <ItemMedia variant="icon" className="dark:bg-secondary-foreground">
-              <LinkIcon icon={link.icon} alt={`${link.name} ${iconSuffix}`} />
+              <LinkIcon icon={link.icon} alt="" />
             </ItemMedia>
 
             <ItemContent className="min-w-0 text-left">
@@ -129,6 +121,6 @@ function LinkTile({
           </Link>
         }
       ></Item>
-    </div>
+    </li>
   )
 }

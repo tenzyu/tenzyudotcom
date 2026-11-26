@@ -1,0 +1,103 @@
+name: Nx cache evidence
+on:
+  pull_request:
+    branches: [develop]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: nx-cache-evidence-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  cache-contract:
+    if: startsWith(github.head_ref, 'evidence/phase2-n7-') || startsWith(github.head_ref, 'evidence/phase2-n8-') || startsWith(github.head_ref, 'evidence/phase2-n9-') || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      NX_DAEMON: 'false'
+      NX_NO_CLOUD: 'true'
+      NX_TUI: 'false'
+      NX_LOAD_DOT_ENV_FILES: 'false'
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.5
+      - name: Compare cold and restored UI and skin-core outputs under isolated local Nx caches
+        shell: bash
+        env:
+          BASE: ${{ github.event.pull_request.base.sha || 'ca801532fd7109c953ad655a729eda5ac44d4d34' }}
+        run: |
+          set -euo pipefail
+          [[ "$BASE" =~ ^[0-9a-f]{40}$ ]]
+          git worktree add --detach "$RUNNER_TEMP/cache-baseline" "$BASE"
+          out="$RUNNER_TEMP/nx-cache-proof"
+          mkdir -p "$out"
+          for label in baseline candidate; do
+            (
+              if [[ "$label" = baseline ]]; then cd "$RUNNER_TEMP/cache-baseline"; else cd "$GITHUB_WORKSPACE"; fi
+              bun install --frozen-lockfile
+              for target in ui osu-skin-core; do
+                (
+                  dir="$out/$label/$target"
+                  mkdir -p "$dir"
+                  export NX_CACHE_DIRECTORY="$RUNNER_TEMP/nx-local-$label-$target"
+                  export NX_WORKSPACE_DATA_DIRECTORY="$RUNNER_TEMP/nx-data-$label-$target"
+                  { git rev-parse HEAD HEAD^{tree}; node --version; bun --version; sha256sum bun.lock nx.json package.json; } > "$dir/revision.txt"
+                  output="product/packages/$target/dist"
+                  hash_output() { find "$output" -type f -print0 | sort -z | xargs -0 sha256sum; }
+                  run_build() {
+                    /usr/bin/time -f '%e' -o "$dir/$1.seconds" bun nx run "$target:build" --outputStyle=static > "$dir/$1.log" 2>&1 || { cat "$dir/$1.log"; return 1; }
+                  }
+                  assert_output() {
+                    if [[ "$target" = ui ]]; then test -s "$output/styles.css"; else test -s "$output/index.js" && test -s "$output/index.d.ts"; fi
+                  }
+                  cache_pattern='read (the output )?from (the )?cache|local cache|existing outputs match'
+                  run_build cold
+                  assert_output
+                  hash_output > "$dir/cold.sha256"
+                  rm -rf -- "$output"
+                  run_build warm
+                  assert_output
+                  hash_output > "$dir/warm.sha256"
+                  cmp "$dir/cold.sha256" "$dir/warm.sha256"
+                  grep -Ei "$cache_pattern" "$dir/warm.log"
+                  # Both shared files are declared inputs. Change whitespace only
+                  # in the disposable checkout, then restore original bytes.
+                  cp nx.json "$dir/nx.original"
+                  cp bun.lock "$dir/lock.original"
+                  trap 'cp "$dir/nx.original" nx.json; cp "$dir/lock.original" bun.lock; rm -f "$dir/nx.original" "$dir/lock.original"' EXIT
+                  for input in nx.json bun.lock; do
+                    if [[ "$input" = nx.json ]]; then original="$dir/nx.original"; phase=invalidated; else original="$dir/lock.original"; phase=lock-invalidated; fi
+                    printf '\n' >> "$input"
+                    rm -rf -- "$output"
+                    run_build "$phase"
+                    assert_output
+                    if grep -Ei "$cache_pattern" "$dir/$phase.log"; then
+                      echo "Shared input $input unexpectedly reused the cache for $target" >&2
+                      exit 1
+                    fi
+                    hash_output > "$dir/$phase.sha256"
+                    cmp "$dir/cold.sha256" "$dir/$phase.sha256"
+                    cp "$original" "$input"
+                    git diff --exit-code -- nx.json bun.lock
+                  done
+                )
+              done
+            )
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nx-cache-proof
+          path: |
+            ${{ runner.temp }}/nx-cache-proof/**/*.seconds
+            ${{ runner.temp }}/nx-cache-proof/**/*.sha256
+            ${{ runner.temp }}/nx-cache-proof/**/revision.txt
+            ${{ runner.temp }}/nx-cache-proof/**/*.log
+          if-no-files-found: error
+          retention-days: 7

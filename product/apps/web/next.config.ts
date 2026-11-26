@@ -5,7 +5,14 @@ import type { NextConfig } from 'next'
 import { isProduction } from './src/config/env.infra'
 
 const nextConfig: NextConfig = {
+  transpilePackages: ['@tenzyu/revisioned-content', '@tenzyu/publishing-domain'],
   skipProxyUrlNormalize: true,
+  // Only the synthetic loopback diagnostic build may expose browser source maps.
+  productionBrowserSourceMaps:
+    process.env.REPO_OPS_FIXTURE_SOURCE_MAPS === '1' &&
+    process.env.GITHUB_CONTENT_OWNER === 'fixture' &&
+    process.env.GITHUB_CONTENT_REPO === 'editor' &&
+    !process.env.VERCEL && !process.env.VERCEL_ENV,
   images: {
     remotePatterns: [
       {

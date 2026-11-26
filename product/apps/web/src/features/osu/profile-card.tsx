@@ -10,6 +10,7 @@ import { Card, CardContent } from '@tenzyu/ui/card'
 import { Skeleton } from '@tenzyu/ui/skeleton'
 
 import { ID_OSU } from './osu.source'
+import { ProfileHeaderVideo } from './profile-header-video'
 import { getUser } from '@/features/osu/api/getUser'
 import { loadLiveOsuData } from '@/features/osu/api/live-data'
 
@@ -35,19 +36,12 @@ const HeaderBackground = () => {
   const profile = useIntlayer('profile')
 
   return (
-    <video
-      className="h-full w-full object-cover transition-opacity duration-300"
-      autoPlay
-      loop
-      muted
-      playsInline
-      preload="none"
-      crossOrigin="anonymous"
-      aria-label={profile.aria.videoPlayer.value}
-    >
-      <source src="/header-background.webm" type="video/webm" />
-      {profile.aria.videoUnsupported.value}
-    </video>
+    <ProfileHeaderVideo
+      label={profile.aria.videoPlayer.value}
+      unsupported={profile.aria.videoUnsupported.value}
+      playLabel={profile.aria.playBackground.value}
+      pauseLabel={profile.aria.pauseBackground.value}
+    />
   )
 }
 
@@ -71,16 +65,12 @@ function ProfileImage() {
 function SocialButton({
   href,
   iconSrc,
-  iconAlt,
   children,
 }: {
   href: string
   iconSrc: string
-  iconAlt: string
   children: React.ReactNode
 }) {
-  const profile = useIntlayer('profile')
-
   return (
     <Button
       nativeButton={false}
@@ -90,11 +80,10 @@ function SocialButton({
         <ExternalLink
           href={href}
           rel="noreferrer"
-          aria-label={`${profile.aria.visitPrefix.value} ${iconAlt}`}
         >
           <Image
             src={iconSrc}
-            alt={iconAlt}
+            alt=""
             width={20}
             height={20}
             className="rounded-full"
@@ -121,7 +110,7 @@ export const ProfileCard = async () => {
           <Suspense fallback={<LoadingComponent />}>
             <HeaderBackground />
           </Suspense>
-          <div className="absolute inset-0 bg-black/20" aria-hidden="true" />
+          <div className="pointer-events-none absolute inset-0 bg-black/20" aria-hidden="true" />
         </figure>
 
         <CardContent className="px-6 pt-0 pb-6">
@@ -143,7 +132,6 @@ export const ProfileCard = async () => {
               <SocialButton
                 href="https://osu.ppy.sh/users/23318599"
                 iconSrc="/images/osu-logo.png"
-                iconAlt={profile.aria.osuLogoAlt.value}
               >
                 tenzyu
               </SocialButton>
@@ -154,7 +142,6 @@ export const ProfileCard = async () => {
               <SocialButton
                 href="https://tenzyu.com/u/twitch"
                 iconSrc="/images/twitch-logo.png"
-                iconAlt={profile.aria.twitchLogoAlt.value}
               >
                 tenzyudotcom
               </SocialButton>

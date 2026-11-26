@@ -52,6 +52,14 @@ const profileContent = {
         ja: 'ビデオプレイヤー',
         en: 'Video player',
       }),
+      playBackground: t({
+        ja: '背景動画を再生',
+        en: 'Play background video',
+      }),
+      pauseBackground: t({
+        ja: '背景動画を一時停止',
+        en: 'Pause background video',
+      }),
       videoUnsupported: t({
         ja: 'お使いのブラウザは動画タグに対応していません。',
         en: 'Your browser does not support the video tag.',
