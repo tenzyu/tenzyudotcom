@@ -10,6 +10,7 @@ const nodes = {
   web: { data: { root: 'product/apps/web', tags: ['type:app'] } },
   pure: { data: { root: 'product/packages/pure', tags: ['runtime:pure'] } },
   other: { data: { root: 'product/packages/other', tags: ['runtime:pure'] } },
+  leaf: { data: { root: 'product/packages/leaf', tags: ['runtime:pure'] } },
   server: { data: { root: 'product/packages/server', tags: ['runtime:server'] } },
   publishing: { data: { root: 'product/packages/publishing', tags: ['domain:publishing'] } },
   ui: { data: { root: 'product/packages/ui', tags: ['domain:design-system'] } },
@@ -52,11 +53,11 @@ test('static product cycles fail with the closed cycle, excluding its downstream
   const result = checkGraph([
     { source: 'pure', target: 'other', type: 'static' },
     { source: 'other', target: 'pure', type: 'static' },
-    { source: 'other', target: 'npm:external', type: 'static' },
+    { source: 'other', target: 'leaf', type: 'static' },
   ])
   expect(result.code).toBe(1)
   expect(result.stderr).toContain('Circular static product dependency: pure -> other -> pure')
-  expect(result.stderr).not.toContain('npm:external')
+  expect(result.stderr).not.toContain('leaf')
 })
 
 test('a shared dependency and duplicate static edges do not form a cycle', () => {
@@ -75,4 +76,14 @@ test('non-static edges do not participate in the static cycle check', () => {
       { source: 'other', target: 'pure', type },
     ]).code).toBe(0)
   }
+})
+
+test('static cycles in disconnected components and self loops fail', () => {
+  expect(checkGraph([
+    { source: 'web', target: 'ui', type: 'static' },
+    { source: 'pure', target: 'other', type: 'static' },
+    { source: 'other', target: 'leaf', type: 'static' },
+    { source: 'leaf', target: 'pure', type: 'static' },
+  ]).stderr).toContain('Circular static product dependency: pure -> other -> leaf -> pure')
+  expect(check('pure', 'pure').stderr).toContain('Circular static product dependency: pure -> pure')
 })
