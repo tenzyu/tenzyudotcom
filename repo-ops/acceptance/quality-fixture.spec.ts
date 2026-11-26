@@ -1,8 +1,9 @@
 import { expect, test } from '@playwright/test';
 import { createRequire } from 'node:module';
 import { execFileSync } from 'node:child_process';
-import { readFileSync, writeFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { basename, resolve } from 'node:path';
+import { createHash } from 'node:crypto';
 import { openGitContentFixture } from './git-content-fixture.mjs';
 
 const routes = ['', '/portfolio', '/blog', '/notes', '/scraps', '/links', '/tools', '/osu', '/editor/login'];
@@ -275,4 +276,91 @@ test('keyboard focus restoration and narrow CSS viewport reflow', async ({ page 
   expect(focus.focusVisible).toBe(true);
   expect(focus.boxShadow !== 'none' || (focus.outlineStyle !== 'none' && focus.outlineWidth !== '0px')).toBe(true);
   for (const row of observations) expect(row.scroll, row.path + ' at ' + row.width + ' CSS px').toBeLessThanOrEqual(row.viewport);
+});
+
+test('same-build runtime chunk and font attribution', async ({ browser, baseURL, viewport }, info) => {
+  test.setTimeout(180_000);
+  const build = resolve('product/apps/web/.next');
+  const buildId = readFileSync(resolve(build, 'BUILD_ID'), 'utf8').trim();
+  const hash = (data: Buffer) => createHash('sha256').update(data).digest('hex');
+  const modules = (map: any): string[] => [
+    ...(Array.isArray(map.sources) ? map.sources.filter((s: unknown) => typeof s === 'string') : []),
+    ...(Array.isArray(map.sections) ? map.sections.flatMap((section: any) => modules(section.map ?? {})) : []),
+  ];
+  const assets = new Map<string, any>();
+  const routeEvidence = [];
+  for (const path of ['/en','/en/portfolio','/en/blog','/en/notes','/en/scraps','/en/tools','/en/osu']) {
+    const context = await browser.newContext({
+      viewport: viewport ?? undefined, locale: 'en-US', serviceWorkers: 'block',
+      proxy: { server: 'http://127.0.0.1:9', bypass: '127.0.0.1,localhost' },
+    });
+    try {
+      const page = await context.newPage();
+      const cdp = await context.newCDPSession(page);
+      await cdp.send('Network.enable', { maxTotalBufferSize: 100 * 1024 * 1024, maxResourceBufferSize: 8 * 1024 * 1024 });
+      await cdp.send('Profiler.enable');
+      await cdp.send('Profiler.startPreciseCoverage', { callCount: true, detailed: true });
+      const responses = new Map<string, { path: string, mime: string }>();
+      const completed = new Set<string>();
+      cdp.on('Network.responseReceived', event => {
+        const url = new URL(event.response.url);
+        if (url.origin !== baseURL || !url.pathname.startsWith('/_next/static/') || event.response.status !== 200) return;
+        if (!/\.(js|css|woff2)$/.test(url.pathname)) return;
+        responses.set(event.requestId, { path: url.pathname, mime: event.response.mimeType });
+      });
+      cdp.on('Network.loadingFinished', event => completed.add(event.requestId));
+      expect((await page.goto(baseURL + path, { waitUntil: 'load' }))?.status()).toBe(200);
+      await page.evaluate(() => document.fonts.ready.then(() => undefined));
+      await page.getByRole('button', { name: /change language/i }).press('Enter');
+      await expect(page.getByRole('menuitem', { name: '日本語' })).toBeVisible();
+      await page.keyboard.press('Escape');
+      const { result: coverage } = await cdp.send('Profiler.takePreciseCoverage');
+      await cdp.send('Profiler.stopPreciseCoverage');
+      const loaded = [];
+      for (const [id, response] of responses) {
+        if (!completed.has(id)) continue;
+        const rel = response.path.slice('/_next/'.length);
+        expect(rel.split('/').every(part => part && part !== '..' && part !== '.')).toBe(true);
+        const disk = resolve(build, rel);
+        const bytes = readFileSync(disk);
+        const network = await cdp.send('Network.getResponseBody', { requestId: id });
+        const body = Buffer.from(network.body, network.base64Encoded ? 'base64' : 'utf8');
+        expect(hash(body), response.path + ' HTTP body must equal generated asset').toBe(hash(bytes));
+        loaded.push(response.path);
+        if (assets.has(response.path)) continue;
+        const record: any = { sha256: hash(bytes), bytes: bytes.length, mime: response.mime };
+        if (disk.endsWith('.js')) {
+          const mapFile = disk + '.map';
+          if (existsSync(mapFile)) {
+            const mapBytes = readFileSync(mapFile);
+            record.mapSha256 = hash(mapBytes);
+            record.modules = [...new Set(modules(JSON.parse(mapBytes.toString())))].sort();
+          } else record.modules = null;
+        }
+        if (disk.endsWith('.css')) {
+          record.fontFaces = [...bytes.toString().matchAll(/@font-face\s*\{([^}]+)\}/g)].map(match => ({
+            family: match[1].match(/font-family\s*:\s*([^;]+)/)?.[1] ?? null,
+            unicodeRange: match[1].match(/unicode-range\s*:\s*([^;]+)/)?.[1] ?? null,
+            files: [...match[1].matchAll(/url\(([^)]+)\)/g)].map(url => basename(url[1].replace(/['"]/g, ''))),
+          }));
+        }
+        assets.set(response.path, record);
+      }
+      const scriptCoverage = coverage.flatMap(script => {
+        if (!script.url.startsWith(baseURL + '/_next/static/')) return [];
+        const asset = new URL(script.url).pathname;
+        if (!loaded.includes(asset)) return [];
+        const ranges = script.functions.flatMap(fn => fn.ranges);
+        return [{ asset, functions: script.functions.length, ranges: ranges.length, executedRanges: ranges.filter(range => range.count > 0).length }];
+      });
+      routeEvidence.push({ path, loaded: [...new Set(loaded)].sort(), scriptCoverage });
+    } finally { await context.close(); }
+  }
+  const mapped = [...assets.entries()].filter(([path, asset]) => path.endsWith('.js') && asset.modules?.length);
+  report(info.project.name + '-same-build-attribution', {
+    buildId, assets: Object.fromEntries(assets), routes: routeEvidence,
+    scope: 'synthetic diagnostic production build; HTTP body and file SHA-256 joined to source maps, script-level V8 coverage and CSS font-face declarations; no per-module compressed byte or CPU attribution claim',
+  });
+  expect(mapped.length, 'at least one fetched JS chunk must have a source map').toBeGreaterThan(0);
+  expect(routeEvidence.every(route => route.scriptCoverage.length > 0)).toBe(true);
 });

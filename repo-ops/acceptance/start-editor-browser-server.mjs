@@ -28,6 +28,7 @@ const env = {
   NODE_ENV: production ? 'production' : 'development',
   TZ: 'UTC',
   NEXT_TELEMETRY_DISABLED: '1',
+  ...(production && process.env.EDITOR_FIXTURE_SEED === 'public' ? { REPO_OPS_FIXTURE_SOURCE_MAPS: '1' } : {}),
   NX_DAEMON: 'false',
   NX_NO_CLOUD: 'true',
   NX_TUI: 'false',
