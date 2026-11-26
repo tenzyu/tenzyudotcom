@@ -9,7 +9,7 @@ use crate::domain::project::{
     SourceManifest, MAIN_SOURCE_ID,
 };
 use crate::infra::archive::copy_source_to_raw;
-use crate::infra::files::{read_skin_ini, rebuild_structured, walk_relative_files};
+use crate::infra::files::{copy_dir_all, read_skin_ini, rebuild_structured, walk_relative_files};
 use crate::infra::lock::lock_workbench;
 use crate::infra::manifest::{
     ensure_main_source, main_source_manifest, read_manifest, write_manifest,
@@ -97,7 +97,8 @@ pub(crate) fn create_project(
 
     copy_source_to_raw(&input.source_path, &raw_dir)?;
     rebuild_structured(&raw_dir, &structured_dir)?;
-    copy_source_to_raw(&input.source_path, &source_raw)?;
+    // Derive the original comparison source from the same imported bytes.
+    copy_dir_all(&raw_dir, &source_raw)?;
     rebuild_structured(&source_raw, &source_structured)?;
 
     let mut manifest = ProjectManifest {

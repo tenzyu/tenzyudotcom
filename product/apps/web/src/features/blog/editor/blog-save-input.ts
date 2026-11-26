@@ -37,33 +37,29 @@ const BlogCreateFields = z.strictObject({
 })
 const BlogEditFields = BlogCreateFields.partial()
 
-export function parseEditorBlogSaveInput(
-  form: FormData,
-):
-  | { success: true; locale: string; command: BlogSaveCommand }
-  | { success: false; error: 'conflict' | 'invalid'; message: string } {
-  const invalid = {
-    success: false,
-    error: 'invalid',
-    message:
-      'Check the required blog fields and time zone. Your draft is still here.',
-  } as const
-  const submission = BlogSubmission.safeParse({
-    locale: form.get('locale'),
-    slug: form.get('slug'),
-    intent: form.get('intent'),
-    expectedVersion: form.get('expectedVersion'),
-    changes: form.get('changes'),
-  })
-  if (!submission.success) return invalid
-  const {
-    locale,
-    slug,
-    expectedVersion,
-    changes,
-    intent: explicitIntent,
-  } = submission.data
-  const intent = explicitIntent ?? (expectedVersion ? 'edit' : 'create')
+type BlogSaveParseResult =
+  | { success: true; command: BlogSaveCommand }
+  | { success: false; error: 'conflict' | 'invalid'; message: string }
+
+const invalidBlogSave = {
+  success: false,
+  error: 'invalid',
+  message:
+    'Check the required blog fields and time zone. Your draft is still here.',
+} as const
+
+// Both transport boundaries have already validated the slug and intent.
+export function parseBlogSaveCommand({
+  slug,
+  intent,
+  expectedVersion,
+  changes,
+}: {
+  slug: string
+  intent: 'create' | 'edit'
+  expectedVersion?: string | null
+  changes: unknown
+}): BlogSaveParseResult {
   if (intent === 'edit' && !/^[0-9a-f]{40}$/.test(expectedVersion ?? '')) {
     return {
       success: false,
@@ -72,7 +68,42 @@ export function parseEditorBlogSaveInput(
         'This form has an old edit version. Copy your draft and reload the editor.',
     }
   }
+  if (intent === 'create') {
+    const parsed = BlogCreateFields.safeParse(changes)
+    return parsed.success && !expectedVersion
+      ? { success: true, command: { slug, intent, changes: parsed.data } }
+      : invalidBlogSave
+  }
+  const parsed = BlogEditFields.safeParse(changes)
+  return parsed.success && expectedVersion
+    ? {
+        success: true,
+        command: { slug, intent, expectedVersion, changes: parsed.data },
+      }
+    : invalidBlogSave
+}
 
+export function parseEditorBlogSaveInput(
+  form: FormData,
+):
+  | { success: true; locale: string; command: BlogSaveCommand }
+  | Extract<BlogSaveParseResult, { success: false }> {
+  const submission = BlogSubmission.safeParse({
+    locale: form.get('locale'),
+    slug: form.get('slug'),
+    intent: form.get('intent'),
+    expectedVersion: form.get('expectedVersion'),
+    changes: form.get('changes'),
+  })
+  if (!submission.success) return invalidBlogSave
+  const {
+    locale,
+    slug,
+    expectedVersion,
+    changes,
+    intent: explicitIntent,
+  } = submission.data
+  const intent = explicitIntent ?? (expectedVersion ? 'edit' : 'create')
   let fields: unknown
   try {
     if (changes !== null) {
@@ -93,29 +124,12 @@ export function parseEditorBlogSaveInput(
                 .filter(Boolean)
             : null,
       }
-    } else {
-      return invalid
     }
   } catch {
-    return invalid
+    // The common parser still reports an invalid edit precondition first.
+    fields = undefined
   }
 
-  if (intent === 'create') {
-    const parsed = BlogCreateFields.safeParse(fields)
-    return parsed.success && !expectedVersion
-      ? {
-          success: true,
-          locale,
-          command: { slug, intent, changes: parsed.data },
-        }
-      : invalid
-  }
-  const parsed = BlogEditFields.safeParse(fields)
-  return parsed.success && expectedVersion
-    ? {
-        success: true,
-        locale,
-        command: { slug, intent, expectedVersion, changes: parsed.data },
-      }
-    : invalid
+  const result = parseBlogSaveCommand({ slug, intent, expectedVersion, changes: fields })
+  return result.success ? { ...result, locale } : result
 }

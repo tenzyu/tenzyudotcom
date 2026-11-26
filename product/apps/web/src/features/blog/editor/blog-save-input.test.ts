@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test'
-import { parseEditorBlogSaveInput } from './blog-save-input'
+import { parseBlogSaveCommand, parseEditorBlogSaveInput } from './blog-save-input'
 import { BlogWorkspaceRequestSchema } from './blog-workspace.validation'
 
 function submission(fields: Record<string, string>) {
@@ -122,5 +122,35 @@ describe('blog write slug boundaries', () => {
       ...request,
       newSlug: request.oldSlug,
     }).success).toBe(false)
+  })
+})
+
+describe('direct Blog command validation', () => {
+  test.each([
+    { intent: 'create', expectedVersion: undefined, changes: { title: 'T', summary: 'S', publishedAt: '2026-03-26T12:00:16.248+09:00', body: 'Body  \\r\\n', tags: ['tag', 'tag'] } },
+    { intent: 'edit', expectedVersion: 'a'.repeat(40), changes: { updatedAt: null, tags: null } },
+    { intent: 'edit', expectedVersion: 'bad', changes: { image: 'invalid' } },
+    { intent: 'edit', expectedVersion: 'a'.repeat(40), changes: { image: 'invalid' } },
+    { intent: 'create', expectedVersion: 'a'.repeat(40), changes: {} },
+  ] as const)('matches the legacy FormData adapter for %j', (input) => {
+    const direct = parseBlogSaveCommand({ slug: 'new-post', ...input })
+    const form = parseEditorBlogSaveInput(submission({
+      intent: input.intent,
+      expectedVersion: input.expectedVersion ?? '',
+      changes: JSON.stringify(input.changes),
+    }))
+    if (form.success) {
+      expect(direct).toEqual({ success: true, command: form.command })
+    } else {
+      expect(direct).toEqual(form)
+    }
+  })
+
+  test('does not turn a numeric overflow into an explicit null update', () => {
+    const input = BlogWorkspaceRequestSchema.parse(JSON.parse(
+      '{"operation":"save","slug":"new-post","intent":"edit","expectedVersion":"'+ 'a'.repeat(40) +'","changes":{"updatedAt":1e400}}',
+    ))
+    if (input.operation !== 'save') throw new Error('unexpected operation')
+    expect(parseBlogSaveCommand(input)).toMatchObject({ success: false, error: 'invalid' })
   })
 })
