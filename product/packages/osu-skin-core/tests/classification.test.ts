@@ -21,3 +21,18 @@ describe("lazer meaningful classification", () => {
   });
 });
 
+test("retains frame indices while grouping canonical animation families", () => {
+  for (const [filename, family, index] of [
+    ["followpoint-2.png", "followpoint", 2],
+    ["folder\\FOLLOWPOINT-12@2x.PNG", "followpoint", 12],
+    ["sliderb0.png", "sliderb", 0],
+    ["sliderb7@2x.png", "sliderb", 7],
+    ["cursor.png", "cursor", null],
+    ["custom-2-3.png", "custom-2", 3],
+    ["followpoint-9007199254740992.png", "followpoint", null],
+  ] as const) {
+    const classified = classifySkinFile(filename);
+    expect(classified.groupKey).toBe(family);
+    expect(classified.sequenceIndex).toBe(index);
+  }
+});

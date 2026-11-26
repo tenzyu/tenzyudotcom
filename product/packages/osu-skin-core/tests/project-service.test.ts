@@ -56,3 +56,27 @@ test("finalizes each populated and empty cell without changing ordering or warni
   expect(row.warnings.some((warning) => warning.message === "missing in project but available from asset source")).toBe(true);
   expect(frames.map((asset) => asset.file.root)).toEqual(["first", "second", "third"]);
 });
+
+test("reports missing animation frames from classified filenames", () => {
+  const assets = classifySkinFiles([
+    { relativePath: "followpoint-3@2x.png" },
+    { relativePath: "followpoint-0.png" },
+    { relativePath: "followpoint-3.png" },
+  ]);
+  const row = buildAssetMatrix({ project: assets }).rows.find((row) => row.groupKey === "followpoint");
+  expect(row?.cells.project.assets.map((asset) => asset.sequenceIndex)).toEqual([0, 3, 3]);
+  expect(row?.cells.project.warnings.map((warning) => warning.message)).toEqual(["animation frames missing: 1, 2"]);
+});
+
+test("bounds gap diagnostics even for a maximum safe integer frame index", () => {
+  const assets = classifySkinFiles([
+    { relativePath: "followpoint-0.png" },
+    { relativePath: "followpoint-9007199254740991.png" },
+    { relativePath: "followpoint-9007199254740992.png" },
+  ]);
+  const row = buildAssetMatrix({ project: assets }).rows.find((row) => row.groupKey === "followpoint");
+  const warning = row?.cells.project.warnings.find((warning) => warning.type === "animationGap");
+  expect(warning?.message).toBe(
+    `animation frames missing: ${Array.from({ length: 64 }, (_, index) => index + 1).join(", ")}, ... (9007199254740990 total)`,
+  );
+});
