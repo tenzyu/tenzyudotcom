@@ -10,6 +10,7 @@ import {
   compareTaxonomyPathOrder,
   emptySkinMeaning,
   mergeSkinMeaning,
+  mergeRequiredLevel,
   preferSkinKind,
 } from "../domain/skin-asset-policy";
 import { TaxonomyPath } from "../domain/taxonomy-path";
@@ -295,9 +296,7 @@ export class AssetMatrixBuilder {
         row.lazerMeaningful = row.lazerMeaningful || isLazerMeaningful(asset.meaning);
         row.kind = preferSkinKind(row.kind, asset.kind);
 
-        if (row.requiredLevel === "optional" && asset.requiredLevel !== "optional") {
-          row.requiredLevel = asset.requiredLevel;
-        }
+        row.requiredLevel = mergeRequiredLevel(row.requiredLevel, asset.requiredLevel);
       }
     };
 
