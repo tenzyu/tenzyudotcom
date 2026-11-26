@@ -111,6 +111,15 @@ jobs:
       - name: Build browser-safe packages and workbench frontend
         run: |
           /usr/bin/time -v -o "$RUNNER_TEMP/package-evidence/build-time.txt" bun nx run skin-workbench:build-vite --skip-nx-cache
+      - name: Native Next.js route and module analysis with synthetic content
+        env:
+          EDITOR_BROWSER_PRODUCTION: '1'
+          EDITOR_FIXTURE_SEED: public
+          PLAYWRIGHT_OUTPUT_DIR: ${{ runner.temp }}/analyze-fixture
+        run: |
+          node repo-ops/acceptance/start-editor-browser-server.mjs --analyze-only
+          cp -a "$PLAYWRIGHT_OUTPUT_DIR/next-analysis" "$RUNNER_TEMP/package-evidence/next-analysis"
+          cp "$PLAYWRIGHT_OUTPUT_DIR/next-analyze.log" "$RUNNER_TEMP/package-evidence/next-analyze.log"
       - name: Verify public export artifacts and record sizes
         run: node repo-ops/evidence/package-evidence.mjs "$RUNNER_TEMP/package-evidence/packages.json"
       - name: Record Rust dependency graph
