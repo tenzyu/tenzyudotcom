@@ -114,10 +114,19 @@ export function nameMatches(
   const key = options.logical ? logicalSkinKey(relativePath) : canonicalKey(relativePath);
   const basename = key.split("/").at(-1) ?? key;
 
+  return normalizedNameMatches(key, basename, patterns);
+}
+
+export function normalizedNameMatches(
+  key: string,
+  basename: string,
+  patterns: readonly string[],
+  compile: (pattern: string) => RegExp = globToRegExp,
+): boolean {
   return patterns.some((pattern) => {
     const lower = pattern.toLowerCase();
     const target = lower.includes("/") ? key : basename;
-    return globToRegExp(lower).test(target);
+    return compile(lower).test(target);
   });
 }
 

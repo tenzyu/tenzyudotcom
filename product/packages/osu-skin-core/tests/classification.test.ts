@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { classifySkinFile } from "../src/lib/classification/skin-classifier";
+import { classifySkinFile, matchingRuleFor } from "../src/lib/classification/skin-classifier";
 
 describe("lazer meaningful classification", () => {
   test("keeps lazer result applause sounds out of stable-only archive", () => {
@@ -34,5 +34,23 @@ test("retains frame indices while grouping canonical animation families", () => 
     const classified = classifySkinFile(filename);
     expect(classified.groupKey).toBe(family);
     expect(classified.sequenceIndex).toBe(index);
+  }
+});
+
+import { classificationRules } from "../src/lib/classification/classification-rules";
+import { canonicalKey, nameMatches } from "../src/lib/classification/filename-normalizer";
+
+test("catalog matcher preserves first-match precedence for representative paths from every rule", () => {
+  const paths = new Set(["unknown.bin", "folder\\FOLLOWPOINT-12@2x.PNG", "sliderb7@2x.png", "cursors/example.png"]);
+  for (const rule of classificationRules) {
+    for (const pattern of rule.patterns) {
+      const sample = pattern.replaceAll("*", "example");
+      paths.add(sample);
+      paths.add("nested/" + sample.toUpperCase());
+    }
+  }
+  for (const path of paths) {
+    const expected = classificationRules.find(rule => nameMatches(canonicalKey(path), rule.patterns, { logical: true })) ?? null;
+    expect(matchingRuleFor(path)).toBe(expected);
   }
 });
