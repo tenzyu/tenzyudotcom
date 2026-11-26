@@ -1,9 +1,6 @@
 import { cache } from 'react'
-import {
-  buildLocalizedNotePath,
-  type NoteSourceEntry,
-} from './notes.domain'
-import { createPublicNoteGraph, type PublicNoteThreadItem } from '@tenzyu/publishing-domain/notes'
+import { buildLocalizedNotePath } from './notes.urls'
+import { createPublicNoteGraph, type NoteSourceEntry, type PublicNoteThreadItem } from '@tenzyu/publishing-domain/notes'
 import type { ContentSnapshot } from '@tenzyu/revisioned-content/contracts'
 import { loadPublicNoteEntries } from './notes.infra'
 
