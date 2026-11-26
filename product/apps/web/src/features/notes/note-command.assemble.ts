@@ -13,9 +13,10 @@ import {
   type NoteSourceEntry,
   compareNotesByCreatedAtDesc,
   listAvailableParentNotes,
+  parseNoteSourceEntries,
   reparentChildrenAfterNoteDelete,
 } from '@tenzyu/publishing-domain/notes'
-import { NOTES_STORAGE_PATH, parseNoteSourceEntries } from './notes.infra'
+import { NOTES_STORAGE_PATH } from './notes.infra'
 
 export async function loadNoteEditView(
   id: string | null,
