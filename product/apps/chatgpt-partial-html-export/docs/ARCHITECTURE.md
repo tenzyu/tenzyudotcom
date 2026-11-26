@@ -1,4 +1,4 @@
-# Architecture
+# HTML export architecture
 
 This is a local-only Firefox WebExtension.
 
@@ -23,10 +23,10 @@ Native host
   writes HTML to disk
 ```
 
-## Boundary
+## API and export boundary
 
 The extension does not call OpenAI or ChatGPT internal APIs. It exports only the DOM already rendered in the current tab.
 
-This design reduces account-safety risk and requires fewer permissions. It avoids dependence on private ChatGPT API contracts. Exported content is limited to the DOM visible in the browser.
+Reading the rendered DOM avoids private ChatGPT API dependencies and reduces the required permissions and account-safety risk.
 
-Messages that the page has not rendered may become exportable only after the user scrolls or loads them in the browser.
+The exporter cannot read messages until the page renders them. Scroll or load earlier messages before exporting them.

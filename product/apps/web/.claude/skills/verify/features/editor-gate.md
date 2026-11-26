@@ -6,14 +6,14 @@
 - Anonymous English editor access redirects to `/en/editor/login`.
 - The login page renders without content mutation.
 
-## Open the editor
+## Test anonymous editor access
 
-Open `/editor` or `/en/editor` without an editor session.
+Without an editor session, open `/editor` or `/en/editor`.
 
 ## Playwright test
 
-Run `--grep "editor requires"`. The test follows redirects, checks the login pathname for the requested locale and verifies visible main content, viewport fit and browser errors.
+Run `--grep "editor requires"`. The test follows redirects and checks the login pathname for the requested locale. It also checks visible main content, viewport fit, and browser errors.
 
 ## Constraints
 
-The default public suite clears editor credentials and GitHub tokens. Do not enter a password or submit content in that suite. Use the separate [editor lifecycle test](editor-lifecycle.md) for mutations against an in-memory GitHub fixture.
+The default public suite clears editor credentials and GitHub tokens. Do not enter a password or submit content in the public suite. Use the separate [editor lifecycle test](editor-lifecycle.md) for mutations against an in-memory GitHub fixture.

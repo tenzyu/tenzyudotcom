@@ -1,4 +1,6 @@
-# Web verification feature map
+# Web verification tests
+
+The following table lists the tests and their expected results.
 
 | Feature | Test |
 | --- | --- |
@@ -9,4 +11,4 @@
 | [Editor access gate](editor-gate.md) | Anonymous users reach login without modifying content |
 | [Editor lifecycle](editor-lifecycle.md) | Opt-in desktop fixture checks creation, editing, appending entries, publication, reload and anonymous visibility |
 
-Run every listed test in both configured Chromium projects unless the feature file narrows the matrix. A route that renders while emitting a browser error has not passed.
+Run every listed test in both configured Chromium projects unless the feature file narrows the matrix. A test fails if the route renders but the browser reports an error.

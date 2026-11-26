@@ -2,10 +2,10 @@
 
 ## Expected behavior
 
-- Links, tools, blog, notes, scraps, and osu! public pages.
-- Japanese at unprefixed URLs.
-- English under `/en`.
-- Responsive layout without horizontal overflow.
+- The links, tools, blog, notes, scraps, and osu! pages are public.
+- Unprefixed URLs render Japanese.
+- URLs under `/en` render English.
+- The layout has no horizontal overflow.
 
 ## Open a public route
 
@@ -13,12 +13,12 @@ Open any retained route directly, such as `/notes` for Japanese or `/en/notes` f
 
 ## Playwright test
 
-Run `--grep "retained route "`. Each URL has its own test, page, and browser-event collector. The 12 URLs are `/links`, `/en/links`, `/tools`, `/en/tools`, `/blog`, `/en/blog`, `/notes`, `/en/notes`, `/scraps`, `/en/scraps`, `/osu`, and `/en/osu`.
+Run `--grep "retained route "`. Each URL has a separate test, page, and browser event collector. The 12 URLs are `/links`, `/en/links`, `/tools`, `/en/tools`, `/blog`, `/en/blog`, `/notes`, `/en/notes`, `/scraps`, `/en/scraps`, `/osu`, and `/en/osu`.
 
-Each test checks HTTP 200, final pathname, document language, viewport fit, and browser errors. Both Chromium projects run all 12 URLs for 24 retained-route outcomes. The full public suite has 32 outcomes, including the four other journeys per project. Use `bun --no-env-file run test:browser --list` to list the current matrix.
+Each test checks for HTTP 200. It also checks the final pathname, document language, viewport fit, and browser errors. Both Chromium projects run all 12 URLs for 24 retained-route outcomes. The full public suite has 32 outcomes, including the four other journeys per project. Use `bun --no-env-file run test:browser --list` to list the current matrix.
 
 ## Constraints
 
 Anonymous GitHub reads use the live public content repository. Assertions check routes and page behavior without requiring fixed content snapshots. Test the default locale as well as `/en` so redirect loops in the default locale fail the suite.
 
-The automatic browser-event fixture checks captured errors before Playwright tears down each page. No retained-route test navigates away to the next URL, so that navigation cannot cancel the previous page's background requests. Console errors, page errors, and failed requests during the test still fail it. Only the existing exact retired-document 404 exception applies.
+The automatic browser-event fixture checks captured errors before Playwright tears down each page. Each retained-route test stays on its URL. Navigation to the next URL cannot cancel the previous page's background requests. Console errors, page errors, and failed requests during the test still fail it. Only the existing exact retired-document 404 exception applies.

@@ -18,7 +18,7 @@ x:
 
 # Lint rule rollout log
 
-## Scope
+## 対象ルール
 
 1. `assemble` 以外から `infra` 直 import 禁止
 2. `domain` / `port` から `infra` / `assemble` への逆流禁止
@@ -28,14 +28,14 @@ x:
 6. `zod` owner 固定
 7. Next server API owner 固定
 
-## Implementation notes
+## 実装上の制約
 
-- `env.infra.ts` は外部設定の唯一の所有元だが、`site.ts` や auth/session など一部の非 assemble server module から読む必要がある
-- そのため Rule 1 は `env.infra.ts` を除く一般 `*.infra.ts` を対象にする
+- `env.infra.ts` は外部設定の唯一の所有元である。ただし `site.ts` や auth/session など、一部の assemble 以外のサーバーモジュールも参照する必要がある
+- Rule 1 の対象は `*.infra.ts` とし、`env.infra.ts` を除外する
 - Rule 5 を有効にするため、blog 読み込み時のファイルシステムアクセスは `src/lib/editor/**` に移す
 - Rule 6 を有効にするため、admin action の `zod` schema は `*.assemble.ts` に移す
 
-## Checklist
+## 実装状況
 
 - [x] Rule 1: custom import boundary lint
 - [x] Rule 2: custom import boundary lint
@@ -46,14 +46,14 @@ x:
 - [x] Rule 7: lint-site-rules
 - [x] lint / test / build 確認
 
-## Result
+## 検証結果
 
-- `bun run lint`: pass
-- `bun test`: pass
-- `bun run build`: pass
-- `bun run verify:quick`: docs lint 既知不整合で fail
+- `bun run lint`: 成功
+- `bun test`: 成功
+- `bun run build`: 成功
+- `bun run verify:quick`: 既知の docs lint 不整合により失敗
 
-## Delivered rules
+## 導入済みルール
 
 ### Rule 1
 
@@ -83,7 +83,7 @@ x:
 
 - `next/cache`, `next/headers`, `next/navigation` は `src/app/` または `*.assemble.ts` に限定
 
-## Ownership follow-up
+## 所有元の変更
 
 - owner tree spec は `harness/observations/audits/app-ownership-tree-spec.md` に記録済み
 - `src/components/shell/*`

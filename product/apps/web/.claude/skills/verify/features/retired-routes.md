@@ -6,15 +6,15 @@
 - `/pointers`.
 - `/puzzles`.
 - `/recommendations`.
-- Default Japanese and explicit English variants.
+- Each route returns HTTP 404 in Japanese and English.
 
 ## Open a retired route
 
-Open an old saved URL directly.
+Open a saved URL for one of the retired routes.
 
 ## Playwright test
 
-Run `--grep "retired routes"`. The test requests every route with and without `/en`, requires HTTP 404, checks viewport fit, and records browser errors.
+Run `--grep "retired routes"`. The test requests every route with and without `/en` and requires HTTP 404. It checks viewport fit and records browser errors.
 
 ## Constraints
 
