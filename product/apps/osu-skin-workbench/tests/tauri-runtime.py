@@ -8,6 +8,7 @@ import sys
 import tempfile
 import time
 import urllib.request
+import urllib.error
 
 ROOT = Path(__file__).resolve().parents[1]
 APP = ROOT / "src-tauri/target/release/osu-skin-workbench"
@@ -104,7 +105,10 @@ def main(direct=False):
         env = {**os.environ, "HOME":str(home), "XDG_DATA_HOME":str(data),
                "XDG_CONFIG_HOME":str(root/"config"), "XDG_CACHE_HOME":str(root/"cache")}
         driver_path = str(Path(os.environ["HOME"]) / ".cargo/bin/tauri-driver")
-        driver_command = ["WebKitWebDriver", "--port=4444"] if direct else [driver_path]
+        # Match the pinned upstream webdriver.rs native launch contract.
+        if direct:
+            env.update(TAURI_AUTOMATION="true", TAURI_WEBVIEW_AUTOMATION="true")
+        driver_command = ["WebKitWebDriver", "--port=4444", "--host=127.0.0.1"] if direct else [driver_path]
         with open(root / "driver.log", "w+") as log:
             driver = subprocess.Popen(driver_command, env=env, stdout=log, stderr=log,
                                       start_new_session=True)
@@ -114,8 +118,13 @@ def main(direct=False):
                 payload = json.dumps(body).encode() if body is not None else None
                 req = urllib.request.Request(endpoint + path, data=payload, method=method,
                                              headers={"Content-Type":"application/json"})
-                with urllib.request.urlopen(req, timeout=timeout) as response:
-                    return json.load(response)["value"]
+                try:
+                    with urllib.request.urlopen(req, timeout=timeout) as response:
+                        return json.load(response)["value"]
+                except urllib.error.HTTPError as error:
+                    detail = error.read(4096).decode(errors="replace")
+                    print(f"WebDriver HTTP {error.code}: {detail}", flush=True)
+                    raise
             def ready():
                 if driver.poll() is not None:
                     raise AssertionError("tauri-driver terminated")
