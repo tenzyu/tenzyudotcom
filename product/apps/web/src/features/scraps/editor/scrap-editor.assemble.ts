@@ -11,7 +11,6 @@ import {
 import {
   parseScrapManifest,
   parseScrapEntryMeta,
-  parseScrapIndexProjection,
 } from '@tenzyu/publishing-domain/scraps-validation'
 import { getScrapsAggregateRepository, loadScrapIndex } from '@/features/scraps/scraps.infra'
 import {
