@@ -1,12 +1,14 @@
 "use client";
 
 import {
-  addProjectSource,
-  chooseSkinDirectory,
-  chooseSkinFile,
-  deleteProjectSource,
-  renameProjectSource,
-} from "../lib/client/project-api";
+  chooseSkinFolderPath,
+  chooseSkinFilePath,
+} from "../lib/tauri/file-dialog.adapter";
+import {
+  invokeAddProjectSource,
+  invokeDeleteProjectSource,
+  invokeRenameProjectSource,
+} from "../lib/tauri/project-command.adapter";
 import type { ProjectManifest } from "@tenzyu/osu-skin-core/contract";
 
 export function useAssetSourceActions(input: {
@@ -32,7 +34,7 @@ export function useAssetSourceActions(input: {
     input.setError(null);
 
     try {
-      const nextProject = await addProjectSource({
+      const nextProject = await invokeAddProjectSource({
         projectId: input.project.id,
         sourcePath,
         name: name || undefined,
@@ -55,7 +57,7 @@ export function useAssetSourceActions(input: {
     input.setError(null);
 
     try {
-      const selected = kind === "directory" ? await chooseSkinDirectory() : await chooseSkinFile();
+      const selected = kind === "directory" ? await chooseSkinFolderPath() : await chooseSkinFilePath();
       input.setStatus(selected ? "Selected asset source path." : "File picker was cancelled or unavailable.");
       return selected;
     } catch (err) {
@@ -73,7 +75,7 @@ export function useAssetSourceActions(input: {
     input.setError(null);
 
     try {
-      const nextProject = await renameProjectSource({ projectId: input.project.id, sourceId, name });
+      const nextProject = await invokeRenameProjectSource({ projectId: input.project.id, sourceId, name });
       input.updateProject(nextProject);
       await input.reloadFiles(nextProject.id);
       input.setStatus("Asset source renamed.");
@@ -91,7 +93,7 @@ export function useAssetSourceActions(input: {
     input.setError(null);
 
     try {
-      const nextProject = await deleteProjectSource({ projectId: input.project.id, sourceId });
+      const nextProject = await invokeDeleteProjectSource({ projectId: input.project.id, sourceId });
       input.updateProject(nextProject);
       await input.reloadFiles(nextProject.id);
       input.setStatus("Asset source deleted.");

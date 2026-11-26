@@ -2,13 +2,15 @@
 
 import { useEffect, useState } from 'react'
 import {
-  chooseSkinDirectory,
-  chooseSkinFile,
-  createProject,
-  deleteProject,
-  fetchProjects,
-  renameProject,
-} from '../lib/client/project-api'
+  chooseSkinFolderPath,
+  chooseSkinFilePath,
+} from '../lib/tauri/file-dialog.adapter'
+import {
+  invokeCreateProject,
+  invokeDeleteProject,
+  listProjectManifests,
+  invokeRenameProject,
+} from '../lib/tauri/project-command.adapter'
 import type { ProjectManifest } from '@tenzyu/osu-skin-core/contract'
 import { Badge } from '@tenzyu/ui/badge'
 import { Button } from '@tenzyu/ui/button'
@@ -44,7 +46,7 @@ export function ProjectHubClient({ onOpenProject }: Props) {
     setError(null)
 
     try {
-      const nextProjects = await fetchProjects()
+      const nextProjects = await listProjectManifests()
       setProjects(nextProjects)
       setStatus(nextProjects.length ? 'Projects loaded.' : 'No projects yet.')
     } catch (unknownError) {
@@ -68,7 +70,7 @@ export function ProjectHubClient({ onOpenProject }: Props) {
     setError(null)
 
     try {
-      const project = await createProject({
+      const project = await invokeCreateProject({
         sourcePath,
         name: projectName || undefined,
       })
@@ -98,8 +100,8 @@ export function ProjectHubClient({ onOpenProject }: Props) {
     try {
       const selected =
         kind === 'directory'
-          ? await chooseSkinDirectory()
-          : await chooseSkinFile()
+          ? await chooseSkinFolderPath()
+          : await chooseSkinFilePath()
       if (selected) setSourcePath(selected)
       setStatus(
         selected
@@ -125,7 +127,7 @@ export function ProjectHubClient({ onOpenProject }: Props) {
     setError(null)
 
     try {
-      const nextProject = await renameProject(project.id, name)
+      const nextProject = await invokeRenameProject(project.id, name)
       setProjects((current) =>
         current.map((item) => (item.id === nextProject.id ? nextProject : item))
       )
@@ -153,7 +155,7 @@ export function ProjectHubClient({ onOpenProject }: Props) {
     setError(null)
 
     try {
-      await deleteProject(project.id)
+      await invokeDeleteProject(project.id)
       setProjects((current) => current.filter((item) => item.id !== project.id))
       setStatus('Project deleted.')
     } catch (unknownError) {

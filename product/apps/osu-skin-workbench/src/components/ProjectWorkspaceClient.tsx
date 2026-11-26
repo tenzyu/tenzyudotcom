@@ -4,14 +4,16 @@ import { Button } from '@tenzyu/ui/button'
 
 import { useEffect, useMemo, useState } from 'react'
 import {
-  applyAssetGroup,
-  chooseSkinDirectory,
-  chooseSkinFile,
-  createProject,
-  deleteAssetGroup,
-  exportProject,
-  rebuildStructuredMirrors,
-} from '../lib/client/project-api'
+  chooseSkinFolderPath,
+  chooseSkinFilePath,
+} from '../lib/tauri/file-dialog.adapter'
+import {
+  invokeApplyAssetGroup,
+  invokeCreateProject,
+  invokeDeleteAssetGroup,
+  invokeExportProject,
+  invokeRebuildStructuredMirrors,
+} from '../lib/tauri/project-command.adapter'
 import type { ExportPreset } from '@tenzyu/osu-skin-core/contract'
 import { useAssetMatrixNavigation } from '../hooks/useAssetMatrixNavigation'
 import { useAssetSourceActions } from '../hooks/useAssetSourceActions'
@@ -95,7 +97,7 @@ export function ProjectWorkspaceClient({
     setError(null)
 
     try {
-      const project = await createProject({
+      const project = await invokeCreateProject({
         sourcePath: mainPath,
         name: projectName || undefined,
       })
@@ -126,8 +128,8 @@ export function ProjectWorkspaceClient({
     try {
       const selected =
         kind === 'directory'
-          ? await chooseSkinDirectory()
-          : await chooseSkinFile()
+          ? await chooseSkinFolderPath()
+          : await chooseSkinFilePath()
       if (selected) setMainPath(selected)
       setStatus(
         selected ? 'Selected main skin path.' : 'File picker was cancelled.'
@@ -175,7 +177,7 @@ export function ProjectWorkspaceClient({
     setError(null)
 
     try {
-      const result = await applyAssetGroup({
+      const result = await invokeApplyAssetGroup({
         projectId: projectsState.project.id,
         sourceId: input.sourceId,
         sourcePaths: input.sourcePaths,
@@ -205,7 +207,7 @@ export function ProjectWorkspaceClient({
     setError(null)
 
     try {
-      const result = await deleteAssetGroup({
+      const result = await invokeDeleteAssetGroup({
         projectId: projectsState.project.id,
         projectPaths,
       })
@@ -230,7 +232,7 @@ export function ProjectWorkspaceClient({
     setError(null)
 
     try {
-      const result = await rebuildStructuredMirrors(projectsState.project.id)
+      const result = await invokeRebuildStructuredMirrors(projectsState.project.id)
       await fetchProjectFiles(projectsState.project.id)
       setStatus(`Rebuilt project mirror (${result.projectFileCount} files).`)
     } catch (unknownError) {
@@ -250,7 +252,7 @@ export function ProjectWorkspaceClient({
     setError(null)
 
     try {
-      const result = await exportProject({
+      const result = await invokeExportProject({
         projectId: projectsState.project.id,
         preset,
       })
