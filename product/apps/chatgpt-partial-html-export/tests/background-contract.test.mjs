@@ -73,3 +73,14 @@ test('normalizeSettings coerces invalid values to the contract defaults', () => 
 test('empty settings normalize to the shipped defaults', () => {
   assert.deepEqual(normalizeSettings({}), CPHE_DEFAULT_SETTINGS);
 });
+
+test('long Unicode filenames fit a 255-byte component without splitting code points', () => {
+  for (const name of ['日'.repeat(180) + '.html', '😀'.repeat(100) + '.htm', 'x'.repeat(200) + '.html']) {
+    const safe = sanitizeFilename(name);
+    assert.ok(Buffer.byteLength(safe, 'utf8') <= 255);
+    assert.ok(safe.length <= 180);
+    assert.match(safe, /\.html?$/);
+    assert.equal(safe.includes('\uFFFD'), false);
+    assert.equal(sanitizeFilename(safe), safe);
+  }
+});
