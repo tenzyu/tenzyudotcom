@@ -459,3 +459,34 @@ describe('getScrapStoragePaths', () => {
     expect(() => getScrapStoragePaths('Bad Slug')).toThrow(/Invalid scrap slug/)
   })
 })
+
+describe('identifier validation boundaries', () => {
+  const cases = [
+    ['a', true],
+    ['a'.repeat(80), true],
+    ['a'.repeat(81), false],
+    ['0-a', true],
+    ['-leading', false],
+    ['A', false],
+    ['a/b', false],
+    ['a_b', false],
+    ['日本語', false],
+    ['', false],
+  ] as const
+
+  for (const [value, accepted] of cases) {
+    test(`uses the same domain and schema rules for ${JSON.stringify(value)}`, () => {
+      expect(isValidScrapSlug(value)).toBe(accepted)
+      expect(isValidScrapEntryId(value)).toBe(accepted)
+      const manifest = () => parseScrapManifest({ ...baseManifest, slug: value })
+      const entry = () => parseScrapManifest({ ...baseManifest, entryIds: [value] })
+      if (accepted) {
+        expect(manifest().slug).toBe(value)
+        expect(entry().entryIds).toEqual([value])
+      } else {
+        expect(manifest).toThrow(/slug/)
+        expect(entry).toThrow(/entry id/)
+      }
+    })
+  }
+})
