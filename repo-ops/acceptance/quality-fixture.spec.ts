@@ -172,3 +172,24 @@ test('navigation and scripted interaction performance inventory', async ({ brows
   report(info.project.name + '-performance', { scope: 'local production fixture; browser cold/warm cache; external proxy blocked; no throttle; Next bundled web-vitals, scripted laboratory lifecycle, not field p75', viewport, results });
   console.log(JSON.stringify({ project: info.project.name, navigations: results.length, lcpSamples: results.filter(r => r.lcpMs !== null).length, observedInteractionSamples: results.filter(r => r.interactionSampleMaxMs !== null).length, officialINPSamples: results.filter((r: any) => typeof r.webVitals?.INP?.value === 'number').length, warmCacheHits: results.filter((r: any) => r.phase === 'warm-browser-cache').flatMap((r: any) => r.waterfall).filter((r: any) => r.fromDiskCache || r.servedFromCache).length }));
 });
+
+test('background motion is opt-in when reduced motion is requested and can be paused', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/en/osu');
+  const video = page.locator('video').first();
+  const play = page.getByRole('button', { name: 'Play background video', exact: true });
+  await expect(play).toBeVisible();
+  await expect.poll(() => video.evaluate(v => v.paused)).toBe(true);
+  await play.press('Enter');
+  const pause = page.getByRole('button', { name: 'Pause background video', exact: true });
+  await expect(pause).toBeVisible();
+  await expect.poll(() => video.evaluate(v => v.paused)).toBe(false);
+  await pause.press('Enter');
+  await expect(play).toBeFocused();
+  await expect.poll(() => video.evaluate(v => v.paused)).toBe(true);
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await expect(pause).toBeVisible();
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await expect(play).toBeVisible();
+  await expect.poll(() => video.evaluate(v => v.paused)).toBe(true);
+});
