@@ -1,0 +1,91 @@
+name: Nx cache evidence
+on:
+  pull_request:
+    branches: [develop]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: nx-cache-evidence-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  cache-contract:
+    if: startsWith(github.head_ref, 'evidence/phase2-n7-') || startsWith(github.head_ref, 'evidence/phase2-n8-') || startsWith(github.head_ref, 'evidence/phase2-n9-') || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      NX_DAEMON: 'false'
+      NX_NO_CLOUD: 'true'
+      NX_TUI: 'false'
+      NX_LOAD_DOT_ENV_FILES: 'false'
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.5
+      - name: Compare cold and restored UI build outputs under isolated local Nx caches
+        shell: bash
+        env:
+          BASE: ${{ github.event.pull_request.base.sha || 'ca801532fd7109c953ad655a729eda5ac44d4d34' }}
+        run: |
+          set -euo pipefail
+          [[ "$BASE" =~ ^[0-9a-f]{40}$ ]]
+          git worktree add --detach "$RUNNER_TEMP/cache-baseline" "$BASE"
+          out="$RUNNER_TEMP/nx-cache-proof"
+          mkdir -p "$out"
+          for label in baseline candidate; do
+            (
+              if [[ "$label" = baseline ]]; then cd "$RUNNER_TEMP/cache-baseline"; else cd "$GITHUB_WORKSPACE"; fi
+              dir="$out/$label"
+              mkdir -p "$dir"
+              export NX_CACHE_DIRECTORY="$RUNNER_TEMP/nx-local-$label"
+              export NX_WORKSPACE_DATA_DIRECTORY="$RUNNER_TEMP/nx-data-$label"
+              { git rev-parse HEAD HEAD^{tree}; node --version; bun --version; sha256sum bun.lock nx.json package.json; } > "$dir/revision.txt"
+              bun install --frozen-lockfile
+              output=product/packages/ui/dist
+              hash_output() { find "$output" -type f -print0 | sort -z | xargs -0 sha256sum; }
+              run_build() {
+                /usr/bin/time -f '%e' -o "$dir/$1.seconds" bun nx run ui:build --outputStyle=static > "$dir/$1.log" 2>&1 || { cat "$dir/$1.log"; return 1; }
+              }
+              run_build cold
+              test -s "$output/styles.css"
+              hash_output > "$dir/cold.sha256"
+              # Only generated artifacts inside this disposable CI checkout.
+              rm -rf -- "$output"
+              run_build warm
+              hash_output > "$dir/warm.sha256"
+              cmp "$dir/cold.sha256" "$dir/warm.sha256"
+              grep -Ei 'read (the output )?from (the )?cache|local cache|existing outputs match' "$dir/warm.log"
+              # Shared Nx config is a declared cache input. Change only whitespace;
+              # restore it before any subsequent verification.
+              cp nx.json "$dir/nx.original"
+              trap 'cp "$dir/nx.original" nx.json; rm -f "$dir/nx.original"' EXIT
+              printf '\n' >> nx.json
+              rm -rf -- "$output"
+              run_build invalidated
+              test -s "$output/styles.css"
+              if grep -Ei 'read (the output )?from (the )?cache|local cache|existing outputs match' "$dir/invalidated.log"; then
+                echo 'Shared config mutation unexpectedly reused the cache' >&2
+                exit 1
+              fi
+              hash_output > "$dir/invalidated.sha256"
+              cmp "$dir/cold.sha256" "$dir/invalidated.sha256"
+              cp "$dir/nx.original" nx.json
+              git diff --exit-code -- nx.json
+            )
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nx-cache-proof
+          path: |
+            ${{ runner.temp }}/nx-cache-proof/**/*.seconds
+            ${{ runner.temp }}/nx-cache-proof/**/*.sha256
+            ${{ runner.temp }}/nx-cache-proof/**/revision.txt
+            ${{ runner.temp }}/nx-cache-proof/**/*.log
+          if-no-files-found: error
+          retention-days: 7
