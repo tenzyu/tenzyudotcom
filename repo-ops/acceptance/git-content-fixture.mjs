@@ -150,7 +150,7 @@ export function openGitContentFixture(directory, { allowNotesWrite = false, allo
       if (bytes.toString('base64') !== body.content) return respond(422);
       const revision = advance({ [filename]: bytes.toString('utf8') }, body.message);
       const sha = text(['rev-parse', `${revision}:${filename}`]);
-      return respond(previous ? 200 : 201, { content: { sha }, commit: { sha: revision } });
+      return respond(previous ? 200 : 201, { content: { sha, path: filename }, commit: { sha: revision } });
     }
     if (!((method === 'POST' && ['/git/blobs', '/git/trees', '/git/commits'].includes(path)) ||
           (method === 'PATCH' && path === '/git/refs/heads/main'))) return denied();
