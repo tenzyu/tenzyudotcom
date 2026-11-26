@@ -147,28 +147,6 @@ export function slugifyBlogHeading(value: string) {
     .replace(/\s+/g, '-')
 }
 
-export function extractBlogHeadings(source: string): BlogHeading[] {
-  const slugCount = new Map<string, number>()
-
-  return source
-    .split('\n')
-    .map((line) => /^(##|###)\s+(.+)$/.exec(line))
-    .filter((match): match is RegExpExecArray => match !== null)
-    .map((match) => {
-      const level = match[1].length as 2 | 3
-      const title = normalizeHeadingText(match[2])
-      const baseSlug = slugifyBlogHeading(title) || 'section'
-      const count = slugCount.get(baseSlug) ?? 0
-      slugCount.set(baseSlug, count + 1)
-
-      return {
-        level,
-        title,
-        id: count === 0 ? baseSlug : `${baseSlug}-${count}`,
-      } satisfies BlogHeading
-    })
-}
-
 export function isAiGeneratedPost(tags?: readonly string[]) {
   if (!tags || tags.length === 0) {
     return false

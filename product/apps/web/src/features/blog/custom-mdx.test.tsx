@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { ContentMDX } from '@/components/site/content-mdx'
+import { ContentMDX, prepareContentMDX } from '@/components/site/content-mdx'
 import { blogMdxComponents } from './mdx-components'
 
 test('renders the article’s aside and support link', async () => {
@@ -14,4 +14,40 @@ test('renders the article’s aside and support link', async () => {
   expect(html).toContain('便利な環境')
   expect(html).toContain('https://ko-fi.com/tenzyu')
   expect(html).toContain('お金くれる人探してます')
+})
+
+test('projects table-of-contents anchors from the same compiled headings', async () => {
+  const source = [
+    '## Alpha',
+    '#### Alpha',
+    '### Alpha',
+    '## Alpha-1',
+    '```md\n## Phantom\n```',
+    'Setext heading\n---',
+    '## [Link](https://example.com) and `code`',
+  ].join('\n\n')
+  const { content, headings } = await prepareContentMDX({ source, scope: 'blog' })
+  expect(headings).toEqual([
+    { id: 'alpha', level: 2, title: 'Alpha' },
+    { id: 'alpha-2', level: 3, title: 'Alpha' },
+    { id: 'alpha-1-1', level: 2, title: 'Alpha-1' },
+    { id: 'setext-heading', level: 2, title: 'Setext heading' },
+    { id: 'link-and-code', level: 2, title: 'Link and code' },
+  ])
+  const html = renderToStaticMarkup(content)
+  for (const { id, level } of headings) {
+    expect(html).toContain(`<h${level} id="${id}"`)
+  }
+  expect(html).toContain('<h4 id="alpha-1"')
+  expect(html).not.toContain('id="phantom"')
+  expect(renderToStaticMarkup(content)).toBe(html)
+})
+
+test('renders dynamic MDX headings without publishing a guessed table-of-contents link', async () => {
+  const { content, headings } = await prepareContentMDX({
+    source: '## Value {1 + 1}',
+    scope: 'blog',
+  })
+  expect(headings).toEqual([])
+  expect(renderToStaticMarkup(content)).toContain('<h2 id="value-2"')
 })

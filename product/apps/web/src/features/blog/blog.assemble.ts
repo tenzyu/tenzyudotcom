@@ -12,8 +12,6 @@ import { parseBlogFrontmatter } from './blog-frontmatter.assemble'
 import { resolveBlogAddress } from './blog-index.assemble'
 import { loadBlogCatalog, loadBlogPostBySlug } from './blog.infra'
 import {
-  extractBlogHeadings,
-  type BlogHeading,
   type BlogPostSummary,
   type BlogPostingJsonLd,
   type MDXData,
@@ -97,7 +95,6 @@ type BlogPostPageData =
   | {
       kind: 'post'
       post: BlogPost
-      headings: BlogHeading[]
       relatedPosts: BlogPostSummary[]
       isAiGenerated: boolean
     }
@@ -162,7 +159,6 @@ export const assembleBlogPostPageData = cache(
     return {
       kind: 'post',
       post,
-      headings: extractBlogHeadings(post.rawContent),
       relatedPosts,
       isAiGenerated: isAiGeneratedPost(post.metadata.tags),
     }

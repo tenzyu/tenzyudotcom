@@ -10,8 +10,7 @@ import {
   buildBlogPostStructuredData,
 } from '@/features/blog/blog.assemble'
 import type { BlogHeading } from '@tenzyu/publishing-domain/blog'
-import { stripLeadingBlogTitle } from '@tenzyu/publishing-domain/blog'
-import { CustomMDX } from '@/features/blog/custom-mdx'
+import type { ReactNode } from 'react'
 import { formatDate } from '@/lib/i18n/format-date'
 import { BlogPostTableOfContents } from './blog-post-table-of-contents'
 import { BlogRelatedPosts } from './blog-related-posts'
@@ -21,6 +20,7 @@ type BlogPostPageContentProps = {
   locale: string
   post: BlogPost
   headings: BlogHeading[]
+  body: ReactNode
   relatedPosts: BlogListItem[]
   isAiGenerated: boolean
 }
@@ -29,13 +29,13 @@ export function BlogPostPageContent({
   locale,
   post,
   headings,
+  body,
   relatedPosts,
   isAiGenerated,
 }: BlogPostPageContentProps) {
   const content = useIntlayer('page-blog')
   const dateLocale = locale === 'ja' ? 'ja-JP' : 'en-US'
   const structuredData = buildBlogPostStructuredData(post, locale)
-  const bodySource = stripLeadingBlogTitle(post.rawContent, post.metadata.title)
 
   return (
     <>
@@ -98,7 +98,7 @@ export function BlogPostPageContent({
 
         <BlogPageEditor locale={locale} slug={post.slug} />
         <article className="prose prose-zinc dark:prose-invert max-w-none text-[1.02rem] leading-8 prose-headings:scroll-mt-24 prose-pre:overflow-x-auto prose-img:rounded-xl">
-          <CustomMDX source={bodySource} />
+          {body}
         </article>
 
         <BlogSupportCard />
