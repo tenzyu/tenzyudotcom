@@ -19,6 +19,7 @@
   ],
   "background": {
     "scripts": [
+      "src/settings-defaults.js",
       "src/background.js"
     ],
     "persistent": false
@@ -30,6 +31,7 @@
         "https://chat.openai.com/*"
       ],
       "js": [
+        "src/settings-defaults.js",
         "src/content.js"
       ],
       "css": [
