@@ -78,7 +78,7 @@ test('source preservation fails closed on missing saved entries and handles dang
     symlinkSync('missing-target', join(root, 'link'));
     const inventory = join(dir, 'inventory.json');
     writeFileSync(inventory, JSON.stringify({ root, entries: [{ path: 'asset', state: 'tracked' }, { path: 'link', state: 'untracked' }] }));
-    const verifier = fileURLToPath(new URL('./verify-source.mjs', import.meta.url));
+    const verifier = fileURLToPath(new URL('../recovery/verify-source.mjs', import.meta.url));
     const missing = spawnSync(process.execPath, [verifier, inventory, saved, join(dir, 'missing.json')], { encoding: 'utf8' });
     assert.equal(missing.status, 1);
     assert.deepEqual(JSON.parse(readFileSync(join(dir, 'missing.json'), 'utf8')).missingSaved, ['asset', 'link']);

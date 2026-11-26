@@ -2,7 +2,7 @@ import { spawn, spawnSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, openSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { initGitContentFixture } from './git-content-fixture.mjs';
-import { externalEvidencePath } from './external-evidence-path.mjs';
+import { externalEvidencePath } from '../evidence/external-evidence-path.mjs';
 
 const root = resolve(import.meta.dirname, '../..');
 const output = externalEvidencePath(root, process.env.PLAYWRIGHT_OUTPUT_DIR ?? '/tmp/tenzyudotcom-editor-evidence');

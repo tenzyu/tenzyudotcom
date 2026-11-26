@@ -1,6 +1,6 @@
 import { resolve } from "node:path";
 import { defineConfig, devices } from "@playwright/test";
-import { externalEvidencePath } from "./external-evidence-path.mjs";
+import { externalEvidencePath } from "../evidence/external-evidence-path.mjs";
 
 const repositoryRoot = resolve(process.cwd());
 const outputDir = externalEvidencePath(
@@ -10,7 +10,7 @@ const outputDir = externalEvidencePath(
 const chromiumExecutablePath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH;
 
 export default defineConfig({
-	testDir: resolve(repositoryRoot, "repo-ops/renewal"),
+	testDir: resolve(repositoryRoot, "repo-ops/acceptance"),
 	testMatch: "browser-acceptance.spec.ts",
 	outputDir,
 	fullyParallel: false,
@@ -48,7 +48,7 @@ export default defineConfig({
 		},
 	],
 	webServer: {
-		command: "node repo-ops/renewal/start-browser-server.mjs",
+		command: "node repo-ops/acceptance/start-browser-server.mjs",
 		cwd: repositoryRoot,
 		env: {
 			BROWSER_EVIDENCE_DIR: outputDir,

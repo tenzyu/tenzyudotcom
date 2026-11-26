@@ -44,7 +44,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          collector="$GITHUB_WORKSPACE/repo-ops/renewal/architecture-evidence.mjs"
+          collector="$GITHUB_WORKSPACE/repo-ops/evidence/architecture-evidence.mjs"
           for label in baseline candidate; do
             if [ "$label" = baseline ]; then checkout="$RUNNER_TEMP/baseline"; else checkout="$GITHUB_WORKSPACE"; fi
             out="$RUNNER_TEMP/evidence/$label"
@@ -95,7 +95,7 @@ jobs:
         run: |
           /usr/bin/time -v -o "$RUNNER_TEMP/package-evidence/build-time.txt" bun nx run skin-workbench:build-vite --skip-nx-cache
       - name: Verify public export artifacts and record sizes
-        run: node repo-ops/renewal/package-evidence.mjs "$RUNNER_TEMP/package-evidence/packages.json"
+        run: node repo-ops/evidence/package-evidence.mjs "$RUNNER_TEMP/package-evidence/packages.json"
       - name: Record Rust dependency graph
         run: cargo tree --locked --manifest-path product/apps/osu-skin-workbench/src-tauri/Cargo.toml > "$RUNNER_TEMP/package-evidence/cargo-tree.txt"
       - name: Record registry advisory response

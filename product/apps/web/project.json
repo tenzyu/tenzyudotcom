@@ -97,10 +97,11 @@
       "inputs": [
         "default",
         "^production",
-        "{workspaceRoot}/repo-ops/renewal/**/*"
+        "{workspaceRoot}/repo-ops/acceptance/**/*",
+        "{workspaceRoot}/repo-ops/evidence/external-evidence-path.mjs"
       ],
       "options": {
-        "command": "node repo-ops/renewal/run-publication-acceptance.mjs"
+        "command": "node repo-ops/acceptance/run-publication-acceptance.mjs"
       }
     },
     "verify": {

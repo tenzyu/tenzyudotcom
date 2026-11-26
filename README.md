@@ -49,6 +49,6 @@ Use `bun nx show project <project> --json` to discover valid targets; `bun nx ru
 - **[LLM Wiki / OKF index](docs/wiki/index.md):** progressive-disclosure architecture, failure modes, operations and decisions.
 - [`AGENTS.md`](AGENTS.md): minimal agent contract; real source, manifests and tests are authoritative.
 - [Renewal closure](docs/renewal/12-completion.md) and [historical ADRs](harness/README.md): dated evidence, not current service status.
-- [Repository observation tooling](repo-ops/renewal/README.md): isolated verification and preservation.
+- [Repository observation tooling](repo-ops/operations/README.md): isolated verification and preservation.
 
 Atelier, Castalia, pointers, puzzles, recommendations and the legacy harness were retired. The integration workflow is **topic branch from `develop` → PR to `develop` → reviewed merge → `main`**. Do not push to `main` directly.

@@ -27,6 +27,6 @@ The Node preload intercepts server-side GitHub fetches, not browser requests. It
 
 Keep the JSON report, server log, request ledger, trace, and published screenshot outside Git. Five successful ref updates prove the create, lead edit, two appends, and publication reached storage. The test checks persisted form values, public rendered text, and hidden drafts rather than treating a successful action response as proof.
 
-Run `node --test repo-ops/renewal/editor-github-preload.test.mjs` to check the fixture's network denial and snapshot behavior separately.
+Run `node --test repo-ops/acceptance/editor-github-preload.test.mjs` to check the fixture's network denial and snapshot behavior separately.
 
 Do not run this suite beside the public suite because both use the app's `.next` directory. The fixture resets whenever the Next process restarts. This journey does not prove real GitHub permissions or persistence across server restarts. The default public suite remains read-only.
