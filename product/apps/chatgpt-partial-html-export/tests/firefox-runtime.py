@@ -65,6 +65,12 @@ def main():
                 });
                 root.dataset.fixtureResponse = JSON.stringify(response ?? { pending: true });
               } catch (error) { root.dataset.fixtureResponse = JSON.stringify({ error: String(error) }); }
+            });
+            document.addEventListener('fixture-malformed-export', async () => {
+              try {
+                await browser.runtime.sendMessage({ type: 'CPHE_EXPORT_HTML', payload: { html: 42 } });
+                document.documentElement.dataset.fixtureMalformed = 'unexpected success';
+              } catch (error) { document.documentElement.dataset.fixtureMalformed = String(error); }
             });""")
             # Marionette refuses commands on privileged extension browsing contexts.
             # The probe runs inside the real options DOM, using production listeners;
@@ -120,6 +126,8 @@ def main():
                 <article><div data-message-author-role="user">EXCLUDED_FIRST</div></article>
                 <article><div data-message-author-role="assistant"><p>INCLUDED_SECOND</p><button>EXCLUDED_CONTROL</button><script>/* EXCLUDED_SCRIPT */</script></div></article>
                 <article><div data-message-author-role="user">INCLUDED_THIRD 日本語</div></article>""".encode()
+                if self.path == "/large":
+                    body = body.replace(b"INCLUDED_SECOND", b"INCLUDED_SECOND " + b"LARGE_CHUNK " * 32768)
                 self.send_response(200)
                 self.send_header("Content-Type", "text/html; charset=utf-8")
                 self.end_headers()
@@ -199,8 +207,8 @@ def main():
                     assert saved["mode"] == reopened["mode"] == expected, (saved, reopened)
                     assert saved["directory"] == reopened["directory"] == ("" if restore else directory)
                     assert saved["fallback"] == reopened["fallback"] == restore
-                def click_second():
-                    go(origin)
+                def click_second(path=""):
+                    go(origin + path)
                     until(lambda: js("return document.querySelectorAll('.cphe-export-button').length === 3"), "three injected buttons")
                     js("window.__button=document.querySelectorAll('.cphe-export-button')[1]")
                     time.sleep(.8)
@@ -224,8 +232,24 @@ def main():
                 until(lambda: js("return document.querySelector('.cphe-toast')?.textContent.includes('Native export failed')"), "native failure visible")
                 assert set(downloads.rglob("*.html")) == downloads_before, "fallback is disabled"
                 assert set(native.rglob("*.html")) == native_before
+                configure_native(str(native))
+                go(origin)
+                until(lambda: js("return document.querySelectorAll('.cphe-export-button').length === 3"), "fixture ready")
+                js("document.dispatchEvent(new Event('fixture-malformed-export'))")
+                malformed = until(lambda: js("return document.documentElement.dataset.fixtureMalformed"), "malformed response")
+                assert "Invalid export payload" in malformed, malformed
+                assert set(downloads.rglob("*.html")) == downloads_before
+                assert set(native.rglob("*.html")) == native_before
+                click_second("/large")
+                until(lambda: js("return document.querySelector('.cphe-toast')?.textContent.startsWith('Exported HTML:')"), "large native export acknowledged")
+                large = set(native.rglob("*.html")) - native_before
+                assert len(large) == 1, large
+                large_data = large.pop().read_text()
+                assert large_data.count("LARGE_CHUNK") == 32768
+                assert "INCLUDED_THIRD 日本語" in large_data and "EXCLUDED_FIRST" not in large_data
+                assert set(downloads.rglob("*.html")) == downloads_before
                 configure_native("", restore=True)
-                print(json.dumps({"download": "passed", "nativeMessaging": "passed", "stableInjection": "passed", "optionsSaveReloadRestore": "passed", "nativeFailureNoFallback": "passed", "manifestScope": "loopback test XPI only"}))
+                print(json.dumps({"download": "passed", "nativeMessaging": "passed", "stableInjection": "passed", "optionsSaveReloadRestore": "passed", "nativeFailureNoFallback": "passed", "malformedPayload": "passed", "largeNativeBytes": len(large_data.encode()), "manifestScope": "loopback test XPI only"}))
             except Exception:
                 log.seek(0)
                 print(log.read()[-12000:])
