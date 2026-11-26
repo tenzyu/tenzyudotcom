@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { mock } from 'bun:test'
 import { NextRequest } from 'next/server'
-import type { BlogSaveCommand } from '../../src/features/blog/blog.domain'
+import type { BlogSaveCommand } from '@tenzyu/publishing-domain/blog'
 import { StorageVersionConflictError, StorageDocumentWriteUncertainError } from '@tenzyu/revisioned-content/contracts'
 
 let authenticated = false
@@ -47,7 +47,6 @@ const loadCollection = async () => ({
 })
 mock.module('@/features/notes/notes.infra', () => ({
   NOTES_STORAGE_PATH: 'editor/notes.json',
-  parseNoteSourceEntries: () => [],
   loadNotesState: loadCollection,
   saveNotesState: save,
 }))

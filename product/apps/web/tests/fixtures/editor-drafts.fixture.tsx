@@ -98,6 +98,12 @@ mock.module('@/features/links/editor/links-actions', () => ({
 const { ScrapWorkspace } = await import('../../src/features/scraps/editor/scrap-workspace')
 const { BlogEditor } =
   await import('../../src/features/blog/editor/blog-editor')
+const linksDomain = await import('@tenzyu/publishing-domain/links')
+const reversedCategories = [...linksDomain.LINK_CATEGORY_ORDER].reverse()
+mock.module('@tenzyu/publishing-domain/links', () => ({
+  ...linksDomain,
+  LINK_CATEGORY_ORDER: reversedCategories,
+}))
 const { LinksEditorClient } =
   await import('@/features/links/editor/links-editor-client')
 const { NotesEditorClient } =
@@ -273,6 +279,11 @@ await act(async () => {
     />,
   )
 })
+assert.deepEqual(
+  Array.from(rootNode.querySelectorAll<HTMLOptionElement>('#link-0-category option'), (option) => option.value),
+  reversedCategories,
+  'Collection editor must follow the publishing domain category order',
+)
 await fill('#link-0-name', 'Revised link draft')
 await submit()
 assert.ok(

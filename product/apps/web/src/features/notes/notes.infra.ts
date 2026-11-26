@@ -1,12 +1,8 @@
-import {
-  parseJsonCollection,
-  saveJsonCollection,
-} from '@/platform/content-store/json-document.infra'
+import { parseJsonCollection } from '@tenzyu/revisioned-content/json-document'
+import { saveJsonCollection } from '@/platform/content-store/json-document.infra'
 import { loadGitHubTextFileFresh } from '@/platform/content-store/github-content.infra'
 import type { ContentSnapshot } from '@tenzyu/revisioned-content/contracts'
 import { parseNoteSourceEntries, type NoteSourceEntry } from '@tenzyu/publishing-domain/notes'
-
-export { parseNoteSourceEntries } from '@tenzyu/publishing-domain/notes'
 
 export const NOTES_STORAGE_PATH = 'editor/notes.json'
 

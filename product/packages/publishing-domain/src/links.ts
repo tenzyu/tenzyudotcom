@@ -1,7 +1,5 @@
 import { normalizeExternalUrl } from './external-url'
 
-export type LinkCategory = 'Watch' | 'Social' | 'Build' | 'Legacy'
-
 export type MyLink = {
   name: string
   id: string
@@ -16,7 +14,9 @@ export const LINK_CATEGORY_ORDER = [
   'Social',
   'Build',
   'Legacy',
-] as const satisfies readonly LinkCategory[]
+] as const
+
+export type LinkCategory = (typeof LINK_CATEGORY_ORDER)[number]
 
 function assertNonEmpty(value: string, label: string) {
   if (!value.trim()) {

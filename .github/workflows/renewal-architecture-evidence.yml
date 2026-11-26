@@ -55,7 +55,8 @@ jobs:
             (
               cd "$checkout"
               bun install --frozen-lockfile --ignore-scripts
-              node "$collector" "$checkout" "$out/architecture.json" | tee "$out/summary.json"
+              bun nx run-many -t build --projects=ui,osu-skin-core --skip-nx-cache
+              node "$collector" "$checkout" "$out/architecture.json" --symbols | tee "$out/summary.json"
               bun nx graph --file="$out/project-graph.json"
               bun nx run-many -t check build verify --graph="$out/task-graph.json"
               bun nx show projects --json > "$out/projects.json"
@@ -81,7 +82,8 @@ jobs:
           done
       - name: Execute matched disposable change-cost probes
         run: |
-          node repo-ops/evidence/change-cost-probe.mjs "$GITHUB_WORKSPACE" "$RUNNER_TEMP/evidence/change-cost.json" ca801532fd7109c953ad655a729eda5ac44d4d34
+          baseline="$(git -C "$RUNNER_TEMP/baseline" rev-parse HEAD)"
+          node repo-ops/evidence/change-cost-probe.mjs "$GITHUB_WORKSPACE" "$RUNNER_TEMP/evidence/change-cost.json" "$baseline"
       - uses: actions/upload-artifact@v4
         if: always()
         with:

@@ -4,6 +4,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { execFileSync } from 'node:child_process'
 import { createRequire } from 'node:module'
+import { collectSymbolEvidence } from './symbol-evidence.mjs'
 
 const root = path.resolve(process.argv[2] || '.')
 const output = path.resolve(process.argv[3] || 'architecture-evidence.json')
@@ -138,6 +139,46 @@ function graph(nodes, links) {
 }
 const productionEdges=edges.filter(e=>!isTest(e.from)&&!isTest(e.to))
 const runtimeProductOpsEdges = productionEdges.filter(e => !e.typeOnly && e.from.startsWith('product/') && e.to.startsWith('repo-ops/'))
+if (process.argv[3] === '--check-static-product') {
+  const sources = source.filter(f => /^product\/(?:apps|packages)\/[^/]+\/src\//.test(f) && !isTest(f))
+  const sourceSet = new Set(sources)
+  const staticEdges = productionEdges.filter(e =>
+    sourceSet.has(e.from) && sourceSet.has(e.to) &&
+    !e.typeOnly && ['import', 'export', 'import-equals'].includes(e.kind)
+  )
+  const modules = graph(sources, staticEdges.map(e => [e.from, e.to]))
+  const adjacency = new Map()
+  for (const {from, to} of staticEdges) {
+    const targets = adjacency.get(from) ?? new Set()
+    targets.add(to)
+    adjacency.set(from, targets)
+  }
+
+  const generic = 'product/packages/ui/src/generic/'
+  const supporting = 'product/packages/ui/src/supporting/'
+  const queue = sources.filter(f => f.startsWith(generic))
+  const previous = new Map(queue.map(f => [f, null]))
+  let forbiddenPath
+  for (let i = 0; i < queue.length; i++) {
+    const from = queue[i]
+    if (from.startsWith(supporting)) {
+      forbiddenPath = []
+      for (let node = from; node !== null; node = previous.get(node)) forbiddenPath.unshift(node)
+      break
+    }
+    for (const target of adjacency.get(from) ?? []) {
+      if (previous.has(target)) continue
+      previous.set(target, from)
+      queue.push(target)
+    }
+  }
+  const opsEdges = runtimeProductOpsEdges.filter(e => sourceSet.has(e.from))
+  fs.writeSync(1, JSON.stringify({ staticProductModules: modules, genericToSupporting: forbiddenPath ?? null, productToRepoOps: opsEdges }) + '\n')
+  if (modules.cycles.length) fs.writeSync(2, 'Circular static product modules: ' + JSON.stringify(modules.cycles) + '\n')
+  if (forbiddenPath) fs.writeSync(2, 'Generic UI depends on supporting UI: ' + forbiddenPath.join(' -> ') + '\n')
+  if (opsEdges.length) fs.writeSync(2, 'Forbidden product runtime imports of repo-ops: ' + JSON.stringify(opsEdges) + '\n')
+  process.exit(modules.cycles.length || forbiddenPath || opsEdges.length ? 1 : 0)
+}
 const quotient = new Map()
 for(const e of productionEdges){
   const a=owner(e.from),b=owner(e.to)
@@ -162,6 +203,7 @@ for(const c of history){
 }
 const declared=Object.fromEntries(Object.entries(packages).map(([n,p])=>[n,{root:p.root,dependencies:p.manifest.dependencies||{},devDependencies:p.manifest.devDependencies||{},peerDependencies:p.manifest.peerDependencies||{},exports:p.manifest.exports||{}}]))
 const result={commit:git('rev-parse','HEAD').trim(),tree:git('rev-parse','HEAD^{tree}').trim(),typescript:ts.version,trackedFiles:files.length,parsedFiles:source.length,modules:graph(source,productionEdges.map(e=>[e.from,e.to])),runtimeModules:graph(source.filter(f=>!isTest(f)),productionEdges.filter(e=>!e.typeOnly).map(e=>[e.from,e.to])),owners:graph([...new Set(source.filter(f=>!isTest(f)).map(owner))],[...quotient.keys()].map(JSON.parse)),runtimeOwners:graph([...new Set(source.filter(f=>!isTest(f)).map(owner))],productionEdges.filter(e=>!e.typeOnly&&owner(e.from)!==owner(e.to)).map(e=>[owner(e.from),owner(e.to)])),ownerEdges:[...quotient].map(([k,v])=>({owners:JSON.parse(k),evidence:v})),edges,runtimeProductOpsEdges,unresolved,nonliteral,packagesUsed,declared,history,cochange:Object.entries(cochange).sort((a,b)=>b[1]-a[1]),limitations:['TS compiler syntax AST; no type-checker symbol liveness, Rust AST, CSS/MDX parser, framework implicit edges, computed imports, or runtime reachability proof. Workspace export fallback is source mapping, not a bundler resolution proof. History is first-parent 180 days and co-change is association, not causal coupling.']}
+if (process.argv.includes('--symbols')) result.symbolEvidence = collectSymbolEvidence(ts, root, files)
 fs.mkdirSync(path.dirname(output),{recursive:true})
 fs.writeFileSync(output,JSON.stringify(result,null,2)+'\n')
 console.log(JSON.stringify({commit:result.commit,parsed:source.length,modules:result.modules,runtimeModules:result.runtimeModules,owners:result.owners,runtimeOwners:result.runtimeOwners,unresolved:unresolved.length,nonliteral:nonliteral.length,history:history.length,topCochange:result.cochange.slice(0,10)},null,2))
