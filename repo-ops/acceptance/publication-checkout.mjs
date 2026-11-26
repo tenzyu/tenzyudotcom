@@ -57,3 +57,14 @@ export function archivePublicationCheckout(source, destination, commit) {
   }
   assert.equal(offset, bytes.length, 'unexpected Git batch output');
 }
+
+export function assertCleanPublicationHarness(source) {
+  // The candidate source snapshot is Git-bound, but the running harness is
+  // imported from the worktree. Reject dirty/untracked harness files instead
+  // of claiming a HEAD provenance for a different implementation.
+  const dirty = capture(source, 'git', ['status', '--porcelain', '--untracked-files=all', '--',
+    'repo-ops/acceptance', 'repo-ops/evidence/external-evidence-path.mjs',
+    'repo-ops/operations/owned-process-group.mjs',
+    ':(exclude,glob)**/.env*', ':(exclude,glob)**/.env*/**']).length;
+  assert.equal(dirty, 0, 'Commit publication harness changes before collecting evidence');
+}

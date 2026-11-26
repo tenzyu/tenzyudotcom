@@ -4,7 +4,7 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, 
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
-import { archivePublicationCheckout, gitRevision } from './publication-checkout.mjs';
+import { archivePublicationCheckout, assertCleanPublicationHarness, gitRevision } from './publication-checkout.mjs';
 
 test('publication checkout is commit-bound and excludes untracked and dotenv paths', () => {
   const root = mkdtempSync(join(tmpdir(), 'publication-snapshot-'));
@@ -46,6 +46,29 @@ test('publication checkout is commit-bound and excludes untracked and dotenv pat
     const second = join(root, 'second');
     mkdirSync(second);
     assert.throws(() => archivePublicationCheckout(repo, second, gitRevision(repo, 'HEAD').commit), /Unsupported publication checkout entry/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('dirty running harness cannot be represented as committed HEAD', () => {
+  const root = mkdtempSync(join(tmpdir(), 'publication-harness-'));
+  try {
+    const harness = join(root, 'repo-ops/acceptance');
+    mkdirSync(harness, { recursive: true });
+    const git = (...args) => execFileSync('git', args, { cwd: root, stdio: ['ignore', 'pipe', 'pipe'] });
+    git('init', '--object-format=sha1');
+    git('config', 'user.name', 'Synthetic fixture');
+    git('config', 'user.email', 'fixture@example.invalid');
+    writeFileSync(join(harness, 'run.mjs'), 'committed');
+    git('add', 'repo-ops/acceptance/run.mjs');
+    git('commit', '-m', 'fixture');
+    assert.doesNotThrow(() => assertCleanPublicationHarness(root));
+    writeFileSync(join(harness, 'run.mjs'), 'dirty');
+    assert.throws(() => assertCleanPublicationHarness(root), /Commit publication harness/);
+    git('restore', 'repo-ops/acceptance/run.mjs');
+    writeFileSync(join(harness, 'extra.mjs'), 'untracked');
+    assert.throws(() => assertCleanPublicationHarness(root), /Commit publication harness/);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

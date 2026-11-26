@@ -57,12 +57,12 @@ child.on('close', async (exitCode, signal) => {
   catch (error) { cleanupError = String(error); }
   closeSync(log);
   const hash = createHash('sha256');
-  for await (const chunk of createReadStream(logPath)) hash.update(chunk);
+  if (!cleanupError) for await (const chunk of createReadStream(logPath)) hash.update(chunk);
   const result = {
     schemaVersion: 1, cwd, command: positionals, startedAt,
     durationMs: Math.round(performance.now() - start),
     status: interrupted ? 'cancelled' : timedOut ? 'timeout' : spawnError ? 'not-run' : exitCode === 0 && !cleanupError ? 'passed' : 'failed',
-    exitCode, signal, spawnError, cleanupError, logSha256: hash.digest('hex'),
+    exitCode, signal, spawnError, cleanupError, logSha256: cleanupError ? null : hash.digest('hex'),
     environment: 'allowlisted; application .env files must be excluded from the evaluation copy',
   };
   writeFileSync(`${out}/result.json`, `${JSON.stringify(result, null, 2)}\n`, { mode: 0o600, flag: 'wx' });

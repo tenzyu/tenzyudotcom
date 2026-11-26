@@ -17,7 +17,7 @@ import { publicBrowserEnvironment } from './browser-environment.mjs';
 import { drainOwnedProcessGroup } from '../operations/owned-process-group.mjs';
 import { externalEvidencePath } from '../evidence/external-evidence-path.mjs';
 import { initGitContentFixture } from './git-content-fixture.mjs';
-import { archivePublicationCheckout, gitRevision } from './publication-checkout.mjs';
+import { archivePublicationCheckout, assertCleanPublicationHarness, gitRevision } from './publication-checkout.mjs';
 import {
   article, blogIndexPath, directLink, directScrap, firstNote, firstNoteId, firstPost, initialFiles, latePost,
   linksPath, notesPath, reply, replyId, scrap, scrapsIndexPath, secondNote, secondNoteId, secondPost, seededLink, seededScrap, serialize,
@@ -317,6 +317,7 @@ async function scrapsBaselineControl() {
 }
 
 const harness = gitRevision(source, 'HEAD');
+assertCleanPublicationHarness(source);
 const candidate = baseline ? gitRevision(source, baseline) : harness;
 const code = candidate.commit;
 let buildId;
@@ -336,9 +337,8 @@ try {
   else await productionAcceptance();
   console.log(`Publication ${baseline ? 'control' : 'acceptance'} passed on ${code}, build ${buildId}`);
 } finally {
-  let cleanupError;
-  try { await stop(); }
-  catch (error) { cleanupError = error; }
+  const cleanup = await Promise.allSettled([terminate(building), stop()]);
+  const cleanupError = cleanup.find(result => result.status === 'rejected')?.reason;
   writeFileSync(join(evidence, 'results.json'), serialize({ code, tree: candidate.tree, harness, buildSeed, buildId, revisions, requests: metrics, ...(cleanupError && { cleanupError: String(cleanupError) }) }));
   if (!interrupted && !cleanupError) rmSync(checkout, { recursive: true, force: true });
   if (cleanupError) throw cleanupError;
