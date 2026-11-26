@@ -55,11 +55,65 @@ def main():
                 await browser.runtime.sendMessage({ type: 'CPHE_FIXTURE_OPEN_OPTIONS' });
                 document.documentElement.dataset.fixtureOptions = 'opened';
               } catch (error) { document.documentElement.dataset.fixtureOptions = String(error); }
+            });
+            document.addEventListener('fixture-options-command', async () => {
+              const root = document.documentElement;
+              try {
+                const response = await browser.runtime.sendMessage({
+                  type: 'CPHE_FIXTURE_OPTIONS_COMMAND',
+                  ...JSON.parse(root.dataset.fixtureCommand)
+                });
+                root.dataset.fixtureResponse = JSON.stringify(response ?? { pending: true });
+              } catch (error) { root.dataset.fixtureResponse = JSON.stringify({ error: String(error) }); }
             });""")
+            # Marionette refuses commands on privileged extension browsing contexts.
+            # The probe runs inside the real options DOM, using production listeners;
+            # it neither mocks browser APIs nor calls storage directly.
+            z.writestr("options/fixture-options.js", """(() => {
+              const wait = async (predicate) => {
+                for (let i = 0; i < 100; i++) {
+                  if (predicate()) return;
+                  await new Promise(resolve => setTimeout(resolve, 50));
+                }
+                throw new Error('Options DOM did not settle');
+              };
+              const selected = () => document.querySelector('input[name=exportMode]:checked');
+              const status = () => document.querySelector('#status').textContent;
+              browser.runtime.onMessage.addListener(message => {
+                if (message?.type !== 'CPHE_FIXTURE_OPTIONS_COMMAND') return false;
+                return (async () => {
+                  await wait(selected);
+                  if (message.action === 'native') {
+                    document.querySelector('input[name=exportMode][value=native]').click();
+                    document.querySelector('#nativeOutputDir').value = message.directory;
+                    if (document.querySelector('#fallbackToDownload').checked) {
+                      document.querySelector('#fallbackToDownload').click();
+                    }
+                    document.querySelector('button[type=submit]').click();
+                    await wait(() => status() === 'Saved.');
+                  } else if (message.action === 'restore') {
+                    document.querySelector('#restoreDefaults').click();
+                    await wait(() => status() === 'Restored defaults.');
+                  } else if (message.action !== 'snapshot') {
+                    throw new Error('Unknown fixture action');
+                  }
+                  return { origin: location.protocol, mode: selected().value,
+                    directory: document.querySelector('#nativeOutputDir').value,
+                    fallback: document.querySelector('#fallbackToDownload').checked,
+                    status: status() };
+                })();
+              });
+            })();""")
             for folder in ("src", "options", "popup"):
                 for p in (ROOT / folder).rglob("*"):
                     if p.is_file():
-                        z.write(p, str(p.relative_to(ROOT)))
+                        relative = str(p.relative_to(ROOT))
+                        if relative == "options/options.html":
+                            html = p.read_text()
+                            assert "</body>" in html
+                            z.writestr(relative, html.replace("</body>", '<script src="fixture-options.js"></script></body>'))
+                        else:
+                            z.write(p, relative)
         class Fixture(http.server.BaseHTTPRequestHandler):
             def do_GET(self):
                 body = """<!doctype html><title>Fixture conversation</title>
@@ -100,15 +154,25 @@ def main():
                     return request("POST", session + "/element", {"using":"css selector","value":selector})["element-6066-11e4-a52e-4f735466cecf"]
                 def click(selector):
                     request("POST", session + "/element/" + element(selector) + "/click", {})
-                def fill(selector, value):
-                    field = element(selector)
-                    request("POST", session + "/element/" + field + "/clear", {})
-                    request("POST", session + "/element/" + field + "/value", {"text":value,"value":list(value)})
                 def windows():
                     return set(request("GET", session + "/window/handles"))
                 def switch(handle):
                     request("POST", session + "/window", {"handle":handle})
-                def configure_native(directory, restore=False):
+                def options_command(action, directory="", readiness=False):
+                    js("""const root = document.documentElement;
+                        delete root.dataset.fixtureResponse;
+                        root.dataset.fixtureCommand = JSON.stringify(arguments[0]);
+                        document.dispatchEvent(new Event('fixture-options-command'));""",
+                       {"action": action, "directory": directory})
+                    response = json.loads(until(
+                        lambda: js("return document.documentElement.dataset.fixtureResponse"),
+                        "options probe response"))
+                    if readiness and (response.get("pending") or
+                            "Receiving end does not exist" in response.get("error", "")):
+                        return None
+                    assert response.get("origin") == "moz-extension:", response
+                    return response
+                def with_options(action, directory=""):
                     go(origin)
                     until(lambda: js("return document.querySelectorAll('.cphe-export-button').length === 3"), "fixture ready")
                     previous = request("GET", session + "/window")
@@ -116,30 +180,25 @@ def main():
                     js("document.dispatchEvent(new Event('fixture-open-options'))")
                     opened = until(lambda: windows() - before, "extension opened real options tab")
                     assert len(opened) == 1
-                    switch(opened.pop())
+                    handle = opened.pop()
+                    switch(previous)
                     try:
-                        assert js("return location.protocol") == "moz-extension:"
-                        until(lambda: js("return !!document.querySelector('#optionsForm input[name=exportMode]:checked')"), "options loaded")
-                        if restore:
-                            click("#restoreDefaults")
-                            until(lambda: js("return document.querySelector('#status').textContent === 'Restored defaults.'"), "defaults acknowledged")
-                            assert js("return document.querySelector('input[name=exportMode]:checked').value") == "download"
-                        else:
-                            click("input[name=exportMode][value=native]")
-                            fill("#nativeOutputDir", directory)
-                            if js("return document.querySelector('#fallbackToDownload').checked"):
-                                click("#fallbackToDownload")
-                            click("button[type=submit]")
-                            until(lambda: js("return document.querySelector('#status').textContent === 'Saved.'"), "settings acknowledged")
-                        request("POST", session + "/refresh", {})
-                        expected = "download" if restore else "native"
-                        until(lambda: js("return document.querySelector('input[name=exportMode]:checked')?.value") == expected, "persisted options after reload")
-                        if not restore:
-                            assert js("return document.querySelector('#nativeOutputDir').value") == directory
-                            assert js("return document.querySelector('#fallbackToDownload').checked") is False
+                        until(lambda: options_command("snapshot", readiness=True), "options DOM loaded")
+                        return options_command(action, directory)
                     finally:
+                        switch(handle)
                         request("DELETE", session + "/window")
                         switch(previous)
+                def configure_native(directory, restore=False):
+                    action = "restore" if restore else "native"
+                    saved = with_options(action, directory)
+                    expected = "download" if restore else "native"
+                    assert saved["status"] == ("Restored defaults." if restore else "Saved."), saved
+                    # A newly opened page must render the persisted settings.
+                    reopened = with_options("snapshot")
+                    assert saved["mode"] == reopened["mode"] == expected, (saved, reopened)
+                    assert saved["directory"] == reopened["directory"] == ("" if restore else directory)
+                    assert saved["fallback"] == reopened["fallback"] == restore
                 def click_second():
                     go(origin)
                     until(lambda: js("return document.querySelectorAll('.cphe-export-button').length === 3"), "three injected buttons")
