@@ -1,5 +1,7 @@
 import 'client-only'
 
+import { layoutVerticalText } from './vertical-layout'
+
 export type DotGenerationParams = {
   text: string
   fontSize: number
@@ -37,20 +39,17 @@ export function generateDotArt({
   ctx.font = font
   ctx.textBaseline = 'top'
 
+  const vertical = orientation === 'vertical'
+    ? layoutVerticalText(text, fontSize, (glyph) => ctx.measureText(glyph).width)
+    : undefined
+
   // Calculate dimensions
   const [width, height] = (() => {
     if (orientation === 'horizontal') {
       const metrics = ctx.measureText(text)
       return [Math.ceil(metrics.width), fontSize]
-    } else {
-      // Vertical: max width of chars, height = char count * line height
-      let maxWidth = 0
-      for (const char of text) {
-        const metrics = ctx.measureText(char)
-        maxWidth = Math.max(maxWidth, metrics.width)
-      }
-      return [Math.ceil(maxWidth), fontSize * text.length]
     }
+    return [vertical?.width ?? 0, vertical?.height ?? 0]
   })()
 
   // Sanity check for dimensions to prevent crashes
@@ -71,13 +70,9 @@ export function generateDotArt({
 
   if (orientation === 'horizontal') {
     ctx.fillText(text, 0, 2)
-  } else {
-    for (let i = 0; i < text.length; i++) {
-      const char = text[i]
-      const metrics = ctx.measureText(char)
-      const x = (width - metrics.width) / 2
-      const y = i * fontSize + 2
-      ctx.fillText(char, x, y)
+  } else if (vertical) {
+    for (const { glyph, x, y } of vertical.cells) {
+      ctx.fillText(glyph, x, y + 2)
     }
   }
 
