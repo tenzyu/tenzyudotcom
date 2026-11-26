@@ -35,20 +35,26 @@ def main():
         manifest = json.loads((ROOT / "manifest.json").read_text())
         assert set(manifest["permissions"]) == {"downloads", "nativeMessaging", "storage", "clipboardWrite", "https://chatgpt.com/*", "https://chat.openai.com/*"}
         assert manifest["browser_specific_settings"]["gecko"]["id"] == ID
-        # Only host matches differ in the temporary test XPI.
+        # Only the fixture host scope and test-only options tab placement differ.
         local = "http://127.0.0.1/*"
         manifest["permissions"] = [p for p in manifest["permissions"] if not p.startswith("https://")] + [local]
         manifest["content_scripts"][0]["matches"] = [local]
         # Test-only locator, not a mock of the production extension API.
         manifest["content_scripts"][0]["js"].append("fixture-locator.js")
+        manifest["background"]["scripts"].append("fixture-background.js")
+        manifest["options_ui"]["open_in_tab"] = True
         xpi = root / "fixture.xpi"
         with zipfile.ZipFile(xpi, "w") as z:
             z.writestr("manifest.json", json.dumps(manifest))
-            z.writestr("fixture-locator.js", """document.addEventListener('fixture-configure-native', async () => {
+            z.writestr("fixture-background.js", """browser.runtime.onMessage.addListener(message => {
+              if (message?.type === 'CPHE_FIXTURE_OPEN_OPTIONS') return browser.runtime.openOptionsPage().then(() => true);
+              return false;
+            });""")
+            z.writestr("fixture-locator.js", """document.addEventListener('fixture-open-options', async () => {
               try {
-                await browser.storage.local.set({ exportMode: 'native', nativeOutputDir: document.documentElement.dataset.fixtureNativeDir, fallbackToDownload: false });
-                document.documentElement.dataset.fixtureConfigured = 'yes';
-              } catch (error) { document.documentElement.dataset.fixtureConfigured = String(error); }
+                await browser.runtime.sendMessage({ type: 'CPHE_FIXTURE_OPEN_OPTIONS' });
+                document.documentElement.dataset.fixtureOptions = 'opened';
+              } catch (error) { document.documentElement.dataset.fixtureOptions = String(error); }
             });""")
             for folder in ("src", "options", "popup"):
                 for p in (ROOT / folder).rglob("*"):
@@ -90,14 +96,57 @@ def main():
                 request("POST", session + "/moz/addon/install", {"path":str(xpi),"temporary":True})
                 def go(url): request("POST", session + "/url", {"url":url})
                 def js(script, *args): return request("POST", session + "/execute/sync", {"script":script,"args":list(args)})
+                def element(selector):
+                    return request("POST", session + "/element", {"using":"css selector","value":selector})["element-6066-11e4-a52e-4f735466cecf"]
+                def click(selector):
+                    request("POST", session + "/element/" + element(selector) + "/click", {})
+                def fill(selector, value):
+                    field = element(selector)
+                    request("POST", session + "/element/" + field + "/clear", {})
+                    request("POST", session + "/element/" + field + "/value", {"text":value,"value":list(value)})
+                def windows():
+                    return set(request("GET", session + "/window/handles"))
+                def switch(handle):
+                    request("POST", session + "/window", {"handle":handle})
+                def configure_native(directory, restore=False):
+                    go(origin)
+                    until(lambda: js("return document.querySelectorAll('.cphe-export-button').length === 3"), "fixture ready")
+                    previous = request("GET", session + "/window")
+                    before = windows()
+                    js("document.dispatchEvent(new Event('fixture-open-options'))")
+                    opened = until(lambda: windows() - before, "extension opened real options tab")
+                    assert len(opened) == 1
+                    switch(opened.pop())
+                    try:
+                        assert js("return location.protocol") == "moz-extension:"
+                        until(lambda: js("return !!document.querySelector('#optionsForm input[name=exportMode]:checked')"), "options loaded")
+                        if restore:
+                            click("#restoreDefaults")
+                            until(lambda: js("return document.querySelector('#status').textContent === 'Restored defaults.'"), "defaults acknowledged")
+                            assert js("return document.querySelector('input[name=exportMode]:checked').value") == "download"
+                        else:
+                            click("input[name=exportMode][value=native]")
+                            fill("#nativeOutputDir", directory)
+                            if js("return document.querySelector('#fallbackToDownload').checked"):
+                                click("#fallbackToDownload")
+                            click("button[type=submit]")
+                            until(lambda: js("return document.querySelector('#status').textContent === 'Saved.'"), "settings acknowledged")
+                        request("POST", session + "/refresh", {})
+                        expected = "download" if restore else "native"
+                        until(lambda: js("return document.querySelector('input[name=exportMode]:checked')?.value") == expected, "persisted options after reload")
+                        if not restore:
+                            assert js("return document.querySelector('#nativeOutputDir').value") == directory
+                            assert js("return document.querySelector('#fallbackToDownload').checked") is False
+                    finally:
+                        request("DELETE", session + "/window")
+                        switch(previous)
                 def click_second():
                     go(origin)
                     until(lambda: js("return document.querySelectorAll('.cphe-export-button').length === 3"), "three injected buttons")
                     js("window.__button=document.querySelectorAll('.cphe-export-button')[1]")
                     time.sleep(.8)
                     assert js("return window.__button===document.querySelectorAll('.cphe-export-button')[1]"), "injection must settle"
-                    element = request("POST", session + "/element", {"using":"css selector","value":".cphe-export-button[data-cphe-index='1']"})
-                    request("POST", session + "/element/" + element["element-6066-11e4-a52e-4f735466cecf"] + "/click", {})
+                    click(".cphe-export-button[data-cphe-index='1']")
                 def verify(folder):
                     files = until(lambda: [p for p in folder.rglob("*.html") if p.stat().st_size > 0], "exported file")
                     data = files[0].read_text()
@@ -105,13 +154,19 @@ def main():
                     assert all(x not in data for x in ("EXCLUDED_FIRST","EXCLUDED_CONTROL","EXCLUDED_SCRIPT"))
                 click_second()
                 verify(downloads)
-                # WebDriver content context cannot navigate moz-extension: pages.
-                # Configure via the actual storage API in the temporary addon.
-                js("document.documentElement.dataset.fixtureNativeDir=arguments[0];document.dispatchEvent(new Event('fixture-configure-native'))", str(native))
-                assert until(lambda: js("return document.documentElement.dataset.fixtureConfigured"), "native storage configured") == "yes"
+                configure_native(str(native))
                 click_second()
                 verify(native)
-                print(json.dumps({"download": "passed", "nativeMessaging": "passed", "stableInjection": "passed", "manifestScope": "loopback test XPI only"}))
+                until(lambda: js("return document.querySelector('.cphe-toast')?.textContent.startsWith('Exported HTML:')"), "native success acknowledged")
+                downloads_before = set(downloads.rglob("*.html"))
+                native_before = set(native.rglob("*.html"))
+                configure_native("relative/not-allowed")
+                click_second()
+                until(lambda: js("return document.querySelector('.cphe-toast')?.textContent.includes('Native export failed')"), "native failure visible")
+                assert set(downloads.rglob("*.html")) == downloads_before, "fallback is disabled"
+                assert set(native.rglob("*.html")) == native_before
+                configure_native("", restore=True)
+                print(json.dumps({"download": "passed", "nativeMessaging": "passed", "stableInjection": "passed", "optionsSaveReloadRestore": "passed", "nativeFailureNoFallback": "passed", "manifestScope": "loopback test XPI only"}))
             except Exception:
                 log.seek(0)
                 print(log.read()[-12000:])
