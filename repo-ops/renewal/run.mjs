@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto';
 import { createReadStream, mkdirSync, openSync, closeSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { parseArgs } from 'node:util';
+import { externalEvidencePath } from './external-evidence-path.mjs';
 
 // Keep raw output private and outside Git. No application credentials are inherited.
 const { values, positionals } = parseArgs({
@@ -13,10 +14,9 @@ if (!values.cwd || !values.out || !positionals.length) {
   throw new Error('Usage: node run.mjs --cwd DIR --out NEW_EXTERNAL_DIR [--timeout SECONDS] -- COMMAND ARGS');
 }
 const cwd = resolve(values.cwd);
-const out = resolve(values.out);
+const out = externalEvidencePath(cwd, values.out);
 const seconds = Number(values.timeout);
 if (!Number.isFinite(seconds) || seconds <= 0) throw new Error('timeout must be positive');
-if (out === cwd || out.startsWith(`${cwd}/`)) throw new Error('Evidence must be outside the command working tree');
 mkdirSync(out, { mode: 0o700 });
 const logPath = `${out}/output.log`;
 const log = openSync(logPath, 'wx', 0o600);

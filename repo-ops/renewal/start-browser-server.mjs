@@ -2,18 +2,13 @@ import { spawn, spawnSync } from "node:child_process";
 import { mkdirSync, openSync } from "node:fs";
 import { resolve } from "node:path";
 import { publicBrowserEnvironment } from "./browser-environment.mjs";
+import { externalEvidencePath } from "./external-evidence-path.mjs";
 
 const repositoryRoot = resolve(import.meta.dirname, "../..");
-const evidenceDir = resolve(
+const evidenceDir = externalEvidencePath(
+	repositoryRoot,
 	process.env.BROWSER_EVIDENCE_DIR ?? "/tmp/tenzyudotcom-browser-evidence",
 );
-
-if (
-	evidenceDir === repositoryRoot ||
-	evidenceDir.startsWith(`${repositoryRoot}/`)
-) {
-	throw new Error("BROWSER_EVIDENCE_DIR must be outside the repository");
-}
 
 mkdirSync(evidenceDir, { recursive: true, mode: 0o700 });
 const log = openSync(`${evidenceDir}/web-server.log`, "w", 0o600);

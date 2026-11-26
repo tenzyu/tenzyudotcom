@@ -2,12 +2,12 @@ import { spawn, spawnSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, openSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { initGitContentFixture } from './git-content-fixture.mjs';
+import { externalEvidencePath } from './external-evidence-path.mjs';
 
 const root = resolve(import.meta.dirname, '../..');
-const output = resolve(process.env.PLAYWRIGHT_OUTPUT_DIR ?? '/tmp/tenzyudotcom-editor-evidence');
+const output = externalEvidencePath(root, process.env.PLAYWRIGHT_OUTPUT_DIR ?? '/tmp/tenzyudotcom-editor-evidence');
 const port = process.env.PLAYWRIGHT_EDITOR_PORT ?? '4174';
 const production = process.env.EDITOR_BROWSER_PRODUCTION === '1';
-if (output === root || output.startsWith(`${root}/`)) throw new Error('Evidence must be outside the repository');
 mkdirSync(output, { recursive: true, mode: 0o700 });
 const fixtureDir = mkdtempSync(resolve(output, 'fixture-'));
 const repository = resolve(fixtureDir, 'content.git');

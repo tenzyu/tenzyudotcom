@@ -1,18 +1,13 @@
 import { resolve } from "node:path";
 import { defineConfig, devices } from "@playwright/test";
+import { externalEvidencePath } from "./external-evidence-path.mjs";
 
 const repositoryRoot = resolve(process.cwd());
-const outputDir = resolve(
+const outputDir = externalEvidencePath(
+	repositoryRoot,
 	process.env.PLAYWRIGHT_OUTPUT_DIR ?? "/tmp/tenzyudotcom-browser-evidence",
 );
 const chromiumExecutablePath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH;
-
-if (
-	outputDir === repositoryRoot ||
-	outputDir.startsWith(`${repositoryRoot}/`)
-) {
-	throw new Error("PLAYWRIGHT_OUTPUT_DIR must be outside the repository");
-}
 
 export default defineConfig({
 	testDir: resolve(repositoryRoot, "repo-ops/renewal"),
