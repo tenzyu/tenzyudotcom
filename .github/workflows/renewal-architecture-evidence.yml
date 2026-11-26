@@ -79,6 +79,9 @@ jobs:
               git ls-files -z | du --files0-from=- -b --total | tail -1 > "$out/tracked-bytes.txt"
             )
           done
+      - name: Execute matched disposable change-cost probes
+        run: |
+          node repo-ops/evidence/change-cost-probe.mjs "$GITHUB_WORKSPACE" "$RUNNER_TEMP/evidence/change-cost.json" ca801532fd7109c953ad655a729eda5ac44d4d34
       - uses: actions/upload-artifact@v4
         if: always()
         with:
