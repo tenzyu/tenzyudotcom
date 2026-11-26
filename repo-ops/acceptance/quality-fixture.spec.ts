@@ -82,7 +82,17 @@ for (const theme of ['light', 'dark'] as const) {
           return { version: result.testEngine.version, passes: result.passes.length, violations: rules(result.violations), incomplete: rules(result.incomplete), contrastEvidence };
         });
         expect(result.passes + result.violations.length + result.incomplete.length, path).toBeGreaterThan(0);
-        reports.push({ path, theme, ...result });
+        const contrastScreenshots = [];
+        for (const [index, target] of result.contrastEvidence.entries()) {
+          if (target.target.length !== 1 || typeof target.target[0] !== 'string') continue;
+          const locator = page.locator(target.target[0]);
+          if (await locator.count() !== 1 || !(await locator.isVisible())) continue;
+          const file = 'quality-' + info.project.name + '-' + theme + '-contrast-' + reports.length + '-' + index + '.png';
+          // Capture the surrounding layout, not just an isolated glyph.
+          await locator.locator('..').screenshot({ path: resolve(output(), file), animations: 'disabled' });
+          contrastScreenshots.push({ target: target.target, file });
+        }
+        reports.push({ path, theme, ...result, contrastScreenshots });
       }
     }
     report(info.project.name + '-axe-' + theme, { scope: 'automated inventory, not conformance', reports });
@@ -245,7 +255,7 @@ test('keyboard focus restoration and narrow CSS viewport reflow', async ({ page 
   // 320 CSS px exercises WCAG reflow width; neither simulates actual browser zoom.
   for (const width of [720, 320]) {
     await page.setViewportSize({ width, height: 900 });
-    for (const path of ['/en', '/en/portfolio', '/en/blog', '/en/notes', '/en/scraps', '/en/links', '/en/tools', '/en/osu', '/en/editor/login']) {
+    for (const path of ['', '/en'].flatMap(prefix => routes.map(route => prefix + route || '/'))) {
       expect((await page.goto(path))?.status()).toBe(200);
       await page.evaluate(() => document.fonts.ready.then(() => undefined));
       const dimensions = await page.evaluate(() => ({

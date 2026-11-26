@@ -187,6 +187,7 @@ jobs:
             ${{ runner.temp }}/public-fixture/quality-background-video-streams.json
             ${{ runner.temp }}/public-fixture/fixture-*/results.json
             ${{ runner.temp }}/public-fixture/fixture-*/quality-*.json
+            ${{ runner.temp }}/public-fixture/fixture-*/quality-*.png
             ${{ runner.temp }}/public-fixture/fixture-*/artifacts/**/error-context.md
           if-no-files-found: error
           retention-days: 7
