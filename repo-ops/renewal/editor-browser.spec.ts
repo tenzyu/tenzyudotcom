@@ -72,7 +72,11 @@ test('Scrap draft, repeated writes and publication stay on the public pages', as
     await source.fill(lead + '\n| A | B |\n| - | - |\n| 1 | 2 |\n\n{alert("draft only")}');
     await editor.getByRole('button', { name: 'Preview', exact: true }).click();
     await expect(editor.getByRole('table')).toBeVisible();
-    await expect(editor.getByText('Fixture evidence.', { exact: true })).toBeVisible();
+    // Assert one user-visible rendered paragraph, not hidden DOM retained by React.
+    // Multiple visible copies still fail; the source textarea is not the preview.
+    const evidence = editor.getByText('Fixture evidence.', { exact: true }).filter({ visible: true });
+    await expect(evidence).toHaveCount(1);
+    await expect(evidence).toBeVisible();
     await expect(editor.getByText(/Unsupported MDX at line/)).toBeVisible();
     expect(git.head()).toBe(initial);
     await editor.getByRole('button', { name: 'Write', exact: true }).click();
