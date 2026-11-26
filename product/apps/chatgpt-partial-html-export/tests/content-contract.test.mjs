@@ -1,5 +1,10 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { readFileSync } from 'node:fs';
+import { runInThisContext } from 'node:vm';
+
+// Load the classic script in the same realm, as Firefox does.
+runInThisContext(readFileSync(new URL('../src/settings-defaults.js', import.meta.url), 'utf8'));
 
 await import('../src/content.js');
 
