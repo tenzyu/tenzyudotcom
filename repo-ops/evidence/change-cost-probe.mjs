@@ -27,7 +27,7 @@ Object.assign(process.env, { NODE_ENV: 'test', EDITOR_ADMIN_PASSWORD: 'synthetic
 const now = 1700000000000
 Date.now = () => now
 let token = ''
-mock.module('next/headers', () => ({ cookies: async () => ({ get: () => ({ value: token }) }) }))
+mock.module('next/headers', () => ({ cookies: async () => ({ get: () => ({ value: token }) }), headers: async () => new Headers() }))
 const { getEditorAdminSessionExpiry } = await import('../../src/features/editor-auth/editor-session')
 const sign = (exp: number, key = process.env.EDITOR_SESSION_SECRET!) => {
   const payload = Buffer.from(JSON.stringify({ sub: 'editor-admin', exp })).toString('base64url')
@@ -124,7 +124,7 @@ try {
       };
       read('AGENTS.md');
       for (const p of task.manifests) read(p);
-      const query = ['git','grep','-l','-F','-e',task.needle,'HEAD','--',task.scope,':(exclude,glob)**/.env*',':(exclude,glob)**/.env*/**'];
+      const query = ['git','grep','-l','-F','-e',task.needle,'HEAD','--',task.scope,':(exclude,glob)**/.env*',':(exclude,glob)**/.env*/**',':(exclude)repo-ops/evidence/change-cost-probe.mjs'];
       const discovered = run(cwd, query, record.commands);
       assert.equal(discovered.status, 0);
       const matches = discovered.stdout.trim().split('\n').map(line => line.replace(/^HEAD:/,''));
