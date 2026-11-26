@@ -63,12 +63,16 @@ for (const locale of ['ja', 'en'] as const) {
       await expect(panel).toBeVisible();
       const legends = panel.locator('fieldset > legend');
       await expect.poll(() => legends.count()).toBeGreaterThan(1);
-      const names = (await legends.allTextContents()).map(name => name.trim());
-      expect(names.length).toBeGreaterThan(1);
-      for (const name of new Set(names)) {
+      // Keep the scoped panel, but use per-element innerText and the fieldset's
+      // accessible name. The bulk allTextContents query crashed Firefox pages.
+      const names: string[] = [];
+      for (const legend of await legends.all()) {
+        const name = (await legend.innerText()).trim();
         expect(name).not.toBe('');
-        await expect(panel.getByRole('group', { name, exact: true })).toHaveCount(names.filter(value => value === name).length);
+        await expect(legend.locator('..')).toHaveAccessibleName(name);
+        names.push(name);
       }
+      expect(names.length).toBeGreaterThan(1);
       expect(await panel.getByRole('group', { name: locale === 'en' ? 'Name:' : '名前:', exact: true }).count()).toBeGreaterThan(1);
       await expect(panel.locator('[id^="settings-label-"], [aria-labelledby^="settings-label-"]')).toHaveCount(0);
     }
