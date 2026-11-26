@@ -49,6 +49,9 @@ const readNodeEnv = (): NodeEnv => {
 
 export const env = {
   nodeEnv: readNodeEnv(),
+  vercel: readOptionalString('VERCEL'),
+  vercelEnv: readOptionalString('VERCEL_ENV'),
+  vercelTargetEnv: readOptionalString('VERCEL_TARGET_ENV'),
   siteUrl: readOptionalString('SITE_URL') ?? 'https://tenzyu.com',
   enableReactGrabOverlay: readBooleanFlag('ENABLE_REACT_GRAB_OVERLAY'),
   reactEditor: readOptionalString('REACT_EDITOR'),
@@ -72,8 +75,34 @@ export function shouldLoadReactGrabOverlay() {
   return isDevelopment && env.enableReactGrabOverlay
 }
 
-export function isEditorLoginConfigured() {
-  return !!env.editorAdminPassword && !!env.editorSessionSecret
+type EditorDeploymentConfig = Pick<typeof env, 'nodeEnv' | 'vercel' | 'vercelEnv' | 'vercelTargetEnv' | 'editorAllowedOrigin'>
+
+// Vercel Preview and custom targets are never trusted with production editor
+// credentials. NODE_ENV=production is also used for Preview builds.
+export function isEditorDeploymentAllowed(config: EditorDeploymentConfig = env): boolean {
+  if (config.vercel || config.vercelEnv || config.vercelTargetEnv) {
+    return config.vercel === '1' && config.vercelEnv === 'production' &&
+      config.vercelTargetEnv === 'production'
+  }
+  if (config.nodeEnv !== 'production') return true
+  // Isolated production-build acceptance runs on explicit HTTP loopback.
+  // Missing Vercel metadata must not silently authorize a public deployment.
+  try {
+    const origin = new URL(config.editorAllowedOrigin ?? '')
+    return origin.protocol === 'http:' &&
+      ['localhost', '127.0.0.1', '[::1]'].includes(origin.hostname) &&
+      origin.origin === config.editorAllowedOrigin
+  } catch {
+    return false
+  }
+}
+
+type EditorLoginConfig = Pick<typeof env, 'editorAdminPassword' | 'editorSessionSecret'>
+
+export function isEditorLoginConfigured(
+  config: EditorLoginConfig = env,
+): config is { editorAdminPassword: string; editorSessionSecret: string } {
+  return !!config.editorAdminPassword && (config.editorSessionSecret?.length ?? 0) >= 32
 }
 export const isEditorGithubStorage =
   !!env.githubContentOwner &&
@@ -94,9 +123,12 @@ export const getRequiredOsuApiCredentials = () => {
 }
 
 export const getRequiredEditorAdminCredentials = () => {
-  if (!env.editorAdminPassword || !env.editorSessionSecret) {
+  if (!isEditorDeploymentAllowed()) {
+    throw new Error('Editor is disabled for this deployment environment.')
+  }
+  if (!isEditorLoginConfigured(env)) {
     throw new Error(
-      'Editor admin credentials are missing. Please set EDITOR_ADMIN_PASSWORD and EDITOR_SESSION_SECRET.',
+      'Editor admin credentials are not configured correctly. Set EDITOR_ADMIN_PASSWORD and an EDITOR_SESSION_SECRET of at least 32 characters.',
     )
   }
 

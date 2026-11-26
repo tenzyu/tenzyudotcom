@@ -1,5 +1,5 @@
 import { unstable_cache } from 'next/cache'
-import { env } from '@/config/env.infra'
+import { env, isEditorDeploymentAllowed } from '@/config/env.infra'
 import {
   type ContentRepository,
   type ContentRepositorySaveOptions,
@@ -13,6 +13,12 @@ import {
   createGitHubDocumentRepository,
   type GitHubAggregateRepository,
 } from '@tenzyu/revisioned-content/github'
+
+function assertEditorWritesAllowed() {
+  if (!isEditorDeploymentAllowed()) {
+    throw new StorageError('Content mutations are disabled for this deployment environment.')
+  }
+}
 
 function getGitHubConfig() {
   if (
@@ -62,6 +68,7 @@ export async function saveGitHubTextFile(
   content: string,
   options: ContentRepositorySaveOptions = {},
 ) {
+  assertEditorWritesAllowed()
   await getDocumentRepository().saveText(pathname, content, options)
 }
 
@@ -132,6 +139,7 @@ export const githubContentRepository: ContentRepository &
     return getAggregateRepository().snapshotAt(version)
   },
   commit(expectedVersion, writes, message) {
+    assertEditorWritesAllowed()
     return getAggregateRepository().commit(expectedVersion, writes, message)
   },
   reconcile(candidateOid) {
@@ -164,6 +172,7 @@ export const githubContentRepository: ContentRepository &
     return getDocumentRepository().list(prefix)
   },
   async delete(pathname, options) {
+    assertEditorWritesAllowed()
     await getDocumentRepository().deleteText(pathname, options)
   },
 }
