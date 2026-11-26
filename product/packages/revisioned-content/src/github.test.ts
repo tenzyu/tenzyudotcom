@@ -345,3 +345,48 @@ describe('GitHub single-document persistence', () => {
   })
 
 })
+
+describe('GitHub content byte integrity across read protocols', () => {
+  const pathname = 'editor/notes.json'
+  const raw = {
+    type: 'file', encoding: 'base64', sha: blob,
+    path: 'storage/editor/notes.json',
+  }
+  const readers = (payload: Record<string, unknown>) => {
+    const request = async () => Response.json({ ...raw, ...payload })
+    return [
+      createGitHubAggregateRepository(config, request).snapshotAt(headA),
+      createGitHubDocumentRepository(config, request),
+    ]
+  }
+
+  test('preserves empty and multiline base64 UTF-8 content', async () => {
+    for (const text of ['', '日本語\n', 'one\r\ntwo']) {
+      const bytes = Buffer.from(text)
+      const encoded = bytes.toString('base64').replace(/.{4}/g, '$&\r\n')
+      for (const reader of readers({ content: encoded, size: bytes.length })) {
+        expect((await reader.loadText(pathname))?.content).toBe(text)
+      }
+    }
+  })
+
+  test.each([
+    { content: 'YQ==', size: 2 }, // wrong length
+    { content: 'YQ', size: 1 }, // noncanonical padding
+    { content: 'YQ==!', size: 1 }, // noncanonical character
+    { content: '/w==', size: 1 }, // invalid UTF-8
+  ])('rejects invalid payload %j at both read boundaries', async (payload) => {
+    for (const reader of readers(payload)) {
+      await expect(reader.loadText(pathname)).rejects.toThrow(
+        `GitHub supplied incomplete or unsupported file bytes for ${pathname}.`,
+      )
+    }
+  })
+
+  test('single-document reads still reject a mismatched pathname', async () => {
+    const repo = createGitHubDocumentRepository(config, async () => Response.json({
+      ...raw, path: 'storage/editor/other.json', content: 'YQ==', size: 1,
+    }))
+    await expect(repo.loadText(pathname)).rejects.toBeInstanceOf(StorageError)
+  })
+})

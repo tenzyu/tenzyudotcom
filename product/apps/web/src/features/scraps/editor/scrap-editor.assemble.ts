@@ -11,9 +11,8 @@ import {
 import {
   parseScrapManifest,
   parseScrapEntryMeta,
-  parseScrapIndexProjection,
 } from '@tenzyu/publishing-domain/scraps-validation'
-import { getScrapsAggregateRepository } from '@/features/scraps/scraps.infra'
+import { getScrapsAggregateRepository, loadScrapIndex } from '@/features/scraps/scraps.infra'
 import {
   type AggregateContentRepository,
   type ContentSnapshot,
@@ -38,20 +37,15 @@ async function readManifest(snapshot: ContentSnapshot, slug: string) {
   return manifest
 }
 
-async function readIndex(snapshot: ContentSnapshot) {
-  const file = await snapshot.loadText(SCRAPS_INDEX_PATHNAME)
-  return file ? parseScrapIndexProjection(JSON.parse(file.content)) : []
-}
-
 export async function loadScrapEditorIndex(
   repo: AggregateContentRepository = getScrapsAggregateRepository(),
 ) {
-  return readIndex(await repo.snapshot())
+  return loadScrapIndex(await repo.snapshot())
 }
 
 export async function loadScrapEditorIndexState() {
   const snapshot = await getScrapsAggregateRepository().snapshot()
-  const collection = await readIndex(snapshot)
+  const collection = await loadScrapIndex(snapshot)
   return {
     collection,
     serialized: JSON.stringify(collection, null, 2),
@@ -295,7 +289,7 @@ export async function executeScrapEditorCommand(
         manifest.entryIds = [...existing.entryIds, input.entryId]
     }
   }
-  const index = await readIndex(snapshot)
+  const index = await loadScrapIndex(snapshot)
   const nextEntry = projectScrapIndexEntry(manifest)
   for (const entryId of manifest.entryIds) {
     const pathname = paths.entryMeta(entryId)
