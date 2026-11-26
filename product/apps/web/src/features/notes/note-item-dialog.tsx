@@ -16,7 +16,8 @@ import {
   NoteEditView,
   type NoteFields,
 } from './note-command.validation'
-import { buildLocalizedNotePath, createNoteId } from './notes.domain'
+import { createNoteId } from '@tenzyu/publishing-domain/notes'
+import { buildLocalizedNotePath } from './notes.urls'
 
 export type NoteEditorMode = 'create' | 'reply' | 'edit' | 'delete'
 
