@@ -38,6 +38,7 @@ jobs:
         run: |
           bun nx graph --file="$RUNNER_TEMP/project-graph.json"
           bun run policy:deps "$RUNNER_TEMP/project-graph.json"
+          node repo-ops/evidence/architecture-evidence.mjs . --check-static-product
       - name: Verify all non-native products and libraries in one task DAG
         env:
           GITHUB_CONTENT_TOKEN: ${{ github.token }}
