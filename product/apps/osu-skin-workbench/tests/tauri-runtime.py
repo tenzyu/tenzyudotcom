@@ -155,7 +155,38 @@ def main():
                 click("#" + refresh_id)
                 until(lambda: visible("Projects loaded."), "real list IPC after create")
                 assert visible("Native Runtime CI")
-                print(json.dumps({"launch":"passed","list":"passed","import":"passed","filesystem":"passed","refresh":"passed","scope":"Linux release executable + WebKitGTK; no bundle or other OS claim"}))
+                # Import another real project, then switch through the workspace's
+                # native select. A failed load must not leave the other project's
+                # asset matrix attached to the selected project.
+                second_skin = root / "second-skin"
+                second_skin.mkdir()
+                (second_skin / "skin.ini").write_text(content)
+                (second_skin / "readme.txt").write_text("second project only")
+                type_text("#project-name", "Second Runtime Project")
+                type_text("#main-skin-path", str(second_skin))
+                until(lambda: js("return [...document.querySelectorAll('button')].some(b=>b.textContent.includes('Import main skin')&&!b.disabled)"), "second import enabled")
+                second_import = js("const b=[...document.querySelectorAll('button')].find(b=>b.textContent.includes('Import main skin'));b.id='runtime-second-import';return b.id")
+                click("#" + second_import)
+                until(lambda: visible("Imported project: Second Runtime Project"), "second project created")
+                open_id = js("const card=[...document.querySelectorAll('.projectCard')].find(c=>c.innerText.includes('Second Runtime Project'));const b=[...card.querySelectorAll('button')].find(b=>b.textContent.trim()==='Open');b.id='runtime-open';return b.id")
+                click("#" + open_id)
+                until(lambda: visible("Project files: 2 · Source files: 2"), "second workspace loaded")
+                def select_project(project_id):
+                    js("const select=document.querySelector('#sidebar-project-select');select.value=arguments[0];select.dispatchEvent(new Event('change',{bubbles:true}));return select.value", project_id)
+                select_project(manifest["id"])
+                until(lambda: visible("Project files: 1 · Source files: 1"), "first workspace loaded")
+                assert visible("Native Runtime CI")
+                # Return to the second project, then remove only the isolated
+                # fixture's first manifest to force a real get_project_files error.
+                second_manifest = next(json.loads(p.read_text()) for p in data.rglob("skin-editor-projects/*/manifest.json") if p != manifests[0])
+                select_project(second_manifest["id"])
+                until(lambda: visible("Project files: 2 · Source files: 2"), "second workspace reloaded")
+                manifests[0].unlink()
+                select_project(manifest["id"])
+                until(lambda: visible("failed to open manifest"), "selection load failure reported")
+                assert visible("Project files: 0 · Source files: 0")
+                assert visible("Native Runtime CI")
+                print(json.dumps({"launch":"passed","list":"passed","import":"passed","filesystem":"passed","refresh":"passed","selection":"passed","failedSelectionIsolation":"passed","scope":"Linux release executable + WebKitGTK; no bundle or other OS claim"}))
             except Exception:
                 log.seek(0)
                 print(log.read()[-12000:])
