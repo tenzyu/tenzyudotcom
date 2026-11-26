@@ -39,7 +39,7 @@ function TweetItem({
   return tweet ? (
     <EmbeddedTweet tweet={tweet} components={twitterComponents} />
   ) : (
-    <a href={`https://x.com/i/status/${id}`}>{viewPostLabel}</a>
+    <a className="inline-flex min-h-11 items-center px-3 underline" href={`https://x.com/i/status/${id}`}>{viewPostLabel}</a>
   )
 }
 
@@ -53,6 +53,8 @@ type TwitterCarouselClientProps = {
 export function TwitterCarouselClient({
   tweets,
   viewPostLabel,
+  previousLabel,
+  nextLabel,
 }: TwitterCarouselClientProps) {
   return (
     <Carousel
@@ -77,12 +79,12 @@ export function TwitterCarouselClient({
         ))}
       </CarouselContent>
       <CarouselPrevious
-        className="dark:bg-popover dark:text-popover-foreground absolute top-1/2 left-4 z-10 -translate-y-1/2 transform"
-        // label={previousLabel}
+        className="bg-popover text-popover-foreground absolute top-1/2 left-4 z-10 -translate-y-1/2 transform"
+        aria-label={previousLabel}
       />
       <CarouselNext
         className="dark:bg-popover dark:text-popover-foreground absolute top-1/2 right-4 z-10 -translate-y-1/2 transform"
-        // label={nextLabel}
+        aria-label={nextLabel}
       />
     </Carousel>
   )

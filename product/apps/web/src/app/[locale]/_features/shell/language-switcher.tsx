@@ -26,7 +26,7 @@ export function LanguageSwitcher() {
           <Button
             variant="outline"
             className="gap-2 px-3"
-            aria-label={content.changeLanguage.value}
+            aria-label={`${content.changeLanguage.value}: ${getLocaleName(locale)}`}
           >
             <Globe className="text-muted-foreground h-[1.2rem] w-[1.2rem]" />
             {getLocaleName(locale)}
