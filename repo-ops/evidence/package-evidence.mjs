@@ -2,6 +2,7 @@
 import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { gzipSync } from 'node:zlib'
+import { execFileSync } from 'node:child_process'
 
 const output = process.argv[2]
 if (!output) throw new Error('Pass the evidence output file')
@@ -38,7 +39,8 @@ for (const name of packages) {
 }
 const frontend = 'product/apps/osu-skin-workbench/dist'
 if (existsSync(frontend)) walk(frontend, frontend)
-const result = { exports, missing, sizes: sizes.sort((a, b) => b.bytes - a.bytes) }
+const git = (...args) => execFileSync('git', args, { encoding: 'utf8' }).trim()
+const result = { commit: git('rev-parse', 'HEAD'), tree: git('rev-parse', 'HEAD^{tree}'), exports, missing, sizes: sizes.sort((a, b) => b.bytes - a.bytes) }
 writeFileSync(output, JSON.stringify(result, null, 2) + '\n')
 console.log(JSON.stringify({ exports: Object.fromEntries(Object.entries(exports).map(([name, paths]) => [name, paths.length])), missing, largest: result.sizes.slice(0, 12) }, null, 2))
 if (missing.length) process.exitCode = 1

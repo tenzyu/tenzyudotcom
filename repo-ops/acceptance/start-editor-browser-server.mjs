@@ -2,6 +2,7 @@ import { spawn, spawnSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, openSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { initGitContentFixture } from './git-content-fixture.mjs';
+import { initialFiles, seededScrap, scrapsIndexPath, serialize } from './publication-fixture.mjs';
 import { externalEvidencePath } from '../evidence/external-evidence-path.mjs';
 
 const root = resolve(import.meta.dirname, '../..');
@@ -11,7 +12,11 @@ const production = process.env.EDITOR_BROWSER_PRODUCTION === '1';
 mkdirSync(output, { recursive: true, mode: 0o700 });
 const fixtureDir = mkdtempSync(resolve(output, 'fixture-'));
 const repository = resolve(fixtureDir, 'content.git');
-initGitContentFixture(repository, { 'storage/scraps/index.json': '[]\n' });
+const seed = process.env.EDITOR_FIXTURE_SEED === 'public'
+  ? { ...initialFiles, ...seededScrap.files, [scrapsIndexPath]: serialize([seededScrap.projection]) }
+  : { 'storage/scraps/index.json': '[]\n' };
+const fixture = initGitContentFixture(repository, seed);
+writeFileSync(resolve(output, 'fixture-head'), fixture.head() + '\n', { mode: 0o600 });
 writeFileSync(resolve(output, 'fixture-path'), fixtureDir, { mode: 0o600 });
 const ledger = resolve(output, 'github-ledger.jsonl');
 writeFileSync(ledger, '', { mode: 0o600 });
