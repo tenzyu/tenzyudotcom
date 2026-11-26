@@ -1,5 +1,5 @@
 import { spawn, spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, openSync, writeFileSync } from 'node:fs';
+import { closeSync, cpSync, mkdirSync, mkdtempSync, openSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { initGitContentFixture } from './git-content-fixture.mjs';
 import { initialFiles, seededScrap, scrapsIndexPath, serialize } from './publication-fixture.mjs';
@@ -28,6 +28,7 @@ const env = {
   NODE_ENV: production ? 'production' : 'development',
   TZ: 'UTC',
   NEXT_TELEMETRY_DISABLED: '1',
+  ...(production && process.env.EDITOR_FIXTURE_SEED === 'public' ? { REPO_OPS_FIXTURE_SOURCE_MAPS: '1' } : {}),
   NX_DAEMON: 'false',
   NX_NO_CLOUD: 'true',
   NX_TUI: 'false',
@@ -49,6 +50,17 @@ const env = {
 };
 const cwd = resolve(root, 'product/apps/web');
 const next = resolve(root, 'node_modules/next/dist/bin/next');
+if (process.argv.includes('--analyze-only')) {
+  if (!production) throw new Error('Analyze only requires production fixture mode');
+  const analysisLog = openSync(resolve(output, 'next-analyze.log'), 'wx', 0o600);
+  const analysis = spawnSync('node', [next, 'experimental-analyze', '--output'], { cwd, env, stdio: ['ignore', analysisLog, analysisLog] });
+  closeSync(analysisLog);
+  closeSync(log);
+  if (analysis.error) throw analysis.error;
+  if (analysis.status !== 0) process.exit(analysis.status ?? 1);
+  cpSync(resolve(cwd, '.next/diagnostics/analyze'), resolve(output, 'next-analysis'), { recursive: true, errorOnExist: true, force: false });
+  process.exit(0);
+}
 if (production) {
   const buildLog = openSync(resolve(output, 'next-build.log'), 'w', 0o600);
   const build = spawnSync('node', [next, 'build'], { cwd, env, stdio: ['ignore', buildLog, buildLog] });
