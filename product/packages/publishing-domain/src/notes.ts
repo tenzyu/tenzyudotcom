@@ -69,15 +69,19 @@ export function isNoteSnowflakeId(value: string | undefined) {
 
 export function createNoteId() {
   const now = Date.now()
+  assertSnowflakeTimestamp(now)
 
-  if (now === lastSnowflakeTimestamp) {
-    snowflakeSequence = (snowflakeSequence + 1) & 0xfff
-  } else {
+  if (now > lastSnowflakeTimestamp) {
     lastSnowflakeTimestamp = now
     snowflakeSequence = 0
+  } else if (snowflakeSequence === 0xfff) {
+    lastSnowflakeTimestamp++
+    snowflakeSequence = 0
+  } else {
+    snowflakeSequence++
   }
 
-  return createNoteSnowflakeId(now, snowflakeSequence, NOTE_SNOWFLAKE_NODE_ID)
+  return createNoteSnowflakeId(lastSnowflakeTimestamp, snowflakeSequence, NOTE_SNOWFLAKE_NODE_ID)
 }
 
 function collectDescendantNoteIds(
