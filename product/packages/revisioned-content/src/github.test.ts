@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import { describe, expect, test } from 'bun:test'
 import { createGitHubAggregateRepository, createGitHubDocumentRepository } from './github'
 import { createContentVersion } from './version'
@@ -237,6 +238,65 @@ describe('GitHub single-document persistence', () => {
     })
     await expect(repo.saveText('editor/notes.json', 'next'))
       .rejects.toBeInstanceOf(StorageDocumentWriteUncertainError)
+  })
+
+  test('accepts documented create/update and delete receipts', async () => {
+    const value = '次の内容\n'
+    const bytes = Buffer.from(value)
+    const sha = createHash('sha1').update(`blob ${bytes.length}\0`).update(bytes).digest('hex')
+    for (const status of [200, 201]) {
+      const repo = createGitHubDocumentRepository(config, async (_url, init) =>
+        init?.method === 'PUT'
+          ? Response.json({ commit: { sha: headB }, content: { sha, path: 'storage/editor/notes.json' } }, { status })
+          : status === 201 ? new Response(null, { status: 404 }) : Response.json(file('current')))
+      await repo.saveText('editor/notes.json', value)
+    }
+    const repo = createGitHubDocumentRepository(config, async (_url, init) =>
+      init?.method === 'DELETE'
+        ? Response.json({ commit: { sha: headB }, content: null })
+        : Response.json(file('current')))
+    await repo.deleteText('editor/notes.json')
+  })
+
+  test('malformed or mismatched success receipts are uncertain without blind retries', async () => {
+    const value = 'next'
+    const sha = createHash('sha1').update('blob 4\0').update(value).digest('hex')
+    const receipt = { commit: { sha: headB }, content: { sha, path: 'storage/editor/notes.json' } }
+    const badResponses = [
+      () => new Response(null, { status: 204 }),
+      () => new Response('not JSON', { status: 200 }),
+      () => Response.json({}),
+      () => Response.json({ ...receipt, commit: { sha: 'invalid' } }),
+      () => Response.json({ ...receipt, content: null }),
+      () => Response.json({ ...receipt, content: { ...receipt.content, sha: blob } }),
+      () => Response.json({ ...receipt, content: { ...receipt.content, path: 'storage/editor/other.json' } }),
+      () => Response.json(receipt, { status: 202 }),
+    ]
+    for (const response of badResponses) {
+      let writes = 0
+      const repo = createGitHubDocumentRepository(config, async (_url, init) => {
+        if (init?.method === 'PUT') {
+          writes++
+          return response()
+        }
+        return Response.json(file('current'))
+      })
+      await expect(repo.saveText('editor/notes.json', value)).rejects.toBeInstanceOf(StorageDocumentWriteUncertainError)
+      expect(writes).toBe(1)
+    }
+
+    for (const response of [() => Response.json({}), () => Response.json(receipt), () => new Response(null, { status: 204 })]) {
+      let writes = 0
+      const repo = createGitHubDocumentRepository(config, async (_url, init) => {
+        if (init?.method === 'DELETE') {
+          writes++
+          return response()
+        }
+        return Response.json(file('current'))
+      })
+      await expect(repo.deleteText('editor/notes.json')).rejects.toBeInstanceOf(StorageDocumentWriteUncertainError)
+      expect(writes).toBe(1)
+    }
   })
 
   test('rejects truncated listings and does not cross the directory boundary', async () => {

@@ -1,14 +1,14 @@
 import assert from 'node:assert/strict';
-import { spawn, spawnSync } from 'node:child_process';
+import { spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { once } from 'node:events';
 import {
-  closeSync, copyFileSync, existsSync, lstatSync, mkdirSync, mkdtempSync, openSync,
+  closeSync, existsSync, mkdirSync, mkdtempSync, openSync,
   readFileSync, renameSync, rmSync, unlinkSync, writeFileSync,
 } from 'node:fs';
 import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
-import { dirname, join, resolve } from 'node:path';
+import { join, resolve } from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
 import { pathToFileURL } from 'node:url';
 import { parseArgs } from 'node:util';
@@ -16,6 +16,7 @@ import { chromium } from '@playwright/test';
 import { publicBrowserEnvironment } from './browser-environment.mjs';
 import { externalEvidencePath } from '../evidence/external-evidence-path.mjs';
 import { initGitContentFixture } from './git-content-fixture.mjs';
+import { archivePublicationCheckout, gitRevision } from './publication-checkout.mjs';
 import {
   article, blogIndexPath, directLink, directScrap, firstNote, firstNoteId, firstPost, initialFiles, latePost,
   linksPath, notesPath, reply, replyId, scrap, scrapsIndexPath, secondNote, secondNoteId, secondPost, seededLink, seededScrap, serialize,
@@ -75,33 +76,6 @@ const env = {
   PUBLICATION_FIXTURE_REPO: repository,
   NODE_OPTIONS: `--import=${pathToFileURL(join(import.meta.dirname, 'publication-github-preload.mjs'))}`,
 };
-
-function capture(command, args, { cwd = source, input } = {}) {
-  const result = spawnSync(command, args, { cwd, input, maxBuffer: 128 * 1024 * 1024 });
-  if (result.error) throw result.error;
-  assert.equal(result.status, 0, result.stderr.toString());
-  return result.stdout;
-}
-
-function copyCheckout() {
-  const safePaths = (output) => output.toString().split('\0').filter(path =>
-    path && !path.split('/').some(part => part.startsWith('.env') || part === '.git'));
-  if (baseline) {
-    const paths = safePaths(capture('git', ['ls-tree', '-rz', '--name-only', baseline]));
-    const archive = capture('git', ['archive', baseline, '--', ...paths]);
-    capture('tar', ['-xf', '-', '-C', checkout], { input: archive });
-    return;
-  }
-  const paths = safePaths(capture('git', ['ls-files', '-z', '--cached', '--others', '--exclude-standard']));
-  for (const path of new Set(paths)) {
-    const from = join(source, path);
-    if (!existsSync(from)) continue;
-    assert.ok(lstatSync(from).isFile(), `Unsupported test checkout entry: ${path}`);
-    const destination = join(checkout, path);
-    mkdirSync(dirname(destination), { recursive: true });
-    copyFileSync(from, destination);
-  }
-}
 
 async function run(command, args, cwd, environment, label) {
   const logPath = join(evidence, `${label}.log`);
@@ -341,11 +315,13 @@ async function scrapsBaselineControl() {
   expectContains(await read('/sitemap.xml', 'Baseline direct sitemap'), scrapRoute);
 }
 
-const code = baseline || capture('git', ['rev-parse', 'HEAD']).toString().trim();
+const harness = gitRevision(source, 'HEAD');
+const candidate = baseline ? gitRevision(source, baseline) : harness;
+const code = candidate.commit;
 let buildId;
 console.log(`Publication fixture evidence: ${evidence}`);
 try {
-  copyCheckout();
+  archivePublicationCheckout(source, checkout, candidate.commit);
   await run('bun', ['--no-env-file', 'install', '--frozen-lockfile'], checkout, baseEnv, 'install');
   await run('bun', ['--no-env-file', 'run', 'build'], join(checkout, 'product/packages/ui'), baseEnv, 'ui-build');
   await run('node', ['--input-type=module', '-e',
@@ -360,7 +336,7 @@ try {
   console.log(`Publication ${baseline ? 'control' : 'acceptance'} passed on ${code}, build ${buildId}`);
 } finally {
   await stop();
-  writeFileSync(join(evidence, 'results.json'), serialize({ code, buildSeed, buildId, revisions, requests: metrics }));
+  writeFileSync(join(evidence, 'results.json'), serialize({ code, tree: candidate.tree, harness, buildSeed, buildId, revisions, requests: metrics }));
   if (!interrupted) rmSync(checkout, { recursive: true, force: true });
 }
 

@@ -45,10 +45,8 @@ for (const theme of ['light', 'dark'] as const) {
       }
     }
     report(info.project.name + '-axe-' + theme, { scope: 'automated inventory, not conformance', reports });
-    // Gate newly introduced rule IDs; existing baseline rules remain visible for triage.
-    const baselineRules = new Set(['color-contrast']);
-    expect(reports.flatMap(r => r.violations.filter((v: any) => !baselineRules.has(v.id))), 'new automated WCAG rule violations').toEqual([]);
-    expect(reports.flatMap(r => r.violations.filter((v: any) => v.id === 'color-contrast').map(() => r.path)).every(p => p === '/osu' || p === '/en/osu'), 'contrast residual confined to osu fixture').toBe(true);
+    // Persist the complete inventory before enforcing the fixture's zero-violation gate.
+    expect(reports.flatMap(r => r.violations.map(v => ({ path: r.path, ...v }))), 'automated WCAG violations in the covered fixture').toEqual([]);
     console.log(JSON.stringify({ project: info.project.name, theme, scans: reports.length, violations: reports.reduce((n,r) => n + r.violations.length, 0), severe: reports.reduce((n,r) => n + r.violations.filter((v: any) => ['critical','serious'].includes(v.impact)).length,0) }));
   });
 }

@@ -47,3 +47,34 @@ test('locale query retention, theme persistence and anonymous editor gate withou
     await expect(page.getByRole('main')).toBeVisible();
   }
 });
+
+for (const locale of ['ja', 'en'] as const) {
+  test('settings groups have native names in both eras: ' + locale, async ({ page }) => {
+    await page.goto(locale === 'en' ? '/en/osu' : '/osu');
+    const tablist = page.getByRole('tablist', { name: locale === 'en' ? 'Settings era' : '設定の年代' });
+    const current = tablist.getByRole('tab', { name: locale === 'en' ? 'From 2026' : '2026年から' });
+    const historical = tablist.getByRole('tab', { name: locale === 'en' ? 'Until 2025' : '2025年まで' });
+    const panel = page.getByRole('tabpanel');
+    async function assertSettingsNames() {
+      const legends = panel.locator('fieldset > legend');
+      expect(await legends.count()).toBeGreaterThan(1);
+      for (const legend of await legends.all()) {
+        await expect(legend.locator('..')).toHaveAccessibleName((await legend.innerText()).trim());
+      }
+      expect(await panel.getByRole('group', { name: locale === 'en' ? 'Name:' : '名前:', exact: true }).count()).toBeGreaterThan(1);
+      await expect(panel.locator('[id^="settings-label-"], [aria-labelledby^="settings-label-"]')).toHaveCount(0);
+    }
+    await expect(current).toHaveAttribute('aria-selected', 'true');
+    await assertSettingsNames();
+    await current.press('ArrowLeft');
+    await expect(historical).toBeFocused();
+    await historical.press('Enter');
+    await expect(historical).toHaveAttribute('aria-selected', 'true');
+    await assertSettingsNames();
+    await historical.press('ArrowRight');
+    await expect(current).toBeFocused();
+    await current.press('Enter');
+    await expect(current).toHaveAttribute('aria-selected', 'true');
+    await assertSettingsNames();
+  });
+}
