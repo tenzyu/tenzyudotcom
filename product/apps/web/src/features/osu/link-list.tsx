@@ -11,7 +11,7 @@ import {
   ItemMedia,
   ItemTitle,
 } from '@tenzyu/ui/item'
-import { loadCachedLinks } from '@/features/links/links.assemble'
+import { loadLinks } from '@/features/links/links.assemble'
 import {
   LINK_CATEGORY_ORDER,
   type LinkCategory,
@@ -31,7 +31,7 @@ const CATEGORY_KEYS: Record<
 export async function LinkList() {
   const content = useIntlayer('linksFeature')
   const pageContent = useIntlayer('page-osu-profile')
-  const links = await loadCachedLinks().catch(() => null)
+  const links = await loadLinks().catch(() => null)
 
   if (links === null) {
     return (
