@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { parseEditorBlogSaveInput } from '@/features/blog/editor/blog-save-input'
+import { parseBlogSaveCommand } from '@/features/blog/editor/blog-save-input'
 import { BlogSlugValidationError } from '@tenzyu/publishing-domain/blog'
 import {
   checkBlogWorkspacePublication,
@@ -72,13 +72,7 @@ export async function POST(request: Request) {
       case 'rename':
         return json({ kind: 'saved', receipt: await renameBlogPost(input) })
       case 'save': {
-        const form = new FormData()
-        form.set('locale', 'en')
-        form.set('slug', input.slug)
-        form.set('intent', input.intent)
-        form.set('expectedVersion', input.expectedVersion ?? '')
-        form.set('changes', JSON.stringify(input.changes))
-        const command = parseEditorBlogSaveInput(form)
+        const command = parseBlogSaveCommand(input)
         if (!command.success)
           return json(
             { kind: command.error, message: command.message },
