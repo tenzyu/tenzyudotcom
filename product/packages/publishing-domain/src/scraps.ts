@@ -124,15 +124,15 @@ export type ScrapIndexEntry = {
 
 export type ScrapIndexProjection = ScrapIndexEntry[]
 
-const SLUG_PATTERN = /^[a-z0-9][a-z0-9-]{0,79}$/
-const ENTRY_ID_PATTERN = /^[a-z0-9][a-z0-9-]{0,79}$/
+export const SCRAP_SLUG_PATTERN = /^[a-z0-9][a-z0-9-]{0,79}$/
+export const SCRAP_ENTRY_ID_PATTERN = /^[a-z0-9][a-z0-9-]{0,79}$/
 
 export function isValidScrapSlug(value: string) {
-  return SLUG_PATTERN.test(value)
+  return SCRAP_SLUG_PATTERN.test(value)
 }
 
 export function isValidScrapEntryId(value: string) {
-  return ENTRY_ID_PATTERN.test(value)
+  return SCRAP_ENTRY_ID_PATTERN.test(value)
 }
 
 export function isContentLocale(value: unknown): value is ContentLocale {
