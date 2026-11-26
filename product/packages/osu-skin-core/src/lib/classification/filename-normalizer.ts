@@ -40,17 +40,14 @@ export function stripScaleSuffix(fileName: string): string {
   return `${stem.endsWith("@2x") ? stem.slice(0, -3) : stem}${ext}`;
 }
 
+function matchAnimationSuffix(stem: string) {
+  return stem.match(/^(.*?)-(\d+)$/) ?? stem.match(/^(sliderb)(\d+)$/);
+}
+
 export function stripAnimationSuffix(fileName: string): string {
   const ext = extensionOf(fileName);
-  const stem = fileName.slice(0, fileName.length - ext.length);
-
-  const numberedDash = stem.match(/^(.*?)-(\d+)$/);
-  if (numberedDash) return `${numberedDash[1]}${ext}`;
-
-  const sliderBallFrame = stem.match(/^(sliderb)(\d+)$/);
-  if (sliderBallFrame) return `${sliderBallFrame[1]}${ext}`;
-
-  return fileName;
+  const match = matchAnimationSuffix(withoutExtension(fileName));
+  return match ? `${match[1]}${ext}` : fileName;
 }
 
 export function canonicalKey(relativePath: string): string {
@@ -73,32 +70,16 @@ export function withoutExtension(fileName: string): string {
 export { titleizeIdentifier };
 
 export function sequenceInfo(relativePath: string): SequenceInfo {
-  const fileName = basenameOf(logicalSkinKey(relativePath));
-  let stem = stripScaleSuffix(withoutExtension(fileName));
-
-  const numberedDash = stem.match(/^(.*?)-(\d+)$/);
-  if (numberedDash) {
-    stem = numberedDash[1];
-    return {
-      familyKey: stem.toLowerCase(),
-      familyLabel: titleizeIdentifier(stem),
-      sequenceIndex: Number(numberedDash[2]),
-    };
-  }
-
-  const sliderBallFrame = stem.match(/^(sliderb)(\d+)$/);
-  if (sliderBallFrame) {
-    return {
-      familyKey: sliderBallFrame[1].toLowerCase(),
-      familyLabel: titleizeIdentifier(sliderBallFrame[1]),
-      sequenceIndex: Number(sliderBallFrame[2]),
-    };
-  }
+  const fileName = basenameOf(canonicalKey(relativePath));
+  const stem = stripScaleSuffix(withoutExtension(fileName));
+  const match = matchAnimationSuffix(stem);
+  const familyKey = (match?.[1] ?? stem).toLowerCase();
+  const index = match ? Number(match[2]) : null;
 
   return {
-    familyKey: stem.toLowerCase(),
-    familyLabel: titleizeIdentifier(stem),
-    sequenceIndex: null,
+    familyKey,
+    familyLabel: titleizeIdentifier(familyKey),
+    sequenceIndex: index !== null && Number.isSafeInteger(index) ? index : null,
   };
 }
 
