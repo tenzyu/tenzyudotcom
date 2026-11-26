@@ -51,3 +51,24 @@ test('renders dynamic MDX headings without publishing a guessed table-of-content
   expect(headings).toEqual([])
   expect(renderToStaticMarkup(content)).toContain('<h2 id="value-2"')
 })
+
+test('reserves static anchors and repeats dynamic allocation without render-to-render drift', async () => {
+  const { content, headings } = await prepareContentMDX({
+    source: ['## Value 2', '## Value {1 + 1}', '### Value {1 + 1}'].join('\n\n'),
+    scope: 'blog',
+  })
+  expect(headings).toEqual([{ id: 'value-2', level: 2, title: 'Value 2' }])
+  const html = renderToStaticMarkup(content)
+  expect([...html.matchAll(/<h[23] id="([^"]+)"/g)].map((match) => match[1])).toEqual([
+    'value-2', 'value-2-1', 'value-2-2',
+  ])
+  expect(renderToStaticMarkup(content)).toBe(html)
+})
+
+test('allocates a large repeated heading family without changing suffix semantics', async () => {
+  const source = Array.from({ length: 128 }, () => '## Repeat').join('\n\n')
+  const { headings } = await prepareContentMDX({ source, scope: 'blog' })
+  expect(headings.map(({ id }) => id)).toEqual(
+    Array.from({ length: 128 }, (_, index) => index ? `repeat-${index}` : 'repeat'),
+  )
+})

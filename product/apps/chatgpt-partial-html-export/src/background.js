@@ -156,11 +156,26 @@ function sanitizeFilename(value) {
     })
     .replace(/\s+/g, ' ')
     .trim()
-    .replace(/^\.+/, '')
-    .slice(0, 180);
+    .replace(/^\.+/, '');
 
   const withName = normalized || 'chatgpt-export.html';
-  return /\.html?$/i.test(withName) ? withName : `${withName}.html`;
+  return fitHtmlFilename(withName);
+}
+
+function fitHtmlFilename(name) {
+  const extension = name.match(/\.html?$/i)?.[0] || '.html';
+  const stem = /\.html?$/i.test(name) ? name.slice(0, -extension.length) : name;
+  const encoder = new TextEncoder();
+  const budget = 255 - encoder.encode(extension).length;
+  let result = '';
+  let bytes = 0;
+  for (const char of stem) {
+    const size = encoder.encode(char).length;
+    if (bytes + size > budget || result.length + char.length + extension.length > 180) break;
+    result += char;
+    bytes += size;
+  }
+  return (result.trimEnd() || 'chatgpt-export') + extension;
 }
 
 function sanitizeFilenameStem(value) {

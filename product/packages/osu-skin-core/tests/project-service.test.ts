@@ -80,3 +80,13 @@ test("bounds gap diagnostics even for a maximum safe integer frame index", () =>
     `animation frames missing: ${Array.from({ length: 64 }, (_, index) => index + 1).join(", ")}, ... (9007199254740990 total)`,
   );
 });
+
+test("matrix and tree retain the strongest asset requirement in either order", () => {
+  const [asset] = classifySkinFiles([{ relativePath: "hitcircle.png" }]);
+  const recommended = { ...asset, requiredLevel: "recommended" as const };
+  const required = { ...asset, requiredLevel: "required" as const };
+  for (const project of [[recommended, required], [required, recommended]]) {
+    expect(buildAssetMatrix({ project }).rows[0]?.requiredLevel).toBe("required");
+    expect(buildAssetTree(project).scopes[0]?.categories[0]?.groups[0]?.requiredLevel).toBe("required");
+  }
+});

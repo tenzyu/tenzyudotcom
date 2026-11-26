@@ -136,17 +136,29 @@ export function createGitHubAggregateRepository(
   function snapshotAt(oid: string): ContentTreeSnapshot {
     const version = oidSchema.parse(oid)
 
+    let tree: Promise<z.infer<typeof TreeEntry>[]> | undefined
+
+    function readTree() {
+      tree ??= (async () => {
+        const commit = CommitResponse.parse(await api(`/git/commits/${version}`))
+        const result = TreeResponse.safeParse(
+          await api(`/git/trees/${commit.tree.sha}?recursive=1`),
+        )
+        if (!result.success) {
+          throw new StorageError('GitHub did not supply a complete content tree.')
+        }
+        return result.data.tree
+      })().catch((error) => {
+        tree = undefined
+        throw error
+      })
+      return tree
+    }
+
     async function listTree(prefix: string) {
       const directory = repositoryPath(prefix)
-      const commit = CommitResponse.parse(await api(`/git/commits/${version}`))
-      const result = TreeResponse.safeParse(
-        await api(`/git/trees/${commit.tree.sha}?recursive=1`),
-      )
-      if (!result.success) {
-        throw new StorageError('GitHub did not supply a complete content tree.')
-      }
       const root = config.root.replace(/^\/+|\/+$/g, '')
-      return result.data.tree
+      return (await readTree())
         .filter(({ path }) => path.startsWith(`${directory}/`))
         .map(({ path, ...entry }) => ({
           ...entry,

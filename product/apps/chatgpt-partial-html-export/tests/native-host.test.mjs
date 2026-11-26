@@ -163,3 +163,25 @@ test('native messaging starts when the installed host path contains URL-escaped 
     await fs.rm(tmp, { recursive: true, force: true });
   }
 });
+
+test('long Unicode filenames fit a 255-byte component without splitting code points', () => {
+  for (const name of ['日'.repeat(180) + '.html', '😀'.repeat(100) + '.htm', 'x'.repeat(200) + '.html']) {
+    const safe = sanitizeFilename(name);
+    assert.ok(Buffer.byteLength(safe, 'utf8') <= 255);
+    assert.ok(safe.length <= 180);
+    assert.match(safe, /\.html?$/);
+    assert.equal(safe.includes('\uFFFD'), false);
+    assert.equal(sanitizeFilename(safe), safe);
+  }
+});
+
+test('native export writes a long Japanese title on a real filesystem', async () => {
+  const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'cphe-long-name-'));
+  try {
+    const result = await handleMessage({ type: 'writeHtml', outputDir: tmp, filename: '日'.repeat(180) + '.html', html: 'ok' });
+    assert.equal(result.ok, true, result.error);
+    assert.equal(await fs.readFile(result.path, 'utf8'), 'ok');
+  } finally {
+    await fs.rm(tmp, { recursive: true, force: true });
+  }
+});
