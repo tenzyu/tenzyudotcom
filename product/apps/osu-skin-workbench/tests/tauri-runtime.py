@@ -8,6 +8,7 @@ import sys
 import tempfile
 import time
 import urllib.request
+import urllib.error
 
 ROOT = Path(__file__).resolve().parents[1]
 APP = ROOT / "src-tauri/target/release/osu-skin-workbench"
@@ -37,7 +38,7 @@ def group_has_live_members(group):
 
 def stop_driver(driver, grace_seconds=10):
     # start_new_session makes the child PID the private process group ID.
-    # Waiting for just tauri-driver leaves WebKitGTK/application descendants.
+    # Waiting for just the driver leaves WebKitGTK/application descendants.
     def send(sig):
         try:
             os.killpg(driver.pid, sig)
@@ -103,9 +104,10 @@ def main():
         (skin / "skin.ini").write_text(content)
         env = {**os.environ, "HOME":str(home), "XDG_DATA_HOME":str(data),
                "XDG_CONFIG_HOME":str(root/"config"), "XDG_CACHE_HOME":str(root/"cache")}
-        driver_path = str(Path(os.environ["HOME"]) / ".cargo/bin/tauri-driver")
+        env.update(TAURI_AUTOMATION="true", TAURI_WEBVIEW_AUTOMATION="true")
         with open(root / "driver.log", "w+") as log:
-            driver = subprocess.Popen([driver_path], env=env, stdout=log, stderr=log,
+            driver = subprocess.Popen(["WebKitWebDriver", "--port=4444", "--host=127.0.0.1"],
+                                      env=env, stdout=log, stderr=log,
                                       start_new_session=True)
             endpoint = "http://127.0.0.1:4444"
             session = None
@@ -113,16 +115,20 @@ def main():
                 payload = json.dumps(body).encode() if body is not None else None
                 req = urllib.request.Request(endpoint + path, data=payload, method=method,
                                              headers={"Content-Type":"application/json"})
-                with urllib.request.urlopen(req, timeout=timeout) as response:
-                    return json.load(response)["value"]
+                try:
+                    with urllib.request.urlopen(req, timeout=timeout) as response:
+                        return json.load(response)["value"]
+                except urllib.error.HTTPError as error:
+                    print(f"WebDriver HTTP {error.code}: {error.read(4096).decode(errors='replace')}", flush=True)
+                    raise
             def ready():
                 if driver.poll() is not None:
-                    raise AssertionError("tauri-driver terminated")
+                    raise AssertionError("WebKitWebDriver terminated")
                 try: return request("GET", "/status").get("ready")
                 except OSError: return False
             def start():
                 created = request("POST", "/session", {"capabilities":{"alwaysMatch":{
-                    "browserName":"wry","tauri:options":{"application":str(APP)}}}})
+                    "browserName":"wry","webkitgtk:browserOptions":{"binary":str(APP),"args":[]}}}})
                 print(json.dumps(created["capabilities"]))
                 return "/session/" + created["sessionId"]
             def js(code, *args):
