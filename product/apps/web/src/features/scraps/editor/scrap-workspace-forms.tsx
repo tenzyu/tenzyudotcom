@@ -8,7 +8,7 @@ import {
   CONTENT_LOCALES,
   SCRAP_ENTRY_KINDS,
   type ContentLocale,
-} from '@/features/scraps/scraps.domain'
+} from '@tenzyu/publishing-domain/scraps'
 import type { ScrapEditorCommand } from './scrap-editor.validation'
 import type { ScrapWorkspaceView } from './scrap-workspace.validation'
 import { SourceField } from '@/features/content-editor/source/source-field'

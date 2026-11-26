@@ -9,8 +9,8 @@ import {
   type BlogPost,
   buildBlogPostStructuredData,
 } from '@/features/blog/blog.assemble'
-import type { BlogHeading } from '@/features/blog/blog.domain'
-import { stripLeadingBlogTitle } from '@/features/blog/blog.domain'
+import type { BlogHeading } from '@tenzyu/publishing-domain/blog'
+import { stripLeadingBlogTitle } from '@tenzyu/publishing-domain/blog'
 import { CustomMDX } from '@/features/blog/custom-mdx'
 import { formatDate } from '@/lib/i18n/format-date'
 import { BlogPostTableOfContents } from './blog-post-table-of-contents'

@@ -1,9 +1,9 @@
 import { isDeepStrictEqual } from 'node:util'
 import matter from 'gray-matter'
 import { CST, isMap, isScalar, parseDocument } from 'yaml'
-import { StorageError } from '@/platform/content-store/content-store.domain'
+import { StorageError } from '@tenzyu/revisioned-content/contracts'
 import { parseBlogFrontmatter } from './blog-frontmatter.assemble'
-import type { BlogChanges } from './blog.domain'
+import type { BlogChanges } from '@tenzyu/publishing-domain/blog'
 
 export function readBlogSource(source: string, pathname: string) {
   // Passing options keeps gray-matter from retaining every historical source.

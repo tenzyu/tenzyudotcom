@@ -6,7 +6,7 @@ import {
   getAbsoluteUrl,
 } from '@/config/site'
 import { locales } from 'intlayer'
-import type { ContentSnapshot } from '@/platform/content-store/content-store.domain'
+import type { ContentSnapshot } from '@tenzyu/revisioned-content/contracts'
 import { githubContentRepository } from '@/platform/content-store/github-content.infra'
 import { parseBlogFrontmatter } from './blog-frontmatter.assemble'
 import { resolveBlogAddress } from './blog-index.assemble'

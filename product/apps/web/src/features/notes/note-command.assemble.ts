@@ -14,7 +14,7 @@ import {
   compareNotesByCreatedAtDesc,
   listAvailableParentNotes,
   reparentChildrenAfterNoteDelete,
-} from './notes.domain'
+} from '@tenzyu/publishing-domain/notes'
 import { NOTES_STORAGE_PATH, parseNoteSourceEntries } from './notes.infra'
 
 export async function loadNoteEditView(

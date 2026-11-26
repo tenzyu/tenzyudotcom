@@ -19,6 +19,8 @@
     "analyze": "next experimental-analyze"
   },
   "dependencies": {
+    "@tenzyu/publishing-domain": "workspace:*",
+    "@tenzyu/revisioned-content": "workspace:*",
     "@tenzyu/ui": "workspace:*",
     "@vercel/analytics": "catalog:",
     "@vercel/speed-insights": "catalog:",

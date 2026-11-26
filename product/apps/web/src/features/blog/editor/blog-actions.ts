@@ -4,13 +4,13 @@ import {
   StorageCommitUncertainError,
   StorageError,
   StorageVersionConflictError,
-} from '@/platform/content-store/content-store.domain'
+} from '@tenzyu/revisioned-content/contracts'
 import { githubContentRepository } from '@/platform/content-store/github-content.infra'
 import {
   requireEditorSameOriginRequest,
   requireEditorAdminSession,
 } from '@/features/editor-auth/editor-session'
-import type { BlogSaveCommand } from '../blog.domain'
+import type { BlogSaveCommand } from '@tenzyu/publishing-domain/blog'
 import { saveBlogPost } from '../blog.infra'
 import { parseEditorBlogSaveInput } from './blog-save-input'
 import { confirmBlogPublication, type SaveBlogPostActionState } from './blog-save-form-state'

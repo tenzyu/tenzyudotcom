@@ -1,13 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
-import { Button } from '../../components/ui/button'
+import { Button } from '../../generic/components/button'
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '../../components/ui/card'
+} from '../../generic/components/card'
 
 const meta = {
   title: 'Regression/Overflow',

@@ -7,7 +7,7 @@ import { buildLocalizedUrl } from '@/lib/intlayer/localized-url'
 import {
   isPublicScrap,
   type ContentLocale,
-} from '@/features/scraps/scraps.domain'
+} from '@tenzyu/publishing-domain/scraps'
 import type { ScrapEditorCommand } from './scrap-editor.validation'
 import type {
   ScrapWorkspaceResult,

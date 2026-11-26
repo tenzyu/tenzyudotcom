@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import type { BlogSaveCommand } from '../blog.domain'
+import type { BlogSaveCommand } from '@tenzyu/publishing-domain/blog'
 
 const blogSlug = z
   .string()

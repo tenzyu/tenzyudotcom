@@ -8,12 +8,6 @@ const config: StorybookConfig = {
     '@storybook/addon-vitest',
   ],
   framework: '@storybook/react-vite',
-  viteFinal: async (config) => {
-    config.resolve ??= {}
-    config.resolve.alias ??= {}
-
-    return config
-  },
 }
 
 export default config

@@ -2,11 +2,11 @@ import { z } from 'zod'
 import {
   CONTENT_LOCALES,
   TRANSLATION_STATES,
-} from '@/features/scraps/scraps.domain'
+} from '@tenzyu/publishing-domain/scraps'
 import {
   parseScrapEntryMeta,
   parseScrapManifest,
-} from '@/features/scraps/scraps.validation'
+} from '@tenzyu/publishing-domain/scraps-validation'
 
 const oid = z.string().regex(/^[0-9a-f]{40}$/)
 const Document = z.object({

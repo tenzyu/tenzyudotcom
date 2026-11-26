@@ -11,6 +11,8 @@ The [tenzyu.com](https://tenzyu.com) monorepo: a Next.js 16 personal website, a 
 | ChatGPT HTML exporter | `product/apps/chatgpt-partial-html-export` | Firefox extension; visible DOM → local HTML |
 | UI | `product/packages/ui` | Shared components, styles and Storybook |
 | Skin core | `product/packages/osu-skin-core` | Runtime-pure classification, models and contracts |
+| Publishing domain | `product/packages/publishing-domain` | Blog, Notes, Links and Scraps domain API, independent of Next.js |
+| Revisioned content | `product/packages/revisioned-content` | Versioned persistence, conflict detection and atomic publication |
 | Repository tools | `repo-ops` | Observation, maintenance and verification tools |
 
 Apps may import packages; packages must not import apps. Product runtime code must not import `repo-ops`. Authored content lives in the **separate** `tenzyudotcom-content` repository.
@@ -38,7 +40,7 @@ bun nx run web:check
 bun nx affected -t check --base=origin/develop --head=HEAD
 ```
 
-Use `bun nx show project <project> --json` to discover valid targets; `bun nx run-many -t verify` covers broader scopes. GitHub CI runs affected checks/builds and Rust checks. The isolated [browser acceptance harness](product/apps/web/.claude/skills/verify/SKILL.md) covers Chromium desktop/mobile, **not** Firefox, WebKit or actual production deployment.
+Use `bun nx show project <project> --json` to discover valid targets; `bun nx run-many -t verify` covers broader scopes. GitHub CI runs an explicit workspace verification DAG, a separate native toolchain job, and production publication/editor acceptance. The isolated [browser acceptance harness](product/apps/web/.claude/skills/verify/SKILL.md) covers Chromium desktop/mobile, **not** Firefox, WebKit or actual production deployment.
 
 ## Knowledge and contribution
 

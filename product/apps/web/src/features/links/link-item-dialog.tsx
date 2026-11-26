@@ -8,7 +8,7 @@ import {
   LinkEditView,
   type LinkCommand,
 } from '@/features/links/link-command.validation'
-import { LINK_CATEGORY_ORDER, type MyLink } from '@/features/links/links.domain'
+import { LINK_CATEGORY_ORDER, type MyLink } from '@tenzyu/publishing-domain/links'
 import { useSavedPage } from '@/features/content-editor/ui/admin-gate'
 import {
   AdminEditorDialog,

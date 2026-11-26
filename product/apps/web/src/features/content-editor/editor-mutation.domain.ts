@@ -3,7 +3,7 @@ import {
   StorageCommitUncertainError,
   StorageDocumentWriteUncertainError,
   StorageVersionConflictError,
-} from '@/platform/content-store/content-store.domain'
+} from '@tenzyu/revisioned-content/contracts'
 
 export type CollectionSaveState =
   | { status: 'idle' }

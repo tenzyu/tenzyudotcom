@@ -5,7 +5,7 @@ import { useEffect, useId, useRef, useState, useSyncExternalStore } from 'react'
 import { Button } from '@tenzyu/ui/button'
 import { Input } from '@tenzyu/ui/input'
 import { buildLocalizedUrl } from '@/lib/intlayer/localized-url'
-import type { BlogPublicationReceipt } from '@/features/blog/blog.domain'
+import type { BlogPublicationReceipt } from '@tenzyu/publishing-domain/blog'
 import { BlogPostForm } from './blog-post-form'
 import { readBlogEditArticle, writeBlogArticle } from './blog-workspace-client'
 import type {

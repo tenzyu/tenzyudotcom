@@ -2,8 +2,8 @@ import { describe, expect, test } from 'bun:test'
 import type {
   ContentRepository,
   ContentRepositoryTextFile,
-} from '@/platform/content-store/content-store.domain'
-import { createContentVersion } from '@/platform/content-store/content-version.infra'
+} from '@tenzyu/revisioned-content/contracts'
+import { createContentVersion } from '@tenzyu/revisioned-content/version'
 import {
   applyScrapIndexProjectionDelta,
   loadScrapEntryMeta,
@@ -19,7 +19,7 @@ import {
   type ScrapIndexProjection,
   type ScrapManifest,
   projectScrapIndexEntry,
-} from './scraps.domain'
+} from '@tenzyu/publishing-domain/scraps'
 
 class InMemoryRepo implements ContentRepository {
   files = new Map<string, string>()

@@ -1,8 +1,8 @@
-import type { MDXData } from '@/features/blog/blog.domain'
-import type { NoteSourceEntry } from '@/features/notes/notes.domain'
-import type { ScrapIndexEntry } from '@/features/scraps/scraps.domain'
-import type { MyLink } from '@/features/links/links.domain'
-import type { StoredCollectionState } from '@/platform/content-store/content-store.domain'
+import type { MDXData } from '@tenzyu/publishing-domain/blog'
+import type { NoteSourceEntry } from '@tenzyu/publishing-domain/notes'
+import type { ScrapIndexEntry } from '@tenzyu/publishing-domain/scraps'
+import type { MyLink } from '@tenzyu/publishing-domain/links'
+import type { StoredCollectionState } from '@tenzyu/revisioned-content/contracts'
 
 const EDITOR_COLLECTION_IDS = ['notes', 'scraps', 'links', 'blog'] as const
 

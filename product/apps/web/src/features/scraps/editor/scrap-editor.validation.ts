@@ -5,7 +5,7 @@ import {
   SCRAP_ENTRY_KINDS,
   isValidScrapSlug,
   isValidScrapEntryId,
-} from '@/features/scraps/scraps.domain'
+} from '@tenzyu/publishing-domain/scraps'
 
 const slug = z
   .string()

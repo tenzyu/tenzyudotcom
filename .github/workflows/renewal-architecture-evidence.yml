@@ -1,0 +1,60 @@
+name: Renewal architecture evidence
+
+on:
+  pull_request:
+    branches: [develop]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  evidence:
+    if: github.head_ref == 'renewal/architecture-20261125' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      NX_DAEMON: 'false'
+      NX_TUI: 'false'
+      NX_NO_CLOUD: 'true'
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.10
+      - name: Prepare pinned baseline
+        run: |
+          git worktree add --detach "$RUNNER_TEMP/baseline" 586e8e6c596b98601dd778462dddb82301816c4d
+          mkdir -p "$RUNNER_TEMP/evidence"/{baseline,candidate}
+      - name: Collect AST, owner graph, Nx project graph, task graph and history
+        shell: bash
+        run: |
+          set -euo pipefail
+          collector="$GITHUB_WORKSPACE/repo-ops/renewal/architecture-evidence.mjs"
+          for label in baseline candidate; do
+            if [ "$label" = baseline ]; then checkout="$RUNNER_TEMP/baseline"; else checkout="$GITHUB_WORKSPACE"; fi
+            out="$RUNNER_TEMP/evidence/$label"
+            (
+              cd "$checkout"
+              bun install --frozen-lockfile --ignore-scripts
+              node "$collector" "$checkout" "$out/architecture.json" | tee "$out/summary.json"
+              bun nx graph --file="$out/project-graph.json"
+              bun nx run-many -t check build verify --graph="$out/task-graph.json"
+              bun nx show projects --json > "$out/projects.json"
+              node -e 'for (const p of JSON.parse(require("fs").readFileSync(process.argv[1],"utf8"))) console.log(p)' "$out/projects.json" | while IFS= read -r project; do
+                bun nx show project "$project" --json > "$out/project-${project//\//_}.json"
+              done
+              cargo metadata --no-deps --format-version 1 --locked --manifest-path product/apps/osu-skin-workbench/src-tauri/Cargo.toml > "$out/cargo-metadata.json"
+            )
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: renewal-architecture-evidence
+          path: ${{ runner.temp }}/evidence
+          if-no-files-found: error
+          retention-days: 7
