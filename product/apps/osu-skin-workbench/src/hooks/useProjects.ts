@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { fetchProjects } from "../lib/client/project-api";
+import { listProjectManifests } from "../lib/tauri/project-command.adapter";
 import type { ProjectManifest } from "@tenzyu/osu-skin-core/contract";
 
 export function useProjects(initialProjectId: string) {
@@ -11,7 +11,7 @@ export function useProjects(initialProjectId: string) {
   async function refreshProjects(options: {
     loadFiles?: (projectId: string) => Promise<unknown>;
   } = {}): Promise<ProjectManifest[]> {
-    const nextProjects = await fetchProjects();
+    const nextProjects = await listProjectManifests();
     setProjects(nextProjects);
 
     if (!project) {

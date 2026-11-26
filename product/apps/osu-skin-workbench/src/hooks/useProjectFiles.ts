@@ -1,8 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { fetchProjectFiles as fetchProjectFilesApi } from "../lib/client/project-api";
-import type { AssetMatrix } from "@tenzyu/osu-skin-core/project";
+import { invokeGetProjectFiles } from "../lib/tauri/project-command.adapter";
+import { projectWorkspace, type AssetMatrix } from "@tenzyu/osu-skin-core/project";
 import type { DesktopProjectFilesResponse } from "@tenzyu/osu-skin-core/contract";
 
 const emptyAssetMatrix: AssetMatrix = {
@@ -16,7 +16,7 @@ export function useProjectFiles() {
   const matrix = useMemo(() => files?.matrix ?? emptyAssetMatrix, [files?.matrix]);
 
   async function fetchProjectFiles(projectId: string): Promise<DesktopProjectFilesResponse> {
-    const nextFiles = await fetchProjectFilesApi(projectId);
+    const nextFiles = projectWorkspace(await invokeGetProjectFiles(projectId));
     setFiles(nextFiles);
     return nextFiles;
   }
