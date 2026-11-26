@@ -26,7 +26,7 @@ const env = {};
 for (const key of ['PATH', 'HOME', 'TMPDIR', 'LANG', 'LC_ALL', '__ETC_PROFILE_DONE', 'NIX_SSL_CERT_FILE', 'SSL_CERT_FILE', 'LD_LIBRARY_PATH', 'BIOME_BIN', 'PKG_CONFIG_PATH', 'XDG_DATA_DIRS']) {
   if (process.env[key]) env[key] = process.env[key];
 }
-Object.assign(env, { CI: '1', NX_DAEMON: 'false', NX_NO_CLOUD: 'true', NX_SKIP_NX_CACHE: 'true', NEXT_TELEMETRY_DISABLED: '1' });
+Object.assign(env, { CI: '1', NX_DAEMON: 'false', NX_NO_CLOUD: 'true', NX_SKIP_NX_CACHE: 'true', NX_LOAD_DOT_ENV_FILES: 'false', NEXT_TELEMETRY_DISABLED: '1' });
 const startedAt = new Date().toISOString();
 const start = performance.now();
 const child = spawn(positionals[0], positionals.slice(1), { cwd, env, detached: true, stdio: ['ignore', log, log] });
@@ -37,18 +37,26 @@ let escalation;
 const killGroup = (signal) => {
   signalOwnedGroup(child.pid, signal);
 };
+// Timeout and external cancellation may overlap. One escalation owns the group;
+// replacing the timer handle would leave the first timer armed after cleanup.
+let stopping = false;
+function stopGroup() {
+  if (stopping) return;
+  stopping = true;
+  killGroup('SIGTERM');
+  escalation = setTimeout(() => killGroup('SIGKILL'), 3000);
+}
 const timer = setTimeout(() => {
   timedOut = true;
-  killGroup('SIGTERM');
-  escalation = setTimeout(() => killGroup('SIGKILL'), 3000);
+  stopGroup();
 }, seconds * 1000);
 for (const signal of ['SIGTERM', 'SIGINT']) process.once(signal, () => {
-  interrupted = signal;
-  killGroup('SIGTERM');
-  escalation = setTimeout(() => killGroup('SIGKILL'), 3000);
+  interrupted ??= signal;
+  stopGroup();
 });
 child.on('error', (error) => { spawnError = error.message; });
 child.on('close', async (exitCode, signal) => {
+  stopping = true; // The drain below now exclusively owns group cleanup.
   clearTimeout(timer);
   clearTimeout(escalation);
   // Also stop background descendants of an otherwise successful leader before hashing.
