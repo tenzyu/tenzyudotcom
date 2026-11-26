@@ -8,6 +8,9 @@ import {
 } from '@/features/blog/blog.assemble'
 import { loadPublication } from '@/platform/content-store/publication.assemble'
 import { buildLocalizedUrl } from '@/lib/intlayer/localized-url'
+import { prepareContentMDX } from '@/components/site/content-mdx'
+import { blogMdxComponents } from '@/features/blog/mdx-components'
+import { stripLeadingBlogTitle } from '@tenzyu/publishing-domain/blog'
 
 type Params = Promise<{
   slug: string
@@ -52,11 +55,18 @@ export default async function Blog({
     redirect(query.size ? `${pathname}?${query}` : pathname)
   }
 
+  const { content, headings } = await prepareContentMDX({
+    source: stripLeadingBlogTitle(pageData.post.rawContent, pageData.post.metadata.title),
+    scope: 'blog',
+    additionalComponents: blogMdxComponents,
+  })
+
   return (
     <BlogPostPageContent
       locale={locale}
       post={pageData.post}
-      headings={pageData.headings}
+      headings={headings}
+      body={content}
       relatedPosts={pageData.relatedPosts}
       isAiGenerated={pageData.isAiGenerated}
     />
