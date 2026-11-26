@@ -28,11 +28,15 @@ pub(crate) fn read_skin_ini(root: &Path) -> Option<String> {
 }
 
 pub(crate) fn walk_relative_files(root: &Path) -> Result<Vec<RawFileEntry>, String> {
-    if !root.exists() {
+    if !root
+        .try_exists()
+        .map_err(|error| format!("failed to inspect source directory: {error}"))?
+    {
         return Ok(vec![]);
     }
     let mut files = Vec::new();
-    for entry in WalkDir::new(root).into_iter().filter_map(Result::ok) {
+    for entry in WalkDir::new(root) {
+        let entry = entry.map_err(|error| format!("failed to walk source directory: {error}"))?;
         if !entry.file_type().is_file() {
             continue;
         }
@@ -59,7 +63,8 @@ pub(crate) fn copy_dir_all(source: &Path, target: &Path) -> Result<usize, String
         .map_err(|error| format!("failed to create temp target: {error}"))?;
     let mut count = 0;
     let result = (|| {
-        for entry in WalkDir::new(source).into_iter().filter_map(Result::ok) {
+        for entry in WalkDir::new(source) {
+            let entry = entry.map_err(|error| format!("failed to walk source directory: {error}"))?;
             let relative = entry
                 .path()
                 .strip_prefix(source)
@@ -106,4 +111,39 @@ pub(crate) fn remove_project_files(
         }
     }
     Ok(deleted)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn missing_copy_source_does_not_replace_existing_target() {
+        let fixture = tempfile::tempdir().unwrap();
+        let source = fixture.path().join("missing");
+        let target = fixture.path().join("target");
+        fs::create_dir(&target).unwrap();
+        fs::write(target.join("keep.png"), b"original").unwrap();
+
+        let error = copy_dir_all(&source, &target).unwrap_err();
+        assert!(error.contains("failed to walk source directory"), "{error}");
+        assert_eq!(fs::read(target.join("keep.png")).unwrap(), b"original");
+        assert_eq!(fs::read_dir(fixture.path()).unwrap().count(), 1);
+    }
+
+    #[test]
+    fn directory_copy_preserves_files_and_empty_directories() {
+        let fixture = tempfile::tempdir().unwrap();
+        let source = fixture.path().join("source");
+        let target = fixture.path().join("target");
+        fs::create_dir_all(source.join("empty")).unwrap();
+        fs::write(source.join("cursor.png"), b"asset").unwrap();
+        assert_eq!(copy_dir_all(&source, &target).unwrap(), 1);
+        assert_eq!(fs::read(target.join("cursor.png")).unwrap(), b"asset");
+        assert!(target.join("empty").is_dir());
+        let listed = walk_relative_files(&target).unwrap();
+        assert_eq!(listed.len(), 1);
+        assert_eq!(listed[0].relative_path, "cursor.png");
+        assert!(walk_relative_files(&fixture.path().join("missing")).unwrap().is_empty());
+    }
 }
