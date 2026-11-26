@@ -102,15 +102,21 @@ for (const relativePath of packageJsonPaths) {
 const graphPath = process.argv[2]
 if (graphPath) {
   type Project = { data: { root: string; tags?: string[] } }
-  type Edge = { source: string; target: string }
+  type Edge = { source: string; target: string; type: string }
   const { graph } = JSON.parse(await Bun.file(graphPath).text()) as {
     graph: { nodes: Record<string, Project>; dependencies: Record<string, Edge[]> }
   }
+  const staticProductEdges = new Map<string, Set<string>>()
   for (const edges of Object.values(graph.dependencies)) {
-    for (const { source, target } of edges) {
+    for (const { source, target, type } of edges) {
       const from = graph.nodes[source]
       const to = graph.nodes[target]
       if (!from || !to) continue // External npm dependencies are not workspace projects.
+      if (type === 'static' && from.data.root.startsWith('product/') && to.data.root.startsWith('product/')) {
+        const targets = staticProductEdges.get(source) ?? new Set<string>()
+        targets.add(target)
+        staticProductEdges.set(source, targets)
+      }
       const fromTags = from.data.tags ?? []
       const toTags = to.data.tags ?? []
       const violation =
@@ -125,9 +131,40 @@ if (graphPath) {
       }
     }
   }
+  const cycle = findCycle(staticProductEdges)
+  if (cycle) {
+    failed = true
+    console.error(`Circular static product dependency: ${cycle.join(' -> ')}`)
+  }
 }
 
 if (failed) process.exit(1)
+
+function findCycle(edges: Map<string, Set<string>>): string[] | undefined {
+  const completed = new Set<string>()
+  const active = new Map<string, number>()
+  const path: string[] = []
+
+  function visit(node: string): string[] | undefined {
+    const start = active.get(node)
+    if (start !== undefined) return [...path.slice(start), node]
+    if (completed.has(node)) return
+    active.set(node, path.length)
+    path.push(node)
+    for (const target of edges.get(node) ?? []) {
+      const cycle = visit(target)
+      if (cycle) return cycle
+    }
+    path.pop()
+    active.delete(node)
+    completed.add(node)
+  }
+
+  for (const node of edges.keys()) {
+    const cycle = visit(node)
+    if (cycle) return cycle
+  }
+}
 
 function isForbiddenFloatingRange(version: string) {
   return version === '*' || /^(\^|~)?latest$/i.test(version)
