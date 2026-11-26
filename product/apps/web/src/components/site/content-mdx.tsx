@@ -41,13 +41,22 @@ const extractHeadingText = (node: ReactNode): string => {
   return ''
 }
 
-function allocateHeadingId(title: string, used: Set<string>) {
+type HeadingIds = {
+  used: Set<string>
+  nextSuffix: Map<string, number>
+}
+
+function allocateHeadingId(title: string, ids: HeadingIds) {
   const base = slugifyBlogHeading(title) || 'section'
   let id = base
-  for (let count = 1; used.has(id); count++) {
-    id = `${base}-${count}`
+  if (ids.used.has(id)) {
+    let count = ids.nextSuffix.get(base) ?? 1
+    do {
+      id = `${base}-${count++}`
+    } while (ids.used.has(id))
+    ids.nextSuffix.set(base, count)
   }
-  used.add(id)
+  ids.used.add(id)
   return id
 }
 
@@ -71,7 +80,7 @@ function staticHeadingText(node: HeadingTree): string | undefined {
   return title
 }
 
-function projectHeadings(headings: BlogHeading[], used: Set<string>) {
+function projectHeadings(headings: BlogHeading[], ids: HeadingIds) {
   return () => (tree: HeadingTree) => {
     function visit(node: HeadingTree) {
       if (
@@ -80,7 +89,7 @@ function projectHeadings(headings: BlogHeading[], used: Set<string>) {
       ) {
         const title = staticHeadingText(node)
         if (title !== undefined) {
-          const id = allocateHeadingId(title, used)
+          const id = allocateHeadingId(title, ids)
           node.properties = { ...node.properties, id }
           if (node.tagName !== 'h4') {
             headings.push({ id, title, level: node.tagName === 'h2' ? 2 : 3 })
@@ -93,7 +102,7 @@ function projectHeadings(headings: BlogHeading[], used: Set<string>) {
   }
 }
 
-function createHeading(level: 2 | 3 | 4, used: Set<string>) {
+function createHeading(level: 2 | 3 | 4, ids: HeadingIds) {
   const tagName = `h${level}` as const
 
   return function Heading({
@@ -106,7 +115,7 @@ function createHeading(level: 2 | 3 | 4, used: Set<string>) {
       tagName,
       {
         ...props,
-        id: id ?? allocateHeadingId(extractHeadingText(children), used),
+        id: id ?? allocateHeadingId(extractHeadingText(children), ids),
         className: cn('group', className),
       },
       children,
@@ -158,11 +167,11 @@ function ResponsiveIframe(props: React.ComponentPropsWithoutRef<'iframe'>) {
   )
 }
 
-function createBaseMdxComponents(used: Set<string>): MDXComponents {
+function createBaseMdxComponents(ids: HeadingIds): MDXComponents {
   return {
-    h2: createHeading(2, used),
-    h3: createHeading(3, used),
-    h4: createHeading(4, used),
+    h2: createHeading(2, ids),
+    h3: createHeading(3, ids),
+    h4: createHeading(4, ids),
     a: MdxLink,
     iframe: ResponsiveIframe,
   }
@@ -173,6 +182,28 @@ type MDXProps = {
 }
 
 type MDXComponent = React.ComponentType<MDXProps>
+
+function RenderPreparedContent({
+  MDXContent,
+  staticIds,
+  additionalComponents,
+}: {
+  MDXContent: MDXComponent
+  staticIds: HeadingIds
+  additionalComponents?: MDXComponents
+}) {
+  // Static IDs are reserved once at compilation. Dynamic allocation belongs
+  // to this rendering, not to the reusable prepared element.
+  const ids: HeadingIds = {
+    used: new Set(staticIds.used),
+    nextSuffix: new Map(staticIds.nextSuffix),
+  }
+  const components: MDXComponents = {
+    ...createBaseMdxComponents(ids),
+    ...(additionalComponents ?? {}),
+  }
+  return <MDXContent components={components} />
+}
 
 export type ContentMdxProps = {
   source: string
@@ -200,12 +231,12 @@ export async function prepareContentMDX({
   additionalComponents,
 }: ContentMdxProps) {
   const headings: BlogHeading[] = []
-  const used = new Set<string>()
+  const ids: HeadingIds = { used: new Set(), nextSuffix: new Map() }
   try {
     const options: EvaluateOptions = {
       ...runtime,
       remarkPlugins: [remarkGfm],
-      rehypePlugins: [projectHeadings(headings, used), [rehypePrettyCode, rehypePrettyCodeOptions]],
+      rehypePlugins: [projectHeadings(headings, ids), [rehypePrettyCode, rehypePrettyCodeOptions]],
       baseUrl: import.meta.url,
     }
 
@@ -213,12 +244,10 @@ export async function prepareContentMDX({
       default: MDXComponent
     }
 
-    const mergedComponents: MDXComponents = {
-      ...createBaseMdxComponents(used),
-      ...(additionalComponents ?? {}),
+    return {
+      content: <RenderPreparedContent MDXContent={MDXContent} staticIds={ids} additionalComponents={additionalComponents} />,
+      headings,
     }
-
-    return { content: <MDXContent components={mergedComponents} />, headings }
   } catch (error) {
     console.error(`Error rendering MDX (scope=${scope}):`, error)
     return {
