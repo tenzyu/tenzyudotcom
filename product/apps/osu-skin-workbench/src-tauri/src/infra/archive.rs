@@ -25,6 +25,8 @@ pub(crate) fn extract_osk(source: &Path, target: &Path) -> Result<(), String> {
             return Err(format!("osk archive has too many files: {}", archive.len()));
         }
         let mut total_uncompressed_bytes = 0_u64;
+        let mut names = HashSet::new();
+        let normalizer = ComposingNormalizer::new_nfc();
         for index in 0..archive.len() {
             let mut member = archive
                 .by_index(index)
@@ -37,6 +39,10 @@ pub(crate) fn extract_osk(source: &Path, target: &Path) -> Result<(), String> {
                 .enclosed_name()
                 .ok_or_else(|| format!("unsafe archive member at index {index}: {:?}", member.name()))?
                 .to_owned();
+            let name = archive_name(&enclosed)?;
+            if name.is_empty() || !names.insert(normalizer.normalize(&name.to_uppercase()).into_owned()) {
+                return Err(format!("empty or colliding archive path: {name}"));
+            }
             let out_path = temp_target.join(enclosed);
             if member.is_dir() {
                 fs::create_dir_all(&out_path)
@@ -47,10 +53,14 @@ pub(crate) fn extract_osk(source: &Path, target: &Path) -> Result<(), String> {
                 fs::create_dir_all(parent)
                     .map_err(|error| format!("failed to create archive parent: {error}"))?;
             }
-            let mut out = File::create(&out_path)
+            let mut out = OpenOptions::new().write(true).create_new(true).open(&out_path)
                 .map_err(|error| format!("failed to create archive output: {error}"))?;
-            std::io::copy(&mut member, &mut out)
+            let expected = member.size();
+            let copied = io::copy(&mut Read::by_ref(&mut member).take(expected + 1), &mut out)
                 .map_err(|error| format!("failed to extract archive member: {error}"))?;
+            if copied != expected {
+                return Err(format!("archive member size mismatch: {name}"));
+            }
         }
         Ok(())
     })
@@ -293,4 +303,27 @@ pub(crate) fn add_project_to_zip<T: Write + Seek>(
         check_path_snapshot(path, metadata)?;
     }
     Ok((included, excluded))
+}
+
+#[cfg(test)]
+mod import_tests {
+    use super::*;
+
+    #[test]
+    fn colliding_members_do_not_replace_existing_target() {
+        let temp = tempfile::tempdir().unwrap();
+        let source = temp.path().join("test.osk");
+        let target = temp.path().join("target");
+        fs::create_dir(&target).unwrap();
+        fs::write(target.join("keep.png"), b"original").unwrap();
+        let mut writer = zip::ZipWriter::new(File::create(&source).unwrap());
+        for name in ["A.png", "a.png"] {
+            writer.start_file(name, SimpleFileOptions::default()).unwrap();
+            writer.write_all(b"asset").unwrap();
+        }
+        writer.finish().unwrap();
+        assert!(extract_osk(&source, &target).is_err());
+        assert_eq!(fs::read(target.join("keep.png")).unwrap(), b"original");
+        assert_eq!(fs::read_dir(&target).unwrap().count(), 1);
+    }
 }
