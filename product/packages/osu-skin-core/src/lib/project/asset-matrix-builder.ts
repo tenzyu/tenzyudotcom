@@ -155,8 +155,12 @@ function matrixCell(assets: ClassifiedSkinAsset[]): AssetMatrixCell {
   };
 }
 
-function emptyCells(columns: AssetMatrixColumn[]): Record<string, AssetMatrixCell> {
-  return Object.fromEntries(columns.map((column) => [column.id, matrixCell([])]));
+type PendingAssetMatrixRow = Omit<AssetMatrixRow, "cells"> & {
+  cells: Record<string, ClassifiedSkinAsset[]>;
+};
+
+function emptyCells(columns: AssetMatrixColumn[]): PendingAssetMatrixRow["cells"] {
+  return Object.fromEntries(columns.map((column) => [column.id, []]));
 }
 
 function taxonomyPathFromSeed(seed: AssetMatrixRowSeed): TaxonomyPath {
@@ -174,7 +178,7 @@ function rowKeyForSeed(seed: AssetMatrixRowSeed): string {
   return seed.rowKey ?? `${taxonomyPath.key}:${seed.componentId}`;
 }
 
-function baseRowFromAsset(asset: ClassifiedSkinAsset, columns: AssetMatrixColumn[]): AssetMatrixRow {
+function baseRowFromAsset(asset: ClassifiedSkinAsset, columns: AssetMatrixColumn[]): PendingAssetMatrixRow {
   return {
     rowKey: rowKeyForAsset(asset),
     componentId: asset.componentId,
@@ -193,7 +197,7 @@ function baseRowFromAsset(asset: ClassifiedSkinAsset, columns: AssetMatrixColumn
   };
 }
 
-function baseRowFromSeed(seed: AssetMatrixRowSeed, columns: AssetMatrixColumn[]): AssetMatrixRow {
+function baseRowFromSeed(seed: AssetMatrixRowSeed, columns: AssetMatrixColumn[]): PendingAssetMatrixRow {
   const taxonomyPath = taxonomyPathFromSeed(seed);
   const meaning = seed.meaning ?? emptySkinMeaning();
 
@@ -267,7 +271,7 @@ export class AssetMatrixBuilder {
       })),
     ];
 
-    const rowMap = new Map<string, AssetMatrixRow>();
+    const rowMap = new Map<string, PendingAssetMatrixRow>();
 
     for (const seed of input.rowSeeds ?? []) {
       const row = baseRowFromSeed(seed, columns);
@@ -281,8 +285,7 @@ export class AssetMatrixBuilder {
 
         rowMap.set(rowKey, row);
 
-        const currentCell = row.cells[columnId] ?? matrixCell([]);
-        row.cells[columnId] = matrixCell([...currentCell.assets, asset]);
+        row.cells[columnId].push(asset);
 
         row.meaning = mergeSkinMeaning(row.meaning, asset.meaning);
         row.lazerMeaningful = row.lazerMeaningful || isLazerMeaningful(asset.meaning);
@@ -301,7 +304,13 @@ export class AssetMatrixBuilder {
     }
 
     const rows = [...rowMap.values()]
-      .map((row) => {
+      .map((pending): AssetMatrixRow => {
+        const row: AssetMatrixRow = {
+          ...pending,
+          cells: Object.fromEntries(
+            Object.entries(pending.cells).map(([id, assets]) => [id, matrixCell(assets)]),
+          ),
+        };
         addMissingWarnings(row, columns);
         return row;
       })
