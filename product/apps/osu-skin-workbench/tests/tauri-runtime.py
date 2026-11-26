@@ -89,7 +89,7 @@ def test_teardown():
         assert not group_has_live_members(driver.pid)
         print("Runtime teardown regression: passed", flush=True)
 
-def main():
+def main(direct=False):
     assert APP.is_file(), f"Expected release executable: {APP}"
     with tempfile.TemporaryDirectory(prefix="skin-workbench-runtime-") as tmp:
         root = Path(tmp)
@@ -104,8 +104,9 @@ def main():
         env = {**os.environ, "HOME":str(home), "XDG_DATA_HOME":str(data),
                "XDG_CONFIG_HOME":str(root/"config"), "XDG_CACHE_HOME":str(root/"cache")}
         driver_path = str(Path(os.environ["HOME"]) / ".cargo/bin/tauri-driver")
+        driver_command = ["WebKitWebDriver", "--port=4444"] if direct else [driver_path]
         with open(root / "driver.log", "w+") as log:
-            driver = subprocess.Popen([driver_path], env=env, stdout=log, stderr=log,
+            driver = subprocess.Popen(driver_command, env=env, stdout=log, stderr=log,
                                       start_new_session=True)
             endpoint = "http://127.0.0.1:4444"
             session = None
@@ -121,8 +122,9 @@ def main():
                 try: return request("GET", "/status").get("ready")
                 except OSError: return False
             def start():
+                launch_options = {"webkitgtk:browserOptions": {"binary":str(APP), "args":[]}} if direct else {"tauri:options":{"application":str(APP)}}
                 created = request("POST", "/session", {"capabilities":{"alwaysMatch":{
-                    "browserName":"wry","tauri:options":{"application":str(APP)}}}})
+                    "browserName":"wry", **launch_options}}})
                 print(json.dumps(created["capabilities"]))
                 return "/session/" + created["sessionId"]
             def js(code, *args):
@@ -208,4 +210,21 @@ def main():
 if __name__ == "__main__":
     test_teardown()
     if sys.argv[1:] != ["--test-teardown"]:
-        main()
+        # Diagnostic only: run the identical scenario against both transports
+        # on the same runner and release executable. Keep every failure visible.
+        import traceback
+        results = []
+        for round_number in range(3):
+            for direct in (False, True):
+                mode = "native-direct" if direct else "tauri-intermediary"
+                print(f"DRIVER_DIAGNOSTIC_START round={round_number + 1} mode={mode}", flush=True)
+                try:
+                    main(direct=direct)
+                    outcome = {"round":round_number + 1,"mode":mode,"pass":True}
+                except Exception as exc:
+                    traceback.print_exc()
+                    outcome = {"round":round_number + 1,"mode":mode,"pass":False,"errorType":type(exc).__name__,"error":str(exc)}
+                results.append(outcome)
+                print("DRIVER_DIAGNOSTIC_RESULT " + json.dumps(outcome), flush=True)
+        print("DRIVER_DIAGNOSTIC_SUMMARY " + json.dumps(results), flush=True)
+        assert all(r["pass"] for r in results), "one or more diagnostic scenarios failed"
