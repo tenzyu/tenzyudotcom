@@ -1,0 +1,133 @@
+name: Native Runtime Transport Diagnosis
+
+on:
+  pull_request:
+    branches: [develop]
+    paths: ['.github/workflows/native-runtime-diagnosis.yml']
+
+permissions:
+  contents: read
+
+jobs:
+  transport:
+    name: transport / ${{ matrix.revision }} / ${{ matrix.allocation }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        revision: [develop-pinned, pr108-pinned]
+        allocation: [1, 2, 3]
+    env:
+      NX_DAEMON: 'false'
+      NX_NO_CLOUD: 'true'
+      NX_TUI: 'false'
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ matrix.revision == 'develop-pinned' && '7b66efcc85f202989b4e91e5066dbe9262332eef' || 'f9b20c8fab6646e32c63795265dfffa1dc04e1aa' }}
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.5
+      - run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev patchelf pkg-config webkit2gtk-driver xvfb dbus-x11 strace
+          bun install --frozen-lockfile
+      - run: bun nx run-many -t verify build --projects=skin-workbench --skip-nx-cache
+      - run: cargo install tauri-driver --version 2.1.0 --locked
+      - name: Record binary and runner identity
+        run: |
+          out="$RUNNER_TEMP/native-diagnosis"
+          mkdir -p "$out"
+          {
+            git rev-parse HEAD HEAD^{tree}
+            sha256sum product/apps/osu-skin-workbench/src-tauri/target/release/osu-skin-workbench
+            sha256sum "$(command -v tauri-driver)" "$(command -v WebKitWebDriver)"
+            uname -a
+            cat /etc/os-release
+            printf 'ImageOS=%s ImageVersion=%s\n' "${ImageOS:-unknown}" "${ImageVersion:-unknown}"
+            dpkg-query -W 'libwebkit2gtk*' webkit2gtk-driver 'libgl*mesa*' mesa-libgallium xvfb dbus-x11
+            free -b
+            df -h /tmp /dev/shm
+            ulimit -a
+          } > "$out/environment.txt" 2>&1
+      - name: Construct direct-native experimental arm
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          original = Path("product/apps/osu-skin-workbench/tests/tauri-runtime.py")
+          text = original.read_text()
+          replacements = [
+              ('[driver_path], env=env, stdout=log, stderr=log,',
+               '["/usr/bin/WebKitWebDriver", "--port=4444", "--host=127.0.0.1"], env={**env, "TAURI_AUTOMATION":"true", "TAURI_WEBVIEW_AUTOMATION":"true"}, stdout=subprocess.DEVNULL, stderr=log,'),
+              ('"tauri:options":{"application":str(APP)}',
+               '"webkitgtk:browserOptions":{"binary":str(APP),"args":[]}'),
+          ]
+          for old, new in replacements:
+              assert text.count(old) == 1, old
+              text = text.replace(old, new)
+          target = original.with_name("tauri-runtime-direct-experiment.py")
+          target.write_text(text)
+          compile(text, str(target), "exec")
+          PY
+          diff -u product/apps/osu-skin-workbench/tests/tauri-runtime{,-direct-experiment}.py > "$RUNNER_TEMP/native-diagnosis/direct.diff" || test "$?" = 1
+      - name: Paired acceptance trials
+        shell: bash
+        run: |
+          set -u
+          out="$RUNNER_TEMP/native-diagnosis"
+          script=product/apps/osu-skin-workbench/tests/tauri-runtime
+          printf 'trial\tarm\ttrace\texit\tfixture_entries\n' > "$out/results.tsv"
+          failed=0
+          # Reverse pair order on allocation 2 to reduce order confounding.
+          arms=(proxy direct)
+          if [[ "${{ matrix.allocation }}" == 2 ]]; then arms=(direct proxy); fi
+          for i in 1 2 3; do
+            for arm in "${arms[@]}"; do
+              d="$out/$i-$arm"
+              mkdir -p "$d"
+              fixture="$(mktemp -d /tmp/nr.XXXXXX)"
+              file="$script.py"
+              if [[ "$arm" == direct ]]; then file="$script-direct-experiment.py"; fi
+              cmd=(xvfb-run -a dbus-run-session -- python3 "$file")
+              trace=no
+              if [[ "$i" == 3 ]]; then
+                trace=yes
+                cmd=(strace -ff -ttt -s 128 -e 'trace=%process,%network' -o "$d/syscall" "${cmd[@]}")
+              fi
+              ps -eo pid,ppid,pgid,sid,stat,comm > "$d/process-before.txt"
+              ss -tanp > "$d/socket-before.txt" 2>&1
+              date -u --iso-8601=ns > "$d/start.txt"
+              # A deadline is only for the diagnostic supervisor, not a retry.
+              # A timeout is retained as a failed trial, not counted as a pass.
+              rc=0
+              TMPDIR="$fixture" timeout --kill-after=15s 180s "${cmd[@]}" > "$d/runtime.log" 2>&1 || rc=$?
+              date -u --iso-8601=ns > "$d/end.txt"
+              ps -eo pid,ppid,pgid,sid,stat,comm > "$d/process-after.txt"
+              ss -tanp > "$d/socket-after.txt" 2>&1
+              find "$fixture" -mindepth 1 -printf '%y %P\n' > "$d/fixture-remaining.txt"
+              entries=$(wc -l < "$d/fixture-remaining.txt")
+              if [[ "$entries" == 0 ]]; then rmdir "$fixture"; fi
+              printf '%s\t%s\t%s\t%s\t%s\n' "$i" "$arm" "$trace" "$rc" "$entries" | tee -a "$out/results.tsv"
+              if [[ "$rc" != 0 || "$entries" != 0 ]]; then failed=1; fi
+            done
+          done
+          cat "$out/results.tsv"
+          exit "$failed"
+      - name: Collect available crash diagnostics
+        if: always()
+        run: |
+          out="$RUNNER_TEMP/native-diagnosis"
+          mkdir -p "$out"
+          { dmesg --ctime || true; } > "$out/kernel.txt" 2>&1
+          { coredumpctl --no-pager list || true; } > "$out/coredumps.txt" 2>&1
+          cat /proc/sys/kernel/core_pattern > "$out/core-pattern.txt"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-diagnosis-${{ matrix.revision }}-${{ matrix.allocation }}
+          path: ${{ runner.temp }}/native-diagnosis
+          if-no-files-found: error
+          retention-days: 7
