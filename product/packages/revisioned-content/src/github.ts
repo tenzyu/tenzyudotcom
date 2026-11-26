@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import { z } from 'zod'
 import {
   type ContentRepositorySaveOptions,
@@ -358,16 +359,23 @@ export function createGitHubDocumentRepository(
         currentVersion !== options.expectedVersion)
       throw new StorageVersionConflictError(`${pathname} has changed since it was loaded.`)
 
+    const bytes = Buffer.from(content)
+    const expectedBlob = createHash('sha1')
+      .update(`blob ${bytes.length}\0`)
+      .update(bytes)
+      .digest('hex')
     await mutateDocument('PUT', pathname, {
       branch: config.branch,
-      content: Buffer.from(content).toString('base64'),
+      content: bytes.toString('base64'),
       message: options.message ?? `Update ${pathname}`,
       sha: current?.sha,
-    })
+    }, expectedBlob)
   }
 
   // The same blob CAS and uncertain-outcome boundary applies to saves and deletes.
-  async function mutateDocument(method: 'PUT' | 'DELETE', pathname: string, body: unknown) {
+  async function mutateDocument(
+    method: 'PUT' | 'DELETE', pathname: string, body: unknown, expectedBlob?: string,
+  ) {
     const response = await request(contentsUrl(pathname), {
       body: JSON.stringify(body),
       headers,
@@ -385,6 +393,22 @@ export function createGitHubDocumentRepository(
       throw new StorageVersionConflictError(`${pathname} changed during ${method === 'PUT' ? 'save' : 'delete'}.`)
     if (!response.ok)
       throw new StorageError(`Failed to mutate GitHub content (${pathname}): ${response.status}`)
+
+    // A 2xx alone cannot establish the receipt of the requested Git mutation.
+    // The server may have committed before returning a malformed response.
+    const uncertain = () => new StorageDocumentWriteUncertainError(
+      'The content write outcome is unknown. Check storage before retrying.',
+    )
+    if (response.status !== 200 && !(method === 'PUT' && response.status === 201))
+      throw uncertain()
+    const receipt = z.object({
+      commit: ShaResponse,
+      content: method === 'PUT' ? ShaResponse.extend({ path: z.string() }) : z.null(),
+    }).safeParse(await response.json().catch(() => null))
+    if (!receipt.success || (method === 'PUT' && (
+      receipt.data.content?.sha !== expectedBlob ||
+      receipt.data.content?.path !== repositoryPath(pathname)
+    ))) throw uncertain()
   }
 
   async function deleteText(pathname: string, options: { message?: string } = {}) {

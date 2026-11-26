@@ -67,9 +67,21 @@ jobs:
               { git rev-parse HEAD HEAD^{tree}; sha256sum bun.lock package.json nx.json; } > "$out/revision.txt"
               git ls-files repo-ops > "$out/repo-ops-paths.txt"
               while IFS= read -r path; do printf '%s\t%s\n' "$path" "$(git cat-file -s "HEAD:$path")"; done < "$out/repo-ops-paths.txt" > "$out/repo-ops-sizes.tsv"
+              # Candidate callers only: review literal matches for actual invocation edges.
+              while IFS= read -r path; do
+                set +e
+                git grep -I -l -F -e "$path" -e "${path##*/}" HEAD -- . ':(exclude,glob)**/.env*' ':(exclude,glob)**/.env*/**' |
+                  while IFS= read -r caller; do printf '%s\t%s\n' "$path" "${caller#HEAD:}"; done
+                status=${PIPESTATUS[0]}
+                set -e
+                [[ "$status" = 0 || "$status" = 1 ]]
+              done < "$out/repo-ops-paths.txt" > "$out/repo-ops-callers.tsv"
               git ls-files -z | du --files0-from=- -b --total | tail -1 > "$out/tracked-bytes.txt"
             )
           done
+      - name: Execute matched disposable change-cost probes
+        run: |
+          node repo-ops/evidence/change-cost-probe.mjs "$GITHUB_WORKSPACE" "$RUNNER_TEMP/evidence/change-cost.json" ca801532fd7109c953ad655a729eda5ac44d4d34
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -102,6 +114,15 @@ jobs:
       - name: Build browser-safe packages and workbench frontend
         run: |
           /usr/bin/time -v -o "$RUNNER_TEMP/package-evidence/build-time.txt" bun nx run skin-workbench:build-vite --skip-nx-cache
+      - name: Native Next.js route and module analysis with synthetic content
+        env:
+          EDITOR_BROWSER_PRODUCTION: '1'
+          EDITOR_FIXTURE_SEED: public
+          PLAYWRIGHT_OUTPUT_DIR: ${{ runner.temp }}/analyze-fixture
+        run: |
+          node repo-ops/acceptance/start-editor-browser-server.mjs --analyze-only
+          cp -a "$PLAYWRIGHT_OUTPUT_DIR/next-analysis" "$RUNNER_TEMP/package-evidence/next-analysis"
+          cp "$PLAYWRIGHT_OUTPUT_DIR/next-analyze.log" "$RUNNER_TEMP/package-evidence/next-analyze.log"
       - name: Verify public export artifacts and record sizes
         run: node repo-ops/evidence/package-evidence.mjs "$RUNNER_TEMP/package-evidence/packages.json"
       - name: Record Rust dependency graph
@@ -148,6 +169,14 @@ jobs:
         run: |
           mkdir -p "$PLAYWRIGHT_OUTPUT_DIR"
           { git rev-parse HEAD HEAD^{tree}; sha256sum bun.lock package.json; bun --version; } > "$PLAYWRIGHT_OUTPUT_DIR/revision.txt"
+      - name: Inspect background video stream types for caption applicability
+        run: |
+          if ! command -v ffprobe >/dev/null; then
+            sudo apt-get update
+            sudo apt-get install -y --no-install-recommends ffmpeg
+          fi
+          ffprobe -version | head -n 1
+          ffprobe -v error -show_entries stream=codec_type,codec_name:format=duration -of json product/apps/web/public/header-background.webm > "$PLAYWRIGHT_OUTPUT_DIR/quality-background-video-streams.json"
       - run: bun --no-env-file run test:browser:fixture
       - uses: actions/upload-artifact@v4
         if: always()
@@ -155,8 +184,10 @@ jobs:
           name: public-cross-browser-fixture
           path: |
             ${{ runner.temp }}/public-fixture/revision.txt
+            ${{ runner.temp }}/public-fixture/quality-background-video-streams.json
             ${{ runner.temp }}/public-fixture/fixture-*/results.json
             ${{ runner.temp }}/public-fixture/fixture-*/quality-*.json
+            ${{ runner.temp }}/public-fixture/fixture-*/quality-*.png
             ${{ runner.temp }}/public-fixture/fixture-*/artifacts/**/error-context.md
           if-no-files-found: error
           retention-days: 7

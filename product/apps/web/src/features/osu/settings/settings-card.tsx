@@ -81,13 +81,8 @@ type SettingsDataItemProps = {
 
 export function SettingsDataItem({ label, children }: SettingsDataItemProps) {
   return (
-    <fieldset aria-labelledby={`settings-label-${label}`}>
-      <div
-        id={`settings-label-${label.toLowerCase()}`}
-        className="text-foreground mb-1 font-medium"
-      >
-        {label}:
-      </div>
+    <fieldset>
+      <legend className="text-foreground mb-1 font-medium">{label}:</legend>
       {children}
     </fieldset>
   )

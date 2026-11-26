@@ -3,8 +3,7 @@ import { ReadingColumn, PageIntro, EditorPanel } from '@tenzyu/ui/editorial'
 import { Input } from '@tenzyu/ui/input'
 import { Button } from '@tenzyu/ui/button'
 import { EDITOR_ADMIN_LOCALE } from './editor-admin.constants'
-import { loginEditorAdminAction } from './actions'
-import { isEditorLoginConfigured } from '@/config/env.infra'
+import { isEditorDeploymentAllowed, isEditorLoginConfigured } from '@/config/env.infra'
 
 export function EditorLogin({
   locale,
@@ -14,6 +13,7 @@ export function EditorLogin({
   error?: string
 }) {
   const content = useIntlayer('editorAdmin', EDITOR_ADMIN_LOCALE)
+  const deploymentAllowed = isEditorDeploymentAllowed()
   const isConfigured = isEditorLoginConfigured()
 
   return (
@@ -23,11 +23,13 @@ export function EditorLogin({
         title={content.login.title.value}
         description={content.login.description.value}
       />
-      {!isConfigured ? (
+      {!deploymentAllowed ? (
+        <p className="text-sm">{content.login.deploymentDisabled.value}</p>
+      ) : !isConfigured ? (
         <p className="text-sm">{content.login.missingMessage.value}</p>
       ) : (
         <EditorPanel>
-          <form action={loginEditorAdminAction} className="space-y-4">
+          <form method="post" action="/api/editor/login" className="space-y-4">
             <input type="hidden" name="locale" value={locale} />
             <label
               htmlFor="editor-password"

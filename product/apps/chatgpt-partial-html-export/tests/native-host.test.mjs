@@ -109,3 +109,35 @@ test('native messaging protocol replies to one complete frame before stdin EOF',
   assert.equal(response.ok, true);
   assert.equal(response.path, path.join(tmp, 'protocol.html'));
 });
+
+test('native export never overwrites existing files, including concurrent collisions', async () => {
+  const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'cphe-exclusive-'));
+  try {
+    const message = { type: 'writeHtml', outputDir: tmp, filename: 'same.html', html: 'first' };
+    const results = await Promise.all([handleMessage(message), handleMessage({ ...message, html: 'second' })]);
+    assert.equal(results.filter(result => result.ok).length, 1);
+    assert.match(results.find(result => !result.ok).error, /EEXIST/);
+    const written = await fs.readFile(path.join(tmp, 'same.html'), 'utf8');
+    assert.equal(written, results[0].ok ? 'first' : 'second');
+    assert.equal((await handleMessage({ ...message, html: 'third' })).ok, false);
+    assert.equal(await fs.readFile(path.join(tmp, 'same.html'), 'utf8'), written);
+  } finally {
+    await fs.rm(tmp, { recursive: true, force: true });
+  }
+});
+
+test('native export rejects a pre-existing destination symlink without touching its target', async () => {
+  const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'cphe-symlink-'));
+  try {
+    const target = path.join(tmp, 'target.txt');
+    await fs.writeFile(target, 'untouched');
+    await fs.symlink(target, path.join(tmp, 'export.html'));
+    const response = await handleMessage({ type: 'writeHtml', outputDir: tmp, filename: 'export.html', html: 'new' });
+    assert.equal(response.ok, false);
+    assert.match(response.error, /EEXIST/);
+    assert.equal(await fs.readFile(target, 'utf8'), 'untouched');
+    assert.ok((await fs.lstat(path.join(tmp, 'export.html'))).isSymbolicLink());
+  } finally {
+    await fs.rm(tmp, { recursive: true, force: true });
+  }
+});

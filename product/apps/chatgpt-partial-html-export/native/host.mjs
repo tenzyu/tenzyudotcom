@@ -24,7 +24,9 @@ export async function handleMessage(message) {
     const outputPath = resolveOutputPath(outputDir, filename);
 
     await fs.mkdir(outputDir, { recursive: true });
-    await fs.writeFile(outputPath, message.html, 'utf8');
+    // Exclusive creation prevents a collision or final-component symlink from
+    // overwriting a previously exported file or unrelated destination.
+    await fs.writeFile(outputPath, message.html, { encoding: 'utf8', flag: 'wx' });
 
     return { ok: true, path: outputPath };
   } catch (error) {

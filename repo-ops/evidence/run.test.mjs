@@ -1,6 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
+import { once } from 'node:events';
+import { setTimeout as delay } from 'node:timers/promises';
 import { mkdtempSync, readFileSync, mkdirSync, rmSync, writeFileSync, existsSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -27,7 +29,7 @@ test('initialized system profile preserves tool resolution in child Bash', () =>
 });
 
 for (const [name, command, expectedCode, expectedStatus, timeout] of [
-  ['success without inherited credentials', [process.execPath, '-e', 'if (process.env.GITHUB_TOKEN) process.exit(9); console.log("observed")'], 0, 'passed', '10'],
+  ['success without inherited credentials', [process.execPath, '-e', 'if (process.env.GITHUB_TOKEN || process.env.NX_LOAD_DOT_ENV_FILES !== "false") process.exit(9); console.log("observed")'], 0, 'passed', '10'],
   ['failure', [process.execPath, '-e', 'process.exit(7)'], 7, 'failed', '10'],
   ['missing executable', ['renewal-command-does-not-exist'], 127, 'not-run', '10'],
   ['timeout', [process.execPath, '-e', 'setInterval(() => {}, 1000)'], 124, 'timeout', '0.1'],
@@ -101,4 +103,36 @@ test('runner refuses evidence through a symlink into the working tree', () => {
     assert.match(result.stderr, /outside the checkout/);
     assert.equal(existsSync(join(cwd, 'evidence')), false);
   } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+
+test('overlapping timeout and cancellation cannot signal a group twice or retain an escalation timer', { timeout: 15000 }, async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'renewal-overlap-'));
+  const cwd = join(dir, 'workspace');
+  const out = join(dir, 'evidence');
+  mkdirSync(cwd);
+  // Acknowledge the first TERM in the private log, then leave enough time for
+  // cancellation to overlap the timeout. A second TERM would change the log.
+  const command = "process.on('SIGTERM',()=>{console.log('term');setTimeout(()=>process.exit(0),600)});console.log('ready');setInterval(()=>{},1000)";
+  const wrapper = spawn(process.execPath, [runner, '--cwd', cwd, '--out', out, '--timeout', '0.5', '--', process.execPath, '-e', command], { stdio: 'ignore' });
+  const ended = once(wrapper, 'exit');
+  try {
+    const deadline = Date.now() + 5000;
+    let firstTerm = false;
+    while (Date.now() < deadline) {
+      if (existsSync(join(out, 'output.log')) && readFileSync(join(out, 'output.log'), 'utf8').includes('term')) { firstTerm = true; break; }
+      await delay(20);
+    }
+    assert.ok(firstTerm, 'timeout delivered first TERM');
+    wrapper.kill('SIGTERM');
+    const [status] = await ended;
+    assert.equal(status, 143);
+    const report = JSON.parse(readFileSync(join(out, 'result.json'), 'utf8'));
+    assert.equal(report.status, 'cancelled');
+    assert.equal(readFileSync(join(out, 'output.log'), 'utf8').match(/^term$/gm)?.length, 1);
+    assert.match(report.logSha256, /^[a-f0-9]{64}$/);
+  } finally {
+    if (wrapper.exitCode === null && wrapper.signalCode === null) { wrapper.kill('SIGTERM'); await ended; }
+    rmSync(dir, { recursive: true, force: true });
+  }
 });

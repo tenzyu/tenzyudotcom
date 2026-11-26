@@ -2,6 +2,7 @@ import { expect, test } from 'bun:test'
 
 for (const fixture of [
   'editor-boundaries.fixture.ts',
+  'editor-preview-boundary.fixture.ts',
   'editor-drafts.fixture.tsx',
 ]) {
   test(
