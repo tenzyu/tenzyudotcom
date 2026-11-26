@@ -250,4 +250,38 @@ describe('GitHub single-document persistence', () => {
       Response.json({ truncated: true, tree: entries }))
     await expect(truncated.list('scraps/')).rejects.toBeInstanceOf(StorageError)
   })
+  test.each([408, 500, 503, 409, 422, 403, 'network'] as const)(
+    'classifies delete outcome %s without retrying', async (status) => {
+      let writes = 0
+      const repo = createGitHubDocumentRepository(config, async (_url, init) => {
+        if (init?.method === 'DELETE') {
+          writes++
+          expect(JSON.parse(String(init.body))).toEqual({
+            branch: config.branch, message: 'Delete editor/notes.json', sha: blob,
+          })
+          expect(init.redirect).toBe('error')
+          if (status === 'network') throw new TypeError('response lost')
+          return new Response(null, { status })
+        }
+        return Response.json(file('current'))
+      })
+      const error = status === 'network' || status === 408 || status >= 500
+        ? StorageDocumentWriteUncertainError
+        : status === 409 || status === 422 ? StorageVersionConflictError : StorageError
+      await expect(repo.deleteText('editor/notes.json')).rejects.toBeInstanceOf(error)
+      expect(writes).toBe(1)
+    },
+  )
+
+  test('deleting a confirmed missing file performs no mutation', async () => {
+    let calls = 0
+    const repo = createGitHubDocumentRepository(config, async (_url, init) => {
+      calls++
+      expect(init?.method ?? 'GET').toBe('GET')
+      return new Response(null, { status: 404 })
+    })
+    await repo.deleteText('editor/notes.json')
+    expect(calls).toBe(1)
+  })
+
 })

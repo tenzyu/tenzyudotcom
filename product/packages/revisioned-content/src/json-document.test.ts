@@ -63,4 +63,14 @@ describe('JSON collection optimistic versions', () => {
     ).rejects.toBeInstanceOf(StorageVersionConflictError)
     expect(loaded.collection).toEqual(['first link'])
   })
+  test('an existing empty JSON document is not an absent collection', async () => {
+    const load = async () => ({ content: '' })
+    let writes = 0
+    const storage = { load, loadFresh: load, async save() { writes++ } }
+    const parse = (raw: unknown) => z.array(z.string()).parse(raw)
+    await expect(loadJsonCollection('links.json', parse, () => [], storage)).rejects.toThrow()
+    await expect(saveJsonCollection('links.json', '[]', parse, createContentVersion(''), storage)).rejects.toThrow()
+    expect(writes).toBe(0)
+  })
+
 })
