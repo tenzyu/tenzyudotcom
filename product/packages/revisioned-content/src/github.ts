@@ -29,6 +29,23 @@ const FileResponse = ShaResponse.extend({
   size: z.number().int().nonnegative(),
   content: z.string(),
 })
+// Both read protocols require the same complete, canonical UTF-8 byte payload.
+function decodeFileContent(file: { content: string; size: number }, pathname: string) {
+  const encoded = file.content.replace(/\r?\n/g, '')
+  const bytes = Buffer.from(encoded, 'base64')
+  const content = bytes.toString('utf8')
+  if (
+    bytes.length !== file.size ||
+    bytes.toString('base64') !== encoded ||
+    !Buffer.from(content).equals(bytes)
+  ) {
+    throw new StorageError(
+      `GitHub supplied incomplete or unsupported file bytes for ${pathname}.`,
+    )
+  }
+  return content
+}
+
 const TreeEntry = ShaResponse.extend({
   path: z.string(),
   type: z.enum(['blob', 'tree', 'commit']),
@@ -163,18 +180,7 @@ export function createGitHubAggregateRepository(
             `GitHub did not supply file bytes and a blob OID for ${pathname}.`,
           )
         }
-        const encoded = file.data.content.replace(/\r?\n/g, '')
-        const bytes = Buffer.from(encoded, 'base64')
-        const content = bytes.toString('utf8')
-        if (
-          bytes.length !== file.data.size ||
-          bytes.toString('base64') !== encoded ||
-          !Buffer.from(content).equals(bytes)
-        ) {
-          throw new StorageError(
-            `GitHub supplied incomplete or unsupported file bytes for ${pathname}.`,
-          )
-        }
+        const content = decodeFileContent(file.data, pathname)
         return {
           content,
           version: file.data.sha,
@@ -330,14 +336,9 @@ export function createGitHubDocumentRepository(
     if (!file.success)
       throw new StorageError(`GitHub content payload is invalid: ${pathname}`)
 
-    const encoded = file.data.content.replace(/\r?\n/g, '')
-    const bytes = Buffer.from(encoded, 'base64')
-    const content = bytes.toString('utf8')
-    if (file.data.path !== repositoryPath(pathname) ||
-        bytes.length !== file.data.size ||
-        bytes.toString('base64') !== encoded ||
-        !Buffer.from(content).equals(bytes))
+    if (file.data.path !== repositoryPath(pathname))
       throw new StorageError(`GitHub supplied incomplete or unsupported file bytes for ${pathname}.`)
+    const content = decodeFileContent(file.data, pathname)
 
     return {
       content,
