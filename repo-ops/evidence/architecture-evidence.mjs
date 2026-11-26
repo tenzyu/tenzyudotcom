@@ -138,6 +138,46 @@ function graph(nodes, links) {
 }
 const productionEdges=edges.filter(e=>!isTest(e.from)&&!isTest(e.to))
 const runtimeProductOpsEdges = productionEdges.filter(e => !e.typeOnly && e.from.startsWith('product/') && e.to.startsWith('repo-ops/'))
+if (process.argv[3] === '--check-static-product') {
+  const sources = source.filter(f => /^product\/(?:apps|packages)\/[^/]+\/src\//.test(f) && !isTest(f))
+  const sourceSet = new Set(sources)
+  const staticEdges = productionEdges.filter(e =>
+    sourceSet.has(e.from) && sourceSet.has(e.to) &&
+    !e.typeOnly && ['import', 'export', 'import-equals'].includes(e.kind)
+  )
+  const modules = graph(sources, staticEdges.map(e => [e.from, e.to]))
+  const adjacency = new Map()
+  for (const {from, to} of staticEdges) {
+    const targets = adjacency.get(from) ?? new Set()
+    targets.add(to)
+    adjacency.set(from, targets)
+  }
+
+  const generic = 'product/packages/ui/src/generic/'
+  const supporting = 'product/packages/ui/src/supporting/'
+  const queue = sources.filter(f => f.startsWith(generic))
+  const previous = new Map(queue.map(f => [f, null]))
+  let forbiddenPath
+  for (let i = 0; i < queue.length; i++) {
+    const from = queue[i]
+    if (from.startsWith(supporting)) {
+      forbiddenPath = []
+      for (let node = from; node !== null; node = previous.get(node)) forbiddenPath.unshift(node)
+      break
+    }
+    for (const target of adjacency.get(from) ?? []) {
+      if (previous.has(target)) continue
+      previous.set(target, from)
+      queue.push(target)
+    }
+  }
+  const opsEdges = runtimeProductOpsEdges.filter(e => sourceSet.has(e.from))
+  fs.writeSync(1, JSON.stringify({ staticProductModules: modules, genericToSupporting: forbiddenPath ?? null, productToRepoOps: opsEdges }) + '\n')
+  if (modules.cycles.length) fs.writeSync(2, 'Circular static product modules: ' + JSON.stringify(modules.cycles) + '\n')
+  if (forbiddenPath) fs.writeSync(2, 'Generic UI depends on supporting UI: ' + forbiddenPath.join(' -> ') + '\n')
+  if (opsEdges.length) fs.writeSync(2, 'Forbidden product runtime imports of repo-ops: ' + JSON.stringify(opsEdges) + '\n')
+  process.exit(modules.cycles.length || forbiddenPath || opsEdges.length ? 1 : 0)
+}
 const quotient = new Map()
 for(const e of productionEdges){
   const a=owner(e.from),b=owner(e.to)
