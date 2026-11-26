@@ -34,7 +34,10 @@ jobs:
       - uses: biomejs/setup-biome@4c91541eaada48f67d7dbd7833600ce162b68f51
         with:
           version: 2.4.16
-      - run: bun run policy:deps
+      - name: Verify dependency versions and project boundaries
+        run: |
+          bun nx graph --file="$RUNNER_TEMP/project-graph.json"
+          bun run policy:deps "$RUNNER_TEMP/project-graph.json"
       - name: Verify all non-native products and libraries in one task DAG
         env:
           GITHUB_CONTENT_TOKEN: ${{ github.token }}
