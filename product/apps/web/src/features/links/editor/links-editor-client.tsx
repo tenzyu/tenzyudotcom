@@ -13,7 +13,7 @@ import { Button } from '@tenzyu/ui/button'
 import { EditorPanel } from '@tenzyu/ui/editorial'
 import { Input } from '@tenzyu/ui/input'
 import { NativeSelect, NativeSelectOption } from '@tenzyu/ui/native-select'
-import type { LinkCategory, MyLink } from '@tenzyu/publishing-domain/links'
+import { LINK_CATEGORY_ORDER, type MyLink } from '@tenzyu/publishing-domain/links'
 import { useCollectionSave } from '@/features/content-editor/use-collection-save'
 import { moveItem } from '@/features/content-editor/editor-utils'
 import { fetchUrlMetadataAction } from './metadata.actions'
@@ -39,8 +39,6 @@ type LinksEditorClientProps = {
     fetchMetadata: string
   }
 }
-
-const LINK_CATEGORIES: LinkCategory[] = ['Watch', 'Social', 'Build', 'Legacy']
 
 type LinkEditorEntry = MyLink & { editorKey: string }
 
@@ -291,7 +289,7 @@ export function LinksEditorClient({
                       id={`${baseId}-category`}
                       value={entry.category}
                       onChange={(event) => {
-                        const value = LINK_CATEGORIES.find(
+                        const value = LINK_CATEGORY_ORDER.find(
                           (category) => category === event.target.value,
                         )
                         if (!value) return
@@ -304,7 +302,7 @@ export function LinksEditorClient({
                         )
                       }}
                     >
-                      {LINK_CATEGORIES.map((category) => (
+                      {LINK_CATEGORY_ORDER.map((category) => (
                         <NativeSelectOption key={category} value={category}>
                           {category}
                         </NativeSelectOption>
