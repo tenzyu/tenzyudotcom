@@ -3,7 +3,6 @@ import { ReadingColumn, PageIntro, EditorPanel } from '@tenzyu/ui/editorial'
 import { Input } from '@tenzyu/ui/input'
 import { Button } from '@tenzyu/ui/button'
 import { EDITOR_ADMIN_LOCALE } from './editor-admin.constants'
-import { loginEditorAdminAction } from './actions'
 import { isEditorDeploymentAllowed, isEditorLoginConfigured } from '@/config/env.infra'
 
 export function EditorLogin({
@@ -30,7 +29,7 @@ export function EditorLogin({
         <p className="text-sm">{content.login.missingMessage.value}</p>
       ) : (
         <EditorPanel>
-          <form action={loginEditorAdminAction} className="space-y-4">
+          <form method="post" action="/api/editor/login" className="space-y-4">
             <input type="hidden" name="locale" value={locale} />
             <label
               htmlFor="editor-password"

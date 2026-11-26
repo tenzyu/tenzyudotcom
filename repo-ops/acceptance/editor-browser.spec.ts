@@ -756,10 +756,10 @@ test('login ingress matches the WAF path in both locales and cannot dispatch on 
       await expect(page).toHaveURL(base + prefix + '/editor');
       expect((await (await context.request.get(base + '/api/auth/me')).json()).isAdmin).toBe(true);
       observations.push({ path: loginPath, method: login.method(), authenticated: true });
-      expect(loginPath.endsWith('/editor/login')).toBe(true);
+      expect(loginPath).toBe('/api/editor/login');
 
       // Replay only the synthetic login request, without its browser cookies.
-      // Server Action IDs are not an authorization or ingress boundary.
+      // The route-bound login must not be dispatched by unrelated page handlers.
       const body = login.postDataBuffer();
       expect(body).not.toBeNull();
       const headers: Record<string, string> = { Origin: base };
@@ -769,11 +769,24 @@ test('login ingress matches the WAF path in both locales and cannot dispatch on 
       }
       const replay = await readerContext(browser, base, { locale });
       try {
+        for (const origin of [null, 'https://foreign.invalid']) {
+          const deniedHeaders = { ...headers };
+          if (origin === null) delete deniedHeaders.Origin;
+          else deniedHeaders.Origin = origin;
+          const denied = await replay.request.post(base + loginPath, { data: body!, headers: deniedHeaders, maxRedirects: 0 });
+          expect(denied.status()).toBe(403);
+          expect(denied.headers()['set-cookie'] ?? '').not.toContain('editor_admin_session=');
+        }
+      } catch (error) {
+        await replay.close();
+        throw error;
+      }
+      try {
         for (const path of [prefix + '/editor', prefix + '/portfolio', prefix || '/']) {
           const response = await replay.request.post(base + path, { data: body!, headers, maxRedirects: 0 });
           const authenticated = (await (await replay.request.get(base + '/api/auth/me')).json()).isAdmin;
           observations.push({ path, method: 'POST', authenticated });
-          expect(authenticated, 'login action dispatched outside WAF path: ' + path + ' HTTP ' + response.status()).toBe(false);
+          expect(authenticated, 'login dispatched outside WAF path: ' + path + ' HTTP ' + response.status()).toBe(false);
           expect(response.headers()['set-cookie'] ?? '').not.toContain('editor_admin_session=');
         }
       } finally { await replay.close(); }

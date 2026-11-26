@@ -46,5 +46,10 @@ await assert.rejects(saveGitHubTextFile('editor/notes.json', '[]'), /disabled/)
 await assert.rejects(githubContentRepository.saveJson('editor/notes.json', []), /disabled/)
 await assert.rejects(githubContentRepository.delete('editor/notes.json'), /disabled/)
 assert.throws(() => githubContentRepository.commit('a'.repeat(40), [], 'fixture'), /disabled/)
+const { POST: postLogin } = await import('../../src/app/api/editor/login/route')
+assert.equal((await postLogin(new Request('https://tenzyu.com/api/editor/login', {
+  method: 'POST', headers: { origin: 'https://tenzyu.com' },
+  body: new URLSearchParams({ locale: 'ja', password: 'synthetic-password' }),
+}))).status, 403)
 assert.equal(cookieWrites, 0)
 assert.equal(outbound, 0)

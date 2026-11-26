@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 const LoginSchema = z.object({
-  locale: z.string().trim().min(2),
+  locale: z.enum(['ja', 'en']),
   password: z.string().min(1),
 })
 
