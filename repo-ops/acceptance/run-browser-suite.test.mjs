@@ -151,3 +151,18 @@ test('cleanup failure is reported even when the browser leader succeeds', () => 
     assert.equal(run().status, 0);
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
+
+test('unknown browser suite fails before allocating evidence or launching a child', () => {
+  const { dir, env, command } = drainFixture();
+  try {
+    for (const args of [[], [''], ['unknown'], ['constructor'], ['__proto__'], ['toString']]) {
+      const result = spawnSync(process.execPath, [command, ...args], {
+        env: { ...env, LEASE_FAST: '1' }, timeout: 5000, encoding: 'utf8',
+      });
+      assert.equal(result.status, 1, result.stderr);
+      assert.match(result.stderr, /Unknown browser suite/);
+      assert.throws(() => readdirSync(env.PLAYWRIGHT_OUTPUT_DIR), { code: 'ENOENT' });
+      assert.throws(() => readFileSync(join(dir, 'entered')), { code: 'ENOENT' });
+    }
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
