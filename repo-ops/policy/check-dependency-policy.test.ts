@@ -10,18 +10,27 @@ const nodes = {
   web: { data: { root: 'product/apps/web', tags: ['type:app'] } },
   pure: { data: { root: 'product/packages/pure', tags: ['runtime:pure'] } },
   other: { data: { root: 'product/packages/other', tags: ['runtime:pure'] } },
+  leaf: { data: { root: 'product/packages/leaf', tags: ['runtime:pure'] } },
   server: { data: { root: 'product/packages/server', tags: ['runtime:server'] } },
   publishing: { data: { root: 'product/packages/publishing', tags: ['domain:publishing'] } },
   ui: { data: { root: 'product/packages/ui', tags: ['domain:design-system'] } },
   ops: { data: { root: 'repo-ops' } },
 }
 
+type Edge = { source: string; target: string; type: 'static' | 'dynamic' | 'implicit' }
+
 function check(source: string, target: string) {
+  return checkGraph([{ source, target, type: 'static' }])
+}
+
+function checkGraph(edges: Edge[]) {
   const dir = mkdtempSync(join(tmpdir(), 'dependency-policy-'))
   try {
     writeFileSync(join(dir,'package.json'), JSON.stringify({ packageManager: 'bun@1.4.5', workspaces: { catalog } }))
     const graph = join(dir,'graph.json')
-    writeFileSync(graph, JSON.stringify({ graph: { nodes, dependencies: { [source]: [{ source, target }] } } }))
+    const dependencies: Record<string, Edge[]> = {}
+    for (const edge of edges) (dependencies[edge.source] ??= []).push(edge)
+    writeFileSync(graph, JSON.stringify({ graph: { nodes, dependencies } }))
     const result = Bun.spawnSync([process.execPath, policy, graph], { cwd: dir })
     return { code: result.exitCode, stderr: result.stderr.toString() }
   } finally { rmSync(dir, { recursive: true, force: true }) }
@@ -38,4 +47,43 @@ test('forbidden workspace edges fail with the offending dependency', () => {
     expect(result.code).toBe(1)
     expect(result.stderr).toContain(`Forbidden workspace dependency: ${from} -> ${to}`)
   }
+})
+
+test('static product cycles fail with the closed cycle, excluding its downstream tail', () => {
+  const result = checkGraph([
+    { source: 'pure', target: 'other', type: 'static' },
+    { source: 'other', target: 'pure', type: 'static' },
+    { source: 'other', target: 'leaf', type: 'static' },
+  ])
+  expect(result.code).toBe(1)
+  expect(result.stderr).toContain('Circular static product dependency: pure -> other -> pure')
+  expect(result.stderr).not.toContain('leaf')
+})
+
+test('a shared dependency and duplicate static edges do not form a cycle', () => {
+  expect(checkGraph([
+    { source: 'web', target: 'pure', type: 'static' },
+    { source: 'web', target: 'other', type: 'static' },
+    { source: 'pure', target: 'other', type: 'static' },
+    { source: 'pure', target: 'other', type: 'static' },
+  ]).code).toBe(0)
+})
+
+test('non-static edges do not participate in the static cycle check', () => {
+  for (const type of ['dynamic', 'implicit'] as const) {
+    expect(checkGraph([
+      { source: 'pure', target: 'other', type: 'static' },
+      { source: 'other', target: 'pure', type },
+    ]).code).toBe(0)
+  }
+})
+
+test('static cycles in disconnected components and self loops fail', () => {
+  expect(checkGraph([
+    { source: 'web', target: 'ui', type: 'static' },
+    { source: 'pure', target: 'other', type: 'static' },
+    { source: 'other', target: 'leaf', type: 'static' },
+    { source: 'leaf', target: 'pure', type: 'static' },
+  ]).stderr).toContain('Circular static product dependency: pure -> other -> leaf -> pure')
+  expect(check('pure', 'pure').stderr).toContain('Circular static product dependency: pure -> pure')
 })
