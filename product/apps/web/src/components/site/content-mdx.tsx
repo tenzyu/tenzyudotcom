@@ -6,6 +6,7 @@ import * as runtime from 'react/jsx-runtime'
 import rehypePrettyCode from 'rehype-pretty-code'
 import remarkGfm from 'remark-gfm'
 import { cn } from '@tenzyu/ui'
+import { type BlogHeading, slugifyBlogHeading } from '@tenzyu/publishing-domain/blog'
 
 /**
  * Trust model: ContentMDX evaluates MDX source at render time with full
@@ -24,29 +25,6 @@ export function isContentMdxScope(value: unknown): value is ContentMdxScope {
   )
 }
 
-const MARKDOWN_LINK_PATTERN = /\[([^\]]+)\]\([^)]+\)/g
-const MARKDOWN_IMAGE_PATTERN = /!\[([^\]]*)\]\([^)]+\)/g
-const MARKDOWN_INLINE_CODE_PATTERN = /`([^`]+)`/g
-const MARKDOWN_EMPHASIS_PATTERN = /(\*\*|__|\*|_|~~)/g
-const HTML_TAG_PATTERN = /<[^>]+>/g
-
-const normalizeHeadingText = (value: string) =>
-  value
-    .replace(MARKDOWN_IMAGE_PATTERN, '$1')
-    .replace(MARKDOWN_LINK_PATTERN, '$1')
-    .replace(MARKDOWN_INLINE_CODE_PATTERN, '$1')
-    .replace(MARKDOWN_EMPHASIS_PATTERN, '')
-    .replace(HTML_TAG_PATTERN, '')
-    .trim()
-
-export function slugifyContentHeading(value: string) {
-  return normalizeHeadingText(value)
-    .toLowerCase()
-    .replace(/[^\p{L}\p{N}\s-]/gu, '')
-    .trim()
-    .replace(/\s+/g, '-')
-}
-
 const extractHeadingText = (node: ReactNode): string => {
   if (typeof node === 'string' || typeof node === 'number') {
     return String(node)
@@ -63,29 +41,72 @@ const extractHeadingText = (node: ReactNode): string => {
   return ''
 }
 
-const buildHeadingId = (value: string, slugCounts: Map<string, number>) => {
-  const baseSlug = slugifyContentHeading(value) || 'section'
-  const count = slugCounts.get(baseSlug) ?? 0
-  slugCounts.set(baseSlug, count + 1)
-  return count === 0 ? baseSlug : `${baseSlug}-${count}`
+function allocateHeadingId(title: string, used: Set<string>) {
+  const base = slugifyBlogHeading(title) || 'section'
+  let id = base
+  for (let count = 1; used.has(id); count++) {
+    id = `${base}-${count}`
+  }
+  used.add(id)
+  return id
 }
 
-function createHeading(level: 2 | 3 | 4, slugCounts: Map<string, number>) {
+type HeadingTree = {
+  type: string
+  tagName?: string
+  value?: string
+  properties?: Record<string, unknown>
+  children?: HeadingTree[]
+}
+
+function staticHeadingText(node: HeadingTree): string | undefined {
+  if (node.type === 'text') return node.value ?? ''
+  if (node.type.startsWith('mdx')) return undefined
+  let title = ''
+  for (const child of node.children ?? []) {
+    const text = staticHeadingText(child)
+    if (text === undefined) return undefined
+    title += text
+  }
+  return title
+}
+
+function projectHeadings(headings: BlogHeading[], used: Set<string>) {
+  return () => (tree: HeadingTree) => {
+    function visit(node: HeadingTree) {
+      if (
+        node.type === 'element' &&
+        (node.tagName === 'h2' || node.tagName === 'h3' || node.tagName === 'h4')
+      ) {
+        const title = staticHeadingText(node)
+        if (title !== undefined) {
+          const id = allocateHeadingId(title, used)
+          node.properties = { ...node.properties, id }
+          if (node.tagName !== 'h4') {
+            headings.push({ id, title, level: node.tagName === 'h2' ? 2 : 3 })
+          }
+        }
+      }
+      for (const child of node.children ?? []) visit(child)
+    }
+    visit(tree)
+  }
+}
+
+function createHeading(level: 2 | 3 | 4, used: Set<string>) {
   const tagName = `h${level}` as const
 
   return function Heading({
     children,
     className,
+    id,
     ...props
   }: React.ComponentPropsWithoutRef<typeof tagName>) {
-    const headingText = extractHeadingText(children)
-    const id = buildHeadingId(headingText, slugCounts)
-
     return createElement(
       tagName,
       {
         ...props,
-        id,
+        id: id ?? allocateHeadingId(extractHeadingText(children), used),
         className: cn('group', className),
       },
       children,
@@ -137,13 +158,11 @@ function ResponsiveIframe(props: React.ComponentPropsWithoutRef<'iframe'>) {
   )
 }
 
-export function createBaseMdxComponents(): MDXComponents {
-  const slugCounts = new Map<string, number>()
-
+function createBaseMdxComponents(used: Set<string>): MDXComponents {
   return {
-    h2: createHeading(2, slugCounts),
-    h3: createHeading(3, slugCounts),
-    h4: createHeading(4, slugCounts),
+    h2: createHeading(2, used),
+    h3: createHeading(3, used),
+    h4: createHeading(4, used),
     a: MdxLink,
     iframe: ResponsiveIframe,
   }
@@ -175,16 +194,18 @@ const rehypePrettyCodeOptions = {
  * component sets must be passed in via `additionalComponents` by the caller
  * to keep this module free of route-local dependencies.
  */
-export async function ContentMDX({
+export async function prepareContentMDX({
   source,
   scope,
   additionalComponents,
 }: ContentMdxProps) {
+  const headings: BlogHeading[] = []
+  const used = new Set<string>()
   try {
     const options: EvaluateOptions = {
       ...runtime,
       remarkPlugins: [remarkGfm],
-      rehypePlugins: [[rehypePrettyCode, rehypePrettyCodeOptions]],
+      rehypePlugins: [projectHeadings(headings, used), [rehypePrettyCode, rehypePrettyCodeOptions]],
       baseUrl: import.meta.url,
     }
 
@@ -193,17 +214,24 @@ export async function ContentMDX({
     }
 
     const mergedComponents: MDXComponents = {
-      ...createBaseMdxComponents(),
+      ...createBaseMdxComponents(used),
       ...(additionalComponents ?? {}),
     }
 
-    return <MDXContent components={mergedComponents} />
+    return { content: <MDXContent components={mergedComponents} />, headings }
   } catch (error) {
     console.error(`Error rendering MDX (scope=${scope}):`, error)
-    return (
-      <div className="border-destructive/50 bg-destructive/10 text-destructive rounded-md border p-4">
-        An error occurred while rendering the content.
-      </div>
-    )
+    return {
+      content: (
+        <div className="border-destructive/50 bg-destructive/10 text-destructive rounded-md border p-4">
+          An error occurred while rendering the content.
+        </div>
+      ),
+      headings: [],
+    }
   }
+}
+
+export async function ContentMDX(props: ContentMdxProps) {
+  return (await prepareContentMDX(props)).content
 }
