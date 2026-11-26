@@ -1,10 +1,10 @@
 import { z } from 'zod'
-import type { BlogSaveCommand } from '@tenzyu/publishing-domain/blog'
+import { blogWriteSlugPattern, type BlogSaveCommand } from '@tenzyu/publishing-domain/blog'
 
 const blogSlug = z
   .string()
   .trim()
-  .regex(/^[a-z0-9][a-z0-9-]*$/)
+  .regex(blogWriteSlugPattern)
 const BlogSubmission = z.object({
   locale: z.string().trim().min(2),
   slug: blogSlug,
