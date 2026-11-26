@@ -9,8 +9,6 @@ import {
   saveGitHubTextFile,
 } from './github-content.infra'
 
-export { parseJsonCollection } from '@tenzyu/revisioned-content/json-document'
-
 const storage: JsonCollectionStorage = {
   load: loadGitHubTextFile,
   loadFresh: loadGitHubTextFileFresh,

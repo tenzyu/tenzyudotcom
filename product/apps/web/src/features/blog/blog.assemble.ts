@@ -17,12 +17,11 @@ import {
   type BlogPostSummary,
   type BlogPostingJsonLd,
   type MDXData,
-  buildBlogPostImageUrl,
-  buildBlogPostUrl,
   compareBlogPostsByPublishedAtDesc,
   filterBlogPostsByTag,
   isAiGeneratedPost,
-} from './blog.domain'
+} from '@tenzyu/publishing-domain/blog'
+import { buildBlogPostImageUrl, buildBlogPostUrl } from './blog.urls'
 
 const PAGE_SIZE = 6
 
