@@ -166,6 +166,9 @@ jobs:
         run: |
           mkdir -p "$PLAYWRIGHT_OUTPUT_DIR"
           { git rev-parse HEAD HEAD^{tree}; sha256sum bun.lock package.json; bun --version; } > "$PLAYWRIGHT_OUTPUT_DIR/revision.txt"
+      - name: Inspect background video stream types for caption applicability
+        run: |
+          ffprobe -v error -show_entries stream=codec_type,codec_name:format=duration -of json product/apps/web/public/header-background.webm > "$PLAYWRIGHT_OUTPUT_DIR/quality-background-video-streams.json"
       - run: bun --no-env-file run test:browser:fixture
       - uses: actions/upload-artifact@v4
         if: always()
@@ -173,6 +176,7 @@ jobs:
           name: public-cross-browser-fixture
           path: |
             ${{ runner.temp }}/public-fixture/revision.txt
+            ${{ runner.temp }}/public-fixture/quality-background-video-streams.json
             ${{ runner.temp }}/public-fixture/fixture-*/results.json
             ${{ runner.temp }}/public-fixture/fixture-*/quality-*.json
             ${{ runner.temp }}/public-fixture/fixture-*/artifacts/**/error-context.md

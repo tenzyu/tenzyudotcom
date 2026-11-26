@@ -38,13 +38,56 @@ for (const theme of ['light', 'dark'] as const) {
         const result = await page.evaluate(async () => {
           const result = await (window as any).axe.run(document, { runOnly: { type: 'tag', values: ['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22a','wcag22aa'] } });
           const rules = (items: any[]) => items.map(r => ({ id: r.id, impact: r.impact, help: r.help, helpUrl: r.helpUrl, tags: r.tags, targets: r.nodes.map((n: any) => n.target), details: r.nodes.map((n: any) => ({ target: n.target, html: n.html, failureSummary: n.failureSummary })) }));
-          return { version: result.testEngine.version, passes: result.passes.length, violations: rules(result.violations), incomplete: rules(result.incomplete) };
+          // Inspect the concrete axe-incomplete contrast targets. Canvas resolves
+          // CSS Color 4 values (including OKLCH) to sRGB for WCAG luminance.
+          // A non-opaque paint stack is not guessed; report it as unresolved.
+          const canvas = document.createElement('canvas');
+          canvas.width = canvas.height = 1;
+          const ctx = canvas.getContext('2d')!;
+          function rgba(value: string) {
+            ctx.clearRect(0, 0, 1, 1);
+            ctx.fillStyle = value;
+            ctx.fillRect(0, 0, 1, 1);
+            return Array.from(ctx.getImageData(0, 0, 1, 1).data);
+          }
+          function luminance(color: number[]) {
+            const c = color.slice(0, 3).map(v => {
+              const s = v / 255;
+              return s <= .04045 ? s / 12.92 : ((s + .055) / 1.055) ** 2.4;
+            });
+            return .2126 * c[0] + .7152 * c[1] + .0722 * c[2];
+          }
+          const contrastEvidence = result.incomplete
+            .filter((rule: any) => rule.id === 'color-contrast')
+            .flatMap((rule: any) => rule.nodes.map((node: any) => {
+              const selector = node.target.length === 1 && typeof node.target[0] === 'string' ? node.target[0] : null;
+              const element = selector ? document.querySelector(selector) : null;
+              if (!element) return { target: node.target, unresolved: 'selector is not a local element' };
+              const foreground = rgba(getComputedStyle(element).color);
+              let background: number[] | undefined;
+              for (let e: Element | null = element; e; e = e.parentElement) {
+                const style = getComputedStyle(e);
+                if (style.backgroundImage !== 'none' || style.opacity !== '1' || style.mixBlendMode !== 'normal') break;
+                const paint = rgba(style.backgroundColor);
+                if (paint[3] === 255) { background = paint; break; }
+                if (paint[3] !== 0) break;
+              }
+              if (!background || foreground[3] !== 255) return { target: node.target, unresolved: 'non-opaque or complex paint stack' };
+              const [light, dark] = [luminance(foreground), luminance(background)].sort((a,b) => b-a);
+              const ratio = (light + .05) / (dark + .05);
+              return { target: node.target, text: element.textContent?.trim(), foreground, background, ratio, minimum: 4.5,
+                scope: 'computed opaque color pair; overlap and actual glyph visibility still require inspection' };
+            }));
+          return { version: result.testEngine.version, passes: result.passes.length, violations: rules(result.violations), incomplete: rules(result.incomplete), contrastEvidence };
         });
         expect(result.passes + result.violations.length + result.incomplete.length, path).toBeGreaterThan(0);
         reports.push({ path, theme, ...result });
       }
     }
     report(info.project.name + '-axe-' + theme, { scope: 'automated inventory, not conformance', reports });
+    for (const scan of reports) for (const target of scan.contrastEvidence) {
+      if ('ratio' in target) expect(target.ratio, scan.path + ' ' + JSON.stringify(target.target)).toBeGreaterThanOrEqual(4.5);
+    }
     // Persist the complete inventory before enforcing the fixture's zero-violation gate.
     expect(reports.flatMap(r => r.violations.map(v => ({ path: r.path, ...v }))), 'automated WCAG violations in the covered fixture').toEqual([]);
     console.log(JSON.stringify({ project: info.project.name, theme, scans: reports.length, violations: reports.reduce((n,r) => n + r.violations.length, 0), severe: reports.reduce((n,r) => n + r.violations.filter((v: any) => ['critical','serious'].includes(v.impact)).length,0) }));
@@ -192,4 +235,44 @@ test('background motion is opt-in when reduced motion is requested and can be pa
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await expect(play).toBeVisible();
   await expect.poll(() => video.evaluate(v => v.paused)).toBe(true);
+});
+
+test('keyboard focus restoration and narrow CSS viewport reflow', async ({ page }, info) => {
+  test.setTimeout(180_000);
+  const observations = [];
+  // 720 CSS px corresponds to a 1440px viewport at 200% browser zoom.
+  // 320 CSS px exercises WCAG reflow width; neither simulates actual browser zoom.
+  for (const width of [720, 320]) {
+    await page.setViewportSize({ width, height: 900 });
+    for (const path of ['/en', '/en/portfolio', '/en/blog', '/en/notes', '/en/scraps', '/en/links', '/en/tools', '/en/osu', '/en/editor/login']) {
+      expect((await page.goto(path))?.status()).toBe(200);
+      await page.evaluate(() => document.fonts.ready.then(() => undefined));
+      const dimensions = await page.evaluate(() => ({
+        viewport: document.documentElement.clientWidth,
+        scroll: document.documentElement.scrollWidth,
+      }));
+      observations.push({ width, path, ...dimensions });
+    }
+  }
+  await page.goto('/en/portfolio');
+  const language = page.getByRole('button', { name: /change language/i });
+  await language.focus();
+  await page.keyboard.press('Shift+Tab');
+  await page.keyboard.press('Tab');
+  await expect(language).toBeFocused();
+  const focus = await language.evaluate(el => {
+    const style = getComputedStyle(el);
+    return { focusVisible: el.matches(':focus-visible'), outlineStyle: style.outlineStyle,
+      outlineWidth: style.outlineWidth, boxShadow: style.boxShadow };
+  });
+  await language.press('Enter');
+  await expect(page.getByRole('menuitem', { name: '日本語' })).toBeVisible();
+  await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('Escape');
+  await expect(language).toBeFocused();
+  report(info.project.name + '-keyboard-reflow', { observations, focus,
+    scope: 'keyboard focus restoration and CSS viewport reflow; actual zoom and screen reader experience not simulated' });
+  expect(focus.focusVisible).toBe(true);
+  expect(focus.boxShadow !== 'none' || (focus.outlineStyle !== 'none' && focus.outlineWidth !== '0px')).toBe(true);
+  for (const row of observations) expect(row.scroll, row.path + ' at ' + row.width + ' CSS px').toBeLessThanOrEqual(row.viewport);
 });
