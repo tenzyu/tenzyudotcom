@@ -132,6 +132,47 @@ describe('GitHub aggregate publication', () => {
     expect(refWrites).toBe(failure === 'tree' || failure === 'commit' ? 0 : 1)
   })
 
+  test('shares concurrent and subsequent reads of one immutable tree', async () => {
+    let commits = 0
+    let trees = 0
+    const repo = createGitHubAggregateRepository(config, async (url) => {
+      const path = new URL(url).pathname
+      if (path.endsWith('/commits/' + headA)) {
+        commits++
+        return Response.json({ tree: { sha: treeA } })
+      }
+      trees++
+      expect(path.endsWith('/trees/' + treeA)).toBe(true)
+      return Response.json({
+        truncated: false,
+        tree: ['blog/a.mdx', 'scraps/b.mdx'].map((path) => ({
+          path: 'storage/' + path, type: 'blob', mode: '100644', sha: blob,
+        })),
+      })
+    })
+    const snapshot = repo.snapshotAt(headA)
+    expect(await Promise.all([snapshot.list('blog'), snapshot.list('scraps')])).toEqual([
+      ['blog/a.mdx'], ['scraps/b.mdx'],
+    ])
+    expect(await snapshot.list('blog')).toEqual(['blog/a.mdx'])
+    expect([commits, trees]).toEqual([1, 1])
+  })
+
+  test('does not cache an unsuccessful pinned tree read', async () => {
+    let trees = 0
+    const repo = createGitHubAggregateRepository(config, async (url) => {
+      if (new URL(url).pathname.includes('/commits/')) {
+        return Response.json({ tree: { sha: treeA } })
+      }
+      trees++
+      return Response.json({ truncated: trees === 1, tree: [] })
+    })
+    const snapshot = repo.snapshotAt(headA)
+    await expect(snapshot.list('blog')).rejects.toBeInstanceOf(StorageError)
+    expect(await snapshot.list('blog')).toEqual([])
+    expect(trees).toBe(2)
+  })
+
   test('rejects a stale snapshot before preparing objects', async () => {
     let calls = 0
     const request = async () => {
