@@ -24,6 +24,10 @@ const editorAdminContent = {
         ja: 'パスワードが違います。',
         en: 'Incorrect password.',
       }),
+      deploymentDisabled: t({
+        ja: 'このデプロイメントでは編集機能を利用できません。',
+        en: 'Editing is disabled in this deployment.',
+      }),
       missingMessage: t({
         ja: '必要な環境変数が未設定か、設定が無効です。',
         en: 'Required environment variables are missing or invalid.',

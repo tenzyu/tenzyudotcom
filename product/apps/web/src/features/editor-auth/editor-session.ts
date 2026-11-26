@@ -8,6 +8,7 @@ import {
   env,
   getRequiredEditorAdminCredentials,
   isProduction,
+  isEditorDeploymentAllowed,
 } from '@/config/env.infra'
 
 const EDITOR_SESSION_COOKIE = 'editor_admin_session'
@@ -23,6 +24,7 @@ const loginAttempts = createLoginRateLimiter({
 // A client-supplied Host or forwarded header is not an authorization authority.
 // Production defaults to the configured canonical site, not the request host.
 function assertSameOrigin(headerStore: Headers) {
+  if (!isEditorDeploymentAllowed()) throw new Error('Editor is disabled for this deployment environment.')
   const origin = headerStore.get('origin')
   if (!origin) throw new Error('Missing Origin header for editor mutation.')
   const configured = env.editorAllowedOrigin ?? (isProduction ? env.siteUrl : undefined)
