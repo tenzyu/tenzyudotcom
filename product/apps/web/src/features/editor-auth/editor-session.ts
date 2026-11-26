@@ -2,6 +2,7 @@ import { createHmac, timingSafeEqual } from 'node:crypto'
 import { getLocalizedUrl } from 'intlayer'
 import { cookies, headers } from 'next/headers'
 import { redirect } from 'next/navigation'
+import { createLoginRateLimiter } from './login-rate-limit'
 import {
   getRequiredEditorAdminCredentials,
   isProduction,
@@ -12,7 +13,11 @@ const EDITOR_SESSION_TTL_SECONDS = 60 * 60 * 24 * 14
 const LOGIN_RATE_LIMIT_WINDOW_MS = 60 * 1000
 const LOGIN_RATE_LIMIT_MAX_ATTEMPTS = 5
 
-const loginAttempts = new Map<string, { count: number; resetAt: number }>()
+const loginAttempts = createLoginRateLimiter({
+  windowMs: LOGIN_RATE_LIMIT_WINDOW_MS,
+  maxAttempts: LOGIN_RATE_LIMIT_MAX_ATTEMPTS,
+  maxClients: 4096,
+})
 let warnedWeakSessionSecret = false
 
 type EditorSessionPayload = {
@@ -89,8 +94,8 @@ function parseSession(
   token: string,
   secret: string,
 ): EditorSessionPayload | null {
-  const [encodedPayload, signature] = token.split('.')
-  if (!encodedPayload || !signature) {
+  const [encodedPayload, signature, ...extra] = token.split('.')
+  if (!encodedPayload || !signature || extra.length !== 0) {
     return null
   }
 
@@ -162,6 +167,7 @@ export async function clearEditorAdminSession() {
 export async function getEditorAdminSessionExpiry() {
   try {
     const { sessionSecret } = getRequiredEditorAdminCredentials()
+    if (isProduction && sessionSecret.length < 32) return null
     const cookieStore = await cookies()
     const token = cookieStore.get(EDITOR_SESSION_COOKIE)?.value
 
@@ -222,23 +228,10 @@ export function isSameOriginEditorRequest(request: Request) {
 export async function checkEditorLoginRateLimit() {
   const headerStore = await headers()
   const key = getClientKey(headerStore)
-  const now = Date.now()
-  const current = loginAttempts.get(key)
-
-  if (!current || current.resetAt <= now) {
-    loginAttempts.set(key, {
-      count: 1,
-      resetAt: now + LOGIN_RATE_LIMIT_WINDOW_MS,
-    })
-    return true
-  }
-
-  current.count += 1
-
-  return current.count <= LOGIN_RATE_LIMIT_MAX_ATTEMPTS
+  return loginAttempts.consume(key, Date.now())
 }
 
 export async function clearEditorLoginRateLimit() {
   const headerStore = await headers()
-  loginAttempts.delete(getClientKey(headerStore))
+  loginAttempts.clear(getClientKey(headerStore))
 }
