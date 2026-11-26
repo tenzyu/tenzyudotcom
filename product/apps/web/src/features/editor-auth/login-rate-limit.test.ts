@@ -24,6 +24,15 @@ describe('editor login rate limit', () => {
     expect(limit.consume('c', 2000)).toBe(true)
   })
 
+  test('reclaims capacity when a staggered client window expires', () => {
+    const limit = create()
+    expect(limit.consume('a', 0)).toBe(true)
+    expect(limit.consume('b', 900)).toBe(true)
+    expect(limit.consume('c', 1000)).toBe(true)
+    expect(limit.consume('d', 1899)).toBe(false)
+    expect(limit.consume('d', 1900)).toBe(true)
+  })
+
   test('clears the authenticated client only', () => {
     const limit = create()
     for (const key of ['a', 'b']) {
