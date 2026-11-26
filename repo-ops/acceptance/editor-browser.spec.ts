@@ -696,3 +696,43 @@ test('Blog edits in place and renames the indexed blob while preserving all old 
     await reader.close();
   }
 });
+
+test('editor HTTP boundary rejects forged origins and unauthenticated mutations before Git access', async ({ page, browser, baseURL }) => {
+  const base = new URL(baseURL!).origin;
+  const { git } = editorFixture();
+  const output = resolve(process.env.PLAYWRIGHT_OUTPUT_DIR ?? '/tmp/tenzyudotcom-editor-evidence');
+  const ledger = () => readFileSync(resolve(output, 'github-ledger.jsonl'), 'utf8');
+  await signIn(page, base);
+  const reader = await readerContext(browser, base);
+  try {
+    await page.waitForLoadState('networkidle');
+    const initial = git.head();
+    const before = ledger();
+    const foreign = 'https://not-the-editor.invalid';
+    for (const [method, path] of [
+      ['PUT', '/api/editor/links'], ['POST', '/api/editor/links/item'],
+      ['POST', '/api/editor/blog/article'], ['POST', '/api/editor/scrap'],
+    ]) {
+      const anonymous = await reader.request.fetch(base + path, { method, headers: { Origin: base }, data: {} });
+      expect(anonymous.status(), path).toBe(401);
+      expect(anonymous.headers()['cache-control']).toContain('no-store');
+      for (const headers of [{}, { Origin: foreign, 'X-Forwarded-Host': 'not-the-editor.invalid', 'X-Forwarded-Proto': 'https' }]) {
+        const response = await page.request.fetch(base + path, { method, headers, data: {} });
+        expect(response.status(), path).toBe(403);
+        expect(response.headers()['cache-control']).toContain('no-store');
+      }
+    }
+    expect(git.head()).toBe(initial);
+    expect(ledger()).toBe(before);
+    const cookies = await page.context().cookies();
+    const session = cookies.find(cookie => cookie.name === 'editor_admin_session')!;
+    expect(session.httpOnly).toBe(true);
+    expect(session.sameSite).toBe('Lax');
+    if (process.env.EDITOR_BROWSER_PRODUCTION === '1') expect(session.secure).toBe(true);
+    for (const value of [session.value + '.extra', session.value.replace(/.$/, session.value.endsWith('a') ? 'b' : 'a')]) {
+      await reader.addCookies([{ ...session, value }]);
+      const response = await reader.request.get(base + '/api/auth/me');
+      expect(await response.json()).toEqual({ isAdmin: false, expiresAt: null });
+    }
+  } finally { await reader.close(); }
+});

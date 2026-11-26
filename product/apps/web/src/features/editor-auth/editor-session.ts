@@ -4,6 +4,7 @@ import { cookies, headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { createLoginRateLimiter } from './login-rate-limit'
 import {
+  env,
   getRequiredEditorAdminCredentials,
   isProduction,
 } from '@/config/env.infra'
@@ -16,7 +17,7 @@ const LOGIN_RATE_LIMIT_MAX_ATTEMPTS = 5
 const loginAttempts = createLoginRateLimiter({
   windowMs: LOGIN_RATE_LIMIT_WINDOW_MS,
   maxAttempts: LOGIN_RATE_LIMIT_MAX_ATTEMPTS,
-  maxClients: 4096,
+  maxClients: 1,
 })
 let warnedWeakSessionSecret = false
 
@@ -54,40 +55,23 @@ function warnWeakSessionSecret(sessionSecret: string) {
   )
 }
 
-function expectedOriginFromHeaders(headerStore: Headers) {
-  const host = headerStore.get('x-forwarded-host') ?? headerStore.get('host')
-  if (!host) return null
-
-  const protocol =
-    headerStore.get('x-forwarded-proto') ?? (isProduction ? 'https' : 'http')
-
-  return `${protocol}://${host}`
-}
-
+// A client-supplied Host or forwarded header is not an authorization authority.
+// Production defaults to the configured canonical site, not the request host.
 function assertSameOrigin(headerStore: Headers) {
   const origin = headerStore.get('origin')
-  const expectedOrigin = expectedOriginFromHeaders(headerStore)
-
-  if (!origin || !expectedOrigin) {
-    if (isProduction) {
-      throw new Error('Missing Origin or Host header for editor mutation.')
-    }
-    return
+  if (!origin) throw new Error('Missing Origin header for editor mutation.')
+  const configured = env.editorAllowedOrigin ?? (isProduction ? env.siteUrl : undefined)
+  if (configured) {
+    const expected = new URL(configured).origin
+    if (origin === expected) return
+  } else {
+    const host = headerStore.get('host')
+    const parsed = new URL(origin)
+    if (parsed.protocol === 'http:' &&
+        ['localhost', '127.0.0.1', '[::1]'].includes(parsed.hostname) &&
+        parsed.host === host && origin === parsed.origin) return
   }
-
-  if (origin !== expectedOrigin) {
-    throw new Error(
-      'Editor mutation rejected because Origin does not match Host.',
-    )
-  }
-}
-
-function getClientKey(headerStore: Headers) {
-  return (
-    headerStore.get('x-forwarded-for')?.split(',')[0]?.trim() ??
-    headerStore.get('x-real-ip') ??
-    'local'
-  )
+  throw new Error('Editor mutation rejected: origin is not authorized.')
 }
 
 function parseSession(
@@ -226,12 +210,10 @@ export function isSameOriginEditorRequest(request: Request) {
 }
 
 export async function checkEditorLoginRateLimit() {
-  const headerStore = await headers()
-  const key = getClientKey(headerStore)
-  return loginAttempts.consume(key, Date.now())
+  // Without a verified ingress identity, use one bounded per-process budget.
+  return loginAttempts.consume('editor-login', Date.now())
 }
 
 export async function clearEditorLoginRateLimit() {
-  const headerStore = await headers()
-  loginAttempts.clear(getClientKey(headerStore))
+  loginAttempts.clear('editor-login')
 }
