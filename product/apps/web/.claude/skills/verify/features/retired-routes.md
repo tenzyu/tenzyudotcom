@@ -1,21 +1,21 @@
 # Retired routes
 
-## Sub-features
+## Expected behavior
 
 - `/archives/osu-profile`.
 - `/pointers`.
 - `/puzzles`.
 - `/recommendations`.
-- Default Japanese and explicit English variants.
+- Each route returns HTTP 404 in Japanese and English.
 
-## How to get to it (user POV)
+## Open a retired route
 
-Open an old saved URL directly.
+Open a saved URL for one of the retired routes.
 
-## Driving it with Playwright
+## Playwright test
 
-Run `--grep "retired routes"`. The journey requests every route with and without `/en`, requires HTTP 404, checks viewport fit, and records browser errors.
+Run `--grep "retired routes"`. The test requests every route with and without `/en` and requires HTTP 404. It checks viewport fit and records browser errors.
 
-## Gotchas
+## Constraints
 
 A redirect to home is not equivalent to retirement. Default-locale redirect loops are failures even when the corresponding `/en` route returns 404.

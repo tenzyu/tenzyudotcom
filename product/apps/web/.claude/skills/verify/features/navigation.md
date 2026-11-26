@@ -1,19 +1,19 @@
 # Primary navigation
 
-## Sub-features
+## Expected behavior
 
-- Header destinations for links, tools, blog, notes, scraps, and osu!.
-- Client navigation to a retained page.
-- Responsive layout and clean browser events.
+- The header links to links, tools, blog, notes, scraps, and osu!.
+- Client-side navigation opens a retained page.
+- The layout fits the viewport, and the browser reports no errors.
 
-## How to get to it (user POV)
+## Open primary navigation
 
 Open the English home page and use the primary navigation in the site header.
 
-## Driving it with Playwright
+## Playwright test
 
-Run `--grep "primary navigation"`. The journey finds the labelled navigation, checks retained destination links, follows Tools, and verifies the resulting URL.
+Run `--grep "primary navigation"`. The test finds the labelled navigation and checks the retained links. It follows **Tools** and verifies the resulting URL.
 
-## Gotchas
+## Constraints
 
-The app currently exposes Portfolio too, but it is outside this renewal acceptance list. Keep its presence from weakening assertions for the six retained destinations. Mobile navigation must be driven through its accessible controls if the shell changes.
+The app also exposes **Portfolio**. The renewal acceptance list does not include it. Keep assertions for all six retained destinations. If the shell changes, test mobile navigation through its accessible controls.
