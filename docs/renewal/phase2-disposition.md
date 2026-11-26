@@ -1,6 +1,6 @@
 # Phase 2 baseline disposition
 
-Baseline `ca801532fd7109c953ad655a729eda5ac44d4d34`: 43 files. Source: caller probe run 45635960034, artifact 15031659783; literal caller candidates are not proof of runtime use. Active manual commands retained conservatively. No data deletion.
+The baseline at `ca801532fd7109c953ad655a729eda5ac44d4d34` contained 43 files. Caller probe run 45635960034 produced artifact 15031659783. Literal caller candidates do not establish runtime use. The disposition retains active manual commands and does not delete data.
 
 | Baseline (repo-ops/) | Destination | Disposition / consumer and condition |
 |---|---|---|

@@ -1,6 +1,6 @@
 # Historical ADRs and reviews
 
-The legacy agent harness and Atelier/Castalia were retired in 2026. These files are **historical**, not active rules. Preserve the original ADR content unchanged.
+The legacy agent tooling, Atelier and Castalia were retired in 2026. The instructions in these historical files no longer apply. Preserve the original ADR content unchanged.
 
 - [Renewal decision](adr/0001-renewal.md)
 - [Repository ADRs](knowledge/decisions/adr/)

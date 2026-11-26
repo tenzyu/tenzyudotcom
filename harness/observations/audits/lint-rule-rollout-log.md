@@ -16,7 +16,7 @@ x:
     user_invocable: false
 ---
 
-# Lint Rule Rollout Log
+# Lint rule rollout log
 
 ## Scope
 
@@ -28,12 +28,12 @@ x:
 6. `zod` owner 固定
 7. Next server API owner 固定
 
-## Implementation Notes
+## Implementation notes
 
-- `env.infra.ts` は外界設定の single owner だが、`site.ts` や auth/session など一部の非 assemble server module から読む必要がある
+- `env.infra.ts` は外部設定の唯一の所有元だが、`site.ts` や auth/session など一部の非 assemble server module から読む必要がある
 - そのため Rule 1 は `env.infra.ts` を除く一般 `*.infra.ts` を対象にする
-- Rule 5 を有効にするため、blog 読み込みの file system access は `src/lib/editor/**` に寄せる
-- Rule 6 を有効にするため、admin action の `zod` schema は `*.assemble.ts` 側へ移す
+- Rule 5 を有効にするため、blog 読み込み時のファイルシステムアクセスは `src/lib/editor/**` に移す
+- Rule 6 を有効にするため、admin action の `zod` schema は `*.assemble.ts` に移す
 
 ## Checklist
 
@@ -53,7 +53,7 @@ x:
 - `bun run build`: pass
 - `bun run verify:quick`: docs lint 既知不整合で fail
 
-## Delivered Rules
+## Delivered rules
 
 ### Rule 1
 
@@ -83,7 +83,7 @@ x:
 
 - `next/cache`, `next/headers`, `next/navigation` は `src/app/` または `*.assemble.ts` に限定
 
-## Ownership Follow-up
+## Ownership follow-up
 
 - owner tree spec は `harness/observations/audits/app-ownership-tree-spec.md` に記録済み
 - `src/components/shell/*`
@@ -96,4 +96,4 @@ x:
 - `src/features/admin/*`
 - `src/features/youtube/*`
 
-上記は実際に demote し、現在は allowlist なしで `bun run lint-symbol-ownership` が pass している
+上記の対象は owner 指定から外した。記録時点では allowlist なしで `bun run lint-symbol-ownership` が成功している。

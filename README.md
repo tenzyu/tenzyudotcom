@@ -1,8 +1,8 @@
 # tenzyudotcom
 
-The [tenzyu.com](https://tenzyu.com) monorepo: a Next.js 16 personal website, a Tauri/Rust osu! skin workbench, a personal Firefox conversation exporter, and shared TypeScript packages. Toolchain: **Bun 1.4.5 (package declaration), Nx 24, TypeScript 7.0.2, Node.js 22, Nix devShells**.
+The [tenzyu.com](https://tenzyu.com) monorepo contains a Next.js 16 personal website, a Tauri/Rust osu! skin workbench, a personal Firefox conversation exporter, and shared TypeScript packages. The toolchain uses Bun 1.4.5 (as declared in the package manifest), Nx 24, TypeScript 7.0.2, Node.js 22 and Nix devShells.
 
-TypeScript 7 runs the native `tsc` executable (`@typescript/native`). The official `@typescript/typescript6` compatibility alias supplies the JavaScript compiler API for Nx, declaration generation and framework tooling. `@typescript/old` is pinned explicitly to avoid Bun resolving the compatibility package to itself. CI verifies both paths; this is not a compiler downgrade.
+TypeScript 7 runs the native `tsc` executable (`@typescript/native`). The official `@typescript/typescript6` compatibility alias supplies the JavaScript compiler API for Nx, declaration generation and framework tooling. `@typescript/old` is pinned explicitly to avoid Bun resolving the compatibility package to itself. CI verifies both compiler paths. The native TypeScript 7 compiler remains in use.
 
 ## Workspace
 
@@ -10,14 +10,14 @@ TypeScript 7 runs the native `tsc` executable (`@typescript/native`). The offici
 | --- | --- | --- |
 | Web | `product/apps/web` | Public routes, blog/MDX, notes, scraps, osu!, portfolio, Intlayer and editor |
 | Skin workbench | `product/apps/osu-skin-workbench` | React/Vite UI and Tauri Rust native file operations |
-| ChatGPT HTML exporter | `product/apps/chatgpt-partial-html-export` | Firefox extension; visible DOM → local HTML |
+| ChatGPT HTML exporter | `product/apps/chatgpt-partial-html-export` | Firefox extension that exports the visible DOM to local HTML |
 | UI | `product/packages/ui` | Shared components, styles and Storybook |
 | Skin core | `product/packages/osu-skin-core` | Runtime-pure classification, models and contracts |
 | Publishing domain | `product/packages/publishing-domain` | Blog, Notes, Links and Scraps domain API, independent of Next.js |
 | Revisioned content | `product/packages/revisioned-content` | Versioned persistence, conflict detection and atomic publication |
 | Repository tools | `repo-ops` | Observation, maintenance and verification tools |
 
-Apps may import packages; packages must not import apps. Product runtime code must not import `repo-ops`. Authored content lives in the **separate** `tenzyudotcom-content` repository.
+Apps may import packages; packages must not import apps. Product runtime code must not import `repo-ops`. Authored content lives in the separate `tenzyudotcom-content` repository.
 
 ## Get started
 
@@ -28,9 +28,9 @@ bun nx show projects
 bun nx run web:dev
 ```
 
-The root `bun.lock` is the only JavaScript lockfile for the workspace; run installs from the repository root. On neko7, the approved `.envrc` loads the development shell with nix-direnv; execute commands directly instead of wrapping each call in `nix develop -c`. The Web dev URL is printed by Next.js. Production builds may need legitimate read-only access to external content; do not replace failures with synthetic empty data.
+The root `bun.lock` is the only JavaScript lockfile for the workspace. Run installs from the repository root. On neko7, the approved `.envrc` loads the development shell with nix-direnv. Execute commands directly instead of wrapping each call in `nix develop -c`. Next.js prints the Web development URL. Production builds may require read-only access to external content. Do not replace failed reads with synthetic empty data.
 
-For native work: `nix develop .#skin-workbench`, then `bun nx run skin-workbench:dev`. For Vite-only work: `bun nx run skin-workbench:dev-vite`. The Firefox extension has its [own installation guide](product/apps/chatgpt-partial-html-export/README.md).
+For native work, run `nix develop .#skin-workbench`, then `bun nx run skin-workbench:dev`. For Vite-only work, run `bun nx run skin-workbench:dev-vite`. The Firefox extension has its [own installation guide](product/apps/chatgpt-partial-html-export/README.md).
 
 ## Verify changes
 
@@ -42,13 +42,13 @@ bun nx run web:check
 bun nx affected -t check --base=origin/develop --head=HEAD
 ```
 
-Use `bun nx show project <project> --json` to discover valid targets; `bun nx run-many -t verify` covers broader scopes. GitHub CI runs an explicit workspace verification DAG, a separate native toolchain job, and production publication/editor acceptance. The isolated [browser acceptance harness](product/apps/web/.claude/skills/verify/SKILL.md) covers Chromium desktop/mobile, **not** Firefox, WebKit or actual production deployment.
+Use `bun nx show project <project> --json` to list valid targets. Use `bun nx run-many -t verify` to verify more projects. GitHub CI runs an explicit workspace verification DAG, a separate native toolchain job, and production publication/editor acceptance. The isolated [browser acceptance suite](product/apps/web/.claude/skills/verify/SKILL.md) covers desktop and mobile Chromium. It does not cover Firefox, WebKit or production deployment.
 
 ## Knowledge and contribution
 
-- **[LLM Wiki / OKF index](docs/wiki/index.md):** progressive-disclosure architecture, failure modes, operations and decisions.
-- [`AGENTS.md`](AGENTS.md): minimal agent contract; real source, manifests and tests are authoritative.
-- [Renewal closure](docs/renewal/12-completion.md) and [historical ADRs](harness/README.md): dated evidence, not current service status.
-- [Repository observation tooling](repo-ops/operations/README.md): isolated verification and preservation.
+- [LLM Wiki / OKF index](docs/wiki/index.md) documents architecture, failure modes, operations and decisions in separate files.
+- [`AGENTS.md`](AGENTS.md) defines the agent contract. Source code, manifests and tests are authoritative.
+- [Renewal closure](docs/renewal/12-completion.md) and [historical ADRs](harness/README.md) record past evidence rather than current service status.
+- [Repository observation tools](repo-ops/operations/README.md) cover isolated verification and preservation.
 
-Atelier, Castalia, pointers, puzzles, recommendations and the legacy harness were retired. The integration workflow is **topic branch from `develop` → PR to `develop` → reviewed merge → `main`**. Do not push to `main` directly.
+Atelier, Castalia, pointers, puzzles, recommendations and the legacy agent tooling were retired. Create topic branches from `develop` and submit pull requests to `develop`. Merge after review, then integrate `develop` into `main`. Do not push to `main` directly.

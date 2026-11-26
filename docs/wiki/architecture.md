@@ -12,7 +12,7 @@ sources:
 
 # Product intent and contract-first ownership
 
-Apps are composition roots, not the owners of reusable business rules or commodity mechanisms. A package is a capability with a manifest, explicit exports, independently executable checks and a stable dependency direction. Retain reusable capabilities even before their first product consumer; code size is not a deletion criterion.
+Apps compose libraries. Reusable business rules and commodity mechanisms belong in packages. Each package has a manifest, explicit exports, checks that can run independently and a stable dependency direction. Retain reusable packages even before the first product uses them. Code size alone is not a deletion criterion.
 
 | Classification | Owner | Public API and responsibility |
 | --- | --- | --- |
@@ -27,10 +27,10 @@ Apps are composition roots, not the owners of reusable business rules or commodi
 ## Product composition roots
 
 - `product/apps/web`: Next.js route handlers, localized URL policy, presentation, content storage binding, editor authentication and cache policy. Existing public routes are blog, notes, scraps, links, tools, osu and portfolio.
-- `product/apps/osu-skin-workbench`: Tauri native filesystem effects and React/Vite application; consumes pure skin projection and reusable UI.
-- `product/apps/chatgpt-partial-html-export`: Firefox extension using visible DOM and Downloads or Native Messaging, not private APIs.
+- `product/apps/osu-skin-workbench`: Tauri native filesystem operations and a React/Vite application. Imports pure skin projection and reusable UI.
+- `product/apps/chatgpt-partial-html-export`: Firefox extension that reads the visible DOM and writes via Downloads or Native Messaging. It does not use private APIs.
 
-Apps import packages through public exports. Packages do not import apps. Generic UI runtime cannot import supporting UI runtime; stories can demonstrate both. Supporting storage cannot import publishing or Next; publishing cannot import storage or Next. App adapters bind capabilities to environment and framework services. The external `tenzyudotcom-content` repository owns authored content.
+Apps import packages through public exports. Packages do not import apps. Generic UI runtime cannot import supporting UI runtime. Stories can demonstrate both. Supporting storage cannot import publishing or Next. Publishing cannot import storage or Next. App adapters bind capabilities to environment and framework services. The external `tenzyudotcom-content` repository owns authored content.
 
 ## Behavioral invariants
 
@@ -38,6 +38,6 @@ Preserve URL and locale contracts, authentication/origin checks, private draft i
 
 ## Task ownership and evidence
 
-Bun scripts are leaf commands; Nx expresses dependencies. `check` and `verify` are aggregates, not repeated shell pipelines. Native verification runs on its own toolchain job; Web publication and editor acceptance use isolated fixtures. `main` and `develop` are not direct work branches. Use `bun nx show project <name> --json` to inspect the resolved contract. Source-first publishing and revisioned-content libraries require no independent bundling. UI exports all 56 reusable components and retains Storybook discoverability. Static graph and test results have a revision and scope; they do not establish production or native acceptance outside the exercised environment.
+Bun scripts are leaf commands. Nx declares task dependencies. The `check` and `verify` targets aggregate existing tasks instead of repeating shell pipelines. Native verification runs on its own toolchain job; Web publication and editor acceptance use isolated fixtures. `main` and `develop` are not direct work branches. Use `bun nx show project <name> --json` to inspect the resolved contract. Source-first publishing and revisioned-content libraries require no independent bundling. UI exports all 56 reusable components and retains Storybook discoverability. Static graph and test results apply to a specific revision and scope. They do not establish production or native acceptance outside the tested environment.
 
-The `revisioned-content/github` API owns both single-document Contents API writes (normalized content version plus blob compare-and-swap) and revisioned tree commits. The Web adapter owns Next cache tags and environment binding. The publishing-domain `/notes` API owns source normalization, parent topology validation and visible forest traversal; the Web app projects locale and URLs. Workspace project dependencies are checked using the Nx graph in CI. UI font assets are emitted as relative files referenced by the public stylesheet, rather than embedded in it.
+The `revisioned-content/github` API owns both single-document Contents API writes (normalized content version plus blob compare-and-swap) and revisioned tree commits. The Web adapter owns Next cache tags and environment binding. The publishing-domain `/notes` API implements source normalization, parent topology validation and visible forest traversal. The Web app projects locale and URLs. CI checks workspace project dependencies using the Nx graph. The UI build emits font assets as relative files and references them in the public stylesheet instead of embedding them.

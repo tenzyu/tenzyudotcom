@@ -25,13 +25,8 @@ Native host
 
 ## Boundary
 
-The extension does not call OpenAI or ChatGPT internal APIs. It only exports DOM already rendered in the current tab.
+The extension does not call OpenAI or ChatGPT internal APIs. It exports only the DOM already rendered in the current tab.
 
-That choice is intentional:
+This design reduces account-safety risk and requires fewer permissions. It avoids dependence on private ChatGPT API contracts. Exported content is limited to the DOM visible in the browser.
 
-- lower account-safety risk
-- smaller permission surface
-- no dependency on private ChatGPT API contracts
-- easier to reason about what is exported
-
-The tradeoff is that messages not currently rendered by the page may not be exportable until the conversation is scrolled/loaded in the browser.
+Messages that the page has not rendered may become exportable only after the user scrolls or loads them in the browser.

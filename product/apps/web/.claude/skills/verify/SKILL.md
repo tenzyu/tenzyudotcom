@@ -1,6 +1,6 @@
 ---
 name: verify
-description: Drive the tenzyu.com Next.js web UI with the Playwright browser acceptance harness when changing routes, locale behavior, navigation, responsive layout, osu! settings, or editor access.
+description: Test the tenzyu.com Next.js web UI with the Playwright browser acceptance suite when changing routes, locale behavior, navigation, responsive layout, osu! settings, or editor access.
 ---
 
 # Verify the web app
@@ -14,7 +14,7 @@ PLAYWRIGHT_OUTPUT_DIR="$NEW_EXTERNAL_EVIDENCE" \
   nix develop .#browser-verification -c bun run test:browser
 ```
 
-The Playwright `webServer` builds `@tenzyu/ui`, starts Next on `127.0.0.1:4173`, waits for `/en/tools`, and owns teardown. Do not start a second server. Port 4173 must be free.
+The Playwright `webServer` builds `@tenzyu/ui`, starts Next on `127.0.0.1:4173`, waits for `/en/tools` and stops the server after the suite. Do not start a second server. Port 4173 must be free.
 
 The launch clears editor, GitHub write, and osu! credentials. It reads public content anonymously from `tenzyu/tenzyudotcom-content` on `main`. Never add credentials to make a browser journey pass.
 
@@ -35,7 +35,7 @@ The browser must report Chromium 149.0.7827.53 from the locked Nix input. If the
 
 ## Drive
 
-Run the full matrix with the launch command. To drive one mapped feature while retaining the same startup, cleanup, and evidence behavior, add `--grep` after the script:
+Run the full matrix with the launch command. To test one feature with the same startup, cleanup and evidence collection, add `--grep` after the script:
 
 ```sh
 PLAYWRIGHT_OUTPUT_DIR="$NEW_EXTERNAL_EVIDENCE" \
@@ -43,15 +43,15 @@ PLAYWRIGHT_OUTPUT_DIR="$NEW_EXTERNAL_EVIDENCE" \
   bun run test:browser --grep "osu settings"
 ```
 
-Use role, label, and route selectors already present in `repo-ops/acceptance/browser-acceptance.spec.ts`. Do not replace observable assertions with implementation selectors. Read `features/README.md` before choosing a journey.
+Use role, label, and route selectors already present in `repo-ops/acceptance/browser-acceptance.spec.ts`. Do not replace observable assertions with implementation selectors. Read `features/README.md` before choosing a test.
 
 ## Evidence
 
 Keep `PLAYWRIGHT_OUTPUT_DIR` outside Git. A valid proof includes `results.json`, `web-server.log`, and each test's `browser-events.json`. Failures retain a screenshot and `trace.zip`. The suite treats every console error, page error, and failed request as a failure without a known-error allowlist.
 
-Prove the user path and resulting page state. Status-only checks are insufficient for navigation, osu! settings, and the editor gate. The harness does not mutate content. A future editor mutation journey must intercept the existing GitHub HTTP boundary with an isolated fixture and must prove that no live network write occurred.
+Verify the user actions and resulting page state. HTTP status checks alone are insufficient for navigation, osu! settings and the editor gate. The suite does not mutate content. Any future editor mutation test must intercept GitHub HTTP requests with an isolated fixture and verify that no live network write occurred.
 
-Chromium desktop 1440 and mobile 390 are covered. Firefox and WebKit are not configured and must remain reported as untested.
+The suite tests Chromium at desktop and mobile viewport widths of 1440 px and 390 px. Firefox and WebKit are not configured. Report them as untested.
 
 ## Cleanup
 
@@ -61,4 +61,4 @@ Do not delete `.next` or `product/packages/ui/dist` as cleanup. They are build o
 
 ## Helpers
 
-`repo-ops/acceptance/start-browser-server.mjs` is internal to Playwright's `webServer`. Do not invoke it directly. `repo-ops/acceptance/playwright.config.ts` owns loopback startup, viewport projects, evidence paths, credential clearing, and cleanup.
+`repo-ops/acceptance/start-browser-server.mjs` is internal to Playwright's `webServer`. Do not invoke it directly. `repo-ops/acceptance/playwright.config.ts` configures loopback startup, viewport projects, evidence paths, credential clearing and cleanup.

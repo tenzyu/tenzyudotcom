@@ -1,13 +1,13 @@
 # @tenzyu/osu-skin-workbench
 
-Tauri-only desktop migration of the former Next.js/Web `osu-skin-workbench`.
+This Tauri desktop app replaces the former Next.js `osu-skin-workbench` web app.
 
 ## What changed
 
-- Removed Next.js runtime and API routes.
-- Kept React/Vite only as the Tauri WebView UI layer.
-- Moved reusable TypeScript domain/classification/matrix logic into `@tenzyu/osu-skin-core`.
-- Replaced local project/file operations with Rust Tauri commands.
+- The app no longer uses the Next.js runtime or API routes.
+- The Tauri WebView uses React and Vite for its UI.
+- `@tenzyu/osu-skin-core` contains the reusable TypeScript domain, classification and matrix logic.
+- Rust Tauri commands handle local project and file operations.
 
 ## Commands
 
@@ -17,7 +17,7 @@ bun run build:tauri
 bun run build
 ```
 
-From repository root:
+Run these commands from the repository root:
 
 ```bash
 bun run dev:skin-workbench
