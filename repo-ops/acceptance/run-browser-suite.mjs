@@ -23,6 +23,7 @@ let timer;
 function stop(signal) {
   if (stopping) return;
   stopping = true;
+  if (!child.pid) return;
   try { process.kill(-child.pid, signal); } catch (error) { if (error.code !== 'ESRCH') throw error; }
   timer = setTimeout(() => {
     try { process.kill(-child.pid, 'SIGKILL'); } catch (error) { if (error.code !== 'ESRCH') throw error; }
@@ -32,4 +33,12 @@ function stop(signal) {
 process.once('SIGTERM', () => stop('SIGTERM'));
 process.once('SIGINT', () => stop('SIGINT'));
 child.once('error', error => { console.error(error); process.exitCode = 1; });
-child.once('exit', (code, signal) => { clearTimeout(timer); process.exitCode = stopping || signal ? 1 : code ?? 1; });
+child.once('exit', (code, signal) => {
+  clearTimeout(timer);
+  // flock/leader exit is not proof its descendants are gone.
+  if (child.pid) {
+    try { process.kill(-child.pid, 'SIGKILL'); }
+    catch (error) { if (error.code !== 'ESRCH') throw error; }
+  }
+  process.exitCode = stopping || signal ? 1 : code ?? 1;
+});
