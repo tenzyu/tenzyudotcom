@@ -7,7 +7,7 @@ use walkdir::WalkDir;
 use zip::write::SimpleFileOptions;
 
 use crate::domain::project::ExportPreset;
-use crate::infra::files::{copy_dir_all, walk_relative_files};
+use crate::infra::files::{copy_dir_all, walk_relative_files, with_staged_directory};
 use crate::infra::paths::{
     asset_file, is_link, managed_metadata, open_managed_file, validate_component,
 };
@@ -15,34 +15,15 @@ use crate::infra::paths::{
 const MAX_OSK_FILES: usize = 20_000;
 const MAX_OSK_UNCOMPRESSED_BYTES: u64 = 2 * 1024 * 1024 * 1024;
 
-fn temp_sibling_for(target: &Path) -> Result<PathBuf, String> {
-    let parent = target
-        .parent()
-        .ok_or_else(|| format!("target has no parent: {}", target.display()))?;
-    let name = target
-        .file_name()
-        .and_then(|value| value.to_str())
-        .ok_or_else(|| format!("target has no file name: {}", target.display()))?;
-    Ok(parent.join(format!("{name}.tmp-{}", uuid::Uuid::new_v4().simple())))
-}
-
 pub(crate) fn extract_osk(source: &Path, target: &Path) -> Result<(), String> {
-    let temp_target = temp_sibling_for(target)?;
-    if temp_target.exists() {
-        fs::remove_dir_all(&temp_target)
-            .map_err(|error| format!("failed to clean extraction temp target: {error}"))?;
-    }
-    fs::create_dir_all(&temp_target)
-        .map_err(|error| format!("failed to create extraction temp target: {error}"))?;
-    let file = File::open(source).map_err(|error| format!("failed to open osk: {error}"))?;
-    let mut archive = zip::ZipArchive::new(file)
-        .map_err(|error| format!("failed to read osk archive: {error}"))?;
-    if archive.len() > MAX_OSK_FILES {
-        let _ = fs::remove_dir_all(&temp_target);
-        return Err(format!("osk archive has too many files: {}", archive.len()));
-    }
-    let mut total_uncompressed_bytes = 0_u64;
-    let result = (|| {
+    with_staged_directory(target, |temp_target| {
+        let file = File::open(source).map_err(|error| format!("failed to open osk: {error}"))?;
+        let mut archive = zip::ZipArchive::new(file)
+            .map_err(|error| format!("failed to read osk archive: {error}"))?;
+        if archive.len() > MAX_OSK_FILES {
+            return Err(format!("osk archive has too many files: {}", archive.len()));
+        }
+        let mut total_uncompressed_bytes = 0_u64;
         for index in 0..archive.len() {
             let mut member = archive
                 .by_index(index)
@@ -70,18 +51,8 @@ pub(crate) fn extract_osk(source: &Path, target: &Path) -> Result<(), String> {
             std::io::copy(&mut member, &mut out)
                 .map_err(|error| format!("failed to extract archive member: {error}"))?;
         }
-        if target.exists() {
-            fs::remove_dir_all(target)
-                .map_err(|error| format!("failed to clean extraction target: {error}"))?;
-        }
-        fs::rename(&temp_target, target)
-            .map_err(|error| format!("failed to replace extraction target: {error}"))?;
         Ok(())
-    })();
-    if result.is_err() {
-        let _ = fs::remove_dir_all(&temp_target);
-    }
-    result
+    })
 }
 
 pub(crate) fn copy_source_to_raw(source_path: &str, target_raw: &Path) -> Result<usize, String> {

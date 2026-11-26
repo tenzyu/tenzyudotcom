@@ -150,7 +150,14 @@ def main():
                 manifest = json.loads(manifests[0].read_text())
                 assert manifest["name"] == "Native Runtime CI"
                 assert (manifests[0].parent/"project/raw/skin.ini").read_text() == content
+                baseline_file = manifests[0].parent / "sources/main/raw/skin.ini"
+                project_file = manifests[0].parent / "project/raw/skin.ini"
+                assert baseline_file.read_text() == content
                 assert (skin/"skin.ini").read_text() == content
+                project_file.write_text(content + "# workspace edit\n")
+                assert baseline_file.read_text() == content
+                assert (skin/"skin.ini").read_text() == content
+                project_file.write_text(content)
                 refresh_id = js("const b=[...document.querySelectorAll('button')].find(b=>b.textContent.trim()==='Refresh');b.id='runtime-refresh';return b.id")
                 click("#" + refresh_id)
                 until(lambda: visible("Projects loaded."), "real list IPC after create")
@@ -186,7 +193,7 @@ def main():
                 until(lambda: visible("failed to open manifest"), "selection load failure reported")
                 assert visible("Project files: 0 · Source files: 0")
                 assert visible("Native Runtime CI")
-                print(json.dumps({"launch":"passed","list":"passed","import":"passed","filesystem":"passed","refresh":"passed","selection":"passed","failedSelectionIsolation":"passed","scope":"Linux release executable + WebKitGTK; no bundle or other OS claim"}))
+                print(json.dumps({"launch":"passed","list":"passed","import":"passed","filesystem":"passed","importSnapshotIsolation":"passed","refresh":"passed","selection":"passed","failedSelectionIsolation":"passed","scope":"Linux release executable + WebKitGTK; no bundle or other OS claim"}))
             except Exception:
                 log.seek(0)
                 print(log.read()[-12000:])
