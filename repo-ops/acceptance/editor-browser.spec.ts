@@ -736,3 +736,58 @@ test('editor HTTP boundary rejects forged origins and unauthenticated mutations 
     }
   } finally { await reader.close(); }
 });
+
+
+test('login ingress matches the WAF path in both locales and cannot dispatch on another route', async ({ browser, baseURL }) => {
+  const base = new URL(baseURL!).origin;
+  const { git } = editorFixture();
+  const initial = git.head();
+  const observations: { path: string; method: string; authenticated: boolean }[] = [];
+  for (const [prefix, locale] of [['/en', 'en-US'], ['', 'ja-JP']]) {
+    const context = await readerContext(browser, base, { locale });
+    try {
+      const page = await context.newPage();
+      await page.goto(base + prefix + '/editor/login');
+      await page.locator('input[name="password"]').fill('fixture-password-not-a-secret');
+      const loginRequest = page.waitForRequest(request => request.method() === 'POST' && new URL(request.url()).origin === base);
+      await page.getByRole('button', { name: 'ログイン', exact: true }).click();
+      const login = await loginRequest;
+      const loginPath = new URL(login.url()).pathname;
+      await expect(page).toHaveURL(base + prefix + '/editor');
+      expect((await (await context.request.get(base + '/api/auth/me')).json()).isAdmin).toBe(true);
+      observations.push({ path: loginPath, method: login.method(), authenticated: true });
+      expect(loginPath.endsWith('/editor/login')).toBe(true);
+
+      // Replay only the synthetic login request, without its browser cookies.
+      // Server Action IDs are not an authorization or ingress boundary.
+      const body = login.postDataBuffer();
+      expect(body).not.toBeNull();
+      const headers: Record<string, string> = { Origin: base };
+      const original = await login.allHeaders();
+      for (const name of ['content-type', 'next-action', 'next-router-state-tree', 'accept']) {
+        if (original[name]) headers[name] = original[name];
+      }
+      const replay = await readerContext(browser, base, { locale });
+      try {
+        for (const path of [prefix + '/editor', prefix + '/portfolio', prefix || '/']) {
+          const response = await replay.request.post(base + path, { data: body!, headers, maxRedirects: 0 });
+          const authenticated = (await (await replay.request.get(base + '/api/auth/me')).json()).isAdmin;
+          observations.push({ path, method: 'POST', authenticated });
+          expect(authenticated, 'login action dispatched outside WAF path: ' + path + ' HTTP ' + response.status()).toBe(false);
+          expect(response.headers()['set-cookie'] ?? '').not.toContain('editor_admin_session=');
+        }
+      } finally { await replay.close(); }
+
+      const logoutRequest = page.waitForRequest(request => request.method() === 'POST' && new URL(request.url()).origin === base);
+      await page.getByRole('button', { name: 'Sign out', exact: true }).click();
+      const logout = await logoutRequest;
+      const logoutPath = new URL(logout.url()).pathname;
+      await expect(page).toHaveURL(base + prefix + '/editor/login');
+      expect((await (await context.request.get(base + '/api/auth/me')).json()).isAdmin).toBe(false);
+      observations.push({ path: logoutPath, method: logout.method(), authenticated: false });
+      expect(logoutPath.endsWith('/editor/login')).toBe(false);
+    } finally { await context.close(); }
+  }
+  expect(git.head()).toBe(initial);
+  console.log(JSON.stringify({ scope: 'synthetic loopback HTTP ingress; no provider enforcement claim', observations }));
+});
