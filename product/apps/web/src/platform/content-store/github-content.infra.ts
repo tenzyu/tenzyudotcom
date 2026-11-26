@@ -2,34 +2,17 @@ import { unstable_cache } from 'next/cache'
 import { env } from '@/config/env.infra'
 import {
   type ContentRepository,
+  type ContentRepositorySaveOptions,
   type ContentSnapshot,
-  StorageDocumentWriteUncertainError,
   StorageError,
-  StorageVersionConflictError,
 } from '@tenzyu/revisioned-content/contracts'
 import { createContentVersion } from '@tenzyu/revisioned-content/version'
 import { getContentTagForPathname } from '@/config/content-cache'
 import {
   createGitHubAggregateRepository,
+  createGitHubDocumentRepository,
   type GitHubAggregateRepository,
 } from '@tenzyu/revisioned-content/github'
-
-type GitHubContentFile = {
-  content: string
-  htmlUrl?: string
-  path: string
-  sha: string
-  size: number
-}
-
-type GitHubContentsApiResponse = {
-  content?: string
-  download_url?: string | null
-  html_url?: string | null
-  path: string
-  sha: string
-  size: number
-}
 
 function getGitHubConfig() {
   if (
@@ -51,233 +34,34 @@ function getGitHubConfig() {
   }
 }
 
-function toRepositoryPath(pathname: string) {
-  const normalizedPathname = pathname.replace(/^\/+/, '')
-  const { root } = getGitHubConfig()
-  return [root.replace(/^\/+|\/+$/g, ''), normalizedPathname]
-    .filter(Boolean)
-    .join('/')
-}
-
-function buildGitHubContentsApiPath(pathname: string) {
-  const { owner, repo } = getGitHubConfig()
-  const repositoryPath = toRepositoryPath(pathname)
-  const encodedPath = repositoryPath
-    .split('/')
-    .map(encodeURIComponent)
-    .join('/')
-
-  return `https://api.github.com/repos/${owner}/${repo}/contents/${encodedPath}`
-}
-
-function buildGitHubContentsReadUrl(pathname: string) {
-  const { branch } = getGitHubConfig()
-  return `${buildGitHubContentsApiPath(pathname)}?ref=${encodeURIComponent(branch)}`
-}
-
-function buildGitHubTreesApiUrl() {
-  const { branch, owner, repo } = getGitHubConfig()
-  return `https://api.github.com/repos/${owner}/${repo}/git/trees/${encodeURIComponent(branch)}?recursive=1`
-}
-
-function getGitHubHeaders(extraHeaders?: Record<string, string>) {
-  const { token } = getGitHubConfig()
-
-  return {
-    Accept: 'application/vnd.github+json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    'User-Agent': 'tenzyudotcom-content-sync',
-    'X-GitHub-Api-Version': '2022-11-28',
-    ...extraHeaders,
-  }
-}
-
-async function readGitHubFile(
-  pathname: string,
-  options: {
-    fresh?: boolean
-  } = {},
-): Promise<GitHubContentFile | null> {
-  const response = await fetch(buildGitHubContentsReadUrl(pathname), {
-    cache: options.fresh ? 'no-store' : 'default',
-    headers: getGitHubHeaders(),
-  })
-
-  if (response.status === 404) {
-    return null
-  }
-
-  if (!response.ok) {
-    throw new StorageError(
-      `Failed to read GitHub content (${pathname}): ${response.status} ${response.statusText}`,
-    )
-  }
-
-  const payload = (await response.json()) as GitHubContentsApiResponse
-  const encodedContent = payload.content?.replace(/\n/g, '')
-
-  if (!encodedContent) {
-    throw new StorageError(
-      `GitHub content payload is missing body: ${pathname}`,
-    )
-  }
-
-  return {
-    content: Buffer.from(encodedContent, 'base64').toString('utf8'),
-    htmlUrl: payload.html_url ?? payload.download_url ?? undefined,
-    path: payload.path,
-    sha: payload.sha,
-    size: payload.size,
-  }
+function getDocumentRepository() {
+  return createGitHubDocumentRepository(getGitHubConfig())
 }
 
 export async function loadGitHubTextFile(pathname: string) {
   const tag = getContentTagForPathname(pathname)
-
   return unstable_cache(
-    async () => readGitHubFile(pathname, { fresh: true }),
+    async () => getDocumentRepository().loadText(pathname),
     ['github-content-file', pathname],
     { tags: [tag] },
   )()
 }
 
 export async function loadGitHubTextFileFresh(pathname: string) {
-  return readGitHubFile(pathname, { fresh: true })
+  return getDocumentRepository().loadText(pathname)
 }
 
 async function loadGitHubJsonFile<T>(pathname: string): Promise<T | null> {
   const file = await loadGitHubTextFile(pathname)
-
-  if (!file) {
-    return null
-  }
-
-  return JSON.parse(file.content) as T
+  return file ? JSON.parse(file.content) as T : null
 }
 
 export async function saveGitHubTextFile(
   pathname: string,
   content: string,
-  options: {
-    expectedVersion?: string
-    message?: string
-  } = {},
+  options: ContentRepositorySaveOptions = {},
 ) {
-  const current = await loadGitHubTextFileFresh(pathname)
-  const currentVersion = createContentVersion(
-    (current?.content ?? '').trimEnd(),
-  )
-
-  if (
-    typeof options.expectedVersion === 'string' &&
-    currentVersion !== options.expectedVersion
-  ) {
-    throw new StorageVersionConflictError(
-      `${pathname} has changed since it was loaded.`,
-    )
-  }
-
-  const { branch } = getGitHubConfig()
-  const response = await fetch(buildGitHubContentsApiPath(pathname), {
-    body: JSON.stringify({
-      branch,
-      content: Buffer.from(content).toString('base64'),
-      message: options.message ?? `Update ${pathname}`,
-      sha: current?.sha,
-    }),
-    headers: {
-      ...getGitHubHeaders(),
-      'Content-Type': 'application/json',
-    },
-    method: 'PUT',
-  }).catch((error: unknown) => {
-    throw new StorageDocumentWriteUncertainError(
-      'The content write outcome is unknown.',
-      { cause: error },
-    )
-  })
-  if (response.status >= 500 || response.status === 408) {
-    throw new StorageDocumentWriteUncertainError(
-      'The content write outcome is unknown.',
-    )
-  }
-
-  if (!response.ok) {
-    if (response.status === 409 || response.status === 422) {
-      throw new StorageVersionConflictError(`${pathname} changed during save.`)
-    }
-    const errorText = await response.text()
-    throw new StorageError(
-      `Failed to save GitHub content (${pathname}): ${response.status} ${response.statusText} ${errorText}`,
-    )
-  }
-}
-
-async function deleteGitHubTextFile(
-  pathname: string,
-  options: {
-    message?: string
-  } = {},
-) {
-  const current = await loadGitHubTextFileFresh(pathname)
-
-  if (!current) {
-    return
-  }
-
-  const { branch } = getGitHubConfig()
-  const response = await fetch(buildGitHubContentsApiPath(pathname), {
-    body: JSON.stringify({
-      branch,
-      message: options.message ?? `Delete ${pathname}`,
-      sha: current.sha,
-    }),
-    headers: {
-      ...getGitHubHeaders(),
-      'Content-Type': 'application/json',
-    },
-    method: 'DELETE',
-  })
-
-  if (!response.ok) {
-    const errorText = await response.text()
-    throw new StorageError(
-      `Failed to delete GitHub content (${pathname}): ${response.status} ${response.statusText} ${errorText}`,
-    )
-  }
-}
-
-async function listGitHubRepositoryFiles(prefix: string) {
-  const { root } = getGitHubConfig()
-  const normalizedPrefix = [
-    root.replace(/^\/+|\/+$/g, ''),
-    prefix.replace(/^\/+/, ''),
-  ]
-    .filter(Boolean)
-    .join('/')
-
-  const response = await fetch(buildGitHubTreesApiUrl(), {
-    cache: 'no-store',
-    headers: getGitHubHeaders(),
-  })
-
-  if (!response.ok) {
-    throw new StorageError(
-      `Failed to list GitHub repository files: ${response.status} ${response.statusText}`,
-    )
-  }
-
-  const payload = (await response.json()) as {
-    tree?: Array<{ path: string; type: string }>
-  }
-
-  return (payload.tree ?? [])
-    .filter(
-      (entry) =>
-        entry.type === 'blob' && entry.path.startsWith(normalizedPrefix),
-    )
-    .map((entry) => entry.path.slice(root.replace(/^\/+|\/+$/g, '').length + 1))
-    .sort()
+  await getDocumentRepository().saveText(pathname, content, options)
 }
 
 // Next can load this module in separate page and route-handler bundles.
@@ -376,9 +160,9 @@ export const githubContentRepository: ContentRepository &
     )
   },
   async list(prefix) {
-    return listGitHubRepositoryFiles(prefix)
+    return getDocumentRepository().list(prefix)
   },
   async delete(pathname, options) {
-    await deleteGitHubTextFile(pathname, options)
+    await getDocumentRepository().deleteText(pathname, options)
   },
 }
