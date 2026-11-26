@@ -6,8 +6,7 @@ import { drainOwnedProcessGroup, signalOwnedGroup } from '../operations/owned-pr
 import { externalEvidencePath } from '../evidence/external-evidence-path.mjs';
 
 const suite = process.argv[2];
-const config = { public: 'playwright.config.ts', editor: 'playwright.editor.config.ts', fixture: 'playwright.fixture.config.ts' }[suite];
-if (!config) throw new Error('Unknown browser suite');
+if (!['public', 'editor', 'fixture'].includes(suite)) throw new Error('Unknown browser suite');
 const root = resolve(import.meta.dirname, '../..');
 const parent = externalEvidencePath(root, process.env.PLAYWRIGHT_OUTPUT_DIR ?? tmpdir(), { disjoint: false });
 mkdirSync(parent, { recursive: true, mode: 0o700 });
