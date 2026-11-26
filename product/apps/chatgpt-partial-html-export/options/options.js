@@ -1,19 +1,5 @@
 /* global browser */
 
-const DEFAULT_SETTINGS = Object.freeze({
-  exportMode: 'download',
-  downloadsSubdir: 'chatgpt-partial-html-export',
-  nativeOutputDir: '',
-  filenamePrefix: 'chatgpt',
-  includeUser: true,
-  includeAssistant: true,
-  includeSystem: true,
-  includeUnknown: true,
-  includeMetadata: true,
-  includeStandaloneCss: true,
-  fallbackToDownload: true
-});
-
 const form = document.getElementById('optionsForm');
 const statusEl = document.getElementById('status');
 const restoreDefaultsButton = document.getElementById('restoreDefaults');
@@ -22,7 +8,7 @@ init();
 
 async function init() {
   const settings = await browser.runtime.sendMessage({ type: 'CPHE_GET_SETTINGS' });
-  renderSettings({ ...DEFAULT_SETTINGS, ...settings });
+  renderSettings({ ...CPHE_DEFAULT_SETTINGS, ...settings });
 }
 
 form.addEventListener('submit', async (event) => {
@@ -34,16 +20,16 @@ form.addEventListener('submit', async (event) => {
 });
 
 restoreDefaultsButton.addEventListener('click', async () => {
-  const result = await browser.runtime.sendMessage({ type: 'CPHE_SAVE_SETTINGS', payload: DEFAULT_SETTINGS });
+  const result = await browser.runtime.sendMessage({ type: 'CPHE_SAVE_SETTINGS', payload: CPHE_DEFAULT_SETTINGS });
   renderSettings(result.settings);
   setStatus('Restored defaults.');
 });
 
 function renderSettings(settings) {
-  form.elements.exportMode.value = settings.exportMode || 'download';
+  form.elements.exportMode.value = settings.exportMode || CPHE_DEFAULT_SETTINGS.exportMode;
   document.getElementById('downloadsSubdir').value = settings.downloadsSubdir || '';
   document.getElementById('nativeOutputDir').value = settings.nativeOutputDir || '';
-  document.getElementById('filenamePrefix').value = settings.filenamePrefix || 'chatgpt';
+  document.getElementById('filenamePrefix').value = settings.filenamePrefix || CPHE_DEFAULT_SETTINGS.filenamePrefix;
   document.getElementById('includeUser').checked = settings.includeUser !== false;
   document.getElementById('includeAssistant').checked = settings.includeAssistant !== false;
   document.getElementById('includeSystem').checked = settings.includeSystem !== false;

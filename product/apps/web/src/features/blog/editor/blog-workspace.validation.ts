@@ -1,8 +1,9 @@
 import { z } from 'zod'
+import { blogWriteSlugPattern } from '@tenzyu/publishing-domain/blog'
 
 const oid = z.string().regex(/^[0-9a-f]{40}$/)
 const slug = z.string().min(1)
-const writableSlug = slug.trim().regex(/^[a-z0-9][a-z0-9-]*$/)
+const writableSlug = slug.trim().regex(blogWriteSlugPattern)
 
 export const BlogArticleViewSchema = z.object({
   slug,
