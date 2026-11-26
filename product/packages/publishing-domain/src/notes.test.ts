@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test'
-import { createPublicNoteGraph, parseNoteSourceEntries, listAvailableParentNotes, reparentChildrenAfterNoteDelete, type NoteSourceEntry } from './notes'
+import { createNoteId, createPublicNoteGraph, parseNoteSourceEntries, listAvailableParentNotes, reparentChildrenAfterNoteDelete, type NoteSourceEntry } from './notes'
 
 const note = (id: string, parentId?: string): NoteSourceEntry => ({ id, parentId, body: { ja: id, en: id }, createdAt: '2026-01-01T00:00:00Z' })
 
@@ -40,4 +40,26 @@ test('rejects invalid parent topology and preserves private-parent promotion', (
   const graph = createPublicNoteGraph([{ ...note('1'), published: false }, note('2', '1')])
   expect(graph.feed().map(({ entry, depth }) => [entry.id, depth])).toEqual([['2', 0]])
   expect(graph.thread('1')).toBeUndefined()
+})
+
+test('note IDs stay unique and ordered when the clock rolls back or the sequence fills', () => {
+  const originalNow = Date.now
+  let now = originalNow()
+  Date.now = () => now
+  try {
+    const ids = [createNoteId()]
+    now--
+    ids.push(createNoteId())
+    now++
+    for (let i = 0; i < 4097; i++) ids.push(createNoteId())
+    now += 10
+    ids.push(createNoteId())
+    expect(new Set(ids).size).toBe(ids.length)
+    expect(ids.every(id => /^\d+$/.test(id))).toBe(true)
+    for (let i = 1; i < ids.length; i++) {
+      expect(BigInt(ids[i]!)).toBeGreaterThan(BigInt(ids[i - 1]!))
+    }
+  } finally {
+    Date.now = originalNow
+  }
 })
