@@ -262,6 +262,25 @@ test('keyboard focus restoration and narrow CSS viewport reflow', async ({ page 
         viewport: document.documentElement.clientWidth,
         scroll: document.documentElement.scrollWidth,
       }));
+      if (path.endsWith('/osu')) {
+        for (const era of [/until 2025|2025年まで/i, /from 2026|2026年から/i]) {
+          await page.getByRole('tab', { name: era }).click();
+          const label = page.locator('[data-tablet-area-label]:visible');
+          await expect(label).toHaveCount(1);
+          await expect(label).toHaveText('58 x 45.24');
+          await expect(label).toBeVisible();
+          const fits = await label.evaluate(el => {
+            const range = document.createRange();
+            range.selectNodeContents(el);
+            const bounds = range.getBoundingClientRect();
+            const box = el.getBoundingClientRect();
+            return bounds.left >= Math.max(0, box.left) - 1
+              && bounds.right <= Math.min(document.documentElement.clientWidth, box.right) + 1
+              && bounds.top >= box.top - 1 && bounds.bottom <= box.bottom + 1;
+          });
+          expect(fits, path + ' tablet label at ' + width + ' CSS px').toBe(true);
+        }
+      }
       observations.push({ width, path, ...dimensions });
     }
   }
