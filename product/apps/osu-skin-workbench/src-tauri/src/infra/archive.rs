@@ -7,7 +7,7 @@ use walkdir::WalkDir;
 use zip::write::SimpleFileOptions;
 
 use crate::domain::project::ExportPreset;
-use crate::infra::files::{copy_dir_all, walk_relative_files, with_staged_directory};
+use crate::infra::files::{copy_dir_all, require_disjoint_source, walk_relative_files, with_staged_directory};
 use crate::infra::paths::{
     asset_file, is_link, managed_metadata, open_managed_file, validate_component,
 };
@@ -16,6 +16,7 @@ const MAX_OSK_FILES: usize = 20_000;
 const MAX_OSK_UNCOMPRESSED_BYTES: u64 = 2 * 1024 * 1024 * 1024;
 
 pub(crate) fn extract_osk(source: &Path, target: &Path) -> Result<(), String> {
+    require_disjoint_source(source, target)?;
     with_staged_directory(target, |temp_target| {
         let file = File::open(source).map_err(|error| format!("failed to open osk: {error}"))?;
         let mut archive = zip::ZipArchive::new(file)
