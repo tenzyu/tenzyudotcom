@@ -6,5 +6,3 @@ export const buildBlogPostUrl = (slug: string, locale: string) =>
 
 export const buildBlogPostImageUrl = (title: string, image?: string) =>
   image ? getAbsoluteUrl(image) : buildOgTitleImageUrl(title)
-
-export * from '@tenzyu/publishing-domain/blog'
