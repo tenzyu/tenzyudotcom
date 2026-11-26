@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { createRequire } from 'node:module';
 import { execFileSync } from 'node:child_process';
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { basename, resolve } from 'node:path';
 import { createHash } from 'node:crypto';
 import { openGitContentFixture } from './git-content-fixture.mjs';
@@ -289,6 +289,10 @@ test('same-build runtime chunk and font attribution', async ({ browser, baseURL,
   ];
   const assets = new Map<string, any>();
   const routeEvidence = [];
+  const mapInventory = readdirSync(resolve(build, 'static'), { recursive: true, encoding: 'utf8' })
+    .filter(file => file.endsWith('.map')).sort();
+  const effectiveSourceMaps = JSON.parse(readFileSync(resolve(build, 'required-server-files.json'), 'utf8'))
+    .config.productionBrowserSourceMaps === true;
   for (const path of ['/en','/en/portfolio','/en/blog','/en/notes','/en/scraps','/en/tools','/en/osu']) {
     const context = await browser.newContext({
       viewport: viewport ?? undefined, locale: 'en-US', serviceWorkers: 'block',
@@ -330,12 +334,35 @@ test('same-build runtime chunk and font attribution', async ({ browser, baseURL,
         if (assets.has(response.path)) continue;
         const record: any = { sha256: hash(bytes), bytes: bytes.length, mime: response.mime };
         if (disk.endsWith('.js')) {
-          const mapFile = disk + '.map';
-          if (existsSync(mapFile)) {
-            const mapBytes = readFileSync(mapFile);
-            record.mapSha256 = hash(mapBytes);
-            record.modules = [...new Set(modules(JSON.parse(mapBytes.toString())))].sort();
-          } else record.modules = null;
+          // Turbopack hashes map and JS names independently (vercel/next.js#100891).
+          // Resolve the directive from the exact body already matched to disk, not a guessed sidecar.
+          const directive = bytes.toString('utf8').match(/(?:^|\r?\n)\/\/[#@]\s*sourceMappingURL=(\S+)\s*$/)?.[1];
+          record.modules = null;
+          record.mapStatus = 'no-directive';
+          if (directive) {
+            let mapBytes: Buffer | undefined;
+            if (/^data:application\/json(?:;charset=[^;,]+)?;base64,/.test(directive)) {
+              mapBytes = Buffer.from(directive.slice(directive.indexOf(',') + 1), 'base64');
+              record.mapPath = 'inline';
+            } else {
+              const mapURL = new URL(directive, baseURL + response.path);
+              const parts = decodeURIComponent(mapURL.pathname).slice('/_next/'.length).split('/');
+              if (mapURL.origin !== baseURL || !mapURL.pathname.startsWith('/_next/static/') ||
+                  mapURL.search || mapURL.hash || !mapURL.pathname.endsWith('.map') ||
+                  parts.some(part => !part || part === '.' || part === '..' || part.includes('\\'))) {
+                throw new Error('Source map directive escapes the synthetic static build');
+              }
+              record.mapPath = parts.join('/');
+              const mapFile = resolve(build, ...parts);
+              if (existsSync(mapFile)) mapBytes = readFileSync(mapFile);
+            }
+            record.mapStatus = 'missing';
+            if (mapBytes) {
+              record.mapSha256 = hash(mapBytes);
+              record.modules = [...new Set(modules(JSON.parse(mapBytes.toString())))].sort();
+              record.mapStatus = record.modules.length ? 'mapped' : 'empty';
+            }
+          }
         }
         if (disk.endsWith('.css')) {
           record.fontFaces = [...bytes.toString().matchAll(/@font-face\s*\{([^}]+)\}/g)].map(match => ({
@@ -357,10 +384,23 @@ test('same-build runtime chunk and font attribution', async ({ browser, baseURL,
     } finally { await context.close(); }
   }
   const mapped = [...assets.entries()].filter(([path, asset]) => path.endsWith('.js') && asset.modules?.length);
+  const routeMapping = routeEvidence.map(route => {
+    const executed = route.scriptCoverage.filter(script => script.executedRanges > 0);
+    const mappedExecuted = executed.filter(script => assets.get(script.asset)?.modules?.length);
+    return { path: route.path, executed: executed.length, mappedExecuted: mappedExecuted.length,
+      unmappedExecuted: executed.filter(script => !assets.get(script.asset)?.modules?.length).map(script => script.asset) };
+  });
   report(info.project.name + '-same-build-attribution', {
-    buildId, assets: Object.fromEntries(assets), routes: routeEvidence,
+    buildId, effectiveSourceMaps, mapInventory, assets: Object.fromEntries(assets), routes: routeEvidence, routeMapping,
     scope: 'synthetic diagnostic production build; HTTP body and file SHA-256 joined to source maps, script-level V8 coverage and CSS font-face declarations; no per-module compressed byte or CPU attribution claim',
   });
+  expect(effectiveSourceMaps, 'synthetic build must enable browser maps').toBe(true);
   expect(mapped.length, 'at least one fetched JS chunk must have a source map').toBeGreaterThan(0);
-  expect(routeEvidence.every(route => route.scriptCoverage.length > 0)).toBe(true);
+  expect(mapped.some(([, asset]) => asset.modules.some((source: string) =>
+    /(?:^|\/)product\/(?:apps\/web|packages)\//.test(source) && !source.includes('/node_modules/'))),
+    'mapped chunks must include first-party product modules').toBe(true);
+  for (const route of routeMapping) {
+    expect(route.executed, route.path + ' executed script count').toBeGreaterThan(0);
+    expect(route.mappedExecuted, route.path + ' executed mapped script count').toBeGreaterThan(0);
+  }
 });
