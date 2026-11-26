@@ -47,16 +47,6 @@ const WRITING_BLOCK_CONTENT_SELECTORS = [
   '[contenteditable="true"]'
 ].join(',');
 
-const DEFAULT_SETTINGS = Object.freeze({
-  filenamePrefix: 'chatgpt',
-  includeUser: true,
-  includeAssistant: true,
-  includeSystem: true,
-  includeUnknown: true,
-  includeMetadata: true,
-  includeStandaloneCss: true
-});
-
 let observer = null;
 let injectQueued = false;
 
@@ -193,9 +183,9 @@ async function copyHtmlFromIndex(startIndex) {
 async function getSettings() {
   try {
     const settings = await browser.runtime.sendMessage({ type: 'CPHE_GET_SETTINGS' });
-    return { ...DEFAULT_SETTINGS, ...settings };
+    return { ...CPHE_EXPORT_DEFAULTS, ...settings };
   } catch (_) {
-    return { ...DEFAULT_SETTINGS };
+    return { ...CPHE_EXPORT_DEFAULTS };
   }
 }
 
