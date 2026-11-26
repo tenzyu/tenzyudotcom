@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useRef, useState } from "react";
 import { invokeGetProjectFiles } from "../lib/tauri/project-command.adapter";
 import { projectWorkspace, type AssetMatrix } from "@tenzyu/osu-skin-core/project";
 import type { DesktopProjectFilesResponse } from "@tenzyu/osu-skin-core/contract";
@@ -10,14 +10,19 @@ const emptyAssetMatrix: AssetMatrix = {
   rows: [],
 };
 
-export function useProjectFiles() {
-  const [files, setFiles] = useState<DesktopProjectFilesResponse | null>(null);
-
-  const matrix = useMemo(() => files?.matrix ?? emptyAssetMatrix, [files?.matrix]);
+export function useProjectFiles(projectId: string | undefined) {
+  const [snapshot, setSnapshot] = useState<{
+    projectId: string;
+    files: DesktopProjectFilesResponse;
+  } | null>(null);
+  const latestRequest = useRef(0);
+  const files = snapshot?.projectId === projectId ? snapshot?.files ?? null : null;
+  const matrix = files?.matrix ?? emptyAssetMatrix;
 
   async function fetchProjectFiles(projectId: string): Promise<DesktopProjectFilesResponse> {
+    const request = ++latestRequest.current;
     const nextFiles = projectWorkspace(await invokeGetProjectFiles(projectId));
-    setFiles(nextFiles);
+    if (request === latestRequest.current) setSnapshot({ projectId, files: nextFiles });
     return nextFiles;
   }
 
@@ -25,6 +30,5 @@ export function useProjectFiles() {
     files,
     matrix,
     fetchProjectFiles,
-    setFiles,
   };
 }

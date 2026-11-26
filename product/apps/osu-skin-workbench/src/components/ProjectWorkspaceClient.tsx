@@ -46,8 +46,8 @@ export function ProjectWorkspaceClient({
   const [status, setStatus] = useState('Loading project.')
   const [error, setError] = useState<string | null>(null)
 
-  const { files, matrix, fetchProjectFiles } = useProjectFiles()
   const projectsState = useProjects(initialProjectId)
+  const { files, matrix, fetchProjectFiles } = useProjectFiles(projectsState.project?.id)
   const navigation = useAssetMatrixNavigation(matrix)
 
   const sourceActions = useAssetSourceActions({
@@ -101,11 +101,7 @@ export function ProjectWorkspaceClient({
         sourcePath: mainPath,
         name: projectName || undefined,
       })
-      projectsState.setProject(project)
-      projectsState.setProjects((current) => [
-        project,
-        ...current.filter((item) => item.id !== project.id),
-      ])
+      projectsState.insertProject(project)
       await fetchProjectFiles(project.id)
       setProjectName('')
       setMainPath('')
@@ -162,9 +158,17 @@ export function ProjectWorkspaceClient({
   }
 
   async function selectProject(projectId: string) {
-    await projectsState.selectProject(projectId, {
-      loadFiles: fetchProjectFiles,
-    })
+    setLoading(true)
+    setError(null)
+    try {
+      await projectsState.selectProject(projectId, {
+        loadFiles: fetchProjectFiles,
+      })
+    } catch (error) {
+      setError(error instanceof Error ? error.message : String(error))
+    } finally {
+      setLoading(false)
+    }
   }
 
   async function copySourceRow(input: {
