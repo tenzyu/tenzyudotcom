@@ -264,3 +264,5 @@ export async function prepareContentMDX({
 export async function ContentMDX(props: ContentMdxProps) {
   return (await prepareContentMDX(props)).content
 }
+
+// Diagnostic CI workload replay of PR #150; no behavior change.
