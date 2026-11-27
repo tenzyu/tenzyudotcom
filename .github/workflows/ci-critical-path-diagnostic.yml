@@ -1,0 +1,285 @@
+name: CI critical path overlap (diagnostic only)
+
+on:
+  pull_request:
+    branches: [develop]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: diagnostic-critical-path-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  workspace:
+    if: github.head_ref == 'diagnostic/ci-critical-path-overlap-20261127' && github.base_ref == 'develop'
+    runs-on: ubuntu-latest
+    env:
+      NX_DAEMON: 'false'
+      NX_NO_CLOUD: 'true'
+      NX_TUI: 'false'
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.5
+      - run: bun install --frozen-lockfile
+      - name: Verify native TypeScript 7 and legacy compiler API coexist
+        run: |
+          test "$(bun x --no-install tsc --version)" = 'Version 7.0.2'
+          node -e 'const ts = require("typescript"); if (typeof ts.readConfigFile !== "function" || typeof ts.createProgram !== "function") throw new Error("TypeScript compatibility API unavailable")'
+      - uses: biomejs/setup-biome@4c91541eaada48f67d7dbd7833600ce162b68f51
+        with:
+          version: 2.4.16
+      - name: Verify dependency versions and project boundaries
+        run: |
+          bun nx graph --file="$RUNNER_TEMP/project-graph.json"
+          bun run policy:deps "$RUNNER_TEMP/project-graph.json"
+          node repo-ops/evidence/architecture-evidence.mjs . --check-static-product
+      - name: Verify all non-native products and libraries in one task DAG
+        env:
+          GITHUB_CONTENT_TOKEN: ${{ github.token }}
+          GITHUB_CONTENT_OWNER: tenzyu
+          GITHUB_CONTENT_REPO: tenzyudotcom-content
+          GITHUB_CONTENT_BRANCH: main
+          GITHUB_CONTENT_ROOT: storage
+        run: bun nx run-many -t verify --exclude=skin-workbench --skip-nx-cache
+      - name: Verify relocatable UI font assets
+        run: |
+          node --input-type=module <<'JS'
+          import { readFileSync, existsSync } from 'node:fs'
+          import { dirname, resolve } from 'node:path'
+          const file = 'product/packages/ui/dist/styles.css'
+          const css = readFileSync(file, 'utf8')
+          if (/url\(['"]?data:font\//i.test(css)) throw new Error('Font data remains in CSS')
+          const fonts = [...css.matchAll(/url\(['"]?([^'"()]+\.woff2)['"]?\)/g)].map(m => m[1])
+          if (!fonts.length) throw new Error('No external font assets emitted')
+          for (const font of fonts) {
+            if (font.startsWith('/') || !existsSync(resolve(dirname(file), font))) {
+              throw new Error('Non-relocatable font URL: ' + font)
+            }
+          }
+          console.log(JSON.stringify({cssBytes: Buffer.byteLength(css), externalFonts: new Set(fonts).size}))
+          JS
+      - name: Repository utility tests
+        run: bun run test:scripts
+
+  native:
+    if: github.head_ref == 'diagnostic/ci-critical-path-overlap-20261127' && github.base_ref == 'develop'
+    runs-on: ubuntu-24.04
+    env:
+      NX_DAEMON: 'false'
+      NX_NO_CLOUD: 'true'
+      NX_TUI: 'false'
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.5
+      - name: Launch bounded APT provisioning
+        shell: bash
+        run: |
+          set -euo pipefail
+          nohup bash -c '
+            timeout 180s bash -c "sudo apt-get update && sudo apt-get install -y libwebkit2gtk-4.1-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev patchelf pkg-config webkit2gtk-driver xvfb dbus-x11"
+            result=$?
+            printf "%s\n" "$result" > "$RUNNER_TEMP/apt-status.tmp"
+            mv "$RUNNER_TEMP/apt-status.tmp" "$RUNNER_TEMP/apt-status"
+          ' > "$RUNNER_TEMP/apt-provision.log" 2>&1 < /dev/null &
+          echo "APT provisioning started at $(date -u +%FT%TZ)"
+      - name: Restore Rust dependency artifacts
+        id: native-cache
+        uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+        with:
+          prefix-key: tenzyudotcom-native-deps-v1
+          key: fc69683b974705bbaa77ecfbe827a016b03f83a028febe2425864de9e90dd031
+          add-job-id-key: false
+          workspaces: product/apps/osu-skin-workbench/src-tauri -> target
+          cache-bin: false
+          cache-workspace-crates: false
+          cache-on-failure: false
+          save-if: false
+      - run: bun install --frozen-lockfile
+      - name: Verify native TypeScript 7 and legacy compiler API coexist
+        run: |
+          test "$(bun x --no-install tsc --version)" = 'Version 7.0.2'
+          node -e 'const ts = require("typescript"); if (typeof ts.readConfigFile !== "function" || typeof ts.createProgram !== "function") throw new Error("TypeScript compatibility API unavailable")'
+      - name: Join APT provisioning before environment fingerprint
+        shell: bash
+        run: |
+          set -euo pipefail
+          for ((i=0; i<190; i++)); do
+            [[ -f "$RUNNER_TEMP/apt-status" ]] && break
+            sleep 1
+          done
+          cat "$RUNNER_TEMP/apt-provision.log"
+          test -f "$RUNNER_TEMP/apt-status"
+          test "$(cat "$RUNNER_TEMP/apt-status")" = 0
+          echo "APT provisioning joined at $(date -u +%FT%TZ)"
+      - name: Fingerprint native dependency environment
+        if: (github.event_name == 'pull_request' && github.base_ref == 'develop') || (github.event_name == 'push' && github.ref == 'refs/heads/develop')
+        id: native-cache-key
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            printf '%s\n' "$ImageOS" "$ImageVersion" "$RUNNER_ARCH"
+            rustc -vV
+            cargo -V
+            cc --version
+            ld --version
+            pkg-config --version
+            dpkg-query -W -f='${binary:Package}\t${Version}\n' | LC_ALL=C sort
+            sha256sum product/apps/osu-skin-workbench/src-tauri/Cargo.toml product/apps/osu-skin-workbench/src-tauri/Cargo.lock
+          } > "$RUNNER_TEMP/native-cache-inputs.txt"
+          hash="$(sha256sum "$RUNNER_TEMP/native-cache-inputs.txt" | cut -d ' ' -f 1)"
+          printf 'digest=%s\n' "$hash" >> "$GITHUB_OUTPUT"
+          printf 'Native dependency environment: %s\n' "$hash"
+      - name: Enforce fresh workspace compilation
+        if: steps.native-cache-key.outcome == 'success'
+        env:
+          CACHE_HIT: ${{ steps.native-cache.outputs.cache-hit }}
+          ACTUAL_DIGEST: ${{ steps.native-cache-key.outputs.digest }}
+          PREDICTED_DIGEST: fc69683b974705bbaa77ecfbe827a016b03f83a028febe2425864de9e90dd031
+        shell: bash
+        run: |
+          set -euo pipefail
+          target=product/apps/osu-skin-workbench/src-tauri/target
+          # Never consume compiled artifacts from a prefix-only restore.
+          if [[ "$ACTUAL_DIGEST" != "$PREDICTED_DIGEST" ]]; then
+            echo "Speculative environment prediction missed; rejecting compiled cache"
+            CACHE_HIT=false
+          else
+            echo "Speculative environment prediction matched"
+          fi
+          if [[ "$CACHE_HIT" != true ]]; then
+            rm -rf -- "$target"
+          fi
+          if [[ -d "$target" ]]; then
+            stale="$(find "$target" \( -name 'osu-skin-workbench*' -o -name 'osu_skin_workbench*' -o -name 'libosu_skin_workbench*' -o -name 'wire.generated.ts' \) -print -quit)"
+            if [[ -n "$stale" ]]; then
+              printf 'Unexpected cached workspace output: %s\n' "$stale" >&2
+              exit 1
+            fi
+          fi
+      - name: Generate IPC contract and verify TypeScript projection
+        run: |
+          mkdir -p product/apps/osu-skin-workbench/src-tauri/target
+          SKIN_IPC_EXPORT="$PWD/product/apps/osu-skin-workbench/src-tauri/target/wire.generated.ts" cargo test --locked --manifest-path product/apps/osu-skin-workbench/src-tauri/Cargo.toml export_wire_contract
+          bun nx run osu-skin-core:build
+          bun x tsc --ignoreConfig --noEmit --strict --skipLibCheck --moduleResolution bundler --module esnext --target es2022 product/apps/osu-skin-workbench/scripts/wire-contract-check.ts
+      - name: Verify native product and build its distributable
+        run: bun nx run-many -t verify build --projects=skin-workbench --skip-nx-cache
+      - name: Record native WebKit driver version
+        run: |
+          command -v WebKitWebDriver
+          dpkg-query -W webkit2gtk-driver libwebkit2gtk-4.1-0
+      - name: Verify native WebView and real IPC with isolated skin data
+        run: xvfb-run -a dbus-run-session -- python3 product/apps/osu-skin-workbench/tests/tauri-runtime.py
+
+  publication:
+    if: github.head_ref == 'diagnostic/ci-critical-path-overlap-20261127' && github.base_ref == 'develop'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.5
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      - name: Verify native TypeScript 7 and legacy compiler API coexist
+        run: |
+          test "$(bun x --no-install tsc --version)" = 'Version 7.0.2'
+          node -e 'const ts = require("typescript"); if (typeof ts.readConfigFile !== "function" || typeof ts.createProgram !== "function") throw new Error("TypeScript compatibility API unavailable")'
+
+      - name: Install Playwright Chromium
+        run: bun x playwright install --with-deps chromium
+
+      - name: Set fixture evidence destinations
+        run: |
+          printf 'PUBLICATION_EVIDENCE_DIR=%s/publication\nPLAYWRIGHT_OUTPUT_DIR=%s/editor\n' "$RUNNER_TEMP" "$RUNNER_TEMP" >> "$GITHUB_ENV"
+          mkdir -p "$RUNNER_TEMP/publication" "$RUNNER_TEMP/editor"
+          { git rev-parse HEAD HEAD^{tree}; sha256sum bun.lock package.json nx.json; node --version; bun --version; } > "$RUNNER_TEMP/fixture-revision.txt"
+      - name: Verify publication in a production build
+        run: /usr/bin/time -v -o "$PUBLICATION_EVIDENCE_DIR/time.txt" bun nx run web:publication-acceptance --skip-nx-cache
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: diagnostic-publication-evidence
+          path: |
+            ${{ runner.temp }}/fixture-revision.txt
+            ${{ runner.temp }}/publication/time.txt
+            ${{ runner.temp }}/publication/publication-*/results.json
+            ${{ runner.temp }}/publication/publication-*/next-build.log
+          if-no-files-found: error
+          retention-days: 7
+
+  editor:
+    if: github.head_ref == 'diagnostic/ci-critical-path-overlap-20261127' && github.base_ref == 'develop'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.5
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      - name: Verify native TypeScript 7 and legacy compiler API coexist
+        run: |
+          test "$(bun x --no-install tsc --version)" = 'Version 7.0.2'
+          node -e 'const ts = require("typescript"); if (typeof ts.readConfigFile !== "function" || typeof ts.createProgram !== "function") throw new Error("TypeScript compatibility API unavailable")'
+
+      - name: Install Playwright Chromium
+        run: bun x playwright install --with-deps chromium
+
+      - name: Set fixture evidence destinations
+        run: |
+          printf 'PUBLICATION_EVIDENCE_DIR=%s/publication\nPLAYWRIGHT_OUTPUT_DIR=%s/editor\n' "$RUNNER_TEMP" "$RUNNER_TEMP" >> "$GITHUB_ENV"
+          mkdir -p "$RUNNER_TEMP/publication" "$RUNNER_TEMP/editor"
+          { git rev-parse HEAD HEAD^{tree}; sha256sum bun.lock package.json nx.json; node --version; bun --version; } > "$RUNNER_TEMP/fixture-revision.txt"
+      - name: Verify editor in Chromium
+        if: always()
+        env:
+          EDITOR_BROWSER_PRODUCTION: "1"
+        run: /usr/bin/time -v -o "$PLAYWRIGHT_OUTPUT_DIR/time.txt" bun --no-env-file run test:browser:editor
+      - name: Record production static chunk sizes
+        if: always()
+        run: |
+          if test -d product/apps/web/.next/static; then
+            find product/apps/web/.next/static -type f -printf '%s %P\n' | sort -nr > "$PLAYWRIGHT_OUTPUT_DIR/static-chunks.txt"
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: diagnostic-editor-evidence
+          path: |
+            ${{ runner.temp }}/fixture-revision.txt
+            ${{ runner.temp }}/editor/time.txt
+            ${{ runner.temp }}/editor/static-chunks.txt
+            ${{ runner.temp }}/editor/editor-*/results.json
+            ${{ runner.temp }}/editor/editor-*/next-build.log
+            ${{ runner.temp }}/editor/editor-*/artifacts/**/error-context.md
+          if-no-files-found: error
+          retention-days: 7
