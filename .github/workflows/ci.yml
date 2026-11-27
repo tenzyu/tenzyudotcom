@@ -102,7 +102,7 @@ jobs:
             ld --version
             pkg-config --version
             dpkg-query -W -f='${binary:Package}\t${Version}\n' | LC_ALL=C sort
-            sha256sum product/apps/osu-skin-workbench/src-tauri/Cargo.toml product/apps/osu-skin-workbench/src-tauri/Cargo.lock
+            git ls-files -z -- ':(glob)product/apps/osu-skin-workbench/src-tauri/**/Cargo.toml' 'product/apps/osu-skin-workbench/src-tauri/Cargo.toml' 'product/apps/osu-skin-workbench/src-tauri/Cargo.lock' | LC_ALL=C sort -z | xargs -0 sha256sum
           } > "$RUNNER_TEMP/native-cache-inputs.txt"
           hash="$(sha256sum "$RUNNER_TEMP/native-cache-inputs.txt" | cut -d ' ' -f 1)"
           printf 'digest=%s\n' "$hash" >> "$GITHUB_OUTPUT"
@@ -112,7 +112,7 @@ jobs:
         id: native-cache
         uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
         with:
-          prefix-key: tenzyudotcom-native-deps-v1
+          prefix-key: tenzyudotcom-native-deps-v2
           key: ${{ steps.native-cache-key.outputs.digest }}
           add-job-id-key: false
           workspaces: product/apps/osu-skin-workbench/src-tauri -> target
@@ -139,11 +139,20 @@ jobs:
               exit 1
             fi
           fi
+      - name: Verify desktop-independent Rust test closure
+        shell: bash
+        run: |
+          set -euo pipefail
+          cargo tree --locked --manifest-path product/apps/osu-skin-workbench/src-tauri/core/Cargo.toml -e normal,build,dev --prefix none > "$RUNNER_TEMP/core-dependencies.txt"
+          if grep -E '^(tauri(-[^ ]+)?|gtk(-sys)?|webkit2gtk(-sys)?) v' "$RUNNER_TEMP/core-dependencies.txt"; then
+            echo "Desktop dependencies entered the core test graph" >&2
+            exit 1
+          fi
       - name: Generate IPC contract and verify TypeScript projection
         run: |
           mkdir -p product/apps/osu-skin-workbench/src-tauri/target
-          SKIN_IPC_EXPORT="$PWD/product/apps/osu-skin-workbench/src-tauri/target/wire.generated.ts" cargo test --locked --manifest-path product/apps/osu-skin-workbench/src-tauri/Cargo.toml export_wire_contract
-          bun nx run osu-skin-core:build
+          SKIN_IPC_EXPORT="$PWD/product/apps/osu-skin-workbench/src-tauri/target/wire.generated.ts" cargo test --locked --manifest-path product/apps/osu-skin-workbench/src-tauri/core/Cargo.toml export_wire_contract
+          bun nx run osu-skin-core:build --skip-nx-cache
           bun x tsc --ignoreConfig --noEmit --strict --skipLibCheck --moduleResolution bundler --module esnext --target es2022 product/apps/osu-skin-workbench/scripts/wire-contract-check.ts
       - name: Verify native product and build its distributable
         run: bun nx run-many -t verify build --projects=skin-workbench --skip-nx-cache

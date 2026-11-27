@@ -1,6 +1,8 @@
 use tauri::AppHandle;
 
-use crate::infra::paths::{app_data_root, export_dir, export_file, project_dir};
+use osu_skin_workbench_core::{export_dir, export_file, project_dir};
+
+use crate::app_data_root;
 
 fn open_system_path(path: std::path::PathBuf) -> Result<(), String> {
     tauri_plugin_opener::open_path(path, None::<&str>)

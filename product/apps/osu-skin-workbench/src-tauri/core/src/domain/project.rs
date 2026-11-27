@@ -19,7 +19,7 @@ pub(crate) struct SourceManifest {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[cfg_attr(test, derive(ts_rs::TS))]
 #[serde(rename_all = "camelCase")]
-pub(crate) struct ProjectManifest {
+pub struct ProjectManifest {
     pub(crate) id: String,
     pub(crate) name: String,
     pub(crate) main_source_path: String,
@@ -31,7 +31,7 @@ pub(crate) struct ProjectManifest {
 #[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(test, derive(ts_rs::TS))]
 #[serde(rename_all = "camelCase")]
-pub(crate) struct CreateProjectInput {
+pub struct CreateProjectInput {
     pub(crate) source_path: String,
     #[cfg_attr(test, ts(optional = nullable))]
     pub(crate) name: Option<String>,
@@ -40,7 +40,7 @@ pub(crate) struct CreateProjectInput {
 #[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(test, derive(ts_rs::TS))]
 #[serde(rename_all = "camelCase")]
-pub(crate) struct AddProjectSourceInput {
+pub struct AddProjectSourceInput {
     pub(crate) project_id: String,
     pub(crate) source_path: String,
     #[cfg_attr(test, ts(optional = nullable))]
@@ -50,7 +50,7 @@ pub(crate) struct AddProjectSourceInput {
 #[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(test, derive(ts_rs::TS))]
 #[serde(rename_all = "camelCase")]
-pub(crate) struct RenameProjectSourceInput {
+pub struct RenameProjectSourceInput {
     pub(crate) project_id: String,
     pub(crate) source_id: String,
     pub(crate) name: String,
@@ -59,7 +59,7 @@ pub(crate) struct RenameProjectSourceInput {
 #[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(test, derive(ts_rs::TS))]
 #[serde(rename_all = "camelCase")]
-pub(crate) struct DeleteProjectSourceInput {
+pub struct DeleteProjectSourceInput {
     pub(crate) project_id: String,
     pub(crate) source_id: String,
 }
@@ -88,7 +88,7 @@ pub(crate) struct RawSourceFiles {
 #[derive(Debug, Serialize)]
 #[cfg_attr(test, derive(ts_rs::TS))]
 #[serde(rename_all = "camelCase")]
-pub(crate) struct RawProjectFilesResponse {
+pub struct RawProjectFilesResponse {
     pub(crate) project: Vec<RawFileEntry>,
     pub(crate) project_skin_ini: Option<String>,
     pub(crate) sources: Vec<RawSourceFiles>,
@@ -97,7 +97,7 @@ pub(crate) struct RawProjectFilesResponse {
 #[derive(Debug, Serialize)]
 #[cfg_attr(test, derive(ts_rs::TS))]
 #[serde(rename_all = "camelCase")]
-pub(crate) struct RebuildStructuredResult {
+pub struct RebuildStructuredResult {
     #[cfg_attr(test, ts(type = "number"))]
     pub(crate) project_file_count: usize,
     #[cfg_attr(test, ts(type = "Record<string, number>"))]
@@ -107,7 +107,7 @@ pub(crate) struct RebuildStructuredResult {
 #[derive(Debug, Serialize)]
 #[cfg_attr(test, derive(ts_rs::TS))]
 #[serde(rename_all = "camelCase")]
-pub(crate) struct AssetMutationResult {
+pub struct AssetMutationResult {
     #[cfg_attr(test, ts(type = "number"))]
     pub(crate) copied_count: usize,
     #[cfg_attr(test, ts(type = "number"))]
@@ -151,7 +151,7 @@ impl ExportPreset {
 #[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(test, derive(ts_rs::TS))]
 #[serde(rename_all = "camelCase")]
-pub(crate) struct ExportProjectInput {
+pub struct ExportProjectInput {
     pub(crate) project_id: String,
     pub(crate) preset: ExportPreset,
 }
@@ -159,7 +159,7 @@ pub(crate) struct ExportProjectInput {
 #[derive(Debug, Serialize)]
 #[cfg_attr(test, derive(ts_rs::TS))]
 #[serde(rename_all = "camelCase")]
-pub(crate) struct ExportResult {
+pub struct ExportResult {
     pub(crate) preset: ExportPreset,
     pub(crate) output_path: String,
     #[cfg_attr(test, ts(type = "number"))]
@@ -172,7 +172,7 @@ pub(crate) struct ExportResult {
 #[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(test, derive(ts_rs::TS))]
 #[serde(rename_all = "camelCase")]
-pub(crate) struct ApplyAssetGroupInput {
+pub struct ApplyAssetGroupInput {
     pub(crate) project_id: String,
     pub(crate) source_id: String,
     pub(crate) source_paths: Vec<String>,
@@ -183,7 +183,7 @@ pub(crate) struct ApplyAssetGroupInput {
 #[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(test, derive(ts_rs::TS))]
 #[serde(rename_all = "camelCase")]
-pub(crate) struct DeleteAssetGroupInput {
+pub struct DeleteAssetGroupInput {
     pub(crate) project_id: String,
     pub(crate) project_paths: Vec<String>,
 }

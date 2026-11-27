@@ -11,8 +11,8 @@
     "test": "bun test",
     "typecheck": "tsc --noEmit",
     "check": "bun run typecheck && bun run test && bun run build:vite",
-    "cargo:check": "cargo check --manifest-path src-tauri/Cargo.toml",
-    "cargo:clippy": "cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings",
+    "cargo:check": "cargo check --locked --workspace --manifest-path src-tauri/Cargo.toml",
+    "cargo:clippy": "cargo clippy --locked --workspace --manifest-path src-tauri/Cargo.toml -- -D warnings",
     "tauri:build": "tauri build",
     "verify": "bun run check"
   },

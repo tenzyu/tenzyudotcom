@@ -1,7 +1,6 @@
 use std::fs::{self, File, Metadata, OpenOptions};
 use std::io;
 use std::path::{Path, PathBuf};
-use tauri::{AppHandle, Manager};
 
 use crate::domain::project::ExportPreset;
 
@@ -9,25 +8,17 @@ pub(crate) fn now() -> String {
     chrono::Utc::now().to_rfc3339()
 }
 
-pub(crate) fn app_data_root(app: &AppHandle) -> Result<PathBuf, String> {
-    let root = app
-        .path()
-        .app_data_dir()
-        .map_err(|error| format!("failed to resolve app data dir: {error}"))?;
-    managed_dir(root)
-}
-
 pub(crate) fn projects_root(app_data: &Path) -> Result<PathBuf, String> {
     managed_dir(app_data.join("skin-editor-projects"))
 }
 
-pub(crate) fn export_dir(app_data: &Path, project_id: &str) -> Result<PathBuf, String> {
+pub fn export_dir(app_data: &Path, project_id: &str) -> Result<PathBuf, String> {
     validate_component(project_id)?;
     let root = managed_dir(app_data.join("exports"))?;
     managed_dir(root.join(project_id))
 }
 
-pub(crate) fn export_file(
+pub fn export_file(
     dir: &Path,
     project_id: &str,
     file_name: &str,
@@ -43,7 +34,7 @@ pub(crate) fn export_file(
     managed_file(dir.join(file_name))
 }
 
-pub(crate) fn project_dir(app_data: &Path, project_id: &str) -> Result<PathBuf, String> {
+pub fn project_dir(app_data: &Path, project_id: &str) -> Result<PathBuf, String> {
     validate_component(project_id)?;
     managed_dir(projects_root(app_data)?.join(project_id))
 }
@@ -115,7 +106,7 @@ pub(crate) fn managed_metadata(path: &Path) -> io::Result<Option<Metadata>> {
     }
 }
 
-pub(crate) fn managed_dir(path: PathBuf) -> Result<PathBuf, String> {
+pub fn managed_dir(path: PathBuf) -> Result<PathBuf, String> {
     let metadata = managed_metadata(&path)
         .map_err(|error| format!("failed to inspect directory {}: {error}", path.display()))?;
     if metadata.is_some_and(|metadata| !metadata.is_dir()) {

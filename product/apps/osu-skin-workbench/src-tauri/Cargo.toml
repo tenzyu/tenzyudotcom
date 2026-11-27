@@ -13,20 +13,14 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 tauri-build = { version = "2", features = [] }
 
 [dependencies]
+osu-skin-workbench-core = { path = "core" }
 tauri = { version = "2", features = [] }
 tauri-plugin-dialog = "2"
 tauri-plugin-opener = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-chrono = { version = "0.4", features = ["serde"] }
-icu_normalizer = { version = "2", default-features = false, features = ["compiled_data"] }
-tempfile = "3"
-uuid = { version = "1", features = ["v4"] }
-walkdir = "2"
-zip = "9"
 
-[target.'cfg(unix)'.dependencies]
-libc = "0.2"
-
-[dev-dependencies]
-ts-rs = "=12.0.1"
+[workspace]
+members = ["core"]
+default-members = [".", "core"]
+resolver = "2"
