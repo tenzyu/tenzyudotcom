@@ -41,3 +41,5 @@ export function compareTaxonomyPathOrder(a: TaxonomyPath, b: TaxonomyPath): numb
 export function mergeRequiredLevel(a: RequiredLevel, b: RequiredLevel): RequiredLevel {
   return requiredLevels.indexOf(a) <= requiredLevels.indexOf(b) ? a : b;
 }
+
+// Diagnostic CI workload replay of PR #152; no behavior change.
