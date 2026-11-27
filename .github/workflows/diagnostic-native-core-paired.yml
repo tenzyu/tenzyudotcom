@@ -1,0 +1,179 @@
+name: Diagnostic - Native core crate paired cold (DO NOT MERGE)
+
+on:
+  push:
+    branches: [diagnostic/native-core-crate-paired-cold]
+
+permissions:
+  contents: read
+
+jobs:
+  native:
+    name: Native cold ${{ matrix.pair }} - ${{ matrix.arm }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        pair: [1, 2, 3, 4, 5]
+        arm: [baseline, native-core]
+    env:
+      ARM: ${{ matrix.arm }}
+      PAIR: ${{ matrix.pair }}
+      NX_DAEMON: 'false'
+      NX_NO_CLOUD: 'true'
+      NX_TUI: 'false'
+      NX_LOAD_DOT_ENV_FILES: 'false'
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ matrix.arm == 'baseline' && '492f2005b654f005177ce351f6b521eabccc1692' || '8aea8a26c53118b5a8db7aa85f9a0b8a3c1c5540' }}
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.5
+      - name: Prepare signed native dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          sources=/etc/apt/sources.list.d/ubuntu.sources
+          grep -q '^Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg$' "$sources"
+          args=(-o "Dir::Etc::sourcelist=$sources" -o 'Dir::Etc::sourceparts=-')
+          sudo apt-get "${args[@]}" update
+          sudo apt-get "${args[@]}" install -y libwebkit2gtk-4.1-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev patchelf pkg-config webkit2gtk-driver xvfb dbus-x11
+      - run: bun install --frozen-lockfile
+      - name: Verify TypeScript compatibility
+        run: |
+          test "$(bun x --no-install tsc --version)" = 'Version 7.0.2'
+          node -e 'const ts = require("typescript"); if (typeof ts.readConfigFile !== "function" || typeof ts.createProgram !== "function") throw new Error("TypeScript compatibility API unavailable")'
+      - name: Establish exact environment and dependency closure
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/native-core"
+          E="$RUNNER_TEMP/native-core"
+          printf '%s\n' "$ARM" > "$E/arm.txt"
+          printf '%s\n' "$PAIR" > "$E/pair.txt"
+          { nproc; lscpu; free -b; uptime; } > "$E/resources.txt"
+          { git rev-parse HEAD HEAD^{tree}; printf '%s\n' "$ImageOS" "$ImageVersion" "$RUNNER_ARCH"; rustc -vV; cargo -V; cc --version; ld --version; pkg-config --version; dpkg-query -W -f='${binary:Package}\t${Version}\n' | LC_ALL=C sort; } > "$E/environment.txt"
+          sha256sum product/apps/osu-skin-workbench/src-tauri/Cargo.lock bun.lock > "$E/locks.sha256"
+          git ls-files -z -- ':(glob)product/apps/osu-skin-workbench/src-tauri/**/Cargo.toml' 'product/apps/osu-skin-workbench/src-tauri/Cargo.toml' | LC_ALL=C sort -z | xargs -0 sha256sum > "$E/manifests.sha256"
+          manifest=product/apps/osu-skin-workbench/src-tauri/Cargo.toml
+          target=product/apps/osu-skin-workbench/src-tauri/target
+          test ! -e "$target"
+          if [[ "$ARM" == native-core ]]; then manifest=product/apps/osu-skin-workbench/src-tauri/core/Cargo.toml; fi
+          cargo tree --locked --manifest-path "$manifest" -e normal,build,dev --prefix none > "$E/test-graph.txt"
+          cargo tree --locked --manifest-path product/apps/osu-skin-workbench/src-tauri/Cargo.toml -p osu-skin-workbench -e normal,build,dev --prefix none > "$E/desktop-graph.txt"
+          grep -E '^tauri v' "$E/desktop-graph.txt"
+          if [[ "$ARM" == native-core ]]; then
+            if grep -E '^(tauri(-[^ ]+)?|gtk(-sys)?|webkit2gtk(-sys)?) v' "$E/test-graph.txt"; then
+              echo "Desktop dependencies remain in the test closure"; exit 1
+            fi
+          else
+            grep -E '^tauri v' "$E/test-graph.txt"
+          fi
+          sort -u "$E/test-graph.txt" | wc -l > "$E/test-graph-lines.txt"
+      - name: Fresh IPC export and TypeScript projection
+        shell: bash
+        run: |
+          set -euo pipefail
+          E="$RUNNER_TEMP/native-core"
+          target=product/apps/osu-skin-workbench/src-tauri/target
+          manifest=product/apps/osu-skin-workbench/src-tauri/Cargo.toml
+          if [[ "$ARM" == native-core ]]; then manifest=product/apps/osu-skin-workbench/src-tauri/core/Cargo.toml; fi
+          mkdir -p "$target"
+          test ! -e "$target/wire.generated.ts"
+          export SKIN_IPC_EXPORT="$PWD/$target/wire.generated.ts"
+          /usr/bin/time -f '%e' -o "$E/ipc-export.seconds" cargo test --locked --manifest-path "$manifest" export_wire_contract 2>&1 | tee "$E/ipc-export.log"
+          unset SKIN_IPC_EXPORT
+          test -s "$target/wire.generated.ts"
+          sha256sum "$target/wire.generated.ts" > "$E/wire.sha256"
+          du -sb "$target/debug" > "$E/debug-after-export.bytes"
+          bun nx run osu-skin-core:build --skip-nx-cache
+          bun x tsc --ignoreConfig --noEmit --strict --skipLibCheck --moduleResolution bundler --module esnext --target es2022 product/apps/osu-skin-workbench/scripts/wire-contract-check.ts
+      - name: Fresh all native obligations and distributable
+        shell: bash
+        run: |
+          set -euo pipefail
+          E="$RUNNER_TEMP/native-core"
+          /usr/bin/time -f '%e' -o "$E/verify-release.seconds" bun nx run-many -t verify build --projects=skin-workbench --skip-nx-cache --outputStyle=stream 2>&1 | tee "$E/verify-release.log"
+          git diff --exit-code -- product/apps/osu-skin-workbench/src-tauri/Cargo.lock
+          target=product/apps/osu-skin-workbench/src-tauri/target
+          du -sb "$target/debug" "$target/release" > "$E/target.bytes"
+      - name: Fresh real native WebView and IPC
+        shell: bash
+        run: |
+          set -euo pipefail
+          E="$RUNNER_TEMP/native-core"
+          command -v WebKitWebDriver
+          dpkg-query -W webkit2gtk-driver libwebkit2gtk-4.1-0
+          /usr/bin/time -f '%e' -o "$E/runtime.seconds" xvfb-run -a dbus-run-session -- python3 product/apps/osu-skin-workbench/tests/tauri-runtime.py 2>&1 | tee "$E/runtime.log"
+      - name: Record exact test inventory and reject broken wire projection
+        shell: bash
+        run: |
+          set -euo pipefail
+          E="$RUNNER_TEMP/native-core"
+          manifest=product/apps/osu-skin-workbench/src-tauri/Cargo.toml
+          if [[ "$ARM" == native-core ]]; then manifest=product/apps/osu-skin-workbench/src-tauri/core/Cargo.toml; fi
+          cargo test --locked --manifest-path "$manifest" -- --list > "$E/test-list.log" 2>&1
+          grep -E ': test$' "$E/test-list.log" | LC_ALL=C sort > "$E/test-names.txt"
+          test "$(wc -l < "$E/test-names.txt")" -eq 25
+          cat "$E/test-names.txt"
+          wire=product/apps/osu-skin-workbench/src-tauri/target/wire.generated.ts
+          cp "$wire" "$E/wire.generated.ts"
+          printf '\nexport const ciDiagnosticBroken: number = "not-a-number";\n' >> "$wire"
+          if bun x tsc --ignoreConfig --noEmit --strict --skipLibCheck --moduleResolution bundler --module esnext --target es2022 product/apps/osu-skin-workbench/scripts/wire-contract-check.ts > "$E/negative-wire.log" 2>&1; then
+            echo 'Negative control unexpectedly passed'; exit 1
+          fi
+          grep -E 'TS2322|not assignable to type' "$E/negative-wire.log"
+          cp "$E/wire.generated.ts" "$wire"
+      - name: Reject mutated domain behavior and desktop adapter
+        if: matrix.arm == 'native-core' && matrix.pair == 1
+        shell: bash
+        run: |
+          set -euo pipefail
+          E="$RUNNER_TEMP/native-core"
+          domain=product/apps/osu-skin-workbench/src-tauri/core/src/infra/paths.rs
+          adapter=product/apps/osu-skin-workbench/src-tauri/src/commands/project.rs
+          trap 'git restore -- "$domain" "$adapter"' EXIT
+          python3 - "$domain" <<'PY'
+          import sys
+          from pathlib import Path
+          p = Path(sys.argv[1])
+          s = p.read_text()
+          before = "value.split('/').try_for_each(validate_component)"
+          assert s.count(before) == 1
+          p.write_text(s.replace(before, "let _ = value; Ok(())"))
+          PY
+          if cargo test --locked --manifest-path product/apps/osu-skin-workbench/src-tauri/core/Cargo.toml rejects_absolute_and_parent_relative_paths > "$E/negative-domain.log" 2>&1; then
+            echo "Domain mutation incorrectly passed" >&2
+            exit 1
+          fi
+          grep -E 'rejects_absolute_and_parent_relative_paths .*FAILED|test result: FAILED' "$E/negative-domain.log"
+          git restore -- "$domain"
+          python3 - "$adapter" <<'PY'
+          import sys
+          from pathlib import Path
+          p = Path(sys.argv[1])
+          s = p.read_text()
+          before = "osu_skin_workbench_core::create_project(&app_data_root(&app)?, input)"
+          assert s.count(before) == 1
+          p.write_text(s.replace(before, 'let _ = (app, input); Err("diagnostic injected adapter error".into())'))
+          PY
+          bun nx run skin-workbench:build --skip-nx-cache > "$E/negative-adapter-build.log" 2>&1
+          if xvfb-run -a dbus-run-session -- python3 product/apps/osu-skin-workbench/tests/tauri-runtime.py > "$E/negative-adapter-runtime.log" 2>&1; then
+            echo "Adapter mutation incorrectly passed" >&2
+            exit 1
+          fi
+          grep -F 'real create IPC acknowledged' "$E/negative-adapter-runtime.log"
+          git restore -- "$adapter"
+          git diff --exit-code -- "$domain" "$adapter"
+          printf '%s\n' 'PASS: both behavioral negative controls rejected' > "$E/negative-behavior-verdict.txt"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-core-${{ matrix.pair }}-${{ matrix.arm }}
+          path: ${{ runner.temp }}/native-core/
+          if-no-files-found: error
+          retention-days: 3
