@@ -327,3 +327,5 @@ mod import_tests {
         assert_eq!(fs::read_dir(&target).unwrap().count(), 1);
     }
 }
+
+// Diagnostic CI workload replay of PR #151; no behavior change.
