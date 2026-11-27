@@ -1,0 +1,31 @@
+name: Nx action identity replay (diagnostic only)
+on:
+  pull_request:
+    branches: [develop]
+permissions:
+  contents: read
+concurrency:
+  group: nx-action-identity-diagnostic-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  replay:
+    if: github.head_ref == 'diagnostic/nx-action-identity-20261127'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.5
+      - name: Replay ten candidate trees and test hidden build input
+        run: bash repo-ops/ci-diagnostic/nx-action-identity.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nx-action-identity-evidence
+          path: ${{ runner.temp }}/nx-action-identity/
+          if-no-files-found: error
+          retention-days: 7
