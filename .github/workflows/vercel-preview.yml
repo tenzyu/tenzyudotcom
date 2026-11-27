@@ -1,0 +1,70 @@
+name: Vercel preview
+
+on:
+  pull_request_target:
+    branches: [main]
+    types: [opened, reopened, synchronize, edited]
+
+permissions:
+  pull-requests: write
+
+concurrency:
+  group: vercel-preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  preview:
+    if: >-
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      (github.event.action != 'edited' || github.event.changes.base.ref.from != null)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      # Do not check out or execute PR code in this privileged workflow.
+      - name: Request a preview for the current PR head
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          EVENT_SHA: ${{ github.event.pull_request.head.sha }}
+          PROJECT_ID: prj_VVnaPWdU3Ylw4WhypnOVQgk3yKmF
+          TEAM_ID: team_d2tJprCI5vzPfIUSjqMIbo9w
+          REPOSITORY_ID: '863176347'
+        shell: bash
+        run: |
+          set -euo pipefail
+          pr="$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER")"
+          if ! jq -e --arg repo "$GITHUB_REPOSITORY" --arg sha "$EVENT_SHA" '
+            .state == "open" and .base.ref == "main" and
+            .head.repo.full_name == $repo and .head.sha == $sha
+          ' <<< "$pr" >/dev/null; then
+            echo "PR is no longer eligible for this event"
+            exit 0
+          fi
+          : "${VERCEL_TOKEN:?Configure the VERCEL_TOKEN Actions secret before enabling previews}"
+          ref="$(jq -er '.head.ref' <<< "$pr")"
+          endpoint="https://api.vercel.com/v13/deployments?teamId=$TEAM_ID"
+          existing="$(curl -fsS --get https://api.vercel.com/v6/deployments \
+            --header "Authorization: Bearer $VERCEL_TOKEN" \
+            --data-urlencode "teamId=$TEAM_ID" --data-urlencode "projectId=$PROJECT_ID" \
+            --data-urlencode "sha=$EVENT_SHA" --data-urlencode "limit=100")"
+          url="$(jq -r --arg sha "$EVENT_SHA" --arg ref "$ref" '
+            [.deployments[] | select(.target == null and .meta.githubCommitSha == $sha and
+              .meta.githubCommitRef == $ref and
+              (.state == "READY" or .state == "BUILDING" or .state == "QUEUED" or .state == "INITIALIZING"))]
+            | first | .url // empty
+          ' <<< "$existing")"
+          if [[ -z "$url" ]]; then
+            payload="$(jq -n --arg project "$PROJECT_ID" --arg ref "$ref" \
+              --arg sha "$EVENT_SHA" --arg repo "$REPOSITORY_ID" '
+              {name:"tenzyudotcom", project:$project,
+               gitSource:{type:"github",repoId:($repo|tonumber),ref:$ref,sha:$sha}}
+            ')"
+            deployment="$(curl -fsS --request POST "$endpoint" \
+              --header "Authorization: Bearer $VERCEL_TOKEN" \
+              --header 'Content-Type: application/json' --data "$payload")"
+            url="$(jq -er 'select(.target == null) | .url' <<< "$deployment")"
+          fi
+          [[ "$url" =~ ^[a-zA-Z0-9.-]+\.vercel\.app$ ]]
+          printf 'Preview requested for `%s`: https://%s\n' "$EVENT_SHA" "$url" >> "$GITHUB_STEP_SUMMARY"
+          gh pr comment "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --body "Vercel Preview for `$EVENT_SHA`: https://$url"
