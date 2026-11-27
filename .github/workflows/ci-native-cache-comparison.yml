@@ -1,0 +1,238 @@
+name: Native dependency cache comparison (diagnostic only)
+
+on:
+  pull_request:
+    branches: [develop]
+
+permissions:
+  contents: read
+
+jobs:
+  seed:
+    if: github.head_ref == 'ci-benchmark/native-dependency-cache'
+    runs-on: ubuntu-24.04
+    env:
+      NX_DAEMON: 'false'
+      NX_NO_CLOUD: 'true'
+      NX_TUI: 'false'
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+          ref: 0c33f721da4d8cf030aeeab2f97ba92c100d023e
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.5
+      - run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev patchelf pkg-config webkit2gtk-driver xvfb dbus-x11
+      - run: bun install --frozen-lockfile
+      - name: Verify native TypeScript 7 and legacy compiler API coexist
+        run: |
+          test "$(bun x --no-install tsc --version)" = 'Version 7.0.2'
+          node -e 'const ts = require("typescript"); if (typeof ts.readConfigFile !== "function" || typeof ts.createProgram !== "function") throw new Error("TypeScript compatibility API unavailable")'
+      - name: Fingerprint native dependency environment
+        id: native-cache-key
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            printf '%s\n' "$ImageOS" "$ImageVersion" "$RUNNER_ARCH"
+            rustc -vV
+            cargo -V
+            cc --version
+            ld --version
+            pkg-config --version
+            dpkg-query -W -f='${binary:Package}\t${Version}\n' | LC_ALL=C sort
+            sha256sum product/apps/osu-skin-workbench/src-tauri/Cargo.toml product/apps/osu-skin-workbench/src-tauri/Cargo.lock
+          } > "$RUNNER_TEMP/native-cache-inputs.txt"
+          hash="$(sha256sum "$RUNNER_TEMP/native-cache-inputs.txt" | cut -d ' ' -f 1)"
+          printf 'digest=%s\n' "$hash" >> "$GITHUB_OUTPUT"
+          printf 'Native dependency environment: %s\n' "$hash"
+      - name: Restore Rust dependency artifacts
+        if: steps.native-cache-key.outcome == 'success'
+        id: native-cache
+        uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+        with:
+          prefix-key: tenzyudotcom-native-deps-benchmark-${{ github.run_id }}
+          key: ${{ steps.native-cache-key.outputs.digest }}
+          add-job-id-key: false
+          workspaces: product/apps/osu-skin-workbench/src-tauri -> target
+          cache-bin: false
+          cache-workspace-crates: false
+          cache-on-failure: false
+          save-if: true
+      - name: Enforce fresh workspace compilation
+        if: steps.native-cache-key.outcome == 'success'
+        shell: bash
+        run: |
+          set -euo pipefail
+          target=product/apps/osu-skin-workbench/src-tauri/target
+          if [[ -d "$target" ]]; then
+            stale="$(find "$target" \( -name 'osu-skin-workbench*' -o -name 'osu_skin_workbench*' -o -name 'libosu_skin_workbench*' -o -name 'wire.generated.ts' \) -print -quit)"
+            if [[ -n "$stale" ]]; then
+              printf 'Unexpected cached workspace output: %s\n' "$stale" >&2
+              exit 1
+            fi
+          fi
+      - name: Generate IPC contract and verify TypeScript projection
+        run: |
+          mkdir -p product/apps/osu-skin-workbench/src-tauri/target
+          SKIN_IPC_EXPORT="$PWD/product/apps/osu-skin-workbench/src-tauri/target/wire.generated.ts" cargo test --locked --manifest-path product/apps/osu-skin-workbench/src-tauri/Cargo.toml export_wire_contract
+          bun nx run osu-skin-core:build
+          bun x tsc --ignoreConfig --noEmit --strict --skipLibCheck --moduleResolution bundler --module esnext --target es2022 product/apps/osu-skin-workbench/scripts/wire-contract-check.ts
+      - name: Verify native product and build its distributable
+        run: bun nx run-many -t verify build --projects=skin-workbench --skip-nx-cache
+      - name: Record native WebKit driver version
+        run: |
+          command -v WebKitWebDriver
+          dpkg-query -W webkit2gtk-driver libwebkit2gtk-4.1-0
+      - name: Verify native WebView and real IPC with isolated skin data
+        run: xvfb-run -a dbus-run-session -- python3 product/apps/osu-skin-workbench/tests/tauri-runtime.py
+      - name: Record seed footprint
+        run: |
+          du -sh product/apps/osu-skin-workbench/src-tauri/target
+          du -sh "${CARGO_HOME:-$HOME/.cargo}/registry"
+
+  native:
+    if: github.head_ref == 'ci-benchmark/native-dependency-cache'
+    needs: seed
+    name: native (${{ matrix.pair }}, ${{ matrix.variant }})
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include:
+          - pair: 1
+            variant: baseline
+          - pair: 1
+            variant: warm
+          - pair: 2
+            variant: warm
+          - pair: 2
+            variant: baseline
+          - pair: 3
+            variant: baseline
+          - pair: 3
+            variant: warm
+          - pair: 4
+            variant: warm
+          - pair: 4
+            variant: baseline
+          - pair: 5
+            variant: baseline
+          - pair: 5
+            variant: warm
+          - pair: 6
+            variant: invalidated
+          - pair: 7
+            variant: source-change
+    runs-on: ubuntu-24.04
+    env:
+      NX_DAEMON: 'false'
+      NX_NO_CLOUD: 'true'
+      NX_TUI: 'false'
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+          ref: 0c33f721da4d8cf030aeeab2f97ba92c100d023e
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.5
+      - run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev patchelf pkg-config webkit2gtk-driver xvfb dbus-x11
+      - run: bun install --frozen-lockfile
+      - name: Verify native TypeScript 7 and legacy compiler API coexist
+        run: |
+          test "$(bun x --no-install tsc --version)" = 'Version 7.0.2'
+          node -e 'const ts = require("typescript"); if (typeof ts.readConfigFile !== "function" || typeof ts.createProgram !== "function") throw new Error("TypeScript compatibility API unavailable")'
+      - name: Change disposable lock input for invalidation control
+        if: matrix.variant == 'invalidated'
+        run: printf '\n' >> product/apps/osu-skin-workbench/src-tauri/Cargo.lock
+      - name: Fingerprint native dependency environment
+        if: matrix.variant != 'baseline'
+        id: native-cache-key
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            printf '%s\n' "$ImageOS" "$ImageVersion" "$RUNNER_ARCH"
+            rustc -vV
+            cargo -V
+            cc --version
+            ld --version
+            pkg-config --version
+            dpkg-query -W -f='${binary:Package}\t${Version}\n' | LC_ALL=C sort
+            sha256sum product/apps/osu-skin-workbench/src-tauri/Cargo.toml product/apps/osu-skin-workbench/src-tauri/Cargo.lock
+          } > "$RUNNER_TEMP/native-cache-inputs.txt"
+          hash="$(sha256sum "$RUNNER_TEMP/native-cache-inputs.txt" | cut -d ' ' -f 1)"
+          printf 'digest=%s\n' "$hash" >> "$GITHUB_OUTPUT"
+          printf 'Native dependency environment: %s\n' "$hash"
+      - name: Restore Rust dependency artifacts
+        if: steps.native-cache-key.outcome == 'success'
+        id: native-cache
+        uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+        with:
+          prefix-key: tenzyudotcom-native-deps-benchmark-${{ github.run_id }}
+          key: ${{ steps.native-cache-key.outputs.digest }}
+          add-job-id-key: false
+          workspaces: product/apps/osu-skin-workbench/src-tauri -> target
+          cache-bin: false
+          cache-workspace-crates: false
+          cache-on-failure: false
+          save-if: false
+      - name: Enforce fresh workspace compilation
+        if: steps.native-cache-key.outcome == 'success'
+        shell: bash
+        run: |
+          set -euo pipefail
+          target=product/apps/osu-skin-workbench/src-tauri/target
+          if [[ -d "$target" ]]; then
+            stale="$(find "$target" \( -name 'osu-skin-workbench*' -o -name 'osu_skin_workbench*' -o -name 'libosu_skin_workbench*' -o -name 'wire.generated.ts' \) -print -quit)"
+            if [[ -n "$stale" ]]; then
+              printf 'Unexpected cached workspace output: %s\n' "$stale" >&2
+              exit 1
+            fi
+          fi
+      - name: Assert exact cache match or invalidation
+        if: matrix.variant != 'baseline'
+        env:
+          HIT: ${{ steps.native-cache.outputs.cache-hit }}
+          VARIANT: ${{ matrix.variant }}
+        run: |
+          set -euo pipefail
+          if [[ "$VARIANT" == invalidated ]]; then
+            test "$HIT" = false
+          else
+            test "$HIT" = true
+          fi
+      - name: Prove modified workspace source cannot reuse stale compilation
+        if: matrix.variant == 'source-change'
+        run: |
+          set -euo pipefail
+          file=product/apps/osu-skin-workbench/src-tauri/src/lib.rs
+          cp "$file" "$RUNNER_TEMP/native-original-lib.rs"
+          trap 'cp "$RUNNER_TEMP/native-original-lib.rs" "$file"' EXIT
+          printf '\ncompile_error!("NATIVE_CACHE_SOURCE_INVALIDATION_CONTROL");\n' >> "$file"
+          if cargo check --locked --manifest-path product/apps/osu-skin-workbench/src-tauri/Cargo.toml > "$RUNNER_TEMP/native-negative.log" 2>&1; then
+            cat "$RUNNER_TEMP/native-negative.log"
+            exit 1
+          fi
+          grep -F 'error: NATIVE_CACHE_SOURCE_INVALIDATION_CONTROL' "$RUNNER_TEMP/native-negative.log"
+      - name: Generate IPC contract and verify TypeScript projection
+        run: |
+          mkdir -p product/apps/osu-skin-workbench/src-tauri/target
+          SKIN_IPC_EXPORT="$PWD/product/apps/osu-skin-workbench/src-tauri/target/wire.generated.ts" cargo test --locked --manifest-path product/apps/osu-skin-workbench/src-tauri/Cargo.toml export_wire_contract
+          bun nx run osu-skin-core:build
+          bun x tsc --ignoreConfig --noEmit --strict --skipLibCheck --moduleResolution bundler --module esnext --target es2022 product/apps/osu-skin-workbench/scripts/wire-contract-check.ts
+      - name: Verify native product and build its distributable
+        run: bun nx run-many -t verify build --projects=skin-workbench --skip-nx-cache
+      - name: Record native WebKit driver version
+        run: |
+          command -v WebKitWebDriver
+          dpkg-query -W webkit2gtk-driver libwebkit2gtk-4.1-0
+      - name: Verify native WebView and real IPC with isolated skin data
+        run: xvfb-run -a dbus-run-session -- python3 product/apps/osu-skin-workbench/tests/tauri-runtime.py
+
