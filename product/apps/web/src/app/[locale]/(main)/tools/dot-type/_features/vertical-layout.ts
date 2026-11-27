@@ -15,3 +15,5 @@ export function layoutVerticalText(
     })),
   }
 }
+
+// Diagnostic CI workload replay of PR #148; no behavior change.
