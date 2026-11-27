@@ -141,10 +141,21 @@ def main():
                 request("POST", session + "/element/" + element(selector) + "/value", {"text":value,"value":list(value)})
             def visible(text):
                 return js("return document.body && document.body.innerText.includes(arguments[0])", text)
+            def hub_ready(status):
+                # Empty-list copy is rendered before the initial IPC completes.
+                # Require its acknowledged status and enabled form controls.
+                return js("""
+                    const status = document.querySelector('.hubCreateCard .statusQuiet');
+                    return status?.textContent.trim() === arguments[0]
+                        && ['#project-name', '#main-skin-path'].every(selector => {
+                            const input = document.querySelector(selector);
+                            return input && !input.matches(':disabled');
+                        });
+                """, status)
             try:
                 until(ready, "driver ready")
                 session = start()
-                until(lambda: visible("No projects yet."), "real IPC list completed")
+                until(lambda: hub_ready("No projects yet."), "real IPC list completed and form enabled")
                 type_text("#project-name", "Native Runtime CI")
                 type_text("#main-skin-path", str(skin))
                 until(lambda: js("return [...document.querySelectorAll('button')].some(b=>b.textContent.includes('Import main skin')&&!b.disabled)"), "import enabled")
@@ -166,7 +177,7 @@ def main():
                 project_file.write_text(content)
                 refresh_id = js("const b=[...document.querySelectorAll('button')].find(b=>b.textContent.trim()==='Refresh');b.id='runtime-refresh';return b.id")
                 click("#" + refresh_id)
-                until(lambda: visible("Projects loaded."), "real list IPC after create")
+                until(lambda: hub_ready("Projects loaded."), "real list IPC after create and form enabled")
                 assert visible("Native Runtime CI")
                 # Import another real project, then switch through the workspace's
                 # native select. A failed load must not leave the other project's
