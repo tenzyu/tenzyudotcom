@@ -70,7 +70,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        trial: [1, 2]
+        include:
+          - trial: 1
+            candidate: 492f2005b654f005177ce351f6b521eabccc1692
+          - trial: 2
+            candidate: 3aab3211c78920bfc2b7886620f03119ce422946
     env:
       MODE: consumer
     steps:
@@ -79,7 +83,7 @@ jobs:
           persist-credentials: false
       - uses: actions/checkout@v5
         with:
-          ref: '492f2005b654f005177ce351f6b521eabccc1692'
+          ref: ${{ matrix.candidate }}
           path: candidate
           persist-credentials: false
       - uses: oven-sh/setup-bun@v2

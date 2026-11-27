@@ -10,7 +10,7 @@ for pkg in gtk+-3.0 webkit2gtk-4.1 javascriptcoregtk-4.1 glib-2.0 libsoup-3.0 li
 target=product/apps/osu-skin-workbench/src-tauri/target
 manifest=product/apps/osu-skin-workbench/src-tauri/Cargo.toml
 lock=product/apps/osu-skin-workbench/src-tauri/Cargo.lock
-{ cat "$EVIDENCE/closure.txt" "$EVIDENCE/toolchain.txt" "$EVIDENCE/pkg-config.txt"; sha256sum "$manifest" "$lock" flake.lock; } > "$EVIDENCE/identity.txt"
+{ cat "$EVIDENCE/closure.txt" "$EVIDENCE/toolchain.txt" "$EVIDENCE/pkg-config.txt"; printf 'LD_LIBRARY_PATH=%s\nNIX_CFLAGS_COMPILE=%s\nNIX_LDFLAGS=%s\n' "$LD_LIBRARY_PATH" "${NIX_CFLAGS_COMPILE:-}" "${NIX_LDFLAGS:-}"; sha256sum "$(readlink -f "$(command -v bun)")" | cut -d ' ' -f 1; sha256sum "$manifest" "$lock" flake.lock; } > "$EVIDENCE/identity.txt"
 sha256sum "$EVIDENCE/identity.txt" > "$EVIDENCE/identity.sha256"
 stale_check() {
   if [[ -d "$target" ]]; then
@@ -21,12 +21,14 @@ if [[ "$MODE" == consumer ]]; then
   cmp "$EVIDENCE/identity.txt" "$SEED/identity.txt"
   (cd "$SEED" && sha256sum -c archive.sha256)
   test ! -e "$target"
-  tar --zstd -xf "$SEED/dependencies.tar.zst" -C "$PWD"
+  /usr/bin/time -f '%e' -o "$EVIDENCE/restore.seconds" tar --zstd -xf "$SEED/dependencies.tar.zst" -C "$PWD"
   stale_check
 fi
 /usr/bin/time -f '%e' -o "$EVIDENCE/bun.seconds" bun install --frozen-lockfile
 test "$(bun x --no-install tsc --version)" = 'Version 7.0.2'
 node -e 'const ts = require("typescript"); if (typeof ts.readConfigFile !== "function" || typeof ts.createProgram !== "function") throw new Error("TypeScript compatibility API unavailable")'
+# Fail before expensive compilation if the existing Tauri addon cannot load.
+(cd product/apps/osu-skin-workbench; node -e 'require("@tauri-apps/cli")')
 mkdir -p "$target"
 /usr/bin/time -f '%e' -o "$EVIDENCE/ipc.seconds" env SKIN_IPC_EXPORT="$PWD/$target/wire.generated.ts" cargo test --locked --manifest-path "$manifest" export_wire_contract
 bun nx run osu-skin-core:build

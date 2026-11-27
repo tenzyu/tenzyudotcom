@@ -35,12 +35,14 @@ in {
   };
 
   # Diagnostic only: extend the existing native shell without changing product shells.
-  native-ci-probe = mkDevShell {
+  native-ci-probe = pkgs.mkShell {
     packages = packageSets.productSkinWorkbench ++ [
       pkgs.python3 pkgs.xorg.xorgserver pkgs.xorg.xauth
-      pkgs.patchelf pkgs.gsettings-desktop-schemas pkgs.glib-networking
+      pkgs.patchelf pkgs.gsettings-desktop-schemas pkgs.glib-networking pkgs.xz
     ];
-    tauri = true;
+    shellHook = shellHooks.common + shellHooks.tauri + ''
+      export LD_LIBRARY_PATH="${pkgs.lib.makeLibraryPath [ pkgs.xz ]}:$LD_LIBRARY_PATH"
+    '';
   };
 
   repo-ops = webShell;
