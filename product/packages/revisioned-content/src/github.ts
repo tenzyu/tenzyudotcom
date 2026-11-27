@@ -455,3 +455,5 @@ export function createGitHubDocumentRepository(
 
   return { loadText, saveText, deleteText, list }
 }
+
+// Diagnostic CI workload replay of PR #147; no behavior change.
