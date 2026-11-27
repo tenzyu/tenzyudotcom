@@ -1,0 +1,35 @@
+name: Native dependency cohort replay (diagnostic only)
+on:
+  pull_request:
+    branches: [develop]
+permissions:
+  contents: read
+concurrency:
+  group: diagnostic-native-cohort-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  replay:
+    if: github.head_ref == 'diagnostic/native-cohort-amortization-20261127'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.5
+      - name: Provision the current native environment
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev patchelf pkg-config webkit2gtk-driver xvfb dbus-x11
+      - name: Replay exact cold and seed-consumer candidates
+        run: bash repo-ops/ci-diagnostic/native-cohort-replay.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-cohort-evidence
+          path: ${{ runner.temp }}/native-cohort-evidence/
+          if-no-files-found: error
+          retention-days: 7
