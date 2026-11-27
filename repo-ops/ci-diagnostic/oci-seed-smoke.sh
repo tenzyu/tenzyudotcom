@@ -30,7 +30,7 @@ run_container() {
   local name="$1" checkout="$2" image="$3"
   docker run -d --init --name "$name" --shm-size=1g \
     --mount "type=bind,src=$root/$checkout,dst=/work" \
-    --mount "type=bind,src=$root/repo-ops/ci-diagnostic/oci-native-gates.sh,dst=/opt/native-gates.sh,readonly" \
+    --mount "type=bind,src=$root/repo-ops/ci-diagnostic,dst=/opt/oci-diagnostic,readonly" \
     "$image" sleep infinity
 }
 run_container oci-seed-producer producer "$env_id"
@@ -42,11 +42,10 @@ docker exec oci-seed-producer bash -euc '
   xvfb-run -a true
   cd /work/product/apps/osu-skin-workbench
   for tool in /opt/rust/bin/rustc /usr/local/bin/node /usr/local/bin/bun "$(command -v WebKitWebDriver)"; do
-    ldd "$tool" | tee /tmp/tool-linkage
-    ! grep -q "not found" /tmp/tool-linkage
+    bash /opt/oci-diagnostic/oci-linkage.sh "$tool" /tmp/tool-linkage
   done
 ' | tee "$evidence/environment.txt"
-time docker exec oci-seed-producer bash /opt/native-gates.sh 2>&1 | tee "$evidence/producer.log"
+time docker exec oci-seed-producer bash /opt/oci-diagnostic/oci-native-gates.sh 2>&1 | tee "$evidence/producer.log"
 docker exec oci-seed-producer bash -euc '
   p=product/apps/osu-skin-workbench/src-tauri
   sha256sum "$p/target/wire.generated.ts" "$p/target/release/osu-skin-workbench"
@@ -62,7 +61,7 @@ time docker exec oci-seed-producer bash -euc '
   mv "$p/target" /opt/seed/target
   git rev-parse HEAD "HEAD^{tree}" > /opt/seed/source-identity.txt
   sha256sum "$p/Cargo.toml" "$p/Cargo.lock" > /opt/seed/lock.sha256
-  rm -rf "$HOME/.bun" "$HOME/.cache"
+  rm -rf "$HOME/.bun" "$HOME/.cache" "$HOME/.nx"
   du -sb /opt/seed/target "$CARGO_HOME"
 '
 docker stop oci-seed-producer
@@ -88,7 +87,7 @@ time docker exec oci-seed-consumer bash -euc '
   cp -a /opt/seed/target "$p/target"
   test -z "$(find "$p/target" \( -name "osu-skin-workbench*" -o -name "osu_skin_workbench*" -o -name "libosu_skin_workbench*" -o -name "wire.generated.ts" \) -print -quit)"
 '
-time docker exec oci-seed-consumer bash /opt/native-gates.sh 2>&1 | tee "$evidence/consumer.log"
+time docker exec oci-seed-consumer bash /opt/oci-diagnostic/oci-native-gates.sh 2>&1 | tee "$evidence/consumer.log"
 docker exec oci-seed-consumer bash -euc '
   p=product/apps/osu-skin-workbench/src-tauri
   sha256sum "$p/target/wire.generated.ts" "$p/target/release/osu-skin-workbench"

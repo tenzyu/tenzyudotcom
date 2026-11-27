@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 export NX_DAEMON=false NX_NO_CLOUD=true NX_TUI=false CI=true CARGO_TERM_VERBOSE=true
+export NX_SKIP_NX_CACHE=true
+export NX_CACHE_DIRECTORY="$(mktemp -d)"
+export NX_WORKSPACE_DATA_DIRECTORY="$(mktemp -d)"
+trap 'rm -rf -- "$NX_CACHE_DIRECTORY" "$NX_WORKSPACE_DATA_DIRECTORY"' EXIT
 cd /work
 test "$(id -u)" != 0
 test "$(git rev-parse HEAD)" = 492f2005b654f005177ce351f6b521eabccc1692
@@ -13,7 +17,7 @@ node -e 'const ts = require("typescript"); if (typeof ts.readConfigFile !== "fun
 printf '\n%s\n' "Generate IPC contract and verify TypeScript projection"
 mkdir -p product/apps/osu-skin-workbench/src-tauri/target
 SKIN_IPC_EXPORT="$PWD/product/apps/osu-skin-workbench/src-tauri/target/wire.generated.ts" cargo test --locked --manifest-path product/apps/osu-skin-workbench/src-tauri/Cargo.toml export_wire_contract
-bun nx run osu-skin-core:build
+bun nx run osu-skin-core:build --skip-nx-cache
 bun x tsc --ignoreConfig --noEmit --strict --skipLibCheck --moduleResolution bundler --module esnext --target es2022 product/apps/osu-skin-workbench/scripts/wire-contract-check.ts
 printf '\n%s\n' "Verify native product and build its distributable"
 bun nx run-many -t verify build --projects=skin-workbench --skip-nx-cache
@@ -23,6 +27,5 @@ dpkg-query -W webkit2gtk-driver libwebkit2gtk-4.1-0
 printf '\n%s\n' "Verify native WebView and real IPC with isolated skin data"
 xvfb-run -a dbus-run-session -- python3 product/apps/osu-skin-workbench/tests/tauri-runtime.py
 sha256sum product/apps/osu-skin-workbench/src-tauri/target/{wire.generated.ts,release/osu-skin-workbench}
-ldd product/apps/osu-skin-workbench/src-tauri/target/release/osu-skin-workbench | tee /tmp/native-linkage.txt
-! grep -q 'not found' /tmp/native-linkage.txt
+bash /opt/oci-diagnostic/oci-linkage.sh product/apps/osu-skin-workbench/src-tauri/target/release/osu-skin-workbench /tmp/native-linkage.txt
 git diff --exit-code

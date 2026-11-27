@@ -26,6 +26,8 @@ jobs:
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6
         with:
           bun-version: 1.4.5
+      - name: Verify fail-closed linkage negative controls
+        run: bash repo-ops/ci-diagnostic/oci-linkage-test.sh
       - name: Build, test, export and reload OCI seed locally
         shell: bash
         run: bash repo-ops/ci-diagnostic/oci-seed-smoke.sh
@@ -35,4 +37,90 @@ jobs:
           name: oci-seed-local-evidence
           path: ${{ runner.temp }}/oci-evidence/
           retention-days: 2
+          if-no-files-found: error
+  transport-receiver:
+    if: github.head_ref == 'diagnostic/immutable-oci-seed-20261127' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+        with:
+          persist-credentials: false
+      - name: Generate ephemeral recipient identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          mkdir "$RUNNER_TEMP/recipient" "$RUNNER_TEMP/public-cert"
+          openssl req -x509 -newkey rsa:3072 -nodes -sha256 -subj "/CN=oci-probe-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" -days 1 -keyout "$RUNNER_TEMP/recipient/key.pem" -out "$RUNNER_TEMP/public-cert/cert.pem" 2>/dev/null
+          openssl x509 -in "$RUNNER_TEMP/public-cert/cert.pem" -noout -fingerprint -sha256
+          uname -a
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: oci-transport-cert-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/public-cert/cert.pem
+          retention-days: 1
+          if-no-files-found: error
+      - name: Retrieve authenticated archive and decrypt fixture
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          d="$RUNNER_TEMP/recipient"
+          time bash repo-ops/ci-diagnostic/oci-fetch-run-artifact.sh "oci-transport-cipher-$GITHUB_RUN_ATTEMPT" "$d/cipher.zip"
+          unzip -p "$d/cipher.zip" fixture.der > "$d/fixture.der"
+          openssl cms -decrypt -binary -inform DER -in "$d/fixture.der" -recip "$RUNNER_TEMP/public-cert/cert.pem" -inkey "$d/key.pem" -out "$d/plain"
+          printf 'oci-transfer-fixture:%s:%s\n' "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" > "$d/expected"
+          cmp "$d/expected" "$d/plain"
+          cp "$d/fixture.der" "$d/bad.der"
+          python3 -c 'import sys; p=sys.argv[1]; b=bytearray(open(p,"rb").read()); b[-5]^=1; open(p,"wb").write(b)' "$d/bad.der"
+          if openssl cms -decrypt -binary -inform DER -in "$d/bad.der" -recip "$RUNNER_TEMP/public-cert/cert.pem" -inkey "$d/key.pem" -out "$d/bad" 2>/dev/null; then
+            echo "Tampered ciphertext accepted" >&2
+            exit 1
+          fi
+          openssl req -x509 -newkey rsa:2048 -nodes -sha256 -subj /CN=wrong -days 1 -keyout "$d/wrong.key" -out "$d/wrong.cert" 2>/dev/null
+          if openssl cms -decrypt -binary -inform DER -in "$d/fixture.der" -recip "$d/wrong.cert" -inkey "$d/wrong.key" -out "$d/wrong" 2>/dev/null; then
+            echo "Wrong recipient accepted" >&2
+            exit 1
+          fi
+          echo "Independent runner encrypted fixture, tamper rejection, wrong recipient rejection passed"
+      - name: Remove ephemeral private keys
+        if: always()
+        run: rm -rf -- "$RUNNER_TEMP/recipient"
+  transport-sender:
+    if: github.head_ref == 'diagnostic/immutable-oci-seed-20261127' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+        with:
+          persist-credentials: false
+      - name: Retrieve recipient public certificate and seal synthetic fixture
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          d="$RUNNER_TEMP/transport"
+          mkdir -p "$d/upload"
+          time bash repo-ops/ci-diagnostic/oci-fetch-run-artifact.sh "oci-transport-cert-$GITHUB_RUN_ATTEMPT" "$d/cert.zip"
+          unzip -p "$d/cert.zip" cert.pem > "$d/cert.pem"
+          openssl x509 -in "$d/cert.pem" -noout -fingerprint -sha256
+          printf 'oci-transfer-fixture:%s:%s\n' "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" > "$d/plain"
+          openssl cms -encrypt -binary -aes-256-gcm -in "$d/plain" -outform DER -out "$d/upload/fixture.der" "$d/cert.pem"
+          uname -a
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: oci-transport-cipher-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/transport/upload/fixture.der
+          retention-days: 1
           if-no-files-found: error
