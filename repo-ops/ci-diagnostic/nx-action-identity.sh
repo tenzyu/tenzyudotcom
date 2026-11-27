@@ -14,6 +14,8 @@ printf 'case\tarm\ttarget\tseconds\tcache_log\tstatus\n' > "$out/timings.tsv"
 fail=0
 clean() {
   git clean -fdx -e node_modules/ > /dev/null
+  # tsc -b explicitly writes these beneath ignored node_modules; prevent arm carry-over.
+  rm -rf product/packages/ui/node_modules/.tmp product/packages/ui/node_modules/.vite node_modules/.vite node_modules/.cache
 }
 run_build() {
   local label="$1" arm="$2" target="$3" cache="$4"
@@ -121,5 +123,42 @@ git -c user.name=Diagnostic -c user.email=diagnostic@invalid commit -m 'test(ci)
 run_build corrected-mutated reuse ui "$RUNNER_TEMP/nx-story-corrected"
 run_build corrected-mutated cold ui "$RUNNER_TEMP/nx-story-corrected-fresh" --skip-nx-cache
 compare "$out/corrected-mutated/cold/ui" "$out/corrected-mutated/reuse/ui"
+# TypeScript is also an acceptance input: tsc -b includes src/**/*.stories.tsx.
+# A cached success must not mask a newly introduced type error.
+for policy in original corrected; do
+  clean
+  git checkout --detach 492f2005b654f005177ce351f6b521eabccc1692
+  if [[ "$policy" == corrected ]]; then
+    node --input-type=module <<'JS'
+import fs from 'node:fs';
+const p='product/packages/ui/project.json';
+const c=JSON.parse(fs.readFileSync(p,'utf8'));
+c.targets.build.inputs=['default','^default'];
+fs.writeFileSync(p,JSON.stringify(c,null,2)+'\n');
+JS
+    git add product/packages/ui/project.json
+    git -c user.name=Diagnostic -c user.email=diagnostic@invalid commit -m 'test(ci): broaden UI build input identity'
+  fi
+  run_build "type-$policy" seed ui "$RUNNER_TEMP/nx-type-$policy"
+  printf '\nexport const ciDiagnosticTypeMismatch: number = "not-a-number";\n' >> "$story"
+  git add "$story"
+  git -c user.name=Diagnostic -c user.email=diagnostic@invalid commit -m 'test(ci): inject rejected TypeScript assignment'
+  cold_result=0
+  reuse_result=0
+  run_build "type-$policy" cold ui "$RUNNER_TEMP/nx-type-cold-$policy" --skip-nx-cache || cold_result=$?
+  run_build "type-$policy" reuse ui "$RUNNER_TEMP/nx-type-$policy" || reuse_result=$?
+  if [[ "$cold_result" == 0 ]] || ! grep -E 'TS2322|not assignable to type' "$out/type-$policy/cold/ui/build.log" >/dev/null; then
+    echo "INCONCLUSIVE: cold build did not reproduce the expected type error" | tee "$out/type-$policy/verdict.txt"
+    fail=1
+  elif [[ "$reuse_result" == 0 ]]; then
+    echo "FAIL: cached success masked a real type error" | tee "$out/type-$policy/verdict.txt"
+    fail=1
+  elif grep -E 'TS2322|not assignable to type' "$out/type-$policy/reuse/ui/build.log" >/dev/null; then
+    echo "PASS: type error observed with cache enabled" | tee "$out/type-$policy/verdict.txt"
+  else
+    echo "INCONCLUSIVE: cached arm failed for another reason" | tee "$out/type-$policy/verdict.txt"
+    fail=1
+  fi
+done
 cat "$out/timings.tsv"
 exit "$fail"
