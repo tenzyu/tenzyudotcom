@@ -27,3 +27,5 @@ export async function readBoundedMetadataHtml(
     reader.releaseLock()
   }
 }
+
+// Diagnostic CI workload replay of PR #155; no behavior change.
