@@ -1,7 +1,10 @@
 use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
+#[cfg(feature = "desktop")]
 use tauri::AppHandle;
+#[cfg(feature = "desktop")]
+use crate::infra::paths::app_data_root;
 
 use crate::domain::project::{
     AddProjectSourceInput, CreateProjectInput, DeleteProjectSourceInput, ProjectManifest,
@@ -15,7 +18,7 @@ use crate::infra::manifest::{
     ensure_main_source, main_source_manifest, read_manifest, write_manifest,
 };
 use crate::infra::paths::{
-    app_data_root, entity_id, manifest_path, now, project_dir, project_raw_dir,
+    entity_id, manifest_path, now, project_dir, project_raw_dir,
     project_structured_dir, projects_root, source_dir, source_raw_dir, source_structured_dir,
     validate_component,
 };
@@ -31,11 +34,13 @@ fn staged_source_dir(source_dir: &std::path::Path) -> Result<std::path::PathBuf,
     Ok(parent.join(format!("{name}.delete-{}", uuid::Uuid::new_v4().simple())))
 }
 
+#[cfg(feature = "desktop")]
 #[tauri::command]
 pub(crate) fn health_check() -> &'static str {
     "ok"
 }
 
+#[cfg(feature = "desktop")]
 #[tauri::command]
 pub(crate) fn list_projects(app: AppHandle) -> Result<Vec<ProjectManifest>, String> {
     let app_data = app_data_root(&app)?;
@@ -70,6 +75,7 @@ pub(crate) fn list_projects(app: AppHandle) -> Result<Vec<ProjectManifest>, Stri
     Ok(projects)
 }
 
+#[cfg(feature = "desktop")]
 #[tauri::command]
 pub(crate) fn create_project(
     app: AppHandle,
@@ -113,6 +119,7 @@ pub(crate) fn create_project(
     Ok(manifest)
 }
 
+#[cfg(feature = "desktop")]
 #[tauri::command]
 pub(crate) fn rename_project(
     app: AppHandle,
@@ -139,6 +146,7 @@ pub(crate) fn rename_project_at(
     Ok(manifest)
 }
 
+#[cfg(feature = "desktop")]
 #[tauri::command]
 pub(crate) fn delete_project(app: AppHandle, project_id: String) -> Result<(), String> {
     let app_data = app_data_root(&app)?;
@@ -150,6 +158,7 @@ pub(crate) fn delete_project(app: AppHandle, project_id: String) -> Result<(), S
     Ok(())
 }
 
+#[cfg(feature = "desktop")]
 #[tauri::command]
 pub(crate) fn add_project_source(
     app: AppHandle,
@@ -186,6 +195,7 @@ pub(crate) fn add_project_source(
     Ok(manifest)
 }
 
+#[cfg(feature = "desktop")]
 #[tauri::command]
 pub(crate) fn rename_project_source(
     app: AppHandle,
@@ -209,6 +219,7 @@ pub(crate) fn rename_project_source(
     Ok(manifest)
 }
 
+#[cfg(feature = "desktop")]
 #[tauri::command]
 pub(crate) fn delete_project_source(
     app: AppHandle,
@@ -246,6 +257,7 @@ pub(crate) fn delete_project_source(
     Ok(manifest)
 }
 
+#[cfg(feature = "desktop")]
 #[tauri::command]
 pub(crate) fn get_project_files(
     app: AppHandle,
@@ -277,6 +289,7 @@ pub(crate) fn get_project_files(
     })
 }
 
+#[cfg(feature = "desktop")]
 #[tauri::command]
 pub(crate) fn rebuild_structured_mirrors(
     app: AppHandle,

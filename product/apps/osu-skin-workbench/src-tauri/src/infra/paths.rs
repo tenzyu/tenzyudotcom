@@ -1,6 +1,7 @@
 use std::fs::{self, File, Metadata, OpenOptions};
 use std::io;
 use std::path::{Path, PathBuf};
+#[cfg(feature = "desktop")]
 use tauri::{AppHandle, Manager};
 
 use crate::domain::project::ExportPreset;
@@ -9,6 +10,7 @@ pub(crate) fn now() -> String {
     chrono::Utc::now().to_rfc3339()
 }
 
+#[cfg(feature = "desktop")]
 pub(crate) fn app_data_root(app: &AppHandle) -> Result<PathBuf, String> {
     let root = app
         .path()

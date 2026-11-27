@@ -1,16 +1,20 @@
 use std::fs;
 use std::path::Path;
+#[cfg(feature = "desktop")]
 use tauri::AppHandle;
+#[cfg(feature = "desktop")]
+use crate::infra::paths::app_data_root;
 
 use crate::domain::project::{ExportPreset, ExportProjectInput, ExportResult, MAIN_SOURCE_ID};
 use crate::infra::archive::add_project_to_zip;
 use crate::infra::lock::lock_workbench;
 use crate::infra::manifest::read_manifest;
 use crate::infra::paths::{
-    app_data_root, export_dir, export_file, project_dir, project_raw_dir, require_directory,
+    export_dir, export_file, project_dir, project_raw_dir, require_directory,
     source_raw_dir,
 };
 
+#[cfg(feature = "desktop")]
 #[tauri::command]
 pub(crate) fn export_project(
     app: AppHandle,

@@ -2,6 +2,7 @@ mod commands;
 mod domain;
 mod infra;
 
+#[cfg(feature = "desktop")]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
