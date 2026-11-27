@@ -47,16 +47,6 @@ const WRITING_BLOCK_CONTENT_SELECTORS = [
   '[contenteditable="true"]'
 ].join(',');
 
-const DEFAULT_SETTINGS = Object.freeze({
-  filenamePrefix: 'chatgpt',
-  includeUser: true,
-  includeAssistant: true,
-  includeSystem: true,
-  includeUnknown: true,
-  includeMetadata: true,
-  includeStandaloneCss: true
-});
-
 let observer = null;
 let injectQueued = false;
 
@@ -193,9 +183,9 @@ async function copyHtmlFromIndex(startIndex) {
 async function getSettings() {
   try {
     const settings = await browser.runtime.sendMessage({ type: 'CPHE_GET_SETTINGS' });
-    return { ...DEFAULT_SETTINGS, ...settings };
+    return { ...CPHE_EXPORT_DEFAULTS, ...settings };
   } catch (_) {
-    return { ...DEFAULT_SETTINGS };
+    return { ...CPHE_EXPORT_DEFAULTS };
   }
 }
 
@@ -229,6 +219,7 @@ function buildExportPayload(startIndex, settings) {
 
 function selectMessagesForExport(messages, startIndex, settings) {
   return messages
+    .map((message, visibleIndex) => ({ ...message, visibleIndex }))
     .slice(Math.max(0, startIndex))
     .filter(message => shouldIncludeRole(message.role, settings));
 }
@@ -307,7 +298,7 @@ function buildStandaloneHtml(messages, metadata, settings) {
   const title = escapeHtml(metadata.title || 'ChatGPT Export');
   const styles = settings.includeStandaloneCss === false ? '' : getExportStyles();
   const metadataBlock = settings.includeMetadata === false ? '' : buildMetadataBlock(metadata);
-  const messageHtml = messages.map((message, index) => buildMessageHtml(message, index, metadata.startIndex)).join('\n');
+  const messageHtml = messages.map(buildMessageHtml).join('\n');
 
   return `<!doctype html>
 <html lang="ja">
@@ -338,11 +329,11 @@ function buildMetadataBlock(metadata) {
 </dl>`;
 }
 
-function buildMessageHtml(message, localIndex, startIndex) {
+function buildMessageHtml(message) {
   const clone = prepareExportClone(message.root);
   sanitizeExportFragment(clone);
 
-  const absoluteIndex = startIndex + localIndex + 1;
+  const absoluteIndex = message.visibleIndex + 1;
   return `<section class="cphe-message cphe-role-${escapeAttribute(message.role)}" data-role="${escapeAttribute(message.role)}" data-visible-index="${absoluteIndex}">
 <header class="cphe-message-header"><span>#${absoluteIndex}</span><span>${escapeHtml(message.role)}</span></header>
 <div class="cphe-message-body">${clone.innerHTML}</div>

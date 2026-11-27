@@ -7,7 +7,7 @@ use walkdir::WalkDir;
 use zip::write::SimpleFileOptions;
 
 use crate::domain::project::ExportPreset;
-use crate::infra::files::{copy_dir_all, walk_relative_files};
+use crate::infra::files::{copy_dir_all, require_disjoint_source, walk_relative_files, with_staged_directory};
 use crate::infra::paths::{
     asset_file, is_link, managed_metadata, open_managed_file, validate_component,
 };
@@ -15,34 +15,18 @@ use crate::infra::paths::{
 const MAX_OSK_FILES: usize = 20_000;
 const MAX_OSK_UNCOMPRESSED_BYTES: u64 = 2 * 1024 * 1024 * 1024;
 
-fn temp_sibling_for(target: &Path) -> Result<PathBuf, String> {
-    let parent = target
-        .parent()
-        .ok_or_else(|| format!("target has no parent: {}", target.display()))?;
-    let name = target
-        .file_name()
-        .and_then(|value| value.to_str())
-        .ok_or_else(|| format!("target has no file name: {}", target.display()))?;
-    Ok(parent.join(format!("{name}.tmp-{}", uuid::Uuid::new_v4().simple())))
-}
-
 pub(crate) fn extract_osk(source: &Path, target: &Path) -> Result<(), String> {
-    let temp_target = temp_sibling_for(target)?;
-    if temp_target.exists() {
-        fs::remove_dir_all(&temp_target)
-            .map_err(|error| format!("failed to clean extraction temp target: {error}"))?;
-    }
-    fs::create_dir_all(&temp_target)
-        .map_err(|error| format!("failed to create extraction temp target: {error}"))?;
-    let file = File::open(source).map_err(|error| format!("failed to open osk: {error}"))?;
-    let mut archive = zip::ZipArchive::new(file)
-        .map_err(|error| format!("failed to read osk archive: {error}"))?;
-    if archive.len() > MAX_OSK_FILES {
-        let _ = fs::remove_dir_all(&temp_target);
-        return Err(format!("osk archive has too many files: {}", archive.len()));
-    }
-    let mut total_uncompressed_bytes = 0_u64;
-    let result = (|| {
+    require_disjoint_source(source, target)?;
+    with_staged_directory(target, |temp_target| {
+        let file = File::open(source).map_err(|error| format!("failed to open osk: {error}"))?;
+        let mut archive = zip::ZipArchive::new(file)
+            .map_err(|error| format!("failed to read osk archive: {error}"))?;
+        if archive.len() > MAX_OSK_FILES {
+            return Err(format!("osk archive has too many files: {}", archive.len()));
+        }
+        let mut total_uncompressed_bytes = 0_u64;
+        let mut names = HashSet::new();
+        let normalizer = ComposingNormalizer::new_nfc();
         for index in 0..archive.len() {
             let mut member = archive
                 .by_index(index)
@@ -55,6 +39,10 @@ pub(crate) fn extract_osk(source: &Path, target: &Path) -> Result<(), String> {
                 .enclosed_name()
                 .ok_or_else(|| format!("unsafe archive member at index {index}: {:?}", member.name()))?
                 .to_owned();
+            let name = archive_name(&enclosed)?;
+            if name.is_empty() || !names.insert(normalizer.normalize(&name.to_uppercase()).into_owned()) {
+                return Err(format!("empty or colliding archive path: {name}"));
+            }
             let out_path = temp_target.join(enclosed);
             if member.is_dir() {
                 fs::create_dir_all(&out_path)
@@ -65,23 +53,17 @@ pub(crate) fn extract_osk(source: &Path, target: &Path) -> Result<(), String> {
                 fs::create_dir_all(parent)
                     .map_err(|error| format!("failed to create archive parent: {error}"))?;
             }
-            let mut out = File::create(&out_path)
+            let mut out = OpenOptions::new().write(true).create_new(true).open(&out_path)
                 .map_err(|error| format!("failed to create archive output: {error}"))?;
-            std::io::copy(&mut member, &mut out)
+            let expected = member.size();
+            let copied = io::copy(&mut Read::by_ref(&mut member).take(expected + 1), &mut out)
                 .map_err(|error| format!("failed to extract archive member: {error}"))?;
+            if copied != expected {
+                return Err(format!("archive member size mismatch: {name}"));
+            }
         }
-        if target.exists() {
-            fs::remove_dir_all(target)
-                .map_err(|error| format!("failed to clean extraction target: {error}"))?;
-        }
-        fs::rename(&temp_target, target)
-            .map_err(|error| format!("failed to replace extraction target: {error}"))?;
         Ok(())
-    })();
-    if result.is_err() {
-        let _ = fs::remove_dir_all(&temp_target);
-    }
-    result
+    })
 }
 
 pub(crate) fn copy_source_to_raw(source_path: &str, target_raw: &Path) -> Result<usize, String> {
@@ -321,4 +303,27 @@ pub(crate) fn add_project_to_zip<T: Write + Seek>(
         check_path_snapshot(path, metadata)?;
     }
     Ok((included, excluded))
+}
+
+#[cfg(test)]
+mod import_tests {
+    use super::*;
+
+    #[test]
+    fn colliding_members_do_not_replace_existing_target() {
+        let temp = tempfile::tempdir().unwrap();
+        let source = temp.path().join("test.osk");
+        let target = temp.path().join("target");
+        fs::create_dir(&target).unwrap();
+        fs::write(target.join("keep.png"), b"original").unwrap();
+        let mut writer = zip::ZipWriter::new(File::create(&source).unwrap());
+        for name in ["A.png", "a.png"] {
+            writer.start_file(name, SimpleFileOptions::default()).unwrap();
+            writer.write_all(b"asset").unwrap();
+        }
+        writer.finish().unwrap();
+        assert!(extract_osk(&source, &target).is_err());
+        assert_eq!(fs::read(target.join("keep.png")).unwrap(), b"original");
+        assert_eq!(fs::read_dir(&target).unwrap().count(), 1);
+    }
 }

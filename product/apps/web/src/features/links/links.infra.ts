@@ -1,8 +1,6 @@
 import type { ContentSnapshot } from '@tenzyu/revisioned-content/contracts'
-import {
-  parseJsonCollection,
-  saveJsonCollection,
-} from '@/platform/content-store/json-document.infra'
+import { parseJsonCollection } from '@tenzyu/revisioned-content/json-document'
+import { saveJsonCollection } from '@/platform/content-store/json-document.infra'
 import { loadGitHubTextFileFresh } from '@/platform/content-store/github-content.infra'
 import {
   LINKS_STORAGE_PATH,

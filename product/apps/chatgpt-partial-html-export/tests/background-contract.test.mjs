@@ -1,5 +1,10 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { readFileSync } from 'node:fs';
+import { runInThisContext } from 'node:vm';
+
+// Load the classic script in the same realm, as Firefox does.
+runInThisContext(readFileSync(new URL('../src/settings-defaults.js', import.meta.url), 'utf8'));
 
 await import('../src/background.js');
 
@@ -63,4 +68,19 @@ test('normalizeSettings coerces invalid values to the contract defaults', () => 
     includeStandaloneCss: false,
     fallbackToDownload: false
   });
+});
+
+test('empty settings normalize to the shipped defaults', () => {
+  assert.deepEqual(normalizeSettings({}), CPHE_DEFAULT_SETTINGS);
+});
+
+test('long Unicode filenames fit a 255-byte component without splitting code points', () => {
+  for (const name of ['日'.repeat(180) + '.html', '😀'.repeat(100) + '.htm', 'x'.repeat(200) + '.html']) {
+    const safe = sanitizeFilename(name);
+    assert.ok(Buffer.byteLength(safe, 'utf8') <= 255);
+    assert.ok(safe.length <= 180);
+    assert.match(safe, /\.html?$/);
+    assert.equal(safe.includes('\uFFFD'), false);
+    assert.equal(sanitizeFilename(safe), safe);
+  }
 });

@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
@@ -137,6 +137,50 @@ test('native export rejects a pre-existing destination symlink without touching 
     assert.match(response.error, /EEXIST/);
     assert.equal(await fs.readFile(target, 'utf8'), 'untouched');
     assert.ok((await fs.lstat(path.join(tmp, 'export.html'))).isSymbolicLink());
+  } finally {
+    await fs.rm(tmp, { recursive: true, force: true });
+  }
+});
+
+test('native messaging starts when the installed host path contains URL-escaped characters', async () => {
+  const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'cphe # % 日本語-'));
+  try {
+    const host = path.join(tmp, 'host.mjs');
+    await fs.copyFile(fileURLToPath(new URL('../native/host.mjs', import.meta.url)), host);
+    const html = '<!doctype html><title>escaped path</title>';
+    const request = Buffer.from(JSON.stringify({ type: 'writeHtml', outputDir: tmp, filename: 'export.html', html }));
+    const header = Buffer.alloc(4);
+    header.writeUInt32LE(request.length);
+    const result = spawnSync(process.execPath, [host], { input: Buffer.concat([header, request]), timeout: 5000 });
+    assert.equal(result.error, undefined);
+    assert.equal(result.status, 0, result.stderr.toString());
+    assert.ok(result.stdout.length >= 4, 'host must emit a native messaging response');
+    assert.equal(result.stdout.length, 4 + result.stdout.readUInt32LE(0));
+    const response = JSON.parse(result.stdout.subarray(4).toString('utf8'));
+    assert.deepEqual(response, { ok: true, path: path.join(tmp, 'export.html') });
+    assert.equal(await fs.readFile(response.path, 'utf8'), html);
+  } finally {
+    await fs.rm(tmp, { recursive: true, force: true });
+  }
+});
+
+test('long Unicode filenames fit a 255-byte component without splitting code points', () => {
+  for (const name of ['日'.repeat(180) + '.html', '😀'.repeat(100) + '.htm', 'x'.repeat(200) + '.html']) {
+    const safe = sanitizeFilename(name);
+    assert.ok(Buffer.byteLength(safe, 'utf8') <= 255);
+    assert.ok(safe.length <= 180);
+    assert.match(safe, /\.html?$/);
+    assert.equal(safe.includes('\uFFFD'), false);
+    assert.equal(sanitizeFilename(safe), safe);
+  }
+});
+
+test('native export writes a long Japanese title on a real filesystem', async () => {
+  const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'cphe-long-name-'));
+  try {
+    const result = await handleMessage({ type: 'writeHtml', outputDir: tmp, filename: '日'.repeat(180) + '.html', html: 'ok' });
+    assert.equal(result.ok, true, result.error);
+    assert.equal(await fs.readFile(result.path, 'utf8'), 'ok');
   } finally {
     await fs.rm(tmp, { recursive: true, force: true });
   }

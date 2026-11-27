@@ -4,14 +4,16 @@ import { Button } from '@tenzyu/ui/button'
 
 import { useEffect, useMemo, useState } from 'react'
 import {
-  applyAssetGroup,
-  chooseSkinDirectory,
-  chooseSkinFile,
-  createProject,
-  deleteAssetGroup,
-  exportProject,
-  rebuildStructuredMirrors,
-} from '../lib/client/project-api'
+  chooseSkinFolderPath,
+  chooseSkinFilePath,
+} from '../lib/tauri/file-dialog.adapter'
+import {
+  invokeApplyAssetGroup,
+  invokeCreateProject,
+  invokeDeleteAssetGroup,
+  invokeExportProject,
+  invokeRebuildStructuredMirrors,
+} from '../lib/tauri/project-command.adapter'
 import type { ExportPreset } from '@tenzyu/osu-skin-core/contract'
 import { useAssetMatrixNavigation } from '../hooks/useAssetMatrixNavigation'
 import { useAssetSourceActions } from '../hooks/useAssetSourceActions'
@@ -44,8 +46,8 @@ export function ProjectWorkspaceClient({
   const [status, setStatus] = useState('Loading project.')
   const [error, setError] = useState<string | null>(null)
 
-  const { files, matrix, fetchProjectFiles } = useProjectFiles()
   const projectsState = useProjects(initialProjectId)
+  const { files, matrix, fetchProjectFiles } = useProjectFiles(projectsState.project?.id)
   const navigation = useAssetMatrixNavigation(matrix)
 
   const sourceActions = useAssetSourceActions({
@@ -95,15 +97,11 @@ export function ProjectWorkspaceClient({
     setError(null)
 
     try {
-      const project = await createProject({
+      const project = await invokeCreateProject({
         sourcePath: mainPath,
         name: projectName || undefined,
       })
-      projectsState.setProject(project)
-      projectsState.setProjects((current) => [
-        project,
-        ...current.filter((item) => item.id !== project.id),
-      ])
+      projectsState.insertProject(project)
       await fetchProjectFiles(project.id)
       setProjectName('')
       setMainPath('')
@@ -126,8 +124,8 @@ export function ProjectWorkspaceClient({
     try {
       const selected =
         kind === 'directory'
-          ? await chooseSkinDirectory()
-          : await chooseSkinFile()
+          ? await chooseSkinFolderPath()
+          : await chooseSkinFilePath()
       if (selected) setMainPath(selected)
       setStatus(
         selected ? 'Selected main skin path.' : 'File picker was cancelled.'
@@ -160,9 +158,17 @@ export function ProjectWorkspaceClient({
   }
 
   async function selectProject(projectId: string) {
-    await projectsState.selectProject(projectId, {
-      loadFiles: fetchProjectFiles,
-    })
+    setLoading(true)
+    setError(null)
+    try {
+      await projectsState.selectProject(projectId, {
+        loadFiles: fetchProjectFiles,
+      })
+    } catch (error) {
+      setError(error instanceof Error ? error.message : String(error))
+    } finally {
+      setLoading(false)
+    }
   }
 
   async function copySourceRow(input: {
@@ -175,7 +181,7 @@ export function ProjectWorkspaceClient({
     setError(null)
 
     try {
-      const result = await applyAssetGroup({
+      const result = await invokeApplyAssetGroup({
         projectId: projectsState.project.id,
         sourceId: input.sourceId,
         sourcePaths: input.sourcePaths,
@@ -205,7 +211,7 @@ export function ProjectWorkspaceClient({
     setError(null)
 
     try {
-      const result = await deleteAssetGroup({
+      const result = await invokeDeleteAssetGroup({
         projectId: projectsState.project.id,
         projectPaths,
       })
@@ -230,7 +236,7 @@ export function ProjectWorkspaceClient({
     setError(null)
 
     try {
-      const result = await rebuildStructuredMirrors(projectsState.project.id)
+      const result = await invokeRebuildStructuredMirrors(projectsState.project.id)
       await fetchProjectFiles(projectsState.project.id)
       setStatus(`Rebuilt project mirror (${result.projectFileCount} files).`)
     } catch (unknownError) {
@@ -250,7 +256,7 @@ export function ProjectWorkspaceClient({
     setError(null)
 
     try {
-      const result = await exportProject({
+      const result = await invokeExportProject({
         projectId: projectsState.project.id,
         preset,
       })

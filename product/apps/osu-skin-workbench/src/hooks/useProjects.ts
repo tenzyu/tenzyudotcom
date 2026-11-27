@@ -1,28 +1,26 @@
 "use client";
 
 import { useState } from "react";
-import { fetchProjects } from "../lib/client/project-api";
+import { listProjectManifests } from "../lib/tauri/project-command.adapter";
 import type { ProjectManifest } from "@tenzyu/osu-skin-core/contract";
 
 export function useProjects(initialProjectId: string) {
   const [projects, setProjects] = useState<ProjectManifest[]>([]);
-  const [project, setProject] = useState<ProjectManifest | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const project = projects.find((item) => item.id === selectedId) ?? null;
 
   async function refreshProjects(options: {
     loadFiles?: (projectId: string) => Promise<unknown>;
   } = {}): Promise<ProjectManifest[]> {
-    const nextProjects = await fetchProjects();
+    const nextProjects = await listProjectManifests();
     setProjects(nextProjects);
 
-    if (!project) {
+    if (!project || !nextProjects.some((item) => item.id === project.id)) {
       const nextId = nextProjects.some((item) => item.id === initialProjectId)
         ? initialProjectId
         : nextProjects[0]?.id;
-
-      if (nextId) {
-        setProject(nextProjects.find((item) => item.id === nextId) ?? null);
-        await options.loadFiles?.(nextId);
-      }
+      setSelectedId(nextId ?? null);
+      if (nextId) await options.loadFiles?.(nextId);
     }
 
     return nextProjects;
@@ -30,20 +28,22 @@ export function useProjects(initialProjectId: string) {
 
   async function selectProject(
     projectId: string,
-    options: {
-      projectList?: ProjectManifest[];
-      loadFiles?: (projectId: string) => Promise<unknown>;
-    } = {},
+    options: { loadFiles?: (projectId: string) => Promise<unknown> } = {},
   ): Promise<void> {
-    if (!projectId) return;
-
-    const projectList = options.projectList ?? projects;
-    setProject(projectList.find((item) => item.id === projectId) ?? null);
+    if (!projects.some((item) => item.id === projectId)) return;
+    setSelectedId(projectId);
     await options.loadFiles?.(projectId);
   }
 
+  function insertProject(nextProject: ProjectManifest): void {
+    setProjects((current) => [
+      nextProject,
+      ...current.filter((item) => item.id !== nextProject.id),
+    ]);
+    setSelectedId(nextProject.id);
+  }
+
   function updateProject(nextProject: ProjectManifest): void {
-    setProject(nextProject);
     setProjects((current) => current.map((item) => (item.id === nextProject.id ? nextProject : item)));
   }
 
@@ -52,8 +52,7 @@ export function useProjects(initialProjectId: string) {
     project,
     refreshProjects,
     selectProject,
+    insertProject,
     updateProject,
-    setProjects,
-    setProject,
   };
 }

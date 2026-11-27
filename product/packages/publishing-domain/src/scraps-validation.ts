@@ -4,6 +4,8 @@ import {
   CONTENT_RELATION_KINDS,
   CONTENT_RELATION_TYPES,
   SCRAP_ENTRY_KINDS,
+  SCRAP_ENTRY_ID_PATTERN,
+  SCRAP_SLUG_PATTERN,
   SCRAP_STATUSES,
   TRANSLATION_STATES,
   type ContentLocale,
@@ -13,15 +15,12 @@ import {
   type ScrapManifest,
 } from './scraps'
 
-const SLUG_PATTERN = /^[a-z0-9][a-z0-9-]{0,79}$/
-const ENTRY_ID_PATTERN = /^[a-z0-9][a-z0-9-]{0,79}$/
-
-const SlugSchema = z.string().regex(SLUG_PATTERN, {
+const SlugSchema = z.string().regex(SCRAP_SLUG_PATTERN, {
   message:
     'slug must be lowercase ASCII, may contain digits and dashes, length 1-80',
 })
 
-const EntryIdSchema = z.string().regex(ENTRY_ID_PATTERN, {
+const EntryIdSchema = z.string().regex(SCRAP_ENTRY_ID_PATTERN, {
   message:
     'entry id must be lowercase ASCII, may contain digits and dashes, length 1-80',
 })

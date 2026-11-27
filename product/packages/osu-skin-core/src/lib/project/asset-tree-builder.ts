@@ -8,6 +8,7 @@ import {
 } from "../domain/skin-asset";
 import {
   mergeSkinMeaning,
+  mergeRequiredLevel,
   preferSkinKind,
 } from "../domain/skin-asset-policy";
 import type {
@@ -145,6 +146,7 @@ export class AssetTreeBuilder {
 
       groupNode.files.push(file);
       groupNode.fileCount += 1;
+      groupNode.requiredLevel = mergeRequiredLevel(groupNode.requiredLevel, file.requiredLevel);
       groupNode.kind = preferSkinKind(groupNode.kind, file.kind);
       groupNode.meaning = mergeSkinMeaning(groupNode.meaning, file.meaning);
       groupNode.lazerMeaningful = groupNode.lazerMeaningful || isLazerMeaningful(file.meaning);

@@ -12,17 +12,14 @@ import { parseBlogFrontmatter } from './blog-frontmatter.assemble'
 import { resolveBlogAddress } from './blog-index.assemble'
 import { loadBlogCatalog, loadBlogPostBySlug } from './blog.infra'
 import {
-  extractBlogHeadings,
-  type BlogHeading,
   type BlogPostSummary,
   type BlogPostingJsonLd,
   type MDXData,
-  buildBlogPostImageUrl,
-  buildBlogPostUrl,
   compareBlogPostsByPublishedAtDesc,
   filterBlogPostsByTag,
   isAiGeneratedPost,
-} from './blog.domain'
+} from '@tenzyu/publishing-domain/blog'
+import { buildBlogPostImageUrl, buildBlogPostUrl } from './blog.urls'
 
 const PAGE_SIZE = 6
 
@@ -98,7 +95,6 @@ type BlogPostPageData =
   | {
       kind: 'post'
       post: BlogPost
-      headings: BlogHeading[]
       relatedPosts: BlogPostSummary[]
       isAiGenerated: boolean
     }
@@ -163,7 +159,6 @@ export const assembleBlogPostPageData = cache(
     return {
       kind: 'post',
       post,
-      headings: extractBlogHeadings(post.rawContent),
       relatedPosts,
       isAiGenerated: isAiGeneratedPost(post.metadata.tags),
     }

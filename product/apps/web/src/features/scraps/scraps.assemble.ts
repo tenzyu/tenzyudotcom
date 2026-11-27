@@ -21,8 +21,6 @@ import {
   resolveLocalizedDocumentRef,
 } from '@tenzyu/publishing-domain/scraps'
 import {
-  getScrapsAggregateRepository,
-  loadScrapEntryDocuments,
   loadScrapEntryMeta,
   loadScrapIndex,
   loadScrapManifest,
@@ -177,14 +175,6 @@ export const assembleScrapPage = cache(
     }
   },
 )
-
-export async function loadEntryDocumentsForAdmin(meta: ScrapEntryMeta) {
-  const snapshot = await getScrapsAggregateRepository().snapshot()
-  return loadScrapEntryDocuments(meta, snapshot)
-}
-
-export const buildScrapListUrl = (locale: string) =>
-  `${BASE_URL}${buildLocalizedUrl('/scraps', locale)}`
 
 export const buildScrapDetailUrl = (slug: string, locale: string) =>
   `${BASE_URL}${buildLocalizedUrl(`/scraps/${slug}`, locale)}`

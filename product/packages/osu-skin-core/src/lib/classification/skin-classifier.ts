@@ -21,7 +21,8 @@ import {
   logicalSkinKey,
   matchesMode,
   modesFor,
-  nameMatches,
+  globToRegExp,
+  normalizedNameMatches,
   sequenceInfo,
 } from "./filename-normalizer";
 import {
@@ -45,8 +46,17 @@ export type SkinClassificationCompat = LegacySkinClassificationView & {
   source: ClassifiedSkinAsset["source"];
 };
 
-function ruleMatches(relativePath: string, rule: ClassificationRule): boolean {
-  return nameMatches(relativePath, rule.patterns, { logical: true });
+// Bound the compiled cache by the shipped catalog, not by user filenames.
+const catalogPatterns = new Map<string, RegExp>();
+for (const rule of classificationRules) {
+  for (const pattern of rule.patterns) {
+    const lower = pattern.toLowerCase();
+    if (!catalogPatterns.has(lower)) catalogPatterns.set(lower, globToRegExp(lower));
+  }
+}
+
+function catalogPattern(pattern: string): RegExp {
+  return catalogPatterns.get(pattern) ?? globToRegExp(pattern);
 }
 
 function modesForRule(relativePath: string, rule: ClassificationRule): Mode[] {
@@ -274,10 +284,11 @@ function weakContextFallback(input: SkinClassifierInput): ClassifiedSkinAsset | 
 }
 
 export function matchingRuleFor(relativePath: string): ClassificationRule | null {
-  const key = canonicalKey(relativePath);
+  const key = logicalSkinKey(canonicalKey(relativePath));
+  const basename = key.split("/").at(-1) ?? key;
 
   for (const rule of classificationRules) {
-    if (ruleMatches(key, rule)) return rule;
+    if (normalizedNameMatches(key, basename, rule.patterns, catalogPattern)) return rule;
   }
 
   return null;

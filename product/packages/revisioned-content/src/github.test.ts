@@ -132,6 +132,47 @@ describe('GitHub aggregate publication', () => {
     expect(refWrites).toBe(failure === 'tree' || failure === 'commit' ? 0 : 1)
   })
 
+  test('shares concurrent and subsequent reads of one immutable tree', async () => {
+    let commits = 0
+    let trees = 0
+    const repo = createGitHubAggregateRepository(config, async (url) => {
+      const path = new URL(url).pathname
+      if (path.endsWith('/commits/' + headA)) {
+        commits++
+        return Response.json({ tree: { sha: treeA } })
+      }
+      trees++
+      expect(path.endsWith('/trees/' + treeA)).toBe(true)
+      return Response.json({
+        truncated: false,
+        tree: ['blog/a.mdx', 'scraps/b.mdx'].map((path) => ({
+          path: 'storage/' + path, type: 'blob', mode: '100644', sha: blob,
+        })),
+      })
+    })
+    const snapshot = repo.snapshotAt(headA)
+    expect(await Promise.all([snapshot.list('blog'), snapshot.list('scraps')])).toEqual([
+      ['blog/a.mdx'], ['scraps/b.mdx'],
+    ])
+    expect(await snapshot.list('blog')).toEqual(['blog/a.mdx'])
+    expect([commits, trees]).toEqual([1, 1])
+  })
+
+  test('does not cache an unsuccessful pinned tree read', async () => {
+    let trees = 0
+    const repo = createGitHubAggregateRepository(config, async (url) => {
+      if (new URL(url).pathname.includes('/commits/')) {
+        return Response.json({ tree: { sha: treeA } })
+      }
+      trees++
+      return Response.json({ truncated: trees === 1, tree: [] })
+    })
+    const snapshot = repo.snapshotAt(headA)
+    await expect(snapshot.list('blog')).rejects.toBeInstanceOf(StorageError)
+    expect(await snapshot.list('blog')).toEqual([])
+    expect(trees).toBe(2)
+  })
+
   test('rejects a stale snapshot before preparing objects', async () => {
     let calls = 0
     const request = async () => {
@@ -344,4 +385,49 @@ describe('GitHub single-document persistence', () => {
     expect(calls).toBe(1)
   })
 
+})
+
+describe('GitHub content byte integrity across read protocols', () => {
+  const pathname = 'editor/notes.json'
+  const raw = {
+    type: 'file', encoding: 'base64', sha: blob,
+    path: 'storage/editor/notes.json',
+  }
+  const readers = (payload: Record<string, unknown>) => {
+    const request = async () => Response.json({ ...raw, ...payload })
+    return [
+      createGitHubAggregateRepository(config, request).snapshotAt(headA),
+      createGitHubDocumentRepository(config, request),
+    ]
+  }
+
+  test('preserves empty and multiline base64 UTF-8 content', async () => {
+    for (const text of ['', '日本語\n', 'one\r\ntwo']) {
+      const bytes = Buffer.from(text)
+      const encoded = bytes.toString('base64').replace(/.{4}/g, '$&\r\n')
+      for (const reader of readers({ content: encoded, size: bytes.length })) {
+        expect((await reader.loadText(pathname))?.content).toBe(text)
+      }
+    }
+  })
+
+  test.each([
+    { content: 'YQ==', size: 2 }, // wrong length
+    { content: 'YQ', size: 1 }, // noncanonical padding
+    { content: 'YQ==!', size: 1 }, // noncanonical character
+    { content: '/w==', size: 1 }, // invalid UTF-8
+  ])('rejects invalid payload %j at both read boundaries', async (payload) => {
+    for (const reader of readers(payload)) {
+      await expect(reader.loadText(pathname)).rejects.toThrow(
+        `GitHub supplied incomplete or unsupported file bytes for ${pathname}.`,
+      )
+    }
+  })
+
+  test('single-document reads still reject a mismatched pathname', async () => {
+    const repo = createGitHubDocumentRepository(config, async () => Response.json({
+      ...raw, path: 'storage/editor/other.json', content: 'YQ==', size: 1,
+    }))
+    await expect(repo.loadText(pathname)).rejects.toBeInstanceOf(StorageError)
+  })
 })

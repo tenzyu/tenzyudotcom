@@ -11,13 +11,14 @@ export function createLoginRateLimiter({
   maxClients,
 }: RateLimitOptions) {
   const clients = new Map<string, { count: number; resetAt: number }>()
-  let sweepAt = 0
+  let sweepAt = Infinity
 
   function sweep(now: number) {
+    sweepAt = Infinity
     for (const [key, entry] of clients) {
       if (entry.resetAt <= now) clients.delete(key)
+      else sweepAt = Math.min(sweepAt, entry.resetAt)
     }
-    sweepAt = now + windowMs
   }
 
   return {
@@ -31,7 +32,9 @@ export function createLoginRateLimiter({
       }
       // Do not evict live counters: churn would bypass the attempt limit.
       if (!current && clients.size >= maxClients) return false
-      clients.set(key, { count: 1, resetAt: now + windowMs })
+      const resetAt = now + windowMs
+      clients.set(key, { count: 1, resetAt })
+      sweepAt = Math.min(sweepAt, resetAt)
       return true
     },
     clear(key: string) {

@@ -2,6 +2,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
+import { fileURLToPath } from 'node:url';
 
 const MAX_MESSAGE_BYTES = 64 * 1024 * 1024;
 
@@ -57,11 +58,26 @@ export function sanitizeFilename(value) {
     })
     .replace(/\s+/g, ' ')
     .trim()
-    .replace(/^\.+/, '')
-    .slice(0, 180);
+    .replace(/^\.+/, '');
 
   const finalName = safe || 'chatgpt-export.html';
-  return /\.html?$/i.test(finalName) ? finalName : `${finalName}.html`;
+  return fitHtmlFilename(finalName);
+}
+
+function fitHtmlFilename(name) {
+  const extension = name.match(/\.html?$/i)?.[0] || '.html';
+  const stem = /\.html?$/i.test(name) ? name.slice(0, -extension.length) : name;
+  const encoder = new TextEncoder();
+  const budget = 255 - encoder.encode(extension).length;
+  let result = '';
+  let bytes = 0;
+  for (const char of stem) {
+    const size = encoder.encode(char).length;
+    if (bytes + size > budget || result.length + char.length + extension.length > 180) break;
+    result += char;
+    bytes += size;
+  }
+  return (result.trimEnd() || 'chatgpt-export') + extension;
 }
 
 export function resolveOutputPath(outputDir, filename) {
@@ -115,6 +131,6 @@ async function main() {
   }
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (fileURLToPath(import.meta.url) === process.argv[1]) {
   main();
 }

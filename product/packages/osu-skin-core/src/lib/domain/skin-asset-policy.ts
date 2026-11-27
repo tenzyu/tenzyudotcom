@@ -1,5 +1,5 @@
 import type { TaxonomyPath } from "./taxonomy-path";
-import type { SkinKind, SkinMeaning } from "./skin-asset";
+import { requiredLevels, type RequiredLevel, type SkinKind, type SkinMeaning } from "./skin-asset";
 
 export function emptySkinMeaning(): SkinMeaning {
   return {
@@ -36,3 +36,8 @@ export function compareTaxonomyPathOrder(a: TaxonomyPath, b: TaxonomyPath): numb
   );
 }
 
+
+/** The strongest requirement wins independently of source or iteration order. */
+export function mergeRequiredLevel(a: RequiredLevel, b: RequiredLevel): RequiredLevel {
+  return requiredLevels.indexOf(a) <= requiredLevels.indexOf(b) ? a : b;
+}

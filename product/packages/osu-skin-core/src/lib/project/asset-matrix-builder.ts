@@ -10,6 +10,7 @@ import {
   compareTaxonomyPathOrder,
   emptySkinMeaning,
   mergeSkinMeaning,
+  mergeRequiredLevel,
   preferSkinKind,
 } from "../domain/skin-asset-policy";
 import { TaxonomyPath } from "../domain/taxonomy-path";
@@ -98,29 +99,33 @@ function resolutionState(assets: ClassifiedSkinAsset[]): { hasHd: boolean; hasSd
 }
 
 function sequenceWarnings(assets: ClassifiedSkinAsset[]): AssetMatrixWarning[] {
-  const indexes = assets
+  const indexes = [...new Set(assets
     .map((asset) => asset.sequenceIndex)
-    .filter((value): value is number => typeof value === "number")
+    .filter((value): value is number => typeof value === "number" && Number.isSafeInteger(value) && value >= 0))]
     .sort((a, b) => a - b);
 
-  if (indexes.length <= 1) return [];
-
-  const existing = new Set(indexes);
   const missing: number[] = [];
+  let missingCount = 0;
+  const sampleLimit = 64;
 
-  for (let index = indexes[0]; index <= indexes[indexes.length - 1]; index += 1) {
-    if (!existing.has(index)) missing.push(index);
+  for (let i = 1; i < indexes.length; i += 1) {
+    const previous = indexes[i - 1];
+    const gap = indexes[i] - previous - 1;
+    missingCount += gap;
+    // A filename can encode a huge gap. Bound the diagnostic by file count,
+    // not by the numeric span between the first and last frames.
+    for (let offset = 1; offset <= gap && missing.length < sampleLimit; offset += 1) {
+      missing.push(previous + offset);
+    }
   }
 
-  return missing.length
-    ? [
-        {
-          type: "animationGap",
-          severity: "warning",
-          message: `animation frames missing: ${missing.join(", ")}`,
-        },
-      ]
-    : [];
+  if (!missingCount) return [];
+  const remainder = missingCount > missing.length ? `, ... (${missingCount} total)` : "";
+  return [{
+    type: "animationGap",
+    severity: "warning",
+    message: `animation frames missing: ${missing.join(", ")}${remainder}`,
+  }];
 }
 
 function previewKindFor(assets: ClassifiedSkinAsset[]): SkinKind | "empty" {
@@ -155,8 +160,12 @@ function matrixCell(assets: ClassifiedSkinAsset[]): AssetMatrixCell {
   };
 }
 
-function emptyCells(columns: AssetMatrixColumn[]): Record<string, AssetMatrixCell> {
-  return Object.fromEntries(columns.map((column) => [column.id, matrixCell([])]));
+type PendingAssetMatrixRow = Omit<AssetMatrixRow, "cells"> & {
+  cells: Record<string, ClassifiedSkinAsset[]>;
+};
+
+function emptyCells(columns: AssetMatrixColumn[]): PendingAssetMatrixRow["cells"] {
+  return Object.fromEntries(columns.map((column) => [column.id, []]));
 }
 
 function taxonomyPathFromSeed(seed: AssetMatrixRowSeed): TaxonomyPath {
@@ -174,7 +183,7 @@ function rowKeyForSeed(seed: AssetMatrixRowSeed): string {
   return seed.rowKey ?? `${taxonomyPath.key}:${seed.componentId}`;
 }
 
-function baseRowFromAsset(asset: ClassifiedSkinAsset, columns: AssetMatrixColumn[]): AssetMatrixRow {
+function baseRowFromAsset(asset: ClassifiedSkinAsset, columns: AssetMatrixColumn[]): PendingAssetMatrixRow {
   return {
     rowKey: rowKeyForAsset(asset),
     componentId: asset.componentId,
@@ -193,7 +202,7 @@ function baseRowFromAsset(asset: ClassifiedSkinAsset, columns: AssetMatrixColumn
   };
 }
 
-function baseRowFromSeed(seed: AssetMatrixRowSeed, columns: AssetMatrixColumn[]): AssetMatrixRow {
+function baseRowFromSeed(seed: AssetMatrixRowSeed, columns: AssetMatrixColumn[]): PendingAssetMatrixRow {
   const taxonomyPath = taxonomyPathFromSeed(seed);
   const meaning = seed.meaning ?? emptySkinMeaning();
 
@@ -267,7 +276,7 @@ export class AssetMatrixBuilder {
       })),
     ];
 
-    const rowMap = new Map<string, AssetMatrixRow>();
+    const rowMap = new Map<string, PendingAssetMatrixRow>();
 
     for (const seed of input.rowSeeds ?? []) {
       const row = baseRowFromSeed(seed, columns);
@@ -281,16 +290,13 @@ export class AssetMatrixBuilder {
 
         rowMap.set(rowKey, row);
 
-        const currentCell = row.cells[columnId] ?? matrixCell([]);
-        row.cells[columnId] = matrixCell([...currentCell.assets, asset]);
+        row.cells[columnId].push(asset);
 
         row.meaning = mergeSkinMeaning(row.meaning, asset.meaning);
         row.lazerMeaningful = row.lazerMeaningful || isLazerMeaningful(asset.meaning);
         row.kind = preferSkinKind(row.kind, asset.kind);
 
-        if (row.requiredLevel === "optional" && asset.requiredLevel !== "optional") {
-          row.requiredLevel = asset.requiredLevel;
-        }
+        row.requiredLevel = mergeRequiredLevel(row.requiredLevel, asset.requiredLevel);
       }
     };
 
@@ -301,7 +307,13 @@ export class AssetMatrixBuilder {
     }
 
     const rows = [...rowMap.values()]
-      .map((row) => {
+      .map((pending): AssetMatrixRow => {
+        const row: AssetMatrixRow = {
+          ...pending,
+          cells: Object.fromEntries(
+            Object.entries(pending.cells).map(([id, assets]) => [id, matrixCell(assets)]),
+          ),
+        };
         addMissingWarnings(row, columns);
         return row;
       })

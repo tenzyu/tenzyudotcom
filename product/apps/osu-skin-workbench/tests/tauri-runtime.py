@@ -8,6 +8,7 @@ import sys
 import tempfile
 import time
 import urllib.request
+import urllib.error
 
 ROOT = Path(__file__).resolve().parents[1]
 APP = ROOT / "src-tauri/target/release/osu-skin-workbench"
@@ -37,7 +38,7 @@ def group_has_live_members(group):
 
 def stop_driver(driver, grace_seconds=10):
     # start_new_session makes the child PID the private process group ID.
-    # Waiting for just tauri-driver leaves WebKitGTK/application descendants.
+    # Waiting for just the driver leaves WebKitGTK/application descendants.
     def send(sig):
         try:
             os.killpg(driver.pid, sig)
@@ -103,9 +104,10 @@ def main():
         (skin / "skin.ini").write_text(content)
         env = {**os.environ, "HOME":str(home), "XDG_DATA_HOME":str(data),
                "XDG_CONFIG_HOME":str(root/"config"), "XDG_CACHE_HOME":str(root/"cache")}
-        driver_path = str(Path(os.environ["HOME"]) / ".cargo/bin/tauri-driver")
+        env.update(TAURI_AUTOMATION="true", TAURI_WEBVIEW_AUTOMATION="true")
         with open(root / "driver.log", "w+") as log:
-            driver = subprocess.Popen([driver_path], env=env, stdout=log, stderr=log,
+            driver = subprocess.Popen(["WebKitWebDriver", "--port=4444", "--host=127.0.0.1"],
+                                      env=env, stdout=log, stderr=log,
                                       start_new_session=True)
             endpoint = "http://127.0.0.1:4444"
             session = None
@@ -113,16 +115,20 @@ def main():
                 payload = json.dumps(body).encode() if body is not None else None
                 req = urllib.request.Request(endpoint + path, data=payload, method=method,
                                              headers={"Content-Type":"application/json"})
-                with urllib.request.urlopen(req, timeout=timeout) as response:
-                    return json.load(response)["value"]
+                try:
+                    with urllib.request.urlopen(req, timeout=timeout) as response:
+                        return json.load(response)["value"]
+                except urllib.error.HTTPError as error:
+                    print(f"WebDriver HTTP {error.code}: {error.read(4096).decode(errors='replace')}", flush=True)
+                    raise
             def ready():
                 if driver.poll() is not None:
-                    raise AssertionError("tauri-driver terminated")
+                    raise AssertionError("WebKitWebDriver terminated")
                 try: return request("GET", "/status").get("ready")
                 except OSError: return False
             def start():
                 created = request("POST", "/session", {"capabilities":{"alwaysMatch":{
-                    "browserName":"wry","tauri:options":{"application":str(APP)}}}})
+                    "browserName":"wry","webkitgtk:browserOptions":{"binary":str(APP),"args":[]}}}})
                 print(json.dumps(created["capabilities"]))
                 return "/session/" + created["sessionId"]
             def js(code, *args):
@@ -135,10 +141,21 @@ def main():
                 request("POST", session + "/element/" + element(selector) + "/value", {"text":value,"value":list(value)})
             def visible(text):
                 return js("return document.body && document.body.innerText.includes(arguments[0])", text)
+            def hub_ready(status):
+                # Empty-list copy is rendered before the initial IPC completes.
+                # Require its acknowledged status and enabled form controls.
+                return js("""
+                    const status = document.querySelector('.hubCreateCard .statusQuiet');
+                    return status?.textContent.trim() === arguments[0]
+                        && ['#project-name', '#main-skin-path'].every(selector => {
+                            const input = document.querySelector(selector);
+                            return input && !input.matches(':disabled');
+                        });
+                """, status)
             try:
                 until(ready, "driver ready")
                 session = start()
-                until(lambda: visible("No projects yet."), "real IPC list completed")
+                until(lambda: hub_ready("No projects yet."), "real IPC list completed and form enabled")
                 type_text("#project-name", "Native Runtime CI")
                 type_text("#main-skin-path", str(skin))
                 until(lambda: js("return [...document.querySelectorAll('button')].some(b=>b.textContent.includes('Import main skin')&&!b.disabled)"), "import enabled")
@@ -150,12 +167,50 @@ def main():
                 manifest = json.loads(manifests[0].read_text())
                 assert manifest["name"] == "Native Runtime CI"
                 assert (manifests[0].parent/"project/raw/skin.ini").read_text() == content
+                baseline_file = manifests[0].parent / "sources/main/raw/skin.ini"
+                project_file = manifests[0].parent / "project/raw/skin.ini"
+                assert baseline_file.read_text() == content
                 assert (skin/"skin.ini").read_text() == content
+                project_file.write_text(content + "# workspace edit\n")
+                assert baseline_file.read_text() == content
+                assert (skin/"skin.ini").read_text() == content
+                project_file.write_text(content)
                 refresh_id = js("const b=[...document.querySelectorAll('button')].find(b=>b.textContent.trim()==='Refresh');b.id='runtime-refresh';return b.id")
                 click("#" + refresh_id)
-                until(lambda: visible("Projects loaded."), "real list IPC after create")
+                until(lambda: hub_ready("Projects loaded."), "real list IPC after create and form enabled")
                 assert visible("Native Runtime CI")
-                print(json.dumps({"launch":"passed","list":"passed","import":"passed","filesystem":"passed","refresh":"passed","scope":"Linux release executable + WebKitGTK; no bundle or other OS claim"}))
+                # Import another real project, then switch through the workspace's
+                # native select. A failed load must not leave the other project's
+                # asset matrix attached to the selected project.
+                second_skin = root / "second-skin"
+                second_skin.mkdir()
+                (second_skin / "skin.ini").write_text(content)
+                (second_skin / "readme.txt").write_text("second project only")
+                type_text("#project-name", "Second Runtime Project")
+                type_text("#main-skin-path", str(second_skin))
+                until(lambda: js("return [...document.querySelectorAll('button')].some(b=>b.textContent.includes('Import main skin')&&!b.disabled)"), "second import enabled")
+                second_import = js("const b=[...document.querySelectorAll('button')].find(b=>b.textContent.includes('Import main skin'));b.id='runtime-second-import';return b.id")
+                click("#" + second_import)
+                until(lambda: visible("Imported project: Second Runtime Project"), "second project created")
+                open_id = js("const card=[...document.querySelectorAll('.projectCard')].find(c=>c.innerText.includes('Second Runtime Project'));const b=[...card.querySelectorAll('button')].find(b=>b.textContent.trim()==='Open');b.id='runtime-open';return b.id")
+                click("#" + open_id)
+                until(lambda: visible("Project files: 2 · Source files: 2"), "second workspace loaded")
+                def select_project(project_id):
+                    js("const select=document.querySelector('#sidebar-project-select');select.value=arguments[0];select.dispatchEvent(new Event('change',{bubbles:true}));return select.value", project_id)
+                select_project(manifest["id"])
+                until(lambda: visible("Project files: 1 · Source files: 1"), "first workspace loaded")
+                assert visible("Native Runtime CI")
+                # Return to the second project, then remove only the isolated
+                # fixture's first manifest to force a real get_project_files error.
+                second_manifest = next(json.loads(p.read_text()) for p in data.rglob("skin-editor-projects/*/manifest.json") if p != manifests[0])
+                select_project(second_manifest["id"])
+                until(lambda: visible("Project files: 2 · Source files: 2"), "second workspace reloaded")
+                manifests[0].unlink()
+                select_project(manifest["id"])
+                until(lambda: visible("failed to open manifest"), "selection load failure reported")
+                assert visible("Project files: 0 · Source files: 0")
+                assert visible("Native Runtime CI")
+                print(json.dumps({"launch":"passed","list":"passed","import":"passed","filesystem":"passed","importSnapshotIsolation":"passed","refresh":"passed","selection":"passed","failedSelectionIsolation":"passed","scope":"Linux release executable + WebKitGTK; no bundle or other OS claim"}))
             except Exception:
                 log.seek(0)
                 print(log.read()[-12000:])

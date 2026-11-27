@@ -2,20 +2,6 @@
 
 const NATIVE_HOST_NAME = 'com.tenzyudotcom.chatgpt_partial_html_export';
 
-const DEFAULT_SETTINGS = Object.freeze({
-  exportMode: 'download',
-  downloadsSubdir: 'chatgpt-partial-html-export',
-  nativeOutputDir: '',
-  filenamePrefix: 'chatgpt',
-  includeUser: true,
-  includeAssistant: true,
-  includeSystem: true,
-  includeUnknown: true,
-  includeMetadata: true,
-  includeStandaloneCss: true,
-  fallbackToDownload: true
-});
-
 if (typeof browser !== 'undefined') {
   browser.runtime.onMessage.addListener((message, sender) => {
     if (!message || typeof message !== 'object') {
@@ -39,22 +25,22 @@ if (typeof browser !== 'undefined') {
 }
 
 async function getSettings() {
-  const stored = await browser.storage.local.get(DEFAULT_SETTINGS);
-  return { ...DEFAULT_SETTINGS, ...stored };
+  const stored = await browser.storage.local.get(CPHE_DEFAULT_SETTINGS);
+  return { ...CPHE_DEFAULT_SETTINGS, ...stored };
 }
 
 async function saveSettings(nextSettings) {
   const safe = normalizeSettings(nextSettings || {});
   await browser.storage.local.set(safe);
-  return { ok: true, settings: { ...DEFAULT_SETTINGS, ...safe } };
+  return { ok: true, settings: { ...CPHE_DEFAULT_SETTINGS, ...safe } };
 }
 
 function normalizeSettings(input) {
   return {
     exportMode: input.exportMode === 'native' ? 'native' : 'download',
-    downloadsSubdir: sanitizeRelativePath(input.downloadsSubdir || DEFAULT_SETTINGS.downloadsSubdir),
+    downloadsSubdir: sanitizeRelativePath(input.downloadsSubdir || CPHE_DEFAULT_SETTINGS.downloadsSubdir),
     nativeOutputDir: String(input.nativeOutputDir || '').trim(),
-    filenamePrefix: sanitizeFilenameStem(input.filenamePrefix || DEFAULT_SETTINGS.filenamePrefix),
+    filenamePrefix: sanitizeFilenameStem(input.filenamePrefix || CPHE_DEFAULT_SETTINGS.filenamePrefix),
     includeUser: input.includeUser !== false,
     includeAssistant: input.includeAssistant !== false,
     includeSystem: input.includeSystem !== false,
@@ -170,11 +156,26 @@ function sanitizeFilename(value) {
     })
     .replace(/\s+/g, ' ')
     .trim()
-    .replace(/^\.+/, '')
-    .slice(0, 180);
+    .replace(/^\.+/, '');
 
   const withName = normalized || 'chatgpt-export.html';
-  return /\.html?$/i.test(withName) ? withName : `${withName}.html`;
+  return fitHtmlFilename(withName);
+}
+
+function fitHtmlFilename(name) {
+  const extension = name.match(/\.html?$/i)?.[0] || '.html';
+  const stem = /\.html?$/i.test(name) ? name.slice(0, -extension.length) : name;
+  const encoder = new TextEncoder();
+  const budget = 255 - encoder.encode(extension).length;
+  let result = '';
+  let bytes = 0;
+  for (const char of stem) {
+    const size = encoder.encode(char).length;
+    if (bytes + size > budget || result.length + char.length + extension.length > 180) break;
+    result += char;
+    bytes += size;
+  }
+  return (result.trimEnd() || 'chatgpt-export') + extension;
 }
 
 function sanitizeFilenameStem(value) {

@@ -1,5 +1,10 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { readFileSync } from 'node:fs';
+import { runInThisContext } from 'node:vm';
+
+// Load the classic script in the same realm, as Firefox does.
+runInThisContext(readFileSync(new URL('../src/settings-defaults.js', import.meta.url), 'utf8'));
 
 await import('../src/content.js');
 
@@ -64,6 +69,24 @@ test('selectMessagesForExport applies include role settings', () => {
 test('selectMessagesForExport can produce zero messages for error UX', () => {
   const messages = [{ role: 'user', id: 1 }];
   assert.equal(selectMessagesForExport(messages, 0, { includeUser: false }).length, 0);
+});
+
+test('exported message labels retain original visible positions after filtering', () => {
+  const messages = [
+    { role: 'user', root: fakeMessageRoot('<p>First</p>') },
+    { role: 'assistant', root: fakeMessageRoot('<p>Second</p>') },
+    { role: 'user', root: fakeMessageRoot('<p>Third</p>') },
+    { role: 'assistant', root: fakeMessageRoot('<p>Fourth</p>') }
+  ];
+  const selected = selectMessagesForExport(messages, 1, { includeUser: false });
+  const html = buildStandaloneHtml(selected, {
+    title: 'Filtered', sourceUrl: 'https://chatgpt.com/c/1',
+    exportedAt: '2026-06-04T00:00:00.000Z',
+    startIndex: 1, totalVisibleMessages: 4, messageCount: 2
+  }, { includeStandaloneCss: false });
+  assert.deepEqual([...html.matchAll(/data-visible-index="(\d+)"/g)].map(match => Number(match[1])), [2, 4]);
+  assert.match(html, /<span>#4<\/span>/);
+  assert.doesNotMatch(html, /<p>Third<\/p>/);
 });
 
 test('shouldIncludeRole maps tool to the system/tool-like include flag', () => {
@@ -154,6 +177,7 @@ test('hydrateWritingBlocks fills an empty message block from matching portal con
 test('buildStandaloneHtml includes standalone metadata and respects CSS option', () => {
   const message = {
     role: 'assistant',
+    visibleIndex: 1,
     root: fakeMessageRoot('<p>Hello</p><pre><code>const x = 1;</code></pre><table><tbody><tr><td>ok</td></tr></tbody></table>')
   };
   const html = buildStandaloneHtml([message], {
