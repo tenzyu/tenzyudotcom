@@ -42,3 +42,5 @@ export function createLoginRateLimiter({
     },
   }
 }
+
+// Diagnostic CI workload replay of PR #146; no behavior change.
