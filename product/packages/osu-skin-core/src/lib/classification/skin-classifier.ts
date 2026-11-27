@@ -363,3 +363,5 @@ export function requiredLevelForFile(
 ): RequiredLevel {
   return classifySkinAsset({ relativePath, context }).requiredLevel;
 }
+
+// Diagnostic CI workload replay of PR #154; no behavior change.
