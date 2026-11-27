@@ -67,4 +67,5 @@ jobs:
           fi
           [[ "$url" =~ ^[a-zA-Z0-9.-]+\.vercel\.app$ ]]
           printf 'Preview requested for `%s`: https://%s\n' "$EVENT_SHA" "$url" >> "$GITHUB_STEP_SUMMARY"
-          gh pr comment "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --body "Vercel Preview for `$EVENT_SHA`: https://$url"
+          printf -v comment 'Vercel Preview for `%s`: https://%s' "$EVENT_SHA" "$url"
+          gh pr comment "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --body "$comment"
