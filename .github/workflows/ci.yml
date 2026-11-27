@@ -122,10 +122,16 @@ jobs:
           save-if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/develop' }}
       - name: Enforce fresh workspace compilation
         if: steps.native-cache-key.outcome == 'success'
+        env:
+          CACHE_HIT: ${{ steps.native-cache.outputs.cache-hit }}
         shell: bash
         run: |
           set -euo pipefail
           target=product/apps/osu-skin-workbench/src-tauri/target
+          # Never consume compiled artifacts from a prefix-only restore.
+          if [[ "$CACHE_HIT" != true ]]; then
+            rm -rf -- "$target"
+          fi
           if [[ -d "$target" ]]; then
             stale="$(find "$target" \( -name 'osu-skin-workbench*' -o -name 'osu_skin_workbench*' -o -name 'libosu_skin_workbench*' -o -name 'wire.generated.ts' \) -print -quit)"
             if [[ -n "$stale" ]]; then
