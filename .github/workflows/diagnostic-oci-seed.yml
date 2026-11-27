@@ -1,0 +1,38 @@
+name: Immutable OCI seed local feasibility (diagnostic only)
+on:
+  pull_request:
+    branches: [develop]
+permissions:
+  contents: read
+jobs:
+  local-seed:
+    if: github.head_ref == 'diagnostic/immutable-oci-seed-20261127' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+        with:
+          ref: 492f2005b654f005177ce351f6b521eabccc1692
+          path: producer
+          persist-credentials: false
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+        with:
+          ref: 492f2005b654f005177ce351f6b521eabccc1692
+          path: consumer
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6
+        with:
+          bun-version: 1.4.5
+      - name: Build, test, export and reload OCI seed locally
+        shell: bash
+        run: bash repo-ops/ci-diagnostic/oci-seed-smoke.sh
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: oci-seed-local-evidence
+          path: ${{ runner.temp }}/oci-evidence/
+          retention-days: 2
+          if-no-files-found: error
