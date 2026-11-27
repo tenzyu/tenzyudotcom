@@ -1,0 +1,116 @@
+name: Native readiness regression (diagnostic only)
+
+on:
+  pull_request:
+    branches: [develop]
+
+permissions:
+  contents: read
+
+jobs:
+  native:
+    if: github.head_ref == 'ci-benchmark/native-readiness'
+    timeout-minutes: 20
+    runs-on: ubuntu-24.04
+    env:
+      NX_DAEMON: 'false'
+      NX_NO_CLOUD: 'true'
+      NX_TUI: 'false'
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+          ref: 92b8c2b2ab716669d8908b4614bacdb12dd3c10b
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.5
+      - run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev patchelf pkg-config webkit2gtk-driver xvfb dbus-x11
+      - run: bun install --frozen-lockfile
+      - name: Verify native TypeScript 7 and legacy compiler API coexist
+        run: |
+          test "$(bun x --no-install tsc --version)" = 'Version 7.0.2'
+          node -e 'const ts = require("typescript"); if (typeof ts.readConfigFile !== "function" || typeof ts.createProgram !== "function") throw new Error("TypeScript compatibility API unavailable")'
+      - name: Prepare disposable delayed-list fixture and both harness revisions
+        shell: bash
+        run: |
+          set -euo pipefail
+          git rev-parse HEAD HEAD^{tree}
+          test "$(git rev-parse HEAD)" = '92b8c2b2ab716669d8908b4614bacdb12dd3c10b'
+          harness=product/apps/osu-skin-workbench/tests/tauri-runtime.py
+          cp "$harness" "$RUNNER_TEMP/readiness-candidate.py"
+          git show 0c33f721da4d8cf030aeeab2f97ba92c100d023e:"$harness" > "$RUNNER_TEMP/readiness-baseline.py"
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("product/apps/osu-skin-workbench/src/components/ProjectHubClient.tsx")
+          text = p.read_text()
+          old = "      const nextProjects = await listProjectManifests()"
+          fixture = """
+                if (!nextProjects.length) {
+                  document.documentElement.dataset.ciListWaiting = 'true'
+                  await new Promise<void>(resolve => window.addEventListener(
+                    'ci-list-release', () => resolve(), { once: true }))
+                }"""
+          assert text.count(old) == 1
+          p.write_text(text.replace(old, old + fixture))
+          PY
+          git diff --check
+      - name: Generate IPC contract and verify TypeScript projection
+        run: |
+          mkdir -p product/apps/osu-skin-workbench/src-tauri/target
+          SKIN_IPC_EXPORT="$PWD/product/apps/osu-skin-workbench/src-tauri/target/wire.generated.ts" cargo test --locked --manifest-path product/apps/osu-skin-workbench/src-tauri/Cargo.toml export_wire_contract
+          bun nx run osu-skin-core:build
+          bun x tsc --ignoreConfig --noEmit --strict --skipLibCheck --moduleResolution bundler --module esnext --target es2022 product/apps/osu-skin-workbench/scripts/wire-contract-check.ts
+      - name: Verify native product and build its distributable
+        run: bun nx run-many -t verify build --projects=skin-workbench --skip-nx-cache
+      - name: Record native WebKit driver version
+        run: |
+          command -v WebKitWebDriver
+          dpkg-query -W webkit2gtk-driver libwebkit2gtk-4.1-0
+      - name: Prove old readiness fails and corrected readiness passes on identical delayed-list fixture
+        shell: bash
+        run: |
+          set -euo pipefail
+          harness=product/apps/osu-skin-workbench/tests/tauri-runtime.py
+          for variant in baseline candidate; do
+            cp "$RUNNER_TEMP/readiness-$variant.py" "$harness"
+            python3 - <<'PY'
+          from pathlib import Path
+          p = Path("product/apps/osu-skin-workbench/tests/tauri-runtime.py")
+          text = p.read_text()
+          old = "                session = start()"
+          fixture = """
+                          until(lambda: js("return document.documentElement.dataset.ciListWaiting === 'true' && document.querySelector('#project-name')?.disabled"), "controlled list readiness fixture")
+                          assert visible("No projects yet."), "negative control requires misleading empty-state copy"
+                          assert js("return document.querySelector('.hubCreateCard .statusQuiet').textContent.trim() !== 'No projects yet.'")
+                          js("setTimeout(() => window.dispatchEvent(new Event('ci-list-release')), 3000); return true")
+          """
+          assert text.count(old) == 1
+          p.write_text(text.replace(old, old + fixture.rstrip()))
+          PY
+            if xvfb-run -a dbus-run-session -- python3 "$harness" > "$RUNNER_TEMP/readiness-$variant.log" 2>&1; then
+              result=0
+            else
+              result=$?
+            fi
+            cat "$RUNNER_TEMP/readiness-$variant.log"
+            if [[ "$variant" == baseline ]]; then
+              test "$result" != 0
+              grep -F 'element not interactable' "$RUNNER_TEMP/readiness-$variant.log"
+              grep -F 'type_text("#project-name", "Native Runtime CI")' "$RUNNER_TEMP/readiness-$variant.log"
+            else
+              test "$result" = 0
+              grep -F '"failedSelectionIsolation": "passed"' "$RUNNER_TEMP/readiness-$variant.log"
+            fi
+          done
+      - name: Upload readiness comparison
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-readiness-comparison
+          path: ${{ runner.temp }}/readiness-*.log
+          retention-days: 7
+
+
