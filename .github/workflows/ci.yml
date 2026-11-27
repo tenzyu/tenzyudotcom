@@ -80,9 +80,16 @@ jobs:
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: 1.4.5
-      - run: |
-          sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.1-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev patchelf pkg-config webkit2gtk-driver xvfb dbus-x11
+      - name: Provision native dependencies from the signed Ubuntu archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          sources=/etc/apt/sources.list.d/ubuntu.sources
+          test -f "$sources"
+          grep -q '^Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg$' "$sources"
+          args=(-o "Dir::Etc::sourcelist=$sources" -o 'Dir::Etc::sourceparts=-')
+          sudo apt-get "${args[@]}" update
+          sudo apt-get "${args[@]}" install -y libwebkit2gtk-4.1-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev patchelf pkg-config webkit2gtk-driver xvfb dbus-x11
       - run: bun install --frozen-lockfile
       - name: Verify native TypeScript 7 and legacy compiler API coexist
         run: |
