@@ -1,0 +1,108 @@
+name: Trusted cache cohort reuse (diagnostic only)
+on:
+  pull_request:
+    branches: [develop]
+permissions:
+  contents: read
+concurrency:
+  group: diagnostic-trusted-cache-cohort-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  native:
+    if: github.head_ref == 'diagnostic/trusted-cache-cohort-20261127'
+    strategy:
+      fail-fast: false
+      matrix:
+        cohort: [0, 1, 2]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      NX_DAEMON: 'false'
+      NX_NO_CLOUD: 'true'
+      NX_TUI: 'false'
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Pin baseline checkout and preserve diagnostic harness outside it
+        run: |
+          set -euo pipefail
+          cp repo-ops/ci-diagnostic/trusted-cache-cohort.sh "$RUNNER_TEMP/trusted-cache-cohort.sh"
+          git checkout --detach 89870871d742adc0e312f8375a5fce1bc344fdba
+          git clean -fdx
+          git rev-parse HEAD 'HEAD^{tree}'
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.5
+      - run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev patchelf pkg-config webkit2gtk-driver xvfb dbus-x11
+      - run: bun install --frozen-lockfile
+      - name: Verify native TypeScript 7 and legacy compiler API coexist
+        run: |
+          test "$(bun x --no-install tsc --version)" = 'Version 7.0.2'
+          node -e 'const ts = require("typescript"); if (typeof ts.readConfigFile !== "function" || typeof ts.createProgram !== "function") throw new Error("TypeScript compatibility API unavailable")'
+      - name: Fingerprint native dependency environment
+        if: (github.event_name == 'pull_request' && github.base_ref == 'develop') || (github.event_name == 'push' && github.ref == 'refs/heads/develop')
+        id: native-cache-key
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            printf '%s\n' "$ImageOS" "$ImageVersion" "$RUNNER_ARCH"
+            rustc -vV
+            cargo -V
+            cc --version
+            ld --version
+            pkg-config --version
+            dpkg-query -W -f='${binary:Package}\t${Version}\n' | LC_ALL=C sort
+            sha256sum product/apps/osu-skin-workbench/src-tauri/Cargo.toml product/apps/osu-skin-workbench/src-tauri/Cargo.lock
+          } > "$RUNNER_TEMP/native-cache-inputs.txt"
+          hash="$(sha256sum "$RUNNER_TEMP/native-cache-inputs.txt" | cut -d ' ' -f 1)"
+          printf 'digest=%s\n' "$hash" >> "$GITHUB_OUTPUT"
+          printf 'Native dependency environment: %s\n' "$hash"
+      - name: Restore Rust dependency artifacts
+        if: steps.native-cache-key.outcome == 'success'
+        id: native-cache
+        uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+        with:
+          prefix-key: tenzyudotcom-native-deps-v1
+          key: ${{ steps.native-cache-key.outputs.digest }}
+          add-job-id-key: false
+          workspaces: product/apps/osu-skin-workbench/src-tauri -> target
+          cache-bin: false
+          cache-workspace-crates: false
+          cache-on-failure: false
+          save-if: false
+      - name: Enforce fresh workspace compilation
+        if: steps.native-cache-key.outcome == 'success'
+        env:
+          CACHE_HIT: ${{ steps.native-cache.outputs.cache-hit }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          target=product/apps/osu-skin-workbench/src-tauri/target
+          # Never consume compiled artifacts from a prefix-only restore.
+          if [[ "$CACHE_HIT" != true ]]; then
+            rm -rf -- "$target"
+          fi
+          if [[ -d "$target" ]]; then
+            stale="$(find "$target" \( -name 'osu-skin-workbench*' -o -name 'osu_skin_workbench*' -o -name 'libosu_skin_workbench*' -o -name 'wire.generated.ts' \) -print -quit)"
+            if [[ -n "$stale" ]]; then
+              printf 'Unexpected cached workspace output: %s\n' "$stale" >&2
+              exit 1
+            fi
+          fi
+      - name: Execute every Native gate for the fixed cohort
+        env:
+          COHORT: ${{ matrix.cohort }}
+          CACHE_HIT: ${{ steps.native-cache.outputs.cache-hit }}
+        run: bash "$RUNNER_TEMP/trusted-cache-cohort.sh"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: trusted-cache-cohort-${{ matrix.cohort }}
+          path: ${{ runner.temp }}/trusted-cache-cohort/
+          if-no-files-found: error
+          retention-days: 7
