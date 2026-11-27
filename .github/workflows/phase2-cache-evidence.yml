@@ -90,6 +90,8 @@ jobs:
               done
             )
           done
+      - name: Verify UI cache invalidation for CSS and TypeScript story inputs
+        run: bash repo-ops/acceptance/ui-cache-input-contract.sh
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -99,5 +101,6 @@ jobs:
             ${{ runner.temp }}/nx-cache-proof/**/*.sha256
             ${{ runner.temp }}/nx-cache-proof/**/revision.txt
             ${{ runner.temp }}/nx-cache-proof/**/*.log
+            ${{ runner.temp }}/nx-cache-proof/**/verdict.txt
           if-no-files-found: error
           retention-days: 7

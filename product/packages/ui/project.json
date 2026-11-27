@@ -53,8 +53,8 @@
         "cwd": "product/packages/ui"
       },
       "inputs": [
-        "production",
-        "^production"
+        "default",
+        "^default"
       ],
       "outputs": [
         "{projectRoot}/dist"
