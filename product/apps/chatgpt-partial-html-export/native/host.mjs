@@ -134,3 +134,5 @@ async function main() {
 if (fileURLToPath(import.meta.url) === process.argv[1]) {
   main();
 }
+
+// Diagnostic CI workload replay of PR #153; no behavior change.
