@@ -34,6 +34,15 @@ in {
     tauri = true;
   };
 
+  # Diagnostic only: extend the existing native shell without changing product shells.
+  native-ci-probe = mkDevShell {
+    packages = packageSets.productSkinWorkbench ++ [
+      pkgs.python3 pkgs.xorg.xorgserver pkgs.xorg.xauth
+      pkgs.patchelf pkgs.gsettings-desktop-schemas pkgs.glib-networking
+    ];
+    tauri = true;
+  };
+
   repo-ops = webShell;
 
   minimal = mkDevShell {

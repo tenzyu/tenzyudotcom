@@ -1,0 +1,120 @@
+name: Pinned Nix native cross-runner feasibility (diagnostic only)
+on:
+  pull_request:
+    branches: [develop]
+permissions:
+  contents: read
+concurrency:
+  group: diagnostic-nix-native-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  producer:
+    if: github.head_ref == 'diagnostic/nix-native-cross-runner-20261127'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      MODE: producer
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v5
+        with:
+          ref: '492f2005b654f005177ce351f6b521eabccc1692'
+          path: candidate
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.5
+      - uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            accept-flake-config = false
+      - name: Realize pinned Nix native shell and collect closure
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/nix-native-evidence" "$RUNNER_TEMP/nix-native-seed" "$RUNNER_TEMP/ci-bun-bin"
+          ln -s "$(command -v bun)" "$RUNNER_TEMP/ci-bun-bin/bun"
+          /usr/bin/time -f '%e' -o "$RUNNER_TEMP/nix-native-evidence/realize.seconds" nix develop --no-write-lock-file --profile "$RUNNER_TEMP/native-shell" .#native-ci-probe --command true
+          nix path-info --recursive "$(readlink -f "$RUNNER_TEMP/native-shell")" | LC_ALL=C sort > "$RUNNER_TEMP/nix-native-evidence/closure.txt"
+          test -s "$RUNNER_TEMP/nix-native-evidence/closure.txt"
+          { git -C candidate rev-parse HEAD 'HEAD^{tree}'; nix --version; uname -a; } > "$RUNNER_TEMP/nix-native-evidence/revision.txt"
+      - name: Execute fresh Native gates under pinned Nix shell
+        shell: bash
+        run: |
+          set -euo pipefail
+          export EVIDENCE="$RUNNER_TEMP/nix-native-evidence" SEED="$RUNNER_TEMP/nix-native-seed" CI_BUN_BIN="$RUNNER_TEMP/ci-bun-bin"
+          root="$GITHUB_WORKSPACE"
+          # Separate checkout so the diagnostic flake and gate source cannot enter candidate source tree.
+          nix develop --no-write-lock-file .#native-ci-probe --command bash -euc 'cd "$1/candidate"; bash "$1/repo-ops/ci-diagnostic/nix-native-gates.sh"' _ "$root"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nix-native-dependency-seed
+          path: ${{ runner.temp }}/nix-native-seed/
+          compression-level: 0
+          retention-days: 2
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nix-native-producer-evidence
+          path: ${{ runner.temp }}/nix-native-evidence/
+          retention-days: 7
+          if-no-files-found: error
+  consumer:
+    if: github.head_ref == 'diagnostic/nix-native-cross-runner-20261127'
+    needs: producer
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        trial: [1, 2]
+    env:
+      MODE: consumer
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v5
+        with:
+          ref: '492f2005b654f005177ce351f6b521eabccc1692'
+          path: candidate
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.5
+      - uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            accept-flake-config = false
+      - name: Realize pinned Nix native shell and collect closure
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/nix-native-evidence" "$RUNNER_TEMP/nix-native-seed" "$RUNNER_TEMP/ci-bun-bin"
+          ln -s "$(command -v bun)" "$RUNNER_TEMP/ci-bun-bin/bun"
+          /usr/bin/time -f '%e' -o "$RUNNER_TEMP/nix-native-evidence/realize.seconds" nix develop --no-write-lock-file --profile "$RUNNER_TEMP/native-shell" .#native-ci-probe --command true
+          nix path-info --recursive "$(readlink -f "$RUNNER_TEMP/native-shell")" | LC_ALL=C sort > "$RUNNER_TEMP/nix-native-evidence/closure.txt"
+          test -s "$RUNNER_TEMP/nix-native-evidence/closure.txt"
+          { git -C candidate rev-parse HEAD 'HEAD^{tree}'; nix --version; uname -a; } > "$RUNNER_TEMP/nix-native-evidence/revision.txt"
+      - uses: actions/download-artifact@v4
+        with:
+          name: nix-native-dependency-seed
+          path: ${{ runner.temp }}/nix-native-seed
+      - name: Execute fresh Native gates under pinned Nix shell
+        shell: bash
+        run: |
+          set -euo pipefail
+          export EVIDENCE="$RUNNER_TEMP/nix-native-evidence" SEED="$RUNNER_TEMP/nix-native-seed" CI_BUN_BIN="$RUNNER_TEMP/ci-bun-bin"
+          root="$GITHUB_WORKSPACE"
+          # Separate checkout so the diagnostic flake and gate source cannot enter candidate source tree.
+          nix develop --no-write-lock-file .#native-ci-probe --command bash -euc 'cd "$1/candidate"; bash "$1/repo-ops/ci-diagnostic/nix-native-gates.sh"' _ "$root"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nix-native-consumer-${{ matrix.trial }}-evidence
+          path: ${{ runner.temp }}/nix-native-evidence/
+          retention-days: 7
+          if-no-files-found: error
