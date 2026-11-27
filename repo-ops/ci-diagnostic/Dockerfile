@@ -4,6 +4,8 @@ ARG SNAPSHOT
 ARG RUNNER_UID
 ARG RUNNER_GID
 ENV DEBIAN_FRONTEND=noninteractive
+# Bootstrap TLS roots from the signed official Ubuntu archive before snapshot HTTPS.
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
 RUN apt update --snapshot "$SNAPSHOT" && apt install -y --snapshot "$SNAPSHOT" \
     build-essential ca-certificates curl file git python3 xz-utils libatomic1 libssl-dev \
     libwebkit2gtk-4.1-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev \
