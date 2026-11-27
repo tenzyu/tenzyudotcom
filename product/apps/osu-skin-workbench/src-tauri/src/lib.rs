@@ -1,6 +1,13 @@
 mod commands;
-mod domain;
-mod infra;
+use tauri::{AppHandle, Manager};
+
+fn app_data_root(app: &AppHandle) -> Result<std::path::PathBuf, String> {
+    let root = app
+        .path()
+        .app_data_dir()
+        .map_err(|error| format!("failed to resolve app data dir: {error}"))?;
+    osu_skin_workbench_core::managed_dir(root)
+}
 
 pub fn run() {
     tauri::Builder::default()

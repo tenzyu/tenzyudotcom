@@ -1,0 +1,277 @@
+use std::collections::HashMap;
+use std::fs;
+use std::path::{Path, PathBuf};
+
+use crate::domain::project::{
+    AddProjectSourceInput, CreateProjectInput, DeleteProjectSourceInput, ProjectManifest,
+    RawProjectFilesResponse, RawSourceFiles, RebuildStructuredResult, RenameProjectSourceInput,
+    SourceManifest, MAIN_SOURCE_ID,
+};
+use crate::infra::archive::copy_source_to_raw;
+use crate::infra::files::{copy_dir_all, read_skin_ini, rebuild_structured, walk_relative_files};
+use crate::infra::lock::lock_workbench;
+use crate::infra::manifest::{
+    ensure_main_source, main_source_manifest, read_manifest, write_manifest,
+};
+use crate::infra::paths::{
+    entity_id, manifest_path, now, project_dir, project_raw_dir,
+    project_structured_dir, projects_root, source_dir, source_raw_dir, source_structured_dir,
+    validate_component,
+};
+
+fn staged_source_dir(source_dir: &std::path::Path) -> Result<std::path::PathBuf, String> {
+    let parent = source_dir
+        .parent()
+        .ok_or_else(|| format!("source directory has no parent: {}", source_dir.display()))?;
+    let name = source_dir
+        .file_name()
+        .and_then(|value| value.to_str())
+        .ok_or_else(|| format!("source directory has no name: {}", source_dir.display()))?;
+    Ok(parent.join(format!("{name}.delete-{}", uuid::Uuid::new_v4().simple())))
+}
+
+pub fn list_projects(app_data: &Path) -> Result<Vec<ProjectManifest>, String> {
+    let root = projects_root(app_data)?;
+    let entries = match fs::read_dir(root) {
+        Ok(entries) => entries,
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(vec![]),
+        Err(error) => return Err(format!("failed to read projects: {error}")),
+    };
+    let mut projects = Vec::new();
+    for entry in entries {
+        let entry = entry.map_err(|error| format!("failed to read project entry: {error}"))?;
+        if !entry
+            .file_type()
+            .map_err(|error| format!("failed to read project entry type: {error}"))?
+            .is_dir()
+        {
+            continue;
+        }
+        let id = entry.file_name();
+        let Some(id) = id.to_str().filter(|id| validate_component(id).is_ok()) else {
+            continue;
+        };
+        if !manifest_path(&project_dir(app_data, id)?)?.exists() {
+            continue;
+        }
+        let mut manifest = read_manifest(app_data, id)?;
+        ensure_main_source(&mut manifest);
+        projects.push(manifest);
+    }
+    projects.sort_by(|a, b| b.updated_at.cmp(&a.updated_at));
+    Ok(projects)
+}
+
+pub fn create_project(
+    app_data: &Path,
+    input: CreateProjectInput,
+) -> Result<ProjectManifest, String> {
+    let _lock = lock_workbench(app_data)?;
+    let source = PathBuf::from(&input.source_path);
+    let name = input
+        .name
+        .filter(|value| !value.trim().is_empty())
+        .unwrap_or_else(|| {
+            source
+                .file_stem()
+                .and_then(|value| value.to_str())
+                .unwrap_or("Skin Project")
+                .to_string()
+        });
+    let id = entity_id(&name);
+    let created_at = now();
+    let raw_dir = project_raw_dir(app_data, &id)?;
+    let structured_dir = project_structured_dir(app_data, &id)?;
+    let source_raw = source_raw_dir(app_data, &id, MAIN_SOURCE_ID)?;
+    let source_structured = source_structured_dir(app_data, &id, MAIN_SOURCE_ID)?;
+
+    copy_source_to_raw(&input.source_path, &raw_dir)?;
+    rebuild_structured(&raw_dir, &structured_dir)?;
+    // Derive the original comparison source from the same imported bytes.
+    copy_dir_all(&raw_dir, &source_raw)?;
+    rebuild_structured(&source_raw, &source_structured)?;
+
+    let mut manifest = ProjectManifest {
+        id,
+        name: name.clone(),
+        main_source_path: input.source_path.clone(),
+        created_at: created_at.clone(),
+        updated_at: created_at.clone(),
+        sources: vec![main_source_manifest(&name, &input.source_path, &created_at)],
+    };
+    write_manifest(app_data, &mut manifest)?;
+    Ok(manifest)
+}
+
+pub fn rename_project_at(
+    app_data: &Path,
+    project_id: &str,
+    name: &str,
+) -> Result<ProjectManifest, String> {
+    let _lock = lock_workbench(app_data)?;
+    let trimmed = name.trim();
+    if trimmed.is_empty() {
+        return Err("project name is required".into());
+    }
+    let mut manifest = read_manifest(app_data, project_id)?;
+    ensure_main_source(&mut manifest);
+    manifest.name = trimmed.into();
+    write_manifest(app_data, &mut manifest)?;
+    Ok(manifest)
+}
+
+pub fn delete_project(app_data: &Path, project_id: String) -> Result<(), String> {
+    let _lock = lock_workbench(app_data)?;
+    let dir = project_dir(app_data, &project_id)?;
+    if dir.exists() {
+        fs::remove_dir_all(dir).map_err(|error| format!("failed to delete project: {error}"))?;
+    }
+    Ok(())
+}
+
+pub fn add_project_source(
+    app_data: &Path,
+    input: AddProjectSourceInput,
+) -> Result<ProjectManifest, String> {
+    let _lock = lock_workbench(app_data)?;
+    let mut manifest = read_manifest(app_data, &input.project_id)?;
+    ensure_main_source(&mut manifest);
+    let source = PathBuf::from(&input.source_path);
+    let name = input
+        .name
+        .filter(|value| !value.trim().is_empty())
+        .unwrap_or_else(|| {
+            source
+                .file_stem()
+                .and_then(|value| value.to_str())
+                .unwrap_or("Source Skin")
+                .to_string()
+        });
+    let source_id = entity_id(&name);
+    let raw = source_raw_dir(app_data, &input.project_id, &source_id)?;
+    let structured = source_structured_dir(app_data, &input.project_id, &source_id)?;
+    copy_source_to_raw(&input.source_path, &raw)?;
+    rebuild_structured(&raw, &structured)?;
+    manifest.sources.push(SourceManifest {
+        id: source_id,
+        name,
+        source_path: input.source_path,
+        created_at: now(),
+        readonly: None,
+    });
+    write_manifest(app_data, &mut manifest)?;
+    Ok(manifest)
+}
+
+pub fn rename_project_source(
+    app_data: &Path,
+    input: RenameProjectSourceInput,
+) -> Result<ProjectManifest, String> {
+    let _lock = lock_workbench(app_data)?;
+    let trimmed = input.name.trim();
+    if trimmed.is_empty() {
+        return Err("source name is required".into());
+    }
+    let mut manifest = read_manifest(app_data, &input.project_id)?;
+    ensure_main_source(&mut manifest);
+    let source = manifest
+        .sources
+        .iter_mut()
+        .find(|source| source.id == input.source_id)
+        .ok_or_else(|| format!("unknown source: {}", input.source_id))?;
+    source.name = trimmed.into();
+    write_manifest(app_data, &mut manifest)?;
+    Ok(manifest)
+}
+
+pub fn delete_project_source(
+    app_data: &Path,
+    input: DeleteProjectSourceInput,
+) -> Result<ProjectManifest, String> {
+    let _lock = lock_workbench(app_data)?;
+    let mut manifest = read_manifest(app_data, &input.project_id)?;
+    ensure_main_source(&mut manifest);
+    let source = manifest
+        .sources
+        .iter()
+        .find(|source| source.id == input.source_id)
+        .cloned()
+        .ok_or_else(|| format!("unknown source: {}", input.source_id))?;
+    if source.readonly.unwrap_or(false) {
+        return Err("main source cannot be deleted".into());
+    }
+    let dir = source_dir(app_data, &input.project_id, &input.source_id)?;
+    let staged_dir = staged_source_dir(&dir)?;
+    if dir.exists() {
+        fs::rename(&dir, &staged_dir)
+            .map_err(|error| format!("failed to stage source deletion: {error}"))?;
+    }
+    manifest
+        .sources
+        .retain(|source| source.id != input.source_id);
+    if let Err(error) = write_manifest(app_data, &mut manifest) {
+        if staged_dir.exists() {
+            let _ = fs::rename(&staged_dir, &dir);
+        }
+        return Err(error);
+    }
+    let _ = fs::remove_dir_all(staged_dir);
+    Ok(manifest)
+}
+
+pub fn get_project_files(
+    app_data: &Path,
+    project_id: String,
+) -> Result<RawProjectFilesResponse, String> {
+    let mut manifest = read_manifest(app_data, &project_id)?;
+    ensure_main_source(&mut manifest);
+    let project_root = project_raw_dir(app_data, &project_id)?;
+    let project = walk_relative_files(&project_root)?;
+    let project_skin_ini = read_skin_ini(&project_root);
+    let mut sources = Vec::new();
+    for source in manifest.sources {
+        let root = source_raw_dir(app_data, &project_id, &source.id)?;
+        sources.push(RawSourceFiles {
+            id: source.id,
+            name: source.name,
+            source_path: source.source_path,
+            created_at: source.created_at,
+            readonly: source.readonly,
+            files: walk_relative_files(&root)?,
+            skin_ini: read_skin_ini(&root),
+        });
+    }
+    Ok(RawProjectFilesResponse {
+        project,
+        project_skin_ini,
+        sources,
+    })
+}
+
+pub fn rebuild_structured_mirrors(
+    app_data: &Path,
+    project_id: String,
+) -> Result<RebuildStructuredResult, String> {
+    let _lock = lock_workbench(app_data)?;
+    let mut manifest = read_manifest(app_data, &project_id)?;
+    ensure_main_source(&mut manifest);
+    let project_file_count = rebuild_structured(
+        &project_raw_dir(app_data, &project_id)?,
+        &project_structured_dir(app_data, &project_id)?,
+    )?;
+    let mut source_file_counts = HashMap::new();
+    for source in manifest.sources {
+        let raw = source_raw_dir(app_data, &project_id, &source.id)?;
+        let structured = source_structured_dir(app_data, &project_id, &source.id)?;
+        let count = if raw.exists() {
+            rebuild_structured(&raw, &structured)?
+        } else {
+            0
+        };
+        source_file_counts.insert(source.id, count);
+    }
+    Ok(RebuildStructuredResult {
+        project_file_count,
+        source_file_counts,
+    })
+}

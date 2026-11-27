@@ -2647,15 +2647,24 @@ dependencies = [
 name = "osu-skin-workbench"
 version = "0.1.0"
 dependencies = [
- "chrono",
- "icu_normalizer",
- "libc",
+ "osu-skin-workbench-core",
  "serde",
  "serde_json",
  "tauri",
  "tauri-build",
  "tauri-plugin-dialog",
  "tauri-plugin-opener",
+]
+
+[[package]]
+name = "osu-skin-workbench-core"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "icu_normalizer",
+ "libc",
+ "serde",
+ "serde_json",
  "tempfile",
  "ts-rs",
  "uuid",
