@@ -70,6 +70,9 @@ jobs:
   native:
     runs-on: ubuntu-24.04
     env:
+      # Keep full native execution; omit debug symbols only in non-release profiles.
+      CARGO_PROFILE_DEV_DEBUG: '0'
+      CARGO_PROFILE_TEST_DEBUG: '0'
       NX_DAEMON: 'false'
       NX_NO_CLOUD: 'true'
       NX_TUI: 'false'
