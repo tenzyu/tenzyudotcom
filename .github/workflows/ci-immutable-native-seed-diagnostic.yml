@@ -1,0 +1,124 @@
+name: Immutable native seed (diagnostic only)
+on:
+  pull_request:
+    branches: [develop]
+permissions:
+  contents: read
+concurrency:
+  group: diagnostic-immutable-native-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  producer:
+    if: github.head_ref == 'diagnostic/immutable-native-seed-20261127'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    outputs:
+      manifest_sha: ${{ steps.seed.outputs.manifest_sha }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v5
+        with:
+          ref: '89870871d742adc0e312f8375a5fce1bc344fdba'
+          path: candidate
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.5
+      - name: Verify seed admission negative controls
+        run: python3 repo-ops/ci-diagnostic/test_seed_identity.py
+      - name: Build immutable Ubuntu environment
+        shell: bash
+        run: |
+          set -euo pipefail
+          context="$RUNNER_TEMP/native-context"
+          mkdir -p "$context/rust" "$RUNNER_TEMP/seed/home" "$RUNNER_TEMP/bundle"
+          cp -a "$(rustc --print sysroot)/bin" "$(rustc --print sysroot)/lib" "$context/rust/"
+          cp -L "$(command -v node)" "$context/node"
+          cp -L "$(command -v bun)" "$context/bun"
+          cp repo-ops/ci-diagnostic/Dockerfile "$context/Dockerfile"
+          docker pull ubuntu:24.04
+          base_image="$(docker image inspect --format '{{index .RepoDigests 0}}' ubuntu:24.04)"
+          echo "Resolved base image: $base_image"
+          docker build --build-arg BASE_IMAGE="$base_image" --build-arg SNAPSHOT=20261126T000000Z --build-arg RUNNER_UID="$(id -u)" --build-arg RUNNER_GID="$(id -g)" -t native-seed:diagnostic "$context"
+          docker image inspect --format '{{.Id}}' native-seed:diagnostic
+      - name: Execute all native gates on producer
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker run --rm --init --user "$(id -u):$(id -g)" --shm-size=1g -e HOME=/ci-home -e CARGO_HOME=/ci-home/.cargo -e CI=1 -v "$GITHUB_WORKSPACE/candidate:/workspace" -v "$GITHUB_WORKSPACE/repo-ops/ci-diagnostic:/harness:ro" -v "$RUNNER_TEMP/seed/home:/ci-home" -w /workspace native-seed:diagnostic bash /harness/native-gate.sh
+      - name: Remove workspace outputs and package seed
+        id: seed
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker run --rm --user "$(id -u):$(id -g)" -e HOME=/ci-home -e CARGO_HOME=/ci-home/.cargo -v "$GITHUB_WORKSPACE/candidate:/workspace" -v "$RUNNER_TEMP/seed/home:/ci-home" -w /workspace native-seed:diagnostic bash -euc '
+            cargo clean --manifest-path product/apps/osu-skin-workbench/src-tauri/Cargo.toml -p osu-skin-workbench
+            cargo clean --manifest-path product/apps/osu-skin-workbench/src-tauri/Cargo.toml -p osu-skin-workbench --release
+          '
+          target="$GITHUB_WORKSPACE/candidate/product/apps/osu-skin-workbench/src-tauri/target"
+          rm -rf "$target/debug/incremental" "$target/release/incremental"
+          rm -f "$target/wire.generated.ts"
+          stale="$(find "$target" \( -name 'osu-skin-workbench*' -o -name 'osu_skin_workbench*' -o -name 'libosu_skin_workbench*' -o -name 'wire.generated.ts' \) -print -quit)"
+          test -z "$stale"
+          mv "$target" "$RUNNER_TEMP/seed/target"
+          docker save native-seed:diagnostic | zstd -T2 -3 -o "$RUNNER_TEMP/bundle/environment.tar.zst"
+          tar --use-compress-program='zstd -T2 -3' -cf "$RUNNER_TEMP/bundle/dependencies.tar.zst" -C "$RUNNER_TEMP/seed" target home/.cargo/registry
+          manifest_sha="$(python3 repo-ops/ci-diagnostic/seed_identity.py write "$RUNNER_TEMP/bundle" candidate "$(docker image inspect --format '{{.Id}}' native-seed:diagnostic)")"
+          echo "manifest_sha=$manifest_sha" >> "$GITHUB_OUTPUT"
+          ls -lh "$RUNNER_TEMP/bundle"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: diagnostic-immutable-native-seed
+          path: ${{ runner.temp }}/bundle/
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 2
+  consumer:
+    if: github.head_ref == 'diagnostic/immutable-native-seed-20261127'
+    needs: producer
+    strategy:
+      fail-fast: false
+      matrix:
+        candidate:
+          - c262f1aa1b182df86df78e4ac3f4c3e6cdfea510
+          - c3de6868c166d478b6302a6a83761030e2b42b67
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ matrix.candidate }}
+          path: candidate
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          name: diagnostic-immutable-native-seed
+          path: ${{ runner.temp }}/bundle
+      - name: Validate and load immutable seed
+        env:
+          EXPECTED: ${{ needs.producer.outputs.manifest_sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected_image="$(python3 repo-ops/ci-diagnostic/seed_identity.py verify "$RUNNER_TEMP/bundle" candidate "$EXPECTED")"
+          zstd -dc "$RUNNER_TEMP/bundle/environment.tar.zst" | docker load
+          test "$(docker image inspect --format '{{.Id}}' native-seed:diagnostic)" = "$expected_image"
+          mkdir -p "$RUNNER_TEMP/seed"
+          tar --zstd -xf "$RUNNER_TEMP/bundle/dependencies.tar.zst" -C "$RUNNER_TEMP/seed"
+          target="$RUNNER_TEMP/seed/target"
+          stale="$(find "$target" \( -name 'osu-skin-workbench*' -o -name 'osu_skin_workbench*' -o -name 'libosu_skin_workbench*' -o -name 'wire.generated.ts' \) -print -quit)"
+          test -z "$stale"
+          test ! -e candidate/product/apps/osu-skin-workbench/src-tauri/target
+          mv "$target" candidate/product/apps/osu-skin-workbench/src-tauri/target
+          echo "Verified environment: $expected_image; manifest: $EXPECTED"
+          git -C candidate rev-parse HEAD 'HEAD^{tree}'
+      - name: Execute all native gates on actual candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker run --rm --init --user "$(id -u):$(id -g)" --shm-size=1g -e HOME=/ci-home -e CARGO_HOME=/ci-home/.cargo -e CI=1 -v "$GITHUB_WORKSPACE/candidate:/workspace" -v "$GITHUB_WORKSPACE/repo-ops/ci-diagnostic:/harness:ro" -v "$RUNNER_TEMP/seed/home:/ci-home" -w /workspace native-seed:diagnostic bash /harness/native-gate.sh
