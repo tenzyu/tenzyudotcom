@@ -10,6 +10,12 @@ permissions:
 jobs:
   seed:
     if: github.head_ref == 'ci-benchmark/native-dependency-cache'
+    name: seed (${{ matrix.sample }})
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        sample: [1, 2, 3, 4]
     runs-on: ubuntu-24.04
     env:
       NX_DAEMON: 'false'
@@ -19,7 +25,7 @@ jobs:
       - uses: actions/checkout@v5
         with:
           persist-credentials: false
-          ref: 0c33f721da4d8cf030aeeab2f97ba92c100d023e
+          ref: 40b3878067f45da69bf41db637f804666492e460
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: 1.4.5
@@ -49,12 +55,15 @@ jobs:
           hash="$(sha256sum "$RUNNER_TEMP/native-cache-inputs.txt" | cut -d ' ' -f 1)"
           printf 'digest=%s\n' "$hash" >> "$GITHUB_OUTPUT"
           printf 'Native dependency environment: %s\n' "$hash"
+          echo "::group::Full native environment fingerprint"
+          cat "$RUNNER_TEMP/native-cache-inputs.txt"
+          echo "::endgroup::"
       - name: Restore Rust dependency artifacts
         if: steps.native-cache-key.outcome == 'success'
         id: native-cache
         uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
         with:
-          prefix-key: tenzyudotcom-native-deps-benchmark-${{ github.run_id }}
+          prefix-key: tenzyudotcom-native-deps-benchmark-v2-${{ github.run_id }}-${{ github.run_attempt }}
           key: ${{ steps.native-cache-key.outputs.digest }}
           add-job-id-key: false
           workspaces: product/apps/osu-skin-workbench/src-tauri -> target
@@ -64,10 +73,16 @@ jobs:
           save-if: true
       - name: Enforce fresh workspace compilation
         if: steps.native-cache-key.outcome == 'success'
+        env:
+          CACHE_HIT: ${{ steps.native-cache.outputs.cache-hit }}
         shell: bash
         run: |
           set -euo pipefail
           target=product/apps/osu-skin-workbench/src-tauri/target
+          # Never consume compiled artifacts from a prefix-only restore.
+          if [[ "$CACHE_HIT" != true ]]; then
+            rm -rf -- "$target"
+          fi
           if [[ -d "$target" ]]; then
             stale="$(find "$target" \( -name 'osu-skin-workbench*' -o -name 'osu_skin_workbench*' -o -name 'libosu_skin_workbench*' -o -name 'wire.generated.ts' \) -print -quit)"
             if [[ -n "$stale" ]]; then
@@ -89,10 +104,6 @@ jobs:
           dpkg-query -W webkit2gtk-driver libwebkit2gtk-4.1-0
       - name: Verify native WebView and real IPC with isolated skin data
         run: xvfb-run -a dbus-run-session -- python3 product/apps/osu-skin-workbench/tests/tauri-runtime.py
-      - name: Record seed footprint
-        run: |
-          du -sh product/apps/osu-skin-workbench/src-tauri/target
-          du -sh "${CARGO_HOME:-$HOME/.cargo}/registry"
 
   native:
     if: github.head_ref == 'ci-benchmark/native-dependency-cache'
@@ -106,27 +117,33 @@ jobs:
           - pair: 1
             variant: baseline
           - pair: 1
-            variant: warm
+            variant: candidate
           - pair: 2
-            variant: warm
+            variant: candidate
           - pair: 2
             variant: baseline
           - pair: 3
             variant: baseline
           - pair: 3
-            variant: warm
+            variant: candidate
           - pair: 4
-            variant: warm
+            variant: candidate
           - pair: 4
             variant: baseline
           - pair: 5
             variant: baseline
           - pair: 5
-            variant: warm
+            variant: candidate
           - pair: 6
-            variant: invalidated
+            variant: candidate
           - pair: 7
-            variant: source-change
+            variant: candidate
+          - pair: 8
+            variant: control
+          - pair: 9
+            variant: control
+          - pair: 10
+            variant: control
     runs-on: ubuntu-24.04
     env:
       NX_DAEMON: 'false'
@@ -136,7 +153,7 @@ jobs:
       - uses: actions/checkout@v5
         with:
           persist-credentials: false
-          ref: 0c33f721da4d8cf030aeeab2f97ba92c100d023e
+          ref: 40b3878067f45da69bf41db637f804666492e460
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: 1.4.5
@@ -148,11 +165,7 @@ jobs:
         run: |
           test "$(bun x --no-install tsc --version)" = 'Version 7.0.2'
           node -e 'const ts = require("typescript"); if (typeof ts.readConfigFile !== "function" || typeof ts.createProgram !== "function") throw new Error("TypeScript compatibility API unavailable")'
-      - name: Change disposable lock input for invalidation control
-        if: matrix.variant == 'invalidated'
-        run: printf '\n' >> product/apps/osu-skin-workbench/src-tauri/Cargo.lock
       - name: Fingerprint native dependency environment
-        if: matrix.variant != 'baseline'
         id: native-cache-key
         shell: bash
         run: |
@@ -170,12 +183,15 @@ jobs:
           hash="$(sha256sum "$RUNNER_TEMP/native-cache-inputs.txt" | cut -d ' ' -f 1)"
           printf 'digest=%s\n' "$hash" >> "$GITHUB_OUTPUT"
           printf 'Native dependency environment: %s\n' "$hash"
+          echo "::group::Full native environment fingerprint"
+          cat "$RUNNER_TEMP/native-cache-inputs.txt"
+          echo "::endgroup::"
       - name: Restore Rust dependency artifacts
-        if: steps.native-cache-key.outcome == 'success'
+        if: matrix.variant != 'baseline' && steps.native-cache-key.outcome == 'success'
         id: native-cache
         uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
         with:
-          prefix-key: tenzyudotcom-native-deps-benchmark-${{ github.run_id }}
+          prefix-key: tenzyudotcom-native-deps-benchmark-v2-${{ github.run_id }}-${{ github.run_attempt }}
           key: ${{ steps.native-cache-key.outputs.digest }}
           add-job-id-key: false
           workspaces: product/apps/osu-skin-workbench/src-tauri -> target
@@ -184,11 +200,17 @@ jobs:
           cache-on-failure: false
           save-if: false
       - name: Enforce fresh workspace compilation
-        if: steps.native-cache-key.outcome == 'success'
+        if: matrix.variant != 'baseline' && steps.native-cache-key.outcome == 'success'
+        env:
+          CACHE_HIT: ${{ steps.native-cache.outputs.cache-hit }}
         shell: bash
         run: |
           set -euo pipefail
           target=product/apps/osu-skin-workbench/src-tauri/target
+          # Never consume compiled artifacts from a prefix-only restore.
+          if [[ "$CACHE_HIT" != true ]]; then
+            rm -rf -- "$target"
+          fi
           if [[ -d "$target" ]]; then
             stale="$(find "$target" \( -name 'osu-skin-workbench*' -o -name 'osu_skin_workbench*' -o -name 'libosu_skin_workbench*' -o -name 'wire.generated.ts' \) -print -quit)"
             if [[ -n "$stale" ]]; then
@@ -196,20 +218,14 @@ jobs:
               exit 1
             fi
           fi
-      - name: Assert exact cache match or invalidation
-        if: matrix.variant != 'baseline'
+      - name: Record observed cache outcome
         env:
           HIT: ${{ steps.native-cache.outputs.cache-hit }}
           VARIANT: ${{ matrix.variant }}
-        run: |
-          set -euo pipefail
-          if [[ "$VARIANT" == invalidated ]]; then
-            test "$HIT" = false
-          else
-            test "$HIT" = true
-          fi
-      - name: Prove modified workspace source cannot reuse stale compilation
-        if: matrix.variant == 'source-change'
+        run: printf 'Variant=%s ExactHit=%s\n' "$VARIANT" "${HIT:-none}"
+      - name: Prove source invalidation on exact dependency cache hit
+        if: matrix.variant == 'control' && steps.native-cache.outputs.cache-hit == 'true'
+        shell: bash
         run: |
           set -euo pipefail
           file=product/apps/osu-skin-workbench/src-tauri/src/lib.rs
@@ -221,6 +237,45 @@ jobs:
             exit 1
           fi
           grep -F 'error: NATIVE_CACHE_SOURCE_INVALIDATION_CONTROL' "$RUNNER_TEMP/native-negative.log"
+          echo 'SOURCE_INVALIDATION_PROVED'
+      - name: Compute changed lockfile identity on same runner
+        if: matrix.variant == 'control' && steps.native-cache.outputs.cache-hit == 'true'
+        id: changed-lock
+        shell: bash
+        run: |
+          set -euo pipefail
+          lock=product/apps/osu-skin-workbench/src-tauri/Cargo.lock
+          cp "$lock" "$RUNNER_TEMP/native-original-Cargo.lock"
+          printf '\n' >> "$lock"
+          sed '$d' "$RUNNER_TEMP/native-cache-inputs.txt" > "$RUNNER_TEMP/native-cache-changed.txt"
+          sha256sum "$lock" >> "$RUNNER_TEMP/native-cache-changed.txt"
+          digest="$(sha256sum "$RUNNER_TEMP/native-cache-changed.txt" | cut -d ' ' -f 1)"
+          test "$digest" != '${{ steps.native-cache-key.outputs.digest }}'
+          printf 'digest=%s\n' "$digest" >> "$GITHUB_OUTPUT"
+      - name: Check changed lockfile cannot hit original cache
+        if: steps.changed-lock.outcome == 'success'
+        id: changed-lookup
+        uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0
+        with:
+          prefix-key: tenzyudotcom-native-deps-benchmark-v2-${{ github.run_id }}-${{ github.run_attempt }}
+          key: ${{ steps.changed-lock.outputs.digest }}
+          add-job-id-key: false
+          workspaces: product/apps/osu-skin-workbench/src-tauri -> target
+          cache-bin: false
+          cache-workspace-crates: false
+          cache-on-failure: false
+          save-if: false
+          lookup-only: true
+      - name: Restore original lockfile and assert miss
+        if: always() && steps.changed-lock.outcome == 'success'
+        env:
+          HIT: ${{ steps.changed-lookup.outputs.cache-hit }}
+        run: |
+          set -euo pipefail
+          cp "$RUNNER_TEMP/native-original-Cargo.lock" product/apps/osu-skin-workbench/src-tauri/Cargo.lock
+          git diff --exit-code -- product/apps/osu-skin-workbench/src-tauri/Cargo.lock product/apps/osu-skin-workbench/src-tauri/src/lib.rs
+          test "$HIT" = false
+          echo 'LOCK_INVALIDATION_PROVED'
       - name: Generate IPC contract and verify TypeScript projection
         run: |
           mkdir -p product/apps/osu-skin-workbench/src-tauri/target
