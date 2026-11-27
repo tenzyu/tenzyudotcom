@@ -727,3 +727,5 @@ if (typeof globalThis !== 'undefined') {
     slugify
   };
 }
+
+// Diagnostic CI workload replay of PR #149; no behavior change.
